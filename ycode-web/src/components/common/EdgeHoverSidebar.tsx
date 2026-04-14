@@ -36,9 +36,9 @@ const EdgeHoverSidebar: React.FC<EdgeHoverSidebarProps> = ({ children }) => {
 
     return (
         <>
-            {/* Edge-Hover Trigger Zone — only around the grip handle, not full height */}
+            {/* Edge-Hover Trigger Zone — fixed to viewport left edge, only around the grip */}
             <div 
-                className="absolute top-1/2 -translate-y-1/2 left-0 w-6 h-20 z-[105] flex items-center group/trigger cursor-pointer"
+                className="fixed top-1/2 -translate-y-1/2 left-0 w-6 h-20 z-[105] flex items-center group/trigger cursor-pointer"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
@@ -64,7 +64,7 @@ const EdgeHoverSidebar: React.FC<EdgeHoverSidebarProps> = ({ children }) => {
             {/* Hidden Drawer Envelope */}
             <div 
                 className={cn(
-                    "absolute top-0 left-0 h-full z-[100] transition-transform duration-300 ease-in-out shadow-[10px_0_30px_rgba(0,0,0,0.15)] flex",
+                    "fixed top-0 left-0 h-full z-[100] transition-transform duration-300 ease-in-out shadow-[10px_0_30px_rgba(0,0,0,0.15)] flex",
                     isHovered ? "translate-x-0" : "-translate-x-full"
                 )}
                 onMouseEnter={handleMouseEnter}
@@ -76,7 +76,7 @@ const EdgeHoverSidebar: React.FC<EdgeHoverSidebarProps> = ({ children }) => {
             {/* Dark Dimming Backdrop */}
             <div 
                 className={cn(
-                    "absolute inset-0 bg-black/10 backdrop-blur-[1px] z-[99] transition-opacity duration-300 pointer-events-none",
+                    "fixed inset-0 bg-black/10 backdrop-blur-[1px] z-[99] transition-opacity duration-300 pointer-events-none",
                     isHovered ? "opacity-100" : "opacity-0"
                 )}
             />
