@@ -19,9 +19,12 @@ import {
   AlertTriangle,
   X,
   Eye,
-  EyeOff
+  EyeOff,
+  Loader2
 } from 'lucide-react';
 import CodeEditor from '@/components/ui/code-editor';
+import { startSkillTest, submitSkillTest, uploadSnapshot } from '@/services/skillTestService';
+import { useProctoring } from '@/hooks/useProctoring';
 
 interface Topic {
   id: string;
@@ -38,12 +41,11 @@ interface Course {
 
 interface Question {
   id: string;
-  type: 'mcq' | 'coding' | 'descriptive';
-  question: string;
-  options?: string[];
-  multipleCorrect?: boolean;
+  type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive';
+  title?: string;
+  content: string;
+  mcq_options?: string[] | { option_text: string }[];
   marks: number;
-  requiresExplanation?: boolean;
 }
 
 interface TestInterfaceProps {
@@ -52,39 +54,6 @@ interface TestInterfaceProps {
   onComplete: (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
 }
-
-// Mock questions data
-const mockQuestions: Question[] = [
-  {
-    id: '1',
-    type: 'mcq',
-    question: 'What is the time complexity of binary search algorithm?',
-    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
-    multipleCorrect: false,
-    marks: 2,
-    requiresExplanation: true
-  },
-  {
-    id: '2',
-    type: 'coding',
-    question: 'Write a function to reverse a string in your preferred language.',
-    marks: 5
-  },
-  {
-    id: '3',
-    type: 'descriptive',
-    question: 'Explain the concept of object-oriented programming and its main principles.',
-    marks: 3
-  },
-  {
-    id: '4',
-    type: 'mcq',
-    question: 'Which of the following are valid HTTP methods? (Select all that apply)',
-    options: ['GET', 'POST', 'FETCH', 'DELETE', 'UPDATE', 'PUT'],
-    multipleCorrect: true,
-    marks: 4
-  }
-];
 
 const DEFAULT_CODING_TEMPLATES = [
   '// Write your JavaScript code here\nfunction solution() {\n    // Your code\n}\n',
@@ -119,24 +88,71 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [questionPage, setQuestionPage] = useState(0);
 
+  // Backend state
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [isLoadingTest, setIsLoadingTest] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadPromiseRef = useRef<Promise<any> | null>(null);
+
+  // Load real questions on mount
+  useEffect(() => {
+    let cancelled = false;
+    const loadTest = async () => {
+      try {
+        setIsLoadingTest(true);
+        setLoadError(null);
+        
+        if (!loadPromiseRef.current) {
+          loadPromiseRef.current = startSkillTest(topic.id);
+        }
+        
+        const response = await loadPromiseRef.current;
+        if (!cancelled) {
+          setSubmissionId(response.submission_id);
+          // Normalize question type field from backend
+          const normalized: Question[] = (response.questions || []).map((q: any) => ({
+            id: String(q.id),
+            type: q.type || 'mcq_single',
+            title: q.title,
+            content: q.content || q.question || '',
+            mcq_options: q.mcq_options || [],
+            marks: q.marks || 1,
+          }));
+          setQuestions(normalized);
+          // Update timer from backend duration
+          if (response.duration) setTimeLeft(response.duration * 60);
+        }
+      } catch (err: any) {
+        console.error('Test loading error:', err);
+        if (!cancelled) {
+          const msg = err?.response?.data?.error || 'Failed to load test questions. Please try again.';
+          setLoadError(msg);
+          loadPromiseRef.current = null; // Clear promise so user can retry
+          toast({ title: 'Error', description: msg, variant: 'destructive' });
+        }
+      } finally {
+        if (!cancelled) setIsLoadingTest(false);
+      }
+    };
+    loadTest();
+    return () => { cancelled = true; };
+  }, [topic.id]);
+
   const stopMediaMonitoring = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
+      streamRef.current.getTracks().forEach((track) => { track.stop(); });
       streamRef.current = null;
     }
-
     managedStreamsRef.current.forEach((stream) => {
       stream.getTracks().forEach((track) => track.stop());
     });
     managedStreamsRef.current.clear();
-
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.srcObject = null;
     }
-
     setVideoTrackEnabled(false);
     setAudioTrackEnabled(false);
     setHasMediaAccess(false);
@@ -145,35 +161,26 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   // Initialize camera and microphone
   useEffect(() => {
     let isActive = true;
-
     const initializeMedia = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: true 
-        });
-
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         if (!isActive || isSubmittingRef.current) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
-
         if (streamRef.current && streamRef.current !== stream) {
           streamRef.current.getTracks().forEach((track) => track.stop());
           managedStreamsRef.current.delete(streamRef.current);
         }
-        
         managedStreamsRef.current.add(stream);
         streamRef.current = stream;
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);
-        
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play().catch(console.error);
         }
-        
       } catch (error) {
         console.error('Error accessing media devices:', error);
         setHasMediaAccess(false);
@@ -181,152 +188,117 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
         setAudioTrackEnabled(false);
       }
     };
-
     initializeMedia();
-
     return () => {
       isActive = false;
       stopMediaMonitoring();
     };
   }, []);
 
-  // Tab switch detection with warning/termination flow.
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) return;
-
+  const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
+    if (type === 'tab_switch') {
       setTabSwitchCount((prev) => {
         const newCount = prev + 1;
         setTabSwitchAlert(true);
-
         if (newCount >= 2) {
           setShowTabWarningDialog(false);
           setShowTabSwitchDialog(true);
         } else {
           setShowTabWarningDialog(true);
         }
-
         return newCount;
       });
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    } else if (type === 'forbidden_platform') {
+      // Platform detection handled by backend, optional frontend warning
+    }
   }, []);
 
-  // Rebind stream when the video element mounts after permission/state changes.
+  const { logActivity } = useProctoring({
+    assessmentId: topic.id,
+    assessmentType: 'skill-tests',
+    enabled: !!submissionId, // We enable proctoring once the test has officially started/resumed
+    submissionId: submissionId,
+    questionId: questions[currentQuestion]?.id,
+    onViolation: handleProctoringViolation
+  });
+
+  // Rebind stream
   useEffect(() => {
     if (!hasMediaAccess || !streamRef.current || !videoRef.current) return;
-
     const video = videoRef.current;
-    if (video.srcObject !== streamRef.current) {
-      video.srcObject = streamRef.current;
-    }
-
+    if (video.srcObject !== streamRef.current) video.srcObject = streamRef.current;
     video.play().catch(() => {
-      // Retry once for browsers that delay autoplay after media permission prompts.
-      window.setTimeout(() => {
-        video.play().catch(console.error);
-      }, 150);
+      window.setTimeout(() => { video.play().catch(console.error); }, 150);
     });
   }, [hasMediaAccess]);
 
-  // Timer effect
+  // Timer
   useEffect(() => {
-    if (timeLeft <= 0) {
-      handleSubmitTest();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
-
+    if (isLoadingTest || questions.length === 0) return;
+    if (timeLeft <= 0) { handleSubmitTest(); return; }
+    const timer = setInterval(() => { setTimeLeft(prev => prev - 1); }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, isLoadingTest, questions.length]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    if (hours > 0) return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleAnswerChange = (questionId: string, answer: any) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }));
+    setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
   const handleExplanationChange = (questionId: string, explanation: string) => {
-    setExplanations(prev => ({
-      ...prev,
-      [questionId]: explanation
-    }));
+    setExplanations(prev => ({ ...prev, [questionId]: explanation }));
   };
 
   const handleFlagQuestion = (questionId: string) => {
     setFlagged(prev => {
       const newFlagged = new Set(prev);
-      if (newFlagged.has(questionId)) {
-        newFlagged.delete(questionId);
-      } else {
-        newFlagged.add(questionId);
-      }
+      if (newFlagged.has(questionId)) { newFlagged.delete(questionId); } else { newFlagged.add(questionId); }
       return newFlagged;
     });
   };
 
-  const handleSubmitTest = () => {
+  const handleSubmitTest = async () => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
-
     stopMediaMonitoring();
 
-    const answeredCount = mockQuestions.filter(isQuestionAnswered).length;
-    
+    const answeredCount = questions.filter(isQuestionAnswered).length;
     const timeSpent = (topic.duration * 60) - timeLeft;
-    
-    onComplete({
-      answeredCount,
-      totalQuestions: mockQuestions.length,
-      timeSpent
-    });
+
+    // Submit to backend if we have a submission ID
+    if (submissionId) {
+      try {
+        const all_question_ids = questions.map(q => q.id);
+        await submitSkillTest(topic.id, submissionId, answers, explanations, all_question_ids, timeSpent);
+      } catch (err) {
+        console.error('Error submitting test to backend:', err);
+        // Still complete locally even if network call fails
+      }
+    }
+
+    onComplete({ answeredCount, totalQuestions: questions.length, timeSpent });
   };
 
-  const handleTabSwitchDialogClose = () => {
-    handleSubmitTest();
-  };
+  const handleTabSwitchDialogClose = () => { handleSubmitTest(); };
+  const handleContinueTest = () => { setShowTabWarningDialog(false); };
+  const handleCancelTest = () => { setShowTabWarningDialog(false); handleSubmitTest(); };
 
-  const handleContinueTest = () => {
-    setShowTabWarningDialog(false);
-  };
-
-  const handleCancelTest = () => {
-    setShowTabWarningDialog(false);
-    handleSubmitTest();
-  };
-
-  // Question navigation with pagination
+  // Pagination
   const questionsPerPage = 10;
-  const totalPages = Math.ceil(mockQuestions.length / questionsPerPage);
+  const totalPages = Math.ceil(questions.length / questionsPerPage);
   const startQuestion = questionPage * questionsPerPage;
-  const endQuestion = Math.min(startQuestion + questionsPerPage, mockQuestions.length);
-  const paginatedQuestions = mockQuestions.slice(startQuestion, endQuestion);
+  const endQuestion = Math.min(startQuestion + questionsPerPage, questions.length);
+  const paginatedQuestions = questions.slice(startQuestion, endQuestion);
 
-  const handleQuestionClick = (index: number) => {
-    const actualIndex = startQuestion + index;
-    setCurrentQuestion(actualIndex);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setQuestionPage(newPage);
-  };
+  const handleQuestionClick = (index: number) => { setCurrentQuestion(startQuestion + index); };
+  const handlePageChange = (newPage: number) => { setQuestionPage(newPage); };
 
   const isCodingAnswered = (answer: any) => {
     const normalizedAnswer = answer?.toString().trim() || '';
@@ -336,27 +308,23 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
 
   const isQuestionAnswered = (question: Question) => {
     const answer = answers[question.id];
-
-    if (question.type === 'mcq') {
-      const hasOptionSelected = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+    if (question.type === 'mcq_single') {
+      const hasOptionSelected = Boolean(answer);
       const hasExplanation = Boolean(explanations[question.id]?.trim());
       return hasOptionSelected && hasExplanation;
     }
-
-    if (question.type === 'coding') {
-      return isCodingAnswered(answer);
+    if (question.type === 'mcq_multiple') {
+      const hasOptionSelected = Array.isArray(answer) ? answer.length > 0 : false;
+      const hasExplanation = Boolean(explanations[question.id]?.trim());
+      return hasOptionSelected && hasExplanation;
     }
-
+    if (question.type === 'coding') return isCodingAnswered(answer);
     return Boolean(answer?.toString().trim());
   };
 
   const getQuestionStatus = (index: number, questionId: string) => {
-    const question = mockQuestions.find((q) => q.id === questionId);
-
-    if (question && isQuestionAnswered(question)) {
-      return 'answered';
-    }
-
+    const question = questions.find((q) => q.id === questionId);
+    if (question && isQuestionAnswered(question)) return 'answered';
     if (flagged.has(questionId)) return 'flagged';
     if (index === currentQuestion) return 'current';
     return 'unanswered';
@@ -372,99 +340,81 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   };
 
   const getDefaultCodeForLanguage = (language: string) => {
-    const templates = {
+    const templates: Record<string, string> = {
       javascript: '// Write your JavaScript code here\nfunction solution() {\n    // Your code\n}\n',
       python: '# Write your Python code here\ndef solution():\n    # Your code\n    pass\n',
       java: '// Write your Java code here\npublic class Solution {\n    public static void main(String[] args) {\n        // Your code\n    }\n}\n',
       cpp: '// Write your C++ code here\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code\n    return 0;\n}\n'
     };
-    return templates[language as keyof typeof templates] || '// Write your code here\n';
+    return templates[language] || '// Write your code here\n';
   };
 
-  // renderQuestion function
-  const currentQ = mockQuestions[currentQuestion];
-  
-  useEffect(() => {
-    if (currentQ.type === 'coding' && !answers[currentQ.id]) {
-      handleAnswerChange(currentQ.id, getDefaultCodeForLanguage(selectedLanguage));
-    }
-  }, [selectedLanguage, currentQ.id, currentQ.type]);
+  // Loading / error states
+  if (isLoadingTest) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-medium">Loading your test questions...</p>
+      </div>
+    );
+  }
 
-  // Prevent copy/paste/cut for MCQ explanation, descriptive, and coding questions.
-  useEffect(() => {
-    if (currentQ.type !== 'mcq' && currentQ.type !== 'coding' && currentQ.type !== 'descriptive') return;
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background p-8">
+        <div className="text-center space-y-3 max-w-md">
+          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
+          <h2 className="text-xl font-bold text-slate-800">Could Not Load Test</h2>
+          <p className="text-slate-500">{loadError}</p>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
 
-    const blockClipboard = (event: ClipboardEvent) => {
-      event.preventDefault();
-    };
+  if (questions.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background p-8">
+        <div className="text-center space-y-3 max-w-md">
+          <h2 className="text-xl font-bold text-slate-800">No Questions Available</h2>
+          <p className="text-slate-500">This test has no questions assigned yet. Please contact your instructor.</p>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
 
-    const blockShortcutKeys = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if ((event.ctrlKey || event.metaKey) && (key === 'c' || key === 'v' || key === 'x')) {
-        event.preventDefault();
-      }
-    };
+  const currentQ = questions[currentQuestion];
+  const answeredCount = questions.filter(isQuestionAnswered).length;
+  const flaggedCount = flagged.size;
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
 
-    document.addEventListener('copy', blockClipboard);
-    document.addEventListener('paste', blockClipboard);
-    document.addEventListener('cut', blockClipboard);
-    document.addEventListener('keydown', blockShortcutKeys);
-
-    return () => {
-      document.removeEventListener('copy', blockClipboard);
-      document.removeEventListener('paste', blockClipboard);
-      document.removeEventListener('cut', blockClipboard);
-      document.removeEventListener('keydown', blockShortcutKeys);
-    };
-  }, [currentQ.type]);
+  // Get MCQ options as strings
+  const getMcqOptions = (q: Question): string[] => {
+    if (!q.mcq_options || q.mcq_options.length === 0) return [];
+    if (typeof q.mcq_options[0] === 'string') return q.mcq_options as string[];
+    return (q.mcq_options as any[]).map(o => o.text || o.option_text || '');
+  };
 
   const renderQuestion = () => {
+    const options = getMcqOptions(currentQ);
     switch (currentQ.type) {
-      case 'mcq':
+      case 'mcq_single':
         return (
           <div className="space-y-6">
-            {currentQ.multipleCorrect ? (
-              <div className="space-y-3">
-                {currentQ.options?.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`option-${index}`}
-                      checked={answers[currentQ.id]?.includes(option) || false}
-                      onCheckedChange={(checked) => {
-                        const currentAnswers = answers[currentQ.id] || [];
-                        if (checked) {
-                          handleAnswerChange(currentQ.id, [...currentAnswers, option]);
-                        } else {
-                          handleAnswerChange(currentQ.id, currentAnswers.filter((a: string) => a !== option));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <RadioGroup
-                value={answers[currentQ.id] || ''}
-                onValueChange={(value) => handleAnswerChange(currentQ.id, value)}
-              >
-                {currentQ.options?.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <RadioGroupItem value={option} id={`option-${index}`} />
-                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            )}
-            
+            <RadioGroup
+              value={answers[currentQ.id] || ''}
+              onValueChange={(value) => handleAnswerChange(currentQ.id, value)}
+            >
+              {options.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`option-${index}`} />
+                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
             <div className="space-y-2">
-              <Label htmlFor="explanation" className="text-sm font-medium">
-                Explain your answer (required)
-              </Label>
+              <Label htmlFor="explanation" className="text-sm font-medium">Explain your answer (required)</Label>
               <Textarea
                 id="explanation"
                 placeholder="Explain why you chose this answer..."
@@ -476,13 +426,49 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
           </div>
         );
 
+      case 'mcq_multiple':
+        return (
+          <div className="space-y-6">
+            <div className="space-y-3">
+              {options.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`option-${index}`}
+                    checked={(answers[currentQ.id] || []).includes(option)}
+                    onCheckedChange={(checked) => {
+                      const curr = answers[currentQ.id] || [];
+                      if (checked) {
+                        handleAnswerChange(currentQ.id, [...curr, option]);
+                      } else {
+                        handleAnswerChange(currentQ.id, curr.filter((a: string) => a !== option));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">{option}</Label>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="explanation" className="text-sm font-medium">Explain your answer (required)</Label>
+              <Textarea
+                id="explanation"
+                placeholder="Explain why you chose these answers..."
+                value={explanations[currentQ.id] || ''}
+                onChange={(e) => handleExplanationChange(currentQ.id, e.target.value)}
+                className="min-h-32"
+              />
+            </div>
+          </div>
+        );
+
       case 'coding':
         return (
           <div className="space-y-4">
-            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={selectedLanguage} onValueChange={(lang) => {
+              setSelectedLanguage(lang);
+              handleAnswerChange(currentQ.id, getDefaultCodeForLanguage(lang));
+            }}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="javascript">JavaScript</SelectItem>
                 <SelectItem value="python">Python</SelectItem>
@@ -515,10 +501,6 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
     }
   };
 
-  const progress = ((currentQuestion + 1) / mockQuestions.length) * 100;
-  const answeredCount = mockQuestions.filter(isQuestionAnswered).length;
-  const flaggedCount = flagged.size;
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex justify-center">
@@ -544,13 +526,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
             {/* Video Monitor */}
             <div className="relative bg-black rounded-lg overflow-hidden h-20 w-36">
               {hasMediaAccess && streamRef.current ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                />
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white text-xs">
                   <div className="text-center">
@@ -560,13 +536,12 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                 </div>
               )}
             </div>
-            
             <div>
               <h1 className="text-xl font-bold">{topic.name}</h1>
               <Badge variant="outline">{course.name}</Badge>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-muted-foreground" />
@@ -575,7 +550,6 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
               </span>
             </div>
 
-            {/* Submit Button */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button size="lg" className="bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-8">
@@ -589,16 +563,14 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                     Are you sure you want to submit your test? You won't be able to make changes after submission.
                     <br /><br />
                     <strong>Summary:</strong>
-                    <br />• Answered: {answeredCount}/{mockQuestions.length} questions
+                    <br />• Answered: {answeredCount}/{questions.length} questions
                     <br />• Flagged: {flaggedCount} questions
                     <br />• Time remaining: {formatTime(timeLeft)}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSubmitTest}>
-                    Submit Test
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={handleSubmitTest}>Submit Test</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -608,19 +580,11 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className={`bg-card border-r transition-all duration-300 flex-shrink-0 ${
-          isSidebarCollapsed ? 'w-16' : 'w-80'
-        }`}>
+        <div className={`bg-card border-r transition-all duration-300 flex-shrink-0 ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              {!isSidebarCollapsed && (
-                <h3 className="font-semibold">Questions</h3>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              >
+              {!isSidebarCollapsed && <h3 className="font-semibold">Questions</h3>}
+              <Button variant="ghost" size="sm" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
                 {isSidebarCollapsed ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
@@ -629,43 +593,23 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
               <>
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">
-                      Questions {startQuestion + 1}-{endQuestion}
-                    </span>
+                    <span className="text-sm font-medium">Questions {startQuestion + 1}-{endQuestion}</span>
                     <div className="flex space-x-1">
-                      <Button
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handlePageChange(questionPage - 1)}
-                        disabled={questionPage === 0}
-                        className="h-6 w-6 p-0"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handlePageChange(questionPage - 1)} disabled={questionPage === 0} className="h-6 w-6 p-0">
                         <ChevronLeft className="h-3 w-3" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handlePageChange(questionPage + 1)}
-                        disabled={questionPage === totalPages - 1}
-                        className="h-6 w-6 p-0"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handlePageChange(questionPage + 1)} disabled={questionPage === totalPages - 1} className="h-6 w-6 p-0">
                         <ChevronRight className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-5 gap-2 mb-6">
                     {paginatedQuestions.map((question, index) => {
                       const actualIndex = startQuestion + index;
                       const status = getQuestionStatus(actualIndex, question.id);
                       return (
-                        <Button
-                          key={question.id}
-                          variant="outline"
-                          size="sm"
-                          className={`h-10 w-10 p-0 ${getStatusColor(status)}`}
-                          onClick={() => handleQuestionClick(index)}
-                        >
+                        <Button key={question.id} variant="outline" size="sm" className={`h-10 w-10 p-0 ${getStatusColor(status)}`} onClick={() => handleQuestionClick(index)}>
                           {actualIndex + 1}
                         </Button>
                       );
@@ -677,47 +621,23 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
                       <span>Progress</span>
-                      <span>{currentQuestion + 1}/{mockQuestions.length}</span>
+                      <span>{currentQuestion + 1}/{questions.length}</span>
                     </div>
                     <Progress value={progress} className="h-2" />
                   </div>
-
                   <div className="text-sm space-y-1">
-                    <div className="flex justify-between">
-                      <span>Answered</span>
-                      <span className="text-green-600">{answeredCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Flagged</span>
-                      <span className="text-yellow-600">{flaggedCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Remaining</span>
-                      <span className="text-muted-foreground">{mockQuestions.length - answeredCount}</span>
-                    </div>
+                    <div className="flex justify-between"><span>Answered</span><span className="text-green-600">{answeredCount}</span></div>
+                    <div className="flex justify-between"><span>Flagged</span><span className="text-yellow-600">{flaggedCount}</span></div>
+                    <div className="flex justify-between"><span>Remaining</span><span className="text-muted-foreground">{questions.length - answeredCount}</span></div>
                   </div>
                 </div>
 
-                {/* Monitoring Status */}
                 <div className="mt-6 p-3 bg-muted/30 rounded-lg">
                   <h4 className="text-sm font-semibold mb-2">Monitoring Status</h4>
                   <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span>Camera</span>
-                      <span className={videoTrackEnabled ? 'text-green-600' : 'text-red-600'}>
-                        {videoTrackEnabled ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Audio</span>
-                      <span className={audioTrackEnabled ? 'text-green-600' : 'text-red-600'}>
-                        {audioTrackEnabled ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Tab Switches</span>
-                      <span className="text-orange-600">{tabSwitchCount}</span>
-                    </div>
+                    <div className="flex justify-between"><span>Camera</span><span className={videoTrackEnabled ? 'text-green-600' : 'text-red-600'}>{videoTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                    <div className="flex justify-between"><span>Audio</span><span className={audioTrackEnabled ? 'text-green-600' : 'text-red-600'}>{audioTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                    <div className="flex justify-between"><span>Tab Switches</span><span className="text-orange-600">{tabSwitchCount}</span></div>
                   </div>
                 </div>
               </>
@@ -727,13 +647,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                   const actualIndex = startQuestion + index;
                   const status = getQuestionStatus(actualIndex, question.id);
                   return (
-                    <Button
-                      key={question.id}
-                      variant="outline"
-                      size="sm"
-                      className={`w-8 h-8 p-0 text-xs ${getStatusColor(status)}`}
-                      onClick={() => handleQuestionClick(index)}
-                    >
+                    <Button key={question.id} variant="outline" size="sm" className={`w-8 h-8 p-0 text-xs ${getStatusColor(status)}`} onClick={() => handleQuestionClick(index)}>
                       {actualIndex + 1}
                     </Button>
                   );
@@ -752,25 +666,17 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-3">
                       <Badge variant="outline" className="text-base px-3 py-1">
-                        Question {currentQuestion + 1} of {mockQuestions.length}
+                        Question {currentQuestion + 1} of {questions.length}
                       </Badge>
-                      <Badge variant="secondary" className="text-base px-3 py-1">
-                        {currentQ.marks} marks
-                      </Badge>
+                      <Badge variant="secondary" className="text-base px-3 py-1">{currentQ.marks} marks</Badge>
                       <Badge variant="outline" className="capitalize text-base px-3 py-1">
-                        {currentQ.type}
+                        {currentQ.type === 'mcq_single' ? 'MCQ (Single)' : currentQ.type === 'mcq_multiple' ? 'MCQ (Multiple)' : currentQ.type}
                       </Badge>
                     </div>
-                    <CardTitle className="text-xl leading-relaxed">
-                      {currentQ.question}
-                    </CardTitle>
+                    <CardTitle className="text-xl leading-relaxed">{currentQ.content}</CardTitle>
+                    {currentQ.title && <p className="text-sm text-muted-foreground mt-1">{currentQ.title}</p>}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleFlagQuestion(currentQ.id)}
-                    className={flagged.has(currentQ.id) ? 'text-yellow-600' : ''}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => handleFlagQuestion(currentQ.id)} className={flagged.has(currentQ.id) ? 'text-yellow-600' : ''}>
                     <Flag className="h-5 w-5" />
                   </Button>
                 </div>
@@ -779,6 +685,16 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                 {renderQuestion()}
               </CardContent>
             </Card>
+
+            {/* Navigation */}
+            <div className="flex justify-between mt-6">
+              <Button variant="outline" onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))} disabled={currentQuestion === 0}>
+                <ChevronLeft className="h-4 w-4 mr-2" /> Previous
+              </Button>
+              <Button variant="outline" onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestion + 1))} disabled={currentQuestion === questions.length - 1}>
+                Next <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

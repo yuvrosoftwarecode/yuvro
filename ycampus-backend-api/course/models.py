@@ -119,6 +119,24 @@ class SubUnit(models.Model):
         super().save(*args, **kwargs)
 
 
+class SubUnitSectionStatus(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    section = models.ForeignKey("core.Section", on_delete=models.CASCADE, related_name="subunit_statuses")
+    sub_unit = models.ForeignKey(SubUnit, on_delete=models.CASCADE, related_name="section_statuses")
+    is_unlocked = models.BooleanField(default=False)
+    unlocked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("section", "sub_unit")
+        verbose_name = "Sub-unit Section Status"
+        verbose_name_plural = "Sub-unit Section Statuses"
+
+    def __str__(self):
+        return f"{self.section.name} - {self.sub_unit.name} ({'Unlocked' if self.is_unlocked else 'Locked'})"
+
+
 class Video(models.Model):
     """
     Video model representing video content associated with a subunit.

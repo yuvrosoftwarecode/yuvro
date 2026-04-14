@@ -68,14 +68,26 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
   };
 
   const handleOptionChange = (index: number, value: string) => {
+    const oldOptionText = options[index];
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
+
+    // Sync correctAnswer if it matched the old text
+    if (questionType === 'mcq_single' && correctAnswer === oldOptionText) {
+      setCorrectAnswer(value);
+    } 
+    // Sync correctAnswers array if it contained the old text
+    else if (questionType === 'mcq_multiple' && correctAnswers.includes(oldOptionText)) {
+      setCorrectAnswers(correctAnswers.map(ans => ans === oldOptionText ? value : ans));
+    }
   };
 
   const handleMultipleAnswerChange = (option: string, checked: boolean) => {
     if (checked) {
-      setCorrectAnswers([...correctAnswers, option]);
+      if (!correctAnswers.includes(option)) {
+        setCorrectAnswers([...correctAnswers, option]);
+      }
     } else {
       setCorrectAnswers(correctAnswers.filter(ans => ans !== option));
     }
@@ -92,11 +104,23 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
     let finalOptions: string[] | undefined = undefined;
 
     switch (questionType) {
-      case 'mcq':
+      case 'mcq_single':
         finalOptions = options.filter(opt => opt.trim() !== '');
-        finalCorrectAnswer = isMultipleAnswer ? correctAnswers : correctAnswer;
+        if (!correctAnswer) {
+          alert('Please select a correct answer');
+          return;
+        }
+        finalCorrectAnswer = correctAnswer;
         break;
-      case 'short-answer':
+      case 'mcq_multiple':
+        finalOptions = options.filter(opt => opt.trim() !== '');
+        if (correctAnswers.length < 2) {
+          alert('Multiple-answer MCQ questions must have at least 2 correct answers');
+          return;
+        }
+        finalCorrectAnswer = correctAnswers;
+        break;
+      case 'descriptive':
         finalCorrectAnswer = shortAnswer;
         break;
       case 'coding':
@@ -113,7 +137,7 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
       options: finalOptions,
       correctAnswer: finalCorrectAnswer,
       marks,
-      isMultipleAnswer: questionType === 'mcq' ? isMultipleAnswer : undefined,
+      isMultipleAnswer: questionType === 'mcq_multiple',
     };
 
     onSave(question);
@@ -148,10 +172,10 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
                 <SelectValue placeholder="Select question type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="mcq">Multiple Choice Question (MCQ)</SelectItem>
-                <SelectItem value="coding">Coding Question</SelectItem>
-                <SelectItem value="short-answer">Short Answer</SelectItem>
-                <SelectItem value="true-false">True/False</SelectItem>
+                <SelectItem value="mcq_single">MCQ single</SelectItem>
+                <SelectItem value="mcq_multiple">MCQ multiple</SelectItem>
+                <SelectItem value="coding">Coding</SelectItem>
+                <SelectItem value="descriptive">Descriptive</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -170,26 +194,13 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
           </div>
 
           {/* MCQ Options */}
-          {questionType === 'mcq' && (
+          {(questionType === 'mcq_single' || questionType === 'mcq_multiple') && (
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="multipleAnswer"
-                  checked={isMultipleAnswer}
-                  onCheckedChange={(checked) => {
-                    setIsMultipleAnswer(checked as boolean);
-                    setCorrectAnswer('');
-                    setCorrectAnswers([]);
-                  }}
-                />
-                <Label htmlFor="multipleAnswer">Multiple correct answers</Label>
-              </div>
-
               <div className="space-y-3">
                 <Label>Options</Label>
                 {options.map((option, index) => (
                   <div key={index} className="flex items-center space-x-2">
-                    {!isMultipleAnswer ? (
+                    {questionType === 'mcq_single' ? (
                       <RadioGroup
                         value={correctAnswer}
                         onValueChange={setCorrectAnswer}
@@ -236,8 +247,8 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
             </div>
           )}
 
-          {/* Short Answer */}
-          {questionType === 'short-answer' && (
+          {/* Descriptive Answer */}
+          {questionType === 'descriptive' && (
             <div className="space-y-2">
               <Label htmlFor="shortAnswer">Expected Answer</Label>
               <Textarea
