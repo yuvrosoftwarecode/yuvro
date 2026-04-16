@@ -19,15 +19,14 @@ interface SubmissionsPanelProps {
 
 function isAccepted(s: CodeSubmission) {
   // Backend may return status='accepted' explicitly OR status='completed' with all tests passing
-  if ((s as any).status === 'accepted') return true;
+  if (s.status === 'accepted') return true;
   const passed = s.test_cases_passed ?? 0;
   const total = s.total_test_cases ?? 0;
   return s.status === 'completed' && total > 0 && passed === total;
 }
 
 function verdictLabel(s: CodeSubmission) {
-  const raw = (s as any);
-  if (raw.verdict) return raw.verdict; // honour explicit verdict from backend if present
+  if (s.verdict) return s.verdict; // honour explicit verdict from backend if present
   if (isAccepted(s)) return 'Accepted';
   if (s.status === 'error') return 'Runtime Error';
   if (s.status === 'timeout') return 'Time Limit Exceeded';
@@ -71,7 +70,7 @@ export default function SubmissionsPanel({ problemId, submissionCount = 0, codeS
   // Refresh every time submissionCount increments (new submit completed)
   useEffect(() => {
     if (submissionCount > 0) fetchSubmissions();
-  }, [submissionCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [submissionCount, fetchSubmissions]);
 
   // ── delete ────────────────────────────────────────────────────────────────
   const handleDelete = async (id: number) => {

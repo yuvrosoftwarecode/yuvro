@@ -100,7 +100,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     } else if (!loading && questions.length === 0) {
       if (onComplete) onComplete(true);
     }
-  }, [solvedMap, questions, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [solvedMap, questions, loading, onComplete]);
 
   const loadCodingQuestions = async () => {
     setLoading(true);

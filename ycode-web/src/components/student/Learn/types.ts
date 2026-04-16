@@ -8,6 +8,7 @@ export interface Course {
   id: string;
   name: string;
   category: string;
+  description?: string;
   short_code?: string;
   topics?: Topic[];
 }

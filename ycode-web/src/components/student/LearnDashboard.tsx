@@ -1,4 +1,4 @@
-﻿// src/features/Learn/LearnDashboard.tsx
+// src/features/Learn/LearnDashboard.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import restApiAuthUtil from "../../utils/RestApiAuthUtil";
@@ -196,10 +196,9 @@ const LearnDashboard: React.FC = () => {
   const filteredCourses = normalizedQuery
     ? courses.filter((c) => {
       if (c.name && c.name.toLowerCase().includes(normalizedQuery)) return true;
-      if ((c as any).description && (c as any).description.toLowerCase().includes(normalizedQuery)) return true;
-      if (Array.isArray((c as any).topics)) {
-        const topics: any[] = (c as any).topics;
-        if (topics.some((t) => (t.name || '').toLowerCase().includes(normalizedQuery))) return true;
+      if (c.description && c.description.toLowerCase().includes(normalizedQuery)) return true;
+      if (Array.isArray(c.topics)) {
+        if (c.topics.some((t) => (t.name || '').toLowerCase().includes(normalizedQuery))) return true;
       }
       return false;
     })

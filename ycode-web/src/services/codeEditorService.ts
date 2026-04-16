@@ -8,7 +8,8 @@ export interface CodeSubmission {
   problem_description: string;
   code: string;
   language: string;
-  status: 'pending' | 'running' | 'completed' | 'error' | 'timeout';
+  status: 'pending' | 'running' | 'completed' | 'error' | 'timeout' | 'accepted' | 'failed';
+  verdict?: string;
   output: string;
   error_message: string;
   execution_time: number;
@@ -294,14 +295,13 @@ class CodeEditorService {
     return restApiAuthUtil.get(endpoint);
   }
 
-  /** Fetches the full submission and normalises the code field from multiple possible API keys */
+  /** Fetches the full submission and normalizes the code field for display */
   async getFullSubmission(id: number): Promise<CodeSubmission> {
     const raw: any = await restApiAuthUtil.get(`/course/student-code-practices/${id}/`);
-    console.log('[codeEditorService] getFullSubmission raw keys:', Object.keys(raw), raw);
     return {
       ...raw,
-      code: raw.code || raw.answer_latest?.code || raw.source_code || raw.submitted_code || raw.user_code || raw.solution_code || '',
-      language: raw.language || raw.answer_latest?.language || raw.lang || '',
+      code: raw.code || raw.answer_latest?.code || raw.source_code || '',
+      language: raw.language || raw.answer_latest?.language || '',
     };
   }
 
