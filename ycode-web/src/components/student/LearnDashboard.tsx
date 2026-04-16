@@ -9,6 +9,7 @@ import SearchBar from "@/components/common/SearchBar";
 import CategorySection from "@/components/student/Learn/CatergorySection";
 import StatsSidebar from "./Learn/Widgets/StatsSidebar";
 import DashboardLayout from "@/components/common/DashboardLayout";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 import { Binary, Code, Database, Sparkles, FileText, Search, Bell, BarChart3, Play, Network, ArrowRight } from "lucide-react";
 
@@ -225,42 +226,8 @@ const LearnDashboard: React.FC = () => {
   if (loading) {
     return (
       <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="h-full p-0 overflow-hidden">
-        <div className="flex h-full w-full bg-gray-50 animate-pulse">
-          {/* Left Column Skeleton */}
-          <div className="flex-1 px-10 pt-10 pb-20 overflow-hidden">
-            <div className="max-w-[1600px] mx-auto">
-              {/* Header Skeleton */}
-              <div className="mb-10">
-                <div className="h-9 w-48 bg-gray-100 rounded-lg mb-2"></div>
-                <div className="h-5 w-64 bg-gray-50 rounded-lg"></div>
-              </div>
-
-              {/* Sections Skeleton */}
-              {[1, 2].map(i => (
-                <div key={i} className="mb-16">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-5 h-5 bg-gray-100 rounded"></div>
-                    <div className="h-6 w-32 bg-gray-100 rounded-lg"></div>
-                  </div>
-                  <div className="flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map(j => (
-                      <div key={j} className="w-[340px] h-[110px] bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0"></div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar Skeleton */}
-          <div className="w-[362px] h-full pt-[12px] pb-[12px] pr-[12px] bg-gray-50 flex flex-col gap-4">
-            <div className="flex-1 bg-gray-50/50 rounded-lg border border-gray-100 p-6 space-y-8">
-              <div className="h-32 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-16 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-48 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-40 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-            </div>
-          </div>
+        <div className="flex items-center justify-center h-full w-full bg-gray-50">
+          <LoadingSpinner size="lg" className="text-indigo-600" />
         </div>
       </DashboardLayout>
     );
@@ -273,20 +240,6 @@ const LearnDashboard: React.FC = () => {
       contentClassName="h-full p-0 overflow-hidden"
     >
       <style>{`
-        .thin-scrollbar::-webkit-scrollbar {
-          width: 3px;
-          height: 3px;
-        }
-        .thin-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .thin-scrollbar::-webkit-scrollbar-thumb {
-          background: transparent;
-          border-radius: 20px;
-        }
-        .thin-scrollbar:hover::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.08);
-        }
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }

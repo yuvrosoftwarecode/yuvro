@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Navigation from '@/components/common/Navigation';
 import CourseDashboard from '@/components/student/code-practice/CourseDashboard';
 import TopicSelection from '@/components/student/code-practice/TopicSelection';
 import { CodeEditorWithAI } from '@/components/code-editor';
@@ -10,6 +9,7 @@ import { fetchCourseById, fetchTopicsByCourse } from '@/services/courseService';
 import { fetchQuestionById, fetchQuestions } from '@/services/questionService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import DashboardLayout from '@/components/common/DashboardLayout';
 
 export type ViewType = 'dashboard' | 'topics' | 'problem' | 'analytics' | 'insights';
 
@@ -229,8 +229,11 @@ const CodePractice = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      <Navigation autoHide={currentView !== 'dashboard'} />
+    <DashboardLayout
+      hideHeader={true}
+      hideFooter={true}
+      contentClassName="h-full flex flex-col overflow-hidden"
+    >
       <div className="flex-1 flex flex-col transition-all duration-300 ease-in-out overflow-hidden">
         {isHydrating ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -283,7 +286,7 @@ const CodePractice = () => {
           </>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

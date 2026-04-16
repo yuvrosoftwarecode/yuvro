@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import SuggestedPrompts from './SuggestedPrompts';
 
 interface AIChatInputProps {
@@ -46,34 +46,44 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         />
       )}
       
-      <div className="relative input-focus-area rounded-xl transition-all border border-slate-200 bg-white">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2">
-          <Sparkles size={16} className="text-slate-400" />
-        </div>
-        <input
-        className="w-full pl-11 pr-12 py-3 bg-transparent text-sm font-medium text-slate-700 focus:outline-none placeholder:text-slate-300 placeholder:font-medium transition-all"
-        placeholder="Ask Buddy..."
-        value={text}
-        onChange={(e) => {
-          const val = e.target.value;
-          setText(val);
-          if (onType) onType(val);
+      <div
+        className="flex items-center gap-2 rounded-xl px-3 py-2 transition-all"
+        style={{
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          boxShadow: text.trim().length > 0 && !disabled ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none',
+          borderColor: text.trim().length > 0 && !disabled ? '#a78bfa' : '#e5e7eb',
         }}
-        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } }}
-        disabled={disabled}
-      />
-      <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+      >
+        <input
+          className="flex-1 bg-transparent text-[13px] text-gray-800 placeholder:text-gray-400 focus:outline-none"
+          placeholder="Ask Buddy anything…"
+          value={text}
+          onChange={(e) => {
+            const val = e.target.value;
+            setText(val);
+            if (onType) onType(val);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          disabled={disabled}
+        />
+
         <button
-          className={`p-2 rounded-lg transition-all ${text.trim() === '' || disabled
-            ? 'text-slate-200'
-            : 'text-indigo-600 hover:bg-indigo-50 active:scale-90'
-            }`}
           onClick={handleSend}
-          disabled={disabled || text.trim() === ''}
+          disabled={text.trim().length === 0 || disabled}
+          className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+            text.trim().length > 0 && !disabled
+              ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
+              : 'bg-white text-gray-300 cursor-not-allowed'
+          }`}
         >
-          <Send size={18} strokeWidth={2.5} />
+          <ArrowUp size={14} strokeWidth={2.5} />
         </button>
-        </div>
       </div>
     </div>
   );

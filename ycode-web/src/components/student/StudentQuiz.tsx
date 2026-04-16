@@ -4,7 +4,7 @@ import { fetchRandomQuestions } from "@/services/questionService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Code } from "lucide-react";
-import Navigation from "@/components/common/Navigation";
+import DashboardLayout from "@/components/common/DashboardLayout";
 
 type QuizQuestion = {
   id: string;
@@ -75,35 +75,32 @@ const StudentQuiz = () => {
 
   if (loading) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true}>
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-muted-foreground">Loading quiz...</div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   if (quizzes.length === 0) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true}>
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="text-muted-foreground mb-4">No quizzes available for this subtopic.</div>
             <Button onClick={() => navigate(-1)}>Go Back</Button>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   // Quiz completed summary
   if (currentIndex >= quizzes.length) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gray-50 py-8">
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+        <div className="py-8">
           <div className="max-w-2xl mx-auto px-4">
             <Card className="p-6 text-center border border-gray-300">
               <h2 className="text-2xl font-bold mb-3">Quiz Completed 🎉</h2>
@@ -153,7 +150,7 @@ const StudentQuiz = () => {
             </Card>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
@@ -204,9 +201,8 @@ const StudentQuiz = () => {
   };
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gray-50 py-8">
+    <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+      <div className="py-8">
         <div className="max-w-2xl mx-auto px-4">
           <div className="mb-6">
             <Button
@@ -320,7 +316,7 @@ const StudentQuiz = () => {
           </Card>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 
