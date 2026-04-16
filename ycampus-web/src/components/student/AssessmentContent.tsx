@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, FileText, Users, Calendar, Play, BarChart3, CheckCircle, Timer } from 'lucide-react';
+import { 
+  Clock, FileText, Play, BarChart3, 
+  CheckCircle, AlertCircle, Loader2, Calendar
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
+import skillTestService from '@/services/skillTestService';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import AssessmentInstructions from './AssessmentInstructions';
 import AssessmentInterface from './AssessmentInterface';
 import AssessmentResults from './AssessmentResults';
@@ -14,6 +22,7 @@ interface Assessment {
   id: string;
   title: string;
   course: string;
+  courseId: string;
   duration: number;
   totalQuestions: number;
   status: 'pending' | 'completed';
@@ -26,96 +35,10 @@ interface Assessment {
   score?: number;
 }
 
-interface Course {
-  id: string;
-  name: string;
-}
-
-const mockCourses: Course[] = [
-  { id: '1', name: 'Computer Science' },
-  { id: '2', name: 'Mathematics' },
-  { id: '3', name: 'Physics' },
-  { id: '4', name: 'Chemistry' },
-  { id: '5', name: 'Biology' }
-];
-
-const mockAssessments: Assessment[] = [
-  {
-    id: '1',
-    title: 'Data Structures & Algorithms',
-    course: 'Computer Science',
-    duration: 90,
-    totalQuestions: 30,
-    status: 'pending',
-    dueDate: '2024-01-20',
-    createdDate: '2024-01-10',
-    difficulty: 'Hard',
-    description: 'Comprehensive assessment covering arrays, linked lists, trees, graphs, and algorithm analysis.',
-    marks: 100
-  },
-  {
-    id: '2',
-    title: 'Object-Oriented Programming',
-    course: 'Computer Science',
-    duration: 60,
-    totalQuestions: 20,
-    status: 'completed',
-    dueDate: '2024-01-15',
-    createdDate: '2024-01-05',
-    difficulty: 'Medium',
-    description: 'Assessment on OOP concepts, inheritance, polymorphism, and design patterns.',
-    marks: 80,
-    completedDate: '2024-01-14',
-    score: 72
-  },
-  {
-    id: '3',
-    title: 'Database Management Systems',
-    course: 'Computer Science',
-    duration: 75,
-    totalQuestions: 30,
-    status: 'pending',
-    dueDate: '2024-01-25',
-    createdDate: '2024-01-12',
-    difficulty: 'Medium',
-    description: 'SQL queries, normalization, indexing, and database design principles.',
-    marks: 90
-  },
-  {
-    id: '4',
-    title: 'Calculus I - Final Assessment',
-    course: 'Mathematics',
-    duration: 120,
-    totalQuestions: 15,
-    status: 'completed',
-    dueDate: '2024-01-18',
-    createdDate: '2024-01-08',
-    difficulty: 'Hard',
-    description: 'Comprehensive assessment covering limits, derivatives, and integrals.',
-    marks: 120,
-    completedDate: '2024-01-17',
-    score: 98
-  },
-  {
-    id: '5',
-    title: 'Linear Algebra Quiz',
-    course: 'Mathematics',
-    duration: 45,
-    totalQuestions: 10,
-    status: 'pending',
-    dueDate: '2024-01-22',
-    createdDate: '2024-01-13',
-    difficulty: 'Easy',
-    description: 'Vectors, matrices, and linear transformations.',
-    marks: 50
-  }
-];
-
-interface AssessmentContentProps {
-  // Add any props if needed
-}
+interface AssessmentContentProps {}
 
 const AssessmentContent: React.FC<AssessmentContentProps> = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -127,45 +50,119 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     timeSpent: number;
   } | null>(null);
 
-  // Initialize state from URL parameters on mount only
+  const [allAssessments, setAllAssessments] = useState<Assessment[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadData = async () => {
+    if (!user?.college_id) return;
+    
+    setIsLoading(true);
+    try {
+      const [subjectsData, testsData] = await Promise.all([
+        fetchSubjectsByCollege(user.college_id),
+        skillTestService.getSkillTests({ 
+          test_type: 'assessment', 
+          publish_status: 'active' 
+        })
+      ]);
+
+      setSubjects(subjectsData);
+
+      const mappedAssessments: Assessment[] = testsData.map(test => {
+        const subject = subjectsData.find(s => s.id === test.subject);
+        
+        let totalQuestions = test.total_questions || 0;
+        if (totalQuestions === 0 && test.questions_config) {
+          totalQuestions += Object.values(test.questions_config).reduce((acc: number, ids) => acc + (Array.isArray(ids) ? ids.length : 0), 0);
+        }
+        if (test.questions_random_config) {
+          totalQuestions += Object.values(test.questions_random_config).reduce((acc: number, count) => acc + (Number(count) || 0), 0);
+        }
+
+        // Format date safely
+        let formattedDueDate = 'No due date';
+        if (test.end_time) {
+          try {
+            const date = new Date(test.end_time);
+            if (!isNaN(date.getTime())) {
+              formattedDueDate = date.toLocaleDateString();
+            }
+          } catch (e) {
+            console.error('Error parsing date:', e);
+          }
+        }
+
+        // Determine completion status from my_submissions (returned by backend per student)
+        const mySubmissions: any[] = test.my_submissions || [];
+        const latestSubmission = mySubmissions.find(
+          (s: any) => s.status === 'submitted' || s.status === 'completed'
+        ) || mySubmissions[0];
+        const isCompleted = mySubmissions.some(
+          (s: any) => s.status === 'submitted' || s.status === 'completed'
+        );
+
+        return {
+          id: test.id,
+          title: test.title,
+          course: subject?.subject_name || 'General',
+          courseId: String(test.subject),
+          duration: test.duration,
+          totalQuestions: totalQuestions,
+          status: isCompleted ? 'completed' : 'pending',
+          dueDate: formattedDueDate,
+          createdDate: test.created_at || '',
+          difficulty: (test.difficulty.charAt(0).toUpperCase() + test.difficulty.slice(1)) as any,
+          description: test.description || '',
+          marks: test.total_marks || 0,
+          score: latestSubmission?.marks ?? undefined,
+          completedDate: latestSubmission?.completed_at || latestSubmission?.created_at
+        };
+      });
+
+      setAllAssessments(mappedAssessments);
+
+      const assessmentId = searchParams.get('assessmentId');
+      if (assessmentId) {
+        const assessment = mappedAssessments.find(a => a.id === assessmentId);
+        if (assessment) setSelectedAssessment(assessment);
+      }
+    } catch (error) {
+      console.error('Failed to load assessment data:', error);
+      toast.error('Failed to load assessments');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const view = searchParams.get('view') as 'list' | 'instructions' | 'assessment' | 'results' | 'thankyou' || 'list';
-    const assessmentId = searchParams.get('assessmentId');
+    loadData();
+  }, [user?.college_id]);
+
+  useEffect(() => {
+    const view = searchParams.get('view') as any || 'list';
     const course = searchParams.get('course') || 'all';
     const status = searchParams.get('status') || 'all';
 
     setCurrentView(view);
     setSelectedCourse(course);
     setStatusFilter(status);
-
-    if (assessmentId) {
-      const assessment = mockAssessments.find(a => a.id === assessmentId);
-      if (assessment) {
-        setSelectedAssessment(assessment);
-      }
-    }
-
-    // Scroll to top on initial load
-    window.scrollTo(0, 0);
-  }, []);
+  }, [searchParams]);
 
   const updateUrlParams = (params: Record<string, string | null>) => {
     const newParams = new URLSearchParams(searchParams);
     Object.entries(params).forEach(([key, value]) => {
-      if (value === null) {
-        newParams.delete(key);
-      } else {
-        newParams.set(key, value);
-      }
+      if (value === null) newParams.delete(key);
+      else newParams.set(key, value);
     });
     setSearchParams(newParams);
   };
 
-  const filteredAssessments = mockAssessments.filter(assessment => {
-    if (selectedCourse !== 'all' && assessment.course !== selectedCourse) return false;
-    if (statusFilter !== 'all' && assessment.status !== statusFilter) return false;
-    return true;
-  });
+  const handleBackToList = () => {
+    setCurrentView('list');
+    setSelectedAssessment(null);
+    updateUrlParams({ view: 'list', assessmentId: null });
+  };
 
   const handleStartAssessment = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -185,49 +182,53 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     updateUrlParams({ view: 'assessment' });
   };
 
-  const handleAssessmentComplete = (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
-    setAssessmentStats(stats);
+  const handleAssessmentComplete = (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
+    if (stats) setAssessmentStats(stats);
     setCurrentView('thankyou');
     updateUrlParams({ view: 'thankyou', assessmentId: selectedAssessment?.id || null });
   };
 
   const handleThankYouComplete = () => {
-    // Update assessment status to completed
-    if (selectedAssessment) {
-      selectedAssessment.status = 'completed';
-      selectedAssessment.completedDate = new Date().toISOString().split('T')[0];
-      selectedAssessment.score = Math.floor(Math.random() * 20) + 70; // Mock score
-    }
+    loadData(); // Reload to update status
     handleBackToList();
-  };
-
-  const handleBackToList = () => {
-    setCurrentView('list');
-    setSelectedAssessment(null);
-    updateUrlParams({ view: 'list', assessmentId: null });
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'text-green-600 bg-green-50 border-green-200';
-      case 'Medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'Hard': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-50 border-green-200';
-      case 'pending': return 'text-orange-600 bg-orange-50 border-orange-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'completed': return 'bg-green-50 text-green-600 border-none';
+      case 'pending': return 'bg-orange-50 text-orange-600 border-none';
+      default: return 'bg-gray-50 text-gray-600 border-none';
     }
   };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'Easy': return 'bg-green-100 text-green-700';
+      case 'Medium': return 'bg-yellow-100 text-yellow-700';
+      case 'Hard': return 'bg-red-500 text-white';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const filteredAssessments = allAssessments.filter(assessment => {
+    if (selectedCourse !== 'all' && assessment.courseId !== selectedCourse) return false;
+    if (statusFilter !== 'all' && assessment.status !== statusFilter) return false;
+    return true;
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading assessments...</p>
+      </div>
+    );
+  }
 
   if (currentView === 'instructions' && selectedAssessment) {
     return (
       <AssessmentInstructions
-        assessment={selectedAssessment}
+        assessment={selectedAssessment as any}
         onStart={handleBeginAssessment}
         onBack={handleBackToList}
       />
@@ -237,7 +238,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   if (currentView === 'assessment' && selectedAssessment) {
     return (
       <AssessmentInterface
-        assessment={selectedAssessment}
+        assessment={selectedAssessment as any}
         onComplete={handleAssessmentComplete}
         onBack={handleBackToList}
       />
@@ -253,7 +254,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
     return (
       <AssessmentThankYou
-        assessment={selectedAssessment}
+        assessment={selectedAssessment as any}
         answeredCount={stats.answeredCount}
         totalQuestions={stats.totalQuestions}
         timeSpent={stats.timeSpent}
@@ -265,7 +266,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   if (currentView === 'results' && selectedAssessment) {
     return (
       <AssessmentResults
-        assessment={selectedAssessment}
+        assessment={selectedAssessment as any}
         onBackToList={handleBackToList}
         onTryAgain={() => handleStartAssessment(selectedAssessment)}
       />
@@ -273,175 +274,137 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Assessments</h2>
-        <p className="text-muted-foreground">Complete your assigned assessments and track your progress</p>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="flex flex-col">
+        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1">Assessments</h1>
+        <p className="text-[#666666] text-sm">Complete your assigned assessments and track your progress</p>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Subjects
-              </label>
-              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subjects</SelectItem>
-                  {mockCourses.map((course) => (
-                    <SelectItem key={course.id} value={course.name}>
-                      {course.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Status
-              </label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Assessment Results */}
-      {selectedCourse && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">
-            Available Assessments {statusFilter && `(${statusFilter})`}
-          </h3>
-          
-          {filteredAssessments.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">No assessments found</h3>
-                  <p className="text-muted-foreground">
-                    No assessments match your current filters.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAssessments.map((assessment, index) => (
-                <Card 
-                  key={assessment.id} 
-                  className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out animate-fade-in border-border/50"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-lg">{assessment.title}</CardTitle>
-                      <Badge 
-                        variant="outline" 
-                        className={getStatusColor(assessment.status)}
-                      >
-                        {assessment.status === 'completed' ? (
-                          <><CheckCircle className="h-3 w-3 mr-1" /> Completed</>
-                        ) : (
-                          <><Timer className="h-3 w-3 mr-1" /> Pending</>
-                        )}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {assessment.description}
-                    </p>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span>{assessment.duration} mins</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <FileText className="h-4 w-4 text-primary" />
-                        <span>{assessment.totalQuestions} questions</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        <span>{assessment.marks} marks</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span>Due {new Date(assessment.dueDate).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Badge 
-                        variant="outline" 
-                        className={getDifficultyColor(assessment.difficulty)}
-                      >
-                        {assessment.difficulty}
-                      </Badge>
-                      
-                      {assessment.status === 'completed' && assessment.score && (
-                        <Badge variant="secondary">
-                          Score: {assessment.score}/{assessment.marks}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="pt-2">
-                      {assessment.status === 'pending' ? (
-                        <Button 
-                          onClick={() => handleStartAssessment(assessment)}
-                          className="w-full bg-black text-white hover:opacity-90 hover:scale-105 transition-all duration-200 border-0 shadow-md hover:shadow-lg"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Start Assessment
-                        </Button>
-                      ) : (
-                        <Button 
-                          variant="outline"
-                          onClick={() => handleViewResults(assessment)}
-                          className="w-full hover:scale-105 transition-all duration-200"
-                        >
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          View Results
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-[#1a1a1a]">Subjects</label>
+          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <SelectTrigger className="h-12 bg-white border-[#e5e5e5] rounded-xl text-[#333333]">
+              <SelectValue placeholder="All Subjects" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              {subjects.map((s) => (
+                <SelectItem key={s.id} value={String(s.id)}>
+                  {s.subject_name}
+                </SelectItem>
               ))}
-            </div>
-          )}
+            </SelectContent>
+          </Select>
         </div>
-      )}
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-[#1a1a1a]">Status</label>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-12 bg-white border-[#e5e5e5] rounded-xl text-[#333333]">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      {!selectedCourse && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">Select a Course</h3>
-              <p className="text-muted-foreground">
-                Please select a course from the dropdown above to view available assessments.
-              </p>
+      <div className="space-y-4 pt-4">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-lg font-bold text-[#1a1a1a]">Available Assessments ({statusFilter === 'all' ? 'all' : statusFilter})</h3>
+        </div>
+        
+        {filteredAssessments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 rounded-2xl border border-dashed border-border bg-card/50 text-center px-6">
+            <div className="p-4 bg-muted rounded-full mb-4">
+              <AlertCircle className="w-8 h-8 text-muted-foreground/40" />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <h3 className="text-xl font-bold text-foreground mb-1">No assessments found</h3>
+            <p className="text-muted-foreground text-sm max-w-xs">
+              Check back later or adjust your filters to see newly assigned evaluations.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAssessments.map((assessment) => (
+              <Card 
+                key={assessment.id} 
+                className="hover:shadow-md transition-shadow duration-300 border border-gray-100 bg-card rounded-xl p-6"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <CardTitle className="text-xl font-bold leading-tight">
+                    {assessment.title}
+                  </CardTitle>
+                  <Badge className={cn("rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5", getStatusColor(assessment.status))}>
+                    {assessment.status === 'completed' ? (
+                      <><CheckCircle className="h-3.5 w-3.5" /> Completed</>
+                    ) : (
+                      <><Clock className="h-3.5 w-3.5" /> Pending</>
+                    )}
+                  </Badge>
+                </div>
+
+                <div className="space-y-6">
+                  <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+                    {assessment.description || 'No description provided.'}
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm font-medium text-slate-800">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-slate-400" />
+                      <span>{assessment.duration} mins</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-slate-400" />
+                      <span>{assessment.totalQuestions} questions</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-slate-400" />
+                      <span>{assessment.marks} marks</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-slate-400" />
+                      <span>Due {assessment.dueDate}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Badge className={cn("rounded-full px-4 py-1 text-xs font-bold", getDifficultyColor(assessment.difficulty))}>
+                      {assessment.difficulty}
+                    </Badge>
+                    
+                    {assessment.status === 'completed' && assessment.score !== undefined && (
+                      <Badge className="bg-blue-50 text-slate-700 rounded-full px-3 py-1 text-xs font-medium border-none">
+                        Score: {assessment.score}/{assessment.marks}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {assessment.status === 'pending' ? (
+                    <Button 
+                      className="w-full bg-black text-white hover:bg-black/90 rounded-lg h-12 text-base font-medium flex items-center justify-center gap-2"
+                      onClick={() => handleStartAssessment(assessment)}
+                    >
+                      <Play className="h-5 w-5" /> Start Assessment
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline"
+                      className="w-full border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg h-12 text-base font-medium flex items-center justify-center gap-2"
+                      onClick={() => handleViewResults(assessment)}
+                    >
+                      <BarChart3 className="h-5 w-5" /> View Results
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Settings, FileText, ArrowLeft, Plus, Minus } from 'lucide-react';
-import QuestionBank from '@/components/common/QuestionBank';
+import AssessmentQuestionBank from '@/components/common/AssessmentQuestionBank';
 import { toast } from 'sonner';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -690,7 +690,7 @@ export default function MockInterviewForm() {
                         </div>
                       )}
 
-                      <QuestionBank
+                      <AssessmentQuestionBank
                         mode="selection"
                         selectedQuestions={selectedQuestions}
                         onQuestionsChange={handleQuestionsChange}
