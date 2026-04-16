@@ -102,13 +102,23 @@ const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
         {/* Test Avg */}
         <MetricCard
           icon={<span className="text-xs">📝</span>}
-          value={`${(report.subjects.reduce((s, sub) => s + sub.testAvgScore, 0) / (report.subjects.length || 1)).toFixed(1)}%`}
+          value={`${(() => {
+            const totalTests = report.subjects.reduce((s, sub) => s + (sub.testsAttempted || 0), 0);
+            if (totalTests === 0) return '0.0';
+            const totalScorePctWeight = report.subjects.reduce((s, sub) => s + (sub.testAvgScore * (sub.testsAttempted || 0)), 0);
+            return (totalScorePctWeight / totalTests).toFixed(1);
+          })()}%`}
           label="Test Avg"
         />
         {/* Task Rate */}
         <MetricCard
           icon={<span className="text-xs">✅</span>}
-          value={`${(report.subjects.reduce((s, sub) => s + (sub.tasksTotal > 0 ? (sub.tasksSubmitted / sub.tasksTotal) * 100 : 0), 0) / (report.subjects.length || 1)).toFixed(1)}%`}
+          value={`${(() => {
+            const totalTasks = report.subjects.reduce((s, sub) => s + (sub.tasksTotal || 0), 0);
+            if (totalTasks === 0) return '0.0';
+            const totalSubmitted = report.subjects.reduce((s, sub) => s + (sub.tasksSubmitted || 0), 0);
+            return ((totalSubmitted / totalTasks) * 100).toFixed(1);
+          })()}%`}
           label="Task Rate"
         />
       </div>

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileText, Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useStudentReport } from '@/hooks/useStudentReport';
-import ReportFilters from '@/components/faculty/reports/ReportFilters';
+import PrincipalReportFilters from '@/components/principal/ReportFilters';
 import StudentListView from '@/components/faculty/reports/StudentListView';
 import StudentOverview from '@/components/faculty/reports/StudentOverview';
 import SubjectMatrix from '@/components/faculty/reports/SubjectMatrix';
@@ -51,57 +51,120 @@ const PrincipalStudents = () => {
   const { toast } = useToast();
   const {
     departments, courses, batches, students, allStudents, report, loading, filtersLoading, studentsLoading,
-    loadCourses, loadBatches, loadStudents, loadReport,
-  } = useStudentReport();
+    loadCourses, loadBatches, loadStudents, loadReport, assignments,
+  } = useStudentReport({ mode: 'principal' });
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
   const [selectedBatch, setSelectedBatch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedStudentObj, setSelectedStudentObj] = useState<BatchStudent | null>(null);
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedSection, setSelectedSection] = useState('all');
   const [studentSearch, setStudentSearch] = useState('');
   const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
-  const [sections, setSections] = useState<{ name: string }[]>([]);
   const [showStudentList, setShowStudentList] = useState(false);
 
+  // Local state for tracking manual filter interaction vs auto-selection
+  const isAutoSelecting = useRef(false);
+
+  // ──────────────────────────────────────────────────────────────────
+  // HIERARCHICAL FILTER DERIVATION
+  // ──────────────────────────────────────────────────────────────────
+
+  const derivedDepartments = useMemo(() => {
+    if (!selectedBatch) return [];
+    const depts = new Set<string>();
+    const options: any[] = [];
+    
+    assignments.forEach((a: any) => {
+      const details = a.semester_subject_details;
+      if (details && details.batch_name === selectedBatch && details.department_id) {
+        const idStr = String(details.department_id);
+        if (!depts.has(idStr)) {
+          depts.add(idStr);
+          options.push({
+            id: idStr,
+            name: details.department_name || 'Unknown',
+            code: details.department_short_form || ''
+          });
+        }
+      }
+    });
+    return options.sort((a, b) => a.name.localeCompare(b.name));
+  }, [assignments, selectedBatch]);
+
+  const derivedSemesters = useMemo(() => {
+    if (!selectedBatch || !selectedDepartment) return [];
+    const sems = new Set<number>();
+    
+    assignments.forEach((a: any) => {
+      const details = a.semester_subject_details;
+      if (details && details.batch_name === selectedBatch && String(details.department_id) === selectedDepartment) {
+        sems.add(details.semester_number);
+      }
+    });
+    return Array.from(sems).sort((a, b) => a - b);
+  }, [assignments, selectedBatch, selectedDepartment]);
+
+  const derivedSections = useMemo(() => {
+    if (!selectedBatch || !selectedDepartment || !selectedSemester) return [];
+    const secs = new Set<string>();
+    
+    assignments.forEach((a: any) => {
+      const details = a.semester_subject_details;
+      if (details && details.batch_name === selectedBatch && 
+          String(details.department_id) === selectedDepartment && 
+          String(details.semester_number) === selectedSemester) {
+        if (a.section_name) secs.add(a.section_name);
+      }
+    });
+    return Array.from(secs).sort().map(name => ({ name }));
+  }, [assignments, selectedBatch, selectedDepartment, selectedSemester]);
+
+  const derivedSubjects = useMemo(() => {
+    if (!selectedBatch || !selectedDepartment || !selectedSemester || (selectedSection !== 'all' && !selectedSection)) return [];
+    const subjs = new Set<string>();
+    const options: any[] = [];
+    
+    assignments.forEach((a: any) => {
+      const details = a.semester_subject_details;
+      const isSecMatch = selectedSection === 'all' || a.section_name === selectedSection;
+      
+      if (details && details.batch_name === selectedBatch && 
+          String(details.department_id) === selectedDepartment && 
+          String(details.semester_number) === selectedSemester &&
+          isSecMatch) {
+        const s = details.subject_details;
+        if (s && !subjs.has(String(s.id))) {
+          subjs.add(String(s.id));
+          options.push({
+            id: String(s.id),
+            name: s.subject_name || s.name || 'Unknown',
+            code: s.short_code || '',
+            semester: details.semester_number
+          });
+        }
+      }
+    });
+    return options.sort((a, b) => a.name.localeCompare(b.name));
+  }, [assignments, selectedBatch, selectedDepartment, selectedSemester, selectedSection]);
+
   useEffect(() => {
-    if (selectedDepartment) {
-      loadCourses(selectedDepartment, selectedSemester || undefined);
-      loadBatches(selectedDepartment);
-      loadStudents(selectedDepartment, selectedSemester || undefined);
-      setSelectedBatch('');
-      setSelectedStudent('');
-      setStudentSearch('');
-      setSelectedSection('all');
+    if (selectedBatch && !isAutoSelecting.current && !selectedStudent) {
+      if (!selectedDepartment) {
+        loadStudents({ batch__name: selectedBatch });
+      } else {
+        const params: any = { batch__name: selectedBatch, department: selectedDepartment };
+        if (selectedSemester) params.semester__number = selectedSemester;
+        if (selectedSection && selectedSection !== 'all') params.section__name = selectedSection;
+        loadStudents(params);
+      }
       setShowStudentList(true);
-    } else {
+    } else if (!selectedBatch && !selectedStudent) {
       setShowStudentList(false);
     }
-  }, [selectedDepartment, selectedSemester, loadCourses, loadBatches, loadStudents]);
-
-  // Load sections when department + semester change
-  useEffect(() => {
-    const loadSections = async () => {
-      if (!selectedDepartment || !selectedSemester) { setSections([]); return; }
-      const { data: semData } = await (await import('@/integrations/supabase/client')).supabase
-        .from('department_semesters')
-        .select('id')
-        .eq('department_id', selectedDepartment)
-        .eq('number', parseInt(selectedSemester))
-        .limit(1);
-      if (semData && semData.length > 0) {
-        const { data: secData } = await (await import('@/integrations/supabase/client')).supabase
-          .from('department_sections')
-          .select('name')
-          .eq('semester_id', semData[0].id);
-        setSections(secData || []);
-      } else {
-        setSections([]);
-      }
-    };
-    loadSections();
-  }, [selectedDepartment, selectedSemester]);
+  }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, selectedStudent]);
 
   // Merge dummy students into allStudents for search and report loading
   const combinedAllStudents = useMemo(() => {
@@ -149,9 +212,9 @@ const PrincipalStudents = () => {
       const snap = generateSnapshot(s.id, i);
       return {
         student: s,
-        department: deptName || 'CSE',
-        semester: selectedSemester || '5',
-        section: selectedSection !== 'all' ? selectedSection : sectionLabels[i % sectionLabels.length],
+        department: s.department_name || deptName || 'Unknown',
+        semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
+        section: s.section_name ? `Section ${s.section_name}` : (selectedSection !== 'all' ? `Section ${selectedSection}` : 'N/A'),
         pi: snap.pi,
         ps: snap.ps,
         pri: snap.pri,
@@ -245,13 +308,14 @@ const PrincipalStudents = () => {
 
               {/* Filters - hidden when viewing full report */}
               {!showReport && (
-                <ReportFilters
-                  departments={departments}
-                  courses={courses}
+                <PrincipalReportFilters
+                  departments={derivedDepartments}
+                  courses={derivedSubjects}
                   batches={batches}
                   students={students}
                   allStudents={allStudents}
-                  sections={sections}
+                  sections={derivedSections}
+                  semesters={derivedSemesters}
                   selectedDepartment={selectedDepartment}
                   selectedSemester={selectedSemester}
                   selectedBatch={selectedBatch}
@@ -260,9 +324,29 @@ const PrincipalStudents = () => {
                   selectedSection={selectedSection}
                   studentSearch={studentSearch}
                   studentsLoading={studentsLoading}
-                  onDepartmentChange={v => { setSelectedDepartment(v); setSelectedSemester(''); }}
-                  onSemesterChange={setSelectedSemester}
-                  onBatchChange={setSelectedBatch}
+                  onBatchChange={(v: string) => {
+                    setSelectedBatch(v);
+                    setSelectedDepartment('');
+                    setSelectedSemester('');
+                    setSelectedSection('all');
+                    setSelectedSubject('all');
+                  }}
+                  onDepartmentChange={(v: string) => { 
+                    setSelectedDepartment(v); 
+                    setSelectedSemester(''); 
+                    setSelectedSection('all');
+                    setSelectedSubject('all');
+                  }}
+                  onSemesterChange={(v: string) => {
+                    setSelectedSemester(v);
+                    setSelectedSection('all');
+                    setSelectedSubject('all');
+                  }}
+                  onSectionChange={(v: string) => {
+                    setSelectedSection(v);
+                    setSelectedSubject('all');
+                  }}
+                  onSubjectChange={setSelectedSubject}
                   onStudentChange={(id) => {
                     if (id) {
                       handleStudentSelectFromList(id);
@@ -270,13 +354,11 @@ const PrincipalStudents = () => {
                       setSelectedStudent('');
                     }
                   }}
-                  onSubjectChange={setSelectedSubject}
-                  onSectionChange={setSelectedSection}
                   onStudentSearchChange={(v) => {
                     setStudentSearch(v);
                     if (!v) {
                       setSelectedStudent('');
-                      if (selectedDepartment) {
+                      if (selectedBatch) {
                         setShowStudentList(true);
                       } else {
                         setShowStudentList(false);

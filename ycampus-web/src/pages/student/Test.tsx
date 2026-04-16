@@ -110,11 +110,11 @@ const StudentTest = () => {
 
   return (
     <StudentLayout>
-      <div className="space-y-8 p-8">
+      <div className="space-y-6 p-6">
         {/* Header */}
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Practice Test</h1>
-          <p className="text-slate-500 text-lg">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Practice Test</h1>
+          <p className="text-muted-foreground">
             Select a subject to start your practice tests.
           </p>
         </div>
