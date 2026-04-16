@@ -1454,6 +1454,14 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         results = []
         subjects_map = {s.id: s for s in Subject.objects.filter(id__in=subject_ids)}
 
+        # Global Streak - move outside loop for performance
+        streak = 0
+        try:
+            gamification = GamificationService.get_or_create_profile(user_to_query)
+            streak = gamification.current_streak
+        except Exception:
+            pass
+
         for sid in subject_ids:
             subject = subjects_map.get(sid)
             if not subject: continue
@@ -1487,6 +1495,8 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             avg_coding = 0
             subunits_completed = 0
             units_completed = 0
+            last_activity = None
+            relevant_progress = sub_progress.none()
             
             if total_subs > 0:
                 # Only count progress for subunits that are actually part of the 'total' (unlocked for students)
@@ -1519,17 +1529,9 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                             units_completed += 1
 
             # Last Activity
-            last_record = relevant_progress.order_by('-updated_at').first()
-            last_activity = last_record.updated_at.isoformat() if last_record else None
-
-            # Global Streak
-            streak = 0
-            try:
-                from .gamification_service import GamificationService
-                gamification = GamificationService.get_or_create_profile(user_to_query)
-                streak = gamification.current_streak
-            except Exception:
-                pass
+            if total_subs > 0:
+                last_record = relevant_progress.order_by('-updated_at').first()
+                last_activity = last_record.updated_at.isoformat() if last_record else None
 
             # Detailed Attendance Counts
             total_sessions = 0
