@@ -4,10 +4,11 @@ import MockInterviewLibrary from '@/components/student/MockInterviewLibrary';
 import PermissionDialog from '@/components/student/PermissionDialog';
 import InterviewScreen from '@/components/student/InterviewScreen';
 import ReportsScreen from '@/components/student/ReportsScreen';
+import ThankYouScreen from '@/components/student/ThankYouScreen';
 import { Role, InterviewSettings } from '@/types/mockInterview';
 import { mockInterviewService } from '@/services/mockInterviewService';
 
-type InterviewState = 'library' | 'permission' | 'interview' | 'reports';
+type InterviewState = 'library' | 'permission' | 'interview' | 'reports' | 'thank-you';
 
 const StudentMockInterview = () => {
   const [state, setState] = useState<InterviewState>('library');
@@ -17,6 +18,7 @@ const StudentMockInterview = () => {
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [aiConfig, setAiConfig] = useState<any>(null);
+  const [isNewReport, setIsNewReport] = useState(false);
 
   // Step 1: User clicks "Start Interview" on a card → open permission dialog
   const handleStartPractice = (role: Role) => {
@@ -33,9 +35,9 @@ const StudentMockInterview = () => {
       // Start the interview session
       const response = await mockInterviewService.startInterview(
         selectedRole.id,
-        'beginner', // or get from somewhere
+        'beginner',
         selectedRole.max_duration,
-        undefined // resume file
+        undefined 
       );
       
       const settings: InterviewSettings = {
@@ -46,12 +48,10 @@ const StudentMockInterview = () => {
       };
       
       setInterviewSettings(settings);
-      // Map relevant fields to aiConfig
       setAiConfig({
         interview_type: response.interview_type,
         first_question: response.first_question
       });
-      // Submission ID (assessment app) vs Interview Session ID (ai_assistant app)
       setSubmissionId(response.submission_id);
       setInterviewSessionId(response.interview_session_id);
       setChatSessionId(response.chat_session_id);
@@ -72,19 +72,18 @@ const StudentMockInterview = () => {
   // Step 4: Interview completed (AI session finished)
   const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sid: string) => {
     setSubmissionId(sid);
-    setState('reports');
+    setIsNewReport(true);
+    setState('thank-you');
   };
 
-  // Step 5: User exits interview early (keep sessionId if available)
+  // Step 5: User exits interview early
   const handleExitInterview = () => {
     if (interviewSettings?.mediaStream) {
       interviewSettings.mediaStream.getTracks().forEach(t => t.stop());
     }
-    // Keep submissionId (if any) so report fetch can still work; to prevent `No session ID provided`.
-    setState('reports');
+    setState('thank-you');
   };
 
-  // Step 6: Try again from reports
   const handleTryAgain = () => {
     if (interviewSettings?.mediaStream) {
       interviewSettings.mediaStream.getTracks().forEach(t => t.stop());
@@ -92,10 +91,10 @@ const StudentMockInterview = () => {
     setInterviewSettings(null);
     setSubmissionId(null);
     setInterviewSessionId(null);
+    setIsNewReport(false);
     setState('permission');
   };
 
-  // Step 7: Back to library from reports
   const handleBackToLibrary = () => {
     if (interviewSettings?.mediaStream) {
       interviewSettings.mediaStream.getTracks().forEach(t => t.stop());
@@ -104,10 +103,11 @@ const StudentMockInterview = () => {
     setInterviewSettings(null);
     setSubmissionId(null);
     setInterviewSessionId(null);
+    setIsNewReport(false);
     setState('library');
   };
 
-  // ── Full-screen interview (no sidebar/layout) ──────────────────────
+  // ── Full-screen interview ──────────────────────
   if (state === 'interview' && selectedRole && interviewSettings) {
     return (
       <InterviewScreen
@@ -127,7 +127,7 @@ const StudentMockInterview = () => {
     );
   }
 
-  // ── Reports screen (inside layout) ─────────────────────────────────
+  // ── Reports screen ─────────────────────────────────
   if (state === 'reports' && selectedRole) {
     return (
       <ReportsScreen
@@ -137,16 +137,20 @@ const StudentMockInterview = () => {
         sessionId={submissionId}
         onTryAgain={handleTryAgain}
         onBackToLibrary={handleBackToLibrary}
+        isNewReport={isNewReport}
       />
     );
   }
 
-  // ── Library view (inside layout) ───────────────────────────────────
+  // ── Thank you screen ──────────────────────
+  if (state === 'thank-you') {
+    return <ThankYouScreen onComplete={handleBackToLibrary} />;
+  }
+
+  // ── Library view ───────────────────────────────────
   return (
     <StudentLayout>
       <MockInterviewLibrary onStartPractice={handleStartPractice} />
-
-      {/* Permission dialog */}
       <PermissionDialog
         open={state === 'permission'}
         onConfirm={handlePermissionConfirmed}

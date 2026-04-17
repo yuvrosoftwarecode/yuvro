@@ -469,30 +469,18 @@ class InterviewReportGenerator:
     Service to generate detailed interview reports using AI.
     """
 
-    def __init__(self, interview_session):
-        self.interview_session = interview_session
+    def __init__(self):
+        # We'll use Gemini for report generation as it handles large contexts well
         self.api_key = config("GEMINI_API_KEY", default=None)
         if not self.api_key:
             raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
         self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
 
-    async def generate_report(self) -> Any:
+    async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
         """
-        Generate and save a comprehensive interview report.
+        Generate a comprehensive interview report based on the chat session.
         """
-        from .models import InterviewReport
 
-        # 1. Prepare Transcript
-        messages = self.interview_session.chat_session.messages.all().order_by('created_at')
-        conversation_text = ""
-        for msg in messages:
-            role = "Interviewer" if msg.message_type == 'assistant' else "Candidate"
-            conversation_text += f"{role}: {msg.content}\n\n"
-
-        # 2. Prepare Resume Context
-        resume_content = "No resume provided."
-        # Logic to read resume file if needed, but for now we'll assume it's in the chat context if anywhere
-        
         prompt = f"""
         You are an expert technical interviewer and career coach. 
         Analyze the following mock interview transcript and generate a detailed performance report.
@@ -501,6 +489,9 @@ class InterviewReportGenerator:
 
         TRANSCRIPT:
         {conversation_text}
+
+        RESUME CONTEXT:
+        {resume_content if resume_content else "No resume provided."}
 
         OUTPUT FORMAT (JSON):
         {{
@@ -536,6 +527,7 @@ class InterviewReportGenerator:
         """
 
         try:
+            # We use a slightly higher temperature for creative feedback but constrained by JSON format
             response = await self.service.generate_response(
                 [{"role": "user", "content": prompt}],
                 temperature=0.4,
@@ -543,27 +535,16 @@ class InterviewReportGenerator:
             )
 
             response_text = response["response"]
+            
+            # clean up potential markdown formatting if model ignores instruction
             response_text = response_text.replace("```json", "").replace("```", "").strip()
-            data = json.loads(response_text)
+            
+            return json.loads(response_text)
 
-            # 3. Save to Database
-            report, created = InterviewReport.objects.update_or_create(
-                interview_session=self.interview_session,
-                defaults={
-                    "overall_score": data.get("overall_score", 0),
-                    "feedback_summary": data.get("feedback_summary", ""),
-                    "performance_metrics": data.get("performance_metrics", {}),
-                    "skill_analysis": data.get("skill_analysis", {}),
-                    "question_analysis": data.get("question_analysis", []),
-                    "key_takeaways": data.get("key_takeaways", {}),
-                    "meta_stats": {
-                        "tokens_used": response.get("tokens_used"),
-                        "model": response.get("metadata", {}).get("model")
-                    }
-                }
-            )
-            return report
-
+        except json.JSONDecodeError:
+            logger.error("Failed to parse AI report JSON")
+            raise AIServiceError("Failed to generate valid report format")
         except Exception as e:
             logger.error(f"Report generation error: {str(e)}")
             raise e
+

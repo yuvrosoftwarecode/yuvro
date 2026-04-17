@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Play, Clock, HelpCircle } from 'lucide-react';
+import { Play, Clock, HelpCircle, ChevronRight, TrendingUp } from 'lucide-react';
 
 
 interface InterviewRoleCardProps {
@@ -164,28 +164,48 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
         </div>
   
   {my_submissions && my_submissions.length > 0 && (
-    <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
-       <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-1">
+    <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3">
+       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 p-1 px-2 rounded-md bg-slate-50 w-fit uppercase tracking-tight">
          <Clock className="h-3 w-3" />
          Previous Attempts
        </div>
-       <div className="flex flex-wrap gap-2">
+       <div className="flex flex-col gap-2">
          {my_submissions.slice(0, 3).map((sub: any) => (
-           <Badge 
+           <div 
              key={sub.id} 
-             variant="secondary" 
-             className="text-[10px] py-0 h-6 cursor-pointer hover:bg-slate-200"
+             className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all group/report cursor-pointer"
              onClick={(e) => {
                e.stopPropagation();
-               // Navigate to report
                window.location.href = `/student/mock-interview/report/${sub.id}`;
              }}
            >
-             {sub.report_summary?.overall_score ? `${sub.report_summary.overall_score}%` : 'View'}
-           </Badge>
+             <div className="flex items-center gap-2.5">
+               <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center group-hover/report:bg-blue-50 transition-colors">
+                 <TrendingUp className="h-4 w-4 text-emerald-500 group-hover/report:text-blue-500" />
+               </div>
+               <div className="flex flex-col">
+                 <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight">
+                    {new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                 </span>
+                 <span className="text-[9px] font-bold text-slate-400">
+                    {sub.report_summary?.overall_score ? `Score: ${sub.report_summary.overall_score}%` : 'Finalizing analysis...'}
+                 </span>
+               </div>
+             </div>
+             <div className="flex items-center gap-1">
+                <span className="text-[9px] font-bold text-blue-600 opacity-0 group-hover/report:opacity-100 transition-opacity">
+                    View
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-300 group-hover/report:text-blue-500 group-hover/report:translate-x-0.5 transition-all" />
+             </div>
+           </div>
          ))}
          {my_submissions.length > 3 && (
-           <span className="text-[10px] text-slate-400">+{my_submissions.length - 3} more</span>
+           <div className="text-center pt-1">
+             <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">
+                +{my_submissions.length - 3} more attempts in history
+             </span>
+           </div>
          )}
        </div>
     </div>

@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import threading
+import traceback
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils import timezone
@@ -923,8 +925,6 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             if submission:
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.completed_at = timezone.now()
-                # Store actual duration if needed
-                # submission.selected_duration = ... 
                 submission.save()
         except Exception as e:
              print(f"Error syncing MockInterviewSubmission: {e}")
@@ -933,9 +933,6 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
         try:
             report_generator = InterviewReportGenerator()
             
-            # Read resume content if file exists
-            resume_text = None
-
             # Prepare conversation text synchronously
             trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
             messages = interview_session.chat_session.messages.order_by("created_at")
@@ -987,3 +984,4 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 {"detail": "Interview ended but report generation failed.", "error": str(e)},
                 status=status.HTTP_200_OK, # Soft fail, we still ended the interview
             )
+

@@ -256,8 +256,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
       window.speechSynthesis.cancel();
 
-      if (submissionId) {
-        // Correctly finalize the assessment submission (not the AI session ID)
+      if (interviewSessionId) {
+        // Use the specialized end_interview endpoint which handles report generation
+        await mockInterviewService.endInterviewSession(interviewSessionId);
+        onInterviewComplete(role, difficulty, duration, submissionId || interviewSessionId);
+      } else if (submissionId) {
+        // Fallback for when only submissionId is present
         await mockInterviewService.updateMockInterviewSubmission(submissionId, {
           status: 'completed',
         });

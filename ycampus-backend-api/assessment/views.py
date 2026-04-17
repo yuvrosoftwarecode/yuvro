@@ -1093,6 +1093,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         
         # Check if interview just completed
         if instance.status == MockInterviewSubmission.STATUS_COMPLETED:
+            logger.info(f"--- Interview Completed detected for submission {instance.id} ---")
             from assessment.models import UserInterviewProgress
             
             progress, created = UserInterviewProgress.objects.get_or_create(
@@ -1142,7 +1143,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 generator = InterviewReportGenerator(interview_session)
                 # Use async_to_sync because generate_report is async
                 async_to_sync(generator.generate_report)()
-                logger.info(f"Background report generation complete for session {interview_session.id}")
+                logger.info(f"Background report generation successfully finished for session {interview_session.id}")
             except Exception as e:
                 logger.error(f"Background report generation failed: {str(e)}")
                 logger.error(traceback.format_exc())
