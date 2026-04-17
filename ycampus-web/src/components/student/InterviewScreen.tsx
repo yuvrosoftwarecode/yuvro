@@ -16,6 +16,9 @@ interface InterviewScreenProps {
   mediaStream: MediaStream;
   resume?: File;
   aiConfig?: any;
+  submissionId?: string;
+  interviewSessionId?: string;
+  chatSessionId?: string;
   onExit: () => void;
   onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
@@ -28,6 +31,9 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   mediaStream,
   resume,
   aiConfig,
+  submissionId: propsSubmissionId,
+  interviewSessionId: propsInterviewSessionId,
+  chatSessionId: propsChatSessionId,
   onExit,
   onInterviewComplete,
 }) => {
@@ -41,15 +47,40 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [isInterviewCompleted, setIsInterviewCompleted] = useState(false);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('modern');
+  const [interviewState, setInterviewState] = useState<'initial' | 'listening' | 'thinking' | 'speaking'>('initial');
+
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const initializedRef = useRef(false);
+  const interviewStateRef = useRef(interviewState);
+  const currentUserAnswerRef = useRef(currentUserAnswer);
+  const currentCodeRef = useRef(currentCode);
+  const showCodeEditorRef = useRef(showCodeEditor);
+
+  // Sync refs with state to avoid stale closures in speech recognition callbacks
+  useEffect(() => {
+    interviewStateRef.current = interviewState;
+  }, [interviewState]);
+
+  useEffect(() => {
+    currentUserAnswerRef.current = currentUserAnswer;
+  }, [currentUserAnswer]);
+
+  useEffect(() => {
+    currentCodeRef.current = currentCode;
+  }, [currentCode]);
+
+  useEffect(() => {
+    showCodeEditorRef.current = showCodeEditor;
+  }, [showCodeEditor]);
 
   const checkCodingQuestion = (text: string) => {
     const aiText = text.toLowerCase();
@@ -82,32 +113,62 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
     if (!selectedVoice) {
       if (interviewer === 'Junnu') {
-        selectedVoice =
-          voices.find(v => v.name.includes('Microsoft Ravi')) ||
-          voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('male')) ||
-          voices.find(v => v.name.includes('Google UK English Male'));
+        const malePatterns = ['Ravi', 'Heera', 'Male', 'David', 'James', 'Daniel'];
+        selectedVoice = voices.find(v => malePatterns.some(p => v.name.includes(p)) && v.lang.startsWith('en'));
       } else {
-        selectedVoice =
-          voices.find(v => v.name.includes('Google US English')) ||
-          voices.find(v => v.name.includes('Microsoft Zira')) ||
-          voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('male'));
+        const femalePatterns = ['Samantha', 'Zira', 'Female', 'Google UK English Female', 'Anna', 'Google US English'];
+        selectedVoice = voices.find(v => femalePatterns.some(p => v.name.includes(p)) && v.lang.startsWith('en'));
       }
+    }
+
+    // FINAL FALLBACK: Just pick any English voice if still nothing
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
     }
 
     if (selectedVoice) utterance.voice = selectedVoice;
     utterance.rate = role.voice_speed || 1;
     utterance.pitch = 1;
     utterance.volume = 1;
+
+    utterance.onstart = () => {
+      // Clear silence timer if it's running
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      setInterviewState('speaking');
+      setIsAITyping(false);
+    };
+
+    utterance.onend = () => {
+      if (!isInterviewCompleted) {
+        setInterviewState('listening');
+        setIsRecording(true);
+        setIsUserTyping(true);
+      }
+    };
+
     window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
-    const loadVoices = () => window.speechSynthesis.getVoices();
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v.length > 0) {
+        // Voices loaded
+      }
+    };
+    
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
+    
+    // Polling fallback for some browsers
+    const interval = setInterval(() => {
+      if (window.speechSynthesis.getVoices().length > 0) clearInterval(interval);
+    }, 500);
+
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
       window.speechSynthesis.cancel();
+      clearInterval(interval);
     };
   }, []);
 
@@ -121,38 +182,60 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     setTimeLeft(seconds);
 
     const initInterview = async () => {
+      // Ensure we have all necessary IDs before initializing
+      if (!propsSubmissionId || !propsInterviewSessionId || !propsChatSessionId || !aiConfig) return;
       if (initializedRef.current) return;
+      
       initializedRef.current = true;
 
       try {
-        setIsAITyping(true);
-        const durationMatch = duration.match(/(\d+)/);
-        const durationMins = durationMatch ? parseInt(durationMatch[1]) : 30;
+        setSubmissionId(propsSubmissionId);
+        setInterviewSessionId(propsInterviewSessionId);
+        setChatSessionId(propsChatSessionId);
 
-        const response = await mockInterviewService.startInterview(
-          role.id,
-          difficulty,
-          durationMins,
-          resume,
-        );
+        const config = aiConfig;
+        const isPredefined = config.interview_type === 'predefined';
 
-        if (response.id) setInterviewSessionId(response.id);
-
-        if (response.chat_session_id) {
-          setChatSessionId(response.chat_session_id);
+        if (isPredefined) {
+          // --- PREDEFINED MODE INITIALIZATION ---
+          const greeting = config.first_question || "Hello! I'm your interviewer today. To start, could you please introduce yourself?";
+          setConversation([{
+            type: 'ai',
+            content: greeting,
+            timestamp: new Date().toLocaleTimeString(),
+          }]);
+          
+          setIsAITyping(false);
+          // Small delay to ensure synthesis is ready
+          setTimeout(() => {
+             speakText(greeting);
+          }, 1000);
+        } else {
+          // --- FULL AI MODE ---
+          const finalChatId = propsChatSessionId;
+          setChatSessionId(finalChatId);
+          setIsAITyping(true);
           const initialPrompt = 'The interview is starting now. Please introduce yourself and ask the first question.';
-          const aiResponse = await aiAssistantService.sendMessage(response.chat_session_id, initialPrompt);
-          const aiText = aiResponse.response || 'Welcome to the interview.';
+          const aiResponse = await aiAssistantService.sendMessage(finalChatId, initialPrompt);
+          const aiText = aiResponse.response;
+          
+          if (!aiText) {
+             console.warn("AI returned empty greeting response");
+             setIsAITyping(false);
+             return;
+          }
           setConversation([{
             type: 'ai',
             content: aiText,
             timestamp: new Date().toLocaleTimeString(),
             questionType: 'behavioral',
           }]);
-          speakText(aiText);
+          setIsAITyping(false);
+          setTimeout(() => {
+            speakText(aiText);
+          }, 1000);
           checkCodingQuestion(aiText);
         }
-        setIsAITyping(false);
       } catch (error) {
         console.error('Failed to start interview', error);
         setIsAITyping(false);
@@ -160,7 +243,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     };
 
     initInterview();
-  }, [role.id, difficulty, duration]);
+  }, [role.id, difficulty, duration, propsSubmissionId, propsInterviewSessionId, propsChatSessionId, aiConfig]);
 
   const handleEndInterview = async () => {
     // Avoid repeated end flow
@@ -174,7 +257,10 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       window.speechSynthesis.cancel();
 
       if (interviewSessionId) {
-        await mockInterviewService.endInterviewSession(interviewSessionId);
+        // Use standard completeInterview or patch the submission with asked_question_ids
+        await mockInterviewService.updateMockInterviewSubmission(interviewSessionId, {
+          status: 'completed',
+        });
         onInterviewComplete(role, difficulty, duration, interviewSessionId);
       } else {
         onExit();
@@ -207,14 +293,23 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   }, [mediaStream, layout]);
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    if (('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) && !recognitionRef.current) {
       const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SR();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
+      const recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
-      recognitionRef.current.onresult = (event: any) => {
+      recognition.onresult = (event: any) => {
+        // ONLY process if we are in listening state
+        if (interviewStateRef.current !== 'listening') return;
+
+        // Reset silence timer on every speech result
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = setTimeout(() => {
+          handleAutoSubmit();
+        }, 1800);
+
         let final = '';
         let interim = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -222,22 +317,33 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           if (event.results[i].isFinal) final += t;
           else interim += t;
         }
+        
         setCurrentUserAnswer(prev => {
           const base = prev.split(' [interim]')[0];
           return base + final + (interim ? ` [interim]${interim}` : '');
         });
+        setIsUserTyping(true); // Ensure transcript is visible when speaking starts
       };
 
-      recognitionRef.current.onend = () => {
-        if (isRecording) {
-          try { recognitionRef.current?.start(); } catch (e) { }
+      recognition.onend = () => {
+        // Always try to restart the recognition itself if the component is still active
+        // and interview is not completed. This handles browser-side timeouts.
+        if (!isInterviewCompleted) {
+          try { recognition.start(); } catch (e) { }
         }
       };
+
+      recognitionRef.current = recognition;
+      try { recognition.start(); } catch (e) { }
     }
+
     return () => {
-      if (recognitionRef.current) try { recognitionRef.current.stop(); } catch (e) { }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) { }
+      }
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
-  }, [isRecording]);
+  }, [isInterviewCompleted]); // Only restart engine if completion status changes or on mount
 
   useEffect(() => {
     conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -249,68 +355,111 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleToggleRecording = async () => {
-    if (isInterviewCompleted) return;
-    if (!chatSessionId) { alert('Interview not initialized yet.'); return; }
+  const handleAutoSubmit = async () => {
+    // Proactively clear the timer
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    
+    // Check ref for latest state
+    if (isInterviewCompleted || interviewStateRef.current !== 'listening') return;
 
-    if (!isRecording) {
-      window.speechSynthesis.cancel();
+    let cleanAnswer = currentUserAnswerRef.current.replace(/ \[interim\].*$/, '').trim();
+    const latestCode = currentCodeRef.current;
+    const isEditorActive = showCodeEditorRef.current;
+
+    if (!cleanAnswer && isEditorActive && latestCode) {
+      cleanAnswer = 'I have written the code in the editor.';
+    }
+
+    if (!cleanAnswer && !latestCode) {
+      // Still listening if no content
+      setInterviewState('listening');
       setIsRecording(true);
       setIsUserTyping(true);
-      setCurrentUserAnswer('');
-      if (recognitionRef.current) try { recognitionRef.current.start(); } catch (e) { }
-    } else {
-      setIsRecording(false);
-      setIsUserTyping(false);
-      if (recognitionRef.current) try { recognitionRef.current.stop(); } catch (e) { }
+      return;
+    }
 
-      let cleanAnswer = currentUserAnswer.replace(/ \[interim\].*$/, '').trim();
-      if (!cleanAnswer && showCodeEditor && currentCode) {
-        cleanAnswer = 'I have written the code in the editor.';
-      }
+    const userMessage: Message = {
+      type: 'user',
+      content: cleanAnswer || '(No verbal answer)',
+      timestamp: new Date().toLocaleTimeString(),
+      codeSubmission: isEditorActive ? latestCode : undefined,
+    };
+    setConversation(prev => [...prev, userMessage]);
+    setCurrentUserAnswer('');
+    setCurrentCode(''); 
 
-      let combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : '');
-      if (!combinedAnswer.trim()) combinedAnswer = '(No verbal answer provided)';
+    setInterviewState('thinking');
+    setIsRecording(false);
+    setIsUserTyping(false);
+    setIsAITyping(true);
 
-      const userMessage: Message = {
-        type: 'user',
-        content: cleanAnswer || '(No verbal answer)',
-        timestamp: new Date().toLocaleTimeString(),
-        codeSubmission: showCodeEditor ? currentCode : undefined,
-      };
-      setConversation(prev => [...prev, userMessage]);
-      setCurrentUserAnswer('');
-      setCurrentCode('');
+    const isPredefined = aiConfig?.interview_type === 'predefined';
+    const effectiveInterviewSessionId = propsInterviewSessionId || interviewSessionId;
+    const effectiveChatId = propsChatSessionId || chatSessionId;
 
-      setIsAITyping(true);
-      try {
-        const aiResp = await aiAssistantService.sendMessage(chatSessionId, combinedAnswer);
-        const aiText = aiResp.response || 'Could you provide more details?';
+    try {
+      if (isPredefined && effectiveInterviewSessionId) {
+        // --- PREDEFINED DIALOGUE ENGINE ---
+        // We use the specialized getNextQuestion endpoint which handles tree traversal 
+        // AND backend logging to the chat session automatically.
+        const lowerAnswer = cleanAnswer.toLowerCase();
+        let status_val = 'normal';
+        if (lowerAnswer.includes('repeat') || lowerAnswer.includes('pardon') || lowerAnswer.includes('say that again')) {
+          status_val = 'repeat';
+        } else if (lowerAnswer.includes('skip') || lowerAnswer.includes("don't know") || lowerAnswer.includes("don't have an answer") || lowerAnswer.includes("no idea")) {
+          status_val = 'skip';
+        }
+
+        const response = await mockInterviewService.getNextQuestion(role.id, effectiveInterviewSessionId, cleanAnswer, status_val);
+        const nextText = response.question;
+
+        const aiMessage: Message = {
+          type: 'ai',
+          content: nextText,
+          timestamp: new Date().toLocaleTimeString(),
+        };
+        setConversation(prev => [...prev, aiMessage]);
+        speakText(nextText);
+        
+        setIsAITyping(false);
+
+        if (response.is_finished) {
+          setTimeout(() => handleEndInterview(), 4000);
+        }
+      } else if (effectiveChatId) {
+        // --- FULL AI MODE ---
+        // In this mode, we use the free-form AI assistant service
+        let combinedAnswer = cleanAnswer + (isEditorActive && latestCode ? `\n\n[Code Submission]:\n${latestCode}` : '');
+        const aiResp = await aiAssistantService.sendMessage(effectiveChatId, combinedAnswer);
+        const aiText = aiResp.response;
+        
+        if (!aiText) {
+          throw new Error("Empty AI response in Full AI Mode");
+        }
+
         const aiMessage: Message = {
           type: 'ai',
           content: aiText,
           timestamp: new Date().toLocaleTimeString(),
-          questionType: 'behavioral',
         };
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
         checkCodingQuestion(aiText);
-
-        const isPredefinedMode = aiConfig?.mode === 'predefined' || (aiConfig?.predefined_questions_count || 0) > 0;
-        const predefinedCount = aiConfig?.predefined_questions_count || 0;
-        const currentUserCount = conversation.filter(msg => msg.type === 'user').length + 1;
-
-        // If the AI clearly marks completion, terminate interview.
-        const isCompletionText = aiText.toLowerCase().includes('the interview is now complete') || aiText.toLowerCase().includes('thank you for your time');
-
-        if (isPredefinedMode && (isCompletionText || (predefinedCount > 0 && currentUserCount >= predefinedCount))) {
-          setTimeout(() => handleEndInterview(), 1200);
-        }
-      } catch (err) {
-        console.error('AI Error', err);
-      } finally {
         setIsAITyping(false);
       }
+    } catch (err) {
+      console.error('Dialogue error:', err);
+      // Fallback: resume listening if everything fails
+      setInterviewState('listening');
+      setIsRecording(true);
+      setIsAITyping(false);
+    }
+  };
+
+  const handleToggleRecording = async () => {
+    // Manual trigger for those who don't want to wait for silence
+    if (interviewState === 'listening') {
+      handleAutoSubmit();
     }
   };
 
@@ -425,34 +574,36 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
                   AI is thinking...
                 </div>
               )}
-              {isUserTyping && (
-                <div className="flex justify-end text-xs text-slate-400 mr-2">
-                  Listening... <span className="ml-1 animate-pulse">🎤</span>
-                </div>
-              )}
               <div ref={conversationEndRef} />
             </div>
 
-            <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-center gap-4">
-              {isRecording && (
-                <div className="flex items-center gap-1 h-8 px-4">
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: `${Math.random() * 100}%` }} />
-                  ))}
-                </div>
-              )}
-              <Button
-                size="lg"
-                onClick={handleToggleRecording}
-                disabled={isAITyping || isInterviewCompleted}
-                className={`rounded-full px-8 h-12 font-bold shadow-lg transition-all ${
-                  isRecording
-                    ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200'
-                    : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200'
-                } ${isInterviewCompleted ? 'opacity-60 cursor-not-allowed' : ''}`}
-              >
-                {isRecording ? <><MicOff className="w-4 h-4 mr-2" /> Stop Recording</> : <><Mic className="w-4 h-4 mr-2" /> Start Answer</>}
-              </Button>
+            <div className="p-4 bg-white border-t border-slate-100 flex flex-col items-center justify-center gap-3">
+              <div className="flex items-center gap-3">
+                {interviewState === 'listening' && (
+                  <div className="flex items-center gap-1 h-8 px-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <div key={i} className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: `${Math.random() * 80 + 20}%`, animationDelay: `${i * 0.1}s` }} />
+                    ))}
+                    <span className="text-xs font-bold text-blue-600 ml-2 uppercase tracking-widest">Listening</span>
+                  </div>
+                )}
+                {interviewState === 'speaking' && (
+                  <div className="flex items-center gap-1 h-8 px-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <div key={i} className="w-1 bg-green-500 rounded-full animate-bounce" style={{ height: `${Math.random() * 80 + 20}%`, animationDelay: `${i * 0.15}s` }} />
+                    ))}
+                    <span className="text-xs font-bold text-green-600 ml-2 uppercase tracking-widest">AI Speaking</span>
+                  </div>
+                )}
+                {interviewState === 'thinking' && (
+                  <div className="flex items-center gap-2 h-8 px-4">
+                    <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">AI Thinking</span>
+                  </div>
+                )}
+              </div>
+              
+        
             </div>
           </Card>
         </div>
@@ -511,12 +662,36 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
               </div>
               <div className="flex-1 bg-black relative overflow-hidden">
                 <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 pointer-events-none" />
                 {isRecording && (
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 items-end h-12 px-8">
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 items-end h-16 px-8 pointer-events-none">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                      <div key={i} className="w-1.5 bg-green-400/80 rounded-t-full" style={{ height: '20%', animationDelay: `${i * 0.05}s` }} />
+                      <div key={i} className="w-1.5 bg-green-400/80 rounded-t-full animate-pulse" style={{ height: `${Math.random() * 60 + 20}%`, animationDelay: `${i * 0.05}s` }} />
                     ))}
+                  </div>
+                )}
+
+                {/* Live Transcript OVERLAY */}
+                {isUserTyping && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-md text-white p-4 animate-in fade-in slide-in-from-bottom-4 duration-500 border-t border-white/10 z-20">
+                    <div className="flex items-center gap-2 mb-2">
+                       <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+                       <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400">Live Transcript</span>
+                    </div>
+                    <div className="text-sm leading-relaxed font-medium transition-all duration-300">
+                      {currentUserAnswer ? (
+                        <>
+                          <span>{currentUserAnswer.split(' [interim]')[0]}</span>
+                          {currentUserAnswer.includes(' [interim]') && (
+                            <span className="text-white/50 italic ml-1">
+                              {currentUserAnswer.split(' [interim]')[1]}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-white/40 italic">Listening...</span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

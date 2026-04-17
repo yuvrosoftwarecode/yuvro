@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from assessment.models import SkillTest, Contest, MockInterview, JobTest
+from assessment.models import SkillTest, Contest, MockInterview, JobTest, PredefinedInterviewQuestion
 from course.models import Subject, Unit, Question
 from ai_assistant.models import AIAgent
 
@@ -414,46 +414,11 @@ class Command(BaseCommand):
                     # Skills configuration
                     "required_skills": mock_interview_data.get("required_skills", []),
                     "optional_skills": mock_interview_data.get("optional_skills", []),
-                    # AI / Voice configuration
-                    "ai_generation_mode": mock_interview_data.get(
-                        "ai_generation_mode", "full_ai"
-                    ),
-                    "ai_percentage": mock_interview_data.get("ai_percentage", 100),
-                    # Voice configuration
-                    "voice_type": mock_interview_data.get("voice_type", "junnu"),
-                    "interviewer_name": mock_interview_data.get(
-                        "interviewer_name", "Junnu"
-                    ),
-                    "interviewer_voice_id": mock_interview_data.get(
-                        "interviewer_voice_id", ""
-                    ),
-                    "voice_speed": mock_interview_data.get("voice_speed", 1.0),
-                    "ai_context": mock_interview_data.get("ai_context", {}),
-                    "audio_settings": mock_interview_data.get("audio_settings", {}),
-                    "questions_random_config": mock_interview_data.get(
-                        "questions_random_config", {}
-                    ),
                     "publish_status": mock_interview_data.get(
                         "publish_status", "draft"
                     ),
                     "created_by": default_user,
                 }
-
-                # Build questions_config
-                q_config = mock_interview_data.get("questions_config") or {}
-                q_random = mock_interview_data.get("questions_random_config") or {}
-                for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
-                    if qtype not in q_config:
-                        count = int(q_random.get(qtype, 0))
-                        q_config[qtype] = (
-                            self._select_questions(
-                                qtype, count, "mock_interview", subject, unit
-                            )
-                            if count > 0
-                            else []
-                        )
-
-                mock_interview_kwargs["questions_config"] = q_config
 
                 # Check if mock interview already exists
                 existing_mock_interview = MockInterview.objects.filter(
@@ -461,19 +426,42 @@ class Command(BaseCommand):
                 ).first()
 
                 if not existing_mock_interview:
-                    MockInterview.objects.create(**mock_interview_kwargs)
+                    mock_interview = MockInterview.objects.create(**mock_interview_kwargs)
                     self.stdout.write(
                         f'✓ Created mock interview: {mock_interview_data["title"]}'
                     )
                 else:
                     # Update existing mock interview with new data
+                    mock_interview = existing_mock_interview
                     for key, value in mock_interview_kwargs.items():
                         if key != "created_by":  # Don't update the creator
-                            setattr(existing_mock_interview, key, value)
-                    existing_mock_interview.save()
+                            setattr(mock_interview, key, value)
+                    mock_interview.save()
                     self.stdout.write(
                         f'↻ Updated existing mock interview: {mock_interview_data["title"]}'
                     )
+
+                # --- NEW: Load Predefined Question Tree if present ---
+                tree_data = mock_interview_data.get("predefined_tree")
+                if tree_data and isinstance(tree_data, list):
+                    # Clear existing to avoid duplicates on re-seed
+                    PredefinedInterviewQuestion.objects.filter(mock_interview=mock_interview).delete()
+                    
+                    def _load_node(node_data, parent=None, level=1):
+                        q_obj = PredefinedInterviewQuestion.objects.create(
+                            mock_interview=mock_interview,
+                            text=node_data["text"],
+                            parent=parent,
+                            level=level,
+                            created_by=default_user
+                        )
+                        for f_data in node_data.get("follow_ups", []):
+                            _load_node(f_data, parent=q_obj, level=level + 1)
+                    
+                    for root_data in tree_data:
+                        _load_node(root_data)
+                    
+                    self.stdout.write(f'  ↳ Loaded {len(tree_data)} main questions and their follow-up trees')
 
             except Exception as e:
                 self.stdout.write(

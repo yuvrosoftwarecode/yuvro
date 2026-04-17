@@ -149,22 +149,6 @@ class MockInterview(BaseModel):
         (PUBLISH_STATUS_ARCHIVED, "Archived"),
     ]
 
-    AI_GEN_FULL = "full_ai"
-    AI_GEN_MIXED = "mixed"
-    AI_GEN_PREDEFINED = "predefined"
-    AI_GEN_CHOICES = [
-        (AI_GEN_FULL, "Full AI Generated"),
-        (AI_GEN_MIXED, "Mixed (AI + Predefined)"),
-        (AI_GEN_PREDEFINED, "Predefined Questions Only"),
-    ]
-
-    VOICE_JUNNU = "junnu"
-    VOICE_MUNNU = "munnu"
-    VOICE_CHOICES = [
-        (VOICE_JUNNU, "Junnu (Male IN)"),
-        (VOICE_MUNNU, "Munnu (Female US)"),
-    ]
-
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     instructions = models.TextField(blank=True)
@@ -181,48 +165,6 @@ class MockInterview(BaseModel):
         default=list, blank=True, help_text="List of optional skills"
     )
 
-    # AI Configuration
-    ai_generation_mode = models.CharField(
-        max_length=20, choices=AI_GEN_CHOICES, default=AI_GEN_FULL
-    )
-    ai_percentage = models.IntegerField(
-        default=100, help_text="Percentage of AI generated questions (0-100)"
-    )
-    ai_context = models.JSONField(
-        default=dict, blank=True, help_text='AI config: {"context": "Focus...", "predefined_questions": ["Q1", "Q2"], "coding_questions_count": 1}'
-    )
-
-    # Voice Configuration
-    voice_type = models.CharField(
-        max_length=20, choices=VOICE_CHOICES, default=VOICE_JUNNU
-    )  # Deprecated
-    interviewer_name = models.CharField(
-        max_length=100, default="Junnu", help_text="Name of the AI interviewer"
-    )
-    interviewer_voice_id = models.CharField(
-        max_length=255, blank=True, default="", help_text="Specific voice ID for TTS"
-    )
-
-    voice_speed = models.FloatField(
-        default=1.0, help_text="Voice playback speed (0.5 to 2.0)"
-    )
-    audio_settings = models.JSONField(
-        default=dict, blank=True, help_text="Additional audio settings"
-    )
-
-    # Standard Configuration (retained from BaseAssessmentModel)
-    questions_config = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="Questions configuration by category: {'mcq_single': ['uuid1'], ...}",
-    )
-
-    questions_random_config = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="Random question configuration: {'mcq_single': 5, ...}",
-    )
-
     publish_status = models.CharField(
         max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
     )
@@ -231,7 +173,24 @@ class MockInterview(BaseModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.title} ({self.get_ai_generation_mode_display()})"
+        return f"{self.title}"
+
+
+class PredefinedInterviewQuestion(BaseModel):
+    mock_interview = models.ForeignKey(
+        'MockInterview', on_delete=models.CASCADE, related_name="predefined_questions"
+    )
+    text = models.TextField()
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name="follow_ups"
+    )
+    level = models.IntegerField(default=1, help_text="1: Main, 2: Follow-up, 3: Deep Follow-up")
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"L{self.level}: {self.text[:50]}"
 
 
 class JobTest(BaseAssessmentModel):
@@ -374,12 +333,30 @@ class MockInterviewSubmission(BaseUserSubmission):
         blank=True,
         related_name="mock_interview_submission",
     )
+    interview_type = models.CharField(
+        max_length=20,
+        choices=[("predefined", "Predefined"), ("full_ai", "Full AI")],
+        default="full_ai"
+    )
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
+
+
+class UserInterviewProgress(BaseTimestampedModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interview_progress")
+    mock_interview = models.ForeignKey('MockInterview', on_delete=models.CASCADE)
+    completed_count = models.IntegerField(default=0, help_text="Number of predefined interviews completed in current cycle (0-5)")
+    asked_questions = models.JSONField(default=list, help_text="IDs of main questions asked in this cycle")
+
+    class Meta:
+        unique_together = ('user', 'mock_interview')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.mock_interview.title} - {self.completed_count}"
 
 
 class JobTestSubmission(BaseUserSubmission):
@@ -603,19 +580,6 @@ class ContestQuestionActivity(BaseQuestionActivity):
         return f"{self.user.username} - {self.question.title[:30]} - {'Final' if self.is_final_answer else 'Draft'}"
 
 
-class MockInterviewQuestionActivity(BaseQuestionActivity):
-    mock_interview_submission = models.ForeignKey(
-        MockInterviewSubmission,
-        on_delete=models.CASCADE,
-        related_name="mock_interview_question_activities",
-    )
-
-    class Meta:
-        ordering = ["-updated_at"]
-        unique_together = ["mock_interview_submission", "question"]
-
-    def __str__(self):
-        return f"{self.user.username} - {self.question.title[:30]} - {'Final' if self.is_final_answer else 'Draft'}"
 
 
 class JobTestQuestionActivity(BaseQuestionActivity):

@@ -1,103 +1,153 @@
 {
   "mock_interviews": [
     {
-      "title": "Mock Interview — Data Structures & Algorithms (DSA)",
-      "description": "Master algorithmic thinking, problem-solving patterns, and optimization techniques. This interview challenges your ability to analyze time-space complexity and implement efficient solutions for complex computational problems.",
-      "instructions": "Algorithm analysis, problem-solving patterns, and coding tasks with multiple test cases. Focus on optimization and edge cases.",
-      "max_duration": 60,
-      "ai_generation_mode": "predefined",
-      "ai_percentage": 100,
-      "ai_context": {
-        "context": "Focus on Arrays, Strings, Linked Lists, Trees, Graphs, and Dynamic Programming.",
-        "predefined_questions": [
-          "Could you explain what a Hash Table is and how it handles collisions?",
-          "Explain the difference between a BFS and DFS traversal in a graph.",
-          "What is Dynamic Programming, and can you give an example of a problem where it's useful?",
-          "Walk me through how you would find the middle of a linked list in a single pass.",
-          "Great, now please write a function in Python that takes a list of integers and returns the two numbers that add up to a specific target."
-        ],
-        "coding_questions_count": 1
-      },
-      "voice_type": "junnu",
-      "interviewer_name": "Junnu",
-      "interviewer_voice_id": "",
-      "voice_speed": 1.0,
-      "audio_settings": {},
-      "required_skills": ["Data Structures", "Algorithms", "Problem Solving", "Complexity Analysis"],
-      "optional_skills": ["Competitive Programming", "System Design"],
-      "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 3,
-        "mcq_multiple": 2,
-        "coding": 4,
-        "descriptive": 1
-      }
-    },
-    {
       "title": "Mock Interview — Python Development",
       "description": "Comprehensive assessment of Python programming skills, including language internals, asynchronous programming, web frameworks, and data processing.",
       "instructions": "Python syntax, decorators, generators, multi-threading vs multi-processing.",
       "max_duration": 45,
-      "ai_generation_mode": "predefined",
-      "ai_percentage": 100,
-      "ai_context": {
-        "context": "Focus on Pythonic idioms (PEP 8), memory management, GIL, async/await, and library usage.",
-        "predefined_questions": [
-          "What are decorators in Python, and how would you use them?",
-          "Explain the difference between a list and a tuple, and when would you use one over the other?",
-          "What is the Global Interpreter Lock (GIL) and how does it affect multi-threading in Python?",
-          "How does memory management work in Python? Mention garbage collection.",
-          "Please write a Python decorator that logs the execution time of any function it wraps."
-        ],
-        "coding_questions_count": 1
-      },
-      "voice_type": "junnu",
-      "interviewer_name": "Junnu",
-      "interviewer_voice_id": "",
-      "voice_speed": 1.0,
-      "audio_settings": {},
       "required_skills": ["Python", "Backend Development", "Web Frameworks"],
       "optional_skills": ["FastAPI", "Pandas", "Pytest"],
       "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 5,
-        "mcq_multiple": 2,
-        "coding": 2,
-        "descriptive": 2
-      }
-    },
-    {
-      "title": "Mock Interview — HR & Behavioral",
-      "description": "Behavioral assessment focusing on cultural fit, career aspirations, soft skills, and alignment with company values.",
-      "instructions": "Behavioral questions, situational scenarios, career discussions, and value alignment conversations.",
-      "max_duration": 30,
-      "ai_generation_mode": "predefined",
-      "ai_percentage": 100,
-      "ai_context": {
-        "context": "Focus on conflict resolution, leadership potential, adaptability, and communication skills.",
-        "predefined_questions": [
-          "Tell me about yourself and why you're interested in this role.",
-          "Describe a situation where you had a conflict with a team member and how you resolved it.",
-          "What are your long-term career goals, and how does this company fit into them?",
-          "What is your biggest weakness, and how are you working to improve it?",
-          "Why should we hire you over other candidates with similar technical backgrounds?"
-        ],
-        "coding_questions_count": 0
-      },
-      "voice_type": "riley",
-      "interviewer_name": "Riley",
-      "interviewer_voice_id": "riley-voice-8",
-      "voice_speed": 1.0,
-      "audio_settings": {},
-      "required_skills": ["Communication", "Cultural Fit", "Behavioral Competencies"],
-      "optional_skills": ["Leadership", "Emotional Intelligence"],
-      "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 0,
-        "mcq_multiple": 0,
-        "coding": 0,
-        "descriptive": 5
-      }
+      "predefined_tree": [
+        {
+          "text": "What is the difference between a list and a tuple in Python?",
+          "follow_ups": [
+            {
+              "text": "When would you prefer using a tuple over a list for performance?",
+              "follow_ups": [
+                { "text": "Can you explain why tuples are faster to iterate over than lists?" },
+                { "text": "Are there any specific data types that can be used as keys in a dictionary that involve tuples but not lists?" }
+              ]
+            },
+            {
+              "text": "What does it mean for a tuple to be immutable, and are there any exceptions if the tuple contains mutable objects?",
+              "follow_ups": [
+                { "text": "If a tuple contains a list, can that list be modified? Why?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How does memory management work in Python? Specifically, what is the role of the Garbage Collector?",
+          "follow_ups": [
+            {
+              "text": "What is reference counting, and how can it lead to memory leaks?",
+              "follow_ups": [
+                { "text": "How do circular references affect reference counting?" },
+                { "text": "What is the 'gc' module used for in this context?" }
+              ]
+            },
+            {
+              "text": "Can you explain the difference between the 'is' operator and the '==' operator in terms of memory?",
+              "follow_ups": [
+                { "text": "What is 'interning' in Python, and how does it relate to the 'is' operator?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are decorators in Python, and can you describe a real-world use case?",
+          "follow_ups": [
+            {
+              "text": "How do you pass arguments to a decorator?",
+              "follow_ups": [
+                { "text": "What is the purpose of 'functools.wraps' when writing a decorator?" }
+              ]
+            },
+            {
+              "text": "Can you explain how nesting multiple decorators on a single function works?",
+              "follow_ups": [
+                { "text": "In what order are the decorators executed when they are stacked?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "Explain the concept of List Comprehension and how it differs from using a map() function.",
+          "follow_ups": [
+            {
+              "text": "Which do you find more readable and why?",
+              "follow_ups": [
+                { "text": "Is there any performance difference between map() and list comprehensions in modern Python?" }
+              ]
+            },
+            {
+              "text": "Can you include nested loops inside a list comprehension?",
+              "follow_ups": [
+                { "text": "At what point does a list comprehension become too complex, and how would you refactor it?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the 'Global Interpreter Lock' (GIL) in Python?",
+          "follow_ups": [
+            {
+              "text": "How does the GIL affect multi-threaded CPU-bound vs. I/O-bound applications?",
+              "follow_ups": [
+                { "text": "What are some ways to bypass the GIL for CPU-intensive tasks?" },
+                { "text": "Will the removal of the GIL in future Python versions change how you write code?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the difference between shallow copy and deep copy?",
+          "follow_ups": [
+            {
+              "text": "Which module in Python provides these functionalities?",
+              "follow_ups": [
+                { "text": "If a list contains a dictionary, how does a shallow copy behave when the dictionary's values are modified?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are *args and **kwargs in Python function definitions?",
+          "follow_ups": [
+            {
+              "text": "When would you intentionally use **kwargs in a decorator?",
+              "follow_ups": [
+                { "text": "Is the name 'args' and 'kwargs' mandatory, or can they be changed?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How do you handle exceptions in Python, and what is the purpose of the 'finally' block?",
+          "follow_ups": [
+            {
+              "text": "What is the difference between 'except Exception' and 'except' without a class?",
+              "follow_ups": [
+                { "text": "Can you have multiple 'except' blocks for a single 'try' statement?" },
+                { "text": "When would you use the 'else' block in a try-except statement?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are Generators in Python, and how do they differ from normal functions?",
+          "follow_ups": [
+            {
+              "text": "What is the 'yield' keyword, and what happens to the state of the function when it is called?",
+              "follow_ups": [
+                { "text": "Why are generators considered more memory-efficient when dealing with large datasets?" }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is PEP 8, and why is it important in the Python ecosystem?",
+          "follow_ups": [
+            {
+              "text": "What are some common PEP 8 rules regarding indentation and line length?",
+              "follow_ups": [
+                { "text": "Do you use any automated tools to check for PEP 8 compliance?" }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

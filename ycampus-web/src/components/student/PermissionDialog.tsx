@@ -20,37 +20,48 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
 
   useEffect(() => {
     if (open) {
+      console.log("PermissionDialog opened, initiating permission sequence...");
       requestPermissions();
     }
   }, [open]);
 
   const requestPermissions = async () => {
+    console.log("requestPermissions: Setting state to requesting");
     setPermissionState('requesting');
     setCameraGranted(false);
     setMicrophoneGranted(false);
 
     try {
+      console.log("requestPermissions: Calling navigator.mediaDevices.getUserMedia...");
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true, 
         audio: true 
       });
       
+      console.log("requestPermissions: Permissions GRANTED by browser");
       // If we get here, both permissions were granted
       setCameraGranted(true);
       setMicrophoneGranted(true);
       setPermissionState('granted');
       
       // Stop the stream since we only needed it for permission check
-      stream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      console.error('Permission denied:', error);
+      console.log("requestPermissions: Stopping test tracks...");
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Track stopped: ${track.kind}`);
+      });
+    } catch (error: any) {
+      console.error('requestPermissions: FAILED to get permissions:', error.name, error.message);
       setPermissionState('denied');
     }
   };
 
   const handleProceed = () => {
+    console.log("handleProceed: Proceeding to confirm...");
     if (cameraGranted && microphoneGranted) {
       onConfirm();
+    } else {
+      console.warn("handleProceed: Attempted to proceed without full permissions");
     }
   };
 

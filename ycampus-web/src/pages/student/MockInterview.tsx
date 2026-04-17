@@ -13,20 +13,30 @@ const StudentMockInterview = () => {
   const [state, setState] = useState<InterviewState>('library');
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [interviewSettings, setInterviewSettings] = useState<InterviewSettings | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
+  const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [aiConfig, setAiConfig] = useState<any>(null);
 
   // Step 1: User clicks "Start Interview" on a card → open permission dialog
   const handleStartPractice = (role: Role) => {
+    console.log("Starting practice for role:", role.title, role.id);
     setSelectedRole(role);
     setState('permission');
+    console.log("Current state changed to: permission");
   };
 
   // Step 2: Permission granted → request actual media stream and start interview
   const handlePermissionConfirmed = async () => {
-    if (!selectedRole) return;
+    console.log("Permission confirmed, starting actual interview initialization...");
+    if (!selectedRole) {
+      console.warn("handlePermissionConfirmed called but selectedRole is null");
+      return;
+    }
     try {
+      console.log("Requesting actual media stream...");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      console.log("Media stream obtained successfully");
       
       // Start the interview session
       const response = await mockInterviewService.startInterview(
@@ -44,8 +54,15 @@ const StudentMockInterview = () => {
       };
       
       setInterviewSettings(settings);
-      setAiConfig(response.ai_config);
-      setSessionId(response.interview_session_id || response.id);
+      // Map relevant fields to aiConfig
+      setAiConfig({
+        interview_type: response.interview_type,
+        first_question: response.first_question
+      });
+      // Submission ID (assessment app) vs Interview Session ID (ai_assistant app)
+      setSubmissionId(response.submission_id);
+      setInterviewSessionId(response.interview_session_id);
+      setChatSessionId(response.chat_session_id);
       setState('interview');
     } catch (error) {
       console.error('Failed to get media permissions or start interview:', error);
@@ -62,7 +79,7 @@ const StudentMockInterview = () => {
 
   // Step 4: Interview completed (AI session finished)
   const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sid: string) => {
-    setSessionId(sid);
+    setSubmissionId(sid);
     setState('reports');
   };
 
@@ -71,7 +88,7 @@ const StudentMockInterview = () => {
     if (interviewSettings?.mediaStream) {
       interviewSettings.mediaStream.getTracks().forEach(t => t.stop());
     }
-    // Keep sessionId (if any) so report fetch can still work; to prevent `No session ID provided`.
+    // Keep submissionId (if any) so report fetch can still work; to prevent `No session ID provided`.
     setState('reports');
   };
 
@@ -81,7 +98,8 @@ const StudentMockInterview = () => {
       interviewSettings.mediaStream.getTracks().forEach(t => t.stop());
     }
     setInterviewSettings(null);
-    setSessionId(null);
+    setSubmissionId(null);
+    setInterviewSessionId(null);
     setState('permission');
   };
 
@@ -92,7 +110,8 @@ const StudentMockInterview = () => {
     }
     setSelectedRole(null);
     setInterviewSettings(null);
-    setSessionId(null);
+    setSubmissionId(null);
+    setInterviewSessionId(null);
     setState('library');
   };
 
@@ -107,6 +126,9 @@ const StudentMockInterview = () => {
         mediaStream={interviewSettings.mediaStream}
         resume={interviewSettings.resume}
         aiConfig={aiConfig}
+        submissionId={submissionId || ''}
+        interviewSessionId={interviewSessionId || ''}
+        chatSessionId={chatSessionId || ''}
         onExit={handleExitInterview}
         onInterviewComplete={handleInterviewComplete}
       />
@@ -120,7 +142,7 @@ const StudentMockInterview = () => {
         role={selectedRole}
         difficulty={interviewSettings?.difficulty || 'beginner'}
         duration={interviewSettings?.duration || '30 mins'}
-        sessionId={sessionId}
+        sessionId={submissionId}
         onTryAgain={handleTryAgain}
         onBackToLibrary={handleBackToLibrary}
       />

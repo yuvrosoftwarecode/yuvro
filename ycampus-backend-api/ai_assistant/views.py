@@ -267,11 +267,12 @@ class AIChatMixin:
                 # Optimized, shorter interview prompt for mixed/dynamic mode
                 interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
 Rules:
-1. RESPONSE LENGTH: Exactly 1 line.
-2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
-3. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
-4. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
-5. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
+1. VOICE-FIRST: This is a hands-free voice interview. Be extremely conversational and natural.
+2. RESPONSE LENGTH: Exactly 1 line.
+3. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
+4. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
+5. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
+6. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
 {time_left_msg}"""
                 
             if is_start and not predefined_questions:
