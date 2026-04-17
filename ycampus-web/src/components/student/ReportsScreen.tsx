@@ -236,7 +236,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-5">
+      <div className="flex flex-col items-center justify-center space-y-5">
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 border-t-2 border-primary rounded-full animate-spin" />
           <div className="absolute inset-2 border-r-2 border-primary/40 rounded-full animate-spin [animation-direction:reverse]" />

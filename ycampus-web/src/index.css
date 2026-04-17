@@ -171,22 +171,20 @@ All colors MUST be HSL.
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 200px;
-    border:1px solid;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
     border-radius: 1rem;
     background-clip: padding-box;
-    background-color: #fbfbfb;
-    border: 0.25rem solid rgba(118, 118, 118, 0);
-    background: initial;
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border: 1px solid transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
     border-radius: 1rem;
-    background-color: rgba(118, 118, 118, 0.16);
-    background: initial;
+    background-color: transparent;
   }
 
   /* Hide WebKit scrollbar arrow buttons (top/bottom) */
@@ -221,7 +219,7 @@ All colors MUST be HSL.
   }
   
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: transparent;
+    background: hsl(var(--muted-foreground) / 0.2);
     border-radius: 3px;
   }
   

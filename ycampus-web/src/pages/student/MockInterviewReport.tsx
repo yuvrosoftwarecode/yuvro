@@ -20,19 +20,7 @@ const MockInterviewReport = () => {
 
     return (
         <StudentLayout>
-            <div className=" sm:px-6 lg:px-8 py-8">
-                <div className="mb-6">
-                    <Button 
-                        variant="ghost" 
-                        onClick={handleBack}
-                        className="flex items-center gap-2 text-slate-500 hover:text-slate-700 -ml-2"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Interview Library
-                    </Button>
-                </div>
-                
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 scrollbar-thin">
                     <ReportsScreen
                         sessionId={submissionId}
                         isNewReport={false} 
@@ -43,7 +31,6 @@ const MockInterviewReport = () => {
                         duration="N/A"
                     />
                 </div>
-            </div>
         </StudentLayout>
     );
 };
