@@ -21,16 +21,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchUnitsBySubject, fetchCollegeSubjects } from '@/services/subjectService';
 import departmentService, { Department } from '@/services/departmentService';
 import batchService, { Batch } from '@/services/batchService';
-import skillTestService, { SkillTest, CreateSkillTestData } from '@/services/skillTestService';
-import { fetchQuestionById, createQuestion, fetchQuestions } from '@/services/questionService';
+import skillTestService, { SkillTest } from '@/services/skillTestService';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
-import { QuestionForm } from '@/components/admin/test-questions/QuestionForm';
-import { QuestionPreview } from '@/components/admin/test-questions/QuestionPreview';
 import AnalyticsStats from '@/components/college-admin/analytics/AnalyticsStats';
 import CandidatesTable from '@/components/college-admin/analytics/CandidatesTable';
 import SubmissionAnalyticsView from '@/components/college-admin/analytics/SubmissionAnalyticsView';
-import QuestionBank from '@/components/common/QuestionBank';
+import Builder from '@/components/common/Builder';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'analytics' | 'submission-results';
 
@@ -260,13 +257,10 @@ const CollegeAdminPracticeTest = () => {
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [togglingStatusId, setTogglingStatusId] = useState<string | null>(null);
-  const [availableQuestionsCount, setAvailableQuestionsCount] = useState<Record<string, number>>({ mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 });
-  const [averageDurations, setAverageDurations] = useState<Record<string, number>>({ mcq_single: 1, mcq_multiple: 2, coding: 30, descriptive: 15 });
-
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [batches, setBatches] = useState<Batch[]>([]);
   const [collegeSubjects, setCollegeSubjects] = useState<any[]>([]);
   const [semesterSubjects, setSemesterSubjects] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
   const [selectedBatch, setSelectedBatch] = useState<string | undefined>(undefined);
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
@@ -279,23 +273,6 @@ const CollegeAdminPracticeTest = () => {
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [testToDelete, setTestToDelete] = useState<SkillTest | null>(null);
-
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    instructions: '',
-    difficulty: 'medium' as 'easy' | 'medium' | 'hard',
-    duration: 0,
-    total_marks: 0,
-    passing_marks: 0,
-    enable_proctoring: false,
-    publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
-  });
-  const [randomQuestionsConfig, setRandomQuestionsConfig] = useState({
-    mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0,
-  });
-  const [currentFormTab, setCurrentFormTab] = useState('details');
-  const [questions, setQuestions] = useState<any[]>([]);
 
   // ── Memos ────────────────────────────────────────────────────────────────
 
@@ -382,37 +359,11 @@ const CollegeAdminPracticeTest = () => {
     try {
       setAnalyticsLoading(true);
       const data = await skillTestService.getSkillTestSubmissions(testId);
-      setSubmissions(data || []);
+      setSubmissions(data);
     } catch {
       toast({ title: 'Error', description: 'Failed to load analytics.', variant: 'destructive' });
     } finally {
       setAnalyticsLoading(false);
-    }
-  };
-
-  const loadQuestions = async (test: SkillTest) => {
-    try {
-      if (!test.questions_config) return [];
-      const allIds: string[] = [];
-      Object.values(test.questions_config).forEach(ids => {
-        if (Array.isArray(ids)) allIds.push(...ids);
-      });
-      if (allIds.length === 0) return [];
-      const details = await Promise.all(allIds.map(id => fetchQuestionById(id).catch(() => null)));
-      return details.filter(Boolean).map((q: any) => ({
-        id: q.id,
-        type: q.type,
-        questionText: q.content,
-        options: q.mcq_options?.map((o: any) => o.text || o.option_text),
-        correctAnswer: q.type === 'mcq_multiple'
-          ? q.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text)
-          : q.mcq_options?.find((o: any) => o.is_correct)?.text || q.mcq_options?.find((o: any) => o.is_correct)?.option_text || q.reference_answer,
-        marks: q.marks,
-        duration: q.duration || 0,
-        isMultipleAnswer: q.type === 'mcq_multiple',
-      }));
-    } catch {
-      return [];
     }
   };
 
@@ -431,95 +382,9 @@ const CollegeAdminPracticeTest = () => {
     if (selectedUnit && view === 'list') loadPracticeTests(selectedUnit);
   }, [selectedUnit, view]);
 
-  // Fetch available questions count based on filters to validate random config
   useEffect(() => {
-    const fetchCounts = async () => {
-      if (!selectedSubject) return;
-      try {
-        const qs = await fetchQuestions({
-          subject: selectedSubject,
-          unit: selectedUnit || undefined,
-          categories: 'practice',
-          difficulty: formData.difficulty
-        });
-        
-        const counts: Record<string, number> = { mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 };
-        const durationsPool: Record<string, number[]> = { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] };
-
-        qs.forEach((q: any) => {
-          const t = q.type;
-          if (t in counts) {
-            counts[t]++;
-            if (q.duration) durationsPool[t].push(Number(q.duration));
-          }
-        });
-
-        setAvailableQuestionsCount(counts);
-
-        // Calculate actual averages from the bank for these specific filters
-        const avgDurations = { ...averageDurations };
-        Object.keys(durationsPool).forEach(type => {
-          if (durationsPool[type].length > 0) {
-            avgDurations[type] = Math.ceil(durationsPool[type].reduce((a, b) => a + b, 0) / durationsPool[type].length);
-          }
-        });
-        setAverageDurations(avgDurations);
-      } catch (err) {
-        console.error('Failed to load available questions count', err);
-      }
-    };
-    fetchCounts();
-  }, [selectedSubject, selectedUnit, formData.difficulty]);
-
-  // Auto-calculate test configuration based on questions and random config
-  useEffect(() => {
-    const getEstimate = (type: string) => {
-      const diff = formData.difficulty;
-      if (type === 'coding') return { marks: 10, duration: 30 };
-      if (type === 'descriptive') return { marks: 5, duration: 15 };
-      // MCQs
-      if (diff === 'easy') return { marks: 1, duration: 1 };
-      if (diff === 'hard') return { marks: 4, duration: 5 };
-      return { marks: 2, duration: 2 }; // medium
-    };
-
-    // 1. Sum up fixed questions with placeholder sanitization
-    let totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
-    let totalDuration = questions.reduce((sum, q) => {
-      const qDur = Number(q.duration) || 0;
-      // If duration is the 60min placeholder or 0, use difficulty estimate
-      if (qDur === 60 || qDur === 0) {
-        const est = getEstimate(q.type || 'mcq_single');
-        return sum + est.duration;
-      }
-      return sum + qDur;
-    }, 0);
-    
-    // 2. Add estimates for random pool based on difficulty
-    Object.entries(randomQuestionsConfig).forEach(([type, count]) => {
-      if (count > 0) {
-        const est = getEstimate(type);
-        // For MCQs, always use the difficulty-based estimate to avoid bank noise
-        // For Coding/Descriptive, use the bank average only if it's not the 60min placeholder
-        const useBankAvg = type === 'coding' || type === 'descriptive';
-        let finalDurationPerQ = est.duration;
-        
-        if (useBankAvg && averageDurations[type] && averageDurations[type] !== 60) {
-          finalDurationPerQ = averageDurations[type];
-        }
-        
-        totalMarks += (count * est.marks);
-        totalDuration += (count * finalDurationPerQ);
-      }
-    });
-    
-    setFormData(prev => ({
-      ...prev,
-      total_marks: totalMarks,
-      duration: totalDuration,
-      passing_marks: Math.ceil(totalMarks * 0.4)
-    }));
-  }, [questions, randomQuestionsConfig, formData.difficulty, averageDurations]);
+    if (selectedUnit && view === 'list') loadPracticeTests(selectedUnit);
+  }, [selectedUnit, view]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -530,38 +395,15 @@ const CollegeAdminPracticeTest = () => {
   };
 
   const handleCreate = () => {
-    setFormData({ title: '', description: '', instructions: '', difficulty: 'medium', duration: 0, total_marks: 0, passing_marks: 0, enable_proctoring: false, publish_status: 'draft' });
-    setRandomQuestionsConfig({ mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 });
-    setQuestions([]);
-    setCurrentFormTab('details');
+    setSelectedTest(null);
     setView('create');
   };
 
   const handleEdit = async (test: SkillTest) => {
-    setFormData({
-      title: test.title || '',
-      description: test.description || '',
-      instructions: test.instructions || '',
-      difficulty: test.difficulty || 'medium',
-      duration: test.duration || 0,
-      total_marks: test.total_marks || 100,
-      passing_marks: test.passing_marks || 60,
-      enable_proctoring: test.enable_proctoring || false,
-      publish_status: test.publish_status || 'draft',
-    });
-    setRandomQuestionsConfig({
-      mcq_single: test.questions_random_config?.mcq_single || 0,
-      mcq_multiple: test.questions_random_config?.mcq_multiple || 0,
-      coding: test.questions_random_config?.coding || 0,
-      descriptive: test.questions_random_config?.descriptive || 0,
-    });
-    setCurrentFormTab('details');
     setSelectedTest(test);
     setView('edit');
-    const qDetails = await loadQuestions(test);
-    setQuestions(qDetails);
   };
-
+  
   const handleStatusToggle = async (test: SkillTest) => {
     const newStatus = test.publish_status === 'active' ? 'draft' : 'active';
     try {
@@ -575,85 +417,6 @@ const CollegeAdminPracticeTest = () => {
       toast({ title: 'Error', description: 'Failed to update status.', variant: 'destructive' });
     } finally {
       setTogglingStatusId(null);
-    }
-  };
-
-  const handleQuestionsChange = async (selectedIds: string[]) => {
-    // We update the questions list based on the IDs selected in the bank
-    // If a question is already in our list (has details), we keep it.
-    // If it's new, we fetch its details to show in the preview or just store the minimal object.
-    const newQuestions = await Promise.all(
-      selectedIds.map(async (id) => {
-        const existing = questions.find(q => q.id === id);
-        if (existing) return existing;
-        
-        try {
-          const detail = await fetchQuestionById(id);
-          return {
-            id: detail.id,
-            type: detail.type,
-            questionText: detail.content,
-            options: detail.mcq_options?.map((o: any) => o.text || o.option_text),
-            correctAnswer: detail.type === 'mcq_multiple'
-              ? detail.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text)
-              : detail.mcq_options?.find((o: any) => o.is_correct)?.text || detail.mcq_options?.find((o: any) => o.is_correct)?.option_text || detail.reference_answer,
-            marks: detail.marks,
-            isMultipleAnswer: detail.type === 'mcq_multiple',
-            duration: detail.duration || 0,
-          };
-        } catch {
-          return { id, type: 'unknown', questionText: 'Loading error...' };
-        }
-      })
-    );
-    setQuestions(newQuestions);
-  };
-
-  const handleSaveTest = async () => {
-    if (!formData.title.trim()) {
-      toast({ title: 'Error', description: 'Practice test title is required.', variant: 'destructive' });
-      return;
-    }
-    try {
-      setIsSaving(true);
-      const savedQuestionIds: Record<string, string[]> = { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] };
-
-      for (const q of questions) {
-        // Since we are using Question Bank, all questions should have IDs
-        let resolvedType = q.type as string;
-        if (q.type === 'mcq') resolvedType = q.isMultipleAnswer ? 'mcq_multiple' : 'mcq_single';
-        else if (q.type === 'true-false') resolvedType = 'mcq_single';
-        else if (q.type === 'short-answer') resolvedType = 'descriptive';
-
-        if (resolvedType in savedQuestionIds) {
-          savedQuestionIds[resolvedType as keyof typeof savedQuestionIds].push(q.id);
-        }
-      }
-
-      const payload: CreateSkillTestData = {
-        title: formData.title, description: formData.description, instructions: formData.instructions,
-        difficulty: formData.difficulty, duration: formData.duration, total_marks: formData.total_marks,
-        passing_marks: formData.passing_marks, enable_proctoring: formData.enable_proctoring,
-        publish_status: formData.publish_status, test_type: 'practice',
-        subject: selectedSubject, unit: selectedUnit,
-        questions_config: savedQuestionIds,
-        questions_random_config: randomQuestionsConfig,
-      };
-
-      if (view === 'create') {
-        await skillTestService.createSkillTest(payload);
-        toast({ title: 'Created', description: 'Practice test created successfully.' });
-      } else if (selectedTest) {
-        await skillTestService.updateSkillTest(selectedTest.id, payload);
-        toast({ title: 'Saved', description: 'Practice test updated successfully.' });
-      }
-
-      setView('list');
-      if (selectedUnit) loadPracticeTests(selectedUnit);
-    } catch {
-      toast({ title: 'Error', description: 'Failed to save practice test.', variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -771,267 +534,30 @@ const CollegeAdminPracticeTest = () => {
   );
 
   const renderForm = () => (
-    <div className="space-y-6 animate-in fade-in duration-300 pb-20">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => setView('list')}
-          className="rounded-full h-9 w-9 border border-border text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {view === 'create' ? 'Create Practice Test' : 'Edit Practice Test'}
-          </h1>
-          {(currentSubjectName || currentUnitName) && (
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {[currentSubjectName, currentUnitName].filter(Boolean).join(' · ')}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-2 max-w-sm bg-muted p-1 rounded-lg h-11">
-          <TabsTrigger value="details" className="rounded-md font-semibold text-sm">
-            General Details
-          </TabsTrigger>
-          <TabsTrigger value="questions" className="rounded-md font-semibold text-sm">
-            Questions
-          </TabsTrigger>
-        </TabsList>
-
-        {/* ── Details tab ─────────────────────── */}
-        <TabsContent value="details" className="space-y-5 animate-in fade-in duration-200">
-          {/* Basic Info */}
-          <Card className="border-border bg-card">
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-foreground">
-                <Trophy className="h-4 w-4 text-primary" /> Basic Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5 space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Title *</label>
-                  <Input
-                    value={formData.title}
-                    onChange={e => setFormData({ ...formData, title: (e.target as HTMLInputElement).value })}
-                    placeholder="e.g., Unit 2 — Functions Quiz"
-                    className="h-10 bg-background border-border focus:border-primary/50"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Difficulty *</label>
-                  <Select value={formData.difficulty} onValueChange={(v) => setFormData({ ...formData, difficulty: v as any })}>
-                    <SelectTrigger className="h-10 bg-background border-border">
-                      <SelectValue placeholder="Select difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Description</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of this practice test…"
-                  className="min-h-[90px] bg-background border-border resize-none"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Instructions for Students</label>
-                <Textarea
-                  value={formData.instructions}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, instructions: e.target.value })}
-                  placeholder="Specific instructions students should read before starting…"
-                  className="min-h-[90px] bg-background border-border resize-none"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Configuration */}
-          <Card className="border-border bg-card">
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-foreground">
-                <Calendar className="h-4 w-4 text-primary" /> Test Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5 space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground flex justify-between">
-                    Duration (minutes) *
-                    <span className="text-[10px] text-primary italic font-normal">Auto-synced</span>
-                  </label>
-                  <Input type="number"
-                    value={formData.duration}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, duration: Number(e.target.value) || 0 })}
-                    min={1} className="h-10 bg-background border-border"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground flex justify-between">
-                    Total Marks
-                    <span className="text-[10px] text-primary italic font-normal">Auto-synced</span>
-                  </label>
-                  <Input type="number"
-                    value={formData.total_marks}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, total_marks: Number(e.target.value) || 0 })}
-                    min={1} className="h-10 bg-background border-border"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground flex justify-between">
-                    Passing Marks
-                    <span className="text-[10px] text-primary italic font-normal">Auto-set (40%)</span>
-                  </label>
-                  <Input type="number"
-                    value={formData.passing_marks}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, passing_marks: Number(e.target.value) || 0 })}
-                    min={1} className="h-10 bg-background border-border"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Publish Status</label>
-                  <Select value={formData.publish_status} onValueChange={(v) => setFormData({ ...formData, publish_status: v as any })}>
-                    <SelectTrigger className="h-10 bg-background border-border">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="active">Active (Published)</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2.5 pb-1">
-                  <Checkbox
-                    id="proctoring"
-                    checked={formData.enable_proctoring}
-                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, enable_proctoring: !!checked })}
-                  />
-                  <label htmlFor="proctoring" className="text-sm font-medium text-foreground cursor-pointer select-none">
-                    Enable Proctoring
-                  </label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Questions tab ────────────────────── */}
-        <TabsContent value="questions" className="space-y-5 animate-in fade-in duration-200">
-          {/* Random Config */}
-          <Card className="border-border bg-card">
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-foreground">
-                <Settings className="h-4 w-4 text-primary" /> Random Question Config
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {(['mcq_single', 'mcq_multiple', 'coding', 'descriptive'] as const).map((key) => (
-                  <div key={key} className="space-y-1.5 flex flex-col">
-                    <div className="flex justify-between items-end">
-                      <label className="text-xs font-semibold text-muted-foreground">
-                        {key === 'mcq_single' ? 'MCQ Single' : key === 'mcq_multiple' ? 'MCQ Multi' : key.charAt(0).toUpperCase() + key.slice(1)}
-                      </label>
-                      <span className="text-[10px] text-muted-foreground">{availableQuestionsCount[key] || 0} avail</span>
-                    </div>
-                    <div>
-                      <Input
-                        type="number" min={0} max={availableQuestionsCount[key] || 0}
-                        value={randomQuestionsConfig[key]}
-                        onChange={e => setRandomQuestionsConfig({ ...randomQuestionsConfig, [key]: Number((e.target as HTMLInputElement).value) || 0 })}
-                        className={`h-10 bg-background border-border ${randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) ? 'border-red-500 bg-red-50 focus-visible:ring-red-500' : ''}`}
-                      />
-                      {randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) && (
-                        <p className="text-[10px] text-red-500 mt-1">
-                          Only {availableQuestionsCount[key] || 0} {formData.difficulty} questions available in bank.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground mt-3">
-                Specify how many questions of each type to randomly select from the pool.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Question Bank Selection */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Search className="h-4 w-4 text-primary" /> Select Questions (Practice Category)
-              </h3>
-              <Badge variant="secondary" className="font-semibold">{questions.length}</Badge>
-            </div>
-
-            <QuestionBank
-              mode="selection"
-              showSplitView={true}
-              selectedQuestions={questions.map(q => q.id)}
-              onQuestionsChange={handleQuestionsChange}
-              subjectFilter={selectedSubject}
-              unitFilter={selectedUnit}
-              categoryFilter="practice"
-              difficultyFilter={formData.difficulty}
-            />
-
-            {questions.length > 0 && (
-              <div className="space-y-3 mt-6">
-                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <FileText className="h-3.5 w-3.5 text-muted-foreground" /> Selected Questions Preview
-                </h4>
-                <div className="grid grid-cols-1 gap-3">
-                  {questions.map((q: any) => (
-                    <QuestionPreview
-                      key={q.id}
-                      question={q}
-                      onDelete={() => setQuestions(questions.filter((x: any) => x.id !== q.id))}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Form Actions */}
-        <div className="flex items-center justify-between border-t border-border pt-6 mt-6">
-          {currentFormTab === 'questions' ? (
-            <Button variant="outline" onClick={() => setCurrentFormTab('details')}
-              className="border-border text-muted-foreground hover:text-foreground">
-              ← Back to Details
-            </Button>
-          ) : <div />}
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setView('list')} className="text-muted-foreground">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => currentFormTab === 'details' ? setCurrentFormTab('questions') : handleSaveTest()}
-              disabled={isSaving}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6 font-semibold"
-            >
-              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {currentFormTab === 'details' ? 'Next: Questions →' : view === 'create' ? 'Create Test' : 'Save Changes'}
-            </Button>
-          </div>
-        </div>
-      </Tabs>
-    </div>
+    <Builder
+      initialData={selectedTest}
+      mode={view === 'create' ? 'create' : 'edit'}
+      testType="practice"
+      subjectFilter={selectedSubject}
+      unitFilter={selectedUnit}
+      contextSubtitle={[currentSubjectName, currentUnitName].filter(Boolean).join(' · ')}
+      onSave={async (payload) => {
+        try {
+          if (view === 'create') {
+            await skillTestService.createSkillTest(payload);
+            toast({ title: 'Created', description: 'Practice test created successfully.' });
+          } else if (selectedTest) {
+            await skillTestService.updateSkillTest(selectedTest.id, payload);
+            toast({ title: 'Saved', description: 'Practice test updated successfully.' });
+          }
+          setView('list');
+          if (selectedUnit) loadPracticeTests(selectedUnit);
+        } catch {
+          toast({ title: 'Error', description: 'Failed to save test.', variant: 'destructive' });
+        }
+      }}
+      onCancel={() => setView('list')}
+    />
   );
 
   const renderAnalytics = () => {
