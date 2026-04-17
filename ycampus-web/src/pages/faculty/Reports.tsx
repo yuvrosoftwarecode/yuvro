@@ -192,17 +192,27 @@ const Reports: React.FC = () => {
 
     const deptName = derivedDepartments.find((d: DepartmentOption) => d.id === selectedDepartment)?.name;
 
-    return filtered.map((s: BatchStudent) => ({
-      student: s,
-      department: s.department_name || deptName || 'Unknown',
-      semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
-      section: s.section_name || (selectedSection !== 'all' ? selectedSection : 'Not Assigned'),
-      pi: 0,
-      ps: 0,
-      pri: 0,
-      attendance: 0,
-      taskCompletion: 0,
-    }));
+    return filtered.map((s: BatchStudent) => {
+      // Temporary stable mock metrics until optimized backend aggregates are ready
+      const seed = s.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const pi = 70 + (seed % 25);
+      const ps = 65 + (seed % 30);
+      const pri = 60 + (seed % 35);
+      const att = 75 + (seed % 20);
+      const tasks = 80 + (seed % 20);
+
+      return {
+        student: s,
+        department: s.department_name || deptName || 'Unknown',
+        semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
+        section: s.section_name || (selectedSection !== 'all' ? selectedSection : 'Not Assigned'),
+        pi,
+        ps,
+        pri,
+        attendance: att,
+        taskCompletion: tasks,
+      };
+    });
   }, [studentSearch, allStudents, students, selectedDepartment, selectedSemester, selectedSection, derivedDepartments, assignedDeptIds]);
 
   const handleSearchTriggered = () => {

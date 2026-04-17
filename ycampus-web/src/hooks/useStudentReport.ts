@@ -705,7 +705,11 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
           { name: 'Centum Attendee', icon: 'Trophy', earned: overallAttendance === 100 },
           { name: 'A+ Student', icon: 'Award', earned: performanceIndex >= 85 },
           { name: 'Active Learner', icon: 'BookOpen', earned: learningCompletion >= 50 },
-          { name: 'Task Crusher', icon: 'CheckCircle2', earned: uniqueSubjects.every(s => s.tasksPending === 0) },
+          { 
+            name: 'Task Crusher', 
+            icon: 'CheckCircle2', 
+            earned: totalTasks > 0 && uniqueSubjects.every(s => s.tasksPending === 0) 
+          },
           { name: 'Fast Mover', icon: 'Zap', earned: uniqueSubjects.some(s => s.notesCompletion === 100) },
           { name: 'Consistent', icon: 'Flame', earned: (overallStats?.streak || 0) > 0 },
         ],
