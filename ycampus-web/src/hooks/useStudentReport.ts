@@ -68,6 +68,8 @@ export interface StudentReport {
   semester: string;
   section: string;
   performanceIndex: number;
+  ps: number;
+  pri: number;
   status: 'On Track' | 'Needs Attention' | 'At Risk';
   overallAttendance: number;
   learningCompletion: number;
@@ -638,9 +640,44 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
       const sortedByPending = [...uniqueSubjects].sort((a, b) => (b.tasksPending + b.unitsPending) - (a.tasksPending + a.unitsPending));
       const sortedByAttendance = [...uniqueSubjects].sort((a, b) => a.attendancePercent - b.attendancePercent);
 
-      const performanceIndex = overallStats?.avg_progress || 0;
       const overallAttendance = overallStats?.overall_attendance || 0;
       const learningCompletion = overallStats?.avg_progress || 0;
+
+      // Compute aggregate metrics for PI/PS/PRI formulas
+      const totalTests = uniqueSubjects.reduce((s, sub) => s + (sub.testsAttempted || 0), 0);
+      const overallTestAvg = totalTests > 0
+        ? Number((uniqueSubjects.reduce((s, sub) => s + (sub.testAvgScore * (sub.testsAttempted || 0)), 0) / totalTests).toFixed(1))
+        : 0;
+      const totalAssessments = uniqueSubjects.reduce((s, sub) => s + (sub.assessmentsTotal || 0), 0);
+      const overallAssessmentAvg = totalAssessments > 0
+        ? Number((uniqueSubjects.reduce((s, sub) => s + (sub.assessmentAvgScore * (sub.assessmentsTotal || 0)), 0) / totalAssessments).toFixed(1))
+        : 0;
+      const totalTasks = uniqueSubjects.reduce((s, sub) => s + (sub.tasksTotal || 0), 0);
+      const totalSubmitted = uniqueSubjects.reduce((s, sub) => s + (sub.tasksSubmitted || 0), 0);
+      const overallTaskRate = totalTasks > 0 ? Number(((totalSubmitted / totalTasks) * 100).toFixed(1)) : 0;
+
+      // TEMPORARY PI/PS/PRI formulas (will be replaced with final logic later)
+      const performanceIndex = Number((
+        learningCompletion * 0.30 +
+        overallTestAvg * 0.25 +
+        overallAssessmentAvg * 0.20 +
+        overallAttendance * 0.15 +
+        overallTaskRate * 0.10
+      ).toFixed(1));
+
+      const ps = Number((
+        overallTestAvg * 0.45 +
+        overallAssessmentAvg * 0.30 +
+        learningCompletion * 0.15 +
+        overallTaskRate * 0.10
+      ).toFixed(1));
+
+      const pri = Number((
+        overallAttendance * 0.30 +
+        overallTaskRate * 0.30 +
+        learningCompletion * 0.25 +
+        overallAssessmentAvg * 0.15
+      ).toFixed(1));
 
       const studentReport: StudentReport = {
         id: studentId,
@@ -650,6 +687,8 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
         semester: String(student?.semester_number || 'N/A'),
         section: student?.section_name || 'N/A',
         performanceIndex: performanceIndex,
+        ps: ps,
+        pri: pri,
         status: performanceIndex >= 70 ? 'On Track' : performanceIndex >= 45 ? 'Needs Attention' : 'At Risk',
         overallAttendance: overallAttendance,
         learningCompletion: learningCompletion,
@@ -685,6 +724,8 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
         semester: '',
         section: '',
         performanceIndex: 0,
+        ps: 0,
+        pri: 0,
         status: 'Needs Attention',
         overallAttendance: 0,
         learningCompletion: 0,

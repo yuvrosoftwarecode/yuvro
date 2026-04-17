@@ -20,7 +20,7 @@ const riskColors: Record<string, string> = {
 };
 
 const StudentAttendanceDetail: React.FC<Props> = ({ detail, onBack, onDownloadPDF }) => {
-  const overallRisk = detail.attendancePercent >= 85 ? 'Excellent'
+  const overallRisk = detail.attendancePercent >= 90 ? 'Excellent'
     : detail.attendancePercent >= 75 ? 'Safe'
     : detail.attendancePercent >= 60 ? 'Warning' : 'Critical';
 

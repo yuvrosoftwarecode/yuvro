@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import subjectService, { getFacultyAssignments, SectionSubjectFaculty } from '@/services/subjectService';
+import studentService from '@/services/studentService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface AttendanceDepartment { id: string; name: string; }
 export interface AttendanceBatch { id: string; name: string; }
@@ -63,7 +65,7 @@ export interface StudentDetail {
 }
 
 function classifyAttendance(percent: number): 'Excellent' | 'Safe' | 'Warning' | 'Critical' {
-  if (percent >= 85) return 'Excellent';
+  if (percent >= 90) return 'Excellent';
   if (percent >= 75) return 'Safe';
   if (percent >= 60) return 'Warning';
   return 'Critical';
@@ -92,6 +94,7 @@ export function useAttendanceReport() {
   const [batches, setBatches] = useState<AttendanceBatch[]>([]);
   const [sections, setSections] = useState<AttendanceSection[]>([]);
   const [courses, setCourses] = useState<AttendanceCourse[]>([]);
+  const [semesters, setSemesters] = useState<number[]>([]);
 
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
@@ -106,61 +109,100 @@ export function useAttendanceReport() {
   const [loading, setLoading] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(false);
 
-  // Load departments
+  const { user } = useAuth();
+  const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
+
+  // Load assignments once
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('departments').select('id, name').order('name');
-      setDepartments(data || []);
+      try {
+        const data = await getFacultyAssignments();
+        setAssignments(data || []);
+      } catch (e) {
+        console.error('Error loading assignments:', e);
+      }
     })();
   }, []);
 
-  // Load batches & sections & courses when dept/semester change
+  // Derive filters from assignments
   useEffect(() => {
-    if (!selectedDept) return;
-    setFiltersLoading(true);
-    (async () => {
-      // Batches
-      const { data: batchData } = await supabase
-        .from('batch_ids')
-        .select('id, name')
-        .eq('department_id', selectedDept)
-        .eq('is_archived', false)
-        .order('name');
-      setBatches(batchData || []);
-
-      // Sections from department_sections via department_semesters
-      if (selectedSemester) {
-        const { data: semData } = await supabase
-          .from('department_semesters')
-          .select('id')
-          .eq('department_id', selectedDept)
-          .eq('number', Number(selectedSemester));
-        if (semData && semData.length > 0) {
-          const { data: secData } = await supabase
-            .from('department_sections')
-            .select('name')
-            .eq('semester_id', semData[0].id)
-            .order('name');
-          setSections(secData || []);
-        } else {
-          setSections([]);
-        }
-
-        // Courses
-        const { data: courseData } = await supabase
-          .from('courses')
-          .select('id, name, code')
-          .eq('department_id', selectedDept)
-          .eq('semester', Number(selectedSemester))
-          .order('name');
-        setCourses(courseData || []);
-      } else {
-        setSections([]);
-        setCourses([]);
+    if (assignments.length === 0) {
+      setBatches([]);
+      setDepartments([]);
+      setSections([]);
+      setCourses([]);
+      return;
+    }
+    
+    // 1. Batches - Deduplicated by name (as per individual reports logic)
+    const uniqueBatchNames = new Set<string>();
+    assignments.forEach(a => {
+      const details = a.semester_subject_details;
+      if (details?.batch_name) {
+        uniqueBatchNames.add(details.batch_name);
       }
-      setFiltersLoading(false);
-    })();
-  }, [selectedDept, selectedSemester]);
+    });
+    setBatches(Array.from(uniqueBatchNames).sort().map(name => ({ id: name, name })));
+
+    // 2. Departments and Semesters depend on selectedBatch (by name)
+    if (selectedBatch && selectedBatch !== 'all') {
+      const deptsMap = new Map<string, AttendanceDepartment>();
+      const sems = new Set<number>();
+
+      assignments.forEach(a => {
+        const details = a.semester_subject_details;
+        if (details && details.batch_name === selectedBatch) {
+          if (details.department_id) {
+            const id = String(details.department_id);
+            if (!deptsMap.has(id)) {
+              deptsMap.set(id, { id, name: details.department_name });
+            }
+          }
+          // Only collect semesters if department also matches (or before dept selection)
+          if (selectedDept && String(details.department_id) === selectedDept) {
+            if (details.semester_number) sems.add(details.semester_number);
+          }
+        }
+      });
+      setDepartments(Array.from(deptsMap.values()).sort((a, b) => a.name.localeCompare(b.name)));
+      setSemesters(Array.from(sems).sort((a, b) => a - b));
+    } else {
+      setDepartments([]);
+      setSemesters([]);
+    }
+
+    // 3. Sections and Courses if Dept & Semester & Batch selected
+    if (selectedBatch && selectedDept && selectedSemester) {
+      const semNum = Number(selectedSemester);
+      const secSet = new Set<string>();
+      const courseMap = new Map<string, AttendanceCourse>();
+
+      assignments.forEach(a => {
+        const details = a.semester_subject_details;
+        if (details && 
+            details.batch_name === selectedBatch && 
+            String(details.department_id) === selectedDept && 
+            details.semester_number === semNum) {
+          
+          if (a.section_name) secSet.add(a.section_name);
+          
+          const s = details.subject_details;
+          if (s) {
+            const sid = String(s.id);
+            if (!courseMap.has(sid)) {
+              courseMap.set(sid, { id: sid, name: s.subject_name || s.name || 'Unknown', code: s.short_code || '' });
+            }
+          }
+        }
+      });
+
+      setSections(Array.from(secSet).sort().map(name => ({ name })));
+      setCourses(Array.from(courseMap.values()).sort((a, b) => a.name.localeCompare(b.name)));
+    } else {
+      setSections([]);
+      setCourses([]);
+    }
+  }, [assignments, selectedBatch, selectedDept, selectedSemester]);
 
   // Load attendance data when filters change
   const loadData = useCallback(async () => {
@@ -171,98 +213,117 @@ export function useAttendanceReport() {
     }
     setLoading(true);
     try {
-      // Build session query
-      let sessionQuery = supabase
-        .from('attendance_sessions')
-        .select('id, course_id, session_date')
-        .eq('department_id', selectedDept)
-        .eq('semester', Number(selectedSemester))
-        .eq('section', selectedSection)
-        .eq('is_cancelled', false);
+      // 1. Find the applicable assignment ID(s)
+      const semNum = Number(selectedSemester);
+      const relevantAssignments = assignments.filter(a => {
+        const details = a.semester_subject_details;
+        const isMatch = details && 
+          String(details.department_id) === selectedDept && 
+          details.semester_number === semNum &&
+          a.section_name === selectedSection;
+        
+        if (!isMatch) return false;
+        
+        if (selectedBatch && selectedBatch !== 'all' && details.batch_name !== selectedBatch) return false;
+        if (selectedSubject !== 'all' && String(details.subject_details?.id) !== selectedSubject) return false;
+        
+        return true;
+      });
 
-      if (selectedBatch) sessionQuery = sessionQuery.eq('batch_id', selectedBatch);
-      if (selectedSubject !== 'all') sessionQuery = sessionQuery.eq('course_id', selectedSubject);
-      if (dateRange.from) sessionQuery = sessionQuery.gte('session_date', dateRange.from.toISOString().split('T')[0]);
-      if (dateRange.to) sessionQuery = sessionQuery.lte('session_date', dateRange.to.toISOString().split('T')[0]);
-
-      const { data: sessions } = await sessionQuery;
-      if (!sessions || sessions.length === 0) {
+      if (relevantAssignments.length === 0) {
         setSectionSummary({ totalClassesConducted: 0, totalStudents: 0, averageAttendance: 0, totalPresent: 0, totalAbsent: 0, below75: 0, below60: 0 });
         setStudentRows([]);
         setLoading(false);
         return;
       }
 
-      const sessionIds = sessions.map(s => s.id);
-      // Fetch all attendance records for these sessions
-      const { data: records } = await supabase
-        .from('attendance_records')
-        .select('session_id, student_id, is_present')
-        .in('session_id', sessionIds);
-
-      // Get unique student IDs
-      const studentIds = [...new Set((records || []).map(r => r.student_id))];
+      // 2. Fetch all students for this context to ensure we show everyone, even with 0 attendance
+      const studentParams: any = {
+        department: selectedDept,
+        semester__number: selectedSemester,
+        section__name: selectedSection,
+        limit: 500
+      };
+      if (selectedBatch && selectedBatch !== 'all') studentParams.batch__name = selectedBatch;
       
-      // Fetch student profiles
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .in('id', studentIds.length > 0 ? studentIds : ['__none__']);
+      const studentsRes = await studentService.getStudents(studentParams);
+      const allStudents = studentsRes.results || [];
 
-      // Fetch student roll numbers from student_semester_mapping
-      const { data: mappings } = await supabase
-        .from('student_semester_mapping')
-        .select('student_id, academic_year')
-        .in('student_id', studentIds.length > 0 ? studentIds : ['__none__']);
+      // 3. Fetch attendance sessions
+      const sessionsPromises = relevantAssignments.map(a => 
+        subjectService.getAttendanceSessions({ 
+          section_subject_faculty: a.id,
+          date_after: dateRange.from?.toISOString().split('T')[0],
+          date_before: dateRange.to?.toISOString().split('T')[0],
+          limit: 1000 
+        })
+      );
+      
+      const sessionsResults = await Promise.all(sessionsPromises);
+      const allSessions = sessionsResults.flat();
 
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      const rollMap = new Map((mappings || []).map(m => [m.student_id, m.academic_year]));
-
-      const totalClasses = sessions.length;
-
-      // Build per-student attendance
-      const studentMap = new Map<string, { present: number; absent: number }>();
-      for (const r of records || []) {
-        if (!studentMap.has(r.student_id)) studentMap.set(r.student_id, { present: 0, absent: 0 });
-        const s = studentMap.get(r.student_id)!;
-        if (r.is_present) s.present++;
-        else s.absent++;
+      if (allSessions.length === 0) {
+        setSectionSummary({ 
+          totalClassesConducted: 0, 
+          totalStudents: allStudents.length, 
+          averageAttendance: 0, 
+          totalPresent: 0, 
+          totalAbsent: 0, 
+          below75: 0, 
+          below60: 0 
+        });
+        setStudentRows(allStudents.map(s => ({
+          studentId: String(s.id),
+          studentName: `${s.user_details?.first_name || ''} ${s.user_details?.last_name || ''}`.trim() || 'Unknown',
+          rollNo: s.roll_number || '',
+          totalClasses: 0,
+          present: 0,
+          absent: 0,
+          attendancePercent: 0,
+          status: 'Critical',
+          consecutiveAbsences: 0,
+        })));
+        setLoading(false);
+        return;
       }
 
-      const rows: StudentAttendanceRow[] = [];
+      const totalClasses = allSessions.length;
       let totalPresent = 0, totalAbsent = 0;
 
-      for (const [sid, data] of studentMap) {
-        const profile = profileMap.get(sid);
-        const percent = totalClasses > 0 ? Math.round((data.present / totalClasses) * 100) : 0;
-        totalPresent += data.present;
-        totalAbsent += data.absent;
+      // Build per-student stats
+      const rows: StudentAttendanceRow[] = allStudents.map(student => {
+        const sid = String(student.id);
+        let presentCount = 0;
+        let absentCount = 0;
+        
+        // Sorting sessions by date for streak calculation
+        const sortedSessions = [...allSessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        const studentRecords = sortedSessions.map(session => {
+          const record = (session.records || []).find((r: any) => String(r.student?.id || r.student) === sid);
+          return { date: session.date || '', isPresent: !!record?.is_present };
+        });
 
-        // Calculate consecutive absences
-        const studentRecords = (records || [])
-          .filter(r => r.student_id === sid)
-          .map(r => {
-            const session = sessions.find(s => s.id === r.session_id);
-            return { date: session?.session_date || '', isPresent: r.is_present };
-          });
+        presentCount = studentRecords.filter(r => r.isPresent).length;
+        absentCount = totalClasses - presentCount;
+        
+        totalPresent += presentCount;
+        totalAbsent += absentCount;
+
+        const percent = totalClasses > 0 ? Math.round((presentCount / totalClasses) * 100) : 0;
         const { current: consecutiveAbsences } = computeStreaks(studentRecords);
 
-        let status = classifyAttendance(percent);
-        if (consecutiveAbsences >= 5) status = 'Critical';
-        else if (consecutiveAbsences >= 3 && status !== 'Critical') status = 'Warning';
-
-        rows.push({
+        return {
           studentId: sid,
-          studentName: profile?.full_name || 'Unknown',
-          rollNo: rollMap.get(sid) || profile?.email?.split('@')[0] || '',
+          studentName: `${student.user_details?.first_name || ''} ${student.user_details?.last_name || ''}`.trim() || 'Unknown',
+          rollNo: student.roll_number || '',
           totalClasses,
-          present: data.present,
-          absent: data.absent,
+          present: presentCount,
+          absent: absentCount,
           attendancePercent: percent,
-          status,
+          status: classifyAttendance(percent),
           consecutiveAbsences,
-        });
-      }
+        };
+      });
 
       rows.sort((a, b) => a.studentName.localeCompare(b.studentName));
 
@@ -284,7 +345,7 @@ export function useAttendanceReport() {
       console.error('Error loading attendance:', e);
     }
     setLoading(false);
-  }, [selectedDept, selectedSemester, selectedBatch, selectedSection, selectedSubject, dateRange]);
+  }, [selectedDept, selectedSemester, selectedBatch, selectedSection, selectedSubject, dateRange, assignments]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -293,49 +354,55 @@ export function useAttendanceReport() {
     if (!selectedDept || !selectedSemester || !selectedSection) return;
     setLoading(true);
     try {
-      let sessionQuery = supabase
-        .from('attendance_sessions')
-        .select('id, course_id, session_date')
-        .eq('department_id', selectedDept)
-        .eq('semester', Number(selectedSemester))
-        .eq('section', selectedSection)
-        .eq('is_cancelled', false);
+      const semNum = Number(selectedSemester);
+      const relevantAssignments = assignments.filter(a => {
+        const details = a.semester_subject_details;
+        return details && 
+          String(details.department_id) === selectedDept && 
+          details.semester_number === semNum &&
+          a.section_name === selectedSection;
+      });
 
-      if (selectedBatch) sessionQuery = sessionQuery.eq('batch_id', selectedBatch);
-      if (dateRange.from) sessionQuery = sessionQuery.gte('session_date', dateRange.from.toISOString().split('T')[0]);
-      if (dateRange.to) sessionQuery = sessionQuery.lte('session_date', dateRange.to.toISOString().split('T')[0]);
-
-      const { data: allSessions } = await sessionQuery;
-      if (!allSessions) { setLoading(false); return; }
-
-      const sessionIds = allSessions.map(s => s.id);
-      const { data: records } = await supabase
-        .from('attendance_records')
-        .select('session_id, student_id, is_present')
-        .eq('student_id', studentId)
-        .in('session_id', sessionIds);
-
-      const { data: profile } = await supabase.from('profiles').select('id, full_name, email').eq('id', studentId).maybeSingle();
-      const { data: mapping } = await supabase.from('student_semester_mapping').select('academic_year').eq('student_id', studentId).maybeSingle();
-
-      // Course map
+      const sessionsPromises = relevantAssignments.map(a => 
+        subjectService.getAttendanceSessions({ 
+          section_subject_faculty: a.id,
+          date_after: dateRange.from?.toISOString().split('T')[0],
+          date_before: dateRange.to?.toISOString().split('T')[0],
+          limit: 1000 
+        })
+      );
+      
+      const sessionsResults = await Promise.all(sessionsPromises);
+      const allSessions = sessionsResults.flat();
+      
+      // Fetch student profile explicitly
+      const student = await studentService.getStudent(studentId);
+      
+      // Course map for names
       const courseMap = new Map(courses.map(c => [c.id, c]));
 
       // Subject-wise breakdown
       const subjectMap = new Map<string, { total: number; present: number }>();
+      const dateWise: DateAttendance[] = [];
+
       for (const session of allSessions) {
-        const courseId = session.course_id;
+        const courseId = String(session.semester_subject_details?.subject || '');
+        if (!courseId) continue;
+        
         if (!subjectMap.has(courseId)) subjectMap.set(courseId, { total: 0, present: 0 });
         subjectMap.get(courseId)!.total++;
-      }
 
-      for (const r of records || []) {
-        const session = allSessions.find(s => s.id === r.session_id);
-        if (session && r.is_present) {
-          if (subjectMap.has(session.course_id)) {
-            subjectMap.get(session.course_id)!.present++;
-          }
+        const record = (session.records || []).find((r: any) => String(r.student?.id || r.student) === studentId);
+        if (record?.is_present) {
+          subjectMap.get(courseId)!.present++;
         }
+
+        const course = courseMap.get(courseId);
+        dateWise.push({
+          date: session.date || '',
+          subject: course?.name || 'Unknown',
+          status: record?.is_present ? 'Present' : 'Absent',
+        });
       }
 
       const subjects: SubjectAttendance[] = [];
@@ -354,44 +421,36 @@ export function useAttendanceReport() {
         });
       }
 
-      // Date-wise breakdown
-      const dateWise: DateAttendance[] = [];
-      for (const r of records || []) {
-        const session = allSessions.find(s => s.id === r.session_id);
-        if (session) {
-          const course = courseMap.get(session.course_id);
-          dateWise.push({
-            date: session.session_date,
-            subject: course?.name || 'Unknown',
-            status: r.is_present ? 'Present' : 'Absent',
-          });
-        }
-      }
-      dateWise.sort((a, b) => b.date.localeCompare(a.date));
+      dateWise.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-      // Overall stats
-      const totalClasses = selectedSubject !== 'all'
-        ? (subjectMap.get(selectedSubject)?.total || 0)
-        : allSessions.length;
-      const totalPresent = selectedSubject !== 'all'
-        ? (subjectMap.get(selectedSubject)?.present || 0)
-        : (records || []).filter(r => r.is_present).length;
-      const totalAbsent = totalClasses - totalPresent;
+      // Overall stats for the selected context
+      const filteredSessions = selectedSubject !== 'all' 
+        ? allSessions.filter(s => String(s.semester_subject_details?.subject) === selectedSubject)
+        : allSessions;
+      
+      const totalClasses = filteredSessions.length;
+      const totalPresent = filteredSessions.filter(s => 
+        (s.records || []).some((r: any) => String(r.student?.id || r.student) === studentId && r.is_present)
+      ).length;
+      
       const percent = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0;
-
-      const allRecords = (records || []).map(r => {
-        const session = allSessions.find(s => s.id === r.session_id);
-        return { date: session?.session_date || '', isPresent: r.is_present };
-      });
-      const { current, longest, lastAttended } = computeStreaks(allRecords);
+      
+      const recordsForStreak = allSessions
+        .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+        .map(s => ({
+          date: s.date || '',
+          isPresent: (s.records || []).some((r: any) => String(r.student?.id || r.student) === studentId && r.is_present)
+        }));
+      
+      const { current, longest, lastAttended } = computeStreaks(recordsForStreak);
 
       setStudentDetail({
         studentId,
-        studentName: profile?.full_name || 'Unknown',
-        rollNo: mapping?.academic_year || profile?.email?.split('@')[0] || '',
+        studentName: `${student.user_details?.first_name || ''} ${student.user_details?.last_name || ''}`.trim() || 'Unknown',
+        rollNo: student.roll_number || '',
         totalClasses,
         present: totalPresent,
-        absent: totalAbsent,
+        absent: totalClasses - totalPresent,
         attendancePercent: percent,
         requiredPercent: 75,
         shortagePercent: Math.max(0, 75 - percent),
@@ -408,12 +467,12 @@ export function useAttendanceReport() {
       console.error('Error loading student detail:', e);
     }
     setLoading(false);
-  }, [selectedDept, selectedSemester, selectedBatch, selectedSection, selectedSubject, dateRange, courses]);
+  }, [selectedDept, selectedSemester, selectedBatch, selectedSection, selectedSubject, dateRange, courses, assignments]);
 
   const clearStudentDetail = useCallback(() => setStudentDetail(null), []);
 
   return {
-    departments, batches, sections, courses,
+    departments, batches, sections, courses, semesters,
     selectedDept, setSelectedDept,
     selectedSemester, setSelectedSemester,
     selectedBatch, setSelectedBatch,

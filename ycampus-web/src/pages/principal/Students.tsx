@@ -16,36 +16,7 @@ import StreaksAchievements from '@/components/faculty/reports/StreaksAchievement
 import PlacementReadiness from '@/components/faculty/reports/PlacementReadiness';
 import { downloadPDF, downloadExcel } from '@/components/faculty/reports/ReportExporter';
 
-// Dummy students for when DB returns empty
-const DUMMY_STUDENTS = [
-  { id: 'dummy-1', name: 'Aarav Sharma', rollNo: 'CSE2021001', email: 'aarav.sharma@campus.edu' },
-  { id: 'dummy-2', name: 'Priya Mehta', rollNo: 'CSE2021002', email: 'priya.mehta@campus.edu' },
-  { id: 'dummy-3', name: 'Rohan Gupta', rollNo: 'CSE2021003', email: 'rohan.gupta@campus.edu' },
-  { id: 'dummy-4', name: 'Sneha Reddy', rollNo: 'CSE2021004', email: 'sneha.reddy@campus.edu' },
-  { id: 'dummy-5', name: 'Vikram Patel', rollNo: 'CSE2021005', email: 'vikram.patel@campus.edu' },
-  { id: 'dummy-6', name: 'Ananya Iyer', rollNo: 'CSE2021006', email: 'ananya.iyer@campus.edu' },
-  { id: 'dummy-7', name: 'Karthik Nair', rollNo: 'CSE2021007', email: 'karthik.nair@campus.edu' },
-  { id: 'dummy-8', name: 'Divya Joshi', rollNo: 'CSE2021008', email: 'divya.joshi@campus.edu' },
-  { id: 'dummy-9', name: 'Arjun Singh', rollNo: 'CSE2021009', email: 'arjun.singh@campus.edu' },
-  { id: 'dummy-10', name: 'Meera Kulkarni', rollNo: 'CSE2021010', email: 'meera.kulkarni@campus.edu' },
-];
-
-// Generate snapshot metrics for student list (deterministic per student)
-function generateSnapshot(id: string, index: number) {
-  const seeds = [
-    { pi: 78, ps: 72, pri: 75, att: 88, task: 82 },
-    { pi: 85, ps: 80, pri: 83, att: 92, task: 90 },
-    { pi: 62, ps: 55, pri: 59, att: 74, task: 65 },
-    { pi: 91, ps: 88, pri: 90, att: 96, task: 94 },
-    { pi: 50, ps: 45, pri: 48, att: 68, task: 55 },
-    { pi: 74, ps: 68, pri: 71, att: 85, task: 77 },
-    { pi: 88, ps: 82, pri: 85, att: 93, task: 88 },
-    { pi: 55, ps: 50, pri: 53, att: 72, task: 60 },
-    { pi: 92, ps: 87, pri: 90, att: 95, task: 93 },
-    { pi: 67, ps: 60, pri: 64, att: 78, task: 70 },
-  ];
-  return seeds[index % seeds.length];
-}
+// Mock data removed. PI/PS/PRI calculations will be based on temporary weighted formulas.
 
 const PrincipalStudents = () => {
   const { toast } = useToast();
@@ -166,12 +137,8 @@ const PrincipalStudents = () => {
     }
   }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, selectedStudent]);
 
-  // Merge dummy students into allStudents for search and report loading
-  const combinedAllStudents = useMemo(() => {
-    const existingIds = new Set(allStudents.map(s => s.id));
-    const extras = DUMMY_STUDENTS.filter(s => !existingIds.has(s.id));
-    return [...allStudents, ...extras];
-  }, [allStudents]);
+  // Use allStudents directly (no dummy merging)
+  const combinedAllStudents = allStudents;
 
   // Load report WITHOUT any filters — report always shows ALL data for the student
   useEffect(() => {
@@ -208,20 +175,17 @@ const PrincipalStudents = () => {
     const deptName = departments.find(d => d.id === selectedDepartment)?.name;
     const sectionLabels = ['A', 'B', 'C', 'A', 'B', 'A', 'C', 'B', 'A', 'B'];
 
-    return filtered.map((s, i) => {
-      const snap = generateSnapshot(s.id, i);
-      return {
-        student: s,
-        department: s.department_name || deptName || 'Unknown',
-        semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
-        section: s.section_name ? `Section ${s.section_name}` : (selectedSection !== 'all' ? `Section ${selectedSection}` : 'N/A'),
-        pi: snap.pi,
-        ps: snap.ps,
-        pri: snap.pri,
-        attendance: snap.att,
-        taskCompletion: snap.task,
-      };
-    });
+    return filtered.map((s) => ({
+      student: s,
+      department: s.department_name || deptName || 'Unknown',
+      semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
+      section: s.section_name ? `Section ${s.section_name}` : (selectedSection !== 'all' ? `Section ${selectedSection}` : 'N/A'),
+      pi: 0,
+      ps: 0,
+      pri: 0,
+      attendance: 0,
+      taskCompletion: 0,
+    }));
   }, [studentSearch, combinedAllStudents, students, departments, selectedDepartment, selectedSemester, selectedSection]);
 
   const handleSearchTriggered = () => {
