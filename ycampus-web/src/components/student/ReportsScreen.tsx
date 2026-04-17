@@ -163,13 +163,26 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
         const maxAttempts = 10;
         const poll = async () => {
           try {
-            const sessionData = await mockInterviewService.getInterviewSession(sessionId);
+            const sessionData = await mockInterviewService.getMockInterviewSubmission(sessionId);
             if (sessionData.report) {
-              setReport({ ...sessionData.report, interview_session: { ...sessionData, report: undefined } });
+              setReport({ 
+                ...sessionData.report, 
+                interview_session: { 
+                  ...sessionData, 
+                  transcript: sessionData.transcript,
+                  report: undefined 
+                } 
+              });
               setLoading(false);
             } else if (sessionData.status === 'completed' && !sessionData.report) {
-              setError('Report generation encountered an error. Please try again.');
-              setLoading(false);
+              // Wait a bit longer for AI processing if status is completed but report isn't ready
+              if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(poll, 2000);
+              } else {
+                setError('Report generation encountered an error. Please try again.');
+                setLoading(false);
+              }
             } else if (attempts < maxAttempts) {
               attempts++;
               setTimeout(poll, 2000);

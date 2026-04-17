@@ -566,6 +566,8 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
     user_email = serializers.EmailField(source="user.email", read_only=True)
     report_summary = serializers.SerializerMethodField()
+    report = serializers.SerializerMethodField()
+    transcript = serializers.SerializerMethodField()
     actual_duration_display = serializers.SerializerMethodField()
     interview_session_id = serializers.SerializerMethodField()
 
@@ -583,6 +585,33 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
                      "feedback_summary": interview_session.report.feedback_summary
                  }
         return None
+
+    def get_report(self, obj):
+        if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
+             interview_session = obj.chat_session.interview_session
+             if hasattr(interview_session, 'report'):
+                 report = interview_session.report
+                 return {
+                     "overall_score": report.overall_score,
+                     "feedback_summary": report.feedback_summary,
+                     "performance_metrics": report.performance_metrics,
+                     "skill_analysis": report.skill_analysis,
+                     "question_analysis": report.question_analysis,
+                     "key_takeaways": report.key_takeaways,
+                     "meta_stats": report.meta_stats,
+                     "created_at": report.created_at.isoformat() if hasattr(report.created_at, 'isoformat') else str(report.created_at)
+                 }
+        return None
+
+    def get_transcript(self, obj):
+        if obj.chat_session:
+            return [{
+                "id": str(m.id),
+                "message_type": m.message_type,
+                "content": m.content,
+                "created_at": m.created_at.isoformat() if hasattr(m.created_at, 'isoformat') else str(m.created_at)
+            } for m in obj.chat_session.messages.all().order_by('created_at')]
+        return []
 
     def get_actual_duration_display(self, obj):
         if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
@@ -613,6 +642,8 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "report_summary",
+            "report",
+            "transcript",
             "actual_duration_display",
             "interview_session_id",
         ]

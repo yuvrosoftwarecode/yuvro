@@ -20,23 +20,15 @@ const StudentMockInterview = () => {
 
   // Step 1: User clicks "Start Interview" on a card → open permission dialog
   const handleStartPractice = (role: Role) => {
-    console.log("Starting practice for role:", role.title, role.id);
     setSelectedRole(role);
     setState('permission');
-    console.log("Current state changed to: permission");
   };
 
   // Step 2: Permission granted → request actual media stream and start interview
   const handlePermissionConfirmed = async () => {
-    console.log("Permission confirmed, starting actual interview initialization...");
-    if (!selectedRole) {
-      console.warn("handlePermissionConfirmed called but selectedRole is null");
-      return;
-    }
+    if (!selectedRole) return;
     try {
-      console.log("Requesting actual media stream...");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      console.log("Media stream obtained successfully");
       
       // Start the interview session
       const response = await mockInterviewService.startInterview(

@@ -104,7 +104,7 @@ class MockInterviewService {
 
   async updateMockInterviewSubmission(id: string, data: any): Promise<any> {
     try {
-      const response = await restApiAuthUtil.patch<any>(`/assessment/mock-interview-submissions/${id}/`, data);
+      const response = await restApiAuthUtil.patch<any>(`/assessment/mock-interview/submissions/${id}/`, data);
       return response;
     } catch (error) {
       console.error('Error updating mock interview submission:', error);
@@ -114,7 +114,7 @@ class MockInterviewService {
 
   async getSubmissionReport(id: string): Promise<any> {
     try {
-      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview-submissions/${id}/report/`);
+      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/report/`);
       return response;
     } catch (error) {
       console.error('Error fetching submission report:', error);
@@ -136,6 +136,16 @@ class MockInterviewService {
       return response;
     } catch (error) {
       console.error('Error starting interview:', error);
+      throw error;
+    }
+  }
+
+  async getMockInterviewSubmission(id: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching mock interview submission:', error);
       throw error;
     }
   }
