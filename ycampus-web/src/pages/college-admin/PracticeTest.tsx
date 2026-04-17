@@ -27,7 +27,7 @@ import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import AnalyticsStats from '@/components/college-admin/analytics/AnalyticsStats';
 import CandidatesTable from '@/components/college-admin/analytics/CandidatesTable';
 import SubmissionAnalyticsView from '@/components/college-admin/analytics/SubmissionAnalyticsView';
-import AssessmentBuilder from '@/components/common/AssessmentBuilder';
+import Builder from '@/components/common/Builder';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'analytics' | 'submission-results';
 
@@ -534,7 +534,7 @@ const CollegeAdminPracticeTest = () => {
   );
 
   const renderForm = () => (
-    <AssessmentBuilder
+    <Builder
       initialData={selectedTest}
       mode={view === 'create' ? 'create' : 'edit'}
       testType="practice"

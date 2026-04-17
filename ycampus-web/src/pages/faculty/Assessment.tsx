@@ -16,7 +16,7 @@ import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject } fro
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 
 // Reusing Admin components for Test creation
-import AssessmentBuilder from '@/components/common/AssessmentBuilder';
+import Builder from '@/components/common/Builder';
 import AnalyticsStats from '@/components/college-admin/analytics/AnalyticsStats';
 import CandidatesTable from '@/components/college-admin/analytics/CandidatesTable';
 import SubmissionAnalyticsView from '@/components/college-admin/analytics/SubmissionAnalyticsView';
@@ -413,7 +413,7 @@ const Assessment = () => {
   );
 
   const renderForm = () => (
-    <AssessmentBuilder
+    <Builder
       initialData={selectedAssessment}
       mode={view === 'create' ? 'create' : 'edit'}
       testType="assessment"

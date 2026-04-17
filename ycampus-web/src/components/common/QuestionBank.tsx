@@ -7,9 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Search, Plus, Eye, Edit, Trash2, Code, FileText, CheckCircle, Circle, GripVertical, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Question, QuestionFilters, fetchQuestions, QUESTION_TYPES, deleteQuestion } from '@/services/questionService';
-import AssessmentQuestionCreationModal from './AssessmentQuestionCreationModal';
+import QuestionCreationModal from './QuestionCreationModal';
 
-interface AssessmentQuestionBankProps {
+interface QuestionBankProps {
   mode?: 'selection' | 'management';
   selectedQuestions?: string[];
   onQuestionSelect?: (questionId: string) => void;
@@ -28,7 +28,7 @@ interface AssessmentQuestionBankProps {
   allowCreation?: boolean;
 }
 
-export default function AssessmentQuestionBank({
+export default function QuestionBank({
   mode = 'management',
   selectedQuestions = [],
   onQuestionSelect,
@@ -45,7 +45,7 @@ export default function AssessmentQuestionBank({
   difficultyFilter,
   creationCategory,
   allowCreation = true
-}: AssessmentQuestionBankProps) {
+}: QuestionBankProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [allSelectedQuestions, setAllSelectedQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
@@ -523,7 +523,7 @@ export default function AssessmentQuestionBank({
           </div>
         </div>
         {isCreateModalOpen && (
-          <AssessmentQuestionCreationModal
+          <QuestionCreationModal
             isOpen={isCreateModalOpen}
             onClose={() => {
               setIsCreateModalOpen(false);
@@ -754,7 +754,7 @@ export default function AssessmentQuestionBank({
         )}
       </CardContent>
       {isCreateModalOpen && (
-          <AssessmentQuestionCreationModal
+          <QuestionCreationModal
             isOpen={isCreateModalOpen}
             onClose={() => {
               setIsCreateModalOpen(false);

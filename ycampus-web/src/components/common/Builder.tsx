@@ -12,9 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { fetchQuestionById, fetchQuestions } from '@/services/questionService';
 import { SkillTest, CreateSkillTestData } from '@/services/skillTestService';
 import { QuestionPreview } from '@/components/admin/test-questions/QuestionPreview';
-import AssessmentQuestionBank from './AssessmentQuestionBank';
+import QuestionBank from './QuestionBank';
 
-export interface AssessmentBuilderProps {
+export interface BuilderProps {
   initialData: SkillTest | null;
   mode: 'create' | 'edit';
   testType: 'practice' | 'assessment';
@@ -26,7 +26,7 @@ export interface AssessmentBuilderProps {
   onCancel: () => void;
 }
 
-const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
+const Builder: React.FC<BuilderProps> = ({
   initialData, mode, testType, subjectFilter, unitFilter, sectionFilter, contextSubtitle, onSave, onCancel
 }) => {
   const { toast } = useToast();
@@ -493,7 +493,7 @@ const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
               <Badge variant="secondary" className="font-semibold">{questions.length}</Badge>
             </div>
 
-            <AssessmentQuestionBank
+            <QuestionBank
               mode="selection"
               selectedQuestions={formData.selectedQuestions}
               onQuestionsChange={(ids) => {
@@ -553,4 +553,4 @@ const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
   );
 };
 
-export default AssessmentBuilder;
+export default Builder;

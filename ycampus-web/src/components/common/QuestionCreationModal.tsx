@@ -43,7 +43,7 @@ interface QuestionCreateModalProps {
   editData?: Question | null;
 }
 
-export default function AssessmentQuestionCreationModal({
+export default function QuestionCreationModal({
   isOpen,
   onClose,
   onSuccess,
