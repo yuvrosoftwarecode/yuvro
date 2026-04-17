@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 're
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { ChevronLeft, BrainCircuit, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, PanelLeftClose, Download, Code } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, PanelLeftClose, Download, Code, ClipboardList } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 
@@ -17,6 +17,7 @@ import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import codeEditorService from '@/services/codeEditorService';
+import SubmissionsPanel from '@/components/code-editor/SubmissionsPanel';
 
 interface CodeEditorWithAIProps {
   problem: CodingProblem;
@@ -72,7 +73,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
   // Custom performant drag-based CSS var resizing (like StudentVideos)
-  const [problemPanelWidth, setProblemPanelWidth] = useState(22);
+  const [problemPanelWidth, setProblemPanelWidth] = useState(30);
   const [aiChatPanelWidth, setAiChatPanelWidth] = useState(27);
   const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,7 +84,8 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   stateRef.current = { isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth };
 
   // Hint/Solution state
-  const [leftTab, setLeftTab] = useState<'question' | 'hints' | 'solution'>('question');
+  const [leftTab, setLeftTab] = useState<'question' | 'solution' | 'submissions'>('question');
+  const [hintsExpanded, setHintsExpanded] = useState(false);
   const [revealedHints, setRevealedHints] = useState<number[]>([]);
   const [revealedSolution, setRevealedSolution] = useState(false);
   const [hintToReveal, setHintToReveal] = useState<number | null>(null);
@@ -92,6 +94,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [selectedApproach, setSelectedApproach] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [selectedSolutionIdx, setSelectedSolutionIdx] = useState(0);
+  const [latestSubmissionResult, setLatestSubmissionResult] = useState<number>(0);
 
   // Code editor ref
   const codeEditorRef = useRef<CodeEditorHandle>(null);
@@ -299,6 +302,14 @@ ${codeEditorRef.current?.getCode() || ''}
 
   const sharedContainerClass = "h-full flex-1 w-full flex overflow-hidden bg-white font-sans box-border relative";
 
+  // Fire AI Buddy with an analyse-code prompt
+  const handleAnalyseCode = (code: string, language: string) => {
+    if (!showAiChat) handleToggleAiChat();
+    window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
+      detail: { prompt: `Analyse this ${language} code and give me feedback on correctness, time complexity, space complexity, and any improvements:\n\n\`\`\`${language}\n${code}\n\`\`\`` }
+    }));
+  };
+
   const handleRevealHint = async () => {
     if (hintToReveal === null) return;
     try {
@@ -347,8 +358,8 @@ ${codeEditorRef.current?.getCode() || ''}
             <h2 className="text-lg font-bold text-gray-900 leading-snug mb-2">{problem.title}</h2>
             <div className="flex items-center gap-2">
               <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
-                  problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                    'bg-red-50 text-red-700 border-red-200'
+                problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                  'bg-red-50 text-red-700 border-red-200'
                 }`}>{problem.difficulty}</span>
             </div>
           </div>
@@ -382,40 +393,53 @@ ${codeEditorRef.current?.getCode() || ''}
               </div>
             );
           })()}
-        </TabsContent>
 
-        <TabsContent value="hints" className="m-0 space-y-4 w-full">
-          {problem.hints && problem.hints.length > 0 ? (
-            problem.hints.map((hint: string, index: number) => {
-              const isRevealed = revealedHints.includes(index);
-              return (
-                <div key={index} className="border border-amber-200 bg-amber-50 rounded-lg p-4 w-full">
-                  <div className="flex items-center gap-2 font-semibold text-amber-800 mb-2 text-sm">
-                    <Lightbulb className="w-4 h-4" />
-                    Hint {index + 1}
+          {/* Hints — always visible, collapsible */}
+          <div className="mt-6">
+            <button
+              onClick={() => setHintsExpanded(prev => !prev)}
+              className="flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors w-full"
+            >
+              <Lightbulb className="w-4 h-4 text-amber-500" />
+              Hints {problem.hints && problem.hints.length > 0 ? `(${problem.hints.length})` : ''}
+              <span className={`ml-auto text-gray-400 transition-transform duration-200 ${hintsExpanded ? 'rotate-180' : ''}`}>▾</span>
+            </button>
+            {hintsExpanded && (
+              <div className="mt-3 space-y-3">
+                {problem.hints && problem.hints.length > 0 ? (
+                  problem.hints.map((hint: string, index: number) => {
+                    const isRevealed = revealedHints.includes(index);
+                    return (
+                      <div key={index} className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 font-semibold text-amber-800 mb-2 text-sm">
+                          <Lightbulb className="w-3.5 h-3.5" />
+                          Hint {index + 1}
+                        </div>
+                        {isRevealed ? (
+                          <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{hint}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-xs text-amber-700/80 mb-2">Using hints will result in a score penalty.</p>
+                            <Button onClick={() => setHintToReveal(index)} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm" size="sm">
+                              <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
+                              Reveal Hint
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6 text-gray-400">
+                    <Lightbulb className="w-7 h-7 text-gray-200 mx-auto mb-2" />
+                    <p className="text-xs">No hints available for this problem.</p>
                   </div>
-                  {isRevealed ? (
-                    <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{hint}</ReactMarkdown>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-xs text-amber-700/80 mb-2">Using hints will result in a score penalty.</p>
-                      <Button onClick={() => setHintToReveal(index)} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm" size="sm">
-                        <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
-                        Reveal Hint
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-center py-12 text-gray-500 w-full">
-              <Lightbulb className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm">No hints available for this problem.</p>
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="solution" className="m-0 w-full">
@@ -437,8 +461,8 @@ ${codeEditorRef.current?.getCode() || ''}
                           setSelectedSolutionIdx(0);
                         }}
                         className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${selectedApproach === ap
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
+                          ? 'border-saffron-600 text-saffron-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
                           }`}
                       >
                         {approachLabels[ap] || ap}
@@ -459,8 +483,8 @@ ${codeEditorRef.current?.getCode() || ''}
                         key={lang}
                         onClick={() => { setSelectedLanguage(lang); setSelectedSolutionIdx(0); }}
                         className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${selectedLanguage === lang
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
+                          ? 'bg-saffron-600 text-white border-saffron-600'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-saffron-300 hover:text-saffron-600'
                           }`}
                       >
                         {String(lang).toUpperCase()}
@@ -488,7 +512,7 @@ ${codeEditorRef.current?.getCode() || ''}
                           codeEditorRef.current?.setCode(sol.code);
                           toast.success('Solution loaded into editor');
                         }}
-                        className="h-6 px-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="h-6 px-2 text-xs bg-saffron-600 hover:bg-saffron-700 text-white"
                       >
                         <Download className="w-3 h-3 mr-1" />
                         Load into Editor
@@ -500,9 +524,9 @@ ${codeEditorRef.current?.getCode() || ''}
                       </div>
                     </div>
                     {sol.complexity_analysis && (
-                      <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
-                        <p className="text-xs font-bold text-indigo-700 mb-1.5">Complexity Analysis</p>
-                        <p className="text-sm text-indigo-900 leading-relaxed">{sol.complexity_analysis}</p>
+                      <div className="rounded-lg border border-saffron-100 bg-saffron-50 px-4 py-3">
+                        <p className="text-xs font-bold text-saffron-700 mb-1.5">Complexity Analysis</p>
+                        <p className="text-sm text-saffron-900 leading-relaxed">{sol.complexity_analysis}</p>
                       </div>
                     )}
                   </div>
@@ -523,6 +547,15 @@ ${codeEditorRef.current?.getCode() || ''}
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="submissions" className="m-0 w-full">
+          <SubmissionsPanel
+            problemId={problem.id}
+            submissionCount={latestSubmissionResult}
+            codeSubmissionType={codeSubmissionType}
+            onAnalyseCode={showAiBuddy ? handleAnalyseCode : undefined}
+          />
+        </TabsContent>
       </div>
     </Tabs>
   );
@@ -536,7 +569,7 @@ ${codeEditorRef.current?.getCode() || ''}
             <CardHeader className="p-8 bg-gray-50/50 border-b border-gray-100">
               <div className="max-w-4xl mx-auto w-full">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100">
+                  <div className="w-10 h-10 rounded-xl bg-saffron-600 flex items-center justify-center shadow-lg shadow-saffron-100">
                     <BrainCircuit className="w-5 h-5 text-white" />
                   </div>
                   <h1 className="text-2xl font-bold text-gray-900">{problem.title}</h1>
@@ -549,7 +582,7 @@ ${codeEditorRef.current?.getCode() || ''}
                 {/* Description */}
                 <div>
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <Layout className="w-3.5 h-3.5 text-indigo-500" /> Challenge Overview
+                    <Layout className="w-3.5 h-3.5 text-saffron-500" /> Challenge Overview
                   </h3>
                   <div className="prose prose-slate max-w-none">
                     <div className="text-gray-700 text-base leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-code:text-sm">
@@ -586,7 +619,7 @@ ${codeEditorRef.current?.getCode() || ''}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Input</div>
-                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-indigo-600 border border-slate-100">{ex.input}</pre>
+                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-saffron-600 border border-slate-100">{ex.input}</pre>
                             </div>
                             <div>
                               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Output</div>
@@ -611,7 +644,7 @@ ${codeEditorRef.current?.getCode() || ''}
           <div className="flex justify-center mt-8">
             <Button
               onClick={() => setEditorOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 font-bold px-8 py-3 h-12 transition-all active:scale-95 text-sm uppercase tracking-widest hover:shadow-xl"
+              className="bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl shadow-lg shadow-saffron-200 font-bold px-8 py-3 h-12 transition-all active:scale-95 text-sm uppercase tracking-widest hover:shadow-xl"
             >
               <Code className="w-5 h-5 mr-2" />
               Launch Workspace
@@ -630,9 +663,9 @@ ${codeEditorRef.current?.getCode() || ''}
             '--chat-width': showAiBuddy && showAiChat ? `${aiChatPanelWidth}%` : '0%'
           } as React.CSSProperties}
         >
-          {/* Collapsed Sidebar — vertical tab buttons */}
-          {showProblemDescription && isSidebarCollapsed && (
-            <div className="w-9 shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 transition-all z-10 overflow-hidden">
+          {/* Collapsed Sidebar — vertical tab buttons, fades in after panel slides away */}
+          {showProblemDescription && (
+            <div className={`shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 z-10 overflow-hidden transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'w-9 opacity-100 pointer-events-auto' : 'w-0 opacity-0 pointer-events-none'}`}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -644,14 +677,14 @@ ${codeEditorRef.current?.getCode() || ''}
               </Button>
               {[
                 { key: 'question', label: 'Description', icon: <BookOpen className="w-3 h-3" /> },
-                { key: 'hints', label: 'Hints', icon: <Lightbulb className="w-3 h-3" /> },
                 { key: 'solution', label: 'Solution', icon: <Key className="w-3 h-3" /> },
+                { key: 'submissions', label: 'Submissions', icon: <ClipboardList className="w-3 h-3" /> },
               ].map((t) => (
                 <button
                   key={t.key}
                   onClick={() => { setLeftTab(t.key as any); setProblemPanelWidth(30); setIsSidebarCollapsed(false); }}
                   className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
-                    ${leftTab === t.key ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                    ${leftTab === t.key ? 'text-saffron-600 bg-saffron-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
                   title={t.label}
                 >
                   {t.icon}
@@ -680,15 +713,15 @@ ${codeEditorRef.current?.getCode() || ''}
                 </Button>
                 {[
                   { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                  { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
                   { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                  { key: 'submissions', label: 'Submissions', icon: <ClipboardList className="w-3.5 h-3.5" /> },
                 ].map((t) => (
                   <button
                     key={t.key}
                     onClick={() => setLeftTab(t.key as any)}
                     className={`h-full flex items-center gap-1.5 px-3 text-xs font-semibold border-b-2 transition-all -mb-px
                         ${leftTab === t.key
-                        ? 'border-indigo-600 text-indigo-600'
+                        ? 'border-saffron-600 text-saffron-600'
                         : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                   >
                     {t.icon}
@@ -699,7 +732,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsSidebarCollapsed(true)}
-                  className="h-8 w-8 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                  className="h-8 w-8 p-0 ml-auto rounded-md text-gray-400 hover:text-saffron-600 hover:bg-saffron-50 shrink-0"
                   title="Collapse"
                 >
                   <PanelLeftClose className="h-3.5 w-3.5" />
@@ -721,7 +754,7 @@ ${codeEditorRef.current?.getCode() || ''}
               }}
               className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
             >
-              <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+              <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
             </div>
           )}
 
@@ -752,7 +785,13 @@ ${codeEditorRef.current?.getCode() || ''}
               className="h-full"
               templates={apiTemplates}
               codeSubmissionType={codeSubmissionType}
-              onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+              onSubmissionComplete={(result) => {
+                setLatestSubmissionResult(prev => prev + 1);
+                const passed = result?.test_cases_passed ?? result?.test_results?.passed ?? 0;
+                const total = result?.total_test_cases ?? result?.test_results?.total ?? 0;
+                const success = total > 0 && passed === total;
+                if (onSubmissionComplete) onSubmissionComplete(problem.id, success, result);
+              }}
             />
           </div>
 
@@ -765,7 +804,7 @@ ${codeEditorRef.current?.getCode() || ''}
               }}
               className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
             >
-              <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+              <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
             </div>
           )}
 
@@ -802,8 +841,8 @@ ${codeEditorRef.current?.getCode() || ''}
             } as React.CSSProperties}
           >
             {/* Collapsed Left Panel Sidebar Strip */}
-            {showProblemDescription && isSidebarCollapsed && (
-              <div className="w-9 shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 transition-all z-10 overflow-hidden">
+            {showProblemDescription && (
+              <div className={`shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 z-10 overflow-hidden transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'w-9 opacity-100 pointer-events-auto' : 'w-0 opacity-0 pointer-events-none'}`}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -815,14 +854,14 @@ ${codeEditorRef.current?.getCode() || ''}
                 </Button>
                 {[
                   { key: 'question', label: 'Description', icon: <BookOpen className="w-3 h-3" /> },
-                  { key: 'hints', label: 'Hints', icon: <Lightbulb className="w-3 h-3" /> },
                   { key: 'solution', label: 'Solution', icon: <Key className="w-3 h-3" /> },
+                  { key: 'submissions', label: 'Submissions', icon: <ClipboardList className="w-3 h-3" /> },
                 ].map((t) => (
                   <button
                     key={t.key}
                     onClick={() => { setLeftTab(t.key as any); setProblemPanelWidth(30); setIsSidebarCollapsed(false); }}
                     className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
-                      ${leftTab === t.key ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                      ${leftTab === t.key ? 'text-saffron-600 bg-saffron-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
                     title={t.label}
                   >
                     {t.icon}
@@ -850,15 +889,15 @@ ${codeEditorRef.current?.getCode() || ''}
                   </Button>
                   {[
                     { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
                     { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                    { key: 'submissions', label: 'Submissions', icon: <ClipboardList className="w-3.5 h-3.5" /> },
                   ].map((t) => (
                     <button
                       key={t.key}
                       onClick={() => setLeftTab(t.key as any)}
                       className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
                           ${leftTab === t.key
-                          ? 'border-indigo-600 text-indigo-600'
+                          ? 'border-saffron-600 text-saffron-600'
                           : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                     >
                       {t.icon}
@@ -869,7 +908,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsSidebarCollapsed(true)}
-                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-saffron-600 hover:bg-saffron-50 shrink-0"
                     title="Collapse"
                   >
                     <PanelLeftClose className="h-3.5 w-3.5" />
@@ -890,7 +929,7 @@ ${codeEditorRef.current?.getCode() || ''}
                 }}
                 className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
               >
-                <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+                <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
               </div>
             )}
 
@@ -919,7 +958,10 @@ ${codeEditorRef.current?.getCode() || ''}
                 className="h-full"
                 templates={apiTemplates}
                 codeSubmissionType={codeSubmissionType}
-                onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                onSubmissionComplete={(result) => {
+                  setLatestSubmissionResult(prev => prev + 1);
+                  if (onSubmissionComplete) onSubmissionComplete(problem.id, result?.test_results?.success || false, result);
+                }}
               />
             </div>
 
@@ -932,7 +974,7 @@ ${codeEditorRef.current?.getCode() || ''}
                 }}
                 className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
               >
-                <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+                <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
               </div>
             )}
 

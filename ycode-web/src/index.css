@@ -2,15 +2,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-saffron: #f97316;
-  --color-saffron-start: #fb923c;
-  --color-saffron-end: #ea580c;
+  --color-saffron: hsl(30, 100%, 50%);
+  --color-saffron-start: hsl(30, 100%, 50%);
+  --color-saffron-end: hsl(38, 92%, 50%);
+  --color-saffron-50:  hsl(30, 100%, 97%);
+  --color-saffron-100: hsl(30, 100%, 94%);
+  --color-saffron-200: hsl(30, 100%, 87%);
+  --color-saffron-300: hsl(30, 100%, 76%);
+  --color-saffron-400: hsl(30, 100%, 64%);
+  --color-saffron-500: hsl(30, 100%, 55%);
+  --color-saffron-600: hsl(30, 100%, 50%);
+  --color-saffron-700: hsl(30, 100%, 42%);
+  --color-saffron-800: hsl(30, 100%, 34%);
+  --color-saffron-900: hsl(30, 100%, 26%);
+  --color-saffron-950: hsl(30, 100%, 15%);
   --color-muted: #f3f4f6;
   --color-muted-foreground: #6b7280;
   --color-card: #ffffff;
   --color-card-foreground: #111827;
   --color-border: #e5e7eb;
   --color-foreground: #111827;
+  --color-sidebar: hsl(0, 0%, 98%);
 }
 
 /* ── Thin Scrollbar Utility ── */

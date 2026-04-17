@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +51,7 @@ const SolutionViewer: React.FC<SolutionViewerProps> = ({
                             key={idx}
                             onClick={() => setActiveSolutionIndex(idx)}
                             className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all border flex items-center gap-2 ${activeSolutionIndex === idx
-                                ? 'bg-white border-indigo-200 text-indigo-700 shadow-sm ring-1 ring-indigo-50'
+                                ? 'bg-white border-saffron-200 text-saffron-700 shadow-sm ring-1 ring-saffron-50'
                                 : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-100'
                                 }`}
                         >

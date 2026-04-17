@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+﻿import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import RoleSidebar from "../../components/common/RoleSidebar";
 import EdgeHoverSidebar from "../../components/common/EdgeHoverSidebar";
@@ -156,23 +156,13 @@ const CourseDetail: React.FC = () => {
 
     const handleProgressUpdate = useCallback(async () => {
         if (!selectedSubtopic || loadingProgressRef.current) return;
-
-        console.log('handleProgressUpdate called for subtopic:', selectedSubtopic.id);
         await loadProgress();
     }, [selectedSubtopic?.id]);
 
-    const debouncedProgressUpdate = useCallback(
-        useMemo(() => {
-            let timeoutId: any;
-            return () => {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    handleProgressUpdate();
-                }, 300);
-            };
-        }, [handleProgressUpdate]),
-        [handleProgressUpdate]
-    );
+    const debouncedProgressUpdate = useCallback(() => {
+        const id = setTimeout(() => handleProgressUpdate(), 300);
+        return () => clearTimeout(id);
+    }, [handleProgressUpdate]);
 
     const getTopicProgress = (topicId: string): number => {
         const subs = subtopicsMap[topicId] || [];
@@ -216,17 +206,22 @@ const CourseDetail: React.FC = () => {
                     return { topicId: topic.id, subs: subs as Subtopic[] };
                 });
 
-                const results = await Promise.all(subtopicPromises);
+                const results = await Promise.allSettled(subtopicPromises);
 
-                results.forEach(({ topicId, subs }) => {
-                    allSubtopics[topicId] = subs;
+                results.forEach((result) => {
+                    if (result.status === 'fulfilled') {
+                        const { topicId, subs } = result.value;
+                        allSubtopics[topicId] = subs;
+                    }
                 });
 
-                const firstWithSubs = results.find(r => r.subs.length > 0);
+                const firstWithSubs = results
+                    .filter((r): r is PromiseFulfilledResult<{ topicId: string; subs: Subtopic[] }> => r.status === 'fulfilled')
+                    .find(r => r.value.subs.length > 0);
 
                 if (firstWithSubs) {
-                    firstSubtopic = firstWithSubs.subs[0];
-                    firstTopicId = firstWithSubs.topicId;
+                    firstSubtopic = firstWithSubs.value.subs[0];
+                    firstTopicId = firstWithSubs.value.topicId;
                 }
 
                 setSubtopicsMap(allSubtopics);
@@ -523,7 +518,7 @@ const CourseDetail: React.FC = () => {
                                                     </div>
 
                                                     <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 flex items-center gap-2">
-                                                        <Sparkles className="w-4 h-4 text-indigo-500" />
+                                                        <Sparkles className="w-4 h-4 text-saffron-500" />
                                                         <span><strong>Tip:</strong> Open the AI Buddy in either tab to get instant summaries or help with your notes!</span>
                                                     </div>
                                                 </TabsContent>
@@ -666,7 +661,7 @@ const CourseDetail: React.FC = () => {
                                                 hover:scale-[1.015] hover:shadow-md
                                                 active:scale-[0.98]
                                                 ${videoLayout === opt.id
-                                                            ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg"
+                                                            ? "bg-saffron-600 text-white ring-4 ring-saffron-50 shadow-lg"
                                                             : "text-gray-700 hover:bg-gray-50"}
                                                 `}
                                                 >

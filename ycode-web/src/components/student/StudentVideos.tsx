@@ -108,16 +108,26 @@ const StudentVideos = ({
 
   useEffect(() => {
     const handleMouseUp = () => {
-      const { mode, startVal } = dragInfo.current;
+      const { mode } = dragInfo.current;
       if (!mode) return;
 
-      // Commit final values to React state
-      if (mode === 'horizontal') setLeftPanelWidth(startVal);
-      if (mode === 'vertical') setVideoChatSplitRatio(startVal);
+      // Commit the final CSS var value to React state
+      if (containerRef.current) {
+        if (mode === 'horizontal') {
+          const cssVal = containerRef.current.style.getPropertyValue('--left-width');
+          const parsed = parseFloat(cssVal);
+          if (!isNaN(parsed)) setLeftPanelWidth(parsed);
+        }
+        if (mode === 'vertical') {
+          const cssVal = containerRef.current.style.getPropertyValue('--video-height');
+          const parsed = parseFloat(cssVal);
+          if (!isNaN(parsed)) setVideoChatSplitRatio(parsed);
+        }
+      }
 
       dragInfo.current = { mode: null, startVal: 0 };
       setDragMode(null);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -133,7 +143,6 @@ const StudentVideos = ({
 
       rafRef.current = requestAnimationFrame(() => {
         if (!containerRef.current) return;
-
         if (mode === 'horizontal') {
           const newWidth = (e.clientX / window.innerWidth) * 100;
           const isCodeOnLeft = layout === 'code-chat';
@@ -160,6 +169,7 @@ const StudentVideos = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     };
   }, [layout]);
 
@@ -209,26 +219,16 @@ const StudentVideos = ({
   };
 
   const renderVideo = () => (
-    <div className="w-full h-full bg-gray-50 overflow-hidden p-6 flex items-center justify-center">
-      <div
-        className="w-full relative flex items-center justify-center rounded-2xl shadow-sm border border-gray-200 overflow-hidden bg-white/50"
-        style={{
-          aspectRatio: "16 / 9",
-          maxHeight: "100%",
-          height: "auto",
-          maxWidth: "100%"
-        }}
-      >
-        {loading ? (
-          <LoadingSpinner size="lg" />
-        ) : !selectedVideo ? (
-          <div className="text-gray-500 font-medium text-sm">No video selected</div>
-        ) : (
-          <div className="w-full h-full relative">
-            {renderVideoPlayer(selectedVideo.video_link)}
-          </div>
-        )}
-      </div>
+    <div className="w-full h-full overflow-hidden p-6 flex items-center justify-center">
+      {loading ? (
+        <LoadingSpinner size="lg" />
+      ) : !selectedVideo ? (
+        <div className="text-gray-500 font-medium text-sm">No video selected</div>
+      ) : (
+        <div className="w-full h-full relative">
+          {renderVideoPlayer(selectedVideo.video_link)}
+        </div>
+      )}
     </div>
   );
 
@@ -347,7 +347,7 @@ const StudentVideos = ({
                 )}
                 style={{ top: `var(--video-height)` }}
               >
-                <div className="h-1.5 w-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+                <div className="h-1.5 w-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
               </div>
 
               {/* BOTTOM SLOT: AI Chat (for 3-pane mode) */}
@@ -373,7 +373,7 @@ const StudentVideos = ({
             )}
             style={{ left: `var(--left-width)` }}
           >
-            <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+            <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
           </div>
 
           {/* RIGHT PANE SLIDER */}

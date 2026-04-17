@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Circle, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { getCourseIconConfig } from '@/utils/CourseIcons';
+import { getCourseIconConfig, getPastelStyle } from '@/utils/CourseIcons';
 
 export interface ContentItem {
   id: string;
@@ -141,6 +141,8 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
     return Math.round(total / subtopics.length);
   };
 
+  const pastelStyle = getPastelStyle(courseBg);
+
   return (
     <>
       <div
@@ -156,7 +158,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
             <div className="p-3 space-y-3">
               <div className="flex items-center justify-between gap-2 py-1">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0 text-white", courseBg)}>
+                  <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0", pastelStyle.bg, pastelStyle.text)}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <TruncatedText text={courseName} className="font-semibold text-sm truncate text-foreground" />
@@ -190,7 +192,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0 text-white", courseBg)} title={courseName}>
+              <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0", pastelStyle.bg, pastelStyle.text)} title={courseName}>
                 <Icon className="w-4 h-4" />
               </div>
             </div>
