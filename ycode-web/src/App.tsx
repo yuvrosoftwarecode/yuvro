@@ -29,8 +29,6 @@ import Contest from './pages/student/Contest';
 import ContestDetail from './pages/student/ContestDetail';
 import ContestAttempt from './pages/student/ContestAttempt';
 import CodePractice from './pages/student/CodePractice';
-import StudentQuiz from './components/student/StudentQuiz';
-import StudentCoding from './components/student/StudentCoding';
 import Certify from './pages/student/Certify';
 import CertificationExam from './pages/student/CertificationExam';
 import { Toaster } from "@/components/ui/sonner";
@@ -114,24 +112,6 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CourseDetail />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/student/learn/:subtopicId/quiz"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentQuiz />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/student/learn/:subtopicId/coding"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentCoding />
                   </ProtectedRoute>
                 }
               />
