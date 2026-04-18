@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, Database, X } from 'lucide-react';
+import { Plus, Trash2, FlaskConical, X } from 'lucide-react';
 
 interface CustomTestCase {
   id: string;
@@ -25,15 +25,8 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
   });
 
   const addTestCase = () => {
-    if (!newTestCase.input.trim()) {
-      return;
-    }
-
-    const testCase: CustomTestCase = {
-      id: `custom-${Date.now()}`,
-      ...newTestCase
-    };
-
+    if (!newTestCase.input.trim()) return;
+    const testCase: CustomTestCase = { id: `custom-${Date.now()}`, ...newTestCase };
     onTestCasesChange([...customTestCases, testCase]);
     setNewTestCase({ input: '', expected_output: '' });
     setIsAddingTestCase(false);
@@ -44,133 +37,120 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
   };
 
   const updateTestCase = (id: string, updates: Partial<CustomTestCase>) => {
-    onTestCasesChange(
-      customTestCases.map(tc =>
-        tc.id === id ? { ...tc, ...updates } : tc
-      )
-    );
+    onTestCasesChange(customTestCases.map(tc => tc.id === id ? { ...tc, ...updates } : tc));
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-blue-600" />
-          <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-tight">Custom Test Cases</h4>
-          <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-            {customTestCases.length}
-          </span>
+          <FlaskConical className="w-4 h-4 text-gray-400" />
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Custom Test Cases</span>
+          {customTestCases.length > 0 && (
+            <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              {customTestCases.length}
+            </span>
+          )}
         </div>
         {!isAddingTestCase && (
           <Button
             onClick={() => setIsAddingTestCase(true)}
             size="sm"
             variant="outline"
-            className="h-8 text-xs bg-white border-gray-200 hover:bg-gray-50 text-gray-700 font-medium"
+            className="h-7 text-xs border-gray-200 hover:bg-gray-50 text-gray-600 font-medium px-3"
           >
-            <Plus className="w-3.5 h-3.5 mr-1" />
-            New Case
+            <Plus className="w-3 h-3 mr-1" /> Add case
           </Button>
         )}
       </div>
 
-      {/* Existing Test Cases */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Existing Cases */}
+      <div className="space-y-2">
         {customTestCases.map((testCase, index) => (
-          <div key={testCase.id} className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition-all shadow-sm">
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-100">
-              <span className="text-[10px] font-bold text-gray-500 uppercase">Case #{index + 1}</span>
+          <div key={testCase.id} className="border border-gray-100 rounded-xl overflow-hidden bg-white">
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-50/70 border-b border-gray-100">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Case #{index + 1}</span>
               <Button
                 onClick={() => removeTestCase(testCase.id)}
                 size="icon"
                 variant="ghost"
-                className="h-6 w-6 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                className="h-6 w-6 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3 h-3" />
               </Button>
             </div>
-
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+            <div className="p-3 grid grid-cols-2 gap-3">
+              <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Input</label>
                 <Input
                   value={testCase.input}
                   onChange={(e) => updateTestCase(testCase.id, { input: e.target.value })}
                   placeholder="Enter input..."
-                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white transition-all shadow-inner"
+                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white focus:border-saffron-300 focus:ring-saffron-100 transition-all"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Expected Output</label>
                 <Input
                   value={testCase.expected_output}
                   onChange={(e) => updateTestCase(testCase.id, { expected_output: e.target.value })}
-                  placeholder="Enter expected result..."
-                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white transition-all shadow-inner"
+                  placeholder="Expected result..."
+                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white focus:border-saffron-300 focus:ring-saffron-100 transition-all"
                 />
               </div>
             </div>
           </div>
         ))}
 
-        {/* Add New Test Case Form */}
+        {/* Add New Form */}
         {isAddingTestCase && (
-          <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3 shadow-sm transition-all">
-            <div className="flex items-center gap-3">
+          <div className="border border-saffron-100 bg-saffron-50/30 rounded-xl p-3">
+            <div className="flex items-center gap-2">
               <div className="flex-1">
                 <Input
                   value={newTestCase.input}
                   onChange={(e) => setNewTestCase({ ...newTestCase, input: e.target.value })}
                   placeholder="Input (e.g. [1, 2, 3])"
-                  className="h-9 text-xs font-mono border-blue-100 focus:border-blue-300 focus:ring-blue-100 transition-all shadow-sm bg-white"
+                  className="h-8 text-xs font-mono border-saffron-100 focus:border-saffron-300 focus:ring-saffron-100 bg-white"
                 />
               </div>
               <div className="flex-1">
                 <Input
                   value={newTestCase.expected_output}
                   onChange={(e) => setNewTestCase({ ...newTestCase, expected_output: e.target.value })}
-                  placeholder="Expected Output"
-                  className="h-9 text-xs font-mono border-blue-100 focus:border-blue-300 focus:ring-blue-100 transition-all shadow-sm bg-white"
+                  placeholder="Expected output"
+                  className="h-8 text-xs font-mono border-saffron-100 focus:border-saffron-300 focus:ring-saffron-100 bg-white"
                 />
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <Button
                   onClick={addTestCase}
                   disabled={!newTestCase.input.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-[11px] px-3 h-9 font-bold uppercase tracking-tight"
+                  size="sm"
+                  className="h-8 bg-saffron-600 hover:bg-saffron-700 text-white text-xs px-4 font-bold"
                 >
                   Add
                 </Button>
                 <Button
-                  onClick={() => {
-                    setIsAddingTestCase(false);
-                    setNewTestCase({ input: '', expected_output: '' });
-                  }}
+                  onClick={() => { setIsAddingTestCase(false); setNewTestCase({ input: '', expected_output: '' }); }}
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-gray-600 h-9 w-9"
+                  className="h-8 w-8 text-gray-400 hover:text-gray-700"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
           </div>
         )}
 
+        {/* Empty state */}
         {customTestCases.length === 0 && !isAddingTestCase && (
-          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/30">
-            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
-              <Database className="w-5 h-5 text-gray-300" />
-            </div>
-            <p className="text-sm font-semibold text-gray-500">No Custom Cases Yet</p>
-            <p className="text-xs text-gray-400 mt-1 max-w-[200px] text-center">Add your own test scenarios to verify edge cases.</p>
-            <Button
-              onClick={() => setIsAddingTestCase(true)}
-              variant="link"
-              className="text-blue-600 font-bold text-xs mt-2"
-            >
-              Click here to add one
-            </Button>
+          <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-100 rounded-xl">
+            <FlaskConical className="w-6 h-6 text-gray-200 mb-3" />
+            <p className="text-xs font-semibold text-gray-400">No custom test cases</p>
+            <p className="text-[11px] text-gray-300 mt-0.5">Add your own inputs to verify edge cases</p>
           </div>
         )}
       </div>

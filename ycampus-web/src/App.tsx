@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -70,6 +70,7 @@ import Contest from "./pages/student/Contest";
 // MockInterviewSelect replaced by StudentMockInterview
 import StudentJobs from "./pages/student/Jobs";
 import CodePractice from "./pages/student/CodePractice";
+import StudentProfile from "./pages/student/Profile";
 import PlacementDashboard from "./pages/placement/PlacementDashboard";
 import JobApprovals from "./pages/placement/JobApprovals";
 import LiveJobs from "./pages/placement/LiveJobs";
@@ -94,6 +95,13 @@ import MockInterviewAnalytics from './pages/admin/MockInterviewAnalytics';
 import MockInterviewReports from './pages/admin/MockInterviewReports';
 import MockInterviewReportView from './pages/admin/MockInterviewReportView';
 import MockInterviewForm from './components/admin/mock-interviews/MockInterviewForm';
+
+// AI Planner Admin Imports
+import PlannerManagement from './pages/admin/planner/PlannerManagement';
+import PlannerCompaniesTab from './components/admin/planner/PlannerCompaniesTab';
+import PlannerTopicsTab from './components/admin/planner/PlannerTopicsTab';
+import PlannerRoadmapsTab from './components/admin/planner/PlannerRoadmapsTab';
+import PlannerAnalyticsTab from './components/admin/planner/PlannerAnalyticsTab';
 
 const queryClient = new QueryClient();
 
@@ -146,6 +154,15 @@ const App = () => (
                       <Route path="mock-interview/:mockInterviewId/analytics" element={<MockInterviewAnalytics />} />
                       <Route path="mock-interview/reports" element={<MockInterviewReports />} />
                       <Route path="mock-interview/reports/:sessionId" element={<MockInterviewReportView />} />
+
+                      {/* AI Planner Management */}
+                      <Route path="planner" element={<PlannerManagement />}>
+                        <Route index element={<Navigate to="companies" replace />} />
+                        <Route path="companies" element={<PlannerCompaniesTab />} />
+                        <Route path="topics" element={<PlannerTopicsTab />} />
+                        <Route path="roadmaps" element={<PlannerRoadmapsTab />} />
+                        <Route path="analytics" element={<PlannerAnalyticsTab />} />
+                      </Route>
                     </Routes>
                   </ProtectedRoute>
                 }
@@ -199,6 +216,7 @@ const App = () => (
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
                       <Route path="test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="profile" element={<StudentProfile />} />
                     </Routes>
                   </ProtectedRoute>
                 }
@@ -254,6 +272,7 @@ const App = () => (
                       <Route path="students" element={<CollegeAdminStudents />} />
                       <Route path="tpo" element={<CollegeAdminTPO />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
+                      <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                       <Route path="announcements" element={<CollegeAdminAnnouncements />} />
                       <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                     </Routes>

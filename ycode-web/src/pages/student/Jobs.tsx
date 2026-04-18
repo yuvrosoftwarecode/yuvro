@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Search, Filter, BookmarkIcon, FileText, Eye, TrendingUp, MapPin, ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
-import Navigation from '@/components/common/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Footer from '@/components/common/Footer';
 import SearchBar from '@/components/common/SearchBar';
+import DashboardLayout from '@/components/common/DashboardLayout';
 
 import { jobService, Job } from '@/services/jobService';
 import { JobApplicationData } from '@/services/jobApplicationService';
@@ -192,22 +192,23 @@ const Jobs = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading job opportunities...</p>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-
+    <DashboardLayout
+      hideHeader={true}
+      hideFooter={true} // We use the internal scrollable Footer to match current style
+      contentClassName="bg-gray-50"
+    >
       <div className="max-w-[1600px] mx-auto px-6 py-8 space-y-8">
         {/* Header content matching CodePractice context */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -540,6 +541,7 @@ const Jobs = () => {
             </Tabs>
           </div>
         </div>
+        <Footer />
       </div>
 
       {/* Apply Dialog */}
@@ -549,8 +551,7 @@ const Jobs = () => {
         job={selectedJob}
         onSubmit={handleApplySubmit}
       />
-      <Footer />
-    </div >
+    </DashboardLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '@/components/common/Navigation';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -61,21 +61,19 @@ const ContestAnalyticsList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-slate-50">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F97316] mx-auto mb-4"></div>
             <p className="text-slate-600">Loading your contests...</p>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-slate-50">
       
       <div className="container mx-auto px-8 py-8">
         {/* Header */}
@@ -224,7 +222,7 @@ const ContestAnalyticsList = () => {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

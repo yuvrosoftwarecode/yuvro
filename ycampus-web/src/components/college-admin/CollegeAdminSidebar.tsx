@@ -25,6 +25,7 @@ const menuItems = [
   { title: 'Students', url: '/college-admin/students', icon: Users },
   { title: 'TPO', url: '/college-admin/tpo', icon: ShieldCheck },
   { title: 'Subjects', url: '/college-admin/subjects', icon: BookOpen },
+  { title: 'Practice Test', url: '/college-admin/practice-test', icon: Trophy },
   { title: 'Announcements', url: '/college-admin/announcements', icon: Megaphone },
   { title: 'Practice Test', url: '/college-admin/practice-test', icon: Trophy },
   { title: 'Reports', url: '/college-admin/reports', icon: FileText },

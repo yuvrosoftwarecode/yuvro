@@ -1530,8 +1530,17 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
 
             # Last Activity
             if total_subs > 0:
-                last_record = relevant_progress.order_by('-updated_at').first()
-                last_activity = last_record.updated_at.isoformat() if last_record else None
+              last_record = relevant_progress.order_by('-updated_at').first()
+              last_activity = last_record.updated_at.isoformat() if last_record else None
+
+            # Global Streak
+            streak = 0
+            try:
+                from .gamification_service import GamificationService
+                gamification = GamificationService.get_or_create_profile(user_to_query)
+                streak = gamification.current_streak
+            except Exception:
+                pass
 
             # Detailed Attendance Counts
             total_sessions = 0

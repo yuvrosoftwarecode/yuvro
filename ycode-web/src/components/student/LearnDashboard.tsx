@@ -9,8 +9,11 @@ import SearchBar from "@/components/common/SearchBar";
 import CategorySection from "@/components/student/Learn/CatergorySection";
 import StatsSidebar from "./Learn/Widgets/StatsSidebar";
 import DashboardLayout from "@/components/common/DashboardLayout";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 import { Binary, Code, Database, Sparkles, FileText, Search, Bell, BarChart3, Play, Network, ArrowRight } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import DashboardHero from './Learn/DashboardHero';
 
 import type { Course, Stats, ContinueProgress, CourseProgressMap } from "@/components/student/Learn/types";
 
@@ -23,8 +26,8 @@ const getHeroPastelStyle = (bgClass: string): { bg: string; text: string } => {
     "bg-green-500": { bg: "bg-emerald-50", text: "text-emerald-600" },
     "bg-emerald-600": { bg: "bg-emerald-50", text: "text-emerald-600" },
     "bg-purple-500": { bg: "bg-purple-50", text: "text-purple-600" },
-    "bg-indigo-500": { bg: "bg-indigo-50", text: "text-indigo-600" },
-    "bg-indigo-600": { bg: "bg-indigo-50", text: "text-indigo-700" },
+    "bg-saffron-500": { bg: "bg-saffron-50", text: "text-saffron-600" },
+    "bg-saffron-600": { bg: "bg-saffron-50", text: "text-saffron-700" },
     "bg-yellow-400": { bg: "bg-yellow-50", text: "text-yellow-600" },
   };
   return map[bgClass] || { bg: "bg-gray-50", text: "text-gray-400" };
@@ -32,6 +35,7 @@ const getHeroPastelStyle = (bgClass: string): { bg: string; text: string } => {
 
 const LearnDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [progressMap, setProgressMap] = useState<CourseProgressMap>({});
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,10 +196,9 @@ const LearnDashboard: React.FC = () => {
   const filteredCourses = normalizedQuery
     ? courses.filter((c) => {
       if (c.name && c.name.toLowerCase().includes(normalizedQuery)) return true;
-      if ((c as any).description && (c as any).description.toLowerCase().includes(normalizedQuery)) return true;
-      if (Array.isArray((c as any).topics)) {
-        const topics: any[] = (c as any).topics;
-        if (topics.some((t) => (t.name || '').toLowerCase().includes(normalizedQuery))) return true;
+      if (c.description && c.description.toLowerCase().includes(normalizedQuery)) return true;
+      if (Array.isArray(c.topics)) {
+        if (c.topics.some((t) => (t.name || '').toLowerCase().includes(normalizedQuery))) return true;
       }
       return false;
     })
@@ -213,8 +216,8 @@ const LearnDashboard: React.FC = () => {
     switch (category) {
       case "fundamentals": return <Binary className="w-5 h-5 text-blue-600" />;
       case "dsa":
-      case "data_structures": return <Network className="w-5 h-5 text-indigo-600" />;
-      case "advanced": return <Sparkles className="w-5 h-5 text-indigo-600" />;
+      case "data_structures": return <Network className="w-5 h-5 text-saffron-600" />;
+      case "advanced": return <Sparkles className="w-5 h-5 text-saffron-600" />;
       case "programming_languages": return <Code className="w-5 h-5 text-green-600" />;
       case "databases": return <Database className="w-5 h-5 text-orange-600" />;
       case "ai_tools": return <Sparkles className="w-5 h-5 text-purple-600" />;
@@ -225,42 +228,8 @@ const LearnDashboard: React.FC = () => {
   if (loading) {
     return (
       <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="h-full p-0 overflow-hidden">
-        <div className="flex h-full w-full bg-gray-50 animate-pulse">
-          {/* Left Column Skeleton */}
-          <div className="flex-1 px-10 pt-10 pb-20 overflow-hidden">
-            <div className="max-w-[1600px] mx-auto">
-              {/* Header Skeleton */}
-              <div className="mb-10">
-                <div className="h-9 w-48 bg-gray-100 rounded-lg mb-2"></div>
-                <div className="h-5 w-64 bg-gray-50 rounded-lg"></div>
-              </div>
-
-              {/* Sections Skeleton */}
-              {[1, 2].map(i => (
-                <div key={i} className="mb-16">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-5 h-5 bg-gray-100 rounded"></div>
-                    <div className="h-6 w-32 bg-gray-100 rounded-lg"></div>
-                  </div>
-                  <div className="flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map(j => (
-                      <div key={j} className="w-[340px] h-[110px] bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0"></div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar Skeleton */}
-          <div className="w-[362px] h-full pt-[12px] pb-[12px] pr-[12px] bg-gray-50 flex flex-col gap-4">
-            <div className="flex-1 bg-gray-50/50 rounded-lg border border-gray-100 p-6 space-y-8">
-              <div className="h-32 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-16 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-48 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-              <div className="h-40 bg-white rounded-lg border border-gray-50 shadow-sm"></div>
-            </div>
-          </div>
+        <div className="flex items-center justify-center h-full w-full bg-background">
+          <LoadingSpinner size="lg" className="text-saffron-600" />
         </div>
       </DashboardLayout>
     );
@@ -273,42 +242,27 @@ const LearnDashboard: React.FC = () => {
       contentClassName="h-full p-0 overflow-hidden"
     >
       <style>{`
-        .thin-scrollbar::-webkit-scrollbar {
-          width: 3px;
-          height: 3px;
-        }
-        .thin-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .thin-scrollbar::-webkit-scrollbar-thumb {
-          background: transparent;
-          border-radius: 20px;
-        }
-        .thin-scrollbar:hover::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.08);
-        }
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
       `}</style>
 
-      <div className="flex h-full w-full overflow-hidden bg-gray-50">
+      <div className="flex h-full w-full overflow-hidden bg-background">
 
         {/* Left Column: Content (Header + Courses) - Independent Scroller */}
         <div className="flex-1 min-w-0 h-full overflow-y-auto overflow-x-hidden px-10 pt-[18px] pb-20 thin-scrollbar">
           <div className="max-w-[1600px] mx-auto min-h-full">
 
-            {/* Header (Non-sticky, scrolls with content) */}
-            <div className="mb-10 flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Learn</h1>
-                <p className="text-gray-500 font-medium mt-1">Your progress and courses at a glance</p>
-              </div>
-              <div className="flex items-center gap-3">
-                {/* Level badge removed */}
-              </div>
-            </div>
+            {/* Hero Section */}
+            <DashboardHero 
+              firstName={user?.first_name || user?.username || ''}
+              streak={(stats as any).streak || 0}
+              lessonsDone={stats.lessons_completed || 0}
+              hoursSpent={stats.time_spent || '0h'}
+              avgProgress={stats.avg_progress || 0}
+              certificates={(stats as any).certificates || 0}
+            />
 
             {/* Sub-header Search removed */}
 
@@ -333,9 +287,9 @@ const LearnDashboard: React.FC = () => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-2 py-0.5 rounded">Resume Learning</span>
-                      <span className="text-[10px] font-medium text-gray-400">•</span>
-                      <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{continueProgress.course_name}</span>
+                      <span className="text-xs font-bold text-saffron-end tracking-wide bg-saffron/10 px-2 py-0.5 rounded">Resume learning</span>
+                      <span className="text-xs font-medium text-gray-400">•</span>
+                      <span className="text-xs font-medium text-gray-400 tracking-wide">{continueProgress.course_name}</span>
                     </div>
                     <h2 className="text-xl font-bold text-gray-900 truncate tracking-tight">{continueProgress.subtopic_name || "Next Lesson"}</h2>
 
@@ -343,7 +297,7 @@ const LearnDashboard: React.FC = () => {
                     <div className="mt-4 flex items-center gap-4">
                       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-orange-500 rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-saffron-start to-saffron-end rounded-full transition-all duration-500"
                           style={{ width: `${continueProgress.percent}%` }}
                         />
                       </div>
@@ -352,22 +306,13 @@ const LearnDashboard: React.FC = () => {
                   </div>
 
                   {/* Action */}
-                  <div className="relative group/btn">
+                  <div className="relative group/btn flex items-center">
                     <button
                       onClick={() => handleStartLearning(continueProgress.course_id)}
-                      className="relative w-full md:w-auto bg-orange-600 text-white px-10 py-3 rounded-lg font-bold text-sm transition-all duration-300 shadow-md shadow-orange-200/50 hover:shadow-xl hover:shadow-orange-200/50 hover:bg-orange-700 hover:scale-[1.02] active:scale-95 overflow-hidden whitespace-nowrap"
+                      className="bg-gradient-to-r from-saffron-start to-saffron-end hover:opacity-90 text-white rounded-xl shadow-lg shadow-saffron/20 px-6 py-2.5 font-bold text-sm transition-all duration-300 flex items-center justify-center whitespace-nowrap"
                     >
-                      {/* Shimmer Effect */}
-                      <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent w-full" />
-                      
-                      <span className="relative z-10 flex items-center gap-2">
-                        Resume
-                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </span>
+                      <Play className="w-4 h-4 mr-1.5 fill-current" /> Continue
                     </button>
-                    
-                    {/* Subtle pulse ring around button on hover */}
-                    <div className="absolute -inset-1 bg-orange-400/20 rounded-xl blur-md opacity-0 group-hover/btn:opacity-100 transition-opacity animate-pulse -z-10" />
                   </div>
                 </div>
               </div>
@@ -380,7 +325,7 @@ const LearnDashboard: React.FC = () => {
                   <div className="flex flex-col items-center gap-3">
                     <Search className="w-8 h-8 text-gray-300" />
                     <p className="font-bold">No courses match "{searchQuery}"</p>
-                    <button onClick={() => setSearchQuery("")} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 underline">Clear search</button>
+                    <button onClick={() => setSearchQuery("")} className="text-sm font-bold text-saffron-600 hover:text-saffron-800 underline">Clear search</button>
                   </div>
                 </div>
               ) : (
@@ -403,7 +348,7 @@ const LearnDashboard: React.FC = () => {
         </div>
 
         {/* Right Column: Stats Sidebar - Independent Scroller */}
-        <div className="w-[362px] h-full shrink-0 flex flex-col pt-[12px] pb-[12px] pr-[12px] bg-gray-50 z-30">
+        <div className="w-[362px] h-full shrink-0 flex flex-col pt-[12px] pb-[12px] pr-[12px] bg-background z-30">
           <StatsSidebar
             stats={stats}
             courses={courses}

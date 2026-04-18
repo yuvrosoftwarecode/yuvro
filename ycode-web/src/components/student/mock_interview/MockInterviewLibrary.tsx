@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Play, Star, Clock, Users } from 'lucide-react';
-import Navigation from '@/components/common/Navigation';
 import PermissionDialog from './PermissionDialog';
 import InterviewScreen from './InterviewScreen';
 import ThankYouScreen from './ThankYouScreen';
@@ -147,8 +146,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <Navigation />
+    <div className="min-h-screen bg-transparent">
       <div className="px-8 py-6 max-w-[1600px] mx-auto animate-fade-in">
         {/* Header with Search */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">

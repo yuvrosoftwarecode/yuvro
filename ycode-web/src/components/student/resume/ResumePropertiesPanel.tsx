@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -160,7 +160,7 @@ const ResumePropertiesPanel: React.FC<ResumePropertiesPanelProps> = ({
                   <label className="text-sm font-semibold text-gray-800">
                     Font Size
                   </label>
-                  <span className="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">
+                  <span className="text-xs font-medium bg-saffron-100 text-saffron-700 px-2 py-1 rounded-md">
                     {fontSize}%
                   </span>
                 </div>
@@ -186,7 +186,7 @@ const ResumePropertiesPanel: React.FC<ResumePropertiesPanelProps> = ({
               <label className="text-sm font-semibold text-gray-800">
                 Line Spacing
               </label>
-              <span className="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">
+              <span className="text-xs font-medium bg-saffron-100 text-saffron-700 px-2 py-1 rounded-md">
                 {lineSpacing}
               </span>
             </div>

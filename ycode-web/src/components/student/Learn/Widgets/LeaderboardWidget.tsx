@@ -31,7 +31,7 @@ const LeaderboardWidget: React.FC<LeaderboardWidgetProps> = ({ topUsers, current
       {/* Ranks Row (Ultra-Compact) */}
       <p className="sr-only">Ranks Row</p>
       <div className="flex items-end justify-center gap-5 py-2">
-        {topUsers.map((user, index) => {
+        {topUsers.slice(0, 3).map((user, index) => {
           const isFirst = index === 0;
           const isSecond = index === 1;
           const isThird = index === 2;

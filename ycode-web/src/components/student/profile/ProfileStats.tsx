@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Target, Code, TrendingUp, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
@@ -94,7 +94,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({ profileStrength, suggestion
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Target className="w-5 h-5 mr-2 text-indigo-600" />
+              <Target className="w-5 h-5 mr-2 text-saffron-600" />
               Profile Strength
             </h2>
             <span className={`text-2xl font-bold ${getStrengthColor(profileStrength)}`}>

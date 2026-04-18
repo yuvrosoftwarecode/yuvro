@@ -338,6 +338,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
       let studentTaskSubmissions: any[] = [];
       let allAttendanceSessions: any[] = [];
 
+      // 2. Fetch Optional Metrics (Tasks & Attendance) - Fail-safe
       try {
         if (userId) {
           const [pD, sS, oS] = await Promise.all([

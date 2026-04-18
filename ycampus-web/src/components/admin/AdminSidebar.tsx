@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BookOpen, Library, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Users } from 'lucide-react';
+import { BookOpen, Library, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Users, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ const adminMenuItems = [
   { title: 'Dashboard', url: '/admin/dashboard', icon: Home },
   { title: 'User Management', url: '/admin/users', icon: Users },
   { title: 'College', url: '/admin/college', icon: Building2 },
+  { title: 'AI Planner', url: '/admin/planner', icon: BrainCircuit },
   { title: 'Subjects', url: '/admin/subjects/global', icon: Library },
   { title: 'Mock Interviews', url: '/admin/mock-interview', icon: Users },
   { title: 'Departments', url: '/admin/departments', icon: Building },
@@ -33,8 +34,6 @@ const adminMenuItems = [
 
 export function AdminSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
@@ -42,7 +41,6 @@ export function AdminSidebar() {
   const firstName = user?.first_name || user?.username || 'Admin';
   const initials = firstName.charAt(0).toUpperCase();
 
-  const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'hover:bg-sidebar-accent/50';
 

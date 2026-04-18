@@ -1,5 +1,5 @@
-import React from "react";
-import { getCourseIconConfig } from "@/utils/CourseIcons";
+﻿import React from "react";
+import { getCourseIconConfig, getPastelStyle } from "@/utils/CourseIcons";
 
 interface LearnCourseCardProps {
   id: string;
@@ -10,39 +10,7 @@ interface LearnCourseCardProps {
   onStartLearning: (id: string) => void;
 }
 
-// Light pastel icon backgrounds with dark icon text
-const BG_TO_PASTEL: Record<string, { bg: string; text: string }> = {
-  // Blues
-  "bg-blue-500":    { bg: "bg-blue-100",    text: "text-blue-600" },
-  "bg-blue-600":    { bg: "bg-blue-100",    text: "text-blue-700" },
-  "bg-blue-700":    { bg: "bg-blue-100",    text: "text-blue-800" },
-  // Reds / Oranges
-  "bg-red-600":     { bg: "bg-red-100",     text: "text-red-600" },
-  "bg-orange-400":  { bg: "bg-orange-100",  text: "text-orange-600" },
-  "bg-orange-500":  { bg: "bg-orange-100",  text: "text-orange-600" },
-  // Greens
-  "bg-green-500":   { bg: "bg-green-100",   text: "text-green-600" },
-  "bg-green-800":   { bg: "bg-green-100",   text: "text-green-800" },
-  "bg-emerald-600": { bg: "bg-emerald-100", text: "text-emerald-700" },
-  // Purples / Pinks
-  "bg-purple-500":  { bg: "bg-purple-100",  text: "text-purple-600" },
-  "bg-purple-600":  { bg: "bg-violet-100",  text: "text-violet-700" },
-  "bg-rose-500":    { bg: "bg-pink-100",    text: "text-pink-600" },
-  // Cyans / Indigos
-  "bg-cyan-500":    { bg: "bg-cyan-100",    text: "text-cyan-600" },
-  "bg-indigo-500":  { bg: "bg-indigo-100",  text: "text-indigo-600" },
-  "bg-indigo-600":  { bg: "bg-indigo-100",  text: "text-indigo-700" },
-  "bg-sky-500":     { bg: "bg-sky-100",     text: "text-sky-600" },
-  // Yellows
-  "bg-yellow-400":  { bg: "bg-yellow-100",  text: "text-yellow-600" },
-  // Dark / Neutral
-  "bg-slate-800":   { bg: "bg-slate-200",   text: "text-slate-700" },
-  "bg-gray-500":    { bg: "bg-gray-200",    text: "text-gray-600" },
-};
 
-function getPastelStyle(bgClass: string): { bg: string; text: string } {
-  return BG_TO_PASTEL[bgClass] || { bg: "bg-gray-100", text: "text-gray-600" };
-}
 
 // Map the Tailwind `bg-*` class from CourseIcons into inline-friendly hex pairs
 const BG_TO_GRADIENT: Record<string, { from: string; to: string }> = {
@@ -64,8 +32,8 @@ const BG_TO_GRADIENT: Record<string, { from: string; to: string }> = {
   "bg-rose-500":    { from: "#F43F5E", to: "#FB7185" }, // Energetic Rose/Red-Pink
   // Cyans / Indigos
   "bg-cyan-500":    { from: "#06B6D4", to: "#3B82F6" },
-  "bg-indigo-500":  { from: "#6366F1", to: "#A855F7" },
-  "bg-indigo-600":  { from: "#4F46E5", to: "#06B6D4" }, // Pro Technical Indigo to Cyan
+  "bg-saffron-500":  { from: "#6366F1", to: "#A855F7" },
+  "bg-saffron-600":  { from: "#4F46E5", to: "#06B6D4" }, // Pro Technical Indigo to Cyan
   "bg-sky-500":     { from: "#0EA5E9", to: "#3B82F6" },
   // Yellows
   "bg-yellow-400":  { from: "#FACC15", to: "#F59E0B" },
@@ -128,9 +96,17 @@ const LearnCourseCard: React.FC<LearnCourseCardProps> = ({
           </div>
         </div>
 
-        {/* Bottom row: Progress bar + percentage */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-[6px] bg-gray-100 rounded-full overflow-hidden">
+        {/* Bottom row: Status + Progress bar + percentage */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold ${pct === 100 ? 'text-emerald-500' : pct > 0 ? 'text-blue-500' : 'text-gray-400'}`}>
+              {pct === 100 ? 'Completed' : pct > 0 ? 'In progress' : 'Not started'}
+            </span>
+            <span className="text-[11px] font-semibold text-gray-600 tabular-nums">
+              {pct}%
+            </span>
+          </div>
+          <div className="w-full h-[5px] bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
@@ -139,9 +115,6 @@ const LearnCourseCard: React.FC<LearnCourseCardProps> = ({
               }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-700 tabular-nums min-w-[36px] text-right">
-            {pct}%
-          </span>
         </div>
       </div>
     </div>

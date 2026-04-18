@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CheckCircle2, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { getCourseIconConfig } from '@/utils/CourseIcons';
+import { getCourseIconConfig, getPastelStyle } from '@/utils/CourseIcons';
 
 export interface ContentItem {
   id: string;
@@ -141,6 +141,8 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
     return Math.round(total / subtopics.length);
   };
 
+  const pastelStyle = getPastelStyle(courseBg);
+
   return (
     <>
       <div
@@ -156,7 +158,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
             <div className="p-3 space-y-3">
               <div className="flex items-center justify-between gap-2 py-1">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0 text-white", courseBg)}>
+                  <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0", pastelStyle.bg, pastelStyle.text)}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <TruncatedText text={courseName} className="font-semibold text-sm truncate text-foreground" />
@@ -190,7 +192,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0 text-white", courseBg)} title={courseName}>
+              <div className={cn("w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0", pastelStyle.bg, pastelStyle.text)} title={courseName}>
                 <Icon className="w-4 h-4" />
               </div>
             </div>
@@ -288,7 +290,11 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
                               title={subtopic.title}
                             >
                               <TruncatedText text={subtopic.title} className="text-sm truncate min-w-0" />
-                              {isRead && <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />}
+                              {isRead ? (
+                                <CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                              )}
                             </button>
                           );
                         })}
@@ -326,6 +332,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
             ) : (
               collapsedActiveSubtopics.map((subtopic) => {
                 const isSelected = selectedTopic === subtopic.id;
+                const isRead = !!readMap[subtopic.id];
                 return (
                   <button
                     key={subtopic.id}
@@ -334,12 +341,17 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
                       setCollapsedFlyoutTopicId(null);
                     }}
                     className={cn(
-                      'w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center',
+                      'w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-between gap-2',
                       isSelected ? 'bg-slate-100 text-accent-foreground' : 'hover:bg-slate-100 hover:text-accent-foreground',
                     )}
                     title={subtopic.title}
                   >
                     <TruncatedText text={subtopic.title} className="text-sm truncate min-w-0" />
+                    {isRead ? (
+                      <CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                    )}
                   </button>
                 );
               })

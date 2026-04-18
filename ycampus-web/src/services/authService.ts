@@ -73,7 +73,7 @@ class AuthService {
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
-    return await restApiAuthUtil.put<User>('/auth/user/', userData);
+    return await restApiAuthUtil.patch<User>('/auth/user/', userData);
   }
 
   async logoutUser(): Promise<void> {
