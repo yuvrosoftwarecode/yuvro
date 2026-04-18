@@ -461,16 +461,24 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
 
     user = serializers.StringRelatedField(read_only=True)
     question = serializers.StringRelatedField(read_only=True)
+    question_id = serializers.PrimaryKeyRelatedField(source='question', read_only=True)
     course = serializers.StringRelatedField(read_only=True)
     topic = serializers.StringRelatedField(read_only=True)
     question_difficulty = serializers.SerializerMethodField()
-    
+    test_cases_passed = serializers.SerializerMethodField()
+    total_test_cases = serializers.SerializerMethodField()
+    language = serializers.SerializerMethodField()
+    code = serializers.SerializerMethodField()
+    execution_time = serializers.SerializerMethodField()
+    memory_usage = serializers.SerializerMethodField()
+
     class Meta:
         model = StudentCodePractice
         fields = [
             "id",
             "user",
             "question",
+            "question_id",
             "course",
             "topic",
             "status",
@@ -483,6 +491,12 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
             "marks_obtained",
             "ai_help_count",
             "question_difficulty",
+            "test_cases_passed",
+            "total_test_cases",
+            "language",
+            "code",
+            "execution_time",
+            "memory_usage",
             "created_at",
             "updated_at",
         ]
@@ -490,6 +504,24 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
 
     def get_question_difficulty(self, obj):
         return obj.question.difficulty if obj.question else None
+
+    def get_test_cases_passed(self, obj):
+        return obj.evaluation_results.get("test_results", {}).get("passed", 0)
+
+    def get_total_test_cases(self, obj):
+        return obj.evaluation_results.get("test_results", {}).get("total", 0)
+
+    def get_language(self, obj):
+        return obj.answer_latest.get("language", "") if obj.answer_latest else ""
+
+    def get_code(self, obj):
+        return obj.answer_latest.get("code", "") if obj.answer_latest else ""
+
+    def get_execution_time(self, obj):
+        return obj.evaluation_results.get("execution_result", {}).get("execution_time", 0)
+
+    def get_memory_usage(self, obj):
+        return obj.evaluation_results.get("execution_result", {}).get("memory_usage", 0)
         
     def validate_status(self, value):
         """

@@ -901,22 +901,37 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             "message": "Coding progress updated"
             if subtopic
             else "Code executed successfully",
-            "progress": new_percent,
+            "progress": new_percent if subtopic else 0,
             "is_completed": progress.is_completed if subtopic else False,
-            "coding_score": coding_score,
-            "question_solved": question_id
-            and test_results.get("passed", 0) == test_results.get("total", 0)
-            if test_results
-            else False,
+            "coding_score": coding_score if subtopic else 0,
+            "question_solved": (
+                question_id
+                and test_results.get("passed", 0) == test_results.get("total", 0)
+                if test_results
+                else False
+            ),
         }
 
         if question_id and language and code:
             exec_res = execution_results.get("execution_result", {})
+            basic_results = execution_results.get("basic_results", [])
+            advanced_results = execution_results.get("advanced_results", [])
+            custom_results = execution_results.get("custom_results", [])
+            all_results = basic_results + custom_results + [
+                {**r, "is_hidden": True, "actual_output": "***" if not r.get("passed") else r.get("actual_output", "")}
+                for r in advanced_results
+            ]
             response_data.update(
                 {
                     "code": code,
                     "language": language,
-                    "test_results": test_results,
+                    "test_results": {
+                        "passed": test_results.get("passed", 0),
+                        "total": test_results.get("total", 0),
+                        "success": test_results.get("passed", 0) == test_results.get("total", 0),
+                        "results": all_results,
+                        "test_results": all_results,
+                    },
                     "execution_output": execution_output,
                     "status": "completed",
                     "execution_time": exec_res.get("execution_time", 0),
@@ -1090,7 +1105,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         """
         Return top 10 users by XP.
         """
-        top_profiles = UserGamificationProfile.objects.select_related('user').order_by('-total_xp')[:10]
+        top_profiles = UserGamificationProfile.objects.select_related('user', 'user__profile').order_by('-total_xp')[:10]
         
         data = []
         for profile in top_profiles:
@@ -1367,14 +1382,28 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
                 context = request.data.get("context", "practice")
 
-                existing_submission = StudentCodePractice.objects.filter(
-                    user=request.user, question=question, context=context
-                ).first()
+                plagiarism_dict = {
+                    "is_plagiarized": plagiarism_score > 0.8,
+                    "similarity_score": plagiarism_score,
+                    "matched_with": plagiarism_details.get("best_match", {}).get("submission_id", "")
+                    if plagiarism_details else "",
+                }
 
-                if existing_submission:
-                    submission = existing_submission
-
-                    history_entry = {
+                submission = StudentCodePractice.objects.create(
+                    user=request.user,
+                    question=question,
+                    course=course or question.course,
+                    topic=topic or question.topic or (question.subtopic.topic if question.subtopic else None),
+                    context=context,
+                    status=StudentCodePractice.STATUS_COMPLETED if is_successful else StudentCodePractice.STATUS_SUBMITTED,
+                    answer_latest={
+                        "code": code,
+                        "language": language,
+                        "test_cases_basic": test_cases_basic,
+                        "test_cases_advanced": test_cases_advanced,
+                        "test_cases_custom": test_cases_custom,
+                    },
+                    answer_history=[{
                         "timestamp": timezone.now().isoformat(),
                         "answer_data": {
                             "code": code,
@@ -1384,117 +1413,14 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                             "test_cases_custom": test_cases_custom,
                         },
                         "execution_results": execution_results,
-                        "plagiarism_data": {
-                            "is_plagiarized": plagiarism_score > 0.8,
-                            "similarity_score": plagiarism_score,
-                            "matched_with": plagiarism_details.get(
-                                "best_match", {}
-                            ).get("submission_id", "")
-                            if plagiarism_details
-                            else "",
-                        },
+                        "plagiarism_data": plagiarism_dict,
                         "is_auto_save": False,
-                    }
-
-                    submission.answer_latest = {
-                        "code": code,
-                        "language": language,
-                        "test_cases_basic": test_cases_basic,
-                        "test_cases_advanced": test_cases_advanced,
-                        "test_cases_custom": test_cases_custom,
-                    }
-                    submission.answer_history.append(history_entry)
-                    submission.answer_attempt_count += 1
-                    submission.execution_output = execution_output
-                    submission.evaluation_results = execution_results
-                    submission.plagiarism_data = {
-                        "is_plagiarized": plagiarism_score > 0.8,
-                        "similarity_score": plagiarism_score,
-                        "matched_with": plagiarism_details.get("best_match", {}).get(
-                            "submission_id", ""
-                        )
-                        if plagiarism_details
-                        else "",
-                    }
-                    submission.marks_obtained = question.marks if is_successful else 0
-                    
-                    if submission.used_hint or submission.viewed_solution or submission.ai_help_count > 0:
-                        submission.marks_obtained = 0
-
-                    if course_id and not submission.course:
-                        submission.course = course
-                    elif not submission.course and question.course:
-                        submission.course = question.course
-
-                    if topic_id and not submission.topic:
-                        submission.topic = topic
-                    elif not submission.topic and question.topic:
-                        submission.topic = question.topic
-                    elif (
-                        not submission.topic
-                        and question.subtopic
-                        and question.subtopic.topic
-                    ):
-                        submission.topic = question.subtopic.topic
-
-                    submission.save()
-
-                else:
-                    submission = StudentCodePractice.objects.create(
-                        user=request.user,
-                        question=question,
-                        course=course,
-                        topic=topic,
-                        context=context,
-                        status=StudentCodePractice.STATUS_COMPLETED,
-                        answer_latest={
-                            "code": code,
-                            "language": language,
-                            "test_cases_basic": test_cases_basic,
-                            "test_cases_advanced": test_cases_advanced,
-                            "test_cases_custom": test_cases_custom,
-                        },
-                        answer_history=[
-                            {
-                                "timestamp": timezone.now().isoformat(),
-                                "answer_data": {
-                                    "code": code,
-                                    "language": language,
-                                    "test_cases_basic": test_cases_basic,
-                                    "test_cases_advanced": test_cases_advanced,
-                                    "test_cases_custom": test_cases_custom,
-                                },
-                                "execution_results": execution_results,
-                                "plagiarism_data": {
-                                    "is_plagiarized": plagiarism_score > 0.8,
-                                    "similarity_score": plagiarism_score,
-                                    "matched_with": plagiarism_details.get(
-                                        "best_match", {}
-                                    ).get("submission_id", "")
-                                    if plagiarism_details
-                                    else "",
-                                },
-                                "is_auto_save": False,
-                            }
-                        ],
-                        execution_output=execution_output,
-                        evaluation_results=execution_results,
-                        plagiarism_data={
-                            "is_plagiarized": plagiarism_score > 0.8,
-                            "similarity_score": plagiarism_score,
-                            "matched_with": plagiarism_details.get(
-                                "best_match", {}
-                            ).get("submission_id", "")
-                            if plagiarism_details
-                            else "",
-                        },
-                        marks_obtained=question.marks if is_successful else 0,
-                    )
-                    
-                    if submission.used_hint or submission.viewed_solution or submission.ai_help_count > 0:
-                        submission.marks_obtained = 0
-                        submission.save(update_fields=['marks_obtained'])
-
+                    }],
+                    execution_output=execution_output,
+                    evaluation_results=execution_results,
+                    plagiarism_data=plagiarism_dict,
+                    marks_obtained=question.marks if is_successful else 0,
+                )
                 basic_count = len(test_cases_basic)
                 custom_count = len(test_cases_custom)
                 advanced_count = len(test_cases_advanced)
@@ -1604,10 +1530,11 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
         context = request.data.get("context", "practice")
-        submission, _ = StudentCodePractice.objects.get_or_create(
-            user=request.user, question=question, context=context,
-            defaults={"answer_latest": {}}
-        )
+        submission = StudentCodePractice.objects.filter(
+            user=request.user, question=question, context=context
+        ).order_by('-created_at').first()
+        if not submission:
+            return Response({"error": "No submission found for this question"}, status=status.HTTP_404_NOT_FOUND)
 
         hint_index = request.data.get("hint_index", 0)
         hints = question.hints
@@ -1633,10 +1560,11 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
         context = request.data.get("context", "practice")
-        submission, _ = StudentCodePractice.objects.get_or_create(
-            user=request.user, question=question, context=context,
-            defaults={"answer_latest": {}}
-        )
+        submission = StudentCodePractice.objects.filter(
+            user=request.user, question=question, context=context
+        ).order_by('-created_at').first()
+        if not submission:
+            return Response({"error": "No submission found for this question"}, status=status.HTTP_404_NOT_FOUND)
 
         solutions = question.solutions.all()
         if not solutions.exists():

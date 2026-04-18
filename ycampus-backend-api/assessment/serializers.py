@@ -260,6 +260,7 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "test_type",
             "subject",
             "unit",
+            "section",
             "participants_count",
             "total_questions",
             "my_submissions",

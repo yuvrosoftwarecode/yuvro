@@ -78,37 +78,37 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
 
     return (
         <div className="relative overflow-hidden bg-white flex flex-col font-sans" style={{ height }}>
-            {/* Premium Header */}
-            <div className="flex items-center justify-between px-6 h-14 bg-slate-50 border-b border-gray-100 shrink-0">
-                <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100">
-                            <TerminalIcon className="w-3.5 h-3.5 text-white" />
+            {/* Header */}
+            <div className="flex items-center justify-between px-3 h-10 bg-slate-50 border-b border-gray-100 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-md bg-saffron-600 flex items-center justify-center shadow-sm shadow-saffron-100">
+                            <TerminalIcon className="w-3 h-3 text-white" />
                         </div>
                         <span className="text-[10px] font-bold text-gray-400 tracking-wide">Environment</span>
                     </div>
 
                     {onLanguageChange && (
                         <Select value={language} onValueChange={onLanguageChange}>
-                            <SelectTrigger className="h-9 w-[140px] bg-white border-gray-200 rounded-lg text-xs font-bold hover:border-gray-300 hover:shadow-sm focus:ring-2 focus:ring-indigo-100 transition-all px-4">
+                            <SelectTrigger className="h-7 w-[130px] bg-white border-gray-200 rounded-lg text-xs font-bold hover:border-gray-300 focus:ring-2 focus:ring-saffron-100 transition-all px-3">
                                 <SelectValue placeholder="Language" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl border-gray-100 shadow-2xl bg-white z-[11000]">
-                                <SelectItem value="python" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Python 3</SelectItem>
-                                <SelectItem value="javascript" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">JavaScript</SelectItem>
-                                <SelectItem value="java" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Java</SelectItem>
-                                <SelectItem value="cpp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C++</SelectItem>
-                                <SelectItem value="c" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C</SelectItem>
-                                <SelectItem value="csharp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C#</SelectItem>
-                                <SelectItem value="go" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Go</SelectItem>
-                                <SelectItem value="ruby" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Ruby</SelectItem>
-                                <SelectItem value="swift" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Swift</SelectItem>
-                                <SelectItem value="typescript" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">TypeScript</SelectItem>
-                                <SelectItem value="kotlin" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Kotlin</SelectItem>
-                                <SelectItem value="php" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">PHP</SelectItem>
-                                <SelectItem value="rust" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Rust</SelectItem>
-                                <SelectItem value="sql" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">SQL</SelectItem>
-                                <SelectItem value="shell" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Shell</SelectItem>
+                                <SelectItem value="python" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Python 3</SelectItem>
+                                <SelectItem value="javascript" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">JavaScript</SelectItem>
+                                <SelectItem value="java" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Java</SelectItem>
+                                <SelectItem value="cpp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">C++</SelectItem>
+                                <SelectItem value="c" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">C</SelectItem>
+                                <SelectItem value="csharp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">C#</SelectItem>
+                                <SelectItem value="go" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Go</SelectItem>
+                                <SelectItem value="ruby" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Ruby</SelectItem>
+                                <SelectItem value="swift" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Swift</SelectItem>
+                                <SelectItem value="typescript" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">TypeScript</SelectItem>
+                                <SelectItem value="kotlin" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Kotlin</SelectItem>
+                                <SelectItem value="php" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">PHP</SelectItem>
+                                <SelectItem value="rust" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Rust</SelectItem>
+                                <SelectItem value="sql" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">SQL</SelectItem>
+                                <SelectItem value="shell" className="text-xs font-bold py-2.5 rounded-lg focus:bg-saffron-50 focus:text-saffron-700">Shell</SelectItem>
                             </SelectContent>
                         </Select>
                     )}
@@ -116,53 +116,37 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                     {onShowExamples && (
                         <button
                             onClick={onShowExamples}
-                            className="h-9 flex items-center gap-2 text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 px-4 rounded-lg transition-all active:scale-95 tracking-wide shadow-sm shadow-blue-50 hover:shadow-md shrink-0"
+                            className="h-7 flex items-center gap-1.5 text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 px-3 rounded-lg transition-all active:scale-95 tracking-wide shrink-0"
                         >
-                            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                            <BookOpen className="w-3 h-3 shrink-0" />
                             Examples
                         </button>
                     )}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    {/* <div className="hidden sm:flex items-center gap-3">
-                        <div className="flex flex-col items-end">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none mb-0.5">Lines</span>
-                            <span className="text-xs font-bold text-gray-800 leading-none">{value.split('\n').length}</span>
-                        </div>
-                        <div className="w-[1px] h-4 bg-gray-200" />
-                        <div className="flex flex-col items-end">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none mb-0.5">Chars</span>
-                            <span className="text-xs font-bold text-gray-800 leading-none">{value.length}</span>
-                        </div>
-                    </div> */}
-
+                <div className="flex items-center gap-2">
                     {(onToggleAiChat || onToggleFullscreen) && (
-                        <div className="flex items-center gap-3 pl-5 border-l border-gray-200 ml-1">
+                        <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
                             {onToggleAiChat && (
                                 <button
                                     onClick={onToggleAiChat}
-                                    className={`flex items-center gap-2 text-[10px] h-9 px-5 rounded-lg transition-all font-bold tracking-wide shadow-sm active:scale-95 whitespace-nowrap ${isAiChatOpen
-                                        ? 'bg-indigo-600 text-white shadow-indigo-100 border border-indigo-600'
-                                        : 'bg-white text-indigo-600 hover:bg-indigo-50 border border-indigo-100'
+                                    className={`flex items-center gap-1.5 text-[10px] h-7 px-3 rounded-lg transition-all font-bold tracking-wide active:scale-95 whitespace-nowrap ${isAiChatOpen
+                                        ? 'bg-saffron-600 text-white border border-saffron-600'
+                                        : 'bg-white text-saffron-600 hover:bg-saffron-50 border border-saffron-100'
                                         }`}
                                     title={isAiChatOpen ? "Close AI Buddy" : "Open AI Buddy"}
                                 >
-                                    {isAiChatOpen ? <X className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+                                    {isAiChatOpen ? <X className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                                     <span className="hidden md:inline">{isAiChatOpen ? 'Hide Assistant' : 'AI Assistant'}</span>
                                 </button>
                             )}
                             {onToggleFullscreen && (
                                 <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        onToggleFullscreen();
-                                    }}
-                                    className="h-9 w-9 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white hover:border-gray-200 border border-transparent rounded-lg transition-all shadow-none hover:shadow-sm"
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFullscreen(); }}
+                                    className="h-7 w-7 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white border border-transparent hover:border-gray-200 rounded-lg transition-all"
                                     title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
                                 >
-                                    {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                                    {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                                 </button>
                             )}
                         </div>
@@ -187,8 +171,8 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                             wordWrap: 'on',
                             lineNumbers: 'on',
                             lineNumbersMinChars: 3,
-                            lineDecorationsWidth: 8,
-                            padding: { top: 16, bottom: 16 },
+                            lineDecorationsWidth: 0,
+                            padding: { top: 8, bottom: 16 },
                             fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
                             fontLigatures: true,
                             renderSideBySide: true,
@@ -210,8 +194,8 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                             wordWrap: 'on',
                             lineNumbers: 'on',
                             lineNumbersMinChars: 3,
-                            lineDecorationsWidth: 8,
-                            padding: { top: 16, bottom: 16 },
+                            lineDecorationsWidth: 0,
+                            padding: { top: 8, bottom: 16 },
                             fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
                             fontLigatures: true,
                             contextmenu: !disableCopyPaste,

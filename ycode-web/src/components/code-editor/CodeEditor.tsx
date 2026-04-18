@@ -113,7 +113,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
   };
-  
+
   const stopDrag = () => {
     setIsDragging(false);
     document.body.style.cursor = '';
@@ -543,7 +543,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 }}
                 className="h-4 -my-2 w-full relative flex items-center justify-center cursor-row-resize z-[60] group shrink-0"
               >
-                <div className="w-12 h-1.5 bg-indigo-400 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-sm" />
+                <div className="w-12 h-1.5 bg-saffron-400 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-sm" />
               </div>
             )}
 
@@ -578,7 +578,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         onClick={submitSolution}
                         disabled={isRunning || isSubmitting}
                         size="sm"
-                        className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95 border-none"
+                        className="h-8 px-4 bg-saffron-600 hover:bg-saffron-700 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95 border-none"
                       >
                         <Send className="h-3 w-3 mr-1.5 fill-current" /> Submit
                       </Button>
@@ -594,256 +594,135 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     </div>
                   </div>
 
-                  <TabsContent value="output" className="flex-1 overflow-auto p-4 m-0">
-                    <div className="space-y-5 pb-6">
-                        {/* Execution Metrics */}
-                        {executionMetrics && (
+                  <TabsContent value="output" className="flex-1 overflow-auto p-0 m-0">
+                    {/* ── Scrollable content ── */}
+                    <div className="flex-1 overflow-auto p-4 space-y-4">
+
+                      {/* Console output */}
+                      {(output || (testResults && testResults.results)) && (() => {
+                        const consoleText = (() => {
+                          if (testResults?.results && Array.isArray(testResults.results)) {
+                            const lines = testResults.results
+                              .filter((r: any) => !r.is_hidden && r.console_output)
+                              .map((r: any, i: number) => `Test Case ${i + 1}:\n${r.console_output}`);
+                            if (lines.length) return lines.join('\n\n');
+                          }
+                          return output || '';
+                        })();
+                        if (!consoleText) return null;
+                        return (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                              <Zap className="h-5 w-5 text-amber-500" />
-                              Execution Metrics
-                            </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {executionMetrics.execution_time !== undefined && (
-                                <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
-                                  <div className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Time</div>
-                                  <div className="text-xl font-bold text-blue-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
-                                  <div className="text-[10px] text-blue-400">ms</div>
-                                </div>
-                              )}
-                              {executionMetrics.memory_usage !== undefined && (
-                                <div className="bg-purple-50/50 p-4 rounded-lg border border-purple-100">
-                                  <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-1">Memory</div>
-                                  <div className="text-xl font-bold text-purple-900">{(executionMetrics.memory_usage / 1024).toFixed(1)}</div>
-                                  <div className="text-[10px] text-purple-400">KB</div>
-                                </div>
-                              )}
-                              {(testResults?.passed !== undefined && testResults?.total !== undefined) ? (
-                                <div className={`p-4 rounded-lg border ${testResults.passed === testResults.total
-                                  ? 'bg-green-50/50 border-green-100'
-                                  : 'bg-amber-50/50 border-amber-100'
-                                  }`}>
-                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${testResults.passed === testResults.total ? 'text-green-600' : 'text-amber-600'}`}>Test Cases</div>
-                                  <div className={`text-xl font-bold ${testResults.passed === testResults.total ? 'text-green-900' : 'text-amber-900'}`}>
-                                    {testResults.passed}/{testResults.total}
-                                  </div>
-                                </div>
-                              ) : executionMetrics.status && (
-                                <div className={`p-4 rounded-lg border ${executionMetrics.status === 'completed'
-                                  ? 'bg-green-50/50 border-green-100'
-                                  : 'bg-amber-50/50 border-amber-100'
-                                  }`}>
-                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${executionMetrics.status === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>Status</div>
-                                  <div className={`text-xl font-bold capitalize ${executionMetrics.status === 'completed' ? 'text-green-900' : 'text-amber-900'}`}>{executionMetrics.status}</div>
-                                </div>
-                              )}
-                              {executionMetrics.plagiarism_score !== undefined && (
-                                <div className={`p-4 rounded-lg border ${executionMetrics.plagiarism_score > 0.7
-                                  ? 'bg-red-50/50 border-red-100'
-                                  : 'bg-teal-50/50 border-teal-100'
-                                  }`}>
-                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${executionMetrics.plagiarism_score > 0.7 ? 'text-red-600' : 'text-teal-600'}`}>Plagiarism</div>
-                                  <div className="text-xl font-bold text-gray-900">
-                                    {(executionMetrics.plagiarism_score * 100).toFixed(0)}%
-                                  </div>
-                                </div>
-                              )}
-                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Console</p>
+                            <pre className="bg-gray-950 text-green-400 text-xs font-mono p-4 rounded-xl leading-relaxed whitespace-pre-wrap overflow-x-auto">{consoleText}</pre>
                           </div>
-                        )}
+                        );
+                      })()}
 
-                        {/* Console Output */}
-                        {(output || (testResults && testResults.results)) && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                              <Activity className="h-5 w-5 text-emerald-600" />
-                              Console Output
-                            </h4>
-                            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
-                              <pre className="text-green-400 text-sm whitespace-pre-wrap overflow-auto font-mono leading-relaxed">
-                                {(() => {
-                                  // Show console outputs from basic test cases only
-                                  if (testResults && testResults.results && Array.isArray(testResults.results)) {
-                                    const basicTestResults = testResults.results.filter((result: any) => !result.is_hidden);
-                                    const consoleOutputs = basicTestResults
-                                      .map((result: any, idx: number) => {
-                                        const consoleOutput = result.console_output || '';
-                                        return consoleOutput ? `Test Case ${idx + 1}:\n${consoleOutput}` : '';
-                                      })
-                                      .filter((output: string) => output)
-                                      .join('\n\n');
-
-                                    if (consoleOutputs) {
-                                      return consoleOutputs;
-                                    }
-                                  }
-
-                                  // Fallback to original output if no console outputs from test cases
-                                  return output || 'No console output available';
-                                })()}
-                              </pre>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Test Results */}
-                        {testResults && testResults.results && Array.isArray(testResults.results) && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                              Test Results
-                              <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${testResults.passed === testResults.total
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-amber-100 text-amber-800'
+                      {/* Test result rows */}
+                      {testResults?.results && Array.isArray(testResults.results) && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Test Results</p>
+                          {testResults.results.map((result: any, idx: number) => {
+                            const isHidden = result.is_hidden || false;
+                            if (isHidden) return null;
+                            const n = result.test_case_number || idx + 1;
+                            const passed = result.passed;
+                            return (
+                              <div key={idx} className={`rounded-xl border overflow-hidden ${passed ? 'border-green-100 bg-green-50/40' : 'border-red-100 bg-red-50/30'
                                 }`}>
-                                {testResults.passed}/{testResults.total}
-                              </span>
-                            </h4>
-                            <div className="grid grid-cols-1 gap-5">
-                              {testResults.results.map((result: any, idx: number) => {
-                                const isHidden = result.is_hidden || false;
-                                const testCaseNumber = result.test_case_number || idx + 1;
+                                {/* Row header */}
+                                <div className="flex items-center justify-between px-4 py-2.5">
+                                  <div className="flex items-center gap-2">
+                                    {passed
+                                      ? <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                      : <XCircle className="h-4 w-4 text-red-500" />}
+                                    <span className="text-sm font-bold text-gray-800">Case #{n}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    {!passed && (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 px-3 text-[11px] font-bold text-saffron-600 hover:bg-saffron-50"
+                                        onClick={() => {
+                                          if (onToggleAiChat && !isAiChatOpen) onToggleAiChat();
+                                          window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
+                                            detail: { prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}` }
+                                          }));
+                                        }}
+                                      >
+                                        <Sparkles className="h-3 w-3 mr-1" /> Ask AI
+                                      </Button>
+                                    )}
+                                    <span className={`text-[11px] font-black uppercase tracking-widest ${passed ? 'text-green-600' : 'text-red-500'
+                                      }`}>{passed ? 'Passed' : 'Failed'}</span>
+                                  </div>
+                                </div>
 
-                                return (
-                                  <div key={idx} className={`border-2 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow ${isHidden
-                                    ? result.passed
-                                      ? 'border-blue-200 bg-gradient-to-br from-blue-50/50 to-blue-100/30'
-                                      : 'border-purple-200 bg-gradient-to-br from-purple-50/50 to-purple-100/30'
-                                    : result.passed
-                                      ? 'border-green-200 bg-gradient-to-br from-green-50/50 to-green-100/30'
-                                      : 'border-red-200 bg-gradient-to-br from-red-50/50 to-red-100/30'
-                                    }`}>
-                                    <div className={`px-6 py-4 border-b-2 flex justify-between items-center ${isHidden
-                                      ? result.passed
-                                        ? 'bg-blue-100/60 border-blue-200'
-                                        : 'bg-purple-100/60 border-purple-200'
-                                      : result.passed
-                                        ? 'bg-green-100/60 border-green-200'
-                                        : 'bg-red-100/60 border-red-200'
-                                      }`}>
-                                      <div className="flex items-center gap-3">
-                                        {result.passed ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
-                                        <span className="font-bold text-lg text-gray-800">
-                                          Test Case #{testCaseNumber}
-                                          {isHidden && (
-                                            <span className="ml-2 text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full font-medium">
-                                              Hidden
-                                            </span>
-                                          )}
-                                        </span>
-                                      </div>
-                                      <span className={`text-sm font-bold px-4 py-2 rounded-full ${result.passed
-                                        ? 'bg-green-200 text-green-800'
-                                        : 'bg-red-200 text-red-800'
-                                        }`}>
-                                        {result.passed ? '✓ PASSED' : '✗ FAILED'}
-                                      </span>
+                                {/* I/O grid — only for visible cases */}
+                                {(result.input || result.expected_output || result.actual_output) && (
+                                  <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-3 gap-3 border-t border-gray-100">
+                                    <div className="pt-3">
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Input</p>
+                                      <pre className="text-xs font-mono bg-white border border-gray-100 rounded-lg p-3 overflow-x-auto text-gray-700">{result.input}</pre>
                                     </div>
-                                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/80">
-                                      <div className="space-y-2">
-                                        <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
-                                          Input {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
-                                        </div>
-                                        <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
-                                          }`}>
-                                          {result.input}
-                                        </pre>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
-                                          Expected Output {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
-                                        </div>
-                                        <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
-                                          }`}>
-                                          {result.expected_output}
-                                        </pre>
-                                      </div>
-                                      <div className="space-y-2 col-span-1 md:col-span-2">
-                                        <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
-                                          Actual Output {isHidden && result.actual_output === '***' && <span className="text-gray-400">(Hidden)</span>}
-                                        </div>
-                                        <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${result.passed
-                                          ? 'bg-green-50 border-green-200 text-green-800'
-                                          : 'bg-red-50 border-red-200 text-red-800'
-                                          }`}>
-                                          {result.actual_output}
-                                        </pre>
-                                      </div>
-                                      {!result.passed && (
-                                        <div className="mt-4 flex justify-end col-span-1 md:col-span-2">
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                    <div className="pt-3">
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Expected</p>
+                                      <pre className="text-xs font-mono bg-white border border-gray-100 rounded-lg p-3 overflow-x-auto text-gray-700">{result.expected_output}</pre>
+                                    </div>
+                                    <div className="pt-3">
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Output</p>
+                                      <pre className={`text-xs font-mono border rounded-lg p-3 overflow-x-auto ${passed ? 'bg-green-50 border-green-100 text-green-800' : 'bg-red-50 border-red-100 text-red-700'
+                                        }`}>{result.actual_output}</pre>
+                                    </div>
+                                    {result.error_message && result.error_message !== 'N/A' && (
+                                      <div className="md:col-span-3">
+                                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Error</p>
+                                        <pre className="text-xs font-mono bg-red-50 border border-red-100 rounded-lg p-3 overflow-x-auto text-red-700 whitespace-pre-wrap">{result.error_message}</pre>
+                                        <div className="mt-2 flex justify-end">
+                                          <Button size="sm" variant="ghost"
+                                            className="h-7 px-3 text-[11px] font-bold text-saffron-600 hover:bg-saffron-50"
                                             onClick={() => {
-                                              if (onToggleAiChat && !isAiChatOpen) {
-                                                onToggleAiChat();
-                                              }
-                                              // Dispatch a custom event that AIChatContainer will listen to
+                                              if (onToggleAiChat && !isAiChatOpen) onToggleAiChat();
                                               window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
-                                                detail: {
-                                                  prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}`
-                                                }
+                                                detail: { prompt: `Explain this error:\n${result.error_message}` }
                                               }));
                                             }}
                                           >
-                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            <Sparkles className="h-3 w-3 mr-1" /> Ask AI
                                           </Button>
                                         </div>
-                                      )}
-                                      {result.error_message && result.error_message !== 'N/A' && (
-                                        <div className="col-span-1 md:col-span-2">
-                                          <div className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">Error Message</div>
-                                          <pre className="bg-red-50 p-4 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-red-200 font-mono text-red-700 shadow-sm">
-                                            {result.error_message}
-                                          </pre>
-                                          <div className="mt-4 flex justify-end">
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
-                                              onClick={() => {
-                                                if (onToggleAiChat && !isAiChatOpen) {
-                                                  onToggleAiChat();
-                                                }
-                                                // Dispatch a custom event that AIChatContainer will listen to
-                                                window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
-                                                  detail: {
-                                                    prompt: `Explain this error message:\n${result.error_message}`
-                                                  }
-                                                }));
-                                              }}
-                                            >
-                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
+                                      </div>
+                                    )}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </TabsContent>
-
-                    {showTestCases && allowCustomTestCases && (
-                      <TabsContent value="testcases" className="flex-1 overflow-auto p-4 m-0">
-                        <div className="max-w-5xl mx-auto">
-                          <CustomTestCaseManager
-                            customTestCases={customTestCases}
-                            onTestCasesChange={setCustomTestCases}
-                          />
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
-                      </TabsContent>
-                    )}
-                  </Tabs>
+                      )}
+
+                      {/* Empty state */}
+                      {!executionMetrics && !output && !testResults && (
+                        <div className="flex flex-col items-center justify-center h-full py-16 text-center">
+                          <Terminal className="h-8 w-8 text-gray-200 mb-3" />
+                          <p className="text-sm font-semibold text-gray-400">No output yet</p>
+                          <p className="text-xs text-gray-300 mt-1">Run your code to see results here</p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+
+                  {showTestCases && allowCustomTestCases && (
+                    <TabsContent value="testcases" className="flex-1 overflow-auto p-4 m-0">
+                      <CustomTestCaseManager
+                        customTestCases={customTestCases}
+                        onTestCasesChange={setCustomTestCases}
+                      />
+                    </TabsContent>
+                  )}
+                </Tabs>
               </div>
             )}
           </div>
@@ -889,7 +768,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 onClick={submitSolution}
                 disabled={isRunning || isSubmitting}
                 size="sm"
-                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-lg shadow-orange-100 font-bold text-xs transition-all active:scale-95 border-none"
+                className="h-9 px-6 bg-saffron-600 hover:bg-saffron-700 text-white rounded-lg shadow-lg shadow-saffron-100 font-bold text-xs transition-all active:scale-95 border-none"
               >
                 <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
               </Button>

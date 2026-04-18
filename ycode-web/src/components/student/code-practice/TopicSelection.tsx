@@ -11,7 +11,7 @@ import { fetchQuestions } from '@/services/questionService';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
 import TopicSidebar, { SidebarCourse, SidebarTopic } from '@/components/student/skill-test/TopicSidebar';
-import { getCourseIconConfig } from '@/utils/CourseIcons';
+import { getCourseIconConfig, getPastelStyle } from '@/utils/CourseIcons';
 
 interface TopicSelectionProps {
   course: Course;
@@ -137,10 +137,11 @@ const TopicSelection = ({
   const iconConfig = getCourseIconConfig(course.name, course.category);
   const CourseIcon = iconConfig.Icon;
 
+  const pastelStyle = getPastelStyle(iconConfig.bg);
   const sidebarCourse: SidebarCourse = {
     id: course.id,
     name: course.name,
-    icon: <div className={`${iconConfig.bg} w-full h-full flex items-center justify-center rounded-lg`}><CourseIcon className="w-5 h-5 text-white" /></div>,
+    icon: <div className={`${pastelStyle.bg} w-full h-full flex items-center justify-center rounded-lg`}><CourseIcon className={`w-5 h-5 ${pastelStyle.text}`} /></div>,
     topics: topics.map(t => ({
       id: t.id,
       name: t.name,
@@ -212,7 +213,7 @@ const TopicSelection = ({
                     <button
                       key={level}
                       className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${difficulty === level
-                        ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm'
+                        ? 'bg-gradient-to-br from-blue-500 to-saffron-500 text-white shadow-sm'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                         }`}
                       onClick={() => setDifficulty(level)}
@@ -266,7 +267,7 @@ const TopicSelection = ({
 
                           <Button
                             size="sm"
-                            className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:bg-black transition-colors shadow-sm text-xs h-8"
+                            className="bg-gradient-to-br from-blue-500 to-saffron-500 text-white hover:bg-black transition-colors shadow-sm text-xs h-8"
                             onClick={() => onProblemSelect(problem)}
                           >
                             Solve Challenge

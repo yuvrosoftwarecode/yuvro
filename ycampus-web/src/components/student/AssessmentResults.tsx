@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { getSkillTestSubmissions } from '@/services/skillTestService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,95 +65,102 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
   const [showAiChat, setShowAiChat] = useState(false);
 
+  const [realStats, setRealStats] = useState({
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    notAttempted: 0,
+    timeTakenSeconds: 0,
+    completedAt: null as string | null
+  });
+
+  const [realQuestions, setRealQuestions] = useState<QuestionResult[]>([]);
+
+
+  useEffect(() => {
+    getSkillTestSubmissions(assessment.id).then(subs => {
+      if (subs && subs.length > 0) {
+        const sub = subs[0];
+        const acts = sub.question_activities || [];
+        const calculateTimeTaken = () => {
+          if (sub.submitted_at && sub.started_at) {
+            const diff = (new Date(sub.submitted_at).getTime() - new Date(sub.started_at).getTime()) / 1000;
+            if (diff > 0) return Math.floor(diff);
+          }
+          return Math.floor(acts.reduce((sum: number, a: any) => sum + (a.total_question_time || 0), 0) || Math.max(60, assessment.duration * 0.82 * 60));
+        };
+
+        setRealStats({
+          correctAnswers: acts.filter((a: any) => a.is_correct).length,
+          wrongAnswers: acts.filter((a: any) => !a.is_correct && a.answer_data?.answer).length,
+          notAttempted: acts.filter((a: any) => !a.answer_data?.answer).length,
+          timeTakenSeconds: calculateTimeTaken(),
+          completedAt: sub.completed_at || sub.submitted_at || null
+        });
+
+        const mappedQuestions: QuestionResult[] = acts.map((act: any, idx: number) => {
+          const qTypeRaw = act.question_type || '';
+          const isMcq = qTypeRaw.startsWith('mcq');
+          
+          let studentAns = '';
+          if (act.answer_data?.answer) {
+            if (Array.isArray(act.answer_data.answer)) {
+              studentAns = act.answer_data.answer.join(', ');
+            } else {
+              studentAns = String(act.answer_data.answer);
+            }
+          }
+
+          let correctAns = '';
+          const options = act.mcq_options || [];
+          if (isMcq) {
+            const correctOnes = options.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text);
+            correctAns = correctOnes.join(', ');
+          } else if (qTypeRaw === 'coding') {
+            // Reference solution if available? Backend Serializer doesn't seem to have reference solution for coding yet
+            correctAns = ''; 
+          }
+
+          return {
+            id: act.id,
+            question: act.question_title || act.question_content || '',
+            type: qTypeRaw === 'coding' ? 'coding' : qTypeRaw === 'descriptive' ? 'descriptive' : 'mcq',
+            options: isMcq ? options.map((o: any) => o.text || o.option_text) : undefined,
+            correctAnswer: correctAns,
+            studentAnswer: studentAns,
+            isCorrect: act.is_correct,
+            explanation: act.answer_data?.explanation || '',
+            points: act.marks_obtained || 0,
+            maxPoints: act.marks || 0
+          };
+        });
+        setRealQuestions(mappedQuestions);
+
+      }
+    }).catch(console.error);
+  }, [assessment.id]);
+
   const completedOn = useMemo(() => {
-    return new Date().toLocaleDateString('en-US', {
+    const dateToUse = realStats.completedAt ? new Date(realStats.completedAt) : new Date();
+    return dateToUse.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
-  }, []);
+  }, [realStats.completedAt]);
 
-  // Mock assessment results data
-  const questionResults: QuestionResult[] = [
-    {
-      id: 1,
-      question: 'What is the time complexity of binary search algorithm?',
-      type: 'mcq',
-      options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
-      correctAnswer: 'O(log n)',
-      studentAnswer: 'O(log n)',
-      isCorrect: true,
-      explanation:
-        'Binary search has O(log n) time complexity because it eliminates half of the remaining elements in each iteration.',
-      points: 2,
-      maxPoints: 2,
-    },
-    {
-      id: 2,
-      question: 'Write a function to find the maximum element in an array.',
-      type: 'coding',
-      correctAnswer: 'function findMax(arr) { return Math.max(...arr); }',
-      studentAnswer:
-        'function findMax(arr) { let max = arr[0]; for(let i = 1; i < arr.length; i++) { if(arr[i] > max) max = arr[i]; } return max; }',
-      isCorrect: true,
-      explanation:
-        'Your solution correctly iterates through the array to find the maximum element. Both approaches are valid.',
-      points: 8,
-      maxPoints: 10,
-    },
-    {
-      id: 3,
-      question: 'Explain the concept of object-oriented programming and its four main principles.',
-      type: 'descriptive',
-      correctAnswer:
-        'OOP principles: Encapsulation, Inheritance, Polymorphism, Abstraction',
-      studentAnswer:
-        'OOP is a programming paradigm based on objects. The four principles are: 1) Encapsulation - bundling data and methods, 2) Inheritance - creating new classes from existing ones, 3) Polymorphism - same interface different implementations.',
-      isCorrect: false,
-      explanation:
-        'Good explanation but you missed Abstraction. Abstraction is hiding complex implementation details while showing only essential features.',
-      points: 6,
-      maxPoints: 8,
-    },
-    {
-      id: 4,
-      question: 'Which of the following are valid HTTP methods?',
-      type: 'mcq',
-      options: ['GET', 'POST', 'FETCH', 'DELETE', 'UPDATE', 'PUT'],
-      correctAnswer: 'GET, POST, DELETE, PUT',
-      studentAnswer: 'GET, POST, DELETE',
-      isCorrect: false,
-      explanation:
-        'You correctly identified GET, POST, and DELETE, but missed PUT. FETCH and UPDATE are not valid HTTP methods.',
-      points: 2,
-      maxPoints: 3,
-    },
-    {
-      id: 5,
-      question: 'Implement a function to check if a string is a palindrome.',
-      type: 'coding',
-      correctAnswer:
-        'function isPalindrome(str) { const cleaned = str.toLowerCase().replace(/[^a-z0-9]/g, ""); return cleaned === cleaned.split("").reverse().join(""); }',
-      studentAnswer:
-        'function isPalindrome(str) { return str === str.split("").reverse().join(""); }',
-      isCorrect: false,
-      explanation:
-        "Your solution doesn't handle case insensitivity or non-alphanumeric characters as specified in the question.",
-      points: 4,
-      maxPoints: 8,
-    },
-  ];
+  const questionResults = realQuestions;
 
-  const correctAnswers = questionResults.filter(q => q.isCorrect).length;
-  const wrongAnswers = questionResults.filter(q => !q.isCorrect && q.studentAnswer.trim() !== '').length;
-  const notAttempted = questionResults.filter(q => q.studentAnswer.trim() === '').length;
+  const correctAnswers = realStats.correctAnswers;
+  const wrongAnswers = realStats.wrongAnswers;
+  const notAttempted = realStats.notAttempted;
   const totalScore = questionResults.reduce((sum, q) => sum + q.points, 0);
   const maxScore = assessment.marks || questionResults.reduce((sum, q) => sum + q.maxPoints, 0);
   const percentage = Math.round((totalScore / Math.max(maxScore, 1)) * 100);
-  const timeTakenSeconds = Math.max(60, Math.round(assessment.duration * 0.82 * 60));
+  const timeTakenSeconds = realStats.timeTakenSeconds || Math.max(60, Math.round(assessment.duration * 0.82 * 60));
   const totalQuestions = assessment.totalQuestions || questionResults.length;
+
 
   const performanceMetrics = {
     accuracy: Math.round((correctAnswers / Math.max(totalQuestions, 1)) * 100),
@@ -447,9 +455,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                       key={tab}
                       onClick={() => {
                         setActiveTab(tab);
-                        if (tab !== 'ai_buddy') {
-                          setShowAiChat(false);
-                        }
+                        setShowAiChat(false);
                       }}
                       className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${
                         activeTab === tab

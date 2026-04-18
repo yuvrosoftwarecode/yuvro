@@ -89,6 +89,14 @@ class SkillTest(BaseAssessmentModel):
         blank=True,
         help_text="Specific unit within the subject (optional)",
     )
+    section = models.ForeignKey(
+        "core.Section",
+        on_delete=models.CASCADE,
+        related_name="skill_tests",
+        null=True,
+        blank=True,
+        help_text="Section this assessment belongs to (required for faculty assessments)",
+    )
 
     def __str__(self):
         return f"{self.title} - {self.subject.name if self.subject else 'No Subject'} ({self.unit.name if self.unit else 'All Units'})"

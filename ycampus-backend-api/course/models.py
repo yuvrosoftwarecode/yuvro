@@ -353,6 +353,7 @@ class Question(models.Model):
         ("contest", "Contest"),
         ("mock_interview", "Mock Interview"),
         ("task", "Task"),
+        ("assessment", "Assessment"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

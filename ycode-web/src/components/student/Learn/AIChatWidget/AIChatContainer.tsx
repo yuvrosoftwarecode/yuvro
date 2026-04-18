@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import AIChatMessages from './ChatMessages';
 import AIChatInput from './ChatInput';
 import useAIChat from './useAIChat';
@@ -60,33 +60,33 @@ const AIChatContainer: React.FC<{
         ...style 
       }}
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-white shrink-0" style={{ borderBottom: '1px solid #f3f4f6' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-sm">
-            <Sparkles size={15} className="text-white" />
+      <div className="flex items-center justify-between px-3 h-10 bg-white shrink-0" style={{ borderBottom: '1px solid #f3f4f6' }}>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500 to-saffron-600 flex items-center justify-center shadow-sm">
+            <Sparkles size={11} className="text-white" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900 leading-none">{panelTitle}</p>
-            <p className="text-[11px] text-emerald-500 font-medium mt-0.5">Online</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-semibold text-gray-900 leading-none">{panelTitle}</p>
+            <span className="text-[10px] text-emerald-500 font-medium">• Online</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           {persistenceKey && (
             <>
               <button
                 onClick={onNewChat}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95"
                 title="New Chat"
               >
-                <Plus size={20} className="stroke-[2.5px]" />
+                <Plus size={15} className="stroke-[2.5px]" />
               </button>
               {showHistory && (
                 <button
                   onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                  className={`p-1.5 rounded-xl transition-all active:scale-95 ${isHistoryOpen ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                  className={`p-1 rounded-lg transition-all active:scale-95 ${isHistoryOpen ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                   title="Recent Chats"
                 >
-                  <HistoryIcon size={20} className="stroke-[2.5px]" />
+                  <HistoryIcon size={15} className="stroke-[2.5px]" />
                 </button>
               )}
             </>
@@ -96,7 +96,7 @@ const AIChatContainer: React.FC<{
 
       {/* History Dropdown */}
       {showHistory && isHistoryOpen && (
-        <div className="absolute top-[72px] left-4 right-4 bg-white rounded-3xl shadow-2xl border border-slate-100 z-30 max-h-[400px] overflow-hidden flex flex-col animate-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-[42px] left-4 right-4 bg-white rounded-3xl shadow-2xl border border-slate-100 z-30 max-h-[400px] overflow-hidden flex flex-col animate-in slide-in-from-top-2 duration-200">
           <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center shrink-0">
             <span className="text-xs font-black text-slate-400 uppercase tracking-widest pl-2">Recent Reviews</span>
             <button

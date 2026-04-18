@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+﻿import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
@@ -109,7 +109,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
     >
       {messages.length === 0 && !isLoading && (
         <div className="flex flex-col items-center justify-center h-full gap-5 text-center select-none">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-saffron-600 flex items-center justify-center shadow-lg shadow-saffron-200">
             <Sparkles size={28} className="text-white" />
           </div>
           <div>
@@ -129,7 +129,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
         return (
           <div key={m.id} className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
             {!isUser && (
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm mb-1">
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-saffron-600 flex items-center justify-center flex-shrink-0 shadow-sm mb-1">
                 <Sparkles size={12} className="text-white" />
               </div>
             )}
@@ -155,7 +155,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
 
                         if (inline) {
                           return (
-                            <code className="bg-gray-100 text-indigo-600 px-1 py-0.5 rounded font-mono text-[11px]" {...props}>
+                            <code className="bg-gray-100 text-saffron-600 px-1 py-0.5 rounded font-mono text-[11px]" {...props}>
                               {children}
                             </code>
                           );
@@ -176,7 +176,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
                                 {onInsertCode && (
                                   <button
                                     onClick={() => onInsertCode(codeString)}
-                                    className="p-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-sm"
+                                    className="p-1.5 rounded-md bg-saffron-600 hover:bg-saffron-500 text-white transition-all shadow-sm"
                                     title="Insert code into editor"
                                   >
                                     <Terminal size={12} />
@@ -209,7 +209,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
 
       {isLoading && !activeStream && (
         <div className="flex items-end gap-2">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm mb-1">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-saffron-600 flex items-center justify-center flex-shrink-0 shadow-sm mb-1">
             <Sparkles size={12} className="text-white" />
           </div>
           <div className="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-2 text-gray-500">

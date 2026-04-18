@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import SuggestedPrompts from './SuggestedPrompts';
 
@@ -78,7 +78,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
           disabled={text.trim().length === 0 || disabled}
           className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
             text.trim().length > 0 && !disabled
-              ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
+              ? 'bg-gradient-to-br from-violet-500 to-saffron-600 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
               : 'bg-white text-gray-300 cursor-not-allowed'
           }`}
         >

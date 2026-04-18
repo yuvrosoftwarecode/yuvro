@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Crown, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -157,7 +157,7 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
 
     return (
         <Card className="border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-saffron-50 to-purple-50">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-amber-500" />
@@ -191,7 +191,7 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
                                         <div className="relative mb-2">
                                             <Avatar className={`${avatarSize} ${style.ring} border-2 border-white shadow-lg`}>
                                                 <AvatarImage src={entry.avatar || ''} />
-                                                <AvatarFallback className="text-sm bg-indigo-100 text-indigo-700 font-semibold">
+                                                <AvatarFallback className="text-sm bg-saffron-100 text-saffron-700 font-semibold">
                                                     {entry.user.slice(0, 2).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
@@ -237,7 +237,7 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
 
                                 <Avatar className="h-8 w-8 border border-gray-200">
                                     <AvatarImage src={entry.avatar || ''} />
-                                    <AvatarFallback className="text-xs bg-indigo-50 text-indigo-600">
+                                    <AvatarFallback className="text-xs bg-saffron-50 text-saffron-600">
                                         {entry.user.slice(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>

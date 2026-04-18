@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -676,7 +676,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                 <h4 className="font-semibold text-sm mb-2 text-slate-700">Test Cases</h4>
                 <div className="space-y-2">
                   {question.test_cases_basic.map((tc: any, idx: number) => (
-                    <div key={idx} className="bg-white p-2 rounded border-l-2 border-indigo-400 text-xs font-mono grid grid-cols-2 gap-2">
+                    <div key={idx} className="bg-white p-2 rounded border-l-2 border-saffron-400 text-xs font-mono grid grid-cols-2 gap-2">
                       <div><span className="text-gray-500">Input:</span> {tc.input}</div>
                       <div><span className="text-gray-500">Output:</span> {tc.output}</div>
                     </div>
@@ -828,7 +828,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="sm" className="h-9 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all active:scale-95 text-xs font-bold uppercase tracking-wider rounded-lg">
+                <Button size="sm" className="h-9 px-6 bg-gradient-to-r from-blue-600 to-saffron-600 hover:from-blue-700 hover:to-saffron-700 text-white shadow-md transition-all active:scale-95 text-xs font-bold uppercase tracking-wider rounded-lg">
                   Finish
                 </Button>
               </AlertDialogTrigger>
@@ -863,7 +863,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                     <AlertDialogCancel className="flex-1 h-12 border-none bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleSubmitAssessment}
-                      className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg border-none transition-all active:scale-95"
+                      className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-saffron-600 hover:from-blue-700 hover:to-saffron-700 text-white font-bold rounded-xl shadow-lg border-none transition-all active:scale-95"
                     >
                       Finish
                     </AlertDialogAction>
