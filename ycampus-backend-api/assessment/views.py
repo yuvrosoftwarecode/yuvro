@@ -849,6 +849,57 @@ INTERVIEW_TRANSITIONS = {
         "Excellent, {name}. Let's start the technical questions. ",
         "Thanks for the intro, {name}. Let's get into it. ",
         "Alright {name}, let's begin the evaluation. "
+    ],
+    'ask_missing_name': [
+        "I didn't quite catch your name, could you please tell me?",
+        "Could you please share your name with me?",
+        "Before we begin, may I have your name?",
+        "Sorry, I missed your name. What should I call you?",
+        "Could you tell me your name before we start?",
+        "I'd love to know your name first.",
+        "To get started, what is your name?",
+        "Please let me know your name.",
+        "Could you start by telling me your name?",
+        "What name do you prefer to go by?",
+        "I missed your name, could you repeat it?",
+        "May I know who I'm speaking with?",
+        "Could you confirm your name for me?",
+        "Just to be sure, what is your name?",
+        "Please share your name with me."
+    ],
+    'ask_missing_experience': [
+        "Thanks {name}. Could you briefly mention your years of experience?",
+        "Got it, {name}. How many years of experience do you have?",
+        "Understood, {name}. Could you also share your experience level?",
+        "Okay {name}. Are you a fresher or do you have prior experience?",
+        "Alright {name}, just to understand better, what is your experience level?",
+        "Thanks {name}. Could you tell me about your work experience?",
+        "Noted, {name}. How much professional experience do you have?",
+        "Okay {name}, could you briefly outline your experience?",
+        "Got it, {name}. What is your total years of experience?",
+        "Understood, {name}. Let me know your experience level before we continue.",
+        "Thanks for that, {name}. How many years have you been working?",
+        "Alright {name}, could you summarize your professional experience?",
+        "Okay {name}, just one more detail: what is your experience level?",
+        "Got it, {name}. Do you have any prior industry experience?",
+        "Thanks {name}. Please also mention your total experience."
+    ],
+    'ask_missing_skills': [
+        "Got it, {name}. What are your core technical skills?",
+        "Understood, {name}. Could you highlight a few of your key technical skills?",
+        "Okay {name}. Which programming languages or tools are you most proficient in?",
+        "Alright {name}, before we jump into the technical questions, what are your main skills?",
+        "Thanks {name}. Could you list your primary technical skills?",
+        "Noted, {name}. What technologies do you have the most experience with?",
+        "Okay {name}, please share your core competencies and skills.",
+        "Understood, {name}. I'd like to know your primary technical stack. Could you share?",
+        "Got it, {name}. What are the main skills you bring to the table?",
+        "Thanks {name}. Could you briefly mention your top technical skills?",
+        "Alright {name}. Which technologies are you most comfortable working with?",
+        "Okay {name}, what are your key areas of technical expertise?",
+        "Understood, {name}. Please list the main tools and languages you use.",
+        "Got it, {name}. Before we begin, what is your technical skill set?",
+        "Thanks {name}. Could you tell me your core skills?"
     ]
 }
 
@@ -880,6 +931,46 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             qs = qs.filter(q)
 
         return qs
+
+    def _analyze_intro_answer(self, text):
+        from asgiref.sync import async_to_sync
+        from ai_assistant.services import GeminiService
+        from decouple import config
+        import json
+        
+        if not text or len(text.strip()) < 2:
+            return {}
+            
+        api_key = config("GEMINI_API_KEY", default=None)
+        if not api_key:
+            return {}
+            
+        try:
+            service = GeminiService(api_key, model_name="gemini-2.5-flash")
+            prompt = f"""
+            Extract the following information from the user's self-introduction.
+            Return ONLY valid JSON. If a detail is missing, return null for it.
+            
+            Text: "{text}"
+            
+            Format:
+            {{
+                "name": "<string or null>",
+                "experience": "<string or null, e.g. '2 years' or 'fresher'>",
+                "skills": "<string or null, e.g. 'React, Python, Java'>"
+            }}
+            """
+            
+            response = async_to_sync(service.generate_response)(
+                [{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=200
+            )
+            resp_text = response["response"].replace("```json", "").replace("```", "").strip()
+            return json.loads(resp_text)
+        except Exception as e:
+            logger.error(f"Error extracting intro details: {str(e)}")
+            return {}
 
     @action(
         detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
@@ -1052,6 +1143,49 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             current_main_index = state.get('current_main_index', -1)
             current_node_id = state.get('current_node_id')
 
+            intro_details = state.get('intro_details', {'name': None, 'experience': None, 'skills': None, 'attempts': 0, 'completed': False})
+
+            # Check if we are still in intro verification phase
+            if current_main_index == -1 and not intro_details.get('completed'):
+                if user_answer and user_answer.strip():
+                    intro_details['attempts'] = intro_details.get('attempts', 0) + 1
+                    new_details = self._analyze_intro_answer(user_answer)
+                    if new_details.get('name'): intro_details['name'] = new_details['name']
+                    if new_details.get('experience'): intro_details['experience'] = new_details['experience']
+                    if new_details.get('skills'): intro_details['skills'] = new_details['skills']
+
+                # If all present or max attempts reached, complete intro
+                if (intro_details.get('name') and intro_details.get('experience') and intro_details.get('skills')) or intro_details.get('attempts', 0) >= 3:
+                    intro_details['completed'] = True
+                    state['intro_details'] = intro_details
+                    interview_session.state_data = state
+                    interview_session.save()
+                    # Fall through to Step B
+                else:
+                    state['intro_details'] = intro_details
+                    interview_session.state_data = state
+                    interview_session.save()
+                    
+                    ask_phrase = ""
+                    if not intro_details.get('name'):
+                        ask_phrase = random.choice(INTERVIEW_TRANSITIONS['ask_missing_name'])
+                    elif not intro_details.get('experience'):
+                        name = intro_details.get('name') or request.user.first_name or request.user.username or "there"
+                        ask_phrase = random.choice(INTERVIEW_TRANSITIONS['ask_missing_experience']).format(name=name)
+                    elif not intro_details.get('skills'):
+                        name = intro_details.get('name') or request.user.first_name or request.user.username or "there"
+                        ask_phrase = random.choice(INTERVIEW_TRANSITIONS['ask_missing_skills']).format(name=name)
+
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=ask_phrase
+                    )
+                    return Response({
+                        "question": ask_phrase,
+                        "is_finished": False
+                    })
+
             # 3. Handle Status: Repeat
             if status_code == 'repeat' and current_node_id:
                 try:
@@ -1110,17 +1244,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             transition = ""
             # If current_node_id is None, it means we are transitioning from the initial greeting (self-intro) to the first question
             if current_node_id is None:
-                # Try to extract name from user's intro answer
-                first_name = request.user.first_name or request.user.username
-                if user_answer:
-                    # Common intro patterns
-                    pattern = r"(?i)\b(?:my name is|i am|i'm|this is|myself)\s+([a-zA-Z]{2,})"
-                    match = re.search(pattern, user_answer)
-                    if match:
-                        extracted = match.group(1).capitalize()
-                        stop_words = {'a', 'an', 'the', 'student', 'software', 'developer', 'engineer', 'very', 'really', 'doing', 'working', 'currently', 'also', 'pursuing'}
-                        if extracted.lower() not in stop_words:
-                            first_name = extracted
+                intro_details = state.get('intro_details', {})
+                first_name = intro_details.get('name') or request.user.first_name or request.user.username
 
                 transition_template = random.choice(INTERVIEW_TRANSITIONS['first_question_intro'])
                 transition = transition_template.format(name=first_name)
