@@ -762,6 +762,96 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         return Response({'status': 'logged'})
 
+import re
+
+INTERVIEW_TRANSITIONS = {
+    'acknowledgment': [
+        "Hmm, I got it. ",
+        "Understood. ",
+        "Got it. ",
+        "Fair enough. ",
+        "I see. ",
+        "Okay, understood. ",
+        "Makes sense. ",
+        "Alright, noted. ",
+        "Interesting. ",
+        "That clarifies things. ",
+        "I appreciate the answer. ",
+        "Thanks for explaining that. ",
+        "Good to know. ",
+        "That's clear. ",
+        "I understand your point. "
+    ],
+    'repeat': [
+        "Ok, I am repeating again. ",
+        "Sure, let me ask that one more time. ",
+        "No problem, here is the question again. ",
+        "Alright, let me repeat that. ",
+        "I can repeat that. ",
+        "Sure thing, I'll say it again. ",
+        "Let me re-state the question. ",
+        "Okay, I'll read the question once more. ",
+        "Not a problem, I will repeat it. ",
+        "Here it is again. ",
+        "Let's go over that question again. ",
+        "Okay, repeating the question now. ",
+        "I will repeat the question for you. ",
+        "Sure, I can read it again. ",
+        "Let me say that one more time. "
+    ],
+    'skip_topic': [
+        "Alright no problem, let's move to a different topic. ",
+        "That's fine. We can skip that and discuss something else. ",
+        "Okay, let's pivot to something else. ",
+        "No worries, we can move on. ",
+        "Let's skip this one and move forward. ",
+        "Alright, moving past that. ",
+        "We can come back to this if needed, let's move on. ",
+        "Okay, let's jump to the next area. ",
+        "Noted, let's shift our focus. ",
+        "Sure, we can skip that. ",
+        "Let's proceed with another topic. ",
+        "Okay, we will leave that for now. ",
+        "Moving on from that question. ",
+        "Alright, let's try a different direction. ",
+        "Let's skip it and go to the next topic. "
+    ],
+    'next_topic': [
+        "Ok, let's move to the next topic. ",
+        "Great. Now, let's switch gears a bit. ",
+        "Alright, moving on to the next area. ",
+        "Let's transition to a different subject. ",
+        "Now, let's talk about something else. ",
+        "Moving forward to our next main topic. ",
+        "Let's explore another area now. ",
+        "Okay, let's move along. ",
+        "Next, I'd like to ask you about a new topic. ",
+        "Alright, let's shift gears. ",
+        "Let's go to the next section. ",
+        "Moving on to our next topic. ",
+        "Now, let's discuss another aspect. ",
+        "Okay, onto the next set of questions. ",
+        "Let's change the topic now. "
+    ],
+    'first_question_intro': [
+        "Thanks {name}. Let's dive into the first question. ",
+        "Great to meet you, {name}. Let's get started. ",
+        "Hi {name}, thanks for the intro. Here is your first question: ",
+        "Pleasure to meet you, {name}. Let's begin. ",
+        "Thank you for that introduction, {name}. Let's start. ",
+        "Awesome, {name}. Let's kick things off with this: ",
+        "Nice to meet you, {name}. Let's jump right in. ",
+        "Thanks for sharing, {name}. Let's move to the technical part. ",
+        "Got it, {name}. Let's begin the interview now. ",
+        "Wonderful, {name}. Here is the first question for you. ",
+        "Thanks {name}. Let's start with something basic. ",
+        "Hello {name}. Let's proceed with the interview. ",
+        "Excellent, {name}. Let's start the technical questions. ",
+        "Thanks for the intro, {name}. Let's get into it. ",
+        "Alright {name}, let's begin the evaluation. "
+    ]
+}
+
 class MockInterviewViewSet(viewsets.ModelViewSet):
     queryset = MockInterview.objects.all()
     serializer_class = MockInterviewSerializer
@@ -966,8 +1056,9 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             if status_code == 'repeat' and current_node_id:
                 try:
                     curr_node = PredefinedInterviewQuestion.objects.get(id=current_node_id)
+                    transition = random.choice(INTERVIEW_TRANSITIONS['repeat'])
                     return Response({
-                        "question": curr_node.text,
+                        "question": transition + curr_node.text,
                         "is_finished": False
                     })
                 except PredefinedInterviewQuestion.DoesNotExist:
@@ -975,6 +1066,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             # 4. Determine Next Node
             next_node = None
+            is_new_main_topic = False
+            is_skip = (status_code == 'skip')
             
             # --- Step A: Check for children follow-ups if in normal flow ---
             if current_node_id and status_code == 'normal':
@@ -997,6 +1090,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     next_node_id = planned_questions[current_main_index]
                     try:
                         next_node = PredefinedInterviewQuestion.objects.get(id=next_node_id)
+                        is_new_main_topic = True
                     except PredefinedInterviewQuestion.DoesNotExist:
                         return self.get_next_question(request, pk)
                 else:
@@ -1011,6 +1105,34 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "question": farewell,
                         "is_finished": True
                     })
+
+            # Add appropriate transition phrase
+            transition = ""
+            # If current_node_id is None, it means we are transitioning from the initial greeting (self-intro) to the first question
+            if current_node_id is None:
+                # Try to extract name from user's intro answer
+                first_name = request.user.first_name or request.user.username
+                if user_answer:
+                    # Common intro patterns
+                    pattern = r"(?i)\b(?:my name is|i am|i'm|this is|myself)\s+([a-zA-Z]{2,})"
+                    match = re.search(pattern, user_answer)
+                    if match:
+                        extracted = match.group(1).capitalize()
+                        stop_words = {'a', 'an', 'the', 'student', 'software', 'developer', 'engineer', 'very', 'really', 'doing', 'working', 'currently', 'also', 'pursuing'}
+                        if extracted.lower() not in stop_words:
+                            first_name = extracted
+
+                transition_template = random.choice(INTERVIEW_TRANSITIONS['first_question_intro'])
+                transition = transition_template.format(name=first_name)
+            else:
+                if is_skip:
+                    transition = random.choice(INTERVIEW_TRANSITIONS['skip_topic'])
+                elif is_new_main_topic:
+                    transition = random.choice(INTERVIEW_TRANSITIONS['next_topic'])
+                elif status_code == 'normal':
+                    transition = random.choice(INTERVIEW_TRANSITIONS['acknowledgment'])
+                    
+            final_question_text = transition + next_node.text
 
             # 5. Update state
             asked_in_session = state.get('asked_in_session', [])
@@ -1027,11 +1149,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             ChatMessage.objects.create(
                 chat_session=chat_session,
                 message_type="assistant",
-                content=next_node.text
+                content=final_question_text
             )
 
             return Response({
-                "question": next_node.text,
+                "question": final_question_text,
                 "is_finished": False
             })
 
