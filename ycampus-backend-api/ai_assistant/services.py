@@ -539,7 +539,17 @@ class InterviewReportGenerator:
             # clean up potential markdown formatting if model ignores instruction
             response_text = response_text.replace("```json", "").replace("```", "").strip()
             
-            return json.loads(response_text)
+            try:
+                return json.loads(response_text)
+            except json.JSONDecodeError:
+                # Fallback: extract just the object if there is surrounding text
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}') + 1
+                if start_idx != -1 and end_idx != 0:
+                    response_text = response_text[start_idx:end_idx]
+                    return json.loads(response_text)
+                else:
+                    raise
 
         except json.JSONDecodeError:
             logger.error("Failed to parse AI report JSON")

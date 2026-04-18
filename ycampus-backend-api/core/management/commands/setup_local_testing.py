@@ -100,6 +100,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("✓ Sample assessment tests loaded"))
             self.stdout.write(self.style.SUCCESS("✓ College data loaded"))
             self.stdout.write(self.style.SUCCESS("✓ AI agents seeded"))
+            self.stdout.write(self.style.SUCCESS("✓ Subjects and tasks assigned"))
             self.stdout.write("")
             self.stdout.write("🚀 You can now start testing the application!")
 

@@ -428,19 +428,15 @@ class UnitViewSet(viewsets.ModelViewSet):
         if subject_id:
             qs = qs.filter(subject_id=subject_id)
 
+        # If we want students to see all units and let the frontend handle the locked state,
+        # we do not filter units out entirely based on unlocked subunits.
+        # The frontend will check `is_unlocked` on subunits instead.
         if user.role == "student":
-            profile = StudentProfile.objects.filter(user=user).first()
-            if profile and profile.section:
-                # Filter by unlocked status for this student's section
-                # A Unit is visible if it has at least one unlocked SubUnit
-                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                    section=profile.section, is_unlocked=True
-                ).values_list("sub_unit_id", flat=True)
-                
-                # Filter units that have subunits among the unlocked ones
-                qs = qs.filter(subunits__id__in=unlocked_subunit_ids).distinct()
-            else:
-                qs = qs.none()
+            # Optional: verify the student has a section profile, if needed.
+            # profile = StudentProfile.objects.filter(user=user).first()
+            # if not profile or not profile.section:
+            #     qs = qs.none()
+            pass
 
         
         qs = qs.annotate(
@@ -480,7 +476,7 @@ class UnitViewSet(viewsets.ModelViewSet):
             )
         )
 
-        return qs
+        return qs.order_by("order_index")
 
     def create(self, request, *a, **kw):
         user = request.user
@@ -548,17 +544,13 @@ class SubUnitViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.none()
         elif user.role == "student":
-            profile = StudentProfile.objects.filter(user=user).first()
-            if profile and profile.section:
-                # Filter by unlocked status for this student's section
-                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                    section=profile.section, is_unlocked=True
-                ).values_list("sub_unit_id", flat=True)
-                qs = qs.filter(id__in=unlocked_subunit_ids)
-            else:
-                qs = qs.none()
+            # Let the frontend see all subunits and handle access via the `is_unlocked` field
+            # profile = StudentProfile.objects.filter(user=user).first()
+            # if not profile or not profile.section:
+            #     qs = qs.none()
+            pass
 
-        return qs
+        return qs.order_by("order_index")
 
     @action(detail=True, methods=["post"])
     def unlock(self, request, pk=None):
