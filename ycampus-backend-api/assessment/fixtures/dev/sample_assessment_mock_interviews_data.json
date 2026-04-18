@@ -5,144 +5,2833 @@
       "description": "Comprehensive assessment of Python programming skills, including language internals, asynchronous programming, web frameworks, and data processing.",
       "instructions": "Python syntax, decorators, generators, multi-threading vs multi-processing.",
       "max_duration": 45,
-      "required_skills": ["Python", "Backend Development", "Web Frameworks"],
-      "optional_skills": ["FastAPI", "Pandas", "Pytest"],
+      "required_skills": [
+        "Python",
+        "Backend Development",
+        "Web Frameworks"
+      ],
+      "optional_skills": [
+        "FastAPI",
+        "Pandas",
+        "Pytest"
+      ],
       "publish_status": "active",
       "predefined_tree": [
         {
-          "text": "What is the difference between a list and a tuple in Python?",
+          "text": "How are objects and memory managed in Python?",
           "follow_ups": [
             {
-              "text": "When would you prefer using a tuple over a list for performance?",
+              "text": "What is reference counting in Python?",
               "follow_ups": [
-                { "text": "Can you explain why tuples are faster to iterate over than lists?" },
-                { "text": "Are there any specific data types that can be used as keys in a dictionary that involve tuples but not lists?" }
+                {
+                  "text": "How does reference counting handle object deletion?"
+                },
+                {
+                  "text": "What are its limitations?"
+                },
+                {
+                  "text": "How can reference cycles occur?"
+                }
               ]
             },
             {
-              "text": "What does it mean for a tuple to be immutable, and are there any exceptions if the tuple contains mutable objects?",
+              "text": "What is garbage collection in Python?",
               "follow_ups": [
-                { "text": "If a tuple contains a list, can that list be modified? Why?" }
-              ]
-            }
-          ]
-        },
-        {
-          "text": "How does memory management work in Python? Specifically, what is the role of the Garbage Collector?",
-          "follow_ups": [
-            {
-              "text": "What is reference counting, and how can it lead to memory leaks?",
-              "follow_ups": [
-                { "text": "How do circular references affect reference counting?" },
-                { "text": "What is the 'gc' module used for in this context?" }
+                {
+                  "text": "How does Python detect cyclic references?"
+                },
+                {
+                  "text": "What is the gc module used for?"
+                },
+                {
+                  "text": "When does garbage collection run?"
+                }
               ]
             },
             {
-              "text": "Can you explain the difference between the 'is' operator and the '==' operator in terms of memory?",
+              "text": "What is memory allocation in Python?",
               "follow_ups": [
-                { "text": "What is 'interning' in Python, and how does it relate to the 'is' operator?" }
+                {
+                  "text": "What is PyMalloc?"
+                },
+                {
+                  "text": "How are small and large objects handled differently?"
+                },
+                {
+                  "text": "What is object interning?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What are decorators in Python, and can you describe a real-world use case?",
+          "text": "What are the differences between arrays and linked lists?",
           "follow_ups": [
             {
-              "text": "How do you pass arguments to a decorator?",
+              "text": "How does memory allocation differ between them?",
               "follow_ups": [
-                { "text": "What is the purpose of 'functools.wraps' when writing a decorator?" }
+                {
+                  "text": "Why are arrays cache-friendly?"
+                },
+                {
+                  "text": "How does dynamic resizing work in arrays?"
+                },
+                {
+                  "text": "What overhead exists in linked lists?"
+                }
               ]
             },
             {
-              "text": "Can you explain how nesting multiple decorators on a single function works?",
+              "text": "What are the time complexities for insertion and deletion?",
               "follow_ups": [
-                { "text": "In what order are the decorators executed when they are stacked?" }
-              ]
-            }
-          ]
-        },
-        {
-          "text": "Explain the concept of List Comprehension and how it differs from using a map() function.",
-          "follow_ups": [
-            {
-              "text": "Which do you find more readable and why?",
-              "follow_ups": [
-                { "text": "Is there any performance difference between map() and list comprehensions in modern Python?" }
+                {
+                  "text": "Why is insertion O(1) in linked lists?"
+                },
+                {
+                  "text": "Why is deletion costly in arrays?"
+                },
+                {
+                  "text": "How does indexing differ?"
+                }
               ]
             },
             {
-              "text": "Can you include nested loops inside a list comprehension?",
+              "text": "When would you prefer one over the other?",
               "follow_ups": [
-                { "text": "At what point does a list comprehension become too complex, and how would you refactor it?" }
+                {
+                  "text": "Give a real-world use case for arrays."
+                },
+                {
+                  "text": "Give a real-world use case for linked lists."
+                },
+                {
+                  "text": "Can both be combined in hybrid structures?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What is the 'Global Interpreter Lock' (GIL) in Python?",
+          "text": "How does the HTTP protocol work?",
           "follow_ups": [
             {
-              "text": "How does the GIL affect multi-threaded CPU-bound vs. I/O-bound applications?",
+              "text": "What are HTTP methods?",
               "follow_ups": [
-                { "text": "What are some ways to bypass the GIL for CPU-intensive tasks?" },
-                { "text": "Will the removal of the GIL in future Python versions change how you write code?" }
+                {
+                  "text": "Difference between GET and POST?"
+                },
+                {
+                  "text": "What are PUT and PATCH used for?"
+                },
+                {
+                  "text": "What is idempotency?"
+                }
+              ]
+            },
+            {
+              "text": "What are HTTP status codes?",
+              "follow_ups": [
+                {
+                  "text": "Explain 200, 201, 400, 403, 404."
+                },
+                {
+                  "text": "What is 500 error?"
+                },
+                {
+                  "text": "When should you use 204?"
+                }
+              ]
+            },
+            {
+              "text": "What happens when you enter a URL in the browser?",
+              "follow_ups": [
+                {
+                  "text": "What is DNS resolution?"
+                },
+                {
+                  "text": "What is TCP handshake?"
+                },
+                {
+                  "text": "What happens after request reaches server?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What is the difference between shallow copy and deep copy?",
+          "text": "What is bias vs variance in machine learning?",
           "follow_ups": [
             {
-              "text": "Which module in Python provides these functionalities?",
+              "text": "What is high bias?",
               "follow_ups": [
-                { "text": "If a list contains a dictionary, how does a shallow copy behave when the dictionary's values are modified?" }
+                {
+                  "text": "What causes underfitting?"
+                },
+                {
+                  "text": "How can you reduce bias?"
+                },
+                {
+                  "text": "Give examples of high bias models."
+                }
+              ]
+            },
+            {
+              "text": "What is high variance?",
+              "follow_ups": [
+                {
+                  "text": "What causes overfitting?"
+                },
+                {
+                  "text": "How can you reduce variance?"
+                },
+                {
+                  "text": "Give examples of high variance models."
+                }
+              ]
+            },
+            {
+              "text": "How do you balance bias and variance?",
+              "follow_ups": [
+                {
+                  "text": "What is cross-validation?"
+                },
+                {
+                  "text": "What is regularization?"
+                },
+                {
+                  "text": "How does model complexity affect them?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What are *args and **kwargs in Python function definitions?",
+          "text": "What is indexing in databases?",
           "follow_ups": [
             {
-              "text": "When would you intentionally use **kwargs in a decorator?",
+              "text": "How do indexes improve performance?",
               "follow_ups": [
-                { "text": "Is the name 'args' and 'kwargs' mandatory, or can they be changed?" }
+                {
+                  "text": "What is B-Tree indexing?"
+                },
+                {
+                  "text": "What is hash indexing?"
+                },
+                {
+                  "text": "What is query optimization?"
+                }
+              ]
+            },
+            {
+              "text": "What are the downsides of indexing?",
+              "follow_ups": [
+                {
+                  "text": "How do indexes affect insert/update?"
+                },
+                {
+                  "text": "What is index storage overhead?"
+                },
+                {
+                  "text": "When should you avoid indexing?"
+                }
+              ]
+            },
+            {
+              "text": "What types of indexes exist?",
+              "follow_ups": [
+                {
+                  "text": "What is clustered vs non-clustered index?"
+                },
+                {
+                  "text": "What is composite index?"
+                },
+                {
+                  "text": "What is full-text index?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "How do you handle exceptions in Python, and what is the purpose of the 'finally' block?",
+          "text": "What is a REST API?",
           "follow_ups": [
             {
-              "text": "What is the difference between 'except Exception' and 'except' without a class?",
+              "text": "What are REST principles?",
               "follow_ups": [
-                { "text": "Can you have multiple 'except' blocks for a single 'try' statement?" },
-                { "text": "When would you use the 'else' block in a try-except statement?" }
+                {
+                  "text": "What is statelessness?"
+                },
+                {
+                  "text": "What is client-server architecture?"
+                },
+                {
+                  "text": "What is uniform interface?"
+                }
+              ]
+            },
+            {
+              "text": "How do you design REST endpoints?",
+              "follow_ups": [
+                {
+                  "text": "How should URLs be structured?"
+                },
+                {
+                  "text": "How do you version APIs?"
+                },
+                {
+                  "text": "How do you handle pagination?"
+                }
+              ]
+            },
+            {
+              "text": "How do you secure REST APIs?",
+              "follow_ups": [
+                {
+                  "text": "What is JWT authentication?"
+                },
+                {
+                  "text": "What is OAuth?"
+                },
+                {
+                  "text": "How do you prevent rate abuse?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What are Generators in Python, and how do they differ from normal functions?",
+          "text": "What are decorators in Python?",
           "follow_ups": [
             {
-              "text": "What is the 'yield' keyword, and what happens to the state of the function when it is called?",
+              "text": "How do decorators work internally?",
               "follow_ups": [
-                { "text": "Why are generators considered more memory-efficient when dealing with large datasets?" }
+                {
+                  "text": "What is a wrapper function?"
+                },
+                {
+                  "text": "How is function replaced?"
+                },
+                {
+                  "text": "What is closure?"
+                }
+              ]
+            },
+            {
+              "text": "How do you pass arguments to decorators?",
+              "follow_ups": [
+                {
+                  "text": "What is nested decorator structure?"
+                },
+                {
+                  "text": "How do you handle *args and **kwargs?"
+                },
+                {
+                  "text": "What is functools.wraps?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world use cases?",
+              "follow_ups": [
+                {
+                  "text": "How are decorators used in Flask/Django?"
+                },
+                {
+                  "text": "How can they be used for logging?"
+                },
+                {
+                  "text": "How can they be used for authentication?"
+                }
               ]
             }
           ]
         },
         {
-          "text": "What is PEP 8, and why is it important in the Python ecosystem?",
+          "text": "What is time complexity?",
           "follow_ups": [
             {
-              "text": "What are some common PEP 8 rules regarding indentation and line length?",
+              "text": "What is Big-O notation?",
               "follow_ups": [
-                { "text": "Do you use any automated tools to check for PEP 8 compliance?" }
+                {
+                  "text": "Difference between O(1), O(n), O(log n)?"
+                },
+                {
+                  "text": "Why ignore constants?"
+                },
+                {
+                  "text": "What is worst vs average case?"
+                }
+              ]
+            },
+            {
+              "text": "How do you analyze loops?",
+              "follow_ups": [
+                {
+                  "text": "How to analyze nested loops?"
+                },
+                {
+                  "text": "What about logarithmic loops?"
+                },
+                {
+                  "text": "How recursion affects complexity?"
+                }
+              ]
+            },
+            {
+              "text": "Why does complexity matter?",
+              "follow_ups": [
+                {
+                  "text": "How does it affect scalability?"
+                },
+                {
+                  "text": "Real-world impact examples?"
+                },
+                {
+                  "text": "Trade-off with space complexity?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the difference between supervised and unsupervised learning?",
+          "follow_ups": [
+            {
+              "text": "What is supervised learning?",
+              "follow_ups": [
+                {
+                  "text": "Examples of supervised algorithms?"
+                },
+                {
+                  "text": "What is labeled data?"
+                },
+                {
+                  "text": "What are classification vs regression?"
+                }
+              ]
+            },
+            {
+              "text": "What is unsupervised learning?",
+              "follow_ups": [
+                {
+                  "text": "What is clustering?"
+                },
+                {
+                  "text": "What is dimensionality reduction?"
+                },
+                {
+                  "text": "Examples of algorithms?"
+                }
+              ]
+            },
+            {
+              "text": "When to use each?",
+              "follow_ups": [
+                {
+                  "text": "Real-world supervised use case?"
+                },
+                {
+                  "text": "Real-world unsupervised use case?"
+                },
+                {
+                  "text": "Can they be combined?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is scalability in system design?",
+          "follow_ups": [
+            {
+              "text": "What is vertical vs horizontal scaling?",
+              "follow_ups": [
+                {
+                  "text": "Pros and cons of vertical scaling?"
+                },
+                {
+                  "text": "Pros and cons of horizontal scaling?"
+                },
+                {
+                  "text": "When to choose each?"
+                }
+              ]
+            },
+            {
+              "text": "What is load balancing?",
+              "follow_ups": [
+                {
+                  "text": "How does round-robin work?"
+                },
+                {
+                  "text": "What is health checking?"
+                },
+                {
+                  "text": "What are sticky sessions?"
+                }
+              ]
+            },
+            {
+              "text": "What are caching strategies?",
+              "follow_ups": [
+                {
+                  "text": "What is CDN?"
+                },
+                {
+                  "text": "What is Redis?"
+                },
+                {
+                  "text": "Cache invalidation challenges?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the difference between multithreading and multiprocessing in Python?",
+          "follow_ups": [
+            {
+              "text": "How does multithreading work in Python?",
+              "follow_ups": [
+                {
+                  "text": "What is the role of the GIL in threading?"
+                },
+                {
+                  "text": "Why is threading suitable for I/O-bound tasks?"
+                },
+                {
+                  "text": "What are race conditions?"
+                }
+              ]
+            },
+            {
+              "text": "How does multiprocessing work?",
+              "follow_ups": [
+                {
+                  "text": "How are processes isolated?"
+                },
+                {
+                  "text": "What is IPC (Inter-Process Communication)?"
+                },
+                {
+                  "text": "What are multiprocessing pools?"
+                }
+              ]
+            },
+            {
+              "text": "When should you use each?",
+              "follow_ups": [
+                {
+                  "text": "CPU-bound vs I/O-bound comparison?"
+                },
+                {
+                  "text": "What are performance trade-offs?"
+                },
+                {
+                  "text": "Real-world examples?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are stacks and queues?",
+          "follow_ups": [
+            {
+              "text": "How does a stack work?",
+              "follow_ups": [
+                {
+                  "text": "What is LIFO?"
+                },
+                {
+                  "text": "What operations are supported?"
+                },
+                {
+                  "text": "Where are stacks used?"
+                }
+              ]
+            },
+            {
+              "text": "How does a queue work?",
+              "follow_ups": [
+                {
+                  "text": "What is FIFO?"
+                },
+                {
+                  "text": "What is a circular queue?"
+                },
+                {
+                  "text": "What is a priority queue?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world applications?",
+              "follow_ups": [
+                {
+                  "text": "Use of stack in recursion?"
+                },
+                {
+                  "text": "Use of queue in scheduling?"
+                },
+                {
+                  "text": "How are they implemented in Python?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the difference between cookies and sessions?",
+          "follow_ups": [
+            {
+              "text": "What are cookies?",
+              "follow_ups": [
+                {
+                  "text": "Where are cookies stored?"
+                },
+                {
+                  "text": "What are secure and HttpOnly cookies?"
+                },
+                {
+                  "text": "What are cookie size limits?"
+                }
+              ]
+            },
+            {
+              "text": "What are sessions?",
+              "follow_ups": [
+                {
+                  "text": "Where is session data stored?"
+                },
+                {
+                  "text": "How is session ID managed?"
+                },
+                {
+                  "text": "What is session expiration?"
+                }
+              ]
+            },
+            {
+              "text": "When to use each?",
+              "follow_ups": [
+                {
+                  "text": "Security differences?"
+                },
+                {
+                  "text": "Performance trade-offs?"
+                },
+                {
+                  "text": "Real-world authentication flow?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are evaluation metrics in machine learning?",
+          "follow_ups": [
+            {
+              "text": "What are classification metrics?",
+              "follow_ups": [
+                {
+                  "text": "What is accuracy?"
+                },
+                {
+                  "text": "What is precision and recall?"
+                },
+                {
+                  "text": "What is F1-score?"
+                }
+              ]
+            },
+            {
+              "text": "What are regression metrics?",
+              "follow_ups": [
+                {
+                  "text": "What is MSE?"
+                },
+                {
+                  "text": "What is RMSE?"
+                },
+                {
+                  "text": "What is R-squared?"
+                }
+              ]
+            },
+            {
+              "text": "When to use which metric?",
+              "follow_ups": [
+                {
+                  "text": "Why accuracy fails in imbalanced data?"
+                },
+                {
+                  "text": "When to prioritize recall?"
+                },
+                {
+                  "text": "Trade-offs between precision and recall?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is normalization in databases?",
+          "follow_ups": [
+            {
+              "text": "What are normal forms?",
+              "follow_ups": [
+                {
+                  "text": "Explain 1NF, 2NF, 3NF."
+                },
+                {
+                  "text": "What is BCNF?"
+                },
+                {
+                  "text": "What anomalies does normalization remove?"
+                }
+              ]
+            },
+            {
+              "text": "What are advantages of normalization?",
+              "follow_ups": [
+                {
+                  "text": "How does it reduce redundancy?"
+                },
+                {
+                  "text": "How does it improve consistency?"
+                },
+                {
+                  "text": "Impact on data integrity?"
+                }
+              ]
+            },
+            {
+              "text": "What are disadvantages?",
+              "follow_ups": [
+                {
+                  "text": "How does it affect query performance?"
+                },
+                {
+                  "text": "When should you denormalize?"
+                },
+                {
+                  "text": "Real-world trade-offs?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is authentication and authorization?",
+          "follow_ups": [
+            {
+              "text": "What is authentication?",
+              "follow_ups": [
+                {
+                  "text": "What are different authentication methods?"
+                },
+                {
+                  "text": "What is password hashing?"
+                },
+                {
+                  "text": "What is multi-factor authentication?"
+                }
+              ]
+            },
+            {
+              "text": "What is authorization?",
+              "follow_ups": [
+                {
+                  "text": "What is RBAC?"
+                },
+                {
+                  "text": "What is ABAC?"
+                },
+                {
+                  "text": "How are roles enforced?"
+                }
+              ]
+            },
+            {
+              "text": "How do systems implement both?",
+              "follow_ups": [
+                {
+                  "text": "JWT flow in authentication?"
+                },
+                {
+                  "text": "Session-based auth vs token-based?"
+                },
+                {
+                  "text": "Security best practices?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are generators in Python?",
+          "follow_ups": [
+            {
+              "text": "How do generators work?",
+              "follow_ups": [
+                {
+                  "text": "What is yield keyword?"
+                },
+                {
+                  "text": "How is state preserved?"
+                },
+                {
+                  "text": "Difference from return?"
+                }
+              ]
+            },
+            {
+              "text": "Why use generators?",
+              "follow_ups": [
+                {
+                  "text": "How do they save memory?"
+                },
+                {
+                  "text": "Lazy evaluation explained?"
+                },
+                {
+                  "text": "When to avoid generators?"
+                }
+              ]
+            },
+            {
+              "text": "Advanced generator concepts?",
+              "follow_ups": [
+                {
+                  "text": "What is generator expression?"
+                },
+                {
+                  "text": "What is send() method?"
+                },
+                {
+                  "text": "What is yield from?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is hashing in data structures?",
+          "follow_ups": [
+            {
+              "text": "How do hash tables work?",
+              "follow_ups": [
+                {
+                  "text": "What is a hash function?"
+                },
+                {
+                  "text": "What is load factor?"
+                },
+                {
+                  "text": "What is collision?"
+                }
+              ]
+            },
+            {
+              "text": "How are collisions handled?",
+              "follow_ups": [
+                {
+                  "text": "What is chaining?"
+                },
+                {
+                  "text": "What is open addressing?"
+                },
+                {
+                  "text": "What is linear probing?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world applications?",
+              "follow_ups": [
+                {
+                  "text": "How dictionaries work in Python?"
+                },
+                {
+                  "text": "Use in caching?"
+                },
+                {
+                  "text": "Use in databases?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is feature engineering?",
+          "follow_ups": [
+            {
+              "text": "Why is feature engineering important?",
+              "follow_ups": [
+                {
+                  "text": "How does it impact model performance?"
+                },
+                {
+                  "text": "Examples of feature transformations?"
+                },
+                {
+                  "text": "What is domain knowledge role?"
+                }
+              ]
+            },
+            {
+              "text": "What are common techniques?",
+              "follow_ups": [
+                {
+                  "text": "What is encoding (one-hot, label)?"
+                },
+                {
+                  "text": "What is scaling (normalization vs standardization)?"
+                },
+                {
+                  "text": "What is feature selection?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Handling missing values?"
+                },
+                {
+                  "text": "Avoiding data leakage?"
+                },
+                {
+                  "text": "Dealing with high-dimensional data?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How do you scale a database system?",
+          "follow_ups": [
+            {
+              "text": "What is replication?",
+              "follow_ups": [
+                {
+                  "text": "What is master-slave replication?"
+                },
+                {
+                  "text": "What is eventual consistency?"
+                },
+                {
+                  "text": "Read vs write replicas?"
+                }
+              ]
+            },
+            {
+              "text": "What is sharding?",
+              "follow_ups": [
+                {
+                  "text": "How is data partitioned?"
+                },
+                {
+                  "text": "What is shard key?"
+                },
+                {
+                  "text": "Challenges in sharding?"
+                }
+              ]
+            },
+            {
+              "text": "What are trade-offs?",
+              "follow_ups": [
+                {
+                  "text": "CAP theorem basics?"
+                },
+                {
+                  "text": "Consistency vs availability?"
+                },
+                {
+                  "text": "When not to scale?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are context managers in Python?",
+          "follow_ups": [
+            {
+              "text": "How do context managers work internally?",
+              "follow_ups": [
+                {
+                  "text": "What are __enter__ and __exit__ methods?"
+                },
+                {
+                  "text": "How does exception handling work in __exit__?"
+                },
+                {
+                  "text": "What happens if __exit__ returns True?"
+                }
+              ]
+            },
+            {
+              "text": "How can you create custom context managers?",
+              "follow_ups": [
+                {
+                  "text": "How to implement using classes?"
+                },
+                {
+                  "text": "How to use contextlib module?"
+                },
+                {
+                  "text": "What is the @contextmanager decorator?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world use cases?",
+              "follow_ups": [
+                {
+                  "text": "File handling use case?"
+                },
+                {
+                  "text": "Database connection management?"
+                },
+                {
+                  "text": "Lock handling in concurrency?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are trees in data structures?",
+          "follow_ups": [
+            {
+              "text": "What are types of trees?",
+              "follow_ups": [
+                {
+                  "text": "What is a binary tree?"
+                },
+                {
+                  "text": "What is a binary search tree?"
+                },
+                {
+                  "text": "What is a balanced tree?"
+                }
+              ]
+            },
+            {
+              "text": "How are trees traversed?",
+              "follow_ups": [
+                {
+                  "text": "What is inorder traversal?"
+                },
+                {
+                  "text": "What is preorder traversal?"
+                },
+                {
+                  "text": "What is postorder traversal?"
+                }
+              ]
+            },
+            {
+              "text": "What are applications of trees?",
+              "follow_ups": [
+                {
+                  "text": "Use in file systems?"
+                },
+                {
+                  "text": "Use in databases (indexes)?"
+                },
+                {
+                  "text": "Use in expression parsing?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is CORS (Cross-Origin Resource Sharing)?",
+          "follow_ups": [
+            {
+              "text": "Why does CORS exist?",
+              "follow_ups": [
+                {
+                  "text": "What is same-origin policy?"
+                },
+                {
+                  "text": "What are cross-origin requests?"
+                },
+                {
+                  "text": "What risks does it prevent?"
+                }
+              ]
+            },
+            {
+              "text": "How does CORS work?",
+              "follow_ups": [
+                {
+                  "text": "What is a preflight request?"
+                },
+                {
+                  "text": "What are Access-Control headers?"
+                },
+                {
+                  "text": "What is OPTIONS method role?"
+                }
+              ]
+            },
+            {
+              "text": "How do you handle CORS in backend?",
+              "follow_ups": [
+                {
+                  "text": "How to configure in Flask/Django?"
+                },
+                {
+                  "text": "What is allow-origin?"
+                },
+                {
+                  "text": "Common mistakes in CORS setup?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is overfitting and underfitting in machine learning?",
+          "follow_ups": [
+            {
+              "text": "What is overfitting?",
+              "follow_ups": [
+                {
+                  "text": "How does it affect generalization?"
+                },
+                {
+                  "text": "How can you detect overfitting?"
+                },
+                {
+                  "text": "How to prevent overfitting?"
+                }
+              ]
+            },
+            {
+              "text": "What is underfitting?",
+              "follow_ups": [
+                {
+                  "text": "What causes underfitting?"
+                },
+                {
+                  "text": "How to fix underfitting?"
+                },
+                {
+                  "text": "Examples of underfit models?"
+                }
+              ]
+            },
+            {
+              "text": "How do you balance both?",
+              "follow_ups": [
+                {
+                  "text": "Role of training vs validation data?"
+                },
+                {
+                  "text": "What is regularization?"
+                },
+                {
+                  "text": "How hyperparameter tuning helps?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are database transactions?",
+          "follow_ups": [
+            {
+              "text": "What are ACID properties?",
+              "follow_ups": [
+                {
+                  "text": "What is atomicity?"
+                },
+                {
+                  "text": "What is consistency?"
+                },
+                {
+                  "text": "What is isolation and durability?"
+                }
+              ]
+            },
+            {
+              "text": "What are isolation levels?",
+              "follow_ups": [
+                {
+                  "text": "What is read uncommitted?"
+                },
+                {
+                  "text": "What is read committed?"
+                },
+                {
+                  "text": "What is serializable?"
+                }
+              ]
+            },
+            {
+              "text": "What are common transaction issues?",
+              "follow_ups": [
+                {
+                  "text": "What is dirty read?"
+                },
+                {
+                  "text": "What is non-repeatable read?"
+                },
+                {
+                  "text": "What is phantom read?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is API rate limiting?",
+          "follow_ups": [
+            {
+              "text": "Why is rate limiting important?",
+              "follow_ups": [
+                {
+                  "text": "How does it prevent abuse?"
+                },
+                {
+                  "text": "How does it improve stability?"
+                },
+                {
+                  "text": "Real-world scenarios?"
+                }
+              ]
+            },
+            {
+              "text": "What are rate limiting strategies?",
+              "follow_ups": [
+                {
+                  "text": "What is fixed window?"
+                },
+                {
+                  "text": "What is sliding window?"
+                },
+                {
+                  "text": "What is token bucket?"
+                }
+              ]
+            },
+            {
+              "text": "How do you implement it?",
+              "follow_ups": [
+                {
+                  "text": "Using Redis for rate limiting?"
+                },
+                {
+                  "text": "How to track users/IP?"
+                },
+                {
+                  "text": "Handling distributed systems?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How does exception handling work internally in Python?",
+          "follow_ups": [
+            {
+              "text": "How are exceptions raised?",
+              "follow_ups": [
+                {
+                  "text": "What is raise keyword?"
+                },
+                {
+                  "text": "What is exception hierarchy?"
+                },
+                {
+                  "text": "What are custom exceptions?"
+                }
+              ]
+            },
+            {
+              "text": "How are exceptions propagated?",
+              "follow_ups": [
+                {
+                  "text": "What is stack unwinding?"
+                },
+                {
+                  "text": "How does try-except flow work?"
+                },
+                {
+                  "text": "What happens if exception is not caught?"
+                }
+              ]
+            },
+            {
+              "text": "What are best practices?",
+              "follow_ups": [
+                {
+                  "text": "Why avoid bare except?"
+                },
+                {
+                  "text": "When to use finally?"
+                },
+                {
+                  "text": "Logging vs raising?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are graphs in data structures?",
+          "follow_ups": [
+            {
+              "text": "What are graph representations?",
+              "follow_ups": [
+                {
+                  "text": "Adjacency list vs matrix?"
+                },
+                {
+                  "text": "Space complexity differences?"
+                },
+                {
+                  "text": "When to use each?"
+                }
+              ]
+            },
+            {
+              "text": "What are graph traversals?",
+              "follow_ups": [
+                {
+                  "text": "What is BFS?"
+                },
+                {
+                  "text": "What is DFS?"
+                },
+                {
+                  "text": "Use cases of each?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world applications?",
+              "follow_ups": [
+                {
+                  "text": "Use in social networks?"
+                },
+                {
+                  "text": "Use in routing algorithms?"
+                },
+                {
+                  "text": "Use in dependency graphs?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How do you deploy a machine learning model?",
+          "follow_ups": [
+            {
+              "text": "What are deployment strategies?",
+              "follow_ups": [
+                {
+                  "text": "What is batch vs real-time inference?"
+                },
+                {
+                  "text": "What is A/B testing?"
+                },
+                {
+                  "text": "What is canary deployment?"
+                }
+              ]
+            },
+            {
+              "text": "What tools are used?",
+              "follow_ups": [
+                {
+                  "text": "Using Flask/FastAPI for APIs?"
+                },
+                {
+                  "text": "What is Docker?"
+                },
+                {
+                  "text": "What is cloud deployment?"
+                }
+              ]
+            },
+            {
+              "text": "What challenges exist?",
+              "follow_ups": [
+                {
+                  "text": "Model drift?"
+                },
+                {
+                  "text": "Monitoring performance?"
+                },
+                {
+                  "text": "Scaling inference?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are microservices architecture?",
+          "follow_ups": [
+            {
+              "text": "How do microservices differ from monoliths?",
+              "follow_ups": [
+                {
+                  "text": "Advantages of microservices?"
+                },
+                {
+                  "text": "Disadvantages?"
+                },
+                {
+                  "text": "When not to use microservices?"
+                }
+              ]
+            },
+            {
+              "text": "How do services communicate?",
+              "follow_ups": [
+                {
+                  "text": "What is REST vs gRPC?"
+                },
+                {
+                  "text": "What is message queue?"
+                },
+                {
+                  "text": "What is event-driven architecture?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Service discovery?"
+                },
+                {
+                  "text": "Distributed transactions?"
+                },
+                {
+                  "text": "Monitoring and logging?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is asynchronous programming in Python?",
+          "follow_ups": [
+            {
+              "text": "How does async/await work?",
+              "follow_ups": [
+                {
+                  "text": "What is an event loop?"
+                },
+                {
+                  "text": "What is a coroutine?"
+                },
+                {
+                  "text": "Difference between async and sync functions?"
+                }
+              ]
+            },
+            {
+              "text": "What are advantages of async programming?",
+              "follow_ups": [
+                {
+                  "text": "How does it improve performance?"
+                },
+                {
+                  "text": "When is it better than threading?"
+                },
+                {
+                  "text": "Use cases in web applications?"
+                }
+              ]
+            },
+            {
+              "text": "What are limitations?",
+              "follow_ups": [
+                {
+                  "text": "CPU-bound vs I/O-bound?"
+                },
+                {
+                  "text": "Debugging challenges?"
+                },
+                {
+                  "text": "Library compatibility issues?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is recursion?",
+          "follow_ups": [
+            {
+              "text": "How does recursion work?",
+              "follow_ups": [
+                {
+                  "text": "What is base case?"
+                },
+                {
+                  "text": "What is recursive case?"
+                },
+                {
+                  "text": "How does call stack behave?"
+                }
+              ]
+            },
+            {
+              "text": "What are advantages?",
+              "follow_ups": [
+                {
+                  "text": "Where is recursion intuitive?"
+                },
+                {
+                  "text": "Divide and conquer examples?"
+                },
+                {
+                  "text": "Tree traversal use cases?"
+                }
+              ]
+            },
+            {
+              "text": "What are disadvantages?",
+              "follow_ups": [
+                {
+                  "text": "Stack overflow?"
+                },
+                {
+                  "text": "Performance overhead?"
+                },
+                {
+                  "text": "When to convert to iteration?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are WebSockets?",
+          "follow_ups": [
+            {
+              "text": "How do WebSockets work?",
+              "follow_ups": [
+                {
+                  "text": "What is handshake process?"
+                },
+                {
+                  "text": "Difference from HTTP?"
+                },
+                {
+                  "text": "What is full-duplex communication?"
+                }
+              ]
+            },
+            {
+              "text": "What are use cases?",
+              "follow_ups": [
+                {
+                  "text": "Real-time chat apps?"
+                },
+                {
+                  "text": "Live notifications?"
+                },
+                {
+                  "text": "Online gaming?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Scaling WebSockets?"
+                },
+                {
+                  "text": "Handling disconnections?"
+                },
+                {
+                  "text": "Security concerns?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is cross-validation in machine learning?",
+          "follow_ups": [
+            {
+              "text": "Why is cross-validation used?",
+              "follow_ups": [
+                {
+                  "text": "How does it reduce overfitting?"
+                },
+                {
+                  "text": "Why better than single split?"
+                },
+                {
+                  "text": "How does it improve reliability?"
+                }
+              ]
+            },
+            {
+              "text": "What are types?",
+              "follow_ups": [
+                {
+                  "text": "What is k-fold?"
+                },
+                {
+                  "text": "What is stratified k-fold?"
+                },
+                {
+                  "text": "What is leave-one-out?"
+                }
+              ]
+            },
+            {
+              "text": "What are limitations?",
+              "follow_ups": [
+                {
+                  "text": "Computational cost?"
+                },
+                {
+                  "text": "Data leakage risks?"
+                },
+                {
+                  "text": "When not needed?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are joins in SQL?",
+          "follow_ups": [
+            {
+              "text": "What are types of joins?",
+              "follow_ups": [
+                {
+                  "text": "Inner join?"
+                },
+                {
+                  "text": "Left and right join?"
+                },
+                {
+                  "text": "Full outer join?"
+                }
+              ]
+            },
+            {
+              "text": "How do joins work internally?",
+              "follow_ups": [
+                {
+                  "text": "Nested loop join?"
+                },
+                {
+                  "text": "Hash join?"
+                },
+                {
+                  "text": "Merge join?"
+                }
+              ]
+            },
+            {
+              "text": "What are performance considerations?",
+              "follow_ups": [
+                {
+                  "text": "Index usage?"
+                },
+                {
+                  "text": "Join order?"
+                },
+                {
+                  "text": "Large dataset handling?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is caching in backend systems?",
+          "follow_ups": [
+            {
+              "text": "Why is caching used?",
+              "follow_ups": [
+                {
+                  "text": "How does it reduce latency?"
+                },
+                {
+                  "text": "How does it reduce DB load?"
+                },
+                {
+                  "text": "Examples of caching layers?"
+                }
+              ]
+            },
+            {
+              "text": "What are caching strategies?",
+              "follow_ups": [
+                {
+                  "text": "Cache aside?"
+                },
+                {
+                  "text": "Write-through?"
+                },
+                {
+                  "text": "Write-back?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Cache invalidation?"
+                },
+                {
+                  "text": "Consistency issues?"
+                },
+                {
+                  "text": "Cache stampede?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are OOP concepts in Python?",
+          "follow_ups": [
+            {
+              "text": "What is encapsulation?",
+              "follow_ups": [
+                {
+                  "text": "How to achieve in Python?"
+                },
+                {
+                  "text": "What are private variables?"
+                },
+                {
+                  "text": "Why is it useful?"
+                }
+              ]
+            },
+            {
+              "text": "What is inheritance?",
+              "follow_ups": [
+                {
+                  "text": "Types of inheritance?"
+                },
+                {
+                  "text": "Method overriding?"
+                },
+                {
+                  "text": "Multiple inheritance issues?"
+                }
+              ]
+            },
+            {
+              "text": "What is polymorphism?",
+              "follow_ups": [
+                {
+                  "text": "Method overloading?"
+                },
+                {
+                  "text": "Operator overloading?"
+                },
+                {
+                  "text": "Duck typing?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are sorting algorithms?",
+          "follow_ups": [
+            {
+              "text": "What are common sorting algorithms?",
+              "follow_ups": [
+                {
+                  "text": "Bubble sort?"
+                },
+                {
+                  "text": "Merge sort?"
+                },
+                {
+                  "text": "Quick sort?"
+                }
+              ]
+            },
+            {
+              "text": "How do you compare them?",
+              "follow_ups": [
+                {
+                  "text": "Time complexity differences?"
+                },
+                {
+                  "text": "Space complexity?"
+                },
+                {
+                  "text": "Stability of algorithms?"
+                }
+              ]
+            },
+            {
+              "text": "When to use which?",
+              "follow_ups": [
+                {
+                  "text": "Small dataset choice?"
+                },
+                {
+                  "text": "Large dataset choice?"
+                },
+                {
+                  "text": "Real-world examples?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is gradient descent?",
+          "follow_ups": [
+            {
+              "text": "How does gradient descent work?",
+              "follow_ups": [
+                {
+                  "text": "What is cost function?"
+                },
+                {
+                  "text": "What is learning rate?"
+                },
+                {
+                  "text": "How are weights updated?"
+                }
+              ]
+            },
+            {
+              "text": "What are types?",
+              "follow_ups": [
+                {
+                  "text": "Batch gradient descent?"
+                },
+                {
+                  "text": "Stochastic gradient descent?"
+                },
+                {
+                  "text": "Mini-batch gradient descent?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Local minima?"
+                },
+                {
+                  "text": "Vanishing gradients?"
+                },
+                {
+                  "text": "Choosing learning rate?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are load balancing algorithms?",
+          "follow_ups": [
+            {
+              "text": "What are common algorithms?",
+              "follow_ups": [
+                {
+                  "text": "Round robin?"
+                },
+                {
+                  "text": "Least connections?"
+                },
+                {
+                  "text": "IP hash?"
+                }
+              ]
+            },
+            {
+              "text": "How do they differ?",
+              "follow_ups": [
+                {
+                  "text": "When is round robin inefficient?"
+                },
+                {
+                  "text": "Advantages of least connections?"
+                },
+                {
+                  "text": "Use of IP hash?"
+                }
+              ]
+            },
+            {
+              "text": "What are real-world concerns?",
+              "follow_ups": [
+                {
+                  "text": "Handling failures?"
+                },
+                {
+                  "text": "Health checks?"
+                },
+                {
+                  "text": "Session persistence?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are metaclasses in Python?",
+          "follow_ups": [
+            {
+              "text": "How do metaclasses work?",
+              "follow_ups": [
+                {
+                  "text": "What is type()?"
+                },
+                {
+                  "text": "How classes are objects?"
+                },
+                {
+                  "text": "Class creation flow?"
+                }
+              ]
+            },
+            {
+              "text": "Why use metaclasses?",
+              "follow_ups": [
+                {
+                  "text": "Enforcing constraints?"
+                },
+                {
+                  "text": "Automatic class modification?"
+                },
+                {
+                  "text": "Framework use cases?"
+                }
+              ]
+            },
+            {
+              "text": "What are alternatives?",
+              "follow_ups": [
+                {
+                  "text": "Decorators vs metaclasses?"
+                },
+                {
+                  "text": "When to avoid metaclasses?"
+                },
+                {
+                  "text": "Complexity concerns?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is dynamic programming?",
+          "follow_ups": [
+            {
+              "text": "How does DP work?",
+              "follow_ups": [
+                {
+                  "text": "What is overlapping subproblems?"
+                },
+                {
+                  "text": "What is optimal substructure?"
+                },
+                {
+                  "text": "Memoization vs tabulation?"
+                }
+              ]
+            },
+            {
+              "text": "What are classic problems?",
+              "follow_ups": [
+                {
+                  "text": "Fibonacci?"
+                },
+                {
+                  "text": "Knapsack problem?"
+                },
+                {
+                  "text": "Longest common subsequence?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "How to identify DP problems?"
+                },
+                {
+                  "text": "State definition?"
+                },
+                {
+                  "text": "Space optimization?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are authentication tokens in web applications?",
+          "follow_ups": [
+            {
+              "text": "What are JWT tokens?",
+              "follow_ups": [
+                {
+                  "text": "Structure of JWT?"
+                },
+                {
+                  "text": "What is payload?"
+                },
+                {
+                  "text": "How is signature verified?"
+                }
+              ]
+            },
+            {
+              "text": "What are advantages?",
+              "follow_ups": [
+                {
+                  "text": "Stateless authentication?"
+                },
+                {
+                  "text": "Scalability benefits?"
+                },
+                {
+                  "text": "Cross-domain usage?"
+                }
+              ]
+            },
+            {
+              "text": "What are risks?",
+              "follow_ups": [
+                {
+                  "text": "Token leakage?"
+                },
+                {
+                  "text": "Expiration issues?"
+                },
+                {
+                  "text": "Storage concerns?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are neural networks?",
+          "follow_ups": [
+            {
+              "text": "How do neural networks work?",
+              "follow_ups": [
+                {
+                  "text": "What are layers?"
+                },
+                {
+                  "text": "What are weights and biases?"
+                },
+                {
+                  "text": "What is activation function?"
+                }
+              ]
+            },
+            {
+              "text": "What are types?",
+              "follow_ups": [
+                {
+                  "text": "Feedforward networks?"
+                },
+                {
+                  "text": "CNN?"
+                },
+                {
+                  "text": "RNN?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Overfitting?"
+                },
+                {
+                  "text": "Training time?"
+                },
+                {
+                  "text": "Data requirements?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the difference between SQL and NoSQL databases?",
+          "follow_ups": [
+            {
+              "text": "What are SQL databases?",
+              "follow_ups": [
+                {
+                  "text": "Structured schema?"
+                },
+                {
+                  "text": "ACID properties?"
+                },
+                {
+                  "text": "Examples?"
+                }
+              ]
+            },
+            {
+              "text": "What are NoSQL databases?",
+              "follow_ups": [
+                {
+                  "text": "Schema-less design?"
+                },
+                {
+                  "text": "Types (document, key-value)?"
+                },
+                {
+                  "text": "Examples?"
+                }
+              ]
+            },
+            {
+              "text": "When to use each?",
+              "follow_ups": [
+                {
+                  "text": "Scalability considerations?"
+                },
+                {
+                  "text": "Consistency trade-offs?"
+                },
+                {
+                  "text": "Real-world use cases?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What are message queues?",
+          "follow_ups": [
+            {
+              "text": "How do message queues work?",
+              "follow_ups": [
+                {
+                  "text": "Producer-consumer model?"
+                },
+                {
+                  "text": "What is queue persistence?"
+                },
+                {
+                  "text": "What is acknowledgment?"
+                }
+              ]
+            },
+            {
+              "text": "What are benefits?",
+              "follow_ups": [
+                {
+                  "text": "Decoupling services?"
+                },
+                {
+                  "text": "Handling spikes?"
+                },
+                {
+                  "text": "Improving reliability?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Message duplication?"
+                },
+                {
+                  "text": "Ordering guarantees?"
+                },
+                {
+                  "text": "Dead-letter queues?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the Global Interpreter Lock (GIL) in Python?",
+          "follow_ups": [
+            {
+              "text": "Why does GIL exist?",
+              "follow_ups": [
+                {
+                  "text": "Memory management reasons?"
+                },
+                {
+                  "text": "Thread safety?"
+                },
+                {
+                  "text": "Impact on performance?"
+                }
+              ]
+            },
+            {
+              "text": "How does it affect programs?",
+              "follow_ups": [
+                {
+                  "text": "CPU-bound limitations?"
+                },
+                {
+                  "text": "I/O-bound behavior?"
+                },
+                {
+                  "text": "Thread switching?"
+                }
+              ]
+            },
+            {
+              "text": "How to work around GIL?",
+              "follow_ups": [
+                {
+                  "text": "Using multiprocessing?"
+                },
+                {
+                  "text": "Using async?"
+                },
+                {
+                  "text": "Using external libraries?"
+                }
+              ]
+            }
+          ]
+        }{
+          "text": "What are heaps in data structures?",
+          "follow_ups": [
+            {
+              "text": "What is a heap?",
+              "follow_ups": [
+                {
+                  "text": "Min heap vs max heap?"
+                },
+                {
+                  "text": "Heap property?"
+                },
+                {
+                  "text": "Binary heap structure?"
+                }
+              ]
+            },
+            {
+              "text": "What are operations?",
+              "follow_ups": [
+                {
+                  "text": "Insert operation?"
+                },
+                {
+                  "text": "Delete operation?"
+                },
+                {
+                  "text": "Heapify process?"
+                }
+              ]
+            },
+            {
+              "text": "What are applications?",
+              "follow_ups": [
+                {
+                  "text": "Priority queues?"
+                },
+                {
+                  "text": "Heap sort?"
+                },
+                {
+                  "text": "Top-K problems?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is regularization in machine learning?",
+          "follow_ups": [
+            {
+              "text": "Why is regularization needed?",
+              "follow_ups": [
+                {
+                  "text": "How it prevents overfitting?"
+                },
+                {
+                  "text": "Bias-variance trade-off?"
+                },
+                {
+                  "text": "Model complexity control?"
+                }
+              ]
+            },
+            {
+              "text": "What are types?",
+              "follow_ups": [
+                {
+                  "text": "L1 regularization?"
+                },
+                {
+                  "text": "L2 regularization?"
+                },
+                {
+                  "text": "Elastic Net?"
+                }
+              ]
+            },
+            {
+              "text": "What are effects?",
+              "follow_ups": [
+                {
+                  "text": "Feature selection in L1?"
+                },
+                {
+                  "text": "Weight shrinkage in L2?"
+                },
+                {
+                  "text": "Choosing regularization parameter?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is the CAP theorem?",
+          "follow_ups": [
+            {
+              "text": "What are the three components?",
+              "follow_ups": [
+                {
+                  "text": "What is consistency?"
+                },
+                {
+                  "text": "What is availability?"
+                },
+                {
+                  "text": "What is partition tolerance?"
+                }
+              ]
+            },
+            {
+              "text": "Why can't all three be achieved?",
+              "follow_ups": [
+                {
+                  "text": "Network partition scenarios?"
+                },
+                {
+                  "text": "Trade-offs in distributed systems?"
+                },
+                {
+                  "text": "Examples of CP vs AP systems?"
+                }
+              ]
+            },
+            {
+              "text": "How is it applied in real systems?",
+              "follow_ups": [
+                {
+                  "text": "Database design decisions?"
+                },
+                {
+                  "text": "Consistency models?"
+                },
+                {
+                  "text": "Real-world examples?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How can you optimize memory usage in Python applications?",
+          "follow_ups": [
+            {
+              "text": "What techniques reduce memory usage?",
+              "follow_ups": [
+                {
+                  "text": "Using generators instead of lists?"
+                },
+                {
+                  "text": "Using __slots__ in classes?"
+                },
+                {
+                  "text": "Avoiding unnecessary copies?"
+                }
+              ]
+            },
+            {
+              "text": "How do you profile memory?",
+              "follow_ups": [
+                {
+                  "text": "What is memory_profiler?"
+                },
+                {
+                  "text": "What is tracemalloc?"
+                },
+                {
+                  "text": "How to detect leaks?"
+                }
+              ]
+            },
+            {
+              "text": "What are trade-offs?",
+              "follow_ups": [
+                {
+                  "text": "Readability vs optimization?"
+                },
+                {
+                  "text": "CPU vs memory trade-offs?"
+                },
+                {
+                  "text": "When not to optimize?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is bit manipulation?",
+          "follow_ups": [
+            {
+              "text": "What are basic bit operations?",
+              "follow_ups": [
+                {
+                  "text": "AND, OR, XOR operations?"
+                },
+                {
+                  "text": "Left and right shift?"
+                },
+                {
+                  "text": "How to check if a number is power of 2?"
+                }
+              ]
+            },
+            {
+              "text": "What are common problems?",
+              "follow_ups": [
+                {
+                  "text": "Finding single non-repeating element?"
+                },
+                {
+                  "text": "Swapping numbers without temp?"
+                },
+                {
+                  "text": "Counting set bits?"
+                }
+              ]
+            },
+            {
+              "text": "Why is bit manipulation useful?",
+              "follow_ups": [
+                {
+                  "text": "Performance benefits?"
+                },
+                {
+                  "text": "Memory efficiency?"
+                },
+                {
+                  "text": "Use in low-level programming?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How does a browser render a web page?",
+          "follow_ups": [
+            {
+              "text": "What is the rendering pipeline?",
+              "follow_ups": [
+                {
+                  "text": "What is DOM?"
+                },
+                {
+                  "text": "What is CSSOM?"
+                },
+                {
+                  "text": "What is render tree?"
+                }
+              ]
+            },
+            {
+              "text": "What are critical steps?",
+              "follow_ups": [
+                {
+                  "text": "Parsing HTML and CSS?"
+                },
+                {
+                  "text": "Layout and reflow?"
+                },
+                {
+                  "text": "Painting and compositing?"
+                }
+              ]
+            },
+            {
+              "text": "How to optimize rendering?",
+              "follow_ups": [
+                {
+                  "text": "Minimizing reflows?"
+                },
+                {
+                  "text": "Using async/defer scripts?"
+                },
+                {
+                  "text": "Reducing render-blocking resources?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is hyperparameter tuning in machine learning?",
+          "follow_ups": [
+            {
+              "text": "What are hyperparameters?",
+              "follow_ups": [
+                {
+                  "text": "Difference from model parameters?"
+                },
+                {
+                  "text": "Examples of hyperparameters?"
+                },
+                {
+                  "text": "Why tuning is needed?"
+                }
+              ]
+            },
+            {
+              "text": "What are tuning techniques?",
+              "follow_ups": [
+                {
+                  "text": "Grid search?"
+                },
+                {
+                  "text": "Random search?"
+                },
+                {
+                  "text": "Bayesian optimization?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Computational cost?"
+                },
+                {
+                  "text": "Overfitting during tuning?"
+                },
+                {
+                  "text": "Search space selection?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How do you optimize database queries?",
+          "follow_ups": [
+            {
+              "text": "What techniques improve query performance?",
+              "follow_ups": [
+                {
+                  "text": "Using indexes effectively?"
+                },
+                {
+                  "text": "Avoiding SELECT *?"
+                },
+                {
+                  "text": "Using proper joins?"
+                }
+              ]
+            },
+            {
+              "text": "How do you analyze queries?",
+              "follow_ups": [
+                {
+                  "text": "What is EXPLAIN plan?"
+                },
+                {
+                  "text": "What is query cost?"
+                },
+                {
+                  "text": "How to identify bottlenecks?"
+                }
+              ]
+            },
+            {
+              "text": "What are common mistakes?",
+              "follow_ups": [
+                {
+                  "text": "N+1 query problem?"
+                },
+                {
+                  "text": "Missing indexes?"
+                },
+                {
+                  "text": "Improper schema design?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is logging and monitoring in backend systems?",
+          "follow_ups": [
+            {
+              "text": "What is logging?",
+              "follow_ups": [
+                {
+                  "text": "Types of logs (info, error)?"
+                },
+                {
+                  "text": "Structured logging?"
+                },
+                {
+                  "text": "Log aggregation?"
+                }
+              ]
+            },
+            {
+              "text": "What is monitoring?",
+              "follow_ups": [
+                {
+                  "text": "Metrics vs logs?"
+                },
+                {
+                  "text": "What is alerting?"
+                },
+                {
+                  "text": "What is observability?"
+                }
+              ]
+            },
+            {
+              "text": "What are best practices?",
+              "follow_ups": [
+                {
+                  "text": "Avoid logging sensitive data?"
+                },
+                {
+                  "text": "Centralized logging?"
+                },
+                {
+                  "text": "Using tools like Prometheus?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "How does packaging and dependency management work in Python?",
+          "follow_ups": [
+            {
+              "text": "What are Python packages?",
+              "follow_ups": [
+                {
+                  "text": "What is __init__.py?"
+                },
+                {
+                  "text": "What is pip?"
+                },
+                {
+                  "text": "What is virtual environment?"
+                }
+              ]
+            },
+            {
+              "text": "How do you manage dependencies?",
+              "follow_ups": [
+                {
+                  "text": "What is requirements.txt?"
+                },
+                {
+                  "text": "What is pipenv/poetry?"
+                },
+                {
+                  "text": "Version pinning importance?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Dependency conflicts?"
+                },
+                {
+                  "text": "Reproducible builds?"
+                },
+                {
+                  "text": "Security vulnerabilities?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is backtracking?",
+          "follow_ups": [
+            {
+              "text": "How does backtracking work?",
+              "follow_ups": [
+                {
+                  "text": "What is recursion tree?"
+                },
+                {
+                  "text": "How do you prune branches?"
+                },
+                {
+                  "text": "Difference from brute force?"
+                }
+              ]
+            },
+            {
+              "text": "What are classic problems?",
+              "follow_ups": [
+                {
+                  "text": "N-Queens problem?"
+                },
+                {
+                  "text": "Sudoku solver?"
+                },
+                {
+                  "text": "Subset generation?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Exponential complexity?"
+                },
+                {
+                  "text": "Optimizing search space?"
+                },
+                {
+                  "text": "When to use DP instead?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is data preprocessing in machine learning?",
+          "follow_ups": [
+            {
+              "text": "What are preprocessing steps?",
+              "follow_ups": [
+                {
+                  "text": "Handling missing values?"
+                },
+                {
+                  "text": "Encoding categorical data?"
+                },
+                {
+                  "text": "Feature scaling?"
+                }
+              ]
+            },
+            {
+              "text": "Why is preprocessing important?",
+              "follow_ups": [
+                {
+                  "text": "Impact on model accuracy?"
+                },
+                {
+                  "text": "Handling noise?"
+                },
+                {
+                  "text": "Improving convergence?"
+                }
+              ]
+            },
+            {
+              "text": "What are challenges?",
+              "follow_ups": [
+                {
+                  "text": "Data leakage?"
+                },
+                {
+                  "text": "Imbalanced datasets?"
+                },
+                {
+                  "text": "Outlier handling?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "text": "What is fault tolerance in system design?",
+          "follow_ups": [
+            {
+              "text": "How do systems handle failures?",
+              "follow_ups": [
+                {
+                  "text": "What is redundancy?"
+                },
+                {
+                  "text": "What is failover?"
+                },
+                {
+                  "text": "What is circuit breaker pattern?"
+                }
+              ]
+            },
+            {
+              "text": "What are design strategies?",
+              "follow_ups": [
+                {
+                  "text": "Retry mechanisms?"
+                },
+                {
+                  "text": "Graceful degradation?"
+                },
+                {
+                  "text": "Distributed backups?"
+                }
+              ]
+            },
+            {
+              "text": "What are trade-offs?",
+              "follow_ups": [
+                {
+                  "text": "Cost vs reliability?"
+                },
+                {
+                  "text": "Complexity increase?"
+                },
+                {
+                  "text": "Performance impact?"
+                }
               ]
             }
           ]
