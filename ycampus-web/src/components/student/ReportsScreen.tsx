@@ -309,9 +309,9 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
               {report.interview_session?.mock_interview_title || role.title} — Report
             </h1>
             <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
+              {/* <span className="flex items-center gap-1.5">
                 <Briefcase className="h-3.5 w-3.5" /> {role.level}
-              </span>
+              </span> */}
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
                 {report.interview_session.actual_duration_display || `${duration} mins`}

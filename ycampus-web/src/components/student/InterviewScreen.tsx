@@ -64,6 +64,13 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const currentUserAnswerRef = useRef(currentUserAnswer);
   const currentCodeRef = useRef(currentCode);
   const showCodeEditorRef = useRef(showCodeEditor);
+  const isProcessingRef = useRef(false);
+
+  const setInterviewStateSync = (newState: 'initial' | 'listening' | 'thinking' | 'speaking') => {
+    console.log(`[InterviewEngine] State Transition: ${interviewStateRef.current} -> ${newState}`);
+    setInterviewState(newState);
+    interviewStateRef.current = newState;
+  };
 
   // Sync refs with state to avoid stale closures in speech recognition callbacks
   useEffect(() => {
@@ -132,17 +139,27 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     utterance.volume = 1;
 
     utterance.onstart = () => {
-      // Clear silence timer if it's running
+      console.log("[InterviewEngine] AI started speaking");
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-      setInterviewState('speaking');
+      setInterviewStateSync('speaking');
       setIsAITyping(false);
     };
 
     utterance.onend = () => {
+      console.log("[InterviewEngine] AI finished speaking");
       if (!isInterviewCompleted) {
-        setInterviewState('listening');
+        setInterviewStateSync('listening');
         setIsRecording(true);
         setIsUserTyping(true);
+      }
+    };
+
+    utterance.onerror = (event) => {
+      console.error("[InterviewEngine] Speech synthesis error:", event);
+      // Recovery: fall back to listening state so the interview doesn't get stuck
+      if (!isInterviewCompleted) {
+        setInterviewStateSync('listening');
+        setIsRecording(true);
       }
     };
 
@@ -208,6 +225,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           setIsAITyping(false);
           // Small delay to ensure synthesis is ready
           setTimeout(() => {
+             console.log("[InterviewEngine] Initializing greeting...");
              speakText(greeting);
           }, 1000);
         } else {
@@ -329,11 +347,23 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setIsUserTyping(true); // Ensure transcript is visible when speaking starts
       };
 
+      recognition.onerror = (event: any) => {
+        console.warn("[InterviewEngine] Speech recognition error:", event.error);
+        if (event.error === 'network' || event.error === 'aborted') {
+          // These are usually recoverable by restarting
+          console.log("[InterviewEngine] Recoverable error, engine will restart onend");
+        }
+      };
+
       recognition.onend = () => {
+        console.log("[InterviewEngine] Speech recognition session ended");
         // Always try to restart the recognition itself if the component is still active
         // and interview is not completed. This handles browser-side timeouts.
         if (!isInterviewCompleted) {
-          try { recognition.start(); } catch (e) { }
+          try { 
+            console.log("[InterviewEngine] Restarting speech recognition...");
+            recognition.start(); 
+          } catch (e) { }
         }
       };
 
@@ -361,10 +391,20 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
   const handleAutoSubmit = async () => {
     // Proactively clear the timer
-    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     
-    // Check ref for latest state
-    if (isInterviewCompleted || interviewStateRef.current !== 'listening') return;
+    // Check ref and processing flag for latest state
+    if (isInterviewCompleted || interviewStateRef.current !== 'listening' || isProcessingRef.current) {
+      console.log("[InterviewEngine] Skipping submit: state check failed", { 
+        completed: isInterviewCompleted, 
+        state: interviewStateRef.current,
+        processing: isProcessingRef.current 
+      });
+      return;
+    }
 
     let cleanAnswer = currentUserAnswerRef.current.replace(/ \[interim\].*$/, '').trim();
     const latestCode = currentCodeRef.current;
@@ -376,12 +416,16 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
     if (!cleanAnswer && !latestCode) {
       // Still listening if no content
-      setInterviewState('listening');
+      console.log("[InterviewEngine] No answer detected, resuming listening");
+      setInterviewStateSync('listening');
       setIsRecording(true);
       setIsUserTyping(true);
       return;
     }
 
+    console.log("[InterviewEngine] Initiating submission...");
+    isProcessingRef.current = true;
+    
     const userMessage: Message = {
       type: 'user',
       content: cleanAnswer || '(No verbal answer)',
@@ -392,7 +436,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     setCurrentUserAnswer('');
     setCurrentCode(''); 
 
-    setInterviewState('thinking');
+    setInterviewStateSync('thinking');
     setIsRecording(false);
     setIsUserTyping(false);
     setIsAITyping(true);
@@ -404,8 +448,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     try {
       if (isPredefined && effectiveInterviewSessionId) {
         // --- PREDEFINED DIALOGUE ENGINE ---
-        // We use the specialized getNextQuestion endpoint which handles tree traversal 
-        // AND backend logging to the chat session automatically.
+        console.log("[InterviewEngine] Fetching next predefined question...");
         const lowerAnswer = cleanAnswer.toLowerCase();
         let status_val = 'normal';
         if (lowerAnswer.includes('repeat') || lowerAnswer.includes('pardon') || lowerAnswer.includes('say that again')) {
@@ -416,6 +459,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
         const response = await mockInterviewService.getNextQuestion(role.id, effectiveInterviewSessionId, cleanAnswer, status_val);
         const nextText = response.question;
+        console.log("[InterviewEngine] Received next question:", nextText);
 
         const aiMessage: Message = {
           type: 'ai',
@@ -428,11 +472,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setIsAITyping(false);
 
         if (response.is_finished) {
+          console.log("[InterviewEngine] Interview marked as finished");
           setTimeout(() => handleEndInterview(), 4000);
         }
       } else if (effectiveChatId) {
         // --- FULL AI MODE ---
-        // In this mode, we use the free-form AI assistant service
+        console.log("[InterviewEngine] Fetching AI response...");
         let combinedAnswer = cleanAnswer + (isEditorActive && latestCode ? `\n\n[Code Submission]:\n${latestCode}` : '');
         const aiResp = await aiAssistantService.sendMessage(effectiveChatId, combinedAnswer);
         const aiText = aiResp.response;
@@ -441,6 +486,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           throw new Error("Empty AI response in Full AI Mode");
         }
 
+        console.log("[InterviewEngine] Received AI response");
         const aiMessage: Message = {
           type: 'ai',
           content: aiText,
@@ -452,11 +498,13 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setIsAITyping(false);
       }
     } catch (err) {
-      console.error('Dialogue error:', err);
+      console.error('[InterviewEngine] Dialogue error:', err);
       // Fallback: resume listening if everything fails
-      setInterviewState('listening');
+      setInterviewStateSync('listening');
       setIsRecording(true);
       setIsAITyping(false);
+    } finally {
+      isProcessingRef.current = false;
     }
   };
 
