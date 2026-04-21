@@ -22,6 +22,7 @@ import {
   ExternalLink, Github, BookOpen, ClipboardCheck, Mic,
   MessageSquare, Target, Trash2, Zap, Calendar
 } from 'lucide-react';
+import { getMediaUrl } from '@/utils/mediaUtils';
 
 // --- Mock Data ---
 const mockProfile = {
@@ -233,17 +234,9 @@ const ProjectForm = ({
 );
 
 // --- Main Component ---
-const getMediaUrl = (url: string | null | undefined) => {
-  if (!url) return undefined;
-  if (url.startsWith('http')) return url;
-  const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '';
-  // Remove /api if it's there to get the root domain for media
-  const rootUrl = baseUrl.replace(/\/api\/?$/, '');
-  return `${rootUrl}${url.startsWith('/') ? '' : '/'}${url}`;
-};
 
 const StudentProfile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   
   // Real Data Queries
   const { data: profileDetail, isLoading: profileLoading } = useQuery({
@@ -818,11 +811,25 @@ const StudentProfile = () => {
 
     setIsSaving(true);
     try {
-      await profileService.uploadProfileImage(file);
+      const result = await profileService.uploadProfileImage(file);
+      const backendUrl = result.profile_image;
+      
       toast({
         title: "Profile Picture Updated",
         description: "Your profile picture has been updated successfully.",
       });
+      
+      // Update global auth state to sync with other components (like Sidebar)
+      if (user && backendUrl) {
+        updateUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            avatar: backendUrl
+          }
+        });
+      }
+      
       refetchProfile();
     } catch (error: any) {
       console.error('Failed to upload image:', error);
@@ -854,6 +861,18 @@ const StudentProfile = () => {
         title: "Profile Picture Removed",
         description: "Your profile picture has been removed successfully.",
       });
+      
+      // Update global auth state
+      if (user) {
+        updateUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            avatar: undefined
+          }
+        });
+      }
+      
       refetchProfile();
     } catch (error: any) {
       console.error('Failed to delete image:', error);
@@ -867,7 +886,7 @@ const StudentProfile = () => {
     }
   };
 
-  const localImage = typeof window !== 'undefined' ? localStorage.getItem('local_profile_image') : null;
+  const profileImage = getMediaUrl(profileDetail?.profile_image || (user as any)?.profile?.avatar || (user as any)?.avatar);
   const initials = (user?.first_name ? `${user.first_name} ${user.last_name || ''}` : mockProfile.name).trim().split(' ').map((n: string) => n[0]).join('');
 
   return (
@@ -882,9 +901,11 @@ const StudentProfile = () => {
                 <Dialog>
                   <DialogTrigger asChild>
                     <button className="relative rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary ring-offset-background transform transition-transform hover:scale-105">
-                      <Avatar className="h-20 w-20 border-4 border-background shadow-md cursor-pointer">
-                        <AvatarImage src={localImage || getMediaUrl(profileDetail?.profile_image || (user as any)?.profile?.avatar || (user as any)?.avatar)} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">{initials}</AvatarFallback>
+                      <Avatar className="h-24 w-24 border-4 border-background shadow-xl ring-2 ring-primary/20">
+                        <AvatarImage src={profileImage} />
+                        <AvatarFallback className="bg-primary/5 text-primary text-2xl font-bold">
+                          {initials}
+                        </AvatarFallback>
                       </Avatar>
                     </button>
                   </DialogTrigger>
@@ -892,7 +913,7 @@ const StudentProfile = () => {
                     <DialogTitle className="sr-only">Profile Picture</DialogTitle>
                     <DialogDescription className="sr-only">View full profile picture.</DialogDescription>
                     <img 
-                      src={localImage || getMediaUrl(profileDetail?.profile_image || (user as any)?.profile?.avatar || (user as any)?.avatar) || ""} 
+                      src={profileImage || ""} 
                       alt="Profile" 
                       className="h-[300px] w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] object-cover rounded-full shadow-2xl border-4 border-background/20"
                     />
@@ -919,7 +940,7 @@ const StudentProfile = () => {
                       <Upload className="mr-2 h-3.5 w-3.5" />
                       <span>Upload</span>
                     </DropdownMenuItem>
-                    {(localImage || profileDetail?.profile_image || (user as any)?.profile?.avatar || (user as any)?.avatar) && (
+                    {profileImage && (
                       <DropdownMenuItem onClick={handleDeleteImage} className="text-destructive focus:bg-destructive/10 focus:text-destructive text-xs py-1">
                         <Trash2 className="mr-2 h-3.5 w-3.5" />
                         <span>Delete</span>

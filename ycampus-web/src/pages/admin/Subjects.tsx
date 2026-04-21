@@ -26,6 +26,7 @@ import {
     CollegeBasic,
 } from "@/services/subjectService";
 import { useAuth } from "@/contexts/AuthContext";
+import PageHeader from '@/components/common/PageHeader';
 
 type MainTab = "global" | "colleges" | "auto";
 
@@ -202,20 +203,13 @@ const AdminSubjects: React.FC = () => {
         <SidebarProvider>
             <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
                 <AdminSidebar />
-                <div className="flex-1 overflow-y-auto">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
-                        {/* Header Container */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                            <div>
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Subject Management</h1>
-                                <p className="text-muted-foreground mt-1 text-sm">
-                                    {activeTab === "global"
-                                        ? "Manage repository of universal academic subjects"
-                                        : "Browse institutions to map distinct academic offerings"}
-                                </p>
-                            </div>
-                            
-                            {activeTab === "global" && (
+                <div className="flex-1 flex flex-col">
+                    <main className="flex-1 p-6 bg-background overflow-y-auto">
+                        <div className="mx-auto max-w-7xl">
+                            {/* Header Container */}
+                            <PageHeader 
+                                title="Subject Management" 
+                            actions={activeTab === "global" && (
                                 <Button
                                     onClick={() => setIsAddOpen(true)}
                                     className="font-semibold shadow-sm rounded-lg"
@@ -224,7 +218,7 @@ const AdminSubjects: React.FC = () => {
                                     Create New Subject
                                 </Button>
                             )}
-                        </div>
+                        />
 
                         {/* Navigation Tabs */}
                         <div className="flex items-center space-x-2 border-b border-border/60 mb-8 pb-px">
@@ -431,10 +425,9 @@ const AdminSubjects: React.FC = () => {
                                         ))}
                                     </div>
                                 )}
-                            </div>
-                        )}
-                    </div>
-                </div>
+                                </div>
+                            )}
+                        </div>
 
                 {/* Create/Edit Modals mapped precisely from legacy app */}
                 <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -537,6 +530,8 @@ const AdminSubjects: React.FC = () => {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+                    </main>
+                </div>
             </div>
         </SidebarProvider>
     );

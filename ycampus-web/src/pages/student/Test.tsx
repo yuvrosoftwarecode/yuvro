@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import { fetchSkillTests } from '@/services/skillTestService';
 import { toast } from 'sonner';
+import PageHeader from '@/components/common/PageHeader';
 
 // ─── Icon mapping ─────────────────────────────────────────────────────────────
 
@@ -110,14 +111,12 @@ const StudentTest = () => {
 
   return (
     <StudentLayout>
-      <div className="space-y-8 p-8">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Practice Test</h1>
-          <p className="text-slate-500 text-lg">
-            Select a subject to start your practice tests.
-          </p>
-        </div>
+        <PageHeader 
+          title="Practice Test" 
+          subtitle="Select a subject to start your practice tests." 
+        />
 
         {/* Subject grid */}
         {loading ? (

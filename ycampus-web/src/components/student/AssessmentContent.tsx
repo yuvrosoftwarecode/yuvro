@@ -17,6 +17,7 @@ import AssessmentInstructions from './AssessmentInstructions';
 import AssessmentInterface from './AssessmentInterface';
 import AssessmentResults from './AssessmentResults';
 import AssessmentThankYou from './AssessmentThankYou';
+import PageHeader from '@/components/common/PageHeader';
 
 interface Assessment {
   id: string;
@@ -274,11 +275,11 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col">
-        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1">Assessments</h1>
-        <p className="text-[#666666] text-sm">Complete your assigned assessments and track your progress</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader 
+        title="Assessments" 
+        subtitle="Complete your assigned assessments and track your progress" 
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
         <div className="space-y-2">

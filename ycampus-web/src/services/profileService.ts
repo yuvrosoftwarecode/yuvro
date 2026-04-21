@@ -183,18 +183,16 @@ export async function updateProfile(data: EditProfileData) {
 }
 
 export const uploadProfileImage = async (file: File) => {
-  // Convert the file to a Data URL (base64 string)
-  const base64Url = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-    reader.readAsDataURL(file);
-  });
-
-  // The backend REST API currently enforce a 200 character limit on profile_image.
-  // As per requirement to store locally without Supabase:
-  localStorage.setItem('local_profile_image', base64Url);
-  return { success: true, profile_image: base64Url };
+  const formData = new FormData();
+  formData.append('profile_image', file);
+  
+  // Send to the profile detail endpoint which supports partial updates
+  const result = await restApiAuthUtil.patch<Profile>('/auth/profile/detail/', formData);
+  
+  return { 
+    success: true, 
+    profile_image: result.profile_image 
+  };
 };
 
 export const deleteProfileImage = async () => {

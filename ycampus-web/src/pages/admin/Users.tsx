@@ -17,6 +17,7 @@ import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/u
 import { Search, Edit, Power, Trash2, FilterX, UserPlus, Shield, GraduationCap, Briefcase, UserCheck, Building, UserCircle, Users as UsersIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import PageHeader from '@/components/common/PageHeader';
 
 interface UserFormData {
   email: string;
@@ -331,19 +332,19 @@ const Users: React.FC = () => {
                     <main className="flex-1 p-6 bg-background overflow-y-auto">
                         <div className="flex flex-col space-y-6 max-w-7xl mx-auto">
                             
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
-                                    <p className="text-muted-foreground">Manage system users, roles, and platform access control.</p>
-                                </div>
-                                <Button
-                                    onClick={() => setShowAddUser(true)}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm w-full sm:w-auto"
-                                >
-                                    <UserPlus className="w-4 h-4 mr-2" />
-                                    Add New User
-                                </Button>
-                            </div>
+                            <PageHeader 
+                                title="User Management" 
+                                subtitle="Manage system users, roles, and platform access control."
+                                actions={
+                                    <Button
+                                        onClick={() => setShowAddUser(true)}
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm w-full sm:w-auto"
+                                    >
+                                        <UserPlus className="w-4 h-4 mr-2" />
+                                        Add New User
+                                    </Button>
+                                }
+                            />
 
                             <Card className="border shadow-sm">
                                 <CardHeader className="pb-4">
