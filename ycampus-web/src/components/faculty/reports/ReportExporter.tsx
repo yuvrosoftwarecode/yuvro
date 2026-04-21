@@ -18,11 +18,12 @@ export function downloadPDF(report: StudentReport) {
   doc.text(`${report.studentName} (${report.rollNumber})`, 14, 38);
   doc.setFontSize(10);
   doc.text(`${report.program} · Semester ${report.semester} · Section ${report.section}`, 14, 44);
-  doc.text(`Performance Index: ${report.performanceIndex}% | Status: ${report.status} | Attendance: ${report.overallAttendance}%`, 14, 50);
+  doc.text(`PI: ${report.performanceIndex}% | PS: ${report.ps}% | PRI: ${report.pri}%`, 14, 50);
+  doc.text(`Status: ${report.status} | Attendance: ${report.overallAttendance}%`, 14, 56);
 
   // Subject Matrix Table
   autoTable(doc, {
-    startY: 58,
+    startY: 64,
     head: [['Subject', 'Notes %', 'Test Avg', 'Assess Avg', 'Tasks', 'Attend %', 'Strength', 'Risk']],
     body: report.subjects.map(s => [
       s.name,
@@ -67,6 +68,8 @@ export function downloadExcel(report: StudentReport) {
     ['Semester', report.semester],
     ['Section', report.section],
     ['Performance Index', `${report.performanceIndex}%`],
+    ['Preparation Score', `${report.ps}%`],
+    ['Readiness Index (PRI)', `${report.pri}%`],
     ['Status', report.status],
     ['Overall Attendance', `${report.overallAttendance}%`],
     ['Learning Completion', `${report.learningCompletion}%`],
@@ -131,10 +134,10 @@ export function downloadBulkExcel(reports: StudentReport[]) {
   const wb = XLSX.utils.book_new();
   const now = new Date().toLocaleString();
 
-  const headers = ['Student', 'Roll No', 'Performance Index', 'Status', 'Attendance', 'Learning %', 'Strongest', 'Weakest'];
+  const headers = ['Student', 'Roll No', 'PI', 'PS', 'PRI', 'Status', 'Attendance', 'Learning %'];
   const rows = reports.map(r => [
-    r.studentName, r.rollNumber, r.performanceIndex, r.status,
-    r.overallAttendance, r.learningCompletion, r.strongestSubject, r.weakestSubject,
+    r.studentName, r.rollNumber, r.performanceIndex, r.ps, r.pri, r.status,
+    r.overallAttendance, r.learningCompletion,
   ]);
   const ws = XLSX.utils.aoa_to_sheet([
     [`Bulk Report - Generated: ${now}`],

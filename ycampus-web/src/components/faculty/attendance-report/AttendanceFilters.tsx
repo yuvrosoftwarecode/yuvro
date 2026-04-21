@@ -15,6 +15,7 @@ interface Props {
   batches: AttendanceBatch[];
   sections: AttendanceSection[];
   courses: AttendanceCourse[];
+  semesters: number[];
   selectedDept: string;
   selectedSemester: string;
   selectedBatch: string;
@@ -31,7 +32,7 @@ interface Props {
 }
 
 const AttendanceFilters: React.FC<Props> = ({
-  departments, batches, sections, courses,
+  departments, batches, sections, courses, semesters,
   selectedDept, selectedSemester, selectedBatch, selectedSection, selectedSubject,
   dateRange, filtersLoading,
   onDeptChange, onSemesterChange, onBatchChange, onSectionChange, onSubjectChange, onDateRangeChange,
@@ -46,11 +47,25 @@ const AttendanceFilters: React.FC<Props> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          {/* Batch */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
+            <Select value={selectedBatch} onValueChange={onBatchChange}>
+              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="All Batches" /></SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">All Batches</SelectItem>
+                {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Department */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Department</label>
-            <Select value={selectedDept} onValueChange={onDeptChange}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
+            <Select value={selectedDept} onValueChange={onDeptChange} disabled={!selectedBatch || selectedBatch === 'all'}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder={!selectedBatch || selectedBatch === 'all' ? "Select batch first" : "Select"} />
+              </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {departments.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
               </SelectContent>
@@ -61,21 +76,11 @@ const AttendanceFilters: React.FC<Props> = ({
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
             <Select value={selectedSemester} onValueChange={onSemesterChange} disabled={!selectedDept}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder={!selectedDept ? "Select dept first" : "Select"} />
+              </SelectTrigger>
               <SelectContent className="bg-popover z-50">
-                {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Batch */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
-            <Select value={selectedBatch} onValueChange={onBatchChange} disabled={!selectedDept}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="All Batches" /></SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="all">All Batches</SelectItem>
-                {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                {semesters.map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -84,7 +89,9 @@ const AttendanceFilters: React.FC<Props> = ({
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Section</label>
             <Select value={selectedSection} onValueChange={onSectionChange} disabled={!selectedSemester}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder={!selectedSemester ? "Select sem first" : "Select"} />
+              </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {sections.length === 0
                   ? <SelectItem value="__none" disabled>No sections</SelectItem>
@@ -97,8 +104,10 @@ const AttendanceFilters: React.FC<Props> = ({
           {/* Subject */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Subject</label>
-            <Select value={selectedSubject} onValueChange={onSubjectChange}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="All Subjects" /></SelectTrigger>
+            <Select value={selectedSubject} onValueChange={onSubjectChange} disabled={!selectedSection || selectedSection === 'all'}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder={!selectedSection || selectedSection === 'all' ? "Select section first" : "All Subjects"} />
+              </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 <SelectItem value="all">All Subjects</SelectItem>
                 {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}

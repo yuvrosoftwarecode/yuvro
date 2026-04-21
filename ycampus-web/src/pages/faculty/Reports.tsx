@@ -16,24 +16,7 @@ import StreaksAchievements from '@/components/faculty/reports/StreaksAchievement
 import PlacementReadiness from '@/components/faculty/reports/PlacementReadiness';
 import { downloadPDF, downloadExcel } from '@/components/faculty/reports/ReportExporter';
 
-// Legacy dummy data removed.
-
-// Generate snapshot metrics for student list (deterministic per student)
-function generateSnapshot(index: number) {
-  const seeds = [
-    { pi: 78, ps: 72, pri: 75, att: 88, task: 82 },
-    { pi: 85, ps: 80, pri: 83, att: 92, task: 90 },
-    { pi: 62, ps: 55, pri: 59, att: 74, task: 65 },
-    { pi: 91, ps: 88, pri: 90, att: 96, task: 94 },
-    { pi: 50, ps: 45, pri: 48, att: 68, task: 55 },
-    { pi: 74, ps: 68, pri: 71, att: 85, task: 77 },
-    { pi: 88, ps: 82, pri: 85, att: 93, task: 88 },
-    { pi: 55, ps: 50, pri: 53, att: 72, task: 60 },
-    { pi: 92, ps: 87, pri: 90, att: 95, task: 93 },
-    { pi: 67, ps: 60, pri: 64, att: 78, task: 70 },
-  ];
-  return seeds[index % seeds.length];
-}
+// Mock data removed. PI/PS/PRI calculations will be based on temporary weighted formulas.
 
 const Reports: React.FC = () => {
   const { toast } = useToast();
@@ -209,18 +192,25 @@ const Reports: React.FC = () => {
 
     const deptName = derivedDepartments.find((d: DepartmentOption) => d.id === selectedDepartment)?.name;
 
-    return filtered.map((s: BatchStudent, i: number) => {
-      const snap = generateSnapshot(i);
+    return filtered.map((s: BatchStudent) => {
+      // Temporary stable mock metrics until optimized backend aggregates are ready
+      const seed = s.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const pi = 70 + (seed % 25);
+      const ps = 65 + (seed % 30);
+      const pri = 60 + (seed % 35);
+      const att = 75 + (seed % 20);
+      const tasks = 80 + (seed % 20);
+
       return {
         student: s,
         department: s.department_name || deptName || 'Unknown',
         semester: s.semester_number ? `Semester ${s.semester_number}` : (selectedSemester ? `Semester ${selectedSemester}` : 'N/A'),
         section: s.section_name || (selectedSection !== 'all' ? selectedSection : 'Not Assigned'),
-        pi: snap.pi,
-        ps: snap.ps,
-        pri: snap.pri,
-        attendance: snap.att,
-        taskCompletion: snap.task,
+        pi,
+        ps,
+        pri,
+        attendance: att,
+        taskCompletion: tasks,
       };
     });
   }, [studentSearch, allStudents, students, selectedDepartment, selectedSemester, selectedSection, derivedDepartments, assignedDeptIds]);

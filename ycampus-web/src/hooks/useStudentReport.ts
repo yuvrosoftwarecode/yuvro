@@ -4,6 +4,9 @@ import studentService from '@/services/studentService';
 import subjectService, { getFacultyAssignments, SectionSubjectFaculty } from '@/services/subjectService';
 import skillTestService, { getUserSubmissions } from '@/services/skillTestService';
 import taskService from '@/services/taskService';
+import departmentService from '@/services/departmentService';
+import courseService from '@/services/courseService';
+import batchService from '@/services/batchService';
 
 export interface ReportFilters {
   academicYear: string;
@@ -65,6 +68,8 @@ export interface StudentReport {
   semester: string;
   section: string;
   performanceIndex: number;
+  ps: number;
+  pri: number;
   status: 'On Track' | 'Needs Attention' | 'At Risk';
   overallAttendance: number;
   learningCompletion: number;
@@ -119,44 +124,82 @@ export interface BatchOption {
 
 // Dummy data has been removed to integrate real backend data.
 
+export interface HookConfig {
+  mode?: 'faculty' | 'principal';
+}
+
 // ── Hook ────────────────────────────────────────────────────────────
 
-export function useStudentReport() {
+export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
+  const { mode = 'faculty' } = config;
   const [students, setStudents] = useState<BatchStudent[]>([]);
   const [allStudents, setAllStudents] = useState<BatchStudent[]>([]);
   const [report, setReport] = useState<StudentReport | null>(null);
   const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
   const [batches, setBatches] = useState<BatchOption[]>([]);
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
 
-  // Load assignments only on mount — students are fetched when filters are applied
+  // Load assignments and basic filters on mount
   useEffect(() => {
     const init = async () => {
       try {
         setFiltersLoading(true);
-        const facultyAssignments = await getFacultyAssignments();
+        
+        // Load institutional data if in principal mode
+        if (mode === 'principal') {
+          const [allBatches, allDepts] = await Promise.all([
+            batchService.getBatches(),
+            departmentService.getDepartments()
+          ]);
+          
+          const uniqueBatchNames = new Set(allBatches.map(b => b.name));
+          setBatches(Array.from(uniqueBatchNames).map(name => ({
+            id: name,
+            name,
+            startYear: 0,
+            endYear: 0
+          })));
 
+          setDepartments(allDepts.map(d => ({
+            id: String(d.id),
+            name: d.name,
+            code: d.short_form || ''
+          })));
+        } else {
+          // Default/Faculty behavior: departments can be fetched but batches are derived from assignments
+          const depts = await departmentService.getDepartments();
+          setDepartments(depts.map(d => ({
+            id: String(d.id),
+            name: d.name,
+            code: d.short_form || ''
+          })));
+        }
+
+        // Always fetch assignments to support hierarchical filtering derivation for both roles
+        const facultyAssignments = await getFacultyAssignments();
         setAssignments(facultyAssignments);
 
-        // Derive unique Batches by NAME from assignments
-        const uniqueBatchNames = new Set<string>();
-        facultyAssignments.forEach((a: SectionSubjectFaculty) => {
-          if (a.semester_subject_details?.batch_name) {
-            uniqueBatchNames.add(a.semester_subject_details.batch_name);
-          }
-        });
+        // For Faculty mode, derive batches from assignments
+        if (mode === 'faculty') {
+          const uniqueBatchNames = new Set<string>();
+          facultyAssignments.forEach((a: SectionSubjectFaculty) => {
+            if (a.semester_subject_details?.batch_name) {
+              uniqueBatchNames.add(a.semester_subject_details.batch_name);
+            }
+          });
 
-        const derivedBatches = Array.from(uniqueBatchNames).map(name => ({
-          id: name,
-          name,
-          startYear: 0,
-          endYear: 0
-        }));
-        setBatches(derivedBatches);
+          setBatches(Array.from(uniqueBatchNames).map(name => ({
+            id: name,
+            name,
+            startYear: 0,
+            endYear: 0
+          })));
+        }
 
-        // Do NOT pre-fetch all students — keeps scope to faculty's assigned data
         setAllStudents([]);
       } catch (err) {
         console.error("Failed to initialize student report filters", err);
@@ -165,10 +208,10 @@ export function useStudentReport() {
       }
     };
     init();
-  }, []);
+  }, [mode]);
 
   const mapStudent = (s: any): BatchStudent => ({
-    id: String(s.user || s.id), // The User ID used for common service calls
+    id: String(s.user || s.user_details?.id || s.id), // Prefer User PK for identifying student's progress/tests
     studentRecordId: String(s.id), // The backend Student record ID used for attendance/task-submissions
     name: `${s.user_details?.first_name || ''} ${s.user_details?.last_name || ''}`.trim() || 'Unknown',
     rollNo: s.roll_number || '',
@@ -177,13 +220,47 @@ export function useStudentReport() {
     department_name: s.department_name,
     semester_number: s.semester_number,
     batch_name: s.batch_name,
-    section_name: s.section_name
+    section_name: s.section_name ? String(s.section_name).replace(/^Section\s+/i, '') : ''
   });
 
-  const loadStudents = useCallback(async (params: any) => {
+  const loadBatches = useCallback(async (deptId?: string) => {
+    try {
+      const res = await batchService.getBatches(deptId);
+      const mapped = res.map(b => ({
+        id: String(b.id),
+        name: b.name,
+        startYear: 0,
+        endYear: 0
+      }));
+      setBatches(mapped);
+    } catch (err) {
+      console.error("Failed to load batches", err);
+    }
+  }, []);
+
+  const loadCourses = useCallback(async (deptId?: string, semester?: string) => {
+    try {
+      const subjects = await subjectService.getSubjects({ semester });
+      const mapped = subjects.map(s => ({
+        id: String(s.id),
+        name: s.subject_name || (s as any).name || 'Unknown',
+        code: s.short_code || '',
+        semester: Number(semester || 0)
+      }));
+      setCourses(mapped);
+    } catch (err) {
+      console.error("Failed to load courses", err);
+    }
+  }, []);
+
+  const loadStudents = useCallback(async (paramsOrDeptId: any, semester?: string) => {
     setStudentsLoading(true);
     try {
-      const res = await studentService.getStudents({ ...params, limit: 200 });
+      const queryParams = typeof paramsOrDeptId === 'object' 
+        ? paramsOrDeptId 
+        : { department: paramsOrDeptId, semester_number: semester };
+      
+      const res = await studentService.getStudents({ ...queryParams, limit: 200 });
       if (res.results) {
         const mapped = res.results.map(mapStudent);
         setStudents(mapped);
@@ -249,8 +326,9 @@ export function useStudentReport() {
       }
 
       // Identify IDs correctly to avoid User vs Student mismatches
-      const userId = String(student.id); // Typically s.user
-      const studentRecordId = String(student.studentRecordId); // Typically s.id
+      const userIdRaw = student.id;
+      const userId = (userIdRaw && userIdRaw !== 'undefined' && userIdRaw !== 'null') ? String(userIdRaw) : null;
+      const studentRecordId = String(student.studentRecordId);
 
       // 1. Fetch Core Data from Backend (mostly uses User ID)
       let progressData: any[] = [];
@@ -260,15 +338,23 @@ export function useStudentReport() {
       let studentTaskSubmissions: any[] = [];
       let allAttendanceSessions: any[] = [];
 
+      // 2. Fetch Optional Metrics (Tasks & Attendance) - Fail-safe
       try {
-        const [pD, sS, oS] = await Promise.all([
-          subjectService.fetchOverallUserProgress(userId),
-          getUserSubmissions(userId, { limit: 1000 }),
-          subjectService.fetchUserStats(userId)
-        ]);
-        progressData = (pD as any).results || pD || [];
-        skillSubmissions = (sS as any).results || sS || [];
-        overallStats = oS || {};
+        if (userId) {
+          const [pD, sS, oS] = await Promise.all([
+            subjectService.fetchOverallUserProgress(userId),
+            getUserSubmissions(userId, { limit: 1000 }),
+            subjectService.fetchUserStats(userId)
+          ]);
+          progressData = (pD as any).results || pD || [];
+          skillSubmissions = (sS as any).results || sS || [];
+          
+          // Robust filtering for current student
+          skillSubmissions = skillSubmissions.filter((sub: any) => 
+            String(sub.user?.id || sub.user) === String(userId)
+          );
+          overallStats = oS || {};
+        }
       } catch (err) {
         console.error('Error fetching core student stats:', err);
       }
@@ -555,9 +641,44 @@ export function useStudentReport() {
       const sortedByPending = [...uniqueSubjects].sort((a, b) => (b.tasksPending + b.unitsPending) - (a.tasksPending + a.unitsPending));
       const sortedByAttendance = [...uniqueSubjects].sort((a, b) => a.attendancePercent - b.attendancePercent);
 
-      const performanceIndex = overallStats?.avg_progress || 0;
       const overallAttendance = overallStats?.overall_attendance || 0;
       const learningCompletion = overallStats?.avg_progress || 0;
+
+      // Compute aggregate metrics for PI/PS/PRI formulas
+      const totalTests = uniqueSubjects.reduce((s, sub) => s + (sub.testsAttempted || 0), 0);
+      const overallTestAvg = totalTests > 0
+        ? Number((uniqueSubjects.reduce((s, sub) => s + (sub.testAvgScore * (sub.testsAttempted || 0)), 0) / totalTests).toFixed(1))
+        : 0;
+      const totalAssessments = uniqueSubjects.reduce((s, sub) => s + (sub.assessmentsTotal || 0), 0);
+      const overallAssessmentAvg = totalAssessments > 0
+        ? Number((uniqueSubjects.reduce((s, sub) => s + (sub.assessmentAvgScore * (sub.assessmentsTotal || 0)), 0) / totalAssessments).toFixed(1))
+        : 0;
+      const totalTasks = uniqueSubjects.reduce((s, sub) => s + (sub.tasksTotal || 0), 0);
+      const totalSubmitted = uniqueSubjects.reduce((s, sub) => s + (sub.tasksSubmitted || 0), 0);
+      const overallTaskRate = totalTasks > 0 ? Number(((totalSubmitted / totalTasks) * 100).toFixed(1)) : 0;
+
+      // TEMPORARY PI/PS/PRI formulas (will be replaced with final logic later)
+      const performanceIndex = Number((
+        learningCompletion * 0.30 +
+        overallTestAvg * 0.25 +
+        overallAssessmentAvg * 0.20 +
+        overallAttendance * 0.15 +
+        overallTaskRate * 0.10
+      ).toFixed(1));
+
+      const ps = Number((
+        overallTestAvg * 0.45 +
+        overallAssessmentAvg * 0.30 +
+        learningCompletion * 0.15 +
+        overallTaskRate * 0.10
+      ).toFixed(1));
+
+      const pri = Number((
+        overallAttendance * 0.30 +
+        overallTaskRate * 0.30 +
+        learningCompletion * 0.25 +
+        overallAssessmentAvg * 0.15
+      ).toFixed(1));
 
       const studentReport: StudentReport = {
         id: studentId,
@@ -567,6 +688,8 @@ export function useStudentReport() {
         semester: String(student?.semester_number || 'N/A'),
         section: student?.section_name || 'N/A',
         performanceIndex: performanceIndex,
+        ps: ps,
+        pri: pri,
         status: performanceIndex >= 70 ? 'On Track' : performanceIndex >= 45 ? 'Needs Attention' : 'At Risk',
         overallAttendance: overallAttendance,
         learningCompletion: learningCompletion,
@@ -583,7 +706,11 @@ export function useStudentReport() {
           { name: 'Centum Attendee', icon: 'Trophy', earned: overallAttendance === 100 },
           { name: 'A+ Student', icon: 'Award', earned: performanceIndex >= 85 },
           { name: 'Active Learner', icon: 'BookOpen', earned: learningCompletion >= 50 },
-          { name: 'Task Crusher', icon: 'CheckCircle2', earned: uniqueSubjects.every(s => s.tasksPending === 0) },
+          { 
+            name: 'Task Crusher', 
+            icon: 'CheckCircle2', 
+            earned: totalTasks > 0 && uniqueSubjects.every(s => s.tasksPending === 0) 
+          },
           { name: 'Fast Mover', icon: 'Zap', earned: uniqueSubjects.some(s => s.notesCompletion === 100) },
           { name: 'Consistent', icon: 'Flame', earned: (overallStats?.streak || 0) > 0 },
         ],
@@ -602,6 +729,8 @@ export function useStudentReport() {
         semester: '',
         section: '',
         performanceIndex: 0,
+        ps: 0,
+        pri: 0,
         status: 'Needs Attention',
         overallAttendance: 0,
         learningCompletion: 0,
@@ -624,10 +753,12 @@ export function useStudentReport() {
   }, [allStudents, assignments]);
 
   return {
-    assignments, batches, students, allStudents, report, loading,
+    assignments, batches, departments, courses, students, allStudents, report, loading,
     filtersLoading,
     studentsLoading,
     loadStudents,
+    loadCourses,
+    loadBatches,
     loadStudentsByDepartments,
     loadReport,
     setReport,

@@ -27,6 +27,7 @@ const menuItems = [
   { title: 'Subjects', url: '/college-admin/subjects', icon: BookOpen },
   { title: 'Practice Test', url: '/college-admin/practice-test', icon: Trophy },
   { title: 'Announcements', url: '/college-admin/announcements', icon: Megaphone },
+  { title: 'Practice Test', url: '/college-admin/practice-test', icon: Trophy },
   { title: 'Reports', url: '/college-admin/reports', icon: FileText },
   { title: 'Activity Logs', url: '/college-admin/logs', icon: Activity },
   { title: 'Settings', url: '/college-admin/settings', icon: Settings },
