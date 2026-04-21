@@ -133,9 +133,6 @@ const Faculty = () => {
       <div className="min-h-screen flex w-full overflow-hidden">
         <PrincipalSidebar />
         <div className="flex-1 min-w-0 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex items-center justify-end px-4 py-2 border-b shrink-0">
-          </div>
-
           <main className="flex-1 min-w-0 p-4 md:p-6 bg-background overflow-y-auto overflow-x-hidden space-y-6">
             <h1 className="text-2xl font-bold mb-6">Faculty Performance</h1>
             {/* Summary KPIs */}

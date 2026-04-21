@@ -4,6 +4,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, BookOpen, GraduationCap, UserCheck } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 
 const AdminDashboard = () => {
   const stats = [
@@ -18,13 +19,12 @@ const AdminDashboard = () => {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-<main className="flex-1 p-6 bg-background">
-            <div className="space-y-6">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, Admin!</h2>
-                <p className="text-muted-foreground">Here's an overview of your system.</p>
-              </div>
+          <main className="flex-1 p-6 bg-background">
+            <div className="space-y-6 max-w-7xl mx-auto">
+              <PageHeader 
+                title="Dashboard Overview" 
+                subtitle="Welcome back! Here's an overview of your system." 
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, index) => (

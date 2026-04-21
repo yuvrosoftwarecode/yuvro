@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Building } from 'lucide-react';
 import { useDepartments, Department } from '@/hooks/useDepartments';
+import PageHeader from '@/components/common/PageHeader';
 
 const Departments = () => {
   const { departments, isLoading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
@@ -53,7 +54,9 @@ const Departments = () => {
         <div className="flex-1 flex flex-col">
 
           <main className="flex-1 p-6 bg-background">
-            <h1 className="text-2xl font-bold mb-6">Department Management</h1>
+            <PageHeader 
+              title="Department Management" 
+            />
             {isLoading ? (
               <p className="text-muted-foreground">Loading departments...</p>
             ) : (

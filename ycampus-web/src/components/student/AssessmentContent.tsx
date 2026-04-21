@@ -9,6 +9,7 @@ import AssessmentInstructions from './AssessmentInstructions';
 import AssessmentInterface from './AssessmentInterface';
 import AssessmentResults from './AssessmentResults';
 import AssessmentThankYou from './AssessmentThankYou';
+import PageHeader from '@/components/common/PageHeader';
 
 interface Assessment {
   id: string;
@@ -274,10 +275,10 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Assessments</h2>
-        <p className="text-muted-foreground">Complete your assigned assessments and track your progress</p>
-      </div>
+      <PageHeader 
+        title="Assessments" 
+        subtitle="Complete your assigned assessments and track your progress" 
+      />
 
       {/* Filters */}
       <Card>

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AddFacultyForm } from '@/components/admin/faculty/AddFacultyForm';
 import { EditFacultyForm } from '@/components/admin/faculty/EditFacultyForm';
 import { DeleteFacultyForm } from '@/components/admin/faculty/DeleteFacultyForm';
+import PageHeader from '@/components/common/PageHeader';
 
 const Faculty = () => {
   return (
@@ -13,8 +14,10 @@ const Faculty = () => {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-<main className="flex-1 p-6 bg-background">
-            <h1 className="text-2xl font-bold mb-6">Faculty Management</h1>
+          <main className="flex-1 p-6 bg-background">
+            <PageHeader 
+              title="Faculty Management" 
+            />
             <Card>
               <CardContent className="p-6">
                 <Tabs defaultValue="add" className="w-full">

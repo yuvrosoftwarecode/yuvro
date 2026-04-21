@@ -12,6 +12,7 @@ import {
   Lightbulb, Bell, Mic, Code, Users, FileText, Calendar, Sparkles, ArrowRight
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import PageHeader from '@/components/common/PageHeader';
 
 // ─── Dummy student profile ───
 const studentProfile = {
@@ -125,17 +126,12 @@ function SetupScreen({ onStart }: { onStart: (cfg: any) => void }) {
 
   return (
     <StudentLayout>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center">
-            <BrainCircuit className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">AI Interview Planner</h1>
-            <p className="text-sm text-muted-foreground">Set your target and get a personalized preparation roadmap</p>
-          </div>
-        </div>
+        <PageHeader 
+          title="AI Interview Planner" 
+          subtitle="Set your target and get a personalized preparation roadmap" 
+        />
 
         {/* Student snapshot */}
         <Card className="border-border/60">
@@ -247,33 +243,26 @@ function PreparationDashboard({ config, onReset }: { config: any; onReset: () =>
 
   return (
     <StudentLayout>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center">
-              <BrainCircuit className="h-5 w-5 text-white" />
+        <PageHeader 
+          title="AI Interview Planner" 
+          subtitle={`${config.company} · ${config.role} · ${config.timeline}`} 
+          actions={
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
+                {isPaused ? <Play className="h-3.5 w-3.5 mr-1" /> : <Pause className="h-3.5 w-3.5 mr-1" />}
+                {isPaused ? 'Resume' : 'Pause'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)}>
+                <Settings2 className="h-3.5 w-3.5 mr-1" /> Settings
+              </Button>
+              <Button variant="outline" size="sm" onClick={onReset}>
+                <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset
+              </Button>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">AI Interview Planner</h1>
-              <p className="text-xs text-muted-foreground">
-                {config.company} · {config.role} · {config.timeline}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
-              {isPaused ? <Play className="h-3.5 w-3.5 mr-1" /> : <Pause className="h-3.5 w-3.5 mr-1" />}
-              {isPaused ? 'Resume' : 'Pause'}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)}>
-              <Settings2 className="h-3.5 w-3.5 mr-1" /> Settings
-            </Button>
-            <Button variant="outline" size="sm" onClick={onReset}>
-              <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset
-            </Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Settings panel */}
         {showSettings && (

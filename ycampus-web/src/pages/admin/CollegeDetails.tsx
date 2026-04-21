@@ -6,6 +6,7 @@ import { ArrowLeft, GraduationCap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import PageHeader from "@/components/common/PageHeader";
 import Management from "@/components/admin/colleges/Management";
 import Academics from "@/components/admin/colleges/Academics";
 
@@ -83,21 +84,19 @@ const CollegeDetails: React.FC = () => {
                 <AdminSidebar />
                 <div className="flex-1 flex flex-col">
                     <main className="flex-1 p-6 md:p-8 bg-background max-w-7xl mx-auto w-full">
-                        {/* Page Header Area */}
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-                            <div>
-                                <h1 className="text-2xl font-bold text-foreground">{college.name}</h1>
-                                <p className="text-muted-foreground text-sm mt-1">Institutional Management & Academics</p>
-                            </div>
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate("/admin/college")}
-                                className="h-10 text-xs flex items-center gap-2"
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                Back to Colleges
-                            </Button>
-                        </div>
+                        <PageHeader 
+                            title={college.name}
+                            actions={
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/admin/college")}
+                                    className="h-10 text-xs flex items-center gap-2"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back to Colleges
+                                </Button>
+                            }
+                        />
 
                         {/* Top Nav Bar / Tabs */}
                         <div className="flex items-center gap-1 bg-background p-1 rounded-xl border shadow-sm w-fit mb-8">

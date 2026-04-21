@@ -8,16 +8,15 @@ import { AttendanceOverview } from './AttendanceOverview';
 import { AnnouncementsWidget } from './AnnouncementsWidget';
 import { StreaksAndBadges } from './StreaksAndBadges';
 import { PerformanceMetrics } from './PerformanceMetrics';
+import PageHeader from '@/components/common/PageHeader';
 
 export function ComprehensiveDashboard() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Overview</h1>
-        <p className="text-muted-foreground">
-          Monitor your academic progress and performance metrics
-        </p>
-      </div>
+      <PageHeader 
+        title="Dashboard Overview" 
+        subtitle="Monitor your academic progress and performance metrics" 
+      />
 
       {/* Top Row: Notes, Tests, Tasks */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

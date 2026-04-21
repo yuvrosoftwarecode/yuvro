@@ -3,6 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import (
     User,
+    Profile,
 )
 
 
@@ -21,7 +22,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(source="profile_image", read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ["avatar", "cover_image", "full_name", "title", "location", "about", "gender"]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_id = serializers.UUIDField(source="college.id", read_only=True)
     department_id = serializers.SerializerMethodField()
@@ -41,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
             "college_name",
             "college_id",
             "department_id",
+            "profile",
         ]
         read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id", "department_id"]
 

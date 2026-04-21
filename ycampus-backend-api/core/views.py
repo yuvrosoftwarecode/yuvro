@@ -73,6 +73,7 @@ class IsCollegeManagementOrFaculty(permissions.BasePermission):
             "college_admin",
             "principal",
             "faculty",
+            "student",
         ]
 
 
@@ -665,6 +666,10 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
+        # If user is a student, filter to only their profile
+        if user.role == "student":
+            return queryset.filter(user=user)
+            
         # If user is a College Admin, Principal or Faculty, filter by their college
         if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
