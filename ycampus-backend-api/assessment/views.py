@@ -1080,6 +1080,10 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         if interview_id:
             qs = qs.filter(mock_interview_id=interview_id)
 
+        user_id = self.request.query_params.get("user")
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+
         return qs
 
     @action(detail=True, methods=["get"])
@@ -1126,6 +1130,11 @@ class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         skill_test_id = self.request.query_params.get('skill_test')
         if skill_test_id:
             qs = qs.filter(skill_test_id=skill_test_id)
+
+        user_id = self.request.query_params.get('user')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+
         return qs
 
 
@@ -1141,6 +1150,11 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         exam_id = self.request.query_params.get('certification_exam')
         if exam_id:
             qs = qs.filter(certification_exam_id=exam_id)
+
+        user_id = self.request.query_params.get('user')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+
         return qs
 
 

@@ -22,19 +22,19 @@ function computePS(report: StudentReport) {
     score: s.testAvgScore || s.notesCompletion || 0,
   }));
 
-  // Fallback if no subjects
+  // Use values directly from report
+  const ps = report.ps;
+  const pi = report.performanceIndex;
+  const pri = report.pri;
+  
+  // For display in the cards
   const coreAvg = coreSubjects.length > 0 
     ? Math.round(coreSubjects.reduce((acc: number, s: any) => acc + s.score, 0) / coreSubjects.length)
     : 0;
 
-  // Other components derived from remaining subjects or overall metrics
   const otherAvg = otherComponents.length > 0
     ? Math.round(otherComponents.reduce((acc: number, s: any) => acc + s.score, 0) / otherComponents.length)
     : Math.round((report.overallAttendance + report.learningCompletion) / 2);
-  
-  const ps = Math.round(coreAvg * 0.7 + otherAvg * 0.3);
-  const pi = report.performanceIndex;
-  const pri = Math.round(pi * 0.5 + ps * 0.5);
 
   return { coreSubjects, otherComponents, coreAvg, otherAvg, ps, pi, pri };
 }

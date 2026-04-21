@@ -95,6 +95,7 @@ const AttendanceReport: React.FC = () => {
           batches={report.batches}
           sections={report.sections}
           courses={report.courses}
+          semesters={report.semesters}
           selectedDept={report.selectedDept}
           selectedSemester={report.selectedSemester}
           selectedBatch={report.selectedBatch}
@@ -102,11 +103,36 @@ const AttendanceReport: React.FC = () => {
           selectedSubject={report.selectedSubject}
           dateRange={report.dateRange}
           filtersLoading={report.filtersLoading}
-          onDeptChange={v => { report.setSelectedDept(v); report.setSelectedSemester(''); report.setSelectedBatch(''); report.setSelectedSection(''); report.clearStudentDetail(); }}
-          onSemesterChange={v => { report.setSelectedSemester(v); report.setSelectedSection(''); report.clearStudentDetail(); }}
-          onBatchChange={v => { report.setSelectedBatch(v); report.clearStudentDetail(); }}
-          onSectionChange={v => { report.setSelectedSection(v); report.clearStudentDetail(); }}
-          onSubjectChange={v => { report.setSelectedSubject(v); report.clearStudentDetail(); }}
+          onBatchChange={v => { 
+            report.setSelectedBatch(v); 
+            report.setSelectedDept(''); 
+            report.setSelectedSemester(''); 
+            report.setSelectedSection(''); 
+            report.setSelectedSubject('all');
+            report.clearStudentDetail(); 
+          }}
+          onDeptChange={v => { 
+            report.setSelectedDept(v); 
+            report.setSelectedSemester(''); 
+            report.setSelectedSection(''); 
+            report.setSelectedSubject('all');
+            report.clearStudentDetail(); 
+          }}
+          onSemesterChange={v => { 
+            report.setSelectedSemester(v); 
+            report.setSelectedSection(''); 
+            report.setSelectedSubject('all');
+            report.clearStudentDetail(); 
+          }}
+          onSectionChange={v => { 
+            report.setSelectedSection(v); 
+            report.setSelectedSubject('all');
+            report.clearStudentDetail(); 
+          }}
+          onSubjectChange={v => { 
+            report.setSelectedSubject(v); 
+            report.clearStudentDetail(); 
+          }}
           onDateRangeChange={report.setDateRange}
         />
 

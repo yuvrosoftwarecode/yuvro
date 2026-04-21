@@ -1,30 +1,46 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Clock, AlertCircle, ListTodo } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, ListTodo, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { studentDashboardService } from '@/services/studentDashboardService';
 
 export function TasksSummary() {
   const navigate = useNavigate();
 
-  const tasks = {
-    total: 24,
-    completed: 18,
-    inProgress: 4,
-    pending: 2
+  const { data, isLoading } = useQuery({
+    queryKey: ['tasksSummary'],
+    queryFn: () => studentDashboardService.getTasksSummary()
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="h-full flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
+
+  const tasks = data || {
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    pending: 0,
+    overall: 0
   };
 
-  const completionRate = Math.round((tasks.completed / tasks.total) * 100);
+  const completionRate = tasks.overall;
 
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/student/task')}>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" onClick={() => navigate('/student/task')}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ListTodo className="h-5 w-5" style={{ color: 'hsl(var(--success-light))' }} />
           Tasks Summary
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="font-medium">Overall Progress</span>
@@ -67,7 +83,7 @@ export function TasksSummary() {
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-muted-foreground mt-auto">
           Click to view all tasks and submissions
         </div>
       </CardContent>

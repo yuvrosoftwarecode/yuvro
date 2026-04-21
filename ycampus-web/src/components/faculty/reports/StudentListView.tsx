@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Eye, TrendingUp, BookOpen, CheckCircle, Calendar } from 'lucide-react';
+import { Users, Eye, TrendingUp, BookOpen, CheckCircle, Calendar, Brain, Award } from 'lucide-react';
 import type { BatchStudent } from '@/hooks/useStudentReport';
 
-interface StudentSnapshot {
+export interface StudentSnapshot {
   student: BatchStudent;
   department?: string;
   semester?: string;
@@ -99,8 +99,8 @@ const StudentListView: React.FC<StudentListViewProps> = ({ students, onSelectStu
                 {/* Center: Metrics */}
                 <div className="hidden sm:flex items-center gap-4">
                   <MetricPill icon={<TrendingUp className="h-3 w-3" />} label="PI" value={item.pi} />
-                  <MetricPill icon={<BookOpen className="h-3 w-3" />} label="PS" value={item.ps} />
-                  <MetricPill icon={<CheckCircle className="h-3 w-3" />} label="PRI" value={item.pri} highlight />
+                  <MetricPill icon={<Brain className="h-3 w-3" />} label="PS" value={item.ps} />
+                  <MetricPill icon={<Award className="h-3 w-3" />} label="PRI" value={item.pri} highlight />
                   <MetricPill icon={<Calendar className="h-3 w-3" />} label="Att" value={item.attendance} />
                   <MetricPill icon={<CheckCircle className="h-3 w-3" />} label="Tasks" value={item.taskCompletion} />
                 </div>
@@ -125,8 +125,8 @@ const StudentListView: React.FC<StudentListViewProps> = ({ students, onSelectStu
               {/* Mobile metrics row */}
               <div className="flex sm:hidden items-center gap-3 mt-2.5 pt-2.5 border-t border-border/30">
                 <MetricPill icon={<TrendingUp className="h-3 w-3" />} label="PI" value={item.pi} />
-                <MetricPill icon={<BookOpen className="h-3 w-3" />} label="PS" value={item.ps} />
-                <MetricPill icon={<CheckCircle className="h-3 w-3" />} label="PRI" value={item.pri} highlight />
+                <MetricPill icon={<Brain className="h-3 w-3" />} label="PS" value={item.ps} />
+                <MetricPill icon={<Award className="h-3 w-3" />} label="PRI" value={item.pri} highlight />
                 <MetricPill icon={<Calendar className="h-3 w-3" />} label="Att" value={item.attendance} />
                 <MetricPill icon={<CheckCircle className="h-3 w-3" />} label="Tasks" value={item.taskCompletion} />
               </div>
