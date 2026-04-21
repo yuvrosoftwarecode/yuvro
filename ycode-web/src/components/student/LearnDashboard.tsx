@@ -1,9 +1,5 @@
-// src/features/Learn/LearnDashboard.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import restApiAuthUtil from "../../utils/RestApiAuthUtil";
-import { fetchTopicsByCourse } from '@/services/courseService';
-import { getCourseIconConfig } from "@/utils/CourseIcons";
 
 import SearchBar from "@/components/common/SearchBar";
 import CategorySection from "@/components/student/Learn/CatergorySection";
@@ -15,7 +11,16 @@ import { Binary, Code, Database, Sparkles, FileText, Search, Bell, BarChart3, Pl
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardHero from './Learn/DashboardHero';
 
-import type { Course, Stats, ContinueProgress, CourseProgressMap } from "@/components/student/Learn/types";
+import { getCourseIconConfig } from "@/utils/CourseIcons";
+import {
+  useCourses,
+  useStudentStats,
+  useLeaderboard,
+  useContinueProgress,
+  useProgressMap,
+  useCalendarActivity,
+  useDailyActivity
+} from "@/hooks/useLearnDashboard";
 
 // Helper to match the pastel style from LearnCourseCard
 const getHeroPastelStyle = (bgClass: string): { bg: string; text: string } => {
@@ -36,157 +41,17 @@ const getHeroPastelStyle = (bgClass: string): { bg: string; text: string } => {
 const LearnDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [progressMap, setProgressMap] = useState<CourseProgressMap>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<Stats>({ lessons_completed: 0, time_spent: "0h", avg_progress: 0 });
-  const [continueProgress, setContinueProgress] = useState<ContinueProgress>({
-    course_id: "",
-    course_name: "Python",
-    lesson: 0,
-    total_lessons: 0,
-    percent: 0,
-  });
-  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
-  const [activeDates, setActiveDates] = useState<string[]>([]);
-  const [dailyStats, setDailyStats] = useState({ solvedToday: 0, timeSpentToday: "0m" });
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const courseList = await restApiAuthUtil.get<Course[]>("/course/courses/");
-        const withTopics = await Promise.all(
-          courseList.map(async (c) => {
-            try {
-              const topics = await fetchTopicsByCourse(String(c.id));
-              return { ...c, topics };
-            } catch {
-              return { ...c, topics: [] };
-            }
-          })
-        );
-        setCourses(withTopics);
-        return withTopics;
-      } catch (err) {
-        console.error("Failed to fetch courses", err);
-        setCourses([]);
-        return [];
-      }
-    };
+  const { data: courses = [], isLoading: loadingCourses } = useCourses();
+  const { data: stats = { lessons_completed: 0, time_spent: "0h", avg_progress: 0 }, isLoading: loadingStats } = useStudentStats();
+  const { data: leaderboardData = [], isLoading: loadingLeaderboard } = useLeaderboard();
+  const { data: continueProgress, isLoading: loadingContinue } = useContinueProgress();
+  const { data: progressMap = {}, isLoading: loadingMap } = useProgressMap();
+  const { data: activeDates = [], isLoading: loadingDates } = useCalendarActivity();
+  const { data: dailyStats = { solvedToday: 0, timeSpentToday: "0m" }, isLoading: loadingDaily } = useDailyActivity();
 
-    const fetchStats = async () => {
-      try {
-        const s = await restApiAuthUtil.get("/course/student-course-progress/stats/");
-        setStats(s as Stats);
-        return s;
-      } catch (err) {
-        console.error("Failed to fetch stats", err);
-        return null;
-      }
-    };
-
-    const fetchLeaderboard = async () => {
-      try {
-        const res = await restApiAuthUtil.get<any[]>("/course/student-course-progress/leaderboard/");
-        setLeaderboardData(res);
-      } catch (err) {
-        console.error("Failed to fetch leaderboard", err);
-      }
-    };
-
-    const fetchContinue = async () => {
-      try {
-        const c = await restApiAuthUtil.get("/course/student-course-progress/continue_learning/");
-        const cp = c as ContinueProgress;
-        setContinueProgress((prev) => ({
-          ...prev,
-          course_id: String(cp.course_id || ""),
-          course_name: cp.course_name || prev.course_name || "Python",
-          lesson: cp.lesson || 0,
-          total_lessons: cp.total_lessons || 0,
-          percent: cp.percent || 0,
-          subtopic_name: cp.subtopic_name,
-        }));
-        return cp;
-      } catch (err) {
-        console.error("Failed to fetch continue progress", err);
-        return null;
-      }
-    };
-
-    const fetchProgressMap = async () => {
-      try {
-        const list = await restApiAuthUtil.get<{ course_id: string; percent: number }[]>("/course/student-course-progress/progress/");
-        const map: CourseProgressMap = {};
-        if (Array.isArray(list)) {
-          list.forEach((p) => { map[String(p.course_id)] = p.percent ?? 0; });
-        }
-        setProgressMap(map);
-        return map;
-      } catch (err) {
-        console.warn("Progress endpoint missing or failed - using defaults", err);
-        setProgressMap({});
-        return {};
-      }
-    };
-
-    const fetchActivity = async () => {
-      try {
-        const now = new Date();
-        const res = await restApiAuthUtil.get<{ active_dates: string[] }>(
-          `/course/student-course-progress/calendar_activity/?year=${now.getFullYear()}&month=${now.getMonth() + 1}`
-        );
-        setActiveDates(res.active_dates || []);
-      } catch (err) {
-        console.error("Failed to fetch calendar activity", err);
-      }
-    };
-
-    const fetchActivityList = async () => {
-      try {
-        const res = await restApiAuthUtil.get<any[]>("/student/dashboard/activity/");
-        if (Array.isArray(res)) {
-          // Calculate stats from activity strings like "2 hours ago", "5 mins ago", "Just now"
-          // If it contains "day" or a date, it's not today.
-          const todayActions = res.filter(a => {
-            const time = (a.time || "").toLowerCase();
-            return time.includes("hour") || time.includes("min") || time.includes("now") || time.includes("second");
-          });
-
-          const solvedCount = todayActions.filter(a => 
-            a.action.toLowerCase().includes("solve") || a.action.toLowerCase().includes("complete")
-          ).length;
-
-          // Estimate time spent (10m per action for now as a real-ish proxy if duration isn't available)
-          const estimatedTime = solvedCount > 0 ? `${solvedCount * 10}m` : "0m";
-
-          setDailyStats({
-            solvedToday: solvedCount,
-            timeSpentToday: estimatedTime
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch activity list", err);
-      }
-    };
-
-    const loadAll = async () => {
-      setLoading(true);
-      await Promise.all([
-        fetchCourses(), 
-        fetchStats(), 
-        fetchContinue(), 
-        fetchProgressMap(), 
-        fetchLeaderboard(), 
-        fetchActivity(),
-        fetchActivityList()
-      ]);
-      setLoading(false);
-    };
-
-    loadAll();
-  }, []);
+  const loading = loadingCourses || loadingStats || loadingLeaderboard || loadingContinue || loadingMap || loadingDates || loadingDaily;
 
   const handleStartLearning = (courseId: string) => {
     navigate(`/student/learn/${courseId}`);
