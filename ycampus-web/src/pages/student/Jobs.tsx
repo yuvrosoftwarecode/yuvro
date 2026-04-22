@@ -6,6 +6,7 @@ import { JobDetailView } from '@/components/student/jobs/JobDetailView';
 import { JobFilters } from '@/components/student/jobs/JobFilters';
 import { ApplyDialog } from '@/components/student/jobs/ApplyDialog';
 import { Briefcase } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 
 export interface StudentJob {
   id: string;
@@ -167,11 +168,11 @@ export default function StudentJobs() {
 
   return (
     <StudentLayout>
-      <div className="max-w-6xl space-y-6 ml-[40px]">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Jobs</h1>
-          <p className="text-sm text-muted-foreground mt-1">Discover opportunities and track your applications</p>
-        </div>
+      <div className="space-y-6">
+        <PageHeader 
+          title="Jobs" 
+          subtitle="Discover opportunities and track your applications" 
+        />
 
         <Tabs defaultValue="active" className="space-y-4">
           <TabsList className="bg-muted/60">

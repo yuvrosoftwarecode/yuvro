@@ -10,6 +10,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import { toast } from 'sonner';
+import PageHeader from '@/components/common/PageHeader';
 
 function getSubjectIcon(name: string) {
   const n = (name || '').toLowerCase();
@@ -60,11 +61,11 @@ const Notes = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Learn</h2>
-        <p className="text-muted-foreground">Select a subject to access your notes and study materials.</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader 
+        title="Learn" 
+        subtitle="Select a subject to access your notes and study materials." 
+      />
 
       {loading ? (
         <div className="flex justify-center py-20">

@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { QuestionSetup } from '@/components/admin/test-questions/QuestionSetup';
 import { QuestionManager } from '@/components/admin/test-questions/QuestionManager';
+import PageHeader from '@/components/common/PageHeader';
 
 const TestQuestions = () => {
   return (
@@ -12,8 +13,10 @@ const TestQuestions = () => {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-<main className="flex-1 p-6 bg-background">
-            <h1 className="text-2xl font-bold mb-6">Test Questions</h1>
+          <main className="flex-1 p-6 bg-background">
+            <PageHeader 
+              title="Test Questions" 
+            />
             <Card>
               <CardContent className="p-6">
                 <QuestionSetup />

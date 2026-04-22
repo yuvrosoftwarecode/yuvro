@@ -14,6 +14,7 @@ import { mockInterviewService } from '@/services/mockInterviewService';
 import { StatsCard } from '@/components/common/StatsCard';
 import { DataTable, Column } from '@/components/common/DataTable';
 import DetailHeader from '@/components/common/DetailHeader';
+import PageHeader from '@/components/common/PageHeader';
 
 // Redefine local interface to match the VIEW requirements, but aligned with new backend data
 interface MockInterviewUI {
@@ -279,17 +280,13 @@ export default function MockInterviewPage() {
     <SidebarProvider>
       <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
         <AdminSidebar />
-        <div className="flex-1">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">{getHeaderTitle()}</h1>
-                <p className="text-muted-foreground">{getHeaderSubtitle()}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {headerActions}
-              </div>
-            </div>
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 p-6 bg-background overflow-y-auto">
+            <div className="max-w-7xl mx-auto">
+              <PageHeader 
+                  title={getHeaderTitle()} 
+                  actions={headerActions}
+              />
 
             <div className="mt-6">
                 {currentView === 'list' && (
@@ -462,10 +459,11 @@ export default function MockInterviewPage() {
                     </div>
                 </div>
                 )}
-            </div>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
   );
 }

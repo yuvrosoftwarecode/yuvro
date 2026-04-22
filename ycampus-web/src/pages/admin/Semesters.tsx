@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import PageHeader from '@/components/common/PageHeader';
 
 interface SemesterRow {
   id: string;
@@ -102,7 +103,9 @@ const Semesters = () => {
         <div className="flex-1 flex flex-col">
 
           <main className="flex-1 p-6 bg-background">
-            <h1 className="text-2xl font-bold mb-6">Semester Management</h1>
+            <PageHeader 
+              title="Semester Management" 
+            />
             <div className="mb-6 flex items-center gap-4">
               <div className="w-64">
                 <Select value={filterDept} onValueChange={setFilterDept}>

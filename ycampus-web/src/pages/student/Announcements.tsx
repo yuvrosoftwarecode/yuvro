@@ -9,6 +9,7 @@ import { Megaphone, Bell } from 'lucide-react';
 import { badgeVariants } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Announcement } from '@/hooks/useAnnouncements';
+import PageHeader from '@/components/common/PageHeader';
 
 const Announcements = () => {
   const {
@@ -32,25 +33,18 @@ const Announcements = () => {
     <StudentLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30">
-              <Megaphone className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
-              <p className="text-sm text-muted-foreground">
-                Stay updated with college & department news
-              </p>
-            </div>
-          </div>
-          {unreadCount > 0 && (
-            <div className={cn(badgeVariants({ variant: 'default' }), "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800 gap-1.5 px-3 py-1.5 text-sm")}>
-              <Bell className="h-3.5 w-3.5" />
-              {unreadCount} unread
-            </div>
-          )}
-        </div>
+        <PageHeader 
+          title="Announcements" 
+          subtitle="Stay updated with college & department news" 
+          actions={
+            unreadCount > 0 && (
+              <div className={cn(badgeVariants({ variant: 'default' }), "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800 gap-1.5 px-3 py-1.5 text-sm")}>
+                <Bell className="h-3.5 w-3.5" />
+                {unreadCount} unread
+              </div>
+            )
+          }
+        />
 
         {/* Filters */}
         <AnnouncementFilters

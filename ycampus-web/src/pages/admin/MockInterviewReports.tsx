@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import PageHeader from "@/components/common/PageHeader";
 import { Eye, Clock, Calendar, CheckCircle, Search, Bot } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -95,12 +96,9 @@ export default function MockInterviewReports() {
                 <AdminSidebar />
                 <div className="flex-1">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                            <div>
-                                <h1 className="text-2xl font-bold tracking-tight">Mock Interview Reports</h1>
-                                <p className="text-muted-foreground">View and analyze all student mock interview sessions</p>
-                            </div>
-                        </div>
+                        <PageHeader 
+                            title="Mock Interview Reports"
+                        />
 
                         <div className="mt-6">
                             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
