@@ -13,8 +13,8 @@ from django.db.models import (
 from django.db.models.functions import Coalesce
 from authentication.permissions import CanManageCourses, IsAuthenticatedUser
 from .utils import CodeExecutionUtil
-from .gamification_service import GamificationService
-from .gamification_models import UserGamificationProfile, DailyUserActivity
+from gamification.service import GamificationService
+from gamification.models import UserGamificationProfile, DailyUserActivity
 from .models import (
     Course,
     Topic,

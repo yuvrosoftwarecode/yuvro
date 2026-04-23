@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-import datetime
+
 
 class UserGamificationProfile(models.Model):
     user = models.OneToOneField(
@@ -9,17 +9,17 @@ class UserGamificationProfile(models.Model):
         on_delete=models.CASCADE,
         related_name="gamification_profile"
     )
-    
     current_streak = models.IntegerField(default=0)
     longest_streak = models.IntegerField(default=0)
     last_activity_date = models.DateField(null=True, blank=True)
-    
     total_xp = models.IntegerField(default=0)
     current_level = models.IntegerField(default=1)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    class Meta:
+        db_table = "course_usergamificationprofile"  # keep existing table name
+
     def __str__(self):
         return f"{self.user.username} - Lvl {self.current_level} (Streak: {self.current_streak})"
 
@@ -32,10 +32,11 @@ class DailyUserActivity(models.Model):
     )
     date = models.DateField(default=timezone.now)
     activity_count = models.IntegerField(default=0)
-    
+
     class Meta:
+        db_table = "course_dailyuseractivity"  # keep existing table name
         unique_together = ['user', 'date']
         ordering = ['-date']
-        
+
     def __str__(self):
         return f"{self.user.username} - {self.date} ({self.activity_count})"

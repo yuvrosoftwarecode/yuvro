@@ -41,7 +41,7 @@ export const useLeaderboard = () => {
   return useQuery({
     queryKey: ['student-leaderboard'],
     queryFn: async () => {
-      return await restApiAuthUtil.get<any[]>('/course/student-course-progress/leaderboard/');
+      return await restApiAuthUtil.get<any[]>('/gamification/gamification/leaderboard/');
     },
   });
 };
@@ -93,7 +93,7 @@ export const useCalendarActivity = () => {
     queryKey: ['student-calendar-activity', year, month],
     queryFn: async () => {
       const res = await restApiAuthUtil.get<{ active_dates: string[] }>(
-        `/course/student-course-progress/calendar_activity/?year=${year}&month=${month}`
+        `/gamification/gamification/calendar_activity/?year=${year}&month=${month}`
       );
       return res.active_dates || [];
     },
