@@ -37,10 +37,10 @@ type ViewMode = 'list' | 'create' | 'edit' | 'analytics' | 'submission-results';
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 const FilterSelect = ({
-  label, value, options, values, onChange, disabled,
+  label, value, options, values, onChange, disabled, emptyMessage
 }: {
   label: string; value: string | null; options: string[]; values?: string[];
-  onChange: (v: string) => void; disabled?: boolean;
+  onChange: (v: string) => void; disabled?: boolean; emptyMessage?: string;
 }) => (
   <div className="space-y-1.5 flex-1 min-w-[180px]">
     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
@@ -49,9 +49,15 @@ const FilterSelect = ({
         <SelectValue placeholder={`Select ${label}`} />
       </SelectTrigger>
       <SelectContent>
-        {options.map((o, i) => (
-          <SelectItem key={i} value={values ? values[i] : o}>{o}</SelectItem>
-        ))}
+        {options.length === 0 && emptyMessage ? (
+          <SelectItem value="empty" disabled className="text-muted-foreground italic">
+            {emptyMessage}
+          </SelectItem>
+        ) : (
+          options.map((o, i) => (
+            <SelectItem key={i} value={values ? values[i] : o}>{o}</SelectItem>
+          ))
+        )}
       </SelectContent>
     </Select>
   </div>
@@ -316,14 +322,28 @@ const CollegeAdminPracticeTest = () => {
   }, [selectedBatch, departments, batches]);
 
   const filteredSubjects = useMemo(() => {
-    if (!selectedDepartment) return [];
+    if (!selectedDepartment || !selectedBatch) return [];
+    
+    const batchObj = batches.find(b => 
+      b.name === selectedBatch && 
+      String((b as any).department?.id || b.department || '') === String(selectedDepartment)
+    );
+    if (!batchObj) return [];
+    const bId = String(batchObj.id);
+
     const subjectIds = new Set<string | number>();
     semesterSubjects.forEach(ss => {
-      if (String(ss.department_id) === String(selectedDepartment)) subjectIds.add(ss.subject);
+      if (
+        String(ss.department_id) === String(selectedDepartment) && 
+        String(ss.batch_id) === bId &&
+        ss.is_current === true
+      ) {
+        subjectIds.add(ss.subject);
+      }
     });
-    if (subjectIds.size === 0) return collegeSubjects;
+
     return collegeSubjects.filter(cs => subjectIds.has(cs.subject));
-  }, [selectedDepartment, semesterSubjects, collegeSubjects]);
+  }, [selectedDepartment, selectedBatch, batches, semesterSubjects, collegeSubjects]);
 
   const filteredTests = practiceTests.filter(t =>
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -344,14 +364,20 @@ const CollegeAdminPracticeTest = () => {
       setBatches(bts);
       setCollegeSubjects(subs);
 
-      const semesterToDeptMap: Record<string, string> = {};
+      const semesterDetailsMap: Record<string, any> = {};
       bts.forEach(b => {
         const dId = String((b as any).department?.id || b.department || '');
         if (dId && b.semesters) {
-          b.semesters.forEach((s: any) => { semesterToDeptMap[String(s.id)] = dId; });
+          b.semesters.forEach((s: any) => { 
+            semesterDetailsMap[String(s.id)] = { 
+              department_id: dId, 
+              batch_id: String(b.id), 
+              is_current: s.is_current 
+            }; 
+          });
         }
       });
-      setSemesterSubjects(semSubs.map(ss => ({ ...ss, department_id: semesterToDeptMap[String(ss.semester)] })));
+      setSemesterSubjects(semSubs.map(ss => ({ ...ss, ...semesterDetailsMap[String(ss.semester)] })));
     } catch {
       toast({ title: 'Error', description: 'Failed to load curriculum data.', variant: 'destructive' });
     } finally {
@@ -708,7 +734,8 @@ const CollegeAdminPracticeTest = () => {
               options={filteredSubjects.map((s: any) => s.subject_details?.subject_name)}
               values={filteredSubjects.map((s: any) => String(s.subject))}
               onChange={(v) => { setSelectedSubject(v); setSelectedUnit(undefined); }}
-              disabled={!selectedDepartment} />
+              disabled={!selectedDepartment}
+              emptyMessage="No subjects were assigned" />
             <FilterSelect label="Unit" value={selectedUnit || null}
               options={units.map((u: any) => u.name)} values={units.map((u: any) => u.id)}
               onChange={setSelectedUnit} disabled={!selectedSubject} />
