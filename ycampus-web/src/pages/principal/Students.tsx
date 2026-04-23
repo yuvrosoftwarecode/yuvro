@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,9 @@ import AttendanceConsistency from '@/components/faculty/reports/AttendanceConsis
 import StreaksAchievements from '@/components/faculty/reports/StreaksAchievements';
 import PlacementReadiness from '@/components/faculty/reports/PlacementReadiness';
 import { downloadPDF, downloadExcel } from '@/components/faculty/reports/ReportExporter';
+import semesterService from '@/services/semesterService';
+import sectionService from '@/services/sectionService';
+import subjectService from '@/services/subjectService';
 
 // Mock data removed. PI/PS/PRI calculations will be based on temporary weighted formulas.
 
@@ -22,7 +25,7 @@ const PrincipalStudents = () => {
   const { toast } = useToast();
   const {
     departments, courses, batches, students, allStudents, report, loading, filtersLoading, studentsLoading,
-    loadCourses, loadBatches, loadStudents, loadReport, assignments,
+    loadCourses, loadBatches, loadStudents, loadReport, assignments, rawBatches, loadStudentsByDepartments
   } = useStudentReport({ mode: 'principal' });
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -43,99 +46,173 @@ const PrincipalStudents = () => {
   // HIERARCHICAL FILTER DERIVATION
   // ──────────────────────────────────────────────────────────────────
 
+  const [dynamicSemesters, setDynamicSemesters] = useState<number[]>([]);
+  const [dynamicSections, setDynamicSections] = useState<{name: string}[]>([]);
+  const [dynamicSubjects, setDynamicSubjects] = useState<any[]>([]);
+
   const derivedDepartments = useMemo(() => {
     if (!selectedBatch) return [];
-    const depts = new Set<string>();
+    const depts = new Map<string, string[]>();
     const options: any[] = [];
     
-    assignments.forEach((a: any) => {
-      const details = a.semester_subject_details;
-      if (details && details.batch_name === selectedBatch && details.department_id) {
-        const idStr = String(details.department_id);
-        if (!depts.has(idStr)) {
-          depts.add(idStr);
-          options.push({
-            id: idStr,
-            name: details.department_name || 'Unknown',
-            code: details.department_short_form || ''
-          });
+    if (rawBatches && rawBatches.length > 0) {
+      rawBatches.forEach((b: any) => {
+        if (b.name === selectedBatch && b.department_name) {
+          const nameStr = b.department_name;
+          if (!depts.has(nameStr)) {
+            depts.set(nameStr, [String(b.department)]);
+          } else {
+            const arr = depts.get(nameStr);
+            if (arr && !arr.includes(String(b.department))) {
+              arr.push(String(b.department));
+            }
+          }
         }
-      }
-    });
-    return options.sort((a, b) => a.name.localeCompare(b.name));
-  }, [assignments, selectedBatch]);
-
-  const derivedSemesters = useMemo(() => {
-    if (!selectedBatch || !selectedDepartment) return [];
-    const sems = new Set<number>();
-    
-    assignments.forEach((a: any) => {
-      const details = a.semester_subject_details;
-      if (details && details.batch_name === selectedBatch && String(details.department_id) === selectedDepartment) {
-        sems.add(details.semester_number);
-      }
-    });
-    return Array.from(sems).sort((a, b) => a - b);
-  }, [assignments, selectedBatch, selectedDepartment]);
-
-  const derivedSections = useMemo(() => {
-    if (!selectedBatch || !selectedDepartment || !selectedSemester) return [];
-    const secs = new Set<string>();
-    
-    assignments.forEach((a: any) => {
-      const details = a.semester_subject_details;
-      if (details && details.batch_name === selectedBatch && 
-          String(details.department_id) === selectedDepartment && 
-          String(details.semester_number) === selectedSemester) {
-        if (a.section_name) secs.add(a.section_name);
-      }
-    });
-    return Array.from(secs).sort().map(name => ({ name }));
-  }, [assignments, selectedBatch, selectedDepartment, selectedSemester]);
-
-  const derivedSubjects = useMemo(() => {
-    if (!selectedBatch || !selectedDepartment || !selectedSemester || (selectedSection !== 'all' && !selectedSection)) return [];
-    const subjs = new Set<string>();
-    const options: any[] = [];
-    
-    assignments.forEach((a: any) => {
-      const details = a.semester_subject_details;
-      const isSecMatch = selectedSection === 'all' || a.section_name === selectedSection;
+      });
       
-      if (details && details.batch_name === selectedBatch && 
-          String(details.department_id) === selectedDepartment && 
-          String(details.semester_number) === selectedSemester &&
-          isSecMatch) {
-        const s = details.subject_details;
-        if (s && !subjs.has(String(s.id))) {
-          subjs.add(String(s.id));
-          options.push({
-            id: String(s.id),
-            name: s.subject_name || s.name || 'Unknown',
-            code: s.short_code || '',
-            semester: details.semester_number
-          });
+      depts.forEach((ids, name) => {
+        options.push({
+          id: ids.join(','),
+          name: name,
+        });
+      });
+      
+      return options.map(opt => {
+         const firstId = opt.id.split(',')[0];
+         const d = departments.find(dept => dept.id === firstId);
+         return { ...opt, code: d ? d.code : '' };
+      }).sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return [];
+  }, [rawBatches, selectedBatch, departments]);
+
+  const getSemesterId = useCallback(async () => {
+      if (!selectedBatch || !selectedDepartment || !selectedSemester || !rawBatches) return null;
+      const selectedIds = selectedDepartment.split(',');
+      const batchRecord = rawBatches.find((b: any) => b.name === selectedBatch && selectedIds.includes(String(b.department)));
+      if (!batchRecord) return null;
+      try {
+        const sems = await semesterService.getSemesters(batchRecord.id);
+        const sem = sems.find(s => String(s.number) === selectedSemester);
+        return sem ? sem.id : null;
+      } catch {
+        return null;
+      }
+  }, [selectedBatch, selectedDepartment, selectedSemester, rawBatches]);
+
+  useEffect(() => {
+    const fetchSemesters = async () => {
+      if (!selectedBatch || !selectedDepartment || !rawBatches) {
+        setDynamicSemesters([]);
+        return;
+      }
+      const selectedIds = selectedDepartment.split(',');
+      const batchRecord = rawBatches.find((b: any) => b.name === selectedBatch && selectedIds.includes(String(b.department)));
+      if (batchRecord) {
+        try {
+          const sems = await semesterService.getSemesters(batchRecord.id);
+          const currentSems = sems.filter(s => s.is_current).map(s => s.number).sort((a, b) => a - b);
+          setDynamicSemesters(currentSems);
+        } catch (err) {
+          console.error('Failed to fetch semesters:', err);
+          setDynamicSemesters([]);
         }
       }
-    });
-    return options.sort((a, b) => a.name.localeCompare(b.name));
-  }, [assignments, selectedBatch, selectedDepartment, selectedSemester, selectedSection]);
+    };
+    fetchSemesters();
+  }, [selectedBatch, selectedDepartment, rawBatches]);
+
+  useEffect(() => {
+    const fetchSections = async () => {
+      if (!selectedSemester) {
+        setDynamicSections([]);
+        return;
+      }
+      const semId = await getSemesterId();
+      if (semId) {
+        try {
+          const secs = await sectionService.getSections(semId);
+          setDynamicSections(secs.map(s => ({ name: s.name })).sort((a, b) => a.name.localeCompare(b.name)));
+        } catch (err) {
+          console.error('Failed to fetch sections:', err);
+          setDynamicSections([]);
+        }
+      } else {
+        setDynamicSections([]);
+      }
+    };
+    fetchSections();
+  }, [selectedSemester, getSemesterId]);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      if (!selectedSemester || !selectedDepartment || !selectedBatch || !rawBatches) {
+        setDynamicSubjects([]);
+        return;
+      }
+
+      try {
+        const selectedIds = selectedDepartment.split(',');
+        // Try to find a batch record that has the subjects we need
+        const batchRecords = rawBatches.filter((b: any) => b.name === selectedBatch && selectedIds.includes(String(b.department)));
+        
+        let allSemesterSubjects: any[] = [];
+        
+        for (const batchRecord of batchRecords) {
+          const sems = await semesterService.getSemesters(batchRecord.id);
+          const sem = sems.find(s => String(s.number) === selectedSemester);
+          
+          if (sem) {
+            const semesterSubjects = await subjectService.getSubjectsForSemester(sem.id);
+            if (semesterSubjects && semesterSubjects.length > 0) {
+              allSemesterSubjects = [...allSemesterSubjects, ...semesterSubjects];
+            }
+          }
+        }
+
+        if (allSemesterSubjects.length > 0) {
+          const seenIds = new Set();
+          const mapped = allSemesterSubjects
+            .filter(ss => ss && ss.subject_details)
+            .map(ss => ({
+              id: String(ss.subject_details.id),
+              name: ss.subject_details.subject_name || ss.subject_details.name || 'Unknown',
+              code: ss.subject_details.short_code || '',
+              semester: Number(selectedSemester)
+            }))
+            .filter(s => {
+              if (seenIds.has(s.id)) return false;
+              seenIds.add(s.id);
+              return true;
+            });
+          setDynamicSubjects(mapped.sort((a, b) => a.name.localeCompare(b.name)));
+        } else {
+          setDynamicSubjects([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch subjects:', err);
+        setDynamicSubjects([]);
+      }
+    };
+    fetchSubjects();
+  }, [selectedSemester, selectedDepartment, selectedBatch, rawBatches]);
 
   useEffect(() => {
     if (selectedBatch && !isAutoSelecting.current && !selectedStudent) {
       if (!selectedDepartment) {
-        loadStudents({ batch__name: selectedBatch });
+        loadStudents({ batch__name: selectedBatch, limit: 1000, page_size: 1000 });
       } else {
-        const params: any = { batch__name: selectedBatch, department: selectedDepartment };
+        const selectedIds = selectedDepartment.split(',');
+        const params: any = { limit: 1000, page_size: 1000 };
         if (selectedSemester) params.semester__number = selectedSemester;
         if (selectedSection && selectedSection !== 'all') params.section__name = selectedSection;
-        loadStudents(params);
+        loadStudentsByDepartments(selectedBatch, selectedIds, params);
       }
       setShowStudentList(true);
     } else if (!selectedBatch && !selectedStudent) {
       setShowStudentList(false);
     }
-  }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, selectedStudent]);
+  }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, loadStudentsByDepartments, selectedStudent]);
 
   // Use allStudents directly (no dummy merging)
   const combinedAllStudents = allStudents;
@@ -151,15 +228,6 @@ const PrincipalStudents = () => {
   // Build the filtered student list for the intermediate view
   const filteredStudentList = useMemo(() => {
     let sourceStudents = studentSearch.length > 0 ? combinedAllStudents : students;
-
-    // Use dummy data if no real students loaded
-    if (sourceStudents.length === 0 && selectedDepartment) {
-      const deptCode = departments.find(d => d.id === selectedDepartment)?.code || 'CSE';
-      sourceStudents = DUMMY_STUDENTS.map(s => ({
-        ...s,
-        rollNo: s.rollNo.replace('CSE', deptCode.toUpperCase()),
-      }));
-    }
 
     let filtered = sourceStudents;
 
@@ -284,12 +352,12 @@ const PrincipalStudents = () => {
               {!showReport && (
                 <PrincipalReportFilters
                   departments={derivedDepartments}
-                  courses={derivedSubjects}
+                  courses={dynamicSubjects}
                   batches={batches}
                   students={students}
                   allStudents={allStudents}
-                  sections={derivedSections}
-                  semesters={derivedSemesters}
+                  sections={dynamicSections}
+                  semesters={dynamicSemesters}
                   selectedDepartment={selectedDepartment}
                   selectedSemester={selectedSemester}
                   selectedBatch={selectedBatch}
