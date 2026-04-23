@@ -569,6 +569,27 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               return type === 'assessment';
             });
 
+            // Get all assigned assessments for this subject (only active ones)
+            const subjectAssignedAssessments = (allLevelTests || []).filter((t: any) => {
+              const subId = String(t.subject);
+              const isActive = t.publish_status === 'active';
+              return (subId === sId || (semSubId && subId === semSubId)) && isActive;
+            }).filter((t: any) => t.test_type === 'assessment');
+
+            // Group submissions by unique assessment ID to avoid double-counting attempts
+            const uniqueAssessments = new Map();
+            assessmentAttempts.forEach((sub: any) => {
+              const testId = String(sub.skill_test_details?.id || sub.skill_test?.id || sub.skill_test);
+              const testInfo = testsMap.get(testId);
+              const totalMarks = Number(testInfo?.total_marks || sub.skill_test_details?.total_marks || sub.skill_test?.total_marks || 100);
+              const score = (Number(sub.marks || sub.score || 0) / totalMarks) * 100;
+              
+              const existing = uniqueAssessments.get(testId);
+              if (!existing || score > existing.calculatedScore) {
+                uniqueAssessments.set(testId, { ...sub, calculatedScore: score });
+              }
+            });
+
             const avgPct = (arr: any[]) => {
               if (arr.length === 0) return 0;
               const totalPct = arr.reduce((acc, curr) => {
@@ -594,7 +615,12 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
             const accuracy = avgPct(practiceAttempts);
             const trend = calculateTrend(practiceAttempts);
             const testAvg = accuracy;
-            const assessmentAvg = avgPct(assessmentAttempts);
+
+            const completedAssessments = Array.from(uniqueAssessments.values()).filter((a: any) => a.status === 'completed' || a.is_submitted);
+            // Factor in pending assessments into the average score (Pending counts as 0)
+            const assessmentAvg = subjectAssignedAssessments.length > 0
+                ? Math.round(completedAssessments.reduce((sum, a: any) => sum + a.calculatedScore, 0) / subjectAssignedAssessments.length)
+                : 0;
 
             const easyAttempts = practiceAttempts.filter(a => {
               const testId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
@@ -642,18 +668,14 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               hardAvg: avgPct(hardAttempts),
               accuracy: accuracy,
               trend: trend,
-              assessmentsTotal: assessmentAttempts.length,
-              assessmentsCompleted: assessmentAttempts.filter((a: any) => a.status === 'completed' || a.is_submitted).length,
-              assessmentsInProgress: assessmentAttempts.filter((a: any) => a.status === 'started' && !a.is_submitted).length,
-              assessmentsPending: 0,
-              assessmentScores: assessmentAttempts.slice(-3).reverse().map((a: any) => {
-                const aMarks = Number(a.marks || a.score || 0);
-                const aTestId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
-                const aTestInfo = testsMap.get(aTestId);
-                const aTotal = Number(aTestInfo?.total_marks || a.skill_test_details?.total_marks || a.skill_test?.total_marks || 100);
+              assessmentsTotal: subjectAssignedAssessments.length,
+              assessmentsCompleted: completedAssessments.length,
+              assessmentsInProgress: Array.from(uniqueAssessments.values()).filter((a: any) => a.status === 'started' && !a.is_submitted).length,
+              assessmentsPending: Math.max(0, subjectAssignedAssessments.length - completedAssessments.length),
+              assessmentScores: Array.from(uniqueAssessments.values()).slice(-3).reverse().map((a: any) => {
                 return {
                   name: a.skill_test_details?.title || a.skill_test?.title || 'Assessment',
-                  score: Number(((aMarks / aTotal) * 100).toFixed(1)),
+                  score: Number(a.calculatedScore.toFixed(1)),
                   date: a.submitted_at || a.created_at
                 };
               }),
