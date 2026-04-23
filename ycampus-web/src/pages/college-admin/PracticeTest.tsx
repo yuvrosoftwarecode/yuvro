@@ -855,6 +855,7 @@ const CollegeAdminPracticeTest = () => {
             </CardContent>
           </Card>
 
+
           {/* Configuration */}
           <Card className="border-border bg-card">
             <CardHeader className="border-b border-border pb-4">
@@ -956,7 +957,7 @@ const CollegeAdminPracticeTest = () => {
                       />
                       {randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) && (
                         <p className="text-[10px] text-red-500 mt-1">
-                          Only {availableQuestionsCount[key] || 0} {formData.difficulty} questions available in bank.
+                          Only {availableQuestionsCount[key] || 0} questions available in bank.
                         </p>
                       )}
                     </div>
@@ -969,7 +970,9 @@ const CollegeAdminPracticeTest = () => {
             </CardContent>
           </Card>
 
+
           {/* Question Bank Selection */}
+
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
@@ -987,6 +990,7 @@ const CollegeAdminPracticeTest = () => {
               unitFilter={selectedUnit}
               categoryFilter="practice"
               difficultyFilter={formData.difficulty}
+              allowCreation={false}
             />
 
             {questions.length > 0 && (
