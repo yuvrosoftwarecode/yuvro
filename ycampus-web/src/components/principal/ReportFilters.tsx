@@ -208,7 +208,9 @@ const PrincipalReportFilters: React.FC<PrincipalReportFiltersProps> = ({
               <SelectContent className="bg-popover border-border/60 z-50">
                 <SelectItem value="all" className="text-sm">All Sections</SelectItem>
                 {sections.length > 0 ? sections.map((s: SectionOption) => (
-                  <SelectItem key={s.name} value={s.name} className="text-sm">Section {s.name}</SelectItem>
+                  <SelectItem key={s.name} value={s.name} className="text-sm">
+                    {s.name.toLowerCase().startsWith('section') ? s.name : `Section ${s.name}`}
+                  </SelectItem>
                 )) : (
                   <SelectItem value="__none" disabled className="text-xs">No sections available</SelectItem>
                 )}

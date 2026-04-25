@@ -92,12 +92,21 @@ class StudentDashboardService {
   /**
    * Test Performance — fetches skill test (practice) submissions.
    * Uses question_activities data to calculate percentages without extra API calls.
-   * Endpoint: GET /api/assessment/skill-test/submissions/
+   * Endpoint: GET /api/assessment/skill-tests/?test_type=practice
+   * and GET /api/assessment/skill-test/submissions/
    */
   async getTestPerformance(): Promise<TestPerformanceData> {
     try {
+      // 1. Fetch practice tests
+      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+      const practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+
+      // 2. Fetch all submissions and filter by practice tests
       const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
-      const results = Array.isArray(submissionsRes) ? submissionsRes : submissionsRes?.results || [];
+      const allSubmissions = Array.isArray(submissionsRes) ? submissionsRes : submissionsRes?.results || [];
+      
+      const practiceTestIds = new Set(practiceTests.map((t: any) => t.id));
+      const results = allSubmissions.filter((s: any) => practiceTestIds.has(s.skill_test));
 
       const emptyResult: TestPerformanceData = {
         completed: 0, avgScore: 0, accuracy: 0,
@@ -213,43 +222,86 @@ class StudentDashboardService {
   }
 
   /**
-   * Assessments — fetches certification submissions.
-   * Endpoint: GET /api/assessment/certification-submissions/
+   * Assessments — fetches assigned skill tests with test_type=assessment and their submissions.
+   * Endpoint: GET /api/assessment/skill-tests/?test_type=assessment
+   * and GET /api/assessment/skill-test/submissions/
    */
   async getAssessments(): Promise<AssessmentsData> {
     try {
-      const response = await restApiAuthUtil.get<any>('/assessment/certification-submissions/');
-      const results = Array.isArray(response) ? response : response?.results || [];
+      // 1. Fetch assigned assessments
+      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
+      const assessments = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+
+      // 2. Fetch student's submissions
+      const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
+      const allSubmissions = Array.isArray(submissionsRes) ? submissionsRes : submissionsRes?.results || [];
       
+      // Filter submissions to only include those for assessments
+      const assessmentIds = new Set(assessments.map((a: any) => a.id));
+      const submissions = allSubmissions.filter((s: any) => assessmentIds.has(s.skill_test));
+
       let completed = 0;
       let inProgress = 0;
-      let pending = 0;
       const scores: number[] = [];
 
-      results.forEach((item: any) => {
+      submissions.forEach((item: any) => {
         const status = item.status || 'completed';
-        if (status === 'completed' || status === 'passed' || status === 'failed') {
+        if (status === 'completed' || status === 'evaluated' || status === 'submitted') {
           completed++;
-          if (item.marks != null) scores.push(item.marks);
-          else if (item.score != null) scores.push(item.score);
+          
+          // Calculate percentage
+          const activities = item.question_activities || [];
+          if (activities.length > 0) {
+            const testTotalMarks = activities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+            const marksObtained = item.marks || 0;
+            const pct = testTotalMarks > 0 ? (marksObtained / testTotalMarks) * 100 : 0;
+            scores.push(pct);
+          } else {
+             scores.push(Math.min(item.marks || 0, 100)); // fallback
+          }
         } else {
           inProgress++;
         }
       });
 
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const total = assessments.length;
+      const pending = Math.max(0, total - (completed + inProgress));
+      
+      const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
       const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
       const lowestScore = scores.length > 0 ? Math.min(...scores) : 0;
+
+      // Last test score — sort by date to find the most recent attempt
+      const sortedSubmissions = [...submissions].filter((s: any) => 
+          s.status === 'completed' || s.status === 'evaluated' || s.status === 'submitted'
+      ).sort((a: any, b: any) => {
+          const dateA = new Date(a.submitted_at || a.completed_at || a.created_at || 0).getTime();
+          const dateB = new Date(b.submitted_at || b.completed_at || b.created_at || 0).getTime();
+          return dateB - dateA;
+      });
+
+      let recentStatus = 0;
+      if (sortedSubmissions.length > 0) {
+          const lastSub = sortedSubmissions[0];
+          const activities = lastSub.question_activities || [];
+          if (activities.length > 0) {
+              const testTotalMarks = activities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+              const marksObtained = lastSub.marks || 0;
+              recentStatus = testTotalMarks > 0 ? Math.round((marksObtained / testTotalMarks) * 100) : 0;
+          } else {
+              recentStatus = Math.min(lastSub.marks || 0, 100);
+          }
+      }
 
       return {
         completed,
         inProgress,
         pending,
-        total: results.length,
-        avgScore,
-        highestScore,
-        lowestScore,
-        recentStatus: scores.length > 0 ? scores[scores.length - 1] : 0,
+        total,
+        avgScore: Math.round(avgScore),
+        highestScore: Math.round(highestScore),
+        lowestScore: Math.round(lowestScore),
+        recentStatus,
       };
     } catch (error) {
       console.warn('Assessments API failed:', error);
