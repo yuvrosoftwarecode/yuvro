@@ -208,7 +208,9 @@ const PrincipalReportFilters: React.FC<PrincipalReportFiltersProps> = ({
               <SelectContent className="bg-popover border-border/60 z-50">
                 <SelectItem value="all" className="text-sm">All Sections</SelectItem>
                 {sections.length > 0 ? sections.map((s: SectionOption) => (
-                  <SelectItem key={s.name} value={s.name} className="text-sm">Section {s.name}</SelectItem>
+                  <SelectItem key={s.name} value={s.name} className="text-sm">
+                    {s.name.toLowerCase().startsWith('section') ? s.name : `Section ${s.name}`}
+                  </SelectItem>
                 )) : (
                   <SelectItem value="__none" disabled className="text-xs">No sections available</SelectItem>
                 )}
@@ -219,7 +221,7 @@ const PrincipalReportFilters: React.FC<PrincipalReportFiltersProps> = ({
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Subject</label>
             {/* Subject Filter - FIFTH */}
-            <Select value={selectedSubject} onValueChange={onSubjectChange} disabled={selectedSection === 'all' || !selectedSection}>
+            <Select value={selectedSubject} onValueChange={onSubjectChange} disabled={!selectedSemester}>
               <SelectTrigger className="h-11 bg-background border-border/60 focus:ring-primary/20">
                 <SelectValue placeholder="All Subjects" />
               </SelectTrigger>
