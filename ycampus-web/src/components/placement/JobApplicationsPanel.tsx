@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlacementJob } from '@/hooks/usePlacement';
-import { supabase } from '@/integrations/supabase/client';
+import jobApplicationService from '@/services/jobApplicationService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp } from 'lucide-react';
@@ -61,10 +61,17 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
     queryKey: ['job-applications', job?.id],
     queryFn: async () => {
       if (!job) return [];
-      const { data, error } = await supabase.from('student_applications')
-        .select('*').eq('job_id', job.id).order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as any[];
+      const data = await jobApplicationService.getJobApplications(job.id);
+      return (data || []).map((app: any) => ({
+        id: app.id,
+        student_name: app.applicant_name || app.applicant_details?.full_name || 'Unknown',
+        student_id: app.applicant_details?.roll_number || app.applicant || '',
+        branch: app.applicant_details?.department_name || '',
+        cgpa: app.applicant_details?.cgpa || 0,
+        status: app.status,
+        created_at: app.created_at,
+        email: app.applicant_email,
+      }));
     },
     enabled: !!job?.id && open,
   });
@@ -95,8 +102,8 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
 
   const stats = useMemo(() => {
     if (!enrichedApps.length) return { total: 0, eligible: 0, shortlisted: 0, rejected: 0, avgPri: 0 };
-    const shortlisted = enrichedApps.filter((a: any) => ['shortlisted', 'interview', 'selected', 'offer_accepted'].includes(a.status)).length;
-    const rejected = enrichedApps.filter((a: any) => ['rejected', 'offer_declined'].includes(a.status)).length;
+    const shortlisted = enrichedApps.filter((a: any) => ['shortlisted', 'interview_scheduled', 'selected'].includes(a.status)).length;
+    const rejected = enrichedApps.filter((a: any) => ['rejected'].includes(a.status)).length;
     const eligible = enrichedApps.filter((a: any) => a.pri >= 70).length;
     const avgPri = Math.round(enrichedApps.reduce((s: number, a: any) => s + a.pri, 0) / enrichedApps.length);
     return { total: enrichedApps.length, eligible, shortlisted, rejected, avgPri };
@@ -121,12 +128,14 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
   };
 
   const updateAppStatus = async (ids: string[], status: string) => {
-    for (const id of ids) {
-      await supabase.from('student_applications').update({ status: status as any }).eq('id', id);
+    try {
+      await Promise.all(ids.map(id => jobApplicationService.updateApplicationStatus(id, status)));
+      toast({ title: `${ids.length} student(s) status updated to ${status}` });
+      qc.invalidateQueries({ queryKey: ['job-applications', job?.id] });
+      setSelectedIds([]);
+    } catch (error: any) {
+      toast({ title: 'Failed to update status', description: error.message, variant: 'destructive' });
     }
-    toast({ title: `${ids.length} student(s) ${status}` });
-    qc.invalidateQueries({ queryKey: ['job-applications', job?.id] });
-    setSelectedIds([]);
   };
 
   const downloadExcel = () => {

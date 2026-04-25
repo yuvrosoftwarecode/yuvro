@@ -112,7 +112,16 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+              v7_fetcherPersist: true,
+              v7_normalizeFormMethod: true,
+              v7_partialHydration: true,
+              v7_skipActionErrorRevalidation: true,
+            }}
+          >
             <Routes>
               <Route path="/" element={<DashboardRedirect />} />
               <Route path="/login" element={<Login />} />

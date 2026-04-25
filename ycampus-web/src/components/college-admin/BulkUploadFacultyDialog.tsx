@@ -5,7 +5,11 @@ import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useDepartments } from '@/hooks/useDepartments';
-import { supabase } from '@/integrations/supabase/client';
+
+import subjectService from '@/services/subjectService';
+import semesterService from '@/services/semesterService';
+import sectionService from '@/services/sectionService';
+import { facultyService } from '@/services/facultyService';
 
 export function BulkUploadFacultyDialog() {
   const [open, setOpen] = useState(false);
@@ -65,38 +69,55 @@ export function BulkUploadFacultyDialog() {
             throw new Error(`Department ${row['Department Code']} not found`);
           }
 
-          // Create faculty profile
+          // 1. Create or Find Faculty Profile
+          // We use the addProfile from useProfiles which handles user creation via userService
           const profile = await addProfile({
             email: row['Email'],
             full_name: row['Full Name'],
-            role: 'faculty'
+            role: 'faculty',
+            department_id: department.id
           });
 
           if (!profile || !profile.id) {
             throw new Error('Failed to create faculty profile');
           }
 
-          // Get course by code
-          const { data: courses } = await supabase
-            .from('courses')
-            .select('id')
-            .eq('code', row['Subject Code'])
-            .eq('department_id', department.id)
-            .single();
+          // 2. Find Subject by Code
+          const subjects = await subjectService.getSubjects({ short_code: row['Subject Code'] } as any);
+          const subject = subjects.find(s => s.short_code === row['Subject Code']);
 
-          if (courses) {
-            // Add assignment
-            const currentYear = new Date().getFullYear();
-            await supabase
-              .from('faculty_subject_mapping')
-              .insert({
-                faculty_id: profile.id,
-                course_id: courses.id,
-                department_id: department.id,
-                semester: parseInt(row['Semester']),
-                academic_year: `${currentYear}-${currentYear + 1}`,
-                is_active: true
-              });
+          if (subject) {
+            // 3. Find Semester for the department and number
+            const semesters = await semesterService.getSemesters();
+            const semester = semesters.find(s => 
+              s.number === parseInt(row['Semester']) && 
+              (s as any).batch_details?.department === department.id
+            );
+
+            if (semester) {
+              // 4. Ensure SemesterSubject mapping exists
+              const semesterSubjects = await subjectService.getSubjectsForSemester(semester.id);
+              let semSub = semesterSubjects.find(ss => ss.subject === subject.id);
+              
+              if (!semSub) {
+                semSub = await subjectService.addSubjectToSemester(semester.id, subject.id);
+              }
+
+              // 5. Assign to all sections of this semester
+              const sections = await sectionService.getSections(semester.id);
+              
+              for (const section of sections) {
+                try {
+                  await subjectService.assignFacultyToSectionSubject({
+                    semester_subject: semSub!.id,
+                    section: section.id,
+                    faculty: profile.id // This should be the FacultyProfile ID
+                  });
+                } catch (assignErr) {
+                  console.warn(`Already assigned or error for section ${section.name}:`, assignErr);
+                }
+              }
+            }
           }
 
           successCount++;

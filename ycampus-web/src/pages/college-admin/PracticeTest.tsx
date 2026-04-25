@@ -44,7 +44,7 @@ const FilterSelect = ({
 }) => (
   <div className="space-y-1.5 flex-1 min-w-[180px]">
     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
-    <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="bg-background h-10 border-border hover:border-primary/40 transition-colors">
         <SelectValue placeholder={`Select ${label}`} />
       </SelectTrigger>
@@ -267,10 +267,10 @@ const CollegeAdminPracticeTest = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [collegeSubjects, setCollegeSubjects] = useState<any[]>([]);
   const [semesterSubjects, setSemesterSubjects] = useState<any[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
-  const [selectedBatch, setSelectedBatch] = useState<string | undefined>(undefined);
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
-  const [selectedUnit, setSelectedUnit] = useState<string | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [units, setUnits] = useState<{ id: string; name: string }[]>([]);
 
   const [practiceTests, setPracticeTests] = useState<SkillTest[]>([]);

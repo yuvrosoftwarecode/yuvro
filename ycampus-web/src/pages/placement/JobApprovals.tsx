@@ -11,10 +11,10 @@ import { Building2, MapPin, Calendar, AlertTriangle, CheckCircle2, XCircle, Paus
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import CreateJobDialog from '@/components/placement/CreateJobDialog';
-import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import jobService from '@/services/jobService';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
@@ -53,10 +53,13 @@ const JobApprovals = () => {
   const handleDelete = async (jobId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm('Are you sure you want to delete this job?')) return;
-    const { error } = await supabase.from('placement_jobs').delete().eq('id', jobId);
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-    toast({ title: 'Job deleted' });
-    qc.invalidateQueries({ queryKey: ['placement-jobs'] });
+    try {
+      await jobService.deleteJob(jobId);
+      toast({ title: 'Job deleted' });
+      qc.invalidateQueries({ queryKey: ['placement-jobs'] });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to delete job', variant: 'destructive' });
+    }
   };
 
   return (

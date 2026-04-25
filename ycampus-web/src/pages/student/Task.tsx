@@ -312,14 +312,14 @@ const StudentTask: React.FC = () => {
     setInitialHighlight(null);
   };
 
-  const handleAnnotationLinkClick = (_filename: string, lineNum: number, quotedText?: string) => {
+  const handleAnnotationLinkClick = (filename: string, lineNum: number, quotedText?: string) => {
     if (!currentTask) return;
     const sub = submissions[currentTask.id];
     if (!sub?.file) return;
 
     setFileViewerUrl(getAccessibleUrl(sub.file));
     setIsFileViewerOpen(true);
-    setInitialHighlight({ line: lineNum, text: quotedText });
+    setInitialHighlight({ filename, line: lineNum, text: quotedText });
   };
 
   if (showTaskView && currentTask) {
@@ -630,7 +630,8 @@ const StudentTask: React.FC = () => {
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                          <div 
+                          <div
+                          key={comment.id}
                           className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
                             comment.faculty 
                               ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto' 

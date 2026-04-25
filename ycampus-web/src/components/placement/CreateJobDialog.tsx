@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
+import jobService from '@/services/jobService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
@@ -27,7 +27,7 @@ const CreateJobDialog = ({ open, onOpenChange }: CreateJobDialogProps) => {
   const qc = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    companyName: '', roleTitle: '', jobType: 'full_time', location: '',
+    companyName: '', roleTitle: '', jobType: 'full-time', location: '',
     ctcFixed: '', ctcVariable: '', deadline: '', minCgpa: '0',
     description: '', bondDetails: '', skillInput: '', vacancies: '1',
   });
@@ -61,50 +61,51 @@ const CreateJobDialog = ({ open, onOpenChange }: CreateJobDialogProps) => {
     }
     setLoading(true);
     try {
-      // Create or find recruiter
-      let recruiterId: string;
-      const { data: existing } = await supabase.from('recruiters').select('id').eq('company_name', form.companyName.trim()).limit(1);
-      if (existing?.length) {
-        recruiterId = existing[0].id;
+      // 1. Create or find company
+      const companies = await jobService.getAllCompanies();
+      let companyId: string;
+      const existing = companies.find(c => c.name.toLowerCase() === form.companyName.trim().toLowerCase());
+      
+      if (existing) {
+        companyId = existing.id;
       } else {
-        const { data: newRec, error: recErr } = await supabase.from('recruiters').insert({
-          name: 'Placement Officer Created', email: 'internal@campus.edu', company_name: form.companyName.trim(),
-          company_location: form.location || null, is_verified: true, trust_score: 100,
-        }).select('id').single();
-        if (recErr) throw recErr;
-        recruiterId = newRec.id;
+        const newComp = await jobService.createCompany({
+          name: form.companyName.trim(),
+          location: form.location || undefined,
+        });
+        companyId = newComp.id;
       }
+
+      // 2. Map form data to backend CreateJobData
+      // Backend expects 'full-time', 'part-time', 'contract', 'internship'
+      const employment_type = form.jobType === 'full_time' ? 'full-time' : 
+                             form.jobType === 'intern' ? 'internship' : 
+                             form.jobType === 'contract' ? 'contract' : 'full-time';
 
       const ctcFixed = parseFloat(form.ctcFixed) * 100000 || 0;
       const ctcVariable = parseFloat(form.ctcVariable) * 100000 || 0;
 
-      const { error } = await supabase.from('placement_jobs').insert({
-        recruiter_id: recruiterId,
-        role_title: form.roleTitle.trim(),
-        role_description: form.description || null,
-        job_type: form.jobType,
-        location: form.location || null,
-        ctc_fixed: ctcFixed,
-        ctc_variable: ctcVariable,
-        ctc_total: ctcFixed + ctcVariable,
-        deadline: form.deadline || null,
-        min_cgpa: parseFloat(form.minCgpa) || 0,
-        skills_required: skills.length ? skills : null,
-        eligible_branches: selectedDepts.length ? selectedDepts : null,
-        selection_rounds: selectionRounds.length ? selectionRounds : null,
-        bond_details: form.bondDetails || null,
-        vacancies: parseInt(form.vacancies) || 1,
-        status: 'approved' as any,
-        created_by: user?.id,
+      await jobService.createJob({
+        company_id: companyId,
+        title: form.roleTitle.trim(),
+        description: form.description || 'No description provided.',
+        employment_type: employment_type as any,
+        locations: form.location ? [form.location] : [],
+        min_salary: ctcFixed,
+        max_salary: ctcFixed + ctcVariable,
+        currency: 'INR',
+        skills: skills,
+        experience_min_years: 0, // Default for campus placement
+        status: 'active', // Direct publish
+        expires_at: form.deadline || undefined,
       });
-      if (error) throw error;
 
       toast({ title: 'Job created and published to Live Jobs' });
       qc.invalidateQueries({ queryKey: ['placement-jobs'] });
       qc.invalidateQueries({ queryKey: ['placement-stats'] });
       onOpenChange(false);
       // Reset
-      setForm({ companyName: '', roleTitle: '', jobType: 'full_time', location: '', ctcFixed: '', ctcVariable: '', deadline: '', minCgpa: '0', description: '', bondDetails: '', skillInput: '', vacancies: '1' });
+      setForm({ companyName: '', roleTitle: '', jobType: 'full-time', location: '', ctcFixed: '', ctcVariable: '', deadline: '', minCgpa: '0', description: '', bondDetails: '', skillInput: '', vacancies: '1' });
       setSkills([]); setSelectedDepts([]); setSelectionRounds([]); setRoundInput('');
     } catch (e: any) {
       toast({ title: 'Error creating job', description: e.message, variant: 'destructive' });

@@ -432,7 +432,9 @@ const ContestPage = () => {
                 </CardContent>
               </Card>
 
-              <ContestLeaderboard contestId={ongoingContest?.id || 'global'} contestTitle={ongoingContest?.title || 'Global Ranking'} />
+              {ongoingContest && (
+                <ContestLeaderboard contestId={ongoingContest.id} contestTitle={ongoingContest.title} />
+              )}
             </div>
           </div>
         </div>
