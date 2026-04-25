@@ -283,7 +283,6 @@ const App = () => (
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
                       <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                       <Route path="announcements" element={<CollegeAdminAnnouncements />} />
-                      <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                     </Routes>
                   </ProtectedRoute>
                 }

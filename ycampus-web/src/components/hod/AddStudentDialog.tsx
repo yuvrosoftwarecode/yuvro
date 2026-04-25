@@ -92,7 +92,7 @@ export function AddStudentDialog() {
           </div>
           <div>
             <Label htmlFor="department">Department</Label>
-            <Select value={formData.department_id} onValueChange={(value) => setFormData({ ...formData, department_id: value })}>
+            <Select value={formData.department_id || ""} onValueChange={(value) => setFormData({ ...formData, department_id: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
@@ -107,7 +107,7 @@ export function AddStudentDialog() {
           </div>
           <div>
             <Label htmlFor="semester">Semester</Label>
-            <Select value={formData.semester} onValueChange={(value) => setFormData({ ...formData, semester: value })}>
+            <Select value={formData.semester || ""} onValueChange={(value) => setFormData({ ...formData, semester: value })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
