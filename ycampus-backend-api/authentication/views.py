@@ -47,6 +47,7 @@ from authentication.permissions import (
     IsAdminUser,
     IsAuthenticatedUser,
     IsContentManagerOrAdmin,
+    CanManageUsers,
 )
 from django.contrib.auth import get_user_model
 
@@ -292,10 +293,7 @@ class UsersListCreateView(generics.ListCreateAPIView):
     ordering = ["-date_joined"]
 
     def get_permissions(self):
-        if self.request.method == "GET":
-            return [IsAdminUser()]
-        else:
-            return [IsAdminUser()]
+        return [CanManageUsers()]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -308,7 +306,15 @@ class UsersListCreateView(generics.ListCreateAPIView):
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == "true")
 
+        user = self.request.user
         college_id = self.request.query_params.get("college_id", None)
+
+        # Enforce college filtering for non-platform admins
+        if not user.is_admin():
+            user_college = user.college
+            if user_college:
+                college_id = str(user_college.id)
+
         if college_id:
             queryset = queryset.filter(
                 Q(student_profile__college_id=college_id) |
@@ -334,11 +340,11 @@ class UsersListCreateView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [CanManageUsers]
 
 
 class UserToggleStatusView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [CanManageUsers]
 
     def patch(self, request, pk):
         try:
