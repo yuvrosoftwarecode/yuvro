@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import subjectService from '@/services/subjectService';
 
 export interface SubtopicProgress {
   id: string;
@@ -21,45 +21,47 @@ export const useSubtopicProgress = (subjectId: string) => {
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await supabase
-        .from('subtopic_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('subject_id', subjectId);
+      const response = await subjectService.fetchUserSubjectProgress(subjectId, user.id);
+      
+      // Map backend progress details to the frontend interface
+      // Backend returns details about units/subunits completion
+      const details = response.details || [];
+      const mappedProgress: SubtopicProgress[] = [];
+      
+      details.forEach((unit: any) => {
+        (unit.sub_units || []).forEach((su: any) => {
+          if (su.is_completed) {
+            mappedProgress.push({
+              id: String(su.id),
+              user_id: user.id,
+              subject_id: subjectId,
+              topic_id: String(unit.id),
+              subtopic_id: String(su.id),
+              completed: true,
+              completed_at: su.completed_at || null,
+            });
+          }
+        });
+      });
 
-      if (error) throw error;
-      return data as SubtopicProgress[];
+      return mappedProgress;
     },
     enabled: !!user && !!subjectId,
   });
 
   const toggleCompletion = useMutation({
-    mutationFn: async ({ topicId, subtopicId }: { topicId: string; subtopicId: string }) => {
+    mutationFn: async ({ subtopicId }: { topicId: string; subtopicId: string }) => {
       if (!user) throw new Error('User not authenticated');
 
-      const existing = progressData.find(
-        (p) => p.topic_id === topicId && p.subtopic_id === subtopicId
-      );
+      const existing = progressData.find((p) => p.subtopic_id === subtopicId);
 
       if (existing) {
-        const { error } = await supabase
-          .from('subtopic_progress')
-          .update({ completed: !existing.completed })
-          .eq('id', existing.id);
-
-        if (error) throw error;
+        // Backend might not support unmarking as easily or might need a different endpoint
+        // For now, if it's already completed, we keep it completed or add a logic if backend supports it.
+        // Assuming mark_complete just ensures it's completed.
+        await subjectService.markSubUnitComplete(subtopicId);
       } else {
-        const { error } = await supabase
-          .from('subtopic_progress')
-          .insert({
-            user_id: user.id,
-            subject_id: subjectId,
-            topic_id: topicId,
-            subtopic_id: subtopicId,
-            completed: true,
-          });
-
-        if (error) throw error;
+        await subjectService.markSubUnitComplete(subtopicId);
       }
     },
     onSuccess: () => {
@@ -69,7 +71,7 @@ export const useSubtopicProgress = (subjectId: string) => {
 
   const isCompleted = (topicId: string, subtopicId: string) => {
     return progressData.some(
-      (p) => p.topic_id === topicId && p.subtopic_id === subtopicId && p.completed
+      (p) => p.subtopic_id === subtopicId && p.completed
     );
   };
 

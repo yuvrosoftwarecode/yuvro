@@ -93,28 +93,28 @@ const PrincipalDashboard = () => {
               <Card>
                 <CardContent className="pt-4 pb-3">
                   <div className="flex flex-wrap gap-3">
-                    <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
+                    <Select value={filters.academicYear || ""} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
                       <SelectTrigger className="w-[140px] h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="2025-26">2025–26</SelectItem>
                         <SelectItem value="2024-25">2024–25</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
+                    <Select value={filters.department || ""} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
                       <SelectTrigger className="w-[160px] h-9 text-xs"><SelectValue placeholder="Department" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Departments</SelectItem>
                         {departmentRanking.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <Select value={filters.semester} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
+                    <Select value={filters.semester || ""} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
                       <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Semester" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Semesters</SelectItem>
                         {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <Select value={filters.batch} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
+                    <Select value={filters.batch || ""} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
                       <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue placeholder="Batch" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Batches</SelectItem>
@@ -122,7 +122,7 @@ const PrincipalDashboard = () => {
                         <SelectItem value="2023-27">2023–27</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select value={filters.dateRange} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
+                    <Select value={filters.dateRange || ""} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
                       <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="full-year">Full Year</SelectItem>

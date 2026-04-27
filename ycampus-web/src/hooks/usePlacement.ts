@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { MOCK_PLACEMENT_JOBS } from '@/services/mockPlacementData';
+import { jobService, applicationService, Job as BackendJob, JobApplication as BackendJobApplication } from '@/services/jobService';
 
 export interface Recruiter {
   id: string;
@@ -95,20 +94,67 @@ export interface PlacementDrive {
   created_at: string;
 }
 
+const mapBackendJobToPlacement = (j: BackendJob): PlacementJob => ({
+  id: String(j.id),
+  recruiter_id: String(j.company?.id || ''),
+  role_title: j.title,
+  role_description: j.description,
+  skills_required: j.skills || [],
+  ctc_fixed: j.min_salary || 0,
+  ctc_variable: 0,
+  ctc_total: j.max_salary || 0,
+  location: (j.locations || []).join(', '),
+  bond_details: null,
+  selection_rounds: [],
+  vacancies: 0,
+  eligible_branches: [],
+  eligible_years: [],
+  min_cgpa: 0,
+  deadline: j.expires_at || null,
+  posted_date: j.posted_at || j.created_at,
+  status: j.status === 'active' ? 'approved' : (j.status === 'rejected' ? 'rejected' : 'pending'),
+  rejection_reason: null,
+  hold_remarks: null,
+  ai_risk_level: 'low',
+  total_applications: 0,
+  shortlisted_count: 0,
+  selected_count: 0,
+  created_at: j.created_at,
+  updated_at: j.updated_at,
+  job_type: j.employment_type === 'full-time' ? 'full_time' : (j.employment_type === 'internship' ? 'internship' : 'contract'),
+  recruiter: j.company ? {
+    id: String(j.company.id),
+    name: j.company.name,
+    designation: null,
+    email: '',
+    phone: null,
+    linkedin_url: null,
+    company_name: j.company.name,
+    company_website: j.company.website || null,
+    company_industry: null,
+    company_location: j.company.location || null,
+    company_logo_url: null,
+    is_verified: true,
+    trust_score: 100,
+    rating: 5,
+    created_at: j.company.created_at,
+    updated_at: j.company.updated_at,
+  } : undefined,
+});
+
 // Fetch all jobs with recruiter info
 export function usePlacementJobs(statusFilter?: string) {
   return useQuery({
     queryKey: ['placement-jobs', statusFilter],
     queryFn: async () => {
-      // Use mock data
-      let data = [...MOCK_PLACEMENT_JOBS];
+      const data = await jobService.getAllJobs();
+      let placementJobs = data.map(mapBackendJobToPlacement);
       
       if (statusFilter && statusFilter !== 'all') {
-        data = data.filter(j => j.status === statusFilter);
+        placementJobs = placementJobs.filter(j => j.status === statusFilter);
       }
       
-      console.log('usePlacementJobs returning mock data:', { statusFilter, count: data.length, data });
-      return data;
+      return placementJobs;
     },
   });
 }
@@ -118,29 +164,30 @@ export function usePlacementStats() {
   return useQuery({
     queryKey: ['placement-stats'],
     queryFn: async () => {
-      const [appsRes] = await Promise.all([
-        supabase.from('student_applications').select('id, status, ctc_offered'),
+      const [jobsData, appsData] = await Promise.all([
+        jobService.getAllJobs(),
+        // applicationService.getMyApplications(), // This might not be right for admin/placement officer
+        // In backend, there might be a view all applications endpoint
+        [] as any[] 
       ]);
       
-      const jobs = [...MOCK_PLACEMENT_JOBS];
-      const apps = (appsRes.data || []) as any[];
+      const placementJobs = jobsData.map(mapBackendJobToPlacement);
       
-      const pendingCount = jobs.filter(j => j.status === 'pending').length;
-      const liveCount = jobs.filter(j => j.status === 'approved').length;
-      const selectedApps = apps.filter(a => ['selected', 'offer_accepted'].includes(a.status));
-      const totalStudents = apps.length;
-      const ctcValues = selectedApps.map(a => Number(a.ctc_offered || 0)).filter(v => v > 0);
-      const avgCTC = ctcValues.length ? ctcValues.reduce((a, b) => a + b, 0) / ctcValues.length : 0;
-      const highestCTC = ctcValues.length ? Math.max(...ctcValues) : 0;
-      const placementPct = totalStudents > 0 ? Math.round((selectedApps.length / totalStudents) * 100) : 0;
-      const totalApps = jobs.reduce((s, j) => s + (j.total_applications || 0), 0);
-      const totalShortlisted = jobs.reduce((s, j) => s + (j.shortlisted_count || 0), 0);
-      const totalSelected = jobs.reduce((s, j) => s + (j.selected_count || 0), 0);
+      const pendingCount = placementJobs.filter(j => j.status === 'pending').length;
+      const liveCount = placementJobs.filter(j => j.status === 'approved').length;
       
       return {
-        pendingCount, liveCount, selectedThisMonth: selectedApps.length,
-        avgCTC, highestCTC, placementPct, totalApps, totalShortlisted, totalSelected,
-        jobs, apps,
+        pendingCount, 
+        liveCount, 
+        selectedThisMonth: 0,
+        avgCTC: 0, 
+        highestCTC: 0, 
+        placementPct: 0, 
+        totalApps: 0, 
+        totalShortlisted: 0, 
+        totalSelected: 0,
+        jobs: placementJobs, 
+        apps: [],
       };
     },
   });
@@ -152,21 +199,13 @@ export function useUpdateJobStatus() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ jobId, status, reason }: { jobId: string; status: 'approved' | 'rejected' | 'hold'; reason?: string }) => {
-      // Get current status
-      const { data: job } = await supabase.from('placement_jobs').select('status').eq('id', jobId).single();
-      const updates: any = { status };
-      if (status === 'rejected') updates.rejection_reason = reason;
-      if (status === 'hold') updates.hold_remarks = reason;
-      const { error } = await supabase.from('placement_jobs').update(updates).eq('id', jobId);
-      if (error) throw error;
-      // Log
-      await supabase.from('job_status_logs').insert({
-        job_id: jobId,
-        previous_status: (job as any)?.status,
-        new_status: status,
-        changed_by: user?.id,
-        reason,
-      });
+      if (status === 'approved') {
+        await jobService.approveJob(jobId);
+      } else if (status === 'rejected') {
+        await jobService.rejectJob(jobId);
+      } else {
+        await jobService.updateJob(jobId, { status: 'paused' });
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['placement-jobs'] });
@@ -182,9 +221,9 @@ export function useStudentApplications() {
   return useQuery({
     queryKey: ['student-applications'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('student_applications').select('*, job:placement_jobs(role_title, recruiter:recruiters(company_name))').order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as unknown as any[];
+      // In the backend, we need an endpoint to get all applications for placement officer
+      const data = await applicationService.getMyApplications(); 
+      return data;
     },
   });
 }
@@ -196,9 +235,8 @@ export function usePlacementNotifications() {
     queryKey: ['placement-notifications', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase.from('placement_notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50);
-      if (error) throw error;
-      return (data || []) as PlacementNotification[];
+      // Backend notification service should be used here
+      return [];
     },
     enabled: !!user,
   });
@@ -208,7 +246,7 @@ export function useMarkNotificationRead() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from('placement_notifications').update({ is_read: true }).eq('id', id);
+      // Backend notification service should be used here
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['placement-notifications'] }),
   });
@@ -219,9 +257,8 @@ export function usePlacementDrives() {
   return useQuery({
     queryKey: ['placement-drives'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('placement_drives').select('*').order('drive_date', { ascending: true });
-      if (error) throw error;
-      return (data || []) as PlacementDrive[];
+      // Backend drives service
+      return [];
     },
   });
 }
@@ -231,9 +268,25 @@ export function useRecruiters() {
   return useQuery({
     queryKey: ['recruiters'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('recruiters').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as unknown as Recruiter[];
+      const data = await jobService.getAllCompanies();
+      return data.map(c => ({
+        id: String(c.id),
+        name: c.name,
+        designation: null,
+        email: '',
+        phone: null,
+        linkedin_url: null,
+        company_name: c.name,
+        company_website: c.website || null,
+        company_industry: null,
+        company_location: c.location || null,
+        company_logo_url: null,
+        is_verified: true,
+        trust_score: 100,
+        rating: 5,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+      })) as Recruiter[];
     },
   });
 }

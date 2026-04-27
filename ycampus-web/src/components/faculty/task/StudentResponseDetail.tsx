@@ -29,6 +29,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
   const [newComment, setNewComment] = useState('');
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
   const [activeHighlight, setActiveHighlight] = useState<{ line?: number; text?: string } | null>(null);
+  const [fileViewerHighlight, setFileViewerHighlight] = useState<{ filename?: string; line?: number; text?: string } | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const annotationInputRef = useRef<HTMLTextAreaElement>(null);
   const student = response.student_details || {};
@@ -74,6 +75,20 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
     }
     setNewComment(prev => prev ? prev + '\n' + fullSnippet : fullSnippet);
     setTimeout(() => annotationInputRef.current?.focus(), 10);
+  };
+
+  /** Handle clicking an annotation link - opens file viewer for file refs, highlights for inline answer refs */
+  const handleAnnotationClick = (filename: string, lineNum: number, quotedText?: string) => {
+    // "Answer" refs point to the inline code editor
+    if (filename === 'Answer') {
+      setActiveHighlight({ line: lineNum, text: quotedText });
+      return;
+    }
+    // File-based refs (e.g. "ab.java_5") → open TaskFileViewer with that file + line
+    if (response.file) {
+      setFileViewerHighlight({ filename, line: lineNum, text: quotedText });
+      setIsFileViewerOpen(true);
+    }
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -181,7 +196,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                         <p className="text-[11px]  text-slate-400 mt-0.5">Primary submission resource</p>
                       </div>
                     </div>
-                    <Button variant="outline" className="shadow-sm font-bold border-slate-200 h-10 px-5" onClick={() => setIsFileViewerOpen(true)}>
+                    <Button variant="outline" className="shadow-sm font-bold border-slate-200 h-10 px-5" onClick={() => { setFileViewerHighlight(null); setIsFileViewerOpen(true); }}>
                       <Eye className="h-4 w-4 mr-2" />
                       Review Files
                     </Button>
@@ -227,9 +242,9 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                           } ${annotationMatch ? 'cursor-pointer' : ''}`}
                           onClick={() => {
                             if (annotationMatch) {
-                               const [, _filename, lineStr] = annotationMatch;
+                               const [, filename, lineStr] = annotationMatch;
                                const quoteMatch = comment.comment.match(/"([^"]*)"/);
-                               setActiveHighlight({ line: parseInt(lineStr), text: quoteMatch ? quoteMatch[1] : undefined });
+                               handleAnnotationClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
                             }
                           }}
                         >
@@ -243,8 +258,8 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                           </div>
                           <p className="text-sm text-[#020817] leading-relaxed whitespace-pre-wrap">
                             {(() => {
-                              const regex = /^Answer_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
-                              const parts = [];
+                              const regex = /^([a-zA-Z0-9._-]+)[_:]L?(\d+)\s*:\s*(?:"([^"]*)")?/gm;
+                              const parts: React.ReactNode[] = [];
                               let lastIndex = 0;
                               let match;
 
@@ -253,18 +268,18 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                                   parts.push(comment.comment.substring(lastIndex, match.index));
                                 }
 
-                                const [, lineStr, quotedText] = match;
+                                const [, filename, lineStr, quotedText] = match;
                                 parts.push(
                                   <button
                                     key={match.index}
                                     onClick={(e) => {
-                                      e.stopPropagation(); // Prevent double trigger with bubble click
-                                      setActiveHighlight({ line: parseInt(lineStr), text: quotedText });
+                                      e.stopPropagation();
+                                      handleAnnotationClick(filename, parseInt(lineStr), quotedText);
                                     }}
                                     className="text-primary hover:underline font-semibold bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 inline-flex items-center gap-1 group transition-all mr-1"
                                   >
                                     <FileText className="h-3 w-3" />
-                                    Answer:{lineStr}
+                                    {filename}:{lineStr}
                                   </button>
                                 );
                                 lastIndex = regex.lastIndex;
@@ -312,11 +327,12 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
       {/* 3-Pane File Viewer Integration */}
       <TaskFileViewer 
         isOpen={isFileViewerOpen}
-        onClose={() => setIsFileViewerOpen(false)}
+        onClose={() => { setIsFileViewerOpen(false); setFileViewerHighlight(null); }}
         fileUrl={response.file || null}
         comments={response.comments}
         onAddComment={onAddComment}
         submitting={submitting}
+        initialHighlight={fileViewerHighlight}
       />
     </div>
   );

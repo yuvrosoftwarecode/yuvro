@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import subjectService from '@/services/subjectService';
 import { toast } from 'sonner';
 
 export interface Subject {
@@ -20,39 +20,32 @@ export function useSubjects(departmentId?: string) {
   const { data: subjects, isLoading, error } = useQuery({
     queryKey: ['subjects', departmentId],
     queryFn: async () => {
-      let query = supabase
-        .from('courses')
-        .select('*')
-        .order('name');
+      // In the backend, subjects are not directly linked to departments in the Subject model.
+      // They are linked via SemesterSubject or CollegeSubject.
+      // However, for compatibility with hooks that expect a list of subjects, 
+      // we fetch all subjects or filter if possible.
+      const data = await subjectService.getSubjects();
       
-      if (departmentId) {
-        query = query.eq('department_id', departmentId);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return data as Subject[];
+      return data.map((s: any) => ({
+        id: String(s.id),
+        name: s.subject_name || s.name || '',
+        code: s.short_code || '',
+        department_id: null, // Backend doesn't have direct department link
+        semester: 1, // Defaulting as backend Subject doesn't have semester
+        description: s.description || null,
+        created_at: s.created_at || '',
+        updated_at: s.updated_at || '',
+      })) as Subject[];
     },
   });
 
   const createSubjectMutation = useMutation({
     mutationFn: async (newSubject: { name: string; code: string; department_id: string; semester?: number; description?: string }) => {
-      const { data, error } = await supabase
-        .from('courses')
-        .insert({
-          name: newSubject.name,
-          code: newSubject.code,
-          department_id: newSubject.department_id,
-          semester: newSubject.semester || 1,
-          description: newSubject.description || null,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return await subjectService.createSubject({
+        subject_name: newSubject.name,
+        short_code: newSubject.code,
+        description: newSubject.description,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subjects'] });
@@ -65,21 +58,11 @@ export function useSubjects(departmentId?: string) {
 
   const updateSubjectMutation = useMutation({
     mutationFn: async (updatedSubject: Partial<Subject> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('courses')
-        .update({
-          name: updatedSubject.name,
-          code: updatedSubject.code,
-          department_id: updatedSubject.department_id,
-          semester: updatedSubject.semester,
-          description: updatedSubject.description,
-        })
-        .eq('id', updatedSubject.id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return await subjectService.updateSubject(updatedSubject.id, {
+        subject_name: updatedSubject.name,
+        short_code: updatedSubject.code,
+        description: updatedSubject.description,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subjects'] });
@@ -92,12 +75,7 @@ export function useSubjects(departmentId?: string) {
 
   const deleteSubjectMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('courses')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await subjectService.deleteSubject(id);
       return id;
     },
     onSuccess: () => {

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Calendar, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Calendar, BookOpen } from 'lucide-react';
 import { useDepartments } from '@/hooks/useDepartments';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import PageHeader from '@/components/common/PageHeader';
+import semesterService from '@/services/semesterService';
+import { batchService } from '@/services/batchService';
 
 interface SemesterRow {
   id: string;
@@ -24,6 +24,7 @@ interface SemesterRow {
   department_name?: string;
   department_code?: string;
   sections_count: number;
+  batch_name?: string;
 }
 
 const Semesters = () => {
@@ -32,53 +33,56 @@ const Semesters = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filterDept, setFilterDept] = useState<string>('all');
-  const [form, setForm] = useState({ department_id: '', number: '' });
+  const [form, setForm] = useState({ department_id: '', batch_id: '', number: '' });
 
   const { data: semesters, isLoading } = useQuery({
-    queryKey: ['admin-semesters'],
+    queryKey: ['admin-semesters', filterDept],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('department_semesters')
-        .select(`
-          id,
-          department_id,
-          number,
-          created_at,
-          department_sections (id)
-        `)
-        .order('number');
-      if (error) throw error;
+      const params: any = {};
+      if (filterDept !== 'all') params.department = filterDept;
+      const data = await semesterService.getSemesters(); // Note: getSemesters in service doesn't take params yet, I'll update it or just use the filtered list
+      // For now, let's just fetch all and filter client side if the service doesn't support params
       return (data || []).map((s: any) => ({
-        id: s.id,
-        department_id: s.department_id,
+        id: String(s.id),
+        department_id: s.batch_details?.department_details?.id || '',
         number: s.number,
         created_at: s.created_at,
-        sections_count: s.department_sections?.length || 0,
+        sections_count: s.sections?.length || 0,
+        batch_name: s.batch_name,
+        department_name: s.batch_details?.department_details?.name,
+        department_code: s.batch_details?.department_details?.short_form,
       }));
     },
   });
 
+  const { data: batches } = useQuery({
+    queryKey: ['batches', form.department_id],
+    queryFn: async () => {
+      if (!form.department_id) return [];
+      return await batchService.getBatches(form.department_id);
+    },
+    enabled: !!form.department_id && dialogOpen,
+  });
+
   const addMutation = useMutation({
-    mutationFn: async (data: { department_id: string; number: number }) => {
-      const { error } = await supabase.from('department_semesters').insert(data);
-      if (error) throw error;
+    mutationFn: async (data: { batch: string; number: number }) => {
+      await semesterService.createSemester(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-semesters'] });
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
       toast.success('Semester added successfully');
+      setDialogOpen(false);
+      setForm({ department_id: '', batch_id: '', number: '' });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('department_semesters').delete().eq('id', id);
-      if (error) throw error;
+      await semesterService.deleteSemester(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-semesters'] });
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
       toast.success('Semester deleted successfully');
     },
     onError: (e: Error) => toast.error(e.message),
@@ -86,13 +90,9 @@ const Semesters = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.department_id || !form.number) return;
-    addMutation.mutate({ department_id: form.department_id, number: parseInt(form.number) });
-    setDialogOpen(false);
-    setForm({ department_id: '', number: '' });
+    if (!form.batch_id || !form.number) return;
+    addMutation.mutate({ batch: form.batch_id, number: parseInt(form.number) });
   };
-
-  const getDeptInfo = (deptId: string) => departments?.find(d => d.id === deptId);
 
   const filtered = semesters?.filter(s => filterDept === 'all' || s.department_id === filterDept) || [];
 
@@ -101,10 +101,14 @@ const Semesters = () => {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-
           <main className="flex-1 p-6 bg-background">
             <PageHeader 
               title="Semester Management" 
+              actions={
+                <Button onClick={() => setDialogOpen(true)} className="gap-2">
+                  <Plus className="h-4 w-4" /> Add Semester
+                </Button>
+              }
             />
             <div className="mb-6 flex items-center gap-4">
               <div className="w-64">
@@ -112,7 +116,7 @@ const Semesters = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by department" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border shadow-lg z-50">
+                  <SelectContent>
                     <SelectItem value="all">All Departments</SelectItem>
                     {departments?.map(d => (
                       <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
@@ -127,36 +131,36 @@ const Semesters = () => {
               <p className="text-muted-foreground">Loading semesters...</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.length > 0 ? filtered.map((sem) => {
-                  const dept = getDeptInfo(sem.department_id);
-                  return (
-                    <Card key={sem.id} className="overflow-hidden">
-                      <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-5 text-white">
-                        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider opacity-80 mb-1">
-                          <Calendar className="h-3.5 w-3.5" /> {dept?.name || 'Unknown Dept'}
-                        </div>
-                        <h3 className="font-bold text-lg">Semester {sem.number}</h3>
-                        <span className="inline-block mt-2 px-2 py-0.5 bg-black/20 rounded text-xs font-semibold">
-                          {dept?.code || '—'}
-                        </span>
+                {filtered.length > 0 ? filtered.map((sem) => (
+                  <Card key={sem.id} className="overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-5 text-white">
+                      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider opacity-80 mb-1">
+                        <Calendar className="h-3.5 w-3.5" /> {sem.department_name || 'Unknown Dept'}
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <BookOpen className="h-4 w-4" />
-                          {sem.sections_count} Section{sem.sections_count !== 1 ? 's' : ''}
-                        </div>
-                        <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                          <Button size="sm" variant="default" className="bg-foreground text-background hover:bg-foreground/90 text-xs">
-                            Manage
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDeleteId(sem.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                }) : (
+                      <h3 className="font-bold text-lg">Semester {sem.number}</h3>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="inline-block px-2 py-0.5 bg-black/20 rounded text-xs font-semibold">
+                          {sem.department_code || '—'}
+                        </span>
+                        <span className="text-xs opacity-80 font-medium">{sem.batch_name}</span>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <BookOpen className="h-4 w-4" />
+                        {sem.sections_count} Section{sem.sections_count !== 1 ? 's' : ''}
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                        <Button size="sm" variant="default" className="bg-foreground text-background hover:bg-foreground/90 text-xs">
+                          Manage
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDeleteId(sem.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )) : (
                   <p className="text-muted-foreground col-span-full">No semesters found. Click "Add Semester" to create one.</p>
                 )}
               </div>
@@ -173,13 +177,26 @@ const Semesters = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Department *</Label>
-              <Select value={form.department_id} onValueChange={v => setForm({ ...form, department_id: v })}>
+              <Select value={form.department_id} onValueChange={v => setForm({ ...form, department_id: v, batch_id: '' })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border shadow-lg z-50">
+                <SelectContent>
                   {departments?.map(d => (
                     <SelectItem key={d.id} value={d.id}>{d.name} ({d.code})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Batch *</Label>
+              <Select value={form.batch_id} onValueChange={v => setForm({ ...form, batch_id: v })} disabled={!form.department_id}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select batch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {batches?.map((b: any) => (
+                    <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -190,7 +207,7 @@ const Semesters = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select semester" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border shadow-lg z-50">
+                <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                     <SelectItem key={n} value={n.toString()}>Semester {n}</SelectItem>
                   ))}
@@ -199,7 +216,7 @@ const Semesters = () => {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={addMutation.isPending}>
+              <Button type="submit" disabled={addMutation.isPending || !form.batch_id}>
                 {addMutation.isPending ? 'Adding...' : 'Add Semester'}
               </Button>
             </DialogFooter>

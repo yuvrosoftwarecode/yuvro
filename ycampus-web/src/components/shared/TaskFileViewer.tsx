@@ -93,7 +93,10 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
   useEffect(() => {
     if (isOpen && initialHighlight && extractedFiles.length > 0) {
       if (initialHighlight.filename) {
-        const file = extractedFiles.find(f => f.name === initialHighlight.filename);
+        // Try exact match first, then endsWith, then includes (for ZIP paths like 'src/ab.java')
+        const file = extractedFiles.find(f => f.name === initialHighlight.filename)
+          || extractedFiles.find(f => f.name.endsWith(initialHighlight.filename!))
+          || extractedFiles.find(f => f.name.includes(initialHighlight.filename!));
         if (file) {
            setSelectedFile(file);
            setActiveHighlight({ line: initialHighlight.line, text: initialHighlight.text });
@@ -149,7 +152,11 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
         }
       } else {
         const type = getFileType(filename);
-        const fileObj: ExtractedFile = { name: filename, path: filename, type, blob, url };
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
+        const mimeType = MIME_TYPES[ext] || blob.type || 'application/octet-stream';
+        const typedBlob = new Blob([blob], { type: mimeType });
+        const blobUrl = URL.createObjectURL(typedBlob);
+        const fileObj: ExtractedFile = { name: filename, path: filename, type, blob: typedBlob, url: blobUrl };
         if (type === 'text') {
            fileObj.text = await blob.text();
         }

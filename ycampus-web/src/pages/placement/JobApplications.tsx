@@ -7,20 +7,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
-import { MOCK_PLACEMENT_JOBS, MOCK_STUDENT_APPLICATIONS } from '@/services/mockPlacementData';
+import { jobService, applicationService } from '@/services/jobService';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
-
-// Dummy data with previous offers info
-// Mock data source
-// Using MOCK_STUDENT_APPLICATIONS directly below to optimize bundle and reduce complexity
 
 const generateStudentMetrics = (name: string) => {
   const seed = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -58,16 +53,7 @@ const JobApplicationsPage = () => {
     queryKey: ['placement-job-detail', jobId],
     queryFn: async () => {
       if (!jobId) return null;
-      // Search in mock jobs
-      const found = MOCK_PLACEMENT_JOBS.find(j => j.id === jobId);
-      if (found) return found;
-
-      // Fallback to Supabase if not in mocks
-      const { data, error } = await supabase.from('placement_jobs')
-        .select('*, recruiter:recruiters(*)')
-        .eq('id', jobId).single();
-      if (error) return null;
-      return data;
+      return await jobService.getJob(jobId);
     },
     enabled: !!jobId,
   });
@@ -75,8 +61,10 @@ const JobApplicationsPage = () => {
   const { data: realApplications } = useQuery({
     queryKey: ['job-applications', jobId],
     queryFn: async () => {
-      // For now, always prefer mock applications to ensure consistency with design
-      return MOCK_STUDENT_APPLICATIONS;
+      if (!jobId) return [];
+      const response = await applicationService.getJobApplications(jobId);
+      // Backend returns applications for the job
+      return response || [];
     },
     enabled: !!jobId,
   });
@@ -87,24 +75,21 @@ const JobApplicationsPage = () => {
 
   const enrichedApps = useMemo(() => {
     return applications.map((app: any) => {
-      // Use existing metrics from mock data if available
-      const metrics = {
-        pi: app.pi || 0,
-        ps: app.ps || 0,
-        pri: app.pri || 0
-      };
+      // Map backend application to UI structure
+      const studentName = app.applicant_name || 'Student';
+      const metrics = generateStudentMetrics(studentName);
       
-      // If mock data doesn't have metrics, generate them
-      if (!metrics.pri) {
-        const generated = generateStudentMetrics(app.student_name);
-        metrics.pi = generated.pi;
-        metrics.ps = generated.ps;
-        metrics.pri = generated.pri;
-      }
-
-      const hasPrevOffer = app.previous_offer ?? (app.ctc_offered && app.ctc_offered > 0);
-      const highestCtc = app.highest_ctc ?? (app.ctc_offered || 0);
-      return { ...app, ...metrics, previous_offer: !!hasPrevOffer, highest_ctc: highestCtc };
+      const highestCtc = app.expected_salary || 0;
+      return { 
+        ...app, 
+        ...metrics, 
+        student_name: studentName,
+        student_id: app.applicant || 'N/A',
+        branch: app.applicant_department || 'N/A',
+        cgpa: app.applicant_cgpa || 0,
+        previous_offer: (app.expected_salary || 0) > 0, // Mocking previous offer logic
+        highest_ctc: highestCtc 
+      };
     });
   }, [applications]);
 
@@ -112,7 +97,7 @@ const JobApplicationsPage = () => {
     let list = enrichedApps;
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && a.student_id.toLowerCase().includes(q)));
+      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && String(a.student_id).toLowerCase().includes(q)));
     }
     if (deptFilter !== 'all') list = list.filter((a: any) => a.branch === deptFilter);
     if (offerFilter === 'yes') list = list.filter((a: any) => a.previous_offer);
@@ -167,12 +152,14 @@ const JobApplicationsPage = () => {
   };
 
   const updateAppStatus = async (ids: string[], status: string) => {
-    for (const id of ids) {
-      await supabase.from('student_applications').update({ status: status as any }).eq('id', id);
+    try {
+      await Promise.all(ids.map(id => applicationService.updateApplicationStatus(id, status)));
+      toast({ title: `${ids.length} student(s) ${status}` });
+      qc.invalidateQueries({ queryKey: ['job-applications', jobId] });
+      setSelectedIds([]);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to update status', variant: 'destructive' });
     }
-    toast({ title: `${ids.length} student(s) ${status}` });
-    qc.invalidateQueries({ queryKey: ['job-applications', jobId] });
-    setSelectedIds([]);
   };
 
   const downloadExcel = () => {

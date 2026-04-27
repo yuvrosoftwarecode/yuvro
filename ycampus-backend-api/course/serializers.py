@@ -65,10 +65,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_details = CollegeBasicSerializer(source="college", read_only=True)
     hod_details = serializers.SerializerMethodField()
+    batches = BatchSerializer(many=True, read_only=True)
 
     class Meta:
         model = Department
-        fields = ["id", "college", "college_name", "college_details", "hod_details", "name", "short_form", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "college_details", "hod_details", "name", "short_form", "batches", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
     def get_hod_details(self, obj):

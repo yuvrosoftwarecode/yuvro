@@ -44,7 +44,7 @@ const FilterSelect = ({
 }) => (
   <div className="space-y-1.5 flex-1 min-w-[180px]">
     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
-    <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="bg-background h-10 border-border hover:border-primary/40 transition-colors">
         <SelectValue placeholder={`Select ${label}`} />
       </SelectTrigger>
@@ -273,10 +273,10 @@ const CollegeAdminPracticeTest = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [collegeSubjects, setCollegeSubjects] = useState<any[]>([]);
   const [semesterSubjects, setSemesterSubjects] = useState<any[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
-  const [selectedBatch, setSelectedBatch] = useState<string | undefined>(undefined);
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
-  const [selectedUnit, setSelectedUnit] = useState<string | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [units, setUnits] = useState<{ id: string; name: string }[]>([]);
 
   const [practiceTests, setPracticeTests] = useState<SkillTest[]>([]);
@@ -725,17 +725,16 @@ const CollegeAdminPracticeTest = () => {
         <CardContent className="pt-5 pb-5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <FilterSelect label="Batch" value={selectedBatch} options={uniqueBatchNames} values={uniqueBatchNames}
-              onChange={(v) => { setSelectedBatch(v); setSelectedDepartment(undefined); setSelectedSubject(undefined); setSelectedUnit(undefined); }} />
+              onChange={(v) => { setSelectedBatch(v); setSelectedDepartment(''); setSelectedSubject(''); setSelectedUnit(''); }} />
             <FilterSelect label="Department" value={selectedDepartment || null}
               options={filteredDepartments.map(d => d.name)} values={filteredDepartments.map(d => String(d.id))}
-              onChange={(v) => { setSelectedDepartment(v); setSelectedSubject(undefined); setSelectedUnit(undefined); }}
+              onChange={(v) => { setSelectedDepartment(v); setSelectedSubject(''); setSelectedUnit(''); }}
               disabled={!selectedBatch} />
             <FilterSelect label="Subject" value={selectedSubject || null}
               options={filteredSubjects.map((s: any) => s.subject_details?.subject_name)}
               values={filteredSubjects.map((s: any) => String(s.subject))}
-              onChange={(v) => { setSelectedSubject(v); setSelectedUnit(undefined); }}
-              disabled={!selectedDepartment}
-              emptyMessage="No subjects were assigned" />
+              onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
+              disabled={!selectedDepartment} />
             <FilterSelect label="Unit" value={selectedUnit || null}
               options={units.map((u: any) => u.name)} values={units.map((u: any) => u.id)}
               onChange={setSelectedUnit} disabled={!selectedSubject} />

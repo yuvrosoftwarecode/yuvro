@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import apiService from '@/services/api';
-import { supabase } from '@/integrations/supabase/client';
+import subjectService from '@/services/subjectService';
 import { useQuery } from '@tanstack/react-query';
 
 interface Course {
@@ -21,8 +20,17 @@ export const useCourseManagement = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getCourses();
-      setCourses(response.content || []);
+      const data = await subjectService.getSubjects();
+      const mappedCourses = data.map((s: any) => ({
+        id: String(s.id),
+        name: s.subject_name || s.name || '',
+        courseName: s.subject_name || s.name || '',
+        courseId: String(s.id),
+        code: s.short_code || '',
+        department_id: undefined,
+        semester: 1,
+      }));
+      setCourses(mappedCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
       toast.error('Failed to fetch courses');
@@ -51,42 +59,27 @@ export const useCourseManagement = () => {
   };
 };
 
-// Dummy data for courses
-const DUMMY_COURSES = [
-  { id: '1', name: 'Java Programming', code: 'CS101', department_id: '1', semester: 1 },
-  { id: '2', name: 'Data Structures', code: 'CS102', department_id: '1', semester: 2 },
-  { id: '3', name: 'Algorithms', code: 'CS201', department_id: '1', semester: 3 },
-  { id: '4', name: 'Database Management', code: 'CS202', department_id: '1', semester: 3 },
-  { id: '5', name: 'Web Development', code: 'CS301', department_id: '1', semester: 4 },
-  { id: '6', name: 'Computer Networks', code: 'CS302', department_id: '1', semester: 5 },
-  { id: '7', name: 'Operating Systems', code: 'CS303', department_id: '1', semester: 5 },
-  { id: '8', name: 'Machine Learning', code: 'CS401', department_id: '1', semester: 6 },
-  { id: '9', name: 'Digital Electronics', code: 'EC101', department_id: '2', semester: 1 },
-  { id: '10', name: 'Circuit Theory', code: 'EC102', department_id: '2', semester: 2 },
-  { id: '11', name: 'Signals and Systems', code: 'EC201', department_id: '2', semester: 3 },
-  { id: '12', name: 'Microprocessors', code: 'EC301', department_id: '2', semester: 4 },
-];
-
 export function useCourses(departmentId?: string) {
   const { data: courses, isLoading } = useQuery({
     queryKey: ['courses', departmentId],
     queryFn: async () => {
-      // Try to fetch from database first
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .order('name');
-
-      if (error) {
-        console.error('Error fetching courses:', error);
-      }
-
-      // If no data from database, use dummy data
-      const coursesData = data && data.length > 0 ? data : DUMMY_COURSES;
+      const data = await subjectService.getSubjects();
       
-      // Filter by department if provided
+      const coursesData = data.map((s: any) => ({
+        id: String(s.id),
+        name: s.subject_name || s.name || '',
+        code: s.short_code || '',
+        department_id: undefined,
+        semester: 1,
+        created_at: s.created_at || '',
+        updated_at: s.updated_at || '',
+      }));
+      
+      // Filter by department if provided (Backend Subjects don't have direct department_id, 
+      // but if the UI passes it, we might need to filter via associations if they were loaded.
+      // For now, returning all as per current Subject model)
       if (departmentId) {
-        return coursesData.filter(c => c.department_id === departmentId);
+        // return coursesData.filter(c => c.department_id === departmentId);
       }
       
       return coursesData;
@@ -97,4 +90,4 @@ export function useCourses(departmentId?: string) {
     courses: courses || [],
     isLoading,
   };
-}
+}

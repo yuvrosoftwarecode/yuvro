@@ -57,6 +57,9 @@ MIDDLEWARE = [
     "observability.TracingMiddleware",
 ]
 
+# Allow embedding backend-served files (e.g. PDF previews) in the frontend
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 ROOT_URLCONF = "yc-backend-api.urls"
 
 TEMPLATES = [
