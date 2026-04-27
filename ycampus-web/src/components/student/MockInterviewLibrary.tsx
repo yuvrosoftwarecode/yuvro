@@ -57,6 +57,8 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
             iconColor,
             buttonGradient: design.gradient,
             questionCount: design.questions,
+            user_progress: item.user_progress,
+            my_submissions: item.my_submissions,
           };
         });
         setMockRoles(mappedRoles);
@@ -149,22 +151,11 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
         duration={role.max_duration}
         questionCount={(role as any).questionCount || 10}
         category={role.category}
+        user_progress={(role as any).user_progress}
+        my_submissions={(role as any).my_submissions}
         onStart={() => onStartPractice(role)}
       />
     ))}
-
-    {/* Machine Learning Dummy Card */}
-    <InterviewRoleCard
-  title="Machine Learning"
-  description="Covers supervised and unsupervised learning, ML algorithms, model evaluation, feature engineering, and real-world AI problem solving."
-  icon={getRoleIconConfig("Machine Learning").icon}
-  gradient="from-indigo-500 to-purple-600"
-  duration={45}
-  questionCount={14}
-  category="Product Based"
-  buttonType="report"
-  onStart={() => navigate("/student/mock-interview/report/ml")}
-/>
 
   </div>
 )}

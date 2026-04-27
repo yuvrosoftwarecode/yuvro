@@ -6,19 +6,17 @@ from core.models import College, FacultyProfile, Section, Task, Semester
 from course.models import Subject, CollegeSubject, SemesterSubject, SectionSubjectFaculty
 
 class Command(BaseCommand):
-    help = "Assigns 3 subjects and 5 tasks to active semesters, with randomized faculty assignments."
+    help = "Assigns subjects and 5 tasks to active semesters, with randomized faculty assignments."
 
     def handle(self, *args, **options):
         self.stdout.write("📚 Shuffling subjects and faculty assignments...")
 
         # 1. Get Target Subjects
-        subject_codes = ["DSA100", "PY101", "WEB101"]
-        subjects = list(Subject.objects.filter(short_code__in=subject_codes))
+        subjects = list(Subject.objects.all())
         
-        if len(subjects) < 3:
-            self.stdout.write(self.style.WARNING(f"Found only {len(subjects)} subjects out of 3. Ensure sample_courses_data.json is loaded first."))
-            if not subjects:
-                return
+        if not subjects:
+            self.stdout.write(self.style.WARNING("No subjects found. Ensure sample_courses_data.json is loaded first."))
+            return
 
         # 2. Assign to ALL Colleges (Generic catalog assignment)
         colleges = College.objects.all()

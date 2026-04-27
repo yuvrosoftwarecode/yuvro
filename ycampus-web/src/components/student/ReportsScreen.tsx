@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,7 @@ interface ReportsScreenProps {
   sessionId?: string | null;
   onTryAgain: () => void;
   onBackToLibrary: () => void;
+  isNewReport?: boolean;
 }
 
 interface ReportData {
@@ -142,11 +143,38 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   sessionId,
   onTryAgain,
   onBackToLibrary,
+  isNewReport,
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
+  const [timer, setTimer] = useState(5);
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isNewReport) {
+      const interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            onBackToLibrary();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isNewReport, onBackToLibrary]);
+
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -158,33 +186,49 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   useEffect(() => {
     const fetchReport = async () => {
       if (!sessionId) { setError('No session ID provided.'); setLoading(false); return; }
+      
+      // Clear any existing poll cycle
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+
       try {
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 50; // Increased to 100s for AI processing
+
         const poll = async () => {
           try {
-            const sessionData = await mockInterviewService.getInterviewSession(sessionId);
+            console.log(`[ReportsScreen] Monitoring report generation... Attempt ${attempts + 1}/${maxAttempts}`);
+            const sessionData = await mockInterviewService.getMockInterviewSubmission(sessionId);
+            
             if (sessionData.report) {
-              setReport({ ...sessionData.report, interview_session: { ...sessionData, report: undefined } });
-              setLoading(false);
-            } else if (sessionData.status === 'completed' && !sessionData.report) {
-              setError('Report generation encountered an error. Please try again.');
+              console.log(`[ReportsScreen] Report ready for session ${sessionId}`);
+              setReport({ 
+                ...sessionData.report, 
+                interview_session: { 
+                  ...sessionData, 
+                  transcript: sessionData.transcript,
+                  report: undefined 
+                } 
+              });
               setLoading(false);
             } else if (attempts < maxAttempts) {
               attempts++;
-              setTimeout(poll, 2000);
+              pollTimerRef.current = setTimeout(poll, 2000);
             } else {
-              setError('Report generation timed out. Please check back later.');
+              setError('Analysis is taking longer than usual. Please check back in your Interview Library in a minute.');
               setLoading(false);
             }
           } catch (err) {
-            console.error(err);
+            console.error('[ReportsScreen] Polling Error:', err);
             setError('Failed to fetch report data.');
             setLoading(false);
           }
         };
         poll();
-      } catch { setError('Failed to initialise report fetching.'); setLoading(false); }
+      } catch (err) { 
+        console.error('[ReportsScreen] Initialise Error:', err);
+        setError('Failed to initialise report fetching.'); 
+        setLoading(false); 
+      }
     };
     fetchReport();
   }, [sessionId]);
@@ -192,7 +236,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-5">
+      <div className="flex flex-col items-center justify-center space-y-5">
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 border-t-2 border-primary rounded-full animate-spin" />
           <div className="absolute inset-2 border-r-2 border-primary/40 rounded-full animate-spin [animation-direction:reverse]" />
@@ -200,9 +244,16 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
         </div>
         <div className="text-center space-y-1">
           <p className="text-sm font-semibold text-foreground">Generating Analysis</p>
-          <p className="text-xs text-muted-foreground max-w-xs">
-            Evaluating technical depth, communication clarity, and problem-solving approach.
-          </p>
+          <p className="text-xs text-slate-400 max-w-sm mt-1 leading-relaxed">
+          Our AI is evaluating your technical accuracy and delivery. 
+          Detailed analysis usually takes 30-60 seconds. You can stay here or return later.
+        </p>
+
+        {isNewReport && (
+          <div className="mt-8 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 animate-pulse">
+            Redirecting to library in {timer}s...
+          </div>
+        )}
         </div>
       </div>
     );
@@ -254,11 +305,13 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
           </Button>
           <div className="h-8 border-l border-border shrink-0" />
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-foreground truncate">{role.title} — Report</h1>
+            <h1 className="text-xl font-bold text-foreground truncate">
+              {report.interview_session?.mock_interview_title || role.title} — Report
+            </h1>
             <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
+              {/* <span className="flex items-center gap-1.5">
                 <Briefcase className="h-3.5 w-3.5" /> {role.level}
-              </span>
+              </span> */}
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
                 {report.interview_session.actual_duration_display || `${duration} mins`}

@@ -160,6 +160,7 @@ const InterviewPreparation = () => {
   const [dsaSubjectId, setDsaSubjectId] = useState<string | null>(null);
   const [isSubjectsLoading, setIsSubjectsLoading] = useState(true);
 
+  // DSA subject ID is fetched to allow direct navigation to the correct subject in Code Practice
   useEffect(() => {
     const loadSubjects = async () => {
       try {
@@ -182,18 +183,6 @@ const InterviewPreparation = () => {
     };
     loadSubjects();
   }, []);
-
-  // If interview is active, show session
-  if (interviewConfig) {
-    return (
-      <StudentLayout>
-        <MockInterviewSession
-          config={interviewConfig}
-          onExit={() => setInterviewConfig(null)}
-        />
-      </StudentLayout>
-    );
-  }
 
   const chartConfig = {
     ps: { label: 'PS Score', color: 'hsl(var(--primary))' },

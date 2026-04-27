@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart2, Brain, CheckCircle, Clock, Eye, FileText, Mic, Pencil, Settings, Trash2, Users, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import StatusBadge from '@/components/common/StatusBadge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Search, Edit, Eye, Trash2, Plus, BarChart2, Brain, CheckCircle, Clock, FileText, Mic, Settings, Users, FilterX, Power } from "lucide-react";
+import { toast } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { cn } from "@/lib/utils";
 
 import { mockInterviewService } from '@/services/mockInterviewService';
-import { StatsCard } from '@/components/common/StatsCard';
-import { DataTable, Column } from '@/components/common/DataTable';
 import DetailHeader from '@/components/common/DetailHeader';
 import PageHeader from '@/components/common/PageHeader';
 
@@ -24,26 +24,11 @@ interface MockInterviewUI {
   instructions: string;
   max_duration: number;
 
-  // AI Params
-  ai_generation_mode: string;
-  ai_coding_range: string;
-  ai_context?: any;
-
-  // Voice
-  voice_type: string;
-  voice_speed: number;
-
-  // Skills
   required_skills: string[];
   optional_skills: string[];
 
-  // Config
-  questions_config: Record<string, string[]>;
-  questions_random_config: Record<string, number>;
-
   publish_status: string;
   participants: number;
-  created_by?: string;
   created_at?: string;
 }
 
@@ -54,30 +39,8 @@ function mapMockInterviewFromBackend(c: any): MockInterviewUI {
     description: c.description ?? '',
     instructions: c.instructions ?? '',
     max_duration: c.max_duration ?? 60,
-
-    ai_generation_mode: c.ai_generation_mode ?? 'full_ai',
-    ai_coding_range: (() => {
-      const ctx = c.ai_context;
-      if (typeof ctx === 'object' && ctx !== null && !Array.isArray(ctx)) {
-        const counts = Object.values(ctx)
-          .map((v: any) => v?.coding_questions_count)
-          .filter(v => typeof v === 'number');
-        if (counts.length === 0) return '0';
-        const min = Math.min(...counts);
-        const max = Math.max(...counts);
-        return min === max ? `${min}` : `${min}-${max}`;
-      }
-      return String(c.ai_coding_question_count ?? 1);
-    })(),
-    voice_type: c.voice_type ?? 'junnu',
-    voice_speed: c.voice_speed ?? 1.0,
-
     required_skills: c.required_skills ?? [],
     optional_skills: c.optional_skills ?? [],
-
-    questions_config: c.questions_config ?? {},
-    questions_random_config: c.questions_random_config ?? {},
-
     publish_status: c.publish_status ?? 'draft',
     participants: c.participants_count ?? 0,
     created_at: c.created_at
@@ -139,9 +102,7 @@ export default function MockInterviewPage() {
     const q = (searchQuery || '').toString().trim().toLowerCase();
     const matchesSearch = !q || [
       interview.title,
-      interview.description,
-      interview.ai_generation_mode,
-      interview.voice_type
+      interview.description
     ].some(field => (field || '').toString().toLowerCase().includes(q));
 
     const status = (interview.publish_status || '').toLowerCase();
@@ -149,17 +110,6 @@ export default function MockInterviewPage() {
 
     return matchesSearch && matchesTab;
   });
-
-  const getModeColor = (mode: string) => {
-    switch (mode) {
-      case 'full_ai': return 'bg-blue-100 text-blue-700';
-      case 'mixed': return 'bg-purple-100 text-purple-700';
-      case 'predefined': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-white text-gray-700';
-    }
-  };
-
-  const formatMode = (mode: string) => mode.replace('_', ' ');
 
   const getHeaderTitle = () => {
     switch (currentView) {
@@ -170,8 +120,8 @@ export default function MockInterviewPage() {
 
   const getHeaderSubtitle = () => {
     switch (currentView) {
-      case 'view': return 'Review interview configuration, skills, and AI setup';
-      default: return 'Create and manage AI-powered mock interviews';
+      case 'view': return 'Review interview configuration and skills';
+      default: return 'Create and manage predefined question-tree interviews';
     }
   };
 
@@ -210,24 +160,12 @@ export default function MockInterviewPage() {
       )
     },
     {
-      header: 'Mode',
-      cell: (interview) => (
-        <Badge variant="secondary" className={`capitalize border-0 ${getModeColor(interview.ai_generation_mode)}`}>
-          {formatMode(interview.ai_generation_mode)}
-        </Badge>
-      )
-    },
-    {
       header: 'Duration',
       cell: (interview) => `${interview.max_duration} mins`
     },
     {
       header: 'Status',
-      cell: (interview) => <StatusBadge status={interview.publish_status} />
-    },
-    {
-      header: 'Coding Questions',
-      cell: (interview) => interview.ai_coding_range
+      cell: (interview) => <Badge status={interview.publish_status} />
     },
     {
       header: 'Participants',
@@ -278,191 +216,278 @@ export default function MockInterviewPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+      <div className="min-h-screen flex w-full">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <main className="flex-1 p-6 bg-background overflow-y-auto">
-            <div className="max-w-7xl mx-auto">
-              <PageHeader 
-                  title={getHeaderTitle()} 
-                  actions={headerActions}
-              />
+            <div className="flex flex-col space-y-6 max-w-7xl mx-auto">
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight">{getHeaderTitle()}</h1>
+                  <p className="text-muted-foreground">{getHeaderSubtitle()}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {currentView === 'list' ? (
+                    <Button
+                      onClick={() => navigate('/admin/mock-interview/add')}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm w-full sm:w-auto"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Mock Interview
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setCurrentView('list');
+                        setSelectedInterview(null);
+                      }}
+                      className="variant-outline"
+                    >
+                      Back to List
+                    </Button>
+                  )}
+                </div>
+              </div>
 
-            <div className="mt-6">
-                {currentView === 'list' && (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <StatsCard
-                        label="Total Interviews"
-                        value={mockInterviews.length}
-                        icon={Brain}
-                        colorScheme="blue"
-                    />
-                    <StatsCard
-                        label="Published"
-                        value={mockInterviews.filter((c) => c.publish_status === 'active').length}
-                        icon={CheckCircle}
-                        colorScheme="green"
-                    />
-                    <StatsCard
-                        label="Drafts"
-                        value={mockInterviews.filter((c) => c.publish_status === 'draft').length}
-                        icon={Pencil}
-                        colorScheme="purple"
-                    />
-                    <StatsCard
-                        label="Archived"
-                        value={mockInterviews.filter((c) => c.publish_status === 'archived').length}
-                        icon={Trash2}
-                        colorScheme="amber"
-                    />
+              {currentView === 'list' && (
+                <Card className="border shadow-sm">
+                  <CardHeader className="pb-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="w-full md:max-w-72 relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder="Search interviews..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 bg-muted/30 focus-visible:ring-1 focus-visible:ring-primary h-10 w-full"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 self-end md:self-auto">
+                        <select
+                          value={selectedTab}
+                          onChange={(e) => setSelectedTab(e.target.value)}
+                          className="h-10 border rounded-md px-3 py-2 bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto"
+                        >
+                          <option value="all">All Statuses</option>
+                          <option value="active">Active Only</option>
+                          <option value="draft">Draft Only</option>
+                          <option value="archived">Archived Only</option>
+                        </select>
+
+                        {searchQuery && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSearchQuery('')}
+                            className="text-primary hover:bg-primary/10 h-10 px-3"
+                          >
+                            <FilterX className="w-4 h-4 mr-2" />
+                            Clear Filters
+                          </Button>
+                        )}
+                      </div>
                     </div>
+                    
+                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-6 w-full max-w-full overflow-x-auto pb-2 scrollbar-none">
+                      <TabsList className="bg-muted inline-flex w-auto min-w-full sm:min-w-0">
+                        <TabsTrigger value="all" className="px-3 sm:px-4">All Interviews</TabsTrigger>
+                        <TabsTrigger value="active" className="px-3 sm:px-4">Active</TabsTrigger>
+                        <TabsTrigger value="draft" className="px-3 sm:px-4">Drafts</TabsTrigger>
+                        <TabsTrigger value="archived" className="px-3 sm:px-4">Archived</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </CardHeader>
 
-                    <div className="mb-6 flex items-center justify-between gap-4">
-                    <div className="flex w-full items-center gap-4 h-12">
-                        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center border border-gray-200 rounded-lg">
-                        <TabsList className="flex rounded-lg overflow-hidden border border-gray-200 bg-white px-4 gap-4 h-full items-center">
-                            <TabsTrigger value="all" className="px-6">All</TabsTrigger>
-                            <TabsTrigger value="active" className="px-6">Active</TabsTrigger>
-                            <TabsTrigger value="draft" className="px-6">Draft</TabsTrigger>
-                        </TabsList>
-                        </Tabs>
-
-                        <div className="relative flex-1 w-full h-full min-w-[250px]">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by title or description..."
-                                className="pl-9 h-full bg-white border-gray-200 w-full"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                            />
-                        </div>
+                  <CardContent className="pt-0">
+                    <div className="overflow-x-auto border rounded-md">
+                      <Table>
+                        <TableHeader className="bg-muted/50">
+                          <TableRow>
+                            <TableHead className="w-[450px]">Interview</TableHead>
+                            <TableHead>Duration</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="hidden md:table-cell text-center">Participants</TableHead>
+                            <TableHead className="text-right pr-4">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredMockInterviews.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
+                                No mock interviews found.
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            filteredMockInterviews.map((interview) => (
+                              <TableRow key={interview.id} className="group hover:bg-muted/20">
+                                <TableCell>
+                                  <div className="flex flex-col">
+                                    <button
+                                      onClick={() => openViewForm(interview)}
+                                      className="text-sm font-medium text-foreground hover:text-primary transition-colors text-left"
+                                    >
+                                      {interview.title}
+                                    </button>
+                                    <span className="text-xs text-muted-foreground truncate max-w-[280px]">
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {interview.max_duration} mins
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <div className={cn("h-2 w-2 rounded-full", 
+                                      interview.publish_status === 'active' ? "bg-emerald-500" : 
+                                      interview.publish_status === 'draft' ? "bg-orange-400" : "bg-destructive")} 
+                                    />
+                                    <span className="text-sm font-medium capitalize">{interview.publish_status}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                  <div className="flex items-center justify-center gap-1.5 text-sm">
+                                    <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                                    {interview.participants || 0}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-right pr-4">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                                      onClick={() => openViewForm(interview)}
+                                      title="View"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+                                      onClick={() => openEditForm(interview)}
+                                      title="Edit"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-indigo-600 hover:text-indigo-600 hover:bg-indigo-50"
+                                      onClick={() => navigate(`/admin/mock-interview/${interview.id}/analytics`)}
+                                      title="Analytics"
+                                    >
+                                      <BarChart2 className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      onClick={() => handleDelete(interview.id)}
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
                     </div>
-                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-                    <DataTable
-                        title="Mock Interviews"
-                        description={`${filteredMockInterviews.length} interview(s) found`}
-                        data={filteredMockInterviews}
-                        columns={columns}
-                        keyExtractor={(interview) => interview.id}
-                        emptyState={{
-                            message: 'No mock interviews found',
-                            subMessage: searchQuery
-                                ? `No mock interviews found matching "${searchQuery}"`
-                                : `No ${selectedTab} mock interviews found.`,
-                            action: searchQuery ? (
-                                <button
-                                onClick={() => setSearchQuery('')}
-                                className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                                >
-                                Clear search
-                                </button>
-                            ) : undefined
-                        }}
-                    />
-                </>
-                )}
-
-                {currentView === 'view' && selectedInterview && (
+              {currentView === 'view' && selectedInterview && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <DetailHeader
-                        title={selectedInterview.title}
-                        type={formatMode(selectedInterview.ai_generation_mode)}
-                        status={selectedInterview.publish_status}
-                        organizer="AI Interview Suite"
-                        createdAt={selectedInterview.created_at}
-                        onEdit={() => openEditForm(selectedInterview)}
-                        stats={[
-                            { label: 'Duration', value: `${selectedInterview.max_duration} mins`, icon: Clock, iconColorClass: 'text-blue-500' },
-                            { label: 'Participants', value: selectedInterview.participants || 0, icon: Users, iconColorClass: 'text-green-500' },
-                            { label: 'Coding Qs', value: selectedInterview.ai_coding_range, icon: BarChart2, iconColorClass: 'text-orange-500' }
+                  <DetailHeader
+                    title={selectedInterview.title}
+                    type="Interview Program"
+                    status={selectedInterview.publish_status}
+                    organizer="Interview Academy"
+                    createdAt={selectedInterview.created_at}
+                    onEdit={() => openEditForm(selectedInterview)}
+                    stats={[
+                      { label: 'Duration', value: `${selectedInterview.max_duration} mins`, icon: Clock, iconColorClass: 'text-blue-500' },
+                      { label: 'Participants', value: selectedInterview.participants || 0, icon: Users, iconColorClass: 'text-green-500' }
                     ]}
-                    />
+                  />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                      <Card className="border shadow-sm p-6">
                         <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-slate-500" />
-                            Description
+                          <FileText className="w-5 h-5 text-slate-500" />
+                          Description
                         </h3>
-                        <p className="text-slate-700 whitespace-pre-wrap">
-                            {selectedInterview.description || 'No description provided.'}
+                        <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                          {selectedInterview.description || 'No description provided.'}
                         </p>
-                        </div>
+                      </Card>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                      <Card className="border shadow-sm p-6">
                         <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-slate-500" />
-                            Interview Setup
+                          <Settings className="w-5 h-5 text-slate-500" />
+                          Interview Setup
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Required Skills</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Required Skills</p>
                             <div className="flex flex-wrap gap-2">
-                                {selectedInterview.required_skills.length > 0
-                                ? selectedInterview.required_skills.map((s) => <Badge key={s} variant="secondary">{s}</Badge>)
-                                : <span className="text-sm text-slate-500">None</span>}
+                              {selectedInterview.required_skills.length > 0
+                                ? selectedInterview.required_skills.map((s) => <Badge key={s} variant="secondary" className="px-2.5 py-1">{s}</Badge>)
+                                : <span className="text-sm text-slate-500 italic">None specified</span>}
                             </div>
-                            </div>
-                            <div>
-                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Optional Skills</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Optional Skills</p>
                             <div className="flex flex-wrap gap-2">
-                                {selectedInterview.optional_skills.length > 0
-                                ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="secondary" className="bg-white text-gray-700 border-0">{s}</Badge>)
-                                : <span className="text-sm text-slate-500">None</span>}
+                              {selectedInterview.optional_skills.length > 0
+                                ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="outline" className="px-2.5 py-1">{s}</Badge>)
+                                : <span className="text-sm text-slate-500 italic">None specified</span>}
                             </div>
-                            </div>
-                            <div>
-                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">AI Mode</p>
-                            <Badge className={`capitalize border-0 ${getModeColor(selectedInterview.ai_generation_mode)}`}>
-                                {formatMode(selectedInterview.ai_generation_mode)}
-                            </Badge>
-                            </div>
-                            <div>
-                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Voice</p>
-                            <div className="flex items-center gap-2 text-slate-800">
-                                <Mic className="w-4 h-4 text-slate-500" />
-                                <span>{selectedInterview.voice_type} ({selectedInterview.voice_speed}x)</span>
-                            </div>
-                            </div>
+                          </div>
                         </div>
-                        </div>
+                      </Card>
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Instructions</h3>
-                        <p className="text-sm text-slate-600 whitespace-pre-wrap">
-                            {selectedInterview.instructions || 'No instructions provided.'}
+                      <Card className="border shadow-sm p-6">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4">Instructions</h3>
+                        <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
+                          {selectedInterview.instructions || 'No special instructions for participants.'}
                         </p>
-                        </div>
+                      </Card>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                        <div className="flex gap-3">
-                            <button
+                      <Card className="border shadow-sm p-4 bg-muted/20">
+                        <div className="flex flex-col gap-2">
+                          <Button
                             onClick={() => openEditForm(selectedInterview)}
-                            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                            >
-                            Edit Interview
-                            </button>
-                            <button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Configuration
+                          </Button>
+                          <Button
+                            variant="destructive"
                             onClick={() => handleDelete(selectedInterview.id)}
-                            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                            >
-                            Delete
-                            </button>
+                            className="w-full"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete Interview
+                          </Button>
                         </div>
-                        </div>
+                      </Card>
                     </div>
-                    </div>
+                  </div>
                 </div>
-                )}
-                </div>
-              </div>
-            </main>
-          </div>
+              )}
+            </div>
+          </main>
         </div>
       </SidebarProvider>
   );
