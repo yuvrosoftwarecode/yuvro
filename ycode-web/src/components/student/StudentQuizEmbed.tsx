@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchRandomQuestions } from "@/services/questionService";
 import { submitQuiz } from "@/services/courseService";
+import { showGamificationToasts } from "@/utils/gamificationToast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, RotateCcw, BrainCircuit, CheckCircle2, AlertCircle, Target } from "lucide-react";
@@ -95,7 +96,10 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
       if (passed) setIsPassed(true);
 
       submitQuiz(subtopicId, updatedAnswers, percentage, passed)
-        .then(() => { if (onComplete) onComplete(true); })
+        .then((res: any) => {
+          showGamificationToasts(res?.gamification);
+          if (onComplete) onComplete(true);
+        })
         .catch(err => console.error("Failed to submit quiz", err));
       setQuizCompleted(true);
     } else {

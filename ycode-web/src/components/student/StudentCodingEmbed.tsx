@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Code, CheckCircle, Terminal, BrainCircuit, Target, Sparkles, ChevronRight } from "lucide-react";
 import { CodeEditorWithAI, CodeEditorWithAIHandle } from "@/components/code-editor";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import { showGamificationToasts } from "@/utils/gamificationToast";
 
 interface StudentCodingEmbedProps {
   subtopicId: string;
@@ -152,7 +153,8 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
             execution_output: submissionResult.output || ''
           };
 
-          await restApiAuthUtil.post('/course/student-course-progress/submit_coding/', submissionDetails);
+          const res: any = await restApiAuthUtil.post('/course/student-course-progress/submit_coding/', submissionDetails);
+          showGamificationToasts(res?.gamification);
           if (onComplete) onComplete(true);
         } catch (error) {
           console.error('Failed to update coding progress:', error);

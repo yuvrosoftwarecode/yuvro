@@ -3,6 +3,7 @@ import ProgressCircleWidget from './ProgressCircleWidget';
 import ActivityCalendarWidget from './ActivityCalendarWidget';
 import DailyGoalWidget from './DailyGoalWidget';
 import LeaderboardWidget from './LeaderboardWidget';
+import BadgesWidget from './BadgesWidget';
 import { CalendarDays, Trophy, Flame } from 'lucide-react';
 
 import type { Course, Stats, CourseProgressMap } from '../types';
@@ -12,6 +13,7 @@ interface StatsSidebarProps {
   courses: Course[];
   progressMap: CourseProgressMap;
   leaderboardData: any[];
+  badges?: any[];
   activeDates?: string[];
   solvedToday?: number;
   timeSpentToday?: string;
@@ -22,14 +24,12 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
   courses = [],
   progressMap = {},
   leaderboardData = [],
+  badges = [],
   activeDates = [],
   solvedToday = 0,
   timeSpentToday = "0m"
 }) => {
-  // Carousel State for Progress Widget
   const [currentCourseIndex, setCurrentCourseIndex] = useState<number>(0);
-
-  // Tab State for Engagement Hub
   const [activeTab, setActiveTab] = useState<'calendar' | 'leaderboard'>('calendar');
 
   // Filter for enrolled/started courses
@@ -63,6 +63,9 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
 
   const currentStreak = stats.streak || 0;
   const maxStreak = stats.max_streak || 0;
+  const xpProgressPct = stats.xp_progress_pct || 0;
+  const xpForNextLevel = stats.xp_for_next_level;
+  const currentXp = stats.xp || 0;
 
   const getStreakLabel = (streak: number) => {
     if (streak === 0) return 'Start today!';
@@ -85,10 +88,7 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-white/60 pointer-events-none" />
 
             {/* Daily Goal Section */}
-            <DailyGoalWidget
-              solvedToday={solvedToday}
-              timeSpentToday={timeSpentToday}
-            />
+            <DailyGoalWidget />
 
             {/* Subtle Separator (Improved for visibility) */}
             <div className="px-5 my-1 h-[1px]">
@@ -100,6 +100,7 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
               title={currentCourse.name}
               totalSolved={completedTopics}
               totalQuestions={totalTopics}
+              progressPercent={progressPercent}
               onNext={handleNext}
               onPrev={handlePrev}
               canNext={carouselCourses.length > 1}
@@ -143,21 +144,22 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
                   <div className="rounded-2xl bg-gradient-to-r from-saffron/5 via-saffron/8 to-saffron/3 dark:from-saffron/10 dark:via-saffron/5 dark:to-saffron/3 border border-saffron/15 dark:border-saffron/20 p-4 mb-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
+                        {/* Flame icon */}
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-saffron-start to-saffron-end flex items-center justify-center shadow-lg shadow-saffron/25">
                           <Flame className="w-5 h-5 text-white" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-foreground">{currentStreak} Day Streak</p>
-                          <p className="text-[10px] text-saffron dark:text-saffron font-semibold">{getStreakLabel(currentStreak)}</p>
+                          <p className="text-[10px] text-saffron dark:text-saffron font-semibold">Current Streak</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold mb-0.5">Best</p>
-                        <p className="text-sm font-extrabold text-foreground">{maxStreak}🏆</p>
+                         <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold mb-0.5">Highest Streak</p>
+                         <p className="text-sm font-extrabold text-foreground">{maxStreak}🏆</p>
                       </div>
                     </div>
                     {/* Evolution */}
-                    <div className="flex items-center justify-between bg-white/50 dark:bg-white/5 rounded-xl px-3 py-2">
+                    <div className="flex items-center justify-between bg-white/50 dark:bg-white/5 rounded-xl px-3 py-2 mb-3">
                       {[
                         { emoji: '😢', day: 0 },
                         { emoji: '🙂', day: 1 },
@@ -178,6 +180,21 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
                         );
                       })}
                     </div>
+                    {/* XP Mini Progress Bar */}
+                    {xpForNextLevel !== undefined && (
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[9px] font-bold text-saffron/70 uppercase tracking-wider">YP to next level</span>
+                          <span className="text-[9px] font-bold text-foreground/60">{xpForNextLevel} YP remaining</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-saffron/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-saffron-start to-saffron-end rounded-full transition-all duration-700 ease-out"
+                            style={{ width: `${Math.min(xpProgressPct, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <ActivityCalendarWidget activityMap={realActivityMap} />
@@ -185,18 +202,26 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
               ) : (
                 <div key="leaderboard" className="animate-in fade-in slide-in-from-left-2 duration-300 ease-out fill-mode-forwards">
                   <LeaderboardWidget
-                    topUsers={leaderboardData.slice(0, 5).map(e => ({
+                    topUsers={leaderboardData.slice(0, 5).map((e: any) => ({
                       rank: e.rank,
                       name: e.user,
                       points: e.xp,
-                      avatar: e.avatar
+                      avatar: e.avatar,
+                      isCurrentUser: e.is_current_user,
                     }))}
-                    currentUserRank={leaderboardData.find(e => e.is_current_user)?.rank || 0}
+                    currentUserRank={leaderboardData.find((e: any) => e.is_current_user)?.rank || 0}
+                    currentUserXp={stats.xp || 0}
                   />
                 </div>
               )}
             </div>
           </div>
+
+          {/* ── Badges Card ── */}
+          <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
+            <BadgesWidget badges={badges} />
+          </div>
+
         </div>
     </aside>
   );

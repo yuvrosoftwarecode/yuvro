@@ -722,14 +722,16 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         progress.save()
 
         # Gamification Hook: Quiz
+        gamification = {}
         if is_passed:
-            GamificationService.record_activity(user, 'quiz')
+            gamification = GamificationService.record_activity(user, 'quiz')
 
         return Response(
             {
                 "message": "Quiz submitted",
                 "progress": new_percent,
                 "is_completed": progress.is_completed,
+                "gamification": gamification,
             }
         )
 
@@ -894,8 +896,9 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             pass
             
         # Check if current submission was successful to award XP
+        gamification = {}
         if question_id and test_results.get("passed", 0) == test_results.get("total", 0):
-             GamificationService.record_activity(user, 'coding')
+            gamification = GamificationService.record_activity(user, 'coding')
 
         response_data = {
             "message": "Coding progress updated"
@@ -910,6 +913,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                 if test_results
                 else False
             ),
+            "gamification": gamification,
         }
 
         if question_id and language and code:
@@ -982,13 +986,14 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         progress.save()
 
         # Gamification Hook: Video
-        GamificationService.record_activity(user, 'video')
+        gamification = GamificationService.record_activity(user, 'video')
 
         return Response(
             {
                 "message": "Videos marked as watched",
                 "progress": new_percent,
                 "is_completed": progress.is_completed,
+                "gamification": gamification,
             }
         )
 
@@ -1086,8 +1091,13 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         # Gamification Data
         gamification_profile = GamificationService.get_or_create_profile(user)
         streak = gamification_profile.current_streak
+        max_streak = gamification_profile.longest_streak
         xp = gamification_profile.total_xp
-        level = gamification_profile.current_level
+        streak_freezes = gamification_profile.streak_freezes_remaining
+
+        # Use progressive leveling
+        from gamification.service import get_level_progress
+        level, xp_into_level, xp_for_next, progress_pct, tier_name = get_level_progress(xp)
 
         return Response(
             {
@@ -1095,43 +1105,16 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                 "time_spent": time_spent_str,
                 "avg_progress": avg_progress,
                 "streak": streak,
+                "max_streak": max_streak,
                 "xp": xp,
                 "level": level,
+                "tier_name": tier_name,
+                "xp_progress_pct": progress_pct,
+                "xp_for_next_level": xp_for_next,
+                "streak_freezes": streak_freezes,
             }
         )
 
-    @action(detail=False, methods=["get"])
-    def leaderboard(self, request):
-        """
-        Return top 10 users by XP.
-        """
-        top_profiles = UserGamificationProfile.objects.select_related('user', 'user__profile').order_by('-total_xp')[:10]
-        
-        data = []
-        for profile in top_profiles:
-            # Check if user has a profile for avatar
-            # This is inefficient if N is large, but for 10 it's fine. 
-            # Ideally select_related('user__profile')
-            avatar_url = None
-            try:
-                if hasattr(profile.user, 'profile'):
-                     avatar_url = profile.user.profile.profile_image
-            except:
-                pass
-                
-            data.append({
-                "rank": 0, # Filled below
-                "user": profile.user.username,
-                "xp": profile.total_xp,
-                "level": profile.current_level,
-                "avatar": avatar_url
-            })
-            
-        # Add rank
-        for i, item in enumerate(data):
-            item['rank'] = i + 1
-            
-        return Response(data)
 
     @action(detail=False, methods=["get"])
     def calendar_activity(self, request):
@@ -1494,6 +1477,8 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         "overall_success": overall_success,
                     },
                     "plagiarism_flagged": plagiarism_score > 0.8,
+                    "new_badges": [{"key": b.key, "name": b.name, "icon": b.icon} for b in new_badges],
+                    "welcome_bonus": welcome_bonus,
                 }
 
                 return Response(formatted_response, status=status.HTTP_201_CREATED)
