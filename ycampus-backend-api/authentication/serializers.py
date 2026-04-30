@@ -25,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_id = serializers.UUIDField(source="college.id", read_only=True)
     department_id = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -41,8 +42,9 @@ class UserSerializer(serializers.ModelSerializer):
             "college_name",
             "college_id",
             "department_id",
+            "department_name",
         ]
-        read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id", "department_id"]
+        read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id", "department_id", "department_name"]
 
     def get_department_id(self, obj):
         if not hasattr(obj, "role") or not obj.role:
@@ -56,6 +58,21 @@ class UserSerializer(serializers.ModelSerializer):
                 return obj.faculty_profile.department_id
             elif obj.role == "hod" and hasattr(obj, "hod_profile"):
                 return obj.hod_profile.department_id
+        except Exception:
+            return None
+        return None
+
+    def get_department_name(self, obj):
+        if not hasattr(obj, "role") or not obj.role:
+            return None
+
+        try:
+            if obj.role == "student" and hasattr(obj, "student_profile"):
+                return obj.student_profile.department.name if obj.student_profile.department else None
+            elif obj.role == "faculty" and hasattr(obj, "faculty_profile"):
+                return obj.faculty_profile.department.name if obj.faculty_profile.department else None
+            elif obj.role == "hod" and hasattr(obj, "hod_profile"):
+                return obj.hod_profile.department.name if obj.hod_profile.department else None
         except Exception:
             return None
         return None

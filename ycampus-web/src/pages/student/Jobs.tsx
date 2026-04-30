@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobCard } from '@/components/student/jobs/JobCard';
 import { JobDetailView } from '@/components/student/jobs/JobDetailView';
 import { JobFilters } from '@/components/student/jobs/JobFilters';
 import { ApplyDialog } from '@/components/student/jobs/ApplyDialog';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePlacementJobs, useStudentApplications, useApplyToJob, PlacementJob } from '@/hooks/usePlacement';
 
 export interface StudentJob {
   id: string;
   companyName: string;
-  companyType: 'Product' | 'Service' | 'Startup';
+  companyType: 'Product' | 'Service' | 'Startup' | 'MNC' | 'IT Service & Consulting';
   role: string;
   location: string;
   ctcFixed: number;
@@ -26,6 +28,7 @@ export interface StudentJob {
   selectionRounds: string[];
   postedDate: string;
   status: 'active' | 'expired';
+  bondDetails: string | null;
 }
 
 export interface StudentJobApplication {
@@ -37,87 +40,114 @@ export interface StudentJobApplication {
   status: 'applied' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
 }
 
-const dummyJobs: StudentJob[] = [
-  {
-    id: '1', companyName: 'TCS', companyType: 'Service', role: 'Software Developer',
-    location: 'Mumbai, India', ctcFixed: 350000, ctcVariable: 50000, ctcTotal: 400000,
-    deadline: '2026-04-15', eligibleBranches: ['CSE', 'IT', 'ECE'], minCgpa: 6.5,
-    description: 'Join TCS as a Software Developer and work on cutting-edge enterprise solutions for global clients. You will be part of an agile team delivering high-quality software.',
-    requirements: ['B.Tech in CSE/IT/ECE', 'No active backlogs', 'Min 6.5 CGPA'],
-    skills: ['Java', 'Python', 'SQL', 'Problem Solving'],
-    vacancies: 50, selectionRounds: ['Aptitude', 'Technical', 'HR'],
-    postedDate: '2026-03-10', status: 'active',
-  },
-  {
-    id: '2', companyName: 'Infosys', companyType: 'Service', role: 'Systems Engineer',
-    location: 'Bangalore, India', ctcFixed: 320000, ctcVariable: 30000, ctcTotal: 350000,
-    deadline: '2026-04-20', eligibleBranches: ['CSE', 'IT', 'ECE', 'EEE'], minCgpa: 6.0,
-    description: 'Infosys is hiring Systems Engineers for their digital transformation projects. Work with latest technologies and grow your career.',
-    requirements: ['B.Tech any branch', 'No active backlogs'],
-    skills: ['C++', 'Java', 'Cloud Computing'],
-    vacancies: 100, selectionRounds: ['Online Test', 'Technical Interview', 'HR'],
-    postedDate: '2026-03-12', status: 'active',
-  },
-  {
-    id: '3', companyName: 'Razorpay', companyType: 'Product', role: 'Backend Engineer',
-    location: 'Bangalore, India', ctcFixed: 1200000, ctcVariable: 300000, ctcTotal: 1500000,
-    deadline: '2026-04-05', eligibleBranches: ['CSE', 'IT'], minCgpa: 7.5,
-    description: 'Build payment infrastructure that powers millions of businesses. Work on high-scale distributed systems at Razorpay.',
-    requirements: ['B.Tech CSE/IT', 'Strong DSA skills', 'Min 7.5 CGPA'],
-    skills: ['Go', 'Python', 'Distributed Systems', 'Microservices'],
-    vacancies: 5, selectionRounds: ['Coding Round', 'System Design', 'Technical', 'HR'],
-    postedDate: '2026-03-08', status: 'active',
-  },
-  {
-    id: '4', companyName: 'Zoho', companyType: 'Product', role: 'Member Technical Staff',
-    location: 'Chennai, India', ctcFixed: 600000, ctcVariable: 100000, ctcTotal: 700000,
-    deadline: '2026-04-10', eligibleBranches: ['CSE', 'IT', 'ECE'], minCgpa: 7.0,
-    description: 'Join Zoho to build world-class SaaS products used by millions of businesses worldwide.',
-    requirements: ['B.Tech CSE/IT/ECE', 'Strong programming fundamentals'],
-    skills: ['Java', 'JavaScript', 'Problem Solving', 'Data Structures'],
-    vacancies: 20, selectionRounds: ['Programming Round', 'Advanced Coding', 'Technical', 'HR'],
-    postedDate: '2026-03-05', status: 'active',
-  },
-  {
-    id: '5', companyName: 'Wipro', companyType: 'Service', role: 'Project Engineer',
-    location: 'Hyderabad, India', ctcFixed: 300000, ctcVariable: 60000, ctcTotal: 360000,
-    deadline: '2026-03-01', eligibleBranches: ['CSE', 'IT', 'ECE', 'ME'], minCgpa: 6.0,
-    description: 'Wipro is hiring Project Engineers for their technology division.',
-    requirements: ['B.Tech any branch', 'Min 6.0 CGPA'],
-    skills: ['Java', '.NET', 'SQL'],
-    vacancies: 80, selectionRounds: ['Aptitude', 'Technical', 'HR'],
-    postedDate: '2026-02-15', status: 'expired',
-  },
-  {
-    id: '6', companyName: 'Freshworks', companyType: 'Product', role: 'SDE Intern',
-    location: 'Chennai, India', ctcFixed: 500000, ctcVariable: 100000, ctcTotal: 600000,
-    deadline: '2026-02-20', eligibleBranches: ['CSE', 'IT'], minCgpa: 7.0,
-    description: 'Freshworks is looking for talented interns to join their engineering team.',
-    requirements: ['B.Tech CSE/IT', 'Min 7.0 CGPA'],
-    skills: ['React', 'Node.js', 'Ruby on Rails'],
-    vacancies: 10, selectionRounds: ['Coding', 'Technical', 'Cultural Fit'],
-    postedDate: '2026-02-01', status: 'expired',
-  },
-];
-
-const initialApplications: StudentJobApplication[] = [
-  { jobId: '2', appliedDate: '2026-03-14', cgpa: 7.8, previousOffers: false, status: 'applied' },
-];
+// Real data mapping
+const mapToStudentJob = (j: PlacementJob): StudentJob => {
+  const isDeadlinePassed = j.deadline ? new Date(j.deadline) < new Date() : false;
+  const isExpiredStatus = j.status === 'closed' || j.status === 'expired';
+  
+  return {
+    id:               j.id,
+    companyName:      j.recruiter?.company_name || 'N/A',
+    companyType:      (j.recruiter?.company_type || 'Product') as any, 
+    role:             j.role_title,
+    location:         j.location || 'N/A',
+    ctcFixed:         j.ctc_fixed,
+    ctcVariable:      j.ctc_variable,
+    ctcTotal:         j.ctc_total,
+    deadline:         j.deadline || new Date().toDateString(),
+    eligibleBranches: j.eligible_branches || [],
+    minCgpa:          j.min_cgpa,
+    description:      j.role_description || '',
+    requirements:     [`Minimum ${j.min_cgpa} CGPA`, `Eligible: ${j.eligible_branches?.join(', ')}`],
+    skills:           j.skills_required || [],
+    vacancies:        j.vacancies,
+    selectionRounds:  j.selection_rounds || [],
+    postedDate:       j.posted_date,
+    status:           (j.status === 'approved' && !isDeadlinePassed) ? 'active' : 'expired',
+    bondDetails:      j.bond_details || null,
+  };
+};
 
 export default function StudentJobs() {
-  const [applications, setApplications] = useState<StudentJobApplication[]>(initialApplications);
+  const { user } = useAuth();
+  const { data: allJobs = [], isLoading: jobsLoading } = usePlacementJobs();
+  const { data: applications = [], isLoading: appsLoading } = useStudentApplications();
+  const applyMutation = useApplyToJob();
+  
   const [selectedJob, setSelectedJob] = useState<StudentJob | null>(null);
   const [applyJob, setApplyJob] = useState<StudentJob | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-  const [ctcRange, setCtcRange] = useState<[number, number]>([0, 2000000]);
+  const [ctcRange, setCtcRange] = useState<[number, number]>([0, 5000000]);
 
-  const isApplied = (jobId: string) => applications.some(a => a.jobId === jobId);
+  const studentDept = user?.department_name || '';
 
-  const activeJobs = dummyJobs.filter(j => j.status === 'active' && !isApplied(j.id));
-  const appliedJobs = dummyJobs.filter(j => isApplied(j.id));
-  const previousJobs = dummyJobs.filter(j => j.status === 'expired');
+  // Helper to match abbreviations like 'CSE' to 'Computer Science'
+  const isDeptMatch = (branch: string, studentDept: string) => {
+    const b = branch.toLowerCase().trim();
+    const s = studentDept.toLowerCase().trim();
+    
+    if (!b || !s) return false;
+    if (b.includes(s) || s.includes(b)) return true;
+
+    // Common abbreviations mapping
+    const mappings: Record<string, string[]> = {
+      'cse': ['computer science', 'software', 'cse'],
+      'it': ['information technology', 'it'],
+      'ece': ['electronics', 'communication', 'ece'],
+      'eee': ['electrical', 'electronics', 'eee'],
+      'me': ['mechanical', 'me'],
+      'ce': ['civil', 'ce'],
+      'aiml': ['machine learning', 'aiml', 'artificial intelligence'],
+      'aids': ['data science', 'aids', 'artificial intelligence'],
+    };
+
+    // Check if any mapping for the branch matches the student dept
+    for (const key in mappings) {
+      if (b.includes(key)) {
+        if (mappings[key].some(m => s.includes(m))) return true;
+      }
+    }
+    
+    return false;
+  };
+
+  // Filter jobs by student eligibility (Department)
+  const eligibleJobsRaw = useMemo(() => {
+    return allJobs
+      .filter(j => {
+        // Must be approved or closed/expired to be visible
+        if (!['approved', 'closed', 'expired'].includes(j.status)) return false;
+
+        // If no branches specified, assume all eligible
+        if (!j.eligible_branches || j.eligible_branches.length === 0) return true;
+
+        // Compare case-insensitive with student's department name
+        return j.eligible_branches.some(b => isDeptMatch(b, studentDept));
+      })
+      .map(mapToStudentJob);
+  }, [allJobs, studentDept]);
+
+  // Deduplicate allJobs by ID to prevent count mismatches
+  const uniqueAllJobs = useMemo(() => {
+    const seen = new Set();
+    return allJobs.filter(j => {
+      if (seen.has(j.id)) return false;
+      seen.add(j.id);
+      return true;
+    });
+  }, [allJobs]);
+
+  const isApplied = (jobId: string) => applications.some((a: any) => (a.job_id || a.job?.id) === jobId);
+
+  // Applied jobs should be visible regardless of current status or eligibility
+  const appliedJobs = uniqueAllJobs
+    .filter(j => isApplied(j.id))
+    .map(mapToStudentJob);
+
+  const activeJobs = eligibleJobsRaw.filter(j => j.status === 'active' && !isApplied(j.id));
+  const previousJobs = eligibleJobsRaw.filter(j => j.status === 'expired' && !isApplied(j.id));
 
   const filterJobs = (jobs: StudentJob[]) => {
     return jobs.filter(j => {
@@ -130,26 +160,49 @@ export default function StudentJobs() {
     });
   };
 
-  const handleApply = (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => {
+  const handleApply = async (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => {
     if (!applyJob) return;
-    const newApp: StudentJobApplication = {
-      jobId: applyJob.id,
-      appliedDate: new Date().toISOString().split('T')[0],
+    await applyMutation.mutateAsync({
+      job_id: applyJob.id,
       cgpa: data.cgpa,
-      previousOffers: data.previousOffers,
-      highestCtc: data.highestCtc,
-      status: 'applied',
-    };
-    setApplications(prev => [...prev, newApp]);
+      status: 'applied'
+    });
     setApplyJob(null);
   };
 
-  const getApplication = (jobId: string) => applications.find(a => a.jobId === jobId);
+  const getApplication = (jobId: string): StudentJobApplication | undefined => {
+    const app = applications.find((a: any) => (a.job_id || a.job?.id) === jobId);
+    if (!app) return undefined;
+    return {
+      jobId: app.job_id || app.job?.id,
+      appliedDate: app.created_at || app.applied_at,
+      cgpa: app.cgpa || 0,
+      previousOffers: false,
+      status: app.status as any
+    };
+  };
 
   const isDeadlineApproaching = (deadline: string) => {
-    const diff = new Date(deadline).getTime() - new Date().getTime();
-    return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000;
+    try {
+      const d = new Date(deadline);
+      if (isNaN(d.getTime())) return false;
+      const diff = d.getTime() - new Date().getTime();
+      return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000;
+    } catch {
+      return false;
+    }
   };
+
+  if (jobsLoading || appsLoading) {
+    return (
+      <StudentLayout>
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground font-medium">Loading opportunities...</p>
+        </div>
+      </StudentLayout>
+    );
+  }
 
   if (selectedJob) {
     return (
@@ -160,6 +213,12 @@ export default function StudentJobs() {
           application={getApplication(selectedJob.id)}
           onBack={() => setSelectedJob(null)}
           onApply={() => setApplyJob(selectedJob)}
+        />
+        <ApplyDialog
+          job={applyJob}
+          open={!!applyJob}
+          onClose={() => setApplyJob(null)}
+          onSubmit={handleApply}
         />
       </StudentLayout>
     );
@@ -184,13 +243,13 @@ export default function StudentJobs() {
             <TabsTrigger value="applied" className="data-[state=active]:bg-background">
               Applied Jobs
               <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                {appliedJobs.length}
+                {filterJobs(appliedJobs).length}
               </span>
             </TabsTrigger>
             <TabsTrigger value="previous" className="data-[state=active]:bg-background">
               Previous Jobs
               <span className="ml-1.5 text-xs bg-muted-foreground/20 text-muted-foreground px-1.5 py-0.5 rounded-full">
-                {previousJobs.length}
+                {filterJobs(previousJobs).length}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -213,9 +272,9 @@ export default function StudentJobs() {
               </div>
             ) : (
               <div className="grid gap-3">
-                {filterJobs(activeJobs).map(job => (
+                {filterJobs(activeJobs).map((job, idx) => (
                   <JobCard
-                    key={job.id}
+                    key={`${job.id}-${idx}`}
                     job={job}
                     variant="active"
                     deadlineApproaching={isDeadlineApproaching(job.deadline)}
@@ -228,16 +287,16 @@ export default function StudentJobs() {
           </TabsContent>
 
           <TabsContent value="applied" className="space-y-3">
-            {appliedJobs.length === 0 ? (
+            {filterJobs(appliedJobs).length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="font-medium">No applications yet</p>
                 <p className="text-sm">Apply to active jobs to see them here</p>
               </div>
             ) : (
               <div className="grid gap-3">
-                {appliedJobs.map(job => (
+                {filterJobs(appliedJobs).map((job, idx) => (
                   <JobCard
-                    key={job.id}
+                    key={`${job.id}-${idx}`}
                     job={job}
                     variant="applied"
                     application={getApplication(job.id)}
@@ -249,15 +308,15 @@ export default function StudentJobs() {
           </TabsContent>
 
           <TabsContent value="previous" className="space-y-3">
-            {previousJobs.length === 0 ? (
+            {filterJobs(previousJobs).length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="font-medium">No previous jobs</p>
               </div>
             ) : (
               <div className="grid gap-3">
-                {previousJobs.map(job => (
+                {filterJobs(previousJobs).map((job, idx) => (
                   <JobCard
-                    key={job.id}
+                    key={`${job.id}-${idx}`}
                     job={job}
                     variant="previous"
                     onViewDetails={() => setSelectedJob(job)}

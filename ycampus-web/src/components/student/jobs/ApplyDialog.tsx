@@ -42,7 +42,6 @@ export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) 
       previousOffers: previousOffers === 'yes',
       highestCtc: previousOffers === 'yes' ? parseFloat(highestCtc) : undefined,
     });
-    toast({ title: 'Application submitted!', description: `You have applied to ${job?.companyName} - ${job?.role}` });
     setCgpa('');
     setPreviousOffers('no');
     setHighestCtc('');

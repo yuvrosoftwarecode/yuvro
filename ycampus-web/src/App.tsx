@@ -83,6 +83,7 @@ import PlacementNotifications from "./pages/placement/Notifications";
 import PlacementSettings from "./pages/placement/PlacementSettings";
 import PlacementPRIReport from "./pages/placement/PlacementPRIReport";
 import JobApplicationsPage from "./pages/placement/JobApplications";
+import PlacementCompany from "./pages/placement/Company";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
@@ -301,6 +302,7 @@ const App = () => (
                       <Route path="pri-report" element={<PlacementPRIReport />} />
                       <Route path="job-applications/:jobId" element={<JobApplicationsPage />} />
                       <Route path="job-applications" element={<JobApplicationsPage />} />
+                      <Route path="company" element={<PlacementCompany />} />
                     </Routes>
                   </ProtectedRoute>
                 }

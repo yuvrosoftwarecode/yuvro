@@ -44,8 +44,10 @@ export function JobDetailView({ job, isApplied, application, onBack, onApply }: 
                   <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Applied
                   </Badge>
-                ) : (
+                ) : job.status === 'active' ? (
                   <Button onClick={onApply}>Apply Now</Button>
+                ) : (
+                  <Badge variant="secondary" className="text-muted-foreground italic">Closed</Badge>
                 )}
               </div>
             </CardHeader>
@@ -136,6 +138,14 @@ export function JobDetailView({ job, isApplied, application, onBack, onApply }: 
                   <GraduationCap className="h-3.5 w-3.5" /> {job.minCgpa}
                 </p>
               </div>
+              {job.bondDetails && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Bond/Contract</p>
+                  <p className="text-sm font-medium flex items-start gap-1">
+                    <span className="mt-0.5 shrink-0">📜</span> {job.bondDetails}
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Posted On</p>
                 <p className="text-sm font-medium">{format(new Date(job.postedDate), 'dd MMM yyyy')}</p>
