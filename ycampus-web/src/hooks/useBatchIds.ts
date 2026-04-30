@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { batchService } from '@/services/batchService';
+import { semesterService } from '@/services/semesterService';
 import { toast } from 'sonner';
 
 export interface BatchSemester {
@@ -27,30 +28,33 @@ export function useBatchIds(departmentId?: string) {
   const { data: batchIds, isLoading, error } = useQuery({
     queryKey: ['batch_ids', departmentId],
     queryFn: async () => {
-      let query = supabase
-        .from('batch_ids')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const data = await batchService.getBatches(departmentId);
       
-      if (departmentId) {
-        query = query.eq('department_id', departmentId);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as BatchId[];
+      return data.map((batch: any) => ({
+        id: String(batch.id),
+        department_id: String(batch.department),
+        name: batch.name,
+        description: '', // Backend Batch model doesn't have description in the serializer currently
+        is_archived: false, // Backend doesn't have is_archived yet
+        created_at: batch.created_at || '',
+        semesters: (batch.semesters || []).map((sem: any) => ({
+          id: String(sem.id),
+          batch_id_ref: String(batch.id),
+          semester_number: sem.number,
+          name: `Semester ${sem.number}`,
+          is_active: sem.is_current,
+          created_at: sem.created_at || '',
+        })),
+      })) as BatchId[];
     },
   });
 
   const createBatchId = useMutation({
     mutationFn: async (data: { department_id: string; name: string; description?: string }) => {
-      const { data: result, error } = await supabase
-        .from('batch_ids')
-        .insert(data)
-        .select()
-        .single();
-      if (error) throw error;
-      return result;
+      return await batchService.createBatch({
+        department: data.department_id,
+        name: data.name,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_ids'] });
@@ -63,14 +67,9 @@ export function useBatchIds(departmentId?: string) {
 
   const updateBatchId = useMutation({
     mutationFn: async ({ id, ...data }: { id: string; name?: string; description?: string; is_archived?: boolean }) => {
-      const { data: result, error } = await supabase
-        .from('batch_ids')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
-      return result;
+      return await batchService.updateBatch(id, {
+        name: data.name,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_ids'] });
@@ -83,8 +82,7 @@ export function useBatchIds(departmentId?: string) {
 
   const deleteBatchId = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('batch_ids').delete().eq('id', id);
-      if (error) throw error;
+      await batchService.deleteBatch(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_ids'] });
@@ -114,27 +112,27 @@ export function useBatchSemesters(batchIdRef?: string) {
     queryFn: async () => {
       if (!batchIdRef) return [];
       
-      const { data, error } = await supabase
-        .from('batch_semesters')
-        .select('*')
-        .eq('batch_id_ref', batchIdRef)
-        .order('semester_number', { ascending: true });
+      const data = await semesterService.getSemesters(batchIdRef);
       
-      if (error) throw error;
-      return data as BatchSemester[];
+      return data.map((sem: any) => ({
+        id: String(sem.id),
+        batch_id_ref: String(sem.batch),
+        semester_number: sem.number,
+        name: `Semester ${sem.number}`,
+        is_active: sem.is_current,
+        created_at: sem.created_at || '',
+      })) as BatchSemester[];
     },
     enabled: !!batchIdRef,
   });
 
   const createSemester = useMutation({
     mutationFn: async (data: { batch_id_ref: string; semester_number: number; name?: string }) => {
-      const { data: result, error } = await supabase
-        .from('batch_semesters')
-        .insert(data)
-        .select()
-        .single();
-      if (error) throw error;
-      return result;
+      return await semesterService.createSemester({
+        batch: data.batch_id_ref,
+        number: data.semester_number,
+        is_current: false,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_semesters'] });
@@ -147,14 +145,9 @@ export function useBatchSemesters(batchIdRef?: string) {
 
   const updateSemester = useMutation({
     mutationFn: async ({ id, ...data }: { id: string; name?: string; is_active?: boolean }) => {
-      const { data: result, error } = await supabase
-        .from('batch_semesters')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
-      return result;
+      return await semesterService.updateSemester(id, {
+        is_current: data.is_active,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_semesters'] });
@@ -167,8 +160,7 @@ export function useBatchSemesters(batchIdRef?: string) {
 
   const deleteSemester = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('batch_semesters').delete().eq('id', id);
-      if (error) throw error;
+      await semesterService.deleteSemester(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch_semesters'] });

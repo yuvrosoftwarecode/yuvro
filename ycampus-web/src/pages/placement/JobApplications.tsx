@@ -17,10 +17,6 @@ import { usePlacementJob, useJobApplications, useUpdateApplicationStatus } from 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
 
-// Dummy data with previous offers info
-// Mock data source
-// Using MOCK_STUDENT_APPLICATIONS directly below to optimize bundle and reduce complexity
-
 const generateStudentMetrics = (name: string) => {
   const seed = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const pi = 55 + (seed % 40);
@@ -90,7 +86,7 @@ const JobApplicationsPage = () => {
     let list = enrichedApps;
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && a.student_id.toLowerCase().includes(q)));
+      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && String(a.student_id).toLowerCase().includes(q)));
     }
     if (deptFilter !== 'all') list = list.filter((a: any) => a.branch === deptFilter);
     if (offerFilter === 'yes') list = list.filter((a: any) => a.previous_offer);

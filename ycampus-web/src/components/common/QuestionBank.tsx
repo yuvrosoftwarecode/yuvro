@@ -453,7 +453,7 @@ export default function QuestionBank({
                   <p className="mt-1 text-sm text-gray-500 mb-4">
                     {searchQuery ? `No questions found matching "${searchQuery}"` : 'No questions available.'}
                   </p>
-                  {mode === 'selection' && subjectFilter && (
+                  {mode === 'selection' && subjectFilter && allowCreation && (
                     <button
                       onClick={() => setIsCreateModalOpen(true)}
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"

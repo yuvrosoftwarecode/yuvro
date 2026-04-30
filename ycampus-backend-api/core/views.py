@@ -666,6 +666,10 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
+        # If user is a student, filter to only their profile
+        if user.role == "student":
+            return queryset.filter(user=user)
+            
         # If user is a College Admin, Principal or Faculty, filter by their college
         if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
@@ -1525,3 +1529,32 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         return super().destroy(request, *args, **kwargs)
+
+class FileUploadViewSet(viewsets.ViewSet):
+    """
+    Generic File Upload ViewSet
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from django.core.files.storage import default_storage
+        import os
+        from django.utils import timezone
+        
+        # Create a unique filename
+        ext = os.path.splitext(file_obj.name)[1]
+        timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+        new_filename = f'uploads/{request.user.id}/{timestamp}_{file_obj.name}'
+        
+        file_name = default_storage.save(new_filename, file_obj)
+        file_url = default_storage.url(file_name)
+        
+        # Ensure it's an absolute URL
+        if not file_url.startswith('http'):
+            file_url = request.build_absolute_uri(file_url)
+            
+        return Response({"url": file_url}, status=status.HTTP_201_CREATED)

@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import threading
+import traceback
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils import timezone
@@ -19,7 +21,7 @@ from .models import (
     InterviewSession,
     InterviewReport,
 )
-from assessment.models import MockInterviewSubmission
+from assessment.models import MockInterviewSubmission, UserInterviewProgress
 from .serializers import (
     AIAgentSerializer,
     ChatSessionSerializer,
@@ -267,11 +269,12 @@ class AIChatMixin:
                 # Optimized, shorter interview prompt for mixed/dynamic mode
                 interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
 Rules:
-1. RESPONSE LENGTH: Exactly 1 line.
-2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
-3. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
-4. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
-5. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
+1. VOICE-FIRST: This is a hands-free voice interview. Be extremely conversational and natural.
+2. RESPONSE LENGTH: Exactly 1 line.
+3. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
+4. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
+5. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
+6. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
 {time_left_msg}"""
                 
             if is_start and not predefined_questions:
@@ -922,9 +925,18 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             if submission:
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.completed_at = timezone.now()
-                # Store actual duration if needed
-                # submission.selected_duration = ... 
                 submission.save()
+                
+                # Update UserInterviewProgress for green bars (Practice Phase)
+                if submission.interview_type == "predefined":
+                    progress, created = UserInterviewProgress.objects.get_or_create(
+                        user=interview_session.user,
+                        mock_interview=submission.mock_interview
+                    )
+                    if progress.completed_count < 5:
+                        progress.completed_count += 1
+                        progress.save()
+                        logger.info(f"Incremented progress for user {interview_session.user.id}: {progress.completed_count}/5")
         except Exception as e:
              print(f"Error syncing MockInterviewSubmission: {e}")
 
@@ -932,9 +944,6 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
         try:
             report_generator = InterviewReportGenerator()
             
-            # Read resume content if file exists
-            resume_text = None
-
             # Prepare conversation text synchronously
             trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
             messages = interview_session.chat_session.messages.order_by("created_at")

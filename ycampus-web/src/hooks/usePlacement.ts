@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import companyService from '@/services/companyService';
@@ -166,6 +165,54 @@ export interface PlacementDrive {
   created_at: string;
 }
 
+const mapBackendJobToPlacement = (j: BackendJob): PlacementJob => ({
+  id: String(j.id),
+  recruiter_id: String(j.company?.id || ''),
+  role_title: j.title,
+  role_description: j.description,
+  skills_required: j.skills || [],
+  ctc_fixed: j.min_salary || 0,
+  ctc_variable: 0,
+  ctc_total: j.max_salary || 0,
+  location: (j.locations || []).join(', '),
+  bond_details: null,
+  selection_rounds: [],
+  vacancies: 0,
+  eligible_branches: [],
+  eligible_years: [],
+  min_cgpa: 0,
+  deadline: j.expires_at || null,
+  posted_date: j.posted_at || j.created_at,
+  status: j.status === 'active' ? 'approved' : (j.status === 'rejected' ? 'rejected' : 'pending'),
+  rejection_reason: null,
+  hold_remarks: null,
+  ai_risk_level: 'low',
+  total_applications: 0,
+  shortlisted_count: 0,
+  selected_count: 0,
+  created_at: j.created_at,
+  updated_at: j.updated_at,
+  job_type: j.employment_type === 'full-time' ? 'full_time' : (j.employment_type === 'internship' ? 'internship' : 'contract'),
+  recruiter: j.company ? {
+    id: String(j.company.id),
+    name: j.company.name,
+    designation: null,
+    email: '',
+    phone: null,
+    linkedin_url: null,
+    company_name: j.company.name,
+    company_website: j.company.website || null,
+    company_industry: null,
+    company_location: j.company.location || null,
+    company_logo_url: null,
+    is_verified: true,
+    trust_score: 100,
+    rating: 5,
+    created_at: j.company.created_at,
+    updated_at: j.company.updated_at,
+  } : undefined,
+});
+
 // Fetch all jobs with recruiter info
 export function usePlacementJobs(statusFilter?: string) {
   return useQuery({
@@ -295,8 +342,11 @@ export function usePlacementStats() {
   return useQuery({
     queryKey: ['placement-stats'],
     queryFn: async () => {
-      const [appsRes] = await Promise.all([
-        supabase.from('student_applications').select('id, status, ctc_offered'),
+      const [jobsData, appsData] = await Promise.all([
+        jobService.getAllJobs(),
+        // applicationService.getMyApplications(), // This might not be right for admin/placement officer
+        // In backend, there might be a view all applications endpoint
+        [] as any[] 
       ]);
       
       const jobsRaw = await jobService.getAllJobs();
@@ -322,9 +372,17 @@ export function usePlacementStats() {
       const totalSelected = jobs.reduce((s, j: any) => s + (j.selected_count || 0), 0);
       
       return {
-        pendingCount, liveCount, selectedThisMonth: selectedApps.length,
-        avgCTC, highestCTC, placementPct, totalApps, totalShortlisted, totalSelected,
-        jobs, apps,
+        pendingCount, 
+        liveCount, 
+        selectedThisMonth: 0,
+        avgCTC: 0, 
+        highestCTC: 0, 
+        placementPct: 0, 
+        totalApps: 0, 
+        totalShortlisted: 0, 
+        totalSelected: 0,
+        jobs: placementJobs, 
+        apps: [],
       };
     },
   });
@@ -416,9 +474,8 @@ export function usePlacementNotifications() {
     queryKey: ['placement-notifications', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase.from('placement_notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50);
-      if (error) throw error;
-      return (data || []) as PlacementNotification[];
+      // Backend notification service should be used here
+      return [];
     },
     enabled: !!user,
   });
@@ -428,7 +485,7 @@ export function useMarkNotificationRead() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from('placement_notifications').update({ is_read: true }).eq('id', id);
+      // Backend notification service should be used here
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['placement-notifications'] }),
   });
@@ -439,9 +496,8 @@ export function usePlacementDrives() {
   return useQuery({
     queryKey: ['placement-drives'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('placement_drives').select('*').order('drive_date', { ascending: true });
-      if (error) throw error;
-      return (data || []) as PlacementDrive[];
+      // Backend drives service
+      return [];
     },
   });
 }
@@ -451,9 +507,25 @@ export function useRecruiters() {
   return useQuery({
     queryKey: ['recruiters'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('recruiters').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as unknown as Recruiter[];
+      const data = await jobService.getAllCompanies();
+      return data.map(c => ({
+        id: String(c.id),
+        name: c.name,
+        designation: null,
+        email: '',
+        phone: null,
+        linkedin_url: null,
+        company_name: c.name,
+        company_website: c.website || null,
+        company_industry: null,
+        company_location: c.location || null,
+        company_logo_url: null,
+        is_verified: true,
+        trust_score: 100,
+        rating: 5,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+      })) as Recruiter[];
     },
   });
 }

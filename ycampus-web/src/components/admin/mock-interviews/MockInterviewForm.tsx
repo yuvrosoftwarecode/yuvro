@@ -5,13 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Settings, FileText, ArrowLeft, Plus, Minus } from 'lucide-react';
-import QuestionBank from '@/components/common/QuestionBank';
+import { Trophy, FileText, ArrowLeft, Plus, Minus, Trash2, ChevronRight, ChevronDown, MessageSquare, GitBranch, FileCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { mockInterviewService } from '@/services/mockInterviewService';
-import { fetchQuestionById } from '@/services/questionService';
 
 export default function MockInterviewForm() {
   const navigate = useNavigate();
@@ -20,148 +18,18 @@ export default function MockInterviewForm() {
 
   const [currentFormTab, setCurrentFormTab] = useState('details');
   const [loading, setLoading] = useState(false);
-
-  // Voice State
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [previewText, setPreviewText] = useState('Hello! I am your interviewer for today. How are you doing?');
-
-  // Questions State
-  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
-  const [randomQuestionsConfig, setRandomQuestionsConfig] = useState({
-    mcq_single: 0,
-    mcq_multiple: 0,
-    coding: 0,
-    descriptive: 0
-  });
-
-  useEffect(() => {
-    const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      // Filter for useful voices (optional, but keeping all for now as user requested "all")
-      // Sorting to put Google voices on top might be nice
-      voices.sort((a, b) => {
-        if (a.name.includes('Google') && !b.name.includes('Google')) return -1;
-        if (!a.name.includes('Google') && b.name.includes('Google')) return 1;
-        return a.name.localeCompare(b.name);
-      });
-      setAvailableVoices(voices);
-    };
-
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-
-    return () => {
-      window.speechSynthesis.onvoiceschanged = null;
-    }
-  }, []);
-
-  const categorizeQuestionsByType = async (questionIds: string[]) => {
-    if (questionIds.length === 0) {
-      return {
-        mcq_single: [],
-        mcq_multiple: [],
-        coding: [],
-        descriptive: []
-      };
-    }
-
-    try {
-      const questionPromises = questionIds.map(id => fetchQuestionById(id));
-      const questions = await Promise.all(questionPromises);
-
-      const categorized: any = {
-        mcq_single: [],
-        mcq_multiple: [],
-        coding: [],
-        descriptive: []
-      };
-
-      questions.forEach(question => {
-        if (question.type === 'mcq_single') {
-          categorized.mcq_single.push(question.id);
-        } else if (question.type === 'mcq_multiple') {
-          categorized.mcq_multiple.push(question.id);
-        } else if (question.type === 'coding') {
-          categorized.coding.push(question.id);
-        } else if (question.type === 'descriptive') {
-          categorized.descriptive.push(question.id);
-        }
-      });
-
-      return categorized;
-    } catch (error) {
-      console.error('Failed to categorize questions:', error);
-      return {
-        mcq_single: questionIds, // Fallback
-        mcq_multiple: [],
-        coding: [],
-        descriptive: []
-      };
-    }
-  };
-
-  const handleQuestionsChange = async (questions: string[]) => {
-    setSelectedQuestions(questions);
-    // We don't update formData.questions_config immediately here because it's async
-    // We will categorize on submit or we can keep a separate state for questions_config if needed
-    // But for simplicity in this form structure, let's categorize and update formData here if we want immediate sync
-    // However, handleSubmit uses formData. So let's update a ref or similar, or just categorize on submit?
-    // Better: Update formData.questions_config here.
-
-    const categorized = await categorizeQuestionsByType(questions);
-    setFormData((prev: any) => ({ ...prev, questions_config: categorized }));
-  };
-
-  const playVoicePreview = (voiceName: string, text: string) => {
-    window.speechSynthesis.cancel();
-    if (!voiceName) {
-      toast.error("Please select a voice actor first.");
-      return;
-    }
-    const voice = availableVoices.find(v => v.name === voiceName);
-    if (!voice) {
-      toast.error("Selected voice not found on this system.");
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = voice;
-    utterance.rate = formData.voice_speed;
-    window.speechSynthesis.speak(utterance);
-  };
-
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
 
   // Form State matching the new model
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     instructions: '',
-    max_duration: 30, // Default 30 mins
-
-    // AI Config
-    ai_generation_mode: 'full_ai' as 'full_ai' | 'mixed' | 'predefined',
-    ai_percentage: 100,
-    ai_context: {
-      context: '',
-      predefined_questions: [] as string[],
-      coding_questions_count: 1
-    },
-
-    // Voice Config
-    voice_type: 'junnu' as 'junnu' | 'munnu', // Deprecated but kept for type safety if needed temporarily
-    interviewer_name: 'Junnu',
-    interviewer_voice_id: '',
-    voice_speed: 1.0,
-
-    // Skills (comma separated for input)
+    max_duration: 30,
     required_skills: '',
     optional_skills: '',
-
-    // Publish
     publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
-
-    questions_config: {} as any,
-    questions_random_config: {} as any
+    predefined_tree: [] as any[]
   });
 
   const getHeaderTitle = () => {
@@ -175,77 +43,23 @@ export default function MockInterviewForm() {
   useEffect(() => {
     if (!isEditMode) return;
 
-    const fetchMockInterview = async () => {
-      if (!mockInterviewId) return;
+      const fetchMockInterview = async () => {
+        if (!mockInterviewId) return;
 
-      setLoading(true);
-      try {
-        const data = await mockInterviewService.getMockInterview(mockInterviewId);
-        setFormData({
-          title: data.title,
-          description: data.description,
-          instructions: data.instructions || '',
-          max_duration: data.max_duration || 30,
-
-          ai_generation_mode: data.ai_generation_mode || 'full_ai',
-          ai_percentage: data.ai_percentage || 100,
-          ai_context: (() => {
-            const defaultCodingCount = data.ai_coding_question_count ?? 1;
-            
-            if (typeof data.ai_context === 'object' && data.ai_context !== null && !Array.isArray(data.ai_context)) {
-              // Handle new flat structure or old nested structure
-              if (data.ai_context.intern || data.ai_context.beginner) {
-                // Backward compatibility: take beginner as default for flat view if it's nested
-                const levelData = data.ai_context.beginner || data.ai_context.intern || {};
-                return {
-                  context: Array.isArray(levelData.context) ? levelData.context.join(', ') : (levelData.context_str || ''),
-                  predefined_questions: levelData.predefined_questions || [],
-                  coding_questions_count: levelData.coding_questions_count || defaultCodingCount
-                };
-              }
-              
-              return {
-                context: Array.isArray(data.ai_context.context) ? data.ai_context.context.join(', ') : (data.ai_context.context || ''),
-                predefined_questions: data.ai_context.predefined_questions || [],
-                coding_questions_count: data.ai_context.coding_questions_count || defaultCodingCount
-              };
-            }
-            
-            return {
-              context: Array.isArray(data.ai_context) ? data.ai_context.join(', ') : '',
-              predefined_questions: [],
-              coding_questions_count: defaultCodingCount
-            };
-          })(),
-
-          voice_type: data.voice_type || 'junnu',
-          interviewer_name: data.interviewer_name || 'Junnu',
-          interviewer_voice_id: data.interviewer_voice_id || '',
-          voice_speed: data.voice_speed || 1.0,
-
-          required_skills: (data.required_skills || []).join(', '),
-          optional_skills: (data.optional_skills || []).join(', '),
-
-          publish_status: data.publish_status || 'draft',
-          questions_config: data.questions_config || {},
-          questions_random_config: data.questions_random_config || {}
-        });
-
-        // Initialize question states
-        const allQuestions = [
-          ...(data.questions_config?.mcq_single || []),
-          ...(data.questions_config?.mcq_multiple || []),
-          ...(data.questions_config?.coding || []),
-          ...(data.questions_config?.descriptive || [])
-        ];
-        setSelectedQuestions(allQuestions);
-        setRandomQuestionsConfig(data.questions_random_config || {
-          mcq_single: 0,
-          mcq_multiple: 0,
-          coding: 0,
-          descriptive: 0
-        });
-      } catch (error) {
+        setLoading(true);
+        try {
+          const data = await mockInterviewService.getMockInterview(mockInterviewId);
+          setFormData({
+            title: data.title,
+            description: data.description,
+            instructions: data.instructions || '',
+            max_duration: data.max_duration || 30,
+            required_skills: (data.required_skills || []).join(', '),
+            optional_skills: (data.optional_skills || []).join(', '),
+            publish_status: data.publish_status || 'draft',
+            predefined_tree: data.predefined_tree || []
+          });
+        } catch (error) {
         console.error('Failed to fetch mock interview:', error);
         toast.error('Failed to load mock interview');
         navigate('/admin/mock-interview');
@@ -266,37 +80,16 @@ export default function MockInterviewForm() {
         return;
       }
 
-      // Process questions before submitting
-      const questionsConfig = await categorizeQuestionsByType(selectedQuestions);
-
       const payload: any = {
         title: formData.title,
         description: formData.description,
         instructions: formData.instructions,
         max_duration: Number(formData.max_duration),
-
-        ai_generation_mode: formData.ai_generation_mode,
-        ai_percentage: formData.ai_percentage,
-        ai_context: {
-          context: formData.ai_context.context,
-          predefined_questions: formData.ai_context.predefined_questions.map(q => q.trim()).filter(Boolean),
-          coding_questions_count: Number(formData.ai_context.coding_questions_count)
-        },
-
-        voice_type: formData.voice_type,
-        interviewer_name: formData.interviewer_name,
-        interviewer_voice_id: formData.interviewer_voice_id,
-        voice_speed: Number(formData.voice_speed),
-
         required_skills: formData.required_skills.split(',').map(s => s.trim()).filter(Boolean),
         optional_skills: formData.optional_skills.split(',').map(s => s.trim()).filter(Boolean),
-
         publish_status: formData.publish_status,
-        questions_config: questionsConfig,
-        questions_random_config: randomQuestionsConfig
+        predefined_tree: formData.predefined_tree
       };
-
-      console.debug('Submitting mock interview payload:', payload);
 
       if (isEditMode && mockInterviewId) {
         await mockInterviewService.updateMockInterview(mockInterviewId, payload);
@@ -315,7 +108,7 @@ export default function MockInterviewForm() {
     }
   };
 
-  const tabOrder = ['details', 'questions', 'ai_config', 'voice_config'];
+  const tabOrder = ['details', 'questions'];
 
   const handlePrimaryAction = () => {
     const currentIndex = tabOrder.indexOf(currentFormTab);
@@ -358,11 +151,9 @@ export default function MockInterviewForm() {
             </div>
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6 bg-white p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-2 mb-6 bg-white p-1 rounded-lg">
                   <TabsTrigger value="details">Basic Info</TabsTrigger>
-                  <TabsTrigger value="questions">Questions</TabsTrigger>
-                  <TabsTrigger value="ai_config">AI Config</TabsTrigger>
-                  <TabsTrigger value="voice_config">Audio Settings</TabsTrigger>
+                  <TabsTrigger value="questions">Questions Tree</TabsTrigger>
                 </TabsList>
 
                 {/* Details Tab */}
@@ -415,290 +206,105 @@ export default function MockInterviewForm() {
                   </Card>
                 </TabsContent>
 
-                {/* AI Config Tab */}
-                <TabsContent value="ai_config" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-500" /> AI Generation Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Generation Mode</label>
-                        <select value={formData.ai_generation_mode} onChange={e => setFormData({ ...formData, ai_generation_mode: e.target.value as any })} className="w-full border rounded px-3 py-2">
-                          <option value="full_ai">Full AI (AI decides everything based on skills)</option>
-                          <option value="mixed">Mixed (AI + Predefined Questions)</option>
-                          <option value="predefined">Predefined Questions Only</option>
-                        </select>
-                        <p className="text-xs text-gray-500 mt-1">Controls how questions are selected for the interview.</p>
-                      </div>
-
-                      {formData.ai_generation_mode === 'mixed' && (
-                        <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-white">
-                          <div>
-                            <label className="block text-sm font-medium mb-1">AI Generated (%)</label>
-                            <Input
-                              type="number"
-                              min={0}
-                              max={100}
-                              value={formData.ai_percentage}
-                              onChange={(e) => {
-                                const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
-                                setFormData({ ...formData, ai_percentage: val });
-                              }}
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Questions to be generated by AI.
-                            </p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Fixed Questions (%)</label>
-                            <Input
-                              disabled
-                              value={100 - (formData.ai_percentage || 0)}
-                              className="bg-white cursor-not-allowed"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Remaining % will be from fixed/random question bank.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-4 border-t pt-4 border-gray-100">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-medium">AI Interview Context</h3>
-                          <div className="flex items-center gap-3">
-                            <label className="text-xs font-medium text-gray-500">Coding Questions Count:</label>
-                            <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = formData.ai_context.coding_questions_count;
-                                  if (current > 0) {
-                                    setFormData({
-                                      ...formData,
-                                      ai_context: { ...formData.ai_context, coding_questions_count: current - 1 }
-                                    });
-                                  }
-                                }}
-                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
-                                {formData.ai_context.coding_questions_count}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = formData.ai_context.coding_questions_count;
-                                  setFormData({
-                                    ...formData,
-                                    ai_context: { ...formData.ai_context, coding_questions_count: current + 1 }
-                                  });
-                                }}
-                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-6">
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">General AI Focus/Context</label>
-                            <Textarea 
-                              className="min-h-[100px] text-sm"
-                              value={formData.ai_context.context} 
-                              onChange={e => setFormData({ 
-                                ...formData, 
-                                ai_context: { ...formData.ai_context, context: e.target.value } 
-                              })} 
-                              placeholder="e.g. Focus on React hooks, system design, and behavioral questions related to teamwork." 
-                            />
-                            <p className="text-xs text-gray-500">General instructions for the AI on what areas to focus on during the interview.</p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Predefined Questions (One per line)</label>
-                            <Textarea 
-                              className="min-h-[200px] text-sm font-mono"
-                              value={formData.ai_context.predefined_questions.join('\n')} 
-                              onChange={e => setFormData({ 
-                                ...formData, 
-                                ai_context: { 
-                                  ...formData.ai_context, 
-                                  predefined_questions: e.target.value.split('\n') 
-                                } 
-                              })} 
-                              placeholder="Question 1...&#10;Question 2..." 
-                            />
-                            <p className="text-xs text-gray-500">The AI will ask these questions in the exact order provided. Leave empty for dynamic AI generation.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Voice Config Tab */}
-                <TabsContent value="voice_config" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-green-500" /> Voice & Audio Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Interviewer Name</label>
-                          <Input
-                            value={formData.interviewer_name}
-                            onChange={e => setFormData({ ...formData, interviewer_name: e.target.value })}
-                            placeholder="e.g. Junnu, Sarah, Mike"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Voice Speed (0.5x - 2.0x)</label>
-                          <Input type="number" value={formData.voice_speed} onChange={e => setFormData({ ...formData, voice_speed: parseFloat(e.target.value) })} min={0.5} max={2.0} step={0.1} />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium">Select Voice Actor</label>
-                        <select
-                          value={formData.interviewer_voice_id}
-                          onChange={e => setFormData({ ...formData, interviewer_voice_id: e.target.value })}
-                          className="w-full border rounded px-3 py-2"
-                        >
-                          <option value="">-- Select a Google Voice --</option>
-                          {availableVoices.map((voice, idx) => (
-                            <option key={idx} value={voice.name}>
-                              {voice.name} ({voice.lang})
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-xs text-gray-500">
-                          Note: Available voices depend on your browser and operating system. Google voices are recommended for best quality.
-                        </p>
-                      </div>
-
-                      {/* Voice Preview Section */}
-                      <div className="mt-4 p-4 border rounded-lg bg-white">
-                        <label className="block text-sm font-medium mb-2">Voice Preview</label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={previewText}
-                            onChange={e => setPreviewText(e.target.value)}
-                            placeholder="Type something to hear the voice..."
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => playVoicePreview(formData.interviewer_voice_id, previewText)}
-                            variant="outline"
-                          >
-                            Play Preview
-                          </Button>
-                        </div>
-                      </div>
-
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
                 {/* Questions Tab */}
-                <TabsContent value="questions" className="space-y-6">
-                  {/* Random Questions Configuration */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                        Random Questions Configuration
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.mcq_single}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              mcq_single: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.mcq_multiple}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              mcq_multiple: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.coding}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              coding: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.descriptive}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              descriptive: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
+                <TabsContent value="questions" className="mt-0">
+                  <div className="flex h-[calc(100vh-280px)] bg-slate-50/50 rounded-xl border border-slate-200 overflow-hidden">
+                    {/* Left Sidebar: Questions List */}
+                    <div className="w-80 border-r border-slate-200 flex flex-col bg-white">
+                      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                           <FileText className="w-4 h-4 text-purple-500" /> Main Questions
+                        </h3>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                          onClick={() => {
+                            const newTree = [...(formData.predefined_tree || [])];
+                            newTree.push({ text: 'New Question', follow_ups: [] });
+                            setFormData({ ...formData, predefined_tree: newTree });
+                            setActiveQuestionIndex(newTree.length - 1);
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <p className="text-sm text-gray-500 mt-3">
-                        Specify how many questions of each type should be randomly selected from the question bank.
-                      </p>
-                    </CardContent>
-                  </Card>
+                      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {(formData.predefined_tree || []).map((q: any, idx: number) => (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveQuestionIndex(idx)}
+                            className={`w-full text-left px-3 py-3 rounded-lg text-sm transition-all duration-200 group flex items-start gap-3 ${
+                              activeQuestionIndex === idx 
+                                ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100' 
+                                : 'hover:bg-slate-50 text-slate-600'
+                            }`}
+                          >
+                            <span className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${activeQuestionIndex === idx ? 'bg-blue-600' : 'bg-slate-300'}`} />
+                            <div className="flex-1 overflow-hidden">
+                              <p className="truncate font-medium">{q.text || `Question ${idx + 1}`}</p>
+                              <div className="flex items-center gap-2 mt-1 opacity-60 text-[10px] uppercase font-bold">
+                                {q.follow_ups?.length || 0} Follow-ups
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const newTree = [...(formData.predefined_tree || [])];
+                                newTree.splice(idx, 1);
+                                setFormData({ ...formData, predefined_tree: newTree });
+                                if (activeQuestionIndex >= newTree.length) setActiveQuestionIndex(Math.max(0, newTree.length - 1));
+                              }}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-purple-500" /> Specific Question Selection</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {formData.ai_generation_mode === 'full_ai' && (
-                        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded mb-4 text-sm text-yellow-800">
-                          Note: In "Full AI" mode, specific questions selected here might be ignored or used only as context. Use "Mixed" mode to enforce specific questions.
-                        </div>
-                      )}
-
-                      <QuestionBank
-                        mode="selection"
-                        selectedQuestions={selectedQuestions}
-                        onQuestionsChange={handleQuestionsChange}
-                        allowMultipleSelection={true}
-                        showSplitView={true}
-                      />
-                    </CardContent>
-                  </Card>
+                    {/* Right: Tree Visualizer */}
+                    <div className="flex-1 overflow-hidden flex flex-col bg-white">
+                       {formData.predefined_tree && formData.predefined_tree[activeQuestionIndex] ? (
+                         <div className="flex-1 flex flex-col">
+                           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                               <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                                 <GitBranch className="w-4 h-4 text-purple-600" />
+                               </div>
+                               <div>
+                                 <h4 className="font-bold text-slate-800 text-sm">Dialogue Flow</h4>
+                                 <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Question {activeQuestionIndex + 1} • Interactive Visualizer</p>
+                               </div>
+                             </div>
+                           </div>
+                           <div className="flex-1 overflow-y-auto min-h-0 p-8 bg-slate-50/10 custom-scrollbar">
+                              <div className="flex flex-col gap-10 max-w-4xl">
+                                <VisualTreeEditor 
+                                  node={formData.predefined_tree[activeQuestionIndex]}
+                                  onUpdate={(newNode) => {
+                                    const newTree = [...(formData.predefined_tree || [])];
+                                    newTree[activeQuestionIndex] = newNode;
+                                    setFormData({ ...formData, predefined_tree: newTree });
+                                  }}
+                                />
+                              </div>
+                           </div>
+                         </div>
+                       ) : (
+                         <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-12 text-center">
+                            <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                              <FileText className="w-8 h-8 opacity-20" />
+                            </div>
+                            <h3 className="font-bold text-slate-600 mb-1">No Question Selected</h3>
+                            <p className="text-sm max-w-xs mx-auto">Select a question from the sidebar or click "+" to create a new conversational path.</p>
+                         </div>
+                       )}
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
@@ -725,5 +331,108 @@ export default function MockInterviewForm() {
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+/**
+ * Visual Tree Visualizer Node
+ */
+function VisualTreeEditor({ node, onUpdate, level = 1 }: { node: any, onUpdate: (node: any) => void, level?: number }) {
+  const updateText = (text: string) => onUpdate({ ...node, text });
+  
+  const addFollowUp = () => {
+    const followUps = [...(node.follow_ups || [])];
+    followUps.push({ text: 'Next follow-up...', follow_ups: [] });
+    onUpdate({ ...node, follow_ups: followUps });
+  };
+
+  const removeFollowUp = (idx: number) => {
+    const followUps = [...(node.follow_ups || [])];
+    followUps.splice(idx, 1);
+    onUpdate({ ...node, follow_ups: followUps });
+  };
+
+  const updateFollowUp = (idx: number, newNode: any) => {
+    const followUps = [...(node.follow_ups || [])];
+    if (newNode === null) {
+      followUps.splice(idx, 1);
+    } else {
+      followUps[idx] = newNode;
+    }
+    onUpdate({ ...node, follow_ups: followUps });
+  };
+
+  const colors = [
+    { bg: 'bg-white', text: 'text-slate-800', border: 'border-slate-200', badge: 'bg-slate-100 text-slate-600' },
+    { bg: 'bg-blue-50/50', text: 'text-blue-900', border: 'border-blue-200', badge: 'bg-blue-100 text-blue-700' },
+    { bg: 'bg-indigo-50/50', text: 'text-indigo-900', border: 'border-indigo-200', badge: 'bg-indigo-100 text-indigo-700' },
+  ];
+  const style = colors[level - 1] || colors[0];  return (
+    <div className="flex flex-col gap-0 group/node animate-in fade-in slide-in-from-top-4 duration-500">
+      {/* Current Node */}
+      <div className="relative">
+        <div className={`
+          relative w-full max-w-[500px] p-4 rounded-xl border-2 transition-all duration-300
+          ${style.bg} ${style.border} group-hover/node:shadow-md group-hover/node:border-blue-300
+        `}>
+          <div className="flex items-center justify-between mb-3">
+             <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full ${style.badge}`}>
+               L{level} Node
+             </span>
+             <div className="flex items-center gap-1">
+               {level < 3 && (
+                 <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={addFollowUp}
+                  className="h-7 w-7 text-blue-600 hover:bg-blue-100 rounded-full"
+                 >
+                   <Plus className="w-4 h-4" />
+                 </Button>
+               )}
+               {level > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onUpdate(null)} // Handled by parent.
+                    className="h-7 w-7 text-slate-300 hover:text-red-500 rounded-full"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+               )}
+             </div>
+          </div>
+          <Textarea 
+            value={node.text}
+            onChange={e => updateText(e.target.value)}
+            className="text-sm bg-transparent border-none focus-visible:ring-0 p-0 min-h-[40px] resize-none font-medium leading-relaxed"
+            placeholder="Type your question here..."
+          />
+        </div>
+
+        {/* Vertical Connector Line (down to children) */}
+        {node.follow_ups && node.follow_ups.length > 0 && (
+          <div className="absolute left-6 top-[calc(100%+2px)] w-[2px] h-4 bg-slate-200" />
+        )}
+      </div>
+
+      {/* Children Nodes Column */}
+      {node.follow_ups && node.follow_ups.length > 0 && (
+        <div className="flex flex-col gap-4 mt-4 relative border-l-2 border-slate-100 ml-6 pl-10">
+           {node.follow_ups.map((child: any, idx: number) => child && (
+             <div key={idx} className="relative">
+               {/* Horizontal Elbow Connector */}
+               <div className="absolute -left-10 top-8 w-10 h-[2px] bg-slate-100" />
+               
+               <VisualTreeEditor 
+                 node={child} 
+                 level={level + 1}
+                 onUpdate={(updated) => updateFollowUp(idx, updated)}
+               />
+             </div>
+           ))}
+        </div>
+      )}
+    </div>
   );
 }

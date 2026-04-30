@@ -155,6 +155,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   useEffect(() => {
     if (!textareaRef.current) return;
     
+    const syncScroll = () => {
+      // Read actual DOM scroll position after browser has applied it
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          const actualScroll = textareaRef.current.scrollTop;
+          setScrollTop(actualScroll);
+          if (lineNumbersRef.current) {
+            lineNumbersRef.current.scrollTop = actualScroll;
+          }
+        }
+      });
+    };
+
     if (highlightLine) {
       const lines = code.split('\n');
       let charPos = 0;
@@ -167,7 +180,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       
       // Auto-scroll to that line
       const lineHeight = 20; // from leading-5/text-sm in CSS
-      textareaRef.current.scrollTop = (highlightLine - 1) * lineHeight - 40; // offset for visibility
+      const targetScroll = Math.max(0, (highlightLine - 1) * lineHeight - 40);
+      textareaRef.current.scrollTop = targetScroll;
+      syncScroll();
     }
 
     if (highlightText) {
@@ -180,7 +195,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         const textBefore = code.substring(0, index);
         const lineNum = textBefore.split('\n').length;
         const lineHeight = 20;
-        textareaRef.current.scrollTop = (lineNum - 1) * lineHeight - 40;
+        const targetScroll = Math.max(0, (lineNum - 1) * lineHeight - 40);
+        textareaRef.current.scrollTop = targetScroll;
+        syncScroll();
       }
     }
   }, [highlightLine, highlightText, code]);
@@ -354,7 +371,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                   className={cn(
                     "h-5 leading-5 text-right pr-3 transition-colors",
                     onLineClick ? 'cursor-pointer hover:text-primary transition-colors' : '',
-                    highlightLine === lineNum && "bg-yellow-200/50 text-blue-700 font-bold border-r-2 border-blue-500"
+                    highlightLine === lineNum && "bg-orange-100 text-orange-700 font-bold border-r-2 border-orange-400"
                   )}
                   onClick={() => onLineClick?.(lineNum)}
                 >
@@ -368,7 +385,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               {/* Visual Highlight Backdrop */}
               {highlightLine && (
                 <div 
-                  className="absolute left-0 right-0 bg-primary/10 border-y border-primary/20 pointer-events-none z-0"
+                  className="absolute left-0 right-0 bg-orange-100/60 border-y border-orange-300/40 pointer-events-none z-0"
                   style={{ 
                     top: `calc(12px + ${(highlightLine - 1) * 20}px - ${scrollTop}px)`, 
                     height: '20px'

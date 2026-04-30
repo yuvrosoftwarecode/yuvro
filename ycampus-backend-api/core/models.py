@@ -249,8 +249,11 @@ class HODProfile(BaseTimestampedModel):
         User, on_delete=models.CASCADE, related_name="hod_profile"
     )
     college = models.ForeignKey(College, on_delete=models.CASCADE, related_name="hods")
-    department = models.OneToOneField(
-        Department, on_delete=models.CASCADE, related_name="hod"
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="hods", null=True, blank=True
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_hods", blank=True
     )
 
     def __str__(self):
@@ -263,6 +266,9 @@ class PrincipalProfile(BaseTimestampedModel):
     )
     college = models.ForeignKey(
         College, on_delete=models.CASCADE, related_name="principals"
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_principals", blank=True
     )
 
     def __str__(self):

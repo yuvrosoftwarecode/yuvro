@@ -96,11 +96,11 @@ const Attendance = () => {
 
     return (
         <FacultyLayout>
-            <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 animate-in fade-in duration-500">
+            <div className="space-y-6 animate-in fade-in duration-500">
                 {/* Header Section */}
                 <div>
-                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Attendance Hub</h1>
-                    <p className="text-muted-foreground font-medium mt-1">Record classroom presence and sync session history</p>
+                    <h1 className="text-2xl font-bold tracking-tight">Attendance Hub</h1>
+                    <p className="text-muted-foreground">Record classroom presence and sync session history</p>
                 </div>
 
                 {/* Filters Bar (Task 1:1 replica) */}

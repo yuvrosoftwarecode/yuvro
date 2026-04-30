@@ -408,6 +408,15 @@ const courseService = {
   submitCoding,
   fetchUserCourseProgress,
   logSubtopicAccess,
+  fetchSemesters: async (params?: { batch?: string; department?: string }) => {
+    return restApiAuthUtil.get('/course/semesters/', { params });
+  },
+  createSemester: async (data: { batch: string; number: number; is_current?: boolean }) => {
+    return restApiAuthUtil.post('/course/semesters/', data);
+  },
+  deleteSemester: async (id: string) => {
+    return restApiAuthUtil.delete(`/course/semesters/${id}/`);
+  },
 };
 
 export default courseService;

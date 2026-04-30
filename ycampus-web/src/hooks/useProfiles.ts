@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { userService, UserRole as BackendUserRole } from '@/services/userService';
 
 export type UserRole = 'admin' | 'faculty' | 'student' | 'hod' | 'principal' | 'college_admin' | 'placement_officer';
 
@@ -23,35 +23,40 @@ export function useProfiles(role?: UserRole) {
   const { data: profiles, isLoading, error } = useQuery({
     queryKey: ['profiles', role],
     queryFn: async () => {
-      let query = supabase
-        .from('profiles')
-        .select('*');
+      const response = await userService.getUsers({
+        role: role as BackendUserRole,
+        page_size: 100, // Fetch more if needed, or handle pagination
+      });
       
-      if (role) {
-        query = query.eq('role', role);
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const data = response.results || [];
       
-      if (error) throw error;
-      return data as Profile[];
+      return data.map((u: any) => ({
+        id: String(u.id),
+        email: u.email,
+        full_name: u.full_name || `${u.first_name} ${u.last_name}`.strip(),
+        role: u.role as UserRole,
+        department_id: u.department_id ? String(u.department_id) : undefined,
+        semester: u.semester_id ? String(u.semester_id) : undefined,
+        section: u.section_id ? String(u.section_id) : undefined,
+        batch_id: u.batch_id ? String(u.batch_id) : undefined,
+        created_at: u.date_joined || '',
+        updated_at: u.date_joined || '', // Backend User doesn't have updated_at in serializer
+      })) as Profile[];
     },
   });
 
   const updateProfileMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Profile> }) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const userData: any = {};
+      if (updates.full_name) {
+        const parts = updates.full_name.split(' ');
+        userData.first_name = parts[0];
+        userData.last_name = parts.slice(1).join(' ');
+      }
+      if (updates.email) userData.email = updates.email;
+      if (updates.role) userData.role = updates.role;
+
+      return await userService.updateUser(id, userData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
@@ -64,12 +69,7 @@ export function useProfiles(role?: UserRole) {
 
   const deleteProfileMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await userService.deleteUser(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
@@ -82,19 +82,18 @@ export function useProfiles(role?: UserRole) {
 
   const addProfileMutation = useMutation({
     mutationFn: async (newProfile: Omit<Profile, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          id: crypto.randomUUID(),
-          email: newProfile.email,
-          full_name: newProfile.full_name,
-          role: newProfile.role
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as Profile;
+      const parts = newProfile.full_name.split(' ');
+      const firstName = parts[0];
+      const lastName = parts.slice(1).join(' ');
+
+      return await userService.createUser({
+        username: newProfile.email,
+        email: newProfile.email,
+        first_name: firstName,
+        last_name: lastName,
+        role: newProfile.role as any,
+        is_active: true,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });

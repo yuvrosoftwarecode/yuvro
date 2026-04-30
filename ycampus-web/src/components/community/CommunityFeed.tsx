@@ -7,6 +7,7 @@ import { PostCard } from './PostCard';
 import { PostDetailPanel } from './PostDetailPanel';
 import { MessageSquare, Users, Loader2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import PageHeader from '@/components/common/PageHeader';
 
 export function CommunityFeed() {
   const [activeFilter, setActiveFilter] = useState<FeedFilter>('all');
@@ -60,15 +61,10 @@ export function CommunityFeed() {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Users className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Community</h1>
-        </div>
-        <p className="text-muted-foreground">
-          Connect, collaborate, and share with your campus community
-        </p>
-      </div>
+      <PageHeader 
+        title="Community" 
+        subtitle="Connect, collaborate, and share with your campus community" 
+      />
 
       {/* Create Post */}
       <CreatePostComposer onPostCreated={() => {}} />

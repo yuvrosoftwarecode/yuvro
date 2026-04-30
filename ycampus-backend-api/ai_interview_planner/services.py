@@ -92,18 +92,25 @@ class PreparationPlanGenerator:
             response = await self.service.generate_response(
                 [{"role": "user", "content": prompt}],
                 temperature=0.3, # Low temperature for consistent JSON structure
-                max_tokens=4000
+                max_tokens=8000
             )
 
             response_text = response["response"]
             
             # Clean up potential markdown formatting
-            if "```json" in response_text:
-                response_text = response_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in response_text:
-                response_text = response_text.split("```")[1].split("```")[0].strip()
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
             
-            tasks = json.loads(response_text)
+            try:
+                tasks = json.loads(response_text)
+            except json.JSONDecodeError:
+                # Fallback: extract just the array if there is surrounding text
+                start_idx = response_text.find('[')
+                end_idx = response_text.rfind(']') + 1
+                if start_idx != -1 and end_idx != 0:
+                    response_text = response_text[start_idx:end_idx]
+                    tasks = json.loads(response_text)
+                else:
+                    raise
             
             # Basic validation to ensure it's a list and has required fields
             if not isinstance(tasks, list):

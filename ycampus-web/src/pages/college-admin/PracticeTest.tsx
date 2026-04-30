@@ -37,21 +37,27 @@ type ViewMode = 'list' | 'create' | 'edit' | 'analytics' | 'submission-results';
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 const FilterSelect = ({
-  label, value, options, values, onChange, disabled,
+  label, value, options, values, onChange, disabled, emptyMessage
 }: {
   label: string; value: string | null; options: string[]; values?: string[];
-  onChange: (v: string) => void; disabled?: boolean;
+  onChange: (v: string) => void; disabled?: boolean; emptyMessage?: string;
 }) => (
   <div className="space-y-1.5 flex-1 min-w-[180px]">
     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
-    <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
+    <Select value={value || ""} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="bg-background h-10 border-border hover:border-primary/40 transition-colors">
         <SelectValue placeholder={`Select ${label}`} />
       </SelectTrigger>
       <SelectContent>
-        {options.map((o, i) => (
-          <SelectItem key={i} value={values ? values[i] : o}>{o}</SelectItem>
-        ))}
+        {options.length === 0 && emptyMessage ? (
+          <SelectItem value="empty" disabled className="text-muted-foreground italic">
+            {emptyMessage}
+          </SelectItem>
+        ) : (
+          options.map((o, i) => (
+            <SelectItem key={i} value={values ? values[i] : o}>{o}</SelectItem>
+          ))
+        )}
       </SelectContent>
     </Select>
   </div>
@@ -267,10 +273,10 @@ const CollegeAdminPracticeTest = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [collegeSubjects, setCollegeSubjects] = useState<any[]>([]);
   const [semesterSubjects, setSemesterSubjects] = useState<any[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
-  const [selectedBatch, setSelectedBatch] = useState<string | undefined>(undefined);
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
-  const [selectedUnit, setSelectedUnit] = useState<string | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedUnit, setSelectedUnit] = useState<string>('');
   const [units, setUnits] = useState<{ id: string; name: string }[]>([]);
 
   const [practiceTests, setPracticeTests] = useState<SkillTest[]>([]);
@@ -316,14 +322,28 @@ const CollegeAdminPracticeTest = () => {
   }, [selectedBatch, departments, batches]);
 
   const filteredSubjects = useMemo(() => {
-    if (!selectedDepartment) return [];
+    if (!selectedDepartment || !selectedBatch) return [];
+    
+    const batchObj = batches.find(b => 
+      b.name === selectedBatch && 
+      String((b as any).department?.id || b.department || '') === String(selectedDepartment)
+    );
+    if (!batchObj) return [];
+    const bId = String(batchObj.id);
+
     const subjectIds = new Set<string | number>();
     semesterSubjects.forEach(ss => {
-      if (String(ss.department_id) === String(selectedDepartment)) subjectIds.add(ss.subject);
+      if (
+        String(ss.department_id) === String(selectedDepartment) && 
+        String(ss.batch_id) === bId &&
+        ss.is_current === true
+      ) {
+        subjectIds.add(ss.subject);
+      }
     });
-    if (subjectIds.size === 0) return collegeSubjects;
+
     return collegeSubjects.filter(cs => subjectIds.has(cs.subject));
-  }, [selectedDepartment, semesterSubjects, collegeSubjects]);
+  }, [selectedDepartment, selectedBatch, batches, semesterSubjects, collegeSubjects]);
 
   const filteredTests = practiceTests.filter(t =>
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -344,14 +364,20 @@ const CollegeAdminPracticeTest = () => {
       setBatches(bts);
       setCollegeSubjects(subs);
 
-      const semesterToDeptMap: Record<string, string> = {};
+      const semesterDetailsMap: Record<string, any> = {};
       bts.forEach(b => {
         const dId = String((b as any).department?.id || b.department || '');
         if (dId && b.semesters) {
-          b.semesters.forEach((s: any) => { semesterToDeptMap[String(s.id)] = dId; });
+          b.semesters.forEach((s: any) => { 
+            semesterDetailsMap[String(s.id)] = { 
+              department_id: dId, 
+              batch_id: String(b.id), 
+              is_current: s.is_current 
+            }; 
+          });
         }
       });
-      setSemesterSubjects(semSubs.map(ss => ({ ...ss, department_id: semesterToDeptMap[String(ss.semester)] })));
+      setSemesterSubjects(semSubs.map(ss => ({ ...ss, ...semesterDetailsMap[String(ss.semester)] })));
     } catch {
       toast({ title: 'Error', description: 'Failed to load curriculum data.', variant: 'destructive' });
     } finally {
@@ -699,15 +725,15 @@ const CollegeAdminPracticeTest = () => {
         <CardContent className="pt-5 pb-5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <FilterSelect label="Batch" value={selectedBatch} options={uniqueBatchNames} values={uniqueBatchNames}
-              onChange={(v) => { setSelectedBatch(v); setSelectedDepartment(undefined); setSelectedSubject(undefined); setSelectedUnit(undefined); }} />
+              onChange={(v) => { setSelectedBatch(v); setSelectedDepartment(''); setSelectedSubject(''); setSelectedUnit(''); }} />
             <FilterSelect label="Department" value={selectedDepartment || null}
               options={filteredDepartments.map(d => d.name)} values={filteredDepartments.map(d => String(d.id))}
-              onChange={(v) => { setSelectedDepartment(v); setSelectedSubject(undefined); setSelectedUnit(undefined); }}
+              onChange={(v) => { setSelectedDepartment(v); setSelectedSubject(''); setSelectedUnit(''); }}
               disabled={!selectedBatch} />
             <FilterSelect label="Subject" value={selectedSubject || null}
               options={filteredSubjects.map((s: any) => s.subject_details?.subject_name)}
               values={filteredSubjects.map((s: any) => String(s.subject))}
-              onChange={(v) => { setSelectedSubject(v); setSelectedUnit(undefined); }}
+              onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
               disabled={!selectedDepartment} />
             <FilterSelect label="Unit" value={selectedUnit || null}
               options={units.map((u: any) => u.name)} values={units.map((u: any) => u.id)}
@@ -855,6 +881,7 @@ const CollegeAdminPracticeTest = () => {
             </CardContent>
           </Card>
 
+
           {/* Configuration */}
           <Card className="border-border bg-card">
             <CardHeader className="border-b border-border pb-4">
@@ -956,7 +983,7 @@ const CollegeAdminPracticeTest = () => {
                       />
                       {randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) && (
                         <p className="text-[10px] text-red-500 mt-1">
-                          Only {availableQuestionsCount[key] || 0} {formData.difficulty} questions available in bank.
+                          Only {availableQuestionsCount[key] || 0} questions available in bank.
                         </p>
                       )}
                     </div>
@@ -969,7 +996,9 @@ const CollegeAdminPracticeTest = () => {
             </CardContent>
           </Card>
 
+
           {/* Question Bank Selection */}
+
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
@@ -987,6 +1016,7 @@ const CollegeAdminPracticeTest = () => {
               unitFilter={selectedUnit}
               categoryFilter="practice"
               difficultyFilter={formData.difficulty}
+              allowCreation={false}
             />
 
             {questions.length > 0 && (

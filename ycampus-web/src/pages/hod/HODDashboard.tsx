@@ -199,21 +199,21 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
             <Card className="shadow-sm">
               <CardContent className="py-3 px-4">
                 <div className="flex flex-wrap gap-3 items-center">
-                  <Select value={filters.academicYear} onValueChange={v => updateFilter('academicYear', v)}>
+                  <Select value={filters.academicYear || ""} onValueChange={v => updateFilter('academicYear', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="2025-26">2025-26</SelectItem>
                       <SelectItem value="2024-25">2024-25</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={filters.semester} onValueChange={v => updateFilter('semester', v)}>
+                  <Select value={filters.semester || ""} onValueChange={v => updateFilter('semester', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Semesters</SelectItem>
                       {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
                     </SelectContent>
                   </Select>
-                  <Select value={filters.batch} onValueChange={v => updateFilter('batch', v)}>
+                  <Select value={filters.batch || ""} onValueChange={v => updateFilter('batch', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Batches</SelectItem>
@@ -221,7 +221,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                       <SelectItem value="2024">2024 Batch</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={filters.dateRange} onValueChange={v => updateFilter('dateRange', v)}>
+                  <Select value={filters.dateRange || ""} onValueChange={v => updateFilter('dateRange', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="full-year">Full Year</SelectItem>

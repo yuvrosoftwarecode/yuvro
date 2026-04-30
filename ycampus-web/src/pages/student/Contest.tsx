@@ -17,6 +17,7 @@ import { collegeService, College } from "@/services/collegeService";
 import { toast } from 'sonner';
 import ContestLeaderboard from '../../components/student/ContestLeaderboard';
 import { Input } from '@/components/ui/input';
+import PageHeader from '@/components/common/PageHeader';
 
 interface Contest {
   id: number | string;
@@ -204,33 +205,31 @@ const ContestPage = () => {
   return (
     <StudentLayout>
       <div className="min-h-full bg-white">
-        <div className="px-6 lg:px-8 py-6 space-y-6">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-bold">Contests & Competitions</h1>
-              <p className="text-sm text-slate-600">Compete, learn, and get ranked globally</p>
-            </div>
-
-            {/* Inline Stats */}
-            <div className="flex flex-wrap gap-3">
-              {[
-                { label: 'Joined', value: stats.joined, icon: Trophy, color: 'text-purple-600', bg: 'bg-purple-50' },
-                { label: 'Upcoming', value: stats.upcoming, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { label: 'Live', value: stats.live, icon: Zap, color: 'text-green-600', bg: 'bg-green-50', pulse: stats.live > 0 },
-                { label: 'Total', value: stats.total, icon: Target, color: 'text-slate-600', bg: 'bg-white' },
-              ].map((s, i) => (
-                <div key={i} className={cn("flex items-center gap-2 px-4 py-2 rounded-full border border-gray-100 bg-white shadow-sm", s.pulse && "animate-pulse")}>
-                  <div className={cn("flex items-center justify-center w-7 h-7 rounded-full", s.bg, s.color)}>
-                    <s.icon className="h-4 w-4" />
+        <div className="space-y-6">
+          <PageHeader 
+            title="Contests & Competitions" 
+            subtitle="Compete, learn, and get ranked globally" 
+            actions={
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { label: 'Joined', value: stats.joined, icon: Trophy, color: 'text-purple-600', bg: 'bg-purple-50' },
+                  { label: 'Upcoming', value: stats.upcoming, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
+                  { label: 'Live', value: stats.live, icon: Zap, color: 'text-green-600', bg: 'bg-green-50', pulse: stats.live > 0 },
+                  { label: 'Total', value: stats.total, icon: Target, color: 'text-slate-600', bg: 'bg-white' },
+                ].map((s, i) => (
+                  <div key={i} className={cn("flex items-center gap-2 px-4 py-2 rounded-full border border-gray-100 bg-white shadow-sm", s.pulse && "animate-pulse")}>
+                    <div className={cn("flex items-center justify-center w-7 h-7 rounded-full", s.bg, s.color)}>
+                      <s.icon className="h-4 w-4" />
+                    </div>
+                    <div className="text-sm">
+                      <span className={cn("font-bold mr-1", s.color)}>{s.value}</span>
+                      <span className="text-gray-500 font-medium">{s.label}</span>
+                    </div>
                   </div>
-                  <div className="text-sm">
-                    <span className={cn("font-bold mr-1", s.color)}>{s.value}</span>
-                    <span className="text-gray-500 font-medium">{s.label}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+            }
+          />
 
           {/* Auto-Scrolling Featured (Adapted ycode style) */}
           <div className="relative overflow-hidden bg-white py-10 px-8 rounded-[2rem] border border-gray-100 shadow-sm overflow-x-hidden">
@@ -433,7 +432,9 @@ const ContestPage = () => {
                 </CardContent>
               </Card>
 
-              <ContestLeaderboard contestId={ongoingContest?.id || 'global'} contestTitle={ongoingContest?.title || 'Global Ranking'} />
+              {ongoingContest && (
+                <ContestLeaderboard contestId={ongoingContest.id} contestTitle={ongoingContest.title} />
+              )}
             </div>
           </div>
         </div>

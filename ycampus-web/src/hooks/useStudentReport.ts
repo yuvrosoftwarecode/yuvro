@@ -7,6 +7,7 @@ import taskService from '@/services/taskService';
 import departmentService from '@/services/departmentService';
 import courseService from '@/services/courseService';
 import batchService from '@/services/batchService';
+import semesterService from '@/services/semesterService';
 
 export interface ReportFilters {
   academicYear: string;
@@ -137,6 +138,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
   const [report, setReport] = useState<StudentReport | null>(null);
   const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
   const [batches, setBatches] = useState<BatchOption[]>([]);
+  const [rawBatches, setRawBatches] = useState<any[]>([]);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [loading, setLoading] = useState(false);
@@ -149,13 +151,13 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
       try {
         setFiltersLoading(true);
         
-        // Load institutional data if in principal mode
         if (mode === 'principal') {
           const [allBatches, allDepts] = await Promise.all([
             batchService.getBatches(),
             departmentService.getDepartments()
           ]);
           
+          setRawBatches(allBatches);
           const uniqueBatchNames = new Set(allBatches.map(b => b.name));
           setBatches(Array.from(uniqueBatchNames).map(name => ({
             id: name,
@@ -226,6 +228,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
   const loadBatches = useCallback(async (deptId?: string) => {
     try {
       const res = await batchService.getBatches(deptId);
+      setRawBatches(res);
       const mapped = res.map(b => ({
         id: String(b.id),
         name: b.name,
@@ -260,7 +263,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
         ? paramsOrDeptId 
         : { department: paramsOrDeptId, semester_number: semester };
       
-      const res = await studentService.getStudents({ ...queryParams, limit: 200 });
+      const res = await studentService.getStudents({ ...queryParams, limit: 1000, page_size: 1000 });
       if (res.results) {
         const mapped = res.results.map(mapStudent);
         setStudents(mapped);
@@ -286,7 +289,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
     try {
       const results = await Promise.all(
         deptIds.map(deptId =>
-          studentService.getStudents({ ...extraParams, batch__name: batchName, department: deptId, limit: 200 })
+          studentService.getStudents({ ...extraParams, batch__name: batchName, department: deptId, limit: 1000, page_size: 1000 })
         )
       );
       const allRaw = results.flatMap(res => res.results || []);
@@ -410,22 +413,55 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
         }
       });
 
+      // Find the student's section ID from assignments to use for task/attendance filtering
+      let studentSectionId: string | undefined;
+      const matchingAssignment = assignments.find(a => 
+        a.semester_subject_details?.batch_name === student.batch_name &&
+        String(a.semester_subject_details?.department_id) === String(student.department_id) &&
+        String(a.semester_subject_details?.semester_number) === String(student.semester_number) &&
+        a.section_name === student.section_name
+      );
+      if (matchingAssignment) {
+        studentSectionId = String(matchingAssignment.section);
+      }
+
+      // In Principal mode, we want to show ALL subjects for the semester, even without faculty
+      let semesterSubjectsForPrincipal: any[] = [];
+      if (mode === 'principal' && student.batch_name && student.department_id && student.semester_number) {
+        try {
+          const batchRecord = rawBatches.find(b => b.name === student.batch_name && String(b.department) === String(student.department_id));
+          if (batchRecord) {
+            const sems = await semesterService.getSemesters(batchRecord.id);
+            const sem = sems.find(s => String(s.number) === String(student.semester_number));
+            if (sem) {
+              semesterSubjectsForPrincipal = await subjectService.getSubjectsForSemester(sem.id);
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to fetch all semester subjects for principal report:', err);
+        }
+      }
+
 
         // 3. Map Progress Data & Intersect with Faculty Assignments
-        // If a student has no data for a faculty-assigned subject, show with 0% (as requested).
-        const finalSubjects: SubjectPerformance[] = assignments
-          .filter((a: any) => a && a.semester_subject_details?.subject_details)
-          .map((assignment: any) => {
-            const sDetails = assignment.semester_subject_details!.subject_details!;
+        // In Principal mode, we strictly show subjects assigned to the student's Semester.
+        // In Faculty mode, we show only subjects the faculty is assigned to.
+        const sourceList = mode === 'principal' 
+          ? semesterSubjectsForPrincipal 
+          : assignments.filter((a: any) => a && a.semester_subject_details?.subject_details);
+
+        const finalSubjects: SubjectPerformance[] = sourceList.map((item: any) => {
+            const sDetails = item.semester_subject_details ? item.semester_subject_details.subject_details : item.subject_details;
             const sId = String(sDetails.id);
-            const semSubId = assignment.semester_subject_details?.id ? String(assignment.semester_subject_details.id) : null;
+            const semSubId = item.semester_subject_details ? String(item.semester_subject_details.id) : String(item.id);
+            
             const prog = (progressData || []).find((p: any) => {
               const pSubId = String(p.subject_id);
               return pSubId === sId || (semSubId && pSubId === semSubId);
             });
 
             // Task Logic (Real Data) - Match by Subject ID and Section ID
-            const assignmentSectionId = String(assignment.section);
+            const assignmentSectionId = item.section ? String(item.section) : studentSectionId;
             const subjectTasks = (allTasks || []).filter(t => {
               if (!t) return false;
               // Match subject
@@ -433,11 +469,14 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               if (tSubId !== sId) return false;
               
               // Match section - a task can belong to multiple sections
-              if (!t.sections || !Array.isArray(t.sections)) return false;
-              return t.sections.some((sec: any) => {
-                const secId = typeof sec === 'object' ? String(sec.id) : String(sec);
-                return secId === assignmentSectionId;
-              });
+              if (assignmentSectionId) {
+                if (!t.sections || !Array.isArray(t.sections)) return false;
+                return t.sections.some((sec: any) => {
+                  const secId = typeof sec === 'object' ? String(sec.id) : String(sec);
+                  return secId === assignmentSectionId;
+                });
+              }
+              return true;
             });
 
             let tasksOnTime = 0;
@@ -479,7 +518,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               const sessionAssignmentId = typeof session.section_subject_faculty === 'object' 
                 ? String(session.section_subject_faculty.id) 
                 : String(session.section_subject_faculty);
-              if (sessionAssignmentId === String(assignment.id)) return true;
+              if (item.id && sessionAssignmentId === String(item.id)) return true;
 
               // 2. Fallback: Match by Subject and Section if session details are available
               if (session.semester_subject_details) {
@@ -530,6 +569,27 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               return type === 'assessment';
             });
 
+            // Get all assigned assessments for this subject (only active ones)
+            const subjectAssignedAssessments = (allLevelTests || []).filter((t: any) => {
+              const subId = String(t.subject);
+              const isActive = t.publish_status === 'active';
+              return (subId === sId || (semSubId && subId === semSubId)) && isActive;
+            }).filter((t: any) => t.test_type === 'assessment');
+
+            // Group submissions by unique assessment ID to avoid double-counting attempts
+            const uniqueAssessments = new Map();
+            assessmentAttempts.forEach((sub: any) => {
+              const testId = String(sub.skill_test_details?.id || sub.skill_test?.id || sub.skill_test);
+              const testInfo = testsMap.get(testId);
+              const totalMarks = Number(testInfo?.total_marks || sub.skill_test_details?.total_marks || sub.skill_test?.total_marks || 100);
+              const score = (Number(sub.marks || sub.score || 0) / totalMarks) * 100;
+              
+              const existing = uniqueAssessments.get(testId);
+              if (!existing || score > existing.calculatedScore) {
+                uniqueAssessments.set(testId, { ...sub, calculatedScore: score });
+              }
+            });
+
             const avgPct = (arr: any[]) => {
               if (arr.length === 0) return 0;
               const totalPct = arr.reduce((acc, curr) => {
@@ -555,7 +615,12 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
             const accuracy = avgPct(practiceAttempts);
             const trend = calculateTrend(practiceAttempts);
             const testAvg = accuracy;
-            const assessmentAvg = avgPct(assessmentAttempts);
+
+            const completedAssessments = Array.from(uniqueAssessments.values()).filter((a: any) => a.status === 'completed' || a.is_submitted);
+            // Factor in pending assessments into the average score (Pending counts as 0)
+            const assessmentAvg = subjectAssignedAssessments.length > 0
+                ? Math.round(completedAssessments.reduce((sum, a: any) => sum + a.calculatedScore, 0) / subjectAssignedAssessments.length)
+                : 0;
 
             const easyAttempts = practiceAttempts.filter(a => {
               const testId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
@@ -603,18 +668,14 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               hardAvg: avgPct(hardAttempts),
               accuracy: accuracy,
               trend: trend,
-              assessmentsTotal: assessmentAttempts.length,
-              assessmentsCompleted: assessmentAttempts.filter((a: any) => a.status === 'completed' || a.is_submitted).length,
-              assessmentsInProgress: assessmentAttempts.filter((a: any) => a.status === 'started' && !a.is_submitted).length,
-              assessmentsPending: 0,
-              assessmentScores: assessmentAttempts.slice(-3).reverse().map((a: any) => {
-                const aMarks = Number(a.marks || a.score || 0);
-                const aTestId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
-                const aTestInfo = testsMap.get(aTestId);
-                const aTotal = Number(aTestInfo?.total_marks || a.skill_test_details?.total_marks || a.skill_test?.total_marks || 100);
+              assessmentsTotal: subjectAssignedAssessments.length,
+              assessmentsCompleted: completedAssessments.length,
+              assessmentsInProgress: Array.from(uniqueAssessments.values()).filter((a: any) => a.status === 'started' && !a.is_submitted).length,
+              assessmentsPending: Math.max(0, subjectAssignedAssessments.length - completedAssessments.length),
+              assessmentScores: Array.from(uniqueAssessments.values()).slice(-3).reverse().map((a: any) => {
                 return {
                   name: a.skill_test_details?.title || a.skill_test?.title || 'Assessment',
-                  score: Number(((aMarks / aTotal) * 100).toFixed(1)),
+                  score: Number(a.calculatedScore.toFixed(1)),
                   date: a.submitted_at || a.created_at
                 };
               }),
@@ -624,7 +685,6 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
               classesAttended: prog && typeof prog.attendance_present === 'number' ? prog.attendance_present : classesAttended,
               missedSessions: prog && typeof prog.attendance_missed === 'number' ? prog.attendance_missed : missedSessions,
             };
-
 
           });
 
@@ -753,7 +813,7 @@ export function useStudentReport(config: HookConfig = { mode: 'faculty' }) {
   }, [allStudents, assignments]);
 
   return {
-    assignments, batches, departments, courses, students, allStudents, report, loading,
+    assignments, batches, rawBatches, departments, courses, students, allStudents, report, loading,
     filtersLoading,
     studentsLoading,
     loadStudents,

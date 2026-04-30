@@ -14,6 +14,7 @@ import CreateJobDialog from '@/components/placement/CreateJobDialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import jobService from '@/services/jobService';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';

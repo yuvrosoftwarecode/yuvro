@@ -39,8 +39,9 @@ import {
   PanelLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { getMediaUrl } from '@/utils/mediaUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 import knowledgeTree from '@/assets/knowledge-tree.png';
@@ -132,6 +133,8 @@ export function StudentSidebar() {
 
   const firstName = user?.first_name || user?.username || 'User';
   const initials = firstName.charAt(0).toUpperCase();
+
+  const profileImage = getMediaUrl(user?.profile?.avatar);
 
   return (
     <Sidebar
@@ -237,6 +240,7 @@ export function StudentSidebar() {
             className={`flex items-center w-full rounded-lg p-2 hover:bg-sidebar-accent/50 transition-colors ${collapsed ? 'justify-center' : 'gap-3'}`}
           >
             <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage src={profileImage} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                 {initials}
               </AvatarFallback>

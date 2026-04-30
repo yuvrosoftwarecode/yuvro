@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2, Loader2, LogOut } from 'lucide-react';
@@ -42,22 +41,8 @@ export const FixRoleTool = () => {
     try {
       console.log('Attempting to fix role for user:', user.id);
       
-      // 1. Try updating via Supabase directly (Public Update Policy might allow this)
-      const { error: sbError } = await supabase
-        .from('profiles')
-        .update({ role: 'placement_officer' })
-        .eq('id', user.id);
-
-      if (sbError) {
-        console.warn('Supabase profile update failed:', sbError);
-      }
-
-      // 2. Try updating via REST API auth service
-      try {
-        await authService.updateUser({ role: 'placement_officer' });
-      } catch (apiError) {
-        console.warn('REST API profile update failed:', apiError);
-      }
+      // Update via REST API auth service
+      await authService.updateUser({ role: 'placement_officer' });
 
       toast({
         title: "Account Repaired",

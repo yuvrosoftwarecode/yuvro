@@ -87,6 +87,7 @@ import PlacementCompany from "./pages/placement/Company";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
+import MockInterviewReport from "./pages/student/MockInterviewReport";
 
 import NotFound from "./pages/NotFound";
 
@@ -113,7 +114,16 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+              v7_fetcherPersist: true,
+              v7_normalizeFormMethod: true,
+              v7_partialHydration: true,
+              v7_skipActionErrorRevalidation: true,
+            }}
+          >
             <Routes>
               <Route path="/" element={<DashboardRedirect />} />
               <Route path="/login" element={<Login />} />
@@ -209,6 +219,7 @@ const App = () => (
                       <Route path="ai-interview-planner" element={<AIInterviewPlanner />} />
                       <Route path="interview-preparation" element={<InterviewPreparation />} />
                       <Route path="mock-interview" element={<StudentMockInterview />} />
+                      <Route path="mock-interview/report/:submissionId" element={<MockInterviewReport />} />
                       <Route path="mock-interview/report/ml" element={<DummyReportScreen />} />
                       <Route path="code-practice" element={<CodePractice />} />
                       <Route path="code-practice/subjects/:subjectId" element={<CodePractice />} />
@@ -275,7 +286,6 @@ const App = () => (
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
                       <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                       <Route path="announcements" element={<CollegeAdminAnnouncements />} />
-                      <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                     </Routes>
                   </ProtectedRoute>
                 }
