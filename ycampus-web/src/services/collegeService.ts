@@ -93,7 +93,7 @@ export const collegeService = {
     },
     
     getDashboardStats: async (collegeId: string | number, filters?: any): Promise<any> => {
-        return await restApiAuthUtil.get(`/course/colleges/${collegeId}/dashboard_stats/`, filters);
+        return await restApiAuthUtil.get(`/course/colleges/${collegeId}/dashboard_stats/`, { params: filters });
     },
 
     createCollegeAdmin: async (collegeId: string | number, userData: any): Promise<void> => {
