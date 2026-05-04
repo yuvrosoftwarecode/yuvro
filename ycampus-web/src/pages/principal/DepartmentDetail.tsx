@@ -1,3 +1,4 @@
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { useDepartments } from '@/hooks/useDepartments';
@@ -17,6 +18,7 @@ const DepartmentDetail = () => {
     <HODDashboard
       sidebarComponent={<PrincipalSidebar />}
       title={`${deptName} — Department Dashboard`}
+      departmentId={departmentId}
       headerExtra={
         <Button variant="ghost" size="icon" className="mr-1" onClick={() => navigate('/principal/departments')}>
           <ArrowLeft className="h-4 w-4" />

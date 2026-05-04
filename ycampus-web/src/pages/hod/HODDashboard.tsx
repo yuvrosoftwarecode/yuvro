@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { HODSidebar } from '@/components/hod/HODSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,9 +20,10 @@ interface HODDashboardProps {
   sidebarComponent?: React.ReactNode;
   title?: string;
   headerExtra?: React.ReactNode;
+  departmentId?: string;
 }
 
-const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProps = {}) => {
+const HODDashboard = ({ sidebarComponent, title, headerExtra, departmentId }: HODDashboardProps = {}) => {
   const [filters, setFilters] = useState({
     academicYear: '2025-26',
     semester: 'all',
@@ -36,9 +37,39 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
     summary, rankedSections, semesterComparison, trends, risk, insights, allSections,
     attendanceShortage, subjectAnalytics, facultyPerformance, placementReadiness,
     assessmentReports, testAnalytics, filteredSemesters, allStudents, priData,
-  } = useHODDashboardData(filters);
+    loading, filterOptions,
+  } = useHODDashboardData(filters, departmentId);
 
-  const updateFilter = (key: string, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
+  React.useEffect(() => {
+    if (filterOptions?.academicYears?.length > 0 && filters.academicYear === '2025-26') {
+       // Optional: set to first available if needed, or keep 2025-26 as a default
+    }
+  }, [filterOptions]);
+
+  if (loading && !filterOptions) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full bg-[hsl(210,40%,98%)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0EA5A4]"></div>
+      </div>
+    );
+  }
+
+  const updateFilter = (key: string, value: string) => {
+    setFilters(prev => {
+      const next = { ...prev, [key]: value };
+      if (key === 'academicYear') {
+        next.batch = 'all';
+        next.semester = 'all';
+        next.dateRange = 'full-year';
+      } else if (key === 'batch') {
+        next.semester = 'all';
+        next.dateRange = 'full-year';
+      } else if (key === 'semester') {
+        next.dateRange = 'full-year';
+      }
+      return next;
+    });
+  };
 
   const summaryCards = [
     { title: 'Total Students', value: summary.totalStudents, icon: Users, color: 'text-blue-600' },
@@ -200,27 +231,46 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
               <CardContent className="py-3 px-4">
                 <div className="flex flex-wrap gap-3 items-center">
                   <Select value={filters.academicYear || ""} onValueChange={v => updateFilter('academicYear', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>{filters.academicYear || "Select Year"}</SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2025-26">2025-26</SelectItem>
-                      <SelectItem value="2024-25">2024-25</SelectItem>
+                      {filterOptions?.academicYears?.map((ay: string) => (
+                        <SelectItem key={ay} value={ay}>{ay}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select value={filters.semester || ""} onValueChange={v => updateFilter('semester', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Semesters</SelectItem>
-                      {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.batch || ""} onValueChange={v => updateFilter('batch', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
+
+                  <Select value={filters.batch || "all"} onValueChange={v => updateFilter('batch', v)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>
+                        {filters.batch === 'all' ? 'All Batches' : (filterOptions?.batches?.find((b: any) => b.id === filters.batch)?.name || 'All Batches')}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Batches</SelectItem>
-                      <SelectItem value="2023">2023 Batch</SelectItem>
-                      <SelectItem value="2024">2024 Batch</SelectItem>
+                      {filterOptions?.batches
+                        ?.filter((b: any) => b.id !== 'all' && b.name !== 'All Batches')
+                        ?.map((b: any) => (
+                          <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
+
+                  <Select value={filters.semester || "all"} onValueChange={v => updateFilter('semester', v)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>
+                        {filters.semester === 'all' ? 'All Semesters' : `Semester ${filters.semester}`}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Semesters</SelectItem>
+                      {filterOptions?.semesters?.map((s: number) => (
+                        <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   <Select value={filters.dateRange || ""} onValueChange={v => updateFilter('dateRange', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -534,7 +584,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                       </TableHeader>
                       <TableBody>
                         {rankedSections.map((sec, i) => (
-                          <React.Fragment key={sec.id}>
+                          <Fragment key={sec.id}>
                             <TableRow
                               className={`cursor-pointer ${i < 3 ? 'bg-emerald-50/50' : ''}`}
                               onClick={() => setExpandedSection(expandedSection === sec.id ? null : sec.id)}
@@ -566,7 +616,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                                 </TableCell>
                               </TableRow>
                             )}
-                          </React.Fragment>
+                          </Fragment>
                         ))}
                       </TableBody>
                     </Table>

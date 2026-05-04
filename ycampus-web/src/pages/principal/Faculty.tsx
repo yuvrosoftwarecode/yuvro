@@ -13,63 +13,16 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// ── Dummy faculty data across departments ──
-const departments = [
-  { id: 'all', name: 'All Departments' },
-  { id: 'cse', name: 'Computer Science' },
-  { id: 'ece', name: 'Electronics & Comm.' },
-  { id: 'it', name: 'Information Technology' },
-  { id: 'mech', name: 'Mechanical' },
-  { id: 'civil', name: 'Civil' },
-  { id: 'eee', name: 'Electrical' },
-];
-
-interface FacultyEntry {
-  id: string;
-  name: string;
-  department: string;
-  departmentId: string;
-  sections: string[];
-  subjects: string[];
-  avgStudentPI: number;
-  avgAttendance: number;
-  avgAssessmentScore: number;
-  fpiScore: number;
-  studentsHandled: number;
-}
-
-const generateFacultyData = (): FacultyEntry[] => {
-  const data: FacultyEntry[] = [
-    { id: 'f1', name: 'Dr. Rajesh Sharma', department: 'Computer Science', departmentId: 'cse', sections: ['CSE-6A', 'CSE-5B'], subjects: ['Data Structures', 'Algorithms', 'Machine Learning'], avgStudentPI: 84, avgAttendance: 89, avgAssessmentScore: 81, fpiScore: 85, studentsHandled: 120 },
-    { id: 'f2', name: 'Prof. Meena Iyer', department: 'Computer Science', departmentId: 'cse', sections: ['CSE-4A', 'CSE-3A'], subjects: ['DBMS', 'Software Engineering'], avgStudentPI: 78, avgAttendance: 85, avgAssessmentScore: 76, fpiScore: 80, studentsHandled: 110 },
-    { id: 'f3', name: 'Dr. Suresh Patel', department: 'Computer Science', departmentId: 'cse', sections: ['CSE-2A', 'CSE-1B'], subjects: ['Computer Networks', 'Operating Systems'], avgStudentPI: 71, avgAttendance: 80, avgAssessmentScore: 68, fpiScore: 73, studentsHandled: 95 },
-    { id: 'f4', name: 'Prof. Kavitha Rao', department: 'Electronics & Comm.', departmentId: 'ece', sections: ['ECE-6A', 'ECE-5A'], subjects: ['Digital Electronics', 'Microprocessors', 'VLSI Design'], avgStudentPI: 80, avgAttendance: 86, avgAssessmentScore: 77, fpiScore: 81, studentsHandled: 105 },
-    { id: 'f5', name: 'Dr. Amit Gupta', department: 'Electronics & Comm.', departmentId: 'ece', sections: ['ECE-4A', 'ECE-3B'], subjects: ['Signals & Systems', 'Communication Theory'], avgStudentPI: 74, avgAttendance: 82, avgAssessmentScore: 72, fpiScore: 76, studentsHandled: 100 },
-    { id: 'f6', name: 'Prof. Lakshmi Nair', department: 'Information Technology', departmentId: 'it', sections: ['IT-5A', 'IT-4A'], subjects: ['Web Development', 'Cloud Computing', 'Cyber Security'], avgStudentPI: 82, avgAttendance: 88, avgAssessmentScore: 79, fpiScore: 83, studentsHandled: 115 },
-    { id: 'f7', name: 'Dr. Prakash Joshi', department: 'Information Technology', departmentId: 'it', sections: ['IT-3A', 'IT-2A'], subjects: ['Python Programming', 'Data Science'], avgStudentPI: 75, avgAttendance: 83, avgAssessmentScore: 73, fpiScore: 77, studentsHandled: 90 },
-    { id: 'f8', name: 'Prof. Sunita Verma', department: 'Mechanical', departmentId: 'mech', sections: ['ME-5A', 'ME-4A'], subjects: ['Thermodynamics', 'Fluid Mechanics', 'Manufacturing'], avgStudentPI: 68, avgAttendance: 78, avgAssessmentScore: 65, fpiScore: 70, studentsHandled: 85 },
-    { id: 'f9', name: 'Dr. Arun Kumar', department: 'Mechanical', departmentId: 'mech', sections: ['ME-3A', 'ME-3B'], subjects: ['Strength of Materials', 'Machine Design'], avgStudentPI: 62, avgAttendance: 75, avgAssessmentScore: 60, fpiScore: 66, studentsHandled: 80 },
-    { id: 'f10', name: 'Prof. Deepa Mishra', department: 'Civil', departmentId: 'civil', sections: ['CE-5A', 'CE-3A'], subjects: ['Structural Analysis', 'Geotechnical Engineering', 'Surveying'], avgStudentPI: 64, avgAttendance: 76, avgAssessmentScore: 62, fpiScore: 67, studentsHandled: 75 },
-    { id: 'f11', name: 'Dr. Venkat Reddy', department: 'Civil', departmentId: 'civil', sections: ['CE-2A', 'CE-1A'], subjects: ['Construction Management', 'Environmental Engineering'], avgStudentPI: 58, avgAttendance: 72, avgAssessmentScore: 55, fpiScore: 62, studentsHandled: 70 },
-    { id: 'f12', name: 'Prof. Anita Singh', department: 'Electrical', departmentId: 'eee', sections: ['EE-5A', 'EE-3B'], subjects: ['Control Systems', 'Power Electronics', 'Electrical Machines'], avgStudentPI: 60, avgAttendance: 74, avgAssessmentScore: 58, fpiScore: 64, studentsHandled: 78 },
-    { id: 'f13', name: 'Dr. Ramesh Nair', department: 'Electrical', departmentId: 'eee', sections: ['EE-2A', 'EE-1B'], subjects: ['Circuit Theory', 'Electromagnetic Fields'], avgStudentPI: 56, avgAttendance: 71, avgAssessmentScore: 53, fpiScore: 60, studentsHandled: 65 },
-    { id: 'f14', name: 'Prof. Priya Das', department: 'Computer Science', departmentId: 'cse', sections: ['CSE-6B', 'CSE-5A'], subjects: ['Artificial Intelligence', 'Deep Learning'], avgStudentPI: 86, avgAttendance: 91, avgAssessmentScore: 83, fpiScore: 87, studentsHandled: 100 },
-    { id: 'f15', name: 'Dr. Sanjay Mehta', department: 'Electronics & Comm.', departmentId: 'ece', sections: ['ECE-2A', 'ECE-1A'], subjects: ['Analog Circuits', 'Embedded Systems'], avgStudentPI: 70, avgAttendance: 79, avgAssessmentScore: 68, fpiScore: 72, studentsHandled: 88 },
-  ];
-  return data;
-};
-
-let _cachedFaculty: FacultyEntry[] | null = null;
-const getFacultyData = () => {
-  if (!_cachedFaculty) _cachedFaculty = generateFacultyData();
-  return _cachedFaculty;
-};
+import { usePrincipalFacultyData } from '@/hooks/usePrincipalFacultyData';
 
 const Faculty = () => {
   const [selectedDept, setSelectedDept] = useState('all');
   const [expandedFaculty, setExpandedFaculty] = useState<string | null>(null);
 
-  const allFaculty = useMemo(() => getFacultyData(), []);
+  const { data, loading } = usePrincipalFacultyData();
+
+  const allFaculty = data?.faculty || [];
+  const departments = data?.departments || [{ id: 'all', name: 'All Departments' }];
 
   const filteredFaculty = useMemo(() => {
     const list = selectedDept === 'all' ? allFaculty : allFaculty.filter(f => f.departmentId === selectedDept);
@@ -96,10 +49,12 @@ const Faculty = () => {
       const avgFPI = deptFaculty.length > 0 ? Math.round(deptFaculty.reduce((a, f) => a + f.fpiScore, 0) / deptFaculty.length) : 0;
       return { name: d.name.substring(0, 8), fullName: d.name, avgFPI, count: deptFaculty.length };
     }).sort((a, b) => b.avgFPI - a.avgFPI);
-  }, [allFaculty]);
+  }, [allFaculty, departments]);
 
   const insights = useMemo(() => {
     const items: { text: string; type: 'success' | 'warning' | 'danger' | 'info' }[] = [];
+    if (loading) return [];
+    
     const topFaculty = filteredFaculty[0];
     const bottomFaculty = filteredFaculty[filteredFaculty.length - 1];
     if (topFaculty) items.push({ text: `${topFaculty.name} leads with FPI ${topFaculty.fpiScore}% (${topFaculty.department}).`, type: 'success' });
@@ -120,7 +75,7 @@ const Faculty = () => {
 
     items.push({ text: 'Consider faculty development programs for underperforming sections.', type: 'info' });
     return items;
-  }, [filteredFaculty, selectedDept, deptComparison]);
+  }, [filteredFaculty, selectedDept, deptComparison, loading]);
 
   const fpiColor = (fpi: number) => fpi >= 75 ? 'text-emerald-600' : fpi >= 65 ? 'text-amber-600' : 'text-red-600';
   const fpiRank = (fpi: number) => fpi >= 75 ? 'Excellent' : fpi >= 65 ? 'Good' : 'Needs Improvement';
@@ -128,13 +83,40 @@ const Faculty = () => {
 
   const selectedDeptName = departments.find(d => d.id === selectedDept)?.name || 'All Departments';
 
+  if (loading && !data) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full overflow-hidden">
+          <PrincipalSidebar />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-muted-foreground">Loading faculty data...</div>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full overflow-hidden">
         <PrincipalSidebar />
         <div className="flex-1 min-w-0 flex flex-col min-h-0 overflow-hidden">
           <main className="flex-1 min-w-0 p-4 md:p-6 bg-background overflow-y-auto overflow-x-hidden space-y-6">
-            <h1 className="text-2xl font-bold mb-6">Faculty Performance</h1>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold">Faculty Performance</h1>
+              <Select value={selectedDept} onValueChange={setSelectedDept}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {/* Summary KPIs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
               {[
