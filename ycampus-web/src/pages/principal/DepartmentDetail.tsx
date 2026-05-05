@@ -7,7 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import HODDashboard from '@/pages/hod/HODDashboard';
 
 const DepartmentDetail = () => {
-  const { departmentId } = useParams();
+  const { id: departmentId } = useParams();
   const navigate = useNavigate();
   const { departments } = useDepartments();
 

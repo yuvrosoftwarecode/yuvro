@@ -127,6 +127,7 @@ export interface PRIData {
   almostReadyPct: number;
   needsImprovementPct: number;
   breakdown: PRIBreakdown;
+  coreSubjectPerformance: { subject: string; score: number }[];
   studentPRIs: { id: string; pri: number }[];
   sectionPRIs: { sectionId: string; pri: number }[];
   semesterPRIs: { semester: number; pri: number }[];
@@ -407,20 +408,41 @@ export function useHODDashboardData(filters: {
     }
   }, [departmentId, filters.academicYear, filters.batch, filters.semester, filters.dateRange]);
 
-  // If we have backend data, we use it. Otherwise, we fall back to mock data generation.
-  // This allows the HOD dashboard to still work with mock data for other views if needed.
-  const data = backendData || buildData();
+  // Initialize with empty defaults to prevent mock data flash
+  const emptyData = {
+    summary: { totalStudents: 0, totalFaculty: 0, totalSections: 0, dpi: 0, overallAttendance: 0, overallTaskCompletion: 0, overallAssessmentAvg: 0 },
+    semesters: [],
+    trends: [],
+    attendanceShortage: [],
+    subjectAnalytics: [],
+    facultyPerformance: [],
+    placementReadiness: { totalPreparing: 0, interviewReady: 0, needsPreparation: 0, weakInDSA: 0, companyWise: [] },
+    assessmentReports: [],
+    testAnalytics: { avgTestScore: 0, easyAccuracy: 0, mediumAccuracy: 0, hardAccuracy: 0, totalTestsTaken: 0, avgAccuracy: 0 },
+    priData: { avgPRI: 0, readyPct: 0, almostReadyPct: 0, needsImprovementPct: 0, breakdown: { coreSubjects: 0, mockInterviews: 0, aptitude: 0, logicalReasoning: 0, communication: 0 }, coreSubjectPerformance: [], studentPRIs: [], sectionPRIs: [], semesterPRIs: [], trendPRI: [] },
+    insights: [],
+    filterOptions: { batches: [], semesters: [], academicYears: [] }
+  };
+
+  // If we have backend data, we use it. 
+  // If we don't have it yet but we ARE expecting it (departmentId exists), use empty state.
+  // Only use buildData() if we are in pure mock mode (no departmentId).
+  const data = backendData || (departmentId ? emptyData : buildData());
+  
   const { 
     semesters, trends, attendanceShortage, subjectAnalytics, facultyPerformance, 
-    placementReadiness, assessmentReports, testAnalytics, priData, insights: backendInsights 
+    placementReadiness, assessmentReports, testAnalytics, priData, insights: backendInsights,
+    filterOptions: backendFilters
   } = data;
 
   const filteredSemesters = filters.semester === 'all'
     ? semesters
     : semesters.filter((s: any) => s.semester === Number(filters.semester));
 
-  const allSections = filteredSemesters.flatMap((s: any) => s.sections);
-  const allStudents = allSections.flatMap((s: any) => s.students || []);
+  // If backendData is present, use rankedSections (which has full object data). 
+  // Otherwise, fallback to flatMapping mock semesters.
+  const allSections = backendData ? data.rankedSections : filteredSemesters.flatMap((s: any) => s.sections);
+  const allStudents = backendData ? [] : allSections.flatMap((s: any) => s.students || []);
 
   const totalStudents = data.summary?.totalStudents ?? allStudents.length;
   const totalFaculty = data.summary?.totalFaculty ?? 24;
