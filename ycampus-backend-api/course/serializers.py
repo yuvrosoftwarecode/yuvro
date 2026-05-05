@@ -113,7 +113,11 @@ class SectionBasicSerializer(serializers.ModelSerializer):
     student_count = serializers.SerializerMethodField()
 
     def get_student_count(self, obj):
-        return obj.students.count()
+        from core.models import StudentProfile
+        return StudentProfile.objects.filter(
+            batch=obj.semester.batch,
+            section__name=obj.name
+        ).count()
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -128,7 +132,11 @@ class SectionSerializer(serializers.ModelSerializer):
     student_count = serializers.SerializerMethodField()
 
     def get_student_count(self, obj):
-        return obj.students.count()
+        from core.models import StudentProfile
+        return StudentProfile.objects.filter(
+            batch=obj.semester.batch,
+            section__name=obj.name
+        ).count()
 
 
 
