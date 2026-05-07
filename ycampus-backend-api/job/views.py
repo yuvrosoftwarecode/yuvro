@@ -21,11 +21,13 @@ from .models import (
     CandidateSearchLog,
 )
 from authentication.models import Profile
+from django.core.cache import cache
 from .serializers import (
     JobSerializer,
     CompanySerializer,
     JobApplicationSerializer,
     JobApplicationListSerializer,
+    JobApplicationCandidateSerializer,
     JobWithApplicationsSerializer,
     JobProfileSerializer,
     CandidateSearchSerializer,
@@ -265,6 +267,10 @@ class JobViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid():
             application = serializer.save()
+            
+            # Invalidate cache for this job's applications
+            cache.delete(f"job_applications_{job.id}")
+            
             logger.info(
                 f"Job application created successfully with ID: {application.id}"
             )
@@ -285,28 +291,42 @@ class JobViewSet(viewsets.ModelViewSet):
     def applications(self, request, pk=None):
         job = self.get_object()
 
-        if not request.user.role in ["recruiter", "admin"]:
+        if not request.user.role in ["recruiter", "admin", "placement_officer"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
-        applications = JobApplication.objects.filter(job=job, is_applied=True).order_by(
-            "-applied_at"
-        )
-        serializer = JobApplicationListSerializer(applications, many=True)
+        cache_key = f"job_applications_{job.id}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
 
-        return Response(
-            {
-                "job_title": job.title,
-                "company_name": job.company.name,
-                "applications_count": applications.count(),
-                "applications": serializer.data,
-            }
+        applications = (
+            JobApplication.objects.filter(job=job, is_applied=True)
+            .select_related(
+                "applicant",
+                "applicant__student_profile",
+                "applicant__student_profile__department",
+            )
+            .order_by("-applied_at")
         )
+        serializer = JobApplicationCandidateSerializer(applications, many=True)
+
+        data = {
+            "job_title": job.title,
+            "company_name": job.company.name,
+            "applications_count": applications.count(),
+            "applications": serializer.data,
+        }
+        
+        # Cache for 15 minutes
+        cache.set(cache_key, data, timeout=60 * 15)
+        
+        return Response(data)
 
     @action(detail=False, methods=["get"])
     def with_applications(self, request):
-        if not request.user.role in ["recruiter", "admin"]:
+        if not request.user.role in ["recruiter", "admin", "placement_officer"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -437,7 +457,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role in ["recruiter", "admin"]:
+        if user.role in ["recruiter", "admin", "placement_officer"]:
             return JobApplication.objects.all()
         else:
             return JobApplication.objects.filter(applicant=user)
@@ -549,7 +569,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["patch"])
     def update_status(self, request, pk=None):
-        if not request.user.role in ["recruiter", "admin"]:
+        if not request.user.role in ["recruiter", "admin", "placement_officer"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -571,6 +591,9 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         )
         application.feedback = request.data.get("feedback", application.feedback)
         application.save()
+
+        # Invalidate cache for this job's applications
+        cache.delete(f"job_applications_{application.job_id}")
 
         serializer = JobApplicationSerializer(application)
         return Response(serializer.data)

@@ -1,5 +1,4 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
-import restApiUtil from '../utils/RestApiUtil';
 
 export interface Job {
     id: string;
@@ -20,6 +19,11 @@ export interface Job {
     status: 'draft' | 'active' | 'paused' | 'closed' | 'rejected';
     posted_at?: string;
     expires_at?: string;
+    vacancies: number;
+    min_cgpa: number;
+    bond_details?: string;
+    eligible_branches: string[];
+    selection_rounds: string[];
     created_at: string;
     updated_at: string;
     screening_questions_config: {
@@ -45,6 +49,17 @@ export interface Company {
     description?: string;
     benefits?: string;
     location?: string;
+    status?: 'active' | 'inactive' | 'blacklisted';
+    company_type?: 'Product' | 'Service' | 'Startup' | 'MNC';
+    email?: string;
+    phone?: string;
+    recruiter_name?: string;
+    recruiter_designation?: string;
+    recruiter_email?: string;
+    recruiter_phone?: string;
+    total_hires?: number;
+    avg_ctc?: number;
+    rating?: number;
     created_at: string;
     updated_at: string;
 }
@@ -82,6 +97,11 @@ export interface CreateJobData {
     status?: 'draft' | 'active' | 'paused' | 'closed' | 'rejected';
     posted_at?: string;
     expires_at?: string;
+    vacancies?: number;
+    min_cgpa?: number;
+    bond_details?: string;
+    eligible_branches?: string[];
+    selection_rounds?: string[];
     screening_questions_config?: {
         mcq_single: string[];
         mcq_multiple: string[];
@@ -117,7 +137,7 @@ export const jobService = {
     },
 
     async getJob(jobId: string): Promise<Job> {
-        return restApiUtil.get(`/jobs/${jobId}/`);
+        return restApiAuthUtil.get(`/jobs/${jobId}/`);
     },
 
     async createJob(data: CreateJobData): Promise<Job> {
@@ -138,6 +158,14 @@ export const jobService = {
 
     async applyToJob(jobId: string, applicationData?: any): Promise<any> {
         return restApiAuthUtil.post(`/jobs/${jobId}/apply/`, applicationData || {});
+    },
+
+    async getApplicationsForJob(jobId: string): Promise<{ job_title: string; company_name: string; applications_count: number; applications: JobApplicationListItem[] }> {
+        return restApiAuthUtil.get(`/jobs/${jobId}/applications/`);
+    },
+
+    async updateApplicationStatus(applicationId: string, status: string, notes?: string): Promise<any> {
+        return restApiAuthUtil.patch(`/jobs/applications/${applicationId}/update-status/`, { status, recruiter_notes: notes });
     },
 
     async getAllCompanies(): Promise<Company[]> {

@@ -7,12 +7,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
-import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft } from 'lucide-react';
+import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
-import { jobService, applicationService } from '@/services/jobService';
+import { usePlacementJob, useJobApplications, useUpdateApplicationStatus } from '@/hooks/usePlacement';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
@@ -49,45 +49,34 @@ const JobApplicationsPage = () => {
   const [ctcRangeFilter, setCtcRangeFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'pri' | 'cgpa' | 'name' | 'highest_ctc'>('pri');
 
-  const { data: job } = useQuery({
-    queryKey: ['placement-job-detail', jobId],
-    queryFn: async () => {
-      if (!jobId) return null;
-      return await jobService.getJob(jobId);
-    },
-    enabled: !!jobId,
-  });
-
-  const { data: realApplications } = useQuery({
-    queryKey: ['job-applications', jobId],
-    queryFn: async () => {
-      if (!jobId) return [];
-      const response = await applicationService.getJobApplications(jobId);
-      // Backend returns applications for the job
-      return response || [];
-    },
-    enabled: !!jobId,
-  });
+  const { data: job, isLoading: jobLoading } = usePlacementJob(jobId);
+  const { data: appData, isLoading: appsLoading } = useJobApplications(jobId);
+  const updateStatusMutation = useUpdateApplicationStatus();
 
   const applications = useMemo(() => {
-    return realApplications || [];
-  }, [realApplications]);
+    return appData?.applications || [];
+  }, [appData]);
 
   const enrichedApps = useMemo(() => {
     return applications.map((app: any) => {
-      // Map backend application to UI structure
-      const studentName = app.applicant_name || 'Student';
-      const metrics = generateStudentMetrics(studentName);
+      // Generate some consistent metrics based on student name if missing
+      const generated = generateStudentMetrics(app.applicant_name || '');
       
-      const highestCtc = app.expected_salary || 0;
+      const metrics = {
+        pi: app.pi || generated.pi,
+        ps: app.ps || generated.ps,
+        pri: app.pri || generated.pri
+      };
+
+      const hasPrevOffer = app.previous_offer ?? false;
+      const highestCtc = app.highest_ctc ?? 0;
       return { 
         ...app, 
         ...metrics, 
-        student_name: studentName,
-        student_id: app.applicant || 'N/A',
+        student_name: app.applicant_name,
+        student_id: app.applicant_roll_no || 'N/A',
         branch: app.applicant_department || 'N/A',
-        cgpa: app.applicant_cgpa || 0,
-        previous_offer: (app.expected_salary || 0) > 0, // Mocking previous offer logic
+        previous_offer: !!hasPrevOffer, 
         highest_ctc: highestCtc 
       };
     });
@@ -152,14 +141,10 @@ const JobApplicationsPage = () => {
   };
 
   const updateAppStatus = async (ids: string[], status: string) => {
-    try {
-      await Promise.all(ids.map(id => applicationService.updateApplicationStatus(id, status)));
-      toast({ title: `${ids.length} student(s) ${status}` });
-      qc.invalidateQueries({ queryKey: ['job-applications', jobId] });
-      setSelectedIds([]);
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to update status', variant: 'destructive' });
+    for (const id of ids) {
+      await updateStatusMutation.mutateAsync({ applicationId: id, status });
     }
+    setSelectedIds([]);
   };
 
   const downloadExcel = () => {
@@ -185,6 +170,17 @@ const JobApplicationsPage = () => {
   const jobTitle = job?.role_title || 'Job Applications';
   const companyName = (job?.recruiter as any)?.company_name || '';
 
+  if (jobLoading || appsLoading) {
+    return (
+      <PlacementLayout title="">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(249,60%,69%)]" />
+          <p className="text-sm text-muted-foreground font-medium">Fetching candidates...</p>
+        </div>
+      </PlacementLayout>
+    );
+  }
+
   return (
     <PlacementLayout title="">
       <div className="space-y-5">
@@ -203,10 +199,11 @@ const JobApplicationsPage = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
             { label: 'Total', value: stats.total, icon: Users, color: VIOLET },
             { label: 'Eligible (PRI≥70)', value: stats.eligible, icon: UserCheck, color: TEAL },
+            { label: 'Eligible Rate', value: `${stats.total > 0 ? Math.round((stats.eligible / stats.total) * 100) : 0}%`, icon: TrendingUp, color: 'hsl(249,60%,60%)' },
             { label: 'With Offers', value: stats.withOffers, icon: CheckCircle2, color: 'hsl(142,71%,35%)' },
             { label: 'No Offers', value: stats.withoutOffers, icon: UserX, color: 'hsl(38,100%,56%)' },
             { label: 'Avg PRI', value: stats.avgPri, icon: TrendingUp, color: getPriColor(stats.avgPri) },
@@ -363,16 +360,7 @@ const JobApplicationsPage = () => {
           </Table>
         </div>
 
-        {/* Job Performance */}
-        <div className="bg-[hsl(240,20%,97%)] rounded-xl p-4">
-          <p className="text-xs font-semibold mb-2">Job Performance Metrics</p>
-          <div className="grid grid-cols-4 gap-4 text-center">
-            <div><p className="text-lg font-bold">{stats.total}</p><p className="text-[10px] text-muted-foreground">Applications</p></div>
-            <div><p className="text-lg font-bold">{stats.withOffers}</p><p className="text-[10px] text-muted-foreground">With Offers</p></div>
-            <div><p className="text-lg font-bold">{stats.total > 0 ? Math.round((stats.eligible / stats.total) * 100) : 0}%</p><p className="text-[10px] text-muted-foreground">Eligible Rate</p></div>
-            <div><p className="text-lg font-bold">{stats.avgPri}</p><p className="text-[10px] text-muted-foreground">Avg PRI</p></div>
-          </div>
-        </div>
+
 
         {/* Download */}
         <div className="flex justify-end">

@@ -56,6 +56,12 @@ const companyTypes = [
     description: 'Practical + mixed',
     icon: Rocket,
   },
+  {
+    id: 'it_service',
+    label: 'IT Service & Consulting',
+    description: 'Process + Tech fundamentals',
+    icon: Briefcase,
+  },
 ];
 
 const domains = [
@@ -98,7 +104,7 @@ const MockInterviewSetupDialog: React.FC<MockInterviewSetupDialogProps> = ({
 
   const reset = () => {
     setStep(1);
-    setSelectedCompanyTypes(['product', 'service', 'startup']);
+    setSelectedCompanyTypes(['product', 'service', 'startup', 'it_service']);
     setSelectedDomain('');
     setSelectedDuration(0);
   };
