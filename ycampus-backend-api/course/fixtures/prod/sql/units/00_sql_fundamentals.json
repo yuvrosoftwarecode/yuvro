@@ -1,0 +1,4549 @@
+{
+  "name": "SQL Fundamentals",
+  "subject_short_code": "SQL100",
+  "order_index": 0,
+  "sub_units": [
+    {
+      "name": "What is a Database?",
+      "content": "A database is an organized collection of structured data, typically stored electronically in a computer system. It is designed to allow for the easy storage, retrieval, modification, and deletion of data. Databases are essential for managing large amounts of information efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "What is a Database?",
+          "video_link": "https://youtu.be/7S_tz1z_5bA?si=GXNWiKo3a1WLeWne",
+          "ai_context": "Introduction to databases and why they are used."
+        }
+      ]
+    },
+    {
+      "name": "DBMS vs RDBMS",
+      "content": "A Database Management System (DBMS) is software that interacts with users and applications to manage data. A Relational Database Management System (RDBMS) is a type of DBMS based on the relational model, which stores data in structured tables. Most modern databases like MySQL and PostgreSQL are RDBMS.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "DBMS vs RDBMS Explained",
+          "video_link": "https://youtu.be/7S_tz1z_5bA?si=GXNWiKo3a1WLeWne",
+          "ai_context": "Understanding the difference between general DBMS and Relational DBMS."
+        }
+      ]
+    },
+    {
+      "name": "Types of Databases (Relational vs NoSQL)",
+      "content": "Relational databases (SQL) use structured tables with predefined schemas. NoSQL databases are designed for unstructured or semi-structured data and can be document-based, key-value, or graph-based. Choosing between them depends on the data structure and scalability needs.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "SQL vs NoSQL Databases",
+          "video_link": "https://youtu.be/7S_tz1z_5bA?si=GXNWiKo3a1WLeWne",
+          "ai_context": "Comparison between Relational and NoSQL databases."
+        }
+      ]
+    },
+    {
+      "name": "Tables, Rows, Columns",
+      "content": "In a relational database, data is organized into tables. A table consists of columns (fields) that define the data type and rows (records) that represent individual entries. Understanding this structure is fundamental to working with SQL.",
+      "order_index": 3,
+      "videos": []
+    },
+    {
+      "name": "Data Types (INT, VARCHAR, DATE, etc.)",
+      "content": "Data types define the kind of data a column can store. Common types include INT for whole numbers, VARCHAR for strings, DATE for dates, and DECIMAL for precise numbers. Correct data type selection ensures data integrity and performance.",
+      "order_index": 4,
+      "videos": []
+    },
+    {
+      "name": "Keys: Primary Key, Foreign Key",
+      "content": "Keys are used to identify and link data. A Primary Key uniquely identifies each record in a table and cannot be null. A Foreign Key is a field in one table that refers to the Primary Key of another table, creating a relationship between them.",
+      "order_index": 5,
+      "videos": []
+    },
+    {
+      "name": "Introduction to SQL",
+      "content": "Structured Query Language (SQL) is the standard language for communicating with relational databases. It is used to perform tasks such as querying data (SELECT), inserting records (INSERT), updating information (UPDATE), and deleting data (DELETE).",
+      "order_index": 6,
+      "videos": []
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Basic Storage Concept",
+      "content": "A college stores student details like name, roll number, and marks in an organized format. What is this system called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Database",
+          "is_correct": true
+        },
+        {
+          "text": "Compiler",
+          "is_correct": false
+        },
+        {
+          "text": "Operating System",
+          "is_correct": false
+        },
+        {
+          "text": "Network",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose Identification",
+      "content": "An e-commerce website stores product details, prices, and customer orders. Why is a database used here?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store and manage data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "To design the website layout",
+          "is_correct": false
+        },
+        {
+          "text": "To increase internet speed",
+          "is_correct": false
+        },
+        {
+          "text": "To replace servers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Structured Data",
+      "content": "A company maintains employee data in rows and columns. What type of data organization is this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Structured data",
+          "is_correct": true
+        },
+        {
+          "text": "Unstructured data",
+          "is_correct": false
+        },
+        {
+          "text": "Random data",
+          "is_correct": false
+        },
+        {
+          "text": "Binary data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Centralized Storage",
+      "content": "A hospital maintains all patient records in one system instead of multiple files. What is the main benefit?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduced redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Increased duplication",
+          "is_correct": false
+        },
+        {
+          "text": "No need for backup",
+          "is_correct": false
+        },
+        {
+          "text": "Faster internet",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "File System Limitation",
+      "content": "A startup initially stores user data in multiple Excel files but faces duplicate entries and inconsistency. Why should they switch to a database?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve data consistency and reduce redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "To eliminate all storage needs",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid using computers",
+          "is_correct": false
+        },
+        {
+          "text": "To remove structured data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Scalability Need",
+      "content": "A social media app grows from 1,000 to 1 million users. Why is a database essential in this scenario?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can handle large volumes of structured data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "It removes need for backend",
+          "is_correct": false
+        },
+        {
+          "text": "It converts data to images",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates user interaction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Retrieval Scenario",
+      "content": "A bank needs to quickly fetch a customer's transaction history. Why is a database preferred?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient querying and retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Random storage",
+          "is_correct": false
+        },
+        {
+          "text": "Manual search",
+          "is_correct": false
+        },
+        {
+          "text": "File duplication",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Integrity Constraint Scenario",
+      "content": "An airline system ensures that a ticket cannot be booked without a valid passenger ID. What database feature ensures this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data integrity constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Random indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Manual validation",
+          "is_correct": false
+        },
+        {
+          "text": "Data duplication",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Independence Scenario",
+      "content": "A company changes its database structure but the application continues working without changes. What concept does this represent?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data independence",
+          "is_correct": true
+        },
+        {
+          "text": "Data redundancy",
+          "is_correct": false
+        },
+        {
+          "text": "Data duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Data fragmentation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Misleading Scenario",
+      "content": "A system stores data randomly without structure, causing difficulty in searching. Why is this NOT considered a proper database?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It lacks structured organization",
+          "is_correct": true
+        },
+        {
+          "text": "It uses too much RAM",
+          "is_correct": false
+        },
+        {
+          "text": "It stores data in files",
+          "is_correct": false
+        },
+        {
+          "text": "It uses tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Database Features",
+      "content": "A company implements a database system. Which benefits can they expect?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient data retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Better data organization",
+          "is_correct": true
+        },
+        {
+          "text": "No need for storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Usage Scenarios",
+      "content": "Which real-world systems typically use databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Banking systems",
+          "is_correct": true
+        },
+        {
+          "text": "E-commerce platforms",
+          "is_correct": true
+        },
+        {
+          "text": "Social media apps",
+          "is_correct": true
+        },
+        {
+          "text": "Basic calculator apps",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Database Characteristics Deep Check",
+      "content": "A startup is evaluating whether to use a database. Which of the following characteristics define a proper database system?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Structured storage of data",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient data retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Data redundancy control",
+          "is_correct": true
+        },
+        {
+          "text": "Random unorganized storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Misconception Check",
+      "content": "Which of the following are valid reasons to use a database instead of plain files?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced duplication",
+          "is_correct": true
+        },
+        {
+          "text": "Faster manual editing",
+          "is_correct": false
+        },
+        {
+          "text": "Improved data organization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Startup Scaling Scenario",
+      "content": "A startup's user base grows rapidly, and they switch to a database. Which benefits are they likely to experience?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient handling of large datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Improved query performance",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic UI generation",
+          "is_correct": false
+        },
+        {
+          "text": "Better data consistency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking System Scenario",
+      "content": "A banking system stores transaction data in a database. Which features are critical in this scenario?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Accurate data retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Random data insertion",
+          "is_correct": false
+        },
+        {
+          "text": "Controlled redundancy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Hospital System Scenario",
+      "content": "A hospital uses a database to manage patient records. Which advantages does the database provide?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Centralized data management",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced duplication of patient records",
+          "is_correct": true
+        },
+        {
+          "text": "Elimination of all errors",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient querying of records",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Airline System Integrity",
+      "content": "An airline booking system uses a database. Which mechanisms help ensure correct and reliable data?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data integrity constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Structured schema",
+          "is_correct": true
+        },
+        {
+          "text": "Uncontrolled duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Validation rules",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Independence Scenario",
+      "content": "A company modifies its database schema without affecting the application. Which concepts support this behavior?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data independence",
+          "is_correct": true
+        },
+        {
+          "text": "Abstraction layers",
+          "is_correct": true
+        },
+        {
+          "text": "Hard-coded file paths",
+          "is_correct": false
+        },
+        {
+          "text": "Loose coupling between data and application",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Incorrect Database Usage",
+      "content": "A system stores data in an unstructured and duplicated manner. Which of the following indicate poor database design?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "What is a Database?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "High redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Inconsistent data",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient querying",
+          "is_correct": false
+        },
+        {
+          "text": "Lack of structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Basic Identification",
+      "content": "A system stores data in tables and supports relationships using keys. What type of system is this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS",
+          "is_correct": false
+        },
+        {
+          "text": "File System",
+          "is_correct": false
+        },
+        {
+          "text": "Operating System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Non-Relational System",
+      "content": "A system stores data but does not enforce relationships between entities. What is it called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DBMS",
+          "is_correct": true
+        },
+        {
+          "text": "RDBMS",
+          "is_correct": false
+        },
+        {
+          "text": "SQL Engine",
+          "is_correct": false
+        },
+        {
+          "text": "Compiler",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Usage",
+      "content": "Which system uses Primary Key and Foreign Key to maintain relationships?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        },
+        {
+          "text": "File Storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Structure Understanding",
+      "content": "Which system organizes data in structured tables?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS only",
+          "is_correct": false
+        },
+        {
+          "text": "Operating System",
+          "is_correct": false
+        },
+        {
+          "text": "Network Layer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Startup Data Problem",
+      "content": "A startup uses a DBMS and faces duplicate records and no relationships between tables. Why should they switch to RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS enforces relationships and reduces redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "RDBMS removes need for storage",
+          "is_correct": false
+        },
+        {
+          "text": "RDBMS avoids using tables",
+          "is_correct": false
+        },
+        {
+          "text": "RDBMS eliminates queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking Requirement",
+      "content": "A banking system must ensure every transaction is linked to a valid account. Which system should be used?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS",
+          "is_correct": false
+        },
+        {
+          "text": "Flat Files",
+          "is_correct": false
+        },
+        {
+          "text": "Cache System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reporting Scenario",
+      "content": "A company frequently joins multiple tables to generate reports. Which system is more suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS",
+          "is_correct": false
+        },
+        {
+          "text": "Text Files",
+          "is_correct": false
+        },
+        {
+          "text": "Manual Logs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Failure",
+      "content": "A system allows inserting records without validating relationships, causing inconsistent data. What is the issue?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using DBMS without relational constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Using RDBMS properly",
+          "is_correct": false
+        },
+        {
+          "text": "Using indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Using normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Join Optimization",
+      "content": "An analytics platform heavily depends on JOIN operations across tables. Why is RDBMS preferred?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Supports relational structure and efficient joins",
+          "is_correct": true
+        },
+        {
+          "text": "Avoids tables",
+          "is_correct": false
+        },
+        {
+          "text": "Eliminates queries",
+          "is_correct": false
+        },
+        {
+          "text": "Stores unstructured data only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Concept Trap",
+      "content": "A system uses tables but does not enforce relationships or constraints. Is it a full RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "No, relationships and constraints are required",
+          "is_correct": true
+        },
+        {
+          "text": "Yes, tables are enough",
+          "is_correct": false
+        },
+        {
+          "text": "Yes, if data is large",
+          "is_correct": false
+        },
+        {
+          "text": "No, because SQL is missing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "RDBMS Features",
+      "content": "Which of the following are features of an RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Supports relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Uses keys",
+          "is_correct": true
+        },
+        {
+          "text": "Ensures data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Stores only unstructured data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DBMS Characteristics",
+      "content": "Which characteristics are commonly associated with DBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Limited relationship support",
+          "is_correct": true
+        },
+        {
+          "text": "Simpler design",
+          "is_correct": true
+        },
+        {
+          "text": "Lower data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Strong referential integrity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Difference",
+      "content": "Which statements correctly describe differences between DBMS and RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS supports relationships",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS does not enforce constraints strongly",
+          "is_correct": true
+        },
+        {
+          "text": "RDBMS stores only files",
+          "is_correct": false
+        },
+        {
+          "text": "DBMS uses foreign keys extensively",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Usage Context",
+      "content": "Which scenarios are better suited for RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Banking systems",
+          "is_correct": true
+        },
+        {
+          "text": "E-commerce platforms",
+          "is_correct": true
+        },
+        {
+          "text": "Relational data handling",
+          "is_correct": true
+        },
+        {
+          "text": "Simple file storage only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce System",
+      "content": "An e-commerce system manages users, products, and orders. Why is RDBMS suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Maintains relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Ensures referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Supports joins",
+          "is_correct": true
+        },
+        {
+          "text": "Avoids structured data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "System Limitations",
+      "content": "A DBMS struggles with managing related data. Which issues might occur?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "No foreign key constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Poor relationship handling",
+          "is_correct": true
+        },
+        {
+          "text": "Limited join support",
+          "is_correct": true
+        },
+        {
+          "text": "Strong referential integrity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Migration Benefits",
+      "content": "A company upgrades from DBMS to RDBMS. What improvements can they expect?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Improved relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Advanced querying",
+          "is_correct": true
+        },
+        {
+          "text": "Removal of constraints",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "High Integrity System",
+      "content": "A financial system needs strict data integrity. Which RDBMS features support this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary & Foreign Keys",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Unstructured storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Incorrect Implementation",
+      "content": "A system claims to be RDBMS but lacks relationship enforcement. What issues may occur?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate data",
+          "is_correct": true
+        },
+        {
+          "text": "Perfect integrity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements correctly differentiate DBMS and RDBMS?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "DBMS vs RDBMS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RDBMS enforces relationships",
+          "is_correct": true
+        },
+        {
+          "text": "RDBMS supports normalization",
+          "is_correct": true
+        },
+        {
+          "text": "DBMS has stronger integrity",
+          "is_correct": false
+        },
+        {
+          "text": "DBMS always uses foreign keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relational Database Identification",
+      "content": "A system stores data in tables with rows and columns and supports SQL queries. What type of database is this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational Database",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL Database",
+          "is_correct": false
+        },
+        {
+          "text": "File System",
+          "is_correct": false
+        },
+        {
+          "text": "Cache System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NoSQL Concept",
+      "content": "A database that stores data in flexible formats like JSON documents instead of tables is called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NoSQL Database",
+          "is_correct": true
+        },
+        {
+          "text": "Relational Database",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        },
+        {
+          "text": "Compiler",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Schema Requirement",
+      "content": "Which type of database typically requires a fixed schema before inserting data?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational Database",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL Database",
+          "is_correct": false
+        },
+        {
+          "text": "File Storage",
+          "is_correct": false
+        },
+        {
+          "text": "Cache System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flexibility Check",
+      "content": "Which database type allows flexible schema and can store unstructured data?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NoSQL Database",
+          "is_correct": true
+        },
+        {
+          "text": "Relational Database",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        },
+        {
+          "text": "Operating System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Social Media Scenario",
+      "content": "A social media app stores posts, comments, and likes in a highly flexible and rapidly changing structure. Which database type is more suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NoSQL Database",
+          "is_correct": true
+        },
+        {
+          "text": "Relational Database",
+          "is_correct": false
+        },
+        {
+          "text": "Flat Files",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking System Scenario",
+      "content": "A banking system requires strict consistency and relationships between accounts and transactions. Which database is more suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational Database",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL Database",
+          "is_correct": false
+        },
+        {
+          "text": "Cache System",
+          "is_correct": false
+        },
+        {
+          "text": "Text Files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Scaling",
+      "content": "An e-commerce platform handles millions of product views and requires horizontal scaling. Which database type is often preferred?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NoSQL Database",
+          "is_correct": true
+        },
+        {
+          "text": "Relational Database",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        },
+        {
+          "text": "Manual Logs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Consistency vs Flexibility",
+      "content": "A system prioritizes strict ACID compliance over scalability. Which database type is most suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational Database",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL Database",
+          "is_correct": false
+        },
+        {
+          "text": "File Storage",
+          "is_correct": false
+        },
+        {
+          "text": "Cache Layer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Schema Evolution",
+      "content": "A startup frequently changes its data structure without predefined schema. Which database fits best?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NoSQL Database",
+          "is_correct": true
+        },
+        {
+          "text": "Relational Database",
+          "is_correct": false
+        },
+        {
+          "text": "Spreadsheet",
+          "is_correct": false
+        },
+        {
+          "text": "Operating System",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hybrid Confusion",
+      "content": "A system uses JSON storage but enforces strict relationships and transactions. Which category does it primarily align with?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational Database",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL Database",
+          "is_correct": false
+        },
+        {
+          "text": "File System",
+          "is_correct": false
+        },
+        {
+          "text": "Cache Database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Relational Features",
+      "content": "Which of the following are features of relational databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Structured tables",
+          "is_correct": true
+        },
+        {
+          "text": "Fixed schema",
+          "is_correct": true
+        },
+        {
+          "text": "Supports SQL",
+          "is_correct": true
+        },
+        {
+          "text": "Schema-less design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "NoSQL Features",
+      "content": "Which characteristics are typical of NoSQL databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Flexible schema",
+          "is_correct": true
+        },
+        {
+          "text": "Horizontal scaling",
+          "is_correct": true
+        },
+        {
+          "text": "Unstructured data support",
+          "is_correct": true
+        },
+        {
+          "text": "Strict relational constraints",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Differences",
+      "content": "Which statements correctly differentiate relational and NoSQL databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational uses tables",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL supports flexible schema",
+          "is_correct": true
+        },
+        {
+          "text": "Relational avoids structure",
+          "is_correct": false
+        },
+        {
+          "text": "NoSQL always uses SQL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Usage Scenarios",
+      "content": "Which scenarios are suitable for relational databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Banking systems",
+          "is_correct": true
+        },
+        {
+          "text": "Financial transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Strict data relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Rapid schema changes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Social Media Scaling",
+      "content": "A social media platform handles massive unstructured data. Why is NoSQL suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Flexible schema",
+          "is_correct": true
+        },
+        {
+          "text": "Horizontal scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Handles unstructured data",
+          "is_correct": true
+        },
+        {
+          "text": "Strict ACID compliance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking Requirements",
+      "content": "A banking system requires high consistency. Which features make relational databases suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ACID properties",
+          "is_correct": true
+        },
+        {
+          "text": "Referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Structured schema",
+          "is_correct": true
+        },
+        {
+          "text": "Schema-less design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Scaling Strategy",
+      "content": "A system needs to scale across multiple servers. Which characteristics of NoSQL help achieve this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Horizontal scaling",
+          "is_correct": true
+        },
+        {
+          "text": "Distributed architecture",
+          "is_correct": true
+        },
+        {
+          "text": "Flexible schema",
+          "is_correct": true
+        },
+        {
+          "text": "Strict normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "High Consistency System",
+      "content": "A financial system demands strict consistency. Which relational database features support this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ACID compliance",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign key constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Structured schema",
+          "is_correct": true
+        },
+        {
+          "text": "Schema-less storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Incorrect NoSQL Usage",
+      "content": "A system uses NoSQL but requires strict relationships. What problems may occur?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Lack of referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Perfect relational mapping",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Conceptual Trap",
+      "content": "Which statements correctly describe differences between relational and NoSQL databases?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Types of Databases (Relational vs NoSQL)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relational databases enforce schema",
+          "is_correct": true
+        },
+        {
+          "text": "NoSQL databases support flexible data models",
+          "is_correct": true
+        },
+        {
+          "text": "Relational databases are schema-less",
+          "is_correct": false
+        },
+        {
+          "text": "NoSQL databases always ensure ACID compliance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Basic Table Concept",
+      "content": "A company stores employee data in a structured format with rows and columns. What is this structure called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Table",
+          "is_correct": true
+        },
+        {
+          "text": "File",
+          "is_correct": false
+        },
+        {
+          "text": "Index",
+          "is_correct": false
+        },
+        {
+          "text": "Query",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Row Identification",
+      "content": "In a student table, each record represents a student. What is each record called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Row",
+          "is_correct": true
+        },
+        {
+          "text": "Column",
+          "is_correct": false
+        },
+        {
+          "text": "Schema",
+          "is_correct": false
+        },
+        {
+          "text": "Index",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Column Meaning",
+      "content": "In a table storing employee details, 'Salary' is an example of what?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Column",
+          "is_correct": true
+        },
+        {
+          "text": "Row",
+          "is_correct": false
+        },
+        {
+          "text": "Table",
+          "is_correct": false
+        },
+        {
+          "text": "Database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Structure Understanding",
+      "content": "Which component represents a single data value intersection in a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cell",
+          "is_correct": true
+        },
+        {
+          "text": "Row",
+          "is_correct": false
+        },
+        {
+          "text": "Column",
+          "is_correct": false
+        },
+        {
+          "text": "Schema",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Duplicate Data Scenario",
+      "content": "A table stores multiple rows with identical values for all columns. What does each identical entry represent?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Separate rows with duplicate data",
+          "is_correct": true
+        },
+        {
+          "text": "Same column repeated",
+          "is_correct": false
+        },
+        {
+          "text": "Same table duplicated",
+          "is_correct": false
+        },
+        {
+          "text": "Invalid schema",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Column Consistency",
+      "content": "A developer tries to insert a string into a numeric column. What issue does this relate to?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Column data type mismatch",
+          "is_correct": true
+        },
+        {
+          "text": "Row duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Table structure error",
+          "is_correct": false
+        },
+        {
+          "text": "Database failure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Row vs Column Confusion",
+      "content": "A report shows 'Name, Age, Salary' horizontally and multiple entries vertically. What do horizontal values represent?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Columns",
+          "is_correct": true
+        },
+        {
+          "text": "Rows",
+          "is_correct": false
+        },
+        {
+          "text": "Cells",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Normalization Confusion",
+      "content": "A table stores repeated values in multiple columns instead of separate rows. What problem does this indicate?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poor table design violating normalization",
+          "is_correct": true
+        },
+        {
+          "text": "Correct relational structure",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient storage",
+          "is_correct": false
+        },
+        {
+          "text": "Optimized schema",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Redundancy Scenario",
+      "content": "A system stores repeated attributes as columns instead of rows, increasing table width unnecessarily. What is the issue?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improper column usage leading to redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient normalization",
+          "is_correct": false
+        },
+        {
+          "text": "Better indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Reduced storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Atomic Value Concept",
+      "content": "A column stores multiple values in a single cell (e.g., 'Math, Science'). Why is this problematic?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Violates atomicity of columns",
+          "is_correct": true
+        },
+        {
+          "text": "Improves performance",
+          "is_correct": false
+        },
+        {
+          "text": "Enhances normalization",
+          "is_correct": false
+        },
+        {
+          "text": "Reduces redundancy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Table Components",
+      "content": "Which of the following are components of a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows",
+          "is_correct": true
+        },
+        {
+          "text": "Columns",
+          "is_correct": true
+        },
+        {
+          "text": "Cells",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Row Properties",
+      "content": "Which statements describe rows in a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Each row represents a record",
+          "is_correct": true
+        },
+        {
+          "text": "Rows store data horizontally",
+          "is_correct": true
+        },
+        {
+          "text": "Rows define structure",
+          "is_correct": false
+        },
+        {
+          "text": "Rows are attributes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Column Properties",
+      "content": "Which statements describe columns?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Columns define attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Columns store data vertically",
+          "is_correct": true
+        },
+        {
+          "text": "Columns represent records",
+          "is_correct": false
+        },
+        {
+          "text": "Columns are rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Structure",
+      "content": "Which statements correctly describe a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Consists of rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "Stores structured data",
+          "is_correct": true
+        },
+        {
+          "text": "Contains random unorganized data",
+          "is_correct": false
+        },
+        {
+          "text": "Used to represent entities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Entry Scenario",
+      "content": "A developer inserts multiple records into a table. Which elements are affected?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows increase",
+          "is_correct": true
+        },
+        {
+          "text": "Columns remain same",
+          "is_correct": true
+        },
+        {
+          "text": "Table structure changes",
+          "is_correct": false
+        },
+        {
+          "text": "Schema automatically changes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Validation Scenario",
+      "content": "A system ensures that each column stores only specific types of data. Which concepts are involved?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Column data types",
+          "is_correct": true
+        },
+        {
+          "text": "Schema enforcement",
+          "is_correct": true
+        },
+        {
+          "text": "Row duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Random storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Report Structure",
+      "content": "A report displays structured data in tabular format. Which elements are visible?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows as records",
+          "is_correct": true
+        },
+        {
+          "text": "Columns as attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Cells as intersections",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes as visible data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Poor Table Design",
+      "content": "A table stores multiple values in a single column cell. What issues arise?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Violates atomicity",
+          "is_correct": true
+        },
+        {
+          "text": "Difficult querying",
+          "is_correct": true
+        },
+        {
+          "text": "Poor normalization",
+          "is_correct": true
+        },
+        {
+          "text": "Improved performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Wide Table Issue",
+      "content": "A system keeps adding new columns instead of rows for similar data. What problems may occur?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Redundant structure",
+          "is_correct": true
+        },
+        {
+          "text": "Difficult scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Poor normalization",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements correctly differentiate rows and columns?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Tables, Rows, Columns",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows represent records",
+          "is_correct": true
+        },
+        {
+          "text": "Columns represent attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Rows define structure",
+          "is_correct": false
+        },
+        {
+          "text": "Columns store horizontal data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Numeric Data Type",
+      "content": "Which data type is best suited to store whole numbers like age or quantity?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INT",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "DATE",
+          "is_correct": false
+        },
+        {
+          "text": "BOOLEAN",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Storage",
+      "content": "Which data type is used to store variable-length text like names?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "VARCHAR",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "DATE",
+          "is_correct": false
+        },
+        {
+          "text": "FLOAT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Date Storage",
+      "content": "Which data type is used to store values like '2026-05-06'?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DATE",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "BOOLEAN",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decimal Numbers",
+      "content": "Which data type is best for storing values like 99.99?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DECIMAL",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "DATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CHAR vs VARCHAR",
+      "content": "A developer stores fixed-length codes like 'AB12'. Which data type is more appropriate?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CHAR",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "TEXT",
+          "is_correct": false
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Salary Storage",
+      "content": "A company stores employee salaries with decimal precision. Which type should be used?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DECIMAL",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "BOOLEAN",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Date Mistake",
+      "content": "A developer stores dates as VARCHAR instead of DATE. What is the main issue?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Date operations become difficult",
+          "is_correct": true
+        },
+        {
+          "text": "Storage reduces",
+          "is_correct": false
+        },
+        {
+          "text": "Performance improves",
+          "is_correct": false
+        },
+        {
+          "text": "Data becomes numeric",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Precision Problem",
+      "content": "A system stores financial data using FLOAT and gets rounding errors. What is the better alternative?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DECIMAL",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        },
+        {
+          "text": "DATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Storage Efficiency",
+      "content": "A column stores mostly short strings but is defined as CHAR(100). What is the issue?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Wasted storage due to fixed length",
+          "is_correct": true
+        },
+        {
+          "text": "Improved flexibility",
+          "is_correct": false
+        },
+        {
+          "text": "Faster inserts",
+          "is_correct": false
+        },
+        {
+          "text": "Better normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Type Misuse",
+      "content": "A phone number is stored as INT and leading zeros are lost. Why did this happen?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INT removes leading zeros",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR removes zeros",
+          "is_correct": false
+        },
+        {
+          "text": "DATE conversion failed",
+          "is_correct": false
+        },
+        {
+          "text": "FLOAT rounding issue",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Data Types",
+      "content": "Which of the following are common SQL data types?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INT",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": true
+        },
+        {
+          "text": "DATE",
+          "is_correct": true
+        },
+        {
+          "text": "LOOP",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Numeric Types",
+      "content": "Which data types are used for numeric values?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INT",
+          "is_correct": true
+        },
+        {
+          "text": "FLOAT",
+          "is_correct": true
+        },
+        {
+          "text": "DECIMAL",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Text Types",
+      "content": "Which data types are suitable for storing text?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CHAR",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": true
+        },
+        {
+          "text": "TEXT",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Date Types",
+      "content": "Which data types are used to store date/time values?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DATE",
+          "is_correct": true
+        },
+        {
+          "text": "DATETIME",
+          "is_correct": true
+        },
+        {
+          "text": "TIMESTAMP",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Scenario",
+      "content": "An e-commerce system stores product prices. Which data types are suitable?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DECIMAL",
+          "is_correct": true
+        },
+        {
+          "text": "FLOAT",
+          "is_correct": true
+        },
+        {
+          "text": "INT",
+          "is_correct": false
+        },
+        {
+          "text": "VARCHAR",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "User Data Storage",
+      "content": "A user profile stores name, age, and joining date. Which data types are appropriate?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "VARCHAR for name",
+          "is_correct": true
+        },
+        {
+          "text": "INT for age",
+          "is_correct": true
+        },
+        {
+          "text": "DATE for joining date",
+          "is_correct": true
+        },
+        {
+          "text": "BOOLEAN for name",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Design Mistakes",
+      "content": "Which of the following are poor data type choices?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Storing dates as VARCHAR",
+          "is_correct": true
+        },
+        {
+          "text": "Using INT for phone numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Using DECIMAL for money",
+          "is_correct": false
+        },
+        {
+          "text": "Using VARCHAR for names",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Precision Issues",
+      "content": "Which problems occur when using FLOAT for financial data?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rounding errors",
+          "is_correct": true
+        },
+        {
+          "text": "Precision loss",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect calculations",
+          "is_correct": true
+        },
+        {
+          "text": "Better accuracy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CHAR vs VARCHAR",
+      "content": "Which statements correctly differentiate CHAR and VARCHAR?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CHAR is fixed length",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR is variable length",
+          "is_correct": true
+        },
+        {
+          "text": "CHAR wastes space for short data",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR always uses more space",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding SQL data types?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Data Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INT cannot store decimal values",
+          "is_correct": true
+        },
+        {
+          "text": "VARCHAR stores variable-length strings",
+          "is_correct": true
+        },
+        {
+          "text": "DATE supports date operations",
+          "is_correct": true
+        },
+        {
+          "text": "FLOAT is always precise",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key Definition",
+      "content": "Which key uniquely identifies each record in a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary Key",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign Key",
+          "is_correct": false
+        },
+        {
+          "text": "Index",
+          "is_correct": false
+        },
+        {
+          "text": "Constraint",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Foreign Key Purpose",
+      "content": "Which key is used to create a relationship between two tables?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign Key",
+          "is_correct": true
+        },
+        {
+          "text": "Primary Key",
+          "is_correct": false
+        },
+        {
+          "text": "Unique Key",
+          "is_correct": false
+        },
+        {
+          "text": "Super Key",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key Rule",
+      "content": "Which statement is true about a primary key?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It must be unique and NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "It allows duplicate values",
+          "is_correct": false
+        },
+        {
+          "text": "It can contain NULL values",
+          "is_correct": false
+        },
+        {
+          "text": "It is optional",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Foreign Key Nature",
+      "content": "Which statement is true about foreign keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They reference primary keys in another table",
+          "is_correct": true
+        },
+        {
+          "text": "They must be unique",
+          "is_correct": false
+        },
+        {
+          "text": "They cannot have duplicates",
+          "is_correct": false
+        },
+        {
+          "text": "They define table structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Scenario",
+      "content": "An orders table contains customer_id referencing the customers table. What is customer_id in orders table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign Key",
+          "is_correct": true
+        },
+        {
+          "text": "Primary Key",
+          "is_correct": false
+        },
+        {
+          "text": "Unique Key",
+          "is_correct": false
+        },
+        {
+          "text": "Composite Key",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Duplicate Record Issue",
+      "content": "A table allows duplicate IDs for its records. Which constraint is missing?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary Key",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign Key",
+          "is_correct": false
+        },
+        {
+          "text": "Index",
+          "is_correct": false
+        },
+        {
+          "text": "View",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deletion Scenario",
+      "content": "A parent record is deleted while child records still reference it. What problem occurs?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Referential integrity violation",
+          "is_correct": true
+        },
+        {
+          "text": "Primary key duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Index error",
+          "is_correct": false
+        },
+        {
+          "text": "Schema mismatch",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Orphan Record",
+      "content": "A record in a child table references a non-existing parent record. What is this called?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Orphan record",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate record",
+          "is_correct": false
+        },
+        {
+          "text": "Composite key",
+          "is_correct": false
+        },
+        {
+          "text": "Primary violation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Composite Key Case",
+      "content": "A table uses (order_id, product_id) together to uniquely identify records. What type of key is this?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Composite Key",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign Key",
+          "is_correct": false
+        },
+        {
+          "text": "Unique Key",
+          "is_correct": false
+        },
+        {
+          "text": "Super Key",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key Limitation",
+      "content": "Which statement is correct regarding primary keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Only one primary key is allowed per table",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple primary keys are allowed",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys can be NULL",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys allow duplicates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Primary Key Features",
+      "content": "Which are characteristics of a primary key?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Unique values",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "Identifies records",
+          "is_correct": true
+        },
+        {
+          "text": "Allows duplicates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Foreign Key Features",
+      "content": "Which are characteristics of foreign keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "References another table",
+          "is_correct": true
+        },
+        {
+          "text": "Maintains relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Can have duplicates",
+          "is_correct": true
+        },
+        {
+          "text": "Must be unique",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Differences",
+      "content": "Which statements correctly differentiate primary and foreign keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary key is unique",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign key references another table",
+          "is_correct": true
+        },
+        {
+          "text": "Primary key can be NULL",
+          "is_correct": false
+        },
+        {
+          "text": "Foreign key must be unique",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Usage",
+      "content": "Keys are used for which purposes?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ensuring uniqueness",
+          "is_correct": true
+        },
+        {
+          "text": "Creating relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Maintaining integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Storing large files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Order System Integrity",
+      "content": "In an order system, which ensure correct relationships?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign keys",
+          "is_correct": true
+        },
+        {
+          "text": "Referencing primary keys",
+          "is_correct": true
+        },
+        {
+          "text": "Valid parent records",
+          "is_correct": true
+        },
+        {
+          "text": "Ignoring constraints",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Integrity Maintenance",
+      "content": "Which help maintain referential integrity?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign key constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Primary key constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Valid references",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Design Problems",
+      "content": "Which problems occur if keys are not defined properly?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Duplicate records",
+          "is_correct": true
+        },
+        {
+          "text": "Orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Better performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Preventing Orphans",
+      "content": "Which help prevent orphan records?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign key constraints",
+          "is_correct": true
+        },
+        {
+          "text": "ON DELETE CASCADE",
+          "is_correct": true
+        },
+        {
+          "text": "Referential integrity rules",
+          "is_correct": true
+        },
+        {
+          "text": "Random inserts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Composite Key Understanding",
+      "content": "Which statements are true about composite keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combination of multiple columns",
+          "is_correct": true
+        },
+        {
+          "text": "Ensures uniqueness together",
+          "is_correct": true
+        },
+        {
+          "text": "Each column must be unique individually",
+          "is_correct": false
+        },
+        {
+          "text": "Cannot be primary key",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding keys?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Keys: Primary Key, Foreign Key",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary key enforces uniqueness",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign key maintains relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign key must be unique",
+          "is_correct": false
+        },
+        {
+          "text": "Primary key can be NULL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "SQL Purpose",
+      "content": "What is the primary purpose of SQL?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To manage and query databases",
+          "is_correct": true
+        },
+        {
+          "text": "To design UI",
+          "is_correct": false
+        },
+        {
+          "text": "To compile code",
+          "is_correct": false
+        },
+        {
+          "text": "To build APIs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL Identification",
+      "content": "Which SQL command is used to create a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE",
+          "is_correct": false
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DML Command",
+      "content": "Which SQL command is used to add data into a table?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INSERT",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE",
+          "is_correct": false
+        },
+        {
+          "text": "DROP",
+          "is_correct": false
+        },
+        {
+          "text": "GRANT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Query Command",
+      "content": "Which SQL command is used to retrieve data?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SELECT",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        },
+        {
+          "text": "ALTER",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL vs DML Scenario",
+      "content": "A developer modifies the structure of a table by adding a new column. Which category does this belong to?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DDL",
+          "is_correct": true
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Transaction Scenario",
+      "content": "A banking system transfers money and ensures both debit and credit succeed together. Which SQL category is responsible?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TCL",
+          "is_correct": true
+        },
+        {
+          "text": "DDL",
+          "is_correct": false
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Permission Scenario",
+      "content": "A database admin gives access to a user to read data from a table. Which SQL category is used?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DCL",
+          "is_correct": true
+        },
+        {
+          "text": "DDL",
+          "is_correct": false
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rollback Scenario",
+      "content": "A transaction fails midway and all changes are undone. Which command is used?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ROLLBACK",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT",
+          "is_correct": false
+        },
+        {
+          "text": "SAVEPOINT",
+          "is_correct": false
+        },
+        {
+          "text": "GRANT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Command Classification",
+      "content": "Which category does the DELETE command belong to?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DML",
+          "is_correct": true
+        },
+        {
+          "text": "DDL",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Truncate Confusion",
+      "content": "Which category does TRUNCATE belong to?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DDL",
+          "is_correct": true
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Commands",
+      "content": "Which of the following are DDL commands?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE",
+          "is_correct": true
+        },
+        {
+          "text": "ALTER",
+          "is_correct": true
+        },
+        {
+          "text": "DROP",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DML Commands",
+      "content": "Which are DML commands?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "INSERT",
+          "is_correct": true
+        },
+        {
+          "text": "UPDATE",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DCL Commands",
+      "content": "Which are DCL commands?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GRANT",
+          "is_correct": true
+        },
+        {
+          "text": "REVOKE",
+          "is_correct": true
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TCL Commands",
+      "content": "Which are TCL commands?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "COMMIT",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK",
+          "is_correct": true
+        },
+        {
+          "text": "SAVEPOINT",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Scenario",
+      "content": "An e-commerce system performs various operations. Which actions belong to DML?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adding new orders",
+          "is_correct": true
+        },
+        {
+          "text": "Updating product price",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting old records",
+          "is_correct": true
+        },
+        {
+          "text": "Creating tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Admin Permissions",
+      "content": "Which actions fall under DCL?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Granting access",
+          "is_correct": true
+        },
+        {
+          "text": "Revoking permissions",
+          "is_correct": true
+        },
+        {
+          "text": "Updating records",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transaction Control",
+      "content": "Which statements are true about transactions?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "COMMIT saves changes",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK undoes changes",
+          "is_correct": true
+        },
+        {
+          "text": "SAVEPOINT creates checkpoints",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE controls transactions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Effects",
+      "content": "Which statements are true about DDL commands?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They modify database structure",
+          "is_correct": true
+        },
+        {
+          "text": "They auto-commit changes in many DBMS",
+          "is_correct": true
+        },
+        {
+          "text": "They can delete entire tables",
+          "is_correct": true
+        },
+        {
+          "text": "They modify only data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DML vs DDL Trap",
+      "content": "Which statements correctly differentiate DDL and DML?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DDL modifies structure",
+          "is_correct": true
+        },
+        {
+          "text": "DML modifies data",
+          "is_correct": true
+        },
+        {
+          "text": "DDL includes INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "DML includes CREATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding SQL command categories?",
+      "level": "subtopic",
+      "unit_name": "SQL Fundamentals",
+      "subunit_name": "Introduction to SQL",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TRUNCATE is DDL",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE is DML",
+          "is_correct": true
+        },
+        {
+          "text": "GRANT is DCL",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK is DML",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

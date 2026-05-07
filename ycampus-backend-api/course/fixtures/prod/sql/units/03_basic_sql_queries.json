@@ -1,0 +1,3885 @@
+{
+    "name": "Basic SQL Queries",
+    "subject_short_code": "SQL101",
+    "order_index": 3,
+    "sub_units": [
+        {
+            "name": "SELECT statement",
+            "content": "The SELECT statement is used to select data from a database. The data returned is stored in a result table, often called the result-set.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Selecting specific columns",
+            "content": "You can select specific columns from a table by providing their names separated by commas in the SELECT statement instead of using the * wildcard. This improves performance and readability.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "DISTINCT",
+            "content": "The SELECT DISTINCT statement is used to return only distinct (different) values. Inside a table, a column often contains many duplicate values, and sometimes you only want to retrieve the unique values.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Aliases (AS)",
+            "content": "SQL aliases are used to give a table, or a column in a table, a temporary name. Aliases are often used to make column names more readable and only exist for the duration of that query.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "ORDER BY (ASC, DESC)",
+            "content": "The ORDER BY keyword is used to sort the result-set in ascending or descending order. It sorts the records in ascending order (ASC) by default. To sort the records in descending order, use the DESC keyword.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "LIMIT / TOP",
+            "content": "The LIMIT clause (or TOP in some SQL dialects like SQL Server) is used to specify the number of records to return. This is highly useful on large tables to reduce the load on the database.",
+            "order_index": 5,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Purpose of SELECT",
+            "content": "What is the main purpose of the SQL SELECT statement?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve data from a table",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "To modify table structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Selecting All Columns",
+            "content": "Which symbol is commonly used to select all columns from a table?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "*",
+                    "is_correct": true
+                },
+                {
+                    "text": "#",
+                    "is_correct": false
+                },
+                {
+                    "text": "%",
+                    "is_correct": false
+                },
+                {
+                    "text": "&",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Column Selection",
+            "content": "What happens when specific column names are used in a SELECT statement?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only selected columns are displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "The table gets updated",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rows are deleted automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indexes are removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SELECT Category",
+            "content": "Which SQL operation is primarily performed using SELECT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data deletion",
+                    "is_correct": false
+                },
+                {
+                    "text": "Table creation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Constraint removal",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Dashboard Scenario",
+            "content": "An e-commerce admin wants to display only product_name and price columns on a dashboard. Why should specific columns be used instead of SELECT *?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It retrieves only necessary data and improves efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "It deletes unused columns automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates indexes automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate rows automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital Management Scenario",
+            "content": "A hospital system retrieves patient names and room numbers for the reception display. Which SQL operation is being performed?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching specific columns using SELECT",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting patient records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating new patient tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Updating room allocations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Scenario",
+            "content": "A company analytics tool runs thousands of SELECT queries daily. Why is query optimization important?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Efficient queries improve performance and reduce resource usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized queries automatically normalize tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT queries remove constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT queries convert SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Production Query Design",
+            "content": "Why is SELECT * generally discouraged in large production systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It may retrieve unnecessary data and reduce performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables transactions",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes foreign keys automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Consideration",
+            "content": "Why do enterprise applications carefully design SELECT queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Efficient retrieval improves scalability and user experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT automatically fixes duplicate data",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT permanently locks tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT disables normalization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Concurrent Access",
+            "content": "Why are optimized SELECT queries important in systems with millions of users?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poorly designed queries can slow down the entire system",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT queries automatically delete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT queries remove constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT converts relational databases into flat files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELECT Basics",
+            "content": "Which statements are true about the SELECT statement?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELECT retrieves data from tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT can retrieve specific columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT * retrieves all columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT deletes rows automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advantages of Specific Columns",
+            "content": "Why is selecting specific columns often preferred over SELECT *?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduces unnecessary data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Makes results more readable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically removes duplicates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELECT Use Cases",
+            "content": "In which situations is SELECT commonly used?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Generating reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Displaying dashboard data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fetching user information",
+                    "is_correct": true
+                },
+                {
+                    "text": "Physically deleting tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELECT Features",
+            "content": "Which capabilities are supported by SELECT statements?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Retrieve all rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retrieve selected columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Read stored data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Drop databases automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Social Media App Scenario",
+            "content": "A social media app retrieves usernames, profile pictures, and follower counts millions of times daily. Why must SELECT queries be optimized?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce server load",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve response time",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "To automatically normalize data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Reporting Scenario",
+            "content": "Why do enterprise reporting systems avoid unnecessary columns in SELECT queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Transfers only required data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically deletes unused records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Database Scalability Scenario",
+            "content": "Which factors are important when designing SELECT queries for large-scale systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Efficient column selection",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducing unnecessary data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizing performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Disabling indexes permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced SELECT Concepts",
+            "content": "Which statements are true regarding SELECT queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELECT is used for data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT * may reduce efficiency in large systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized SELECT queries improve scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT automatically removes duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur because of poorly optimized SELECT queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow application performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "High server resource usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poor scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding the SELECT statement?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "SELECT statement",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELECT retrieves stored data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Specific columns can be retrieved",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT * returns all columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELECT permanently modifies table structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Specific Columns",
+            "content": "Why do developers select specific columns instead of using SELECT *?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve only required data",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete unnecessary columns",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically create indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Column Selection",
+            "content": "What happens when multiple column names are specified in a SELECT query?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only those columns are returned",
+                    "is_correct": true
+                },
+                {
+                    "text": "The table structure changes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rows are automatically sorted",
+                    "is_correct": false
+                },
+                {
+                    "text": "Primary keys are removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Benefit",
+            "content": "Selecting only needed columns mainly helps in improving what?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Query efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Table deletion speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Constraint creation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Normalization level",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Readable Results",
+            "content": "Why is selecting specific columns useful in reports?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It displays only relevant information",
+                    "is_correct": true
+                },
+                {
+                    "text": "It deletes unnecessary records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically groups rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates backups",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Employee Portal Scenario",
+            "content": "An employee portal displays only employee_name and department columns on a dashboard. Why is this approach preferred?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only required information is retrieved",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes duplicate employees",
+                    "is_correct": false
+                },
+                {
+                    "text": "It permanently locks the table",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables constraints",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Banking App Scenario",
+            "content": "A banking application retrieves account_number and balance for quick account summaries. Why avoid fetching every column?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching unnecessary data can reduce performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Extra columns automatically create duplicates",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELECT queries delete unused columns",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indexes stop working",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Scenario",
+            "content": "A data analytics team processes millions of records daily. Why is selecting only required columns important?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It reduces memory and processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically normalizes tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts SQL into NoSQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Query Design",
+            "content": "Why do enterprise applications avoid retrieving unnecessary columns in production environments?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary data retrieval impacts scalability and performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Extra columns automatically corrupt data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Specific columns remove indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Specific columns disable transactions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "API Optimization",
+            "content": "A mobile app API retrieves only profile name and profile picture instead of full user details. What is the primary advantage?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduced data transfer improves response time",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently compresses the database",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes unused rows automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It bypasses security rules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Challenge",
+            "content": "Why can excessive unnecessary column retrieval become a serious issue in large-scale systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It increases bandwidth and resource usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts rows into columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of Selecting Specific Columns",
+            "content": "Which are advantages of selecting specific columns?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves query efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retrieves only required data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Makes results easier to read",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically deletes unused columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELECT Query Features",
+            "content": "Which statements are true about selecting specific columns?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple columns can be selected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Column names are separated by commas",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only chosen columns appear in results",
+                    "is_correct": true
+                },
+                {
+                    "text": "The query automatically deletes hidden columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "In which situations is selecting specific columns commonly preferred?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dashboards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mobile applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Benefits",
+            "content": "Why can selecting specific columns improve performance?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Less data is transferred",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memory usage can be reduced",
+                    "is_correct": true
+                },
+                {
+                    "text": "Processing overhead becomes lower",
+                    "is_correct": true
+                },
+                {
+                    "text": "Constraints are automatically removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Healthcare System Scenario",
+            "content": "A hospital application displays only patient_name and appointment_time on reception screens. Why is this approach useful?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only relevant information is displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Query performance improves",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sensitive data exposure is reduced",
+                    "is_correct": true
+                },
+                {
+                    "text": "The table is automatically normalized",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Social Media Scenario",
+            "content": "Why do social media apps retrieve only essential profile information in feed queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To improve loading speed",
+                    "is_correct": true
+                },
+                {
+                    "text": "To reduce server workload",
+                    "is_correct": true
+                },
+                {
+                    "text": "To minimize data transfer",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently compress databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Optimization Scenario",
+            "content": "Which factors are important when selecting specific columns in enterprise systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Performance optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducing unnecessary data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improving scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Disabling indexing permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Query Concepts",
+            "content": "Which statements are true regarding selecting specific columns?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Selecting fewer columns can improve scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retrieving unnecessary columns increases resource usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized queries improve application performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selecting specific columns automatically deletes unused data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur when applications always use SELECT * unnecessarily?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increased bandwidth consumption",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic loss of primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding selecting specific columns in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Selecting specific columns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Specific columns help retrieve only needed data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selecting fewer columns can improve performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Column names are separated using commas",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selecting specific columns automatically modifies table structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of DISTINCT",
+            "content": "What is the main purpose of the DISTINCT keyword in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To remove duplicate values from query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete duplicate rows from the table permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort rows automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Duplicate Values",
+            "content": "Which keyword helps retrieve only unique values from a column?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DISTINCT",
+                    "is_correct": true
+                },
+                {
+                    "text": "UNIQUE",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP",
+                    "is_correct": false
+                },
+                {
+                    "text": "FILTER",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DISTINCT Behavior",
+            "content": "What happens when DISTINCT is used on a column containing repeated values?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only unique values are displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate rows are deleted permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rows are sorted alphabetically automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "New rows are inserted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DISTINCT Usage",
+            "content": "DISTINCT is mainly used with which SQL statement?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELECT",
+                    "is_correct": true
+                },
+                {
+                    "text": "DELETE",
+                    "is_correct": false
+                },
+                {
+                    "text": "UPDATE",
+                    "is_correct": false
+                },
+                {
+                    "text": "ALTER",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company wants to display all unique product categories from millions of products. Why is DISTINCT useful here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It removes repeated category values in results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes duplicate products",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts categories",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates category indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Database Scenario",
+            "content": "A university database stores thousands of student records. The admin needs a list of unique departments only. Which feature should be used?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DISTINCT with SELECT",
+                    "is_correct": true
+                },
+                {
+                    "text": "DELETE statement",
+                    "is_correct": false
+                },
+                {
+                    "text": "ALTER TABLE",
+                    "is_correct": false
+                },
+                {
+                    "text": "DROP COLUMN",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Scenario",
+            "content": "A reporting system generates a list of countries from customer data. Why can duplicate values become a problem without DISTINCT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reports may contain repetitive and cluttered information",
+                    "is_correct": true
+                },
+                {
+                    "text": "Primary keys stop functioning",
+                    "is_correct": false
+                },
+                {
+                    "text": "Foreign keys are deleted automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Tables become corrupted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should developers use DISTINCT carefully on very large datasets?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Finding unique values may increase processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT permanently deletes duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT removes constraints automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT disables indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting",
+            "content": "Why is DISTINCT commonly used in business intelligence and reporting systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps generate clean and meaningful summaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently removes duplicate records from storage",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically normalizes databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables repeated values in tables forever",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Large Scale Systems",
+            "content": "Why can excessive use of DISTINCT affect scalability in high-traffic systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Identifying unique values requires additional computation",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT removes all indexes automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT converts SQL into NoSQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT locks tables permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "DISTINCT Basics",
+            "content": "Which statements are true about DISTINCT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DISTINCT removes duplicate values in results",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT is used with SELECT",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT helps retrieve unique values",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT permanently deletes duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases of DISTINCT",
+            "content": "In which situations is DISTINCT commonly useful?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Generating unique category lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating unique country reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Removing repeated display values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dropping database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "DISTINCT Features",
+            "content": "Which are characteristics of DISTINCT queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They improve result readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They remove repeated values in output",
+                    "is_correct": true
+                },
+                {
+                    "text": "They help create cleaner reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically delete duplicate rows from storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELECT DISTINCT",
+            "content": "Which statements are correct regarding SELECT DISTINCT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It retrieves unique values",
+                    "is_correct": true
+                },
+                {
+                    "text": "It works during data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "It can reduce repetitive output",
+                    "is_correct": true
+                },
+                {
+                    "text": "It modifies table structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Streaming Platform Scenario",
+            "content": "A streaming platform generates a report of unique subscription plans chosen by users. Why is DISTINCT helpful?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Repeated plan names can be removed from results",
+                    "is_correct": true
+                },
+                {
+                    "text": "The report becomes easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only unique plans are displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate records are permanently deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Business Intelligence Scenario",
+            "content": "Why do BI tools frequently use DISTINCT in reporting queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To generate clean summaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "To avoid repeated output values",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve readability of reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "To automatically normalize databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Scalability Scenario",
+            "content": "Why can DISTINCT become expensive in large enterprise databases?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The database must compare values to find uniqueness",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large datasets increase processing work",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance may decrease on huge tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT permanently disables indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced DISTINCT Concepts",
+            "content": "Which statements are true regarding DISTINCT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DISTINCT helps generate cleaner query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT removes repeated values only in the result set",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT may increase computation on large datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT permanently changes stored table data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which issues may arise from excessive use of DISTINCT in production systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability on huge datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of duplicate rows from tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding DISTINCT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "DISTINCT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DISTINCT is used with SELECT queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT retrieves unique values",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT affects only query output, not stored data",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT permanently removes duplicates from the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Aliases",
+            "content": "What is the main purpose of using aliases in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To give temporary names to columns or tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently rename database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "AS Keyword",
+            "content": "Which keyword is commonly used to create aliases in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "AS",
+                    "is_correct": true
+                },
+                {
+                    "text": "ALIAS",
+                    "is_correct": false
+                },
+                {
+                    "text": "RENAME",
+                    "is_correct": false
+                },
+                {
+                    "text": "CHANGE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Column Alias Usage",
+            "content": "What happens when a column alias is used in a SELECT query?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The output column heading changes temporarily",
+                    "is_correct": true
+                },
+                {
+                    "text": "The original column name is permanently changed",
+                    "is_correct": false
+                },
+                {
+                    "text": "The table is duplicated",
+                    "is_correct": false
+                },
+                {
+                    "text": "The database schema is modified",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Readability Benefit",
+            "content": "Why are aliases commonly used in SQL queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To improve readability of query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "To normalize tables automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete duplicate columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Report Scenario",
+            "content": "An e-commerce report displays total_price instead of a complex calculation expression. Why is an alias useful here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It makes query results easier to understand",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently changes the database column name",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically optimizes indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Dashboard Scenario",
+            "content": "A dashboard query uses aliases like Revenue and Profit instead of long formulas. What is the main advantage?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aliases improve report clarity and usability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently rename table columns",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases automatically delete null values",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases convert SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Table Alias Scenario",
+            "content": "A developer uses short aliases for long table names in complex queries. Why is this commonly done?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It simplifies query writing and improves readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently changes the table names",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes constraints automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It prevents indexes from being used",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Query Design",
+            "content": "Why are aliases especially important in enterprise reporting systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Readable output improves maintainability and communication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently optimize database performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases automatically normalize tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases remove duplicate records permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Complex Query Scenario",
+            "content": "Why are table aliases commonly used in multi-table enterprise queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They reduce query complexity and improve readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently merge tables together",
+                    "is_correct": false
+                },
+                {
+                    "text": "They disable foreign keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically index columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Production Environment",
+            "content": "Why is meaningful alias naming considered important in production SQL queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Clear aliases improve collaboration and query maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently rename columns in storage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases automatically remove duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases disable transactions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Alias Basics",
+            "content": "Which statements are true about aliases in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aliases provide temporary names",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases improve readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases can be used for columns and tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently change database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of Aliases",
+            "content": "Why are aliases commonly used in SQL queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Simplifies long names",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Makes reports more user-friendly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically deletes duplicate data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Column Alias Usage",
+            "content": "Which statements are correct regarding column aliases?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They change output column headings",
+                    "is_correct": true
+                },
+                {
+                    "text": "They improve report readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are temporary during query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently rename stored columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Table Alias Features",
+            "content": "Which are advantages of table aliases?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduce typing in long queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve query readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Help in multi-table queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically create constraints",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Finance Dashboard Scenario",
+            "content": "A finance dashboard uses aliases such as Monthly_Profit and Net_Revenue in reports. Why is this useful?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reports become easier to understand",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex calculations become readable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business users can interpret results quickly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database columns are permanently renamed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Query Scenario",
+            "content": "Why do developers frequently use table aliases in enterprise applications?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They simplify complex joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "They reduce query length",
+                    "is_correct": true
+                },
+                {
+                    "text": "They improve maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently merge tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Business Intelligence Scenario",
+            "content": "Which advantages do aliases provide in BI and analytics systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleaner reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Readable metric names",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simplified complex expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic removal of duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Alias Concepts",
+            "content": "Which statements are true regarding aliases in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aliases improve maintainability of complex queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases help make reports business-friendly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases are temporary during query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently modify schema definitions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur if aliases are poorly named in enterprise systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduced query readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Difficult maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Confusion among developers and analysts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic corruption of table data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding aliases (AS) in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "Aliases (AS)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aliases can rename output columns temporarily",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases improve readability in complex queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases can be used for tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases permanently rename database objects",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of ORDER BY",
+            "content": "What is the main purpose of the ORDER BY clause in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To sort query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete rows in order",
+                    "is_correct": false
+                },
+                {
+                    "text": "To group duplicate values",
+                    "is_correct": false
+                },
+                {
+                    "text": "To rename columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "ASC Meaning",
+            "content": "What does ASC represent in ORDER BY?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ascending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "Access order",
+                    "is_correct": false
+                },
+                {
+                    "text": "Automatic sorting category",
+                    "is_correct": false
+                },
+                {
+                    "text": "Assigned sequence control",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DESC Meaning",
+            "content": "Which sorting order is produced by DESC?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Descending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate order",
+                    "is_correct": false
+                },
+                {
+                    "text": "Default sequence control",
+                    "is_correct": false
+                },
+                {
+                    "text": "Data search condition",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Default Sorting",
+            "content": "If no sorting direction is specified in ORDER BY, what is the default order in most SQL databases?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ascending",
+                    "is_correct": true
+                },
+                {
+                    "text": "Descending",
+                    "is_correct": false
+                },
+                {
+                    "text": "Random",
+                    "is_correct": false
+                },
+                {
+                    "text": "Grouped",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An online shopping app displays products from highest price to lowest price. Which ORDER BY option should be used?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DESC",
+                    "is_correct": true
+                },
+                {
+                    "text": "ASC",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Student Ranking Scenario",
+            "content": "A university portal displays students based on marks from highest to lowest. Why is ORDER BY important here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It organizes data meaningfully for users",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently changes the table order",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically removes failed students",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Dashboard Scenario",
+            "content": "A dashboard sorts monthly sales reports from newest to oldest. What is the main advantage of ORDER BY here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves readability and analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes outdated records automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Normalizes sales data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Disables duplicate entries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting",
+            "content": "Why is ORDER BY heavily used in enterprise reporting systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sorted data improves decision-making and usability",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently rearranges stored rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY automatically removes duplicates",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY disables indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Large Dataset Scenario",
+            "content": "Why can sorting very large datasets using ORDER BY become expensive?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sorting requires additional processing and memory",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently locks tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY converts SQL into NoSQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY automatically deletes rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Challenge",
+            "content": "Why should developers optimize ORDER BY queries in high-traffic systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poorly optimized sorting can slow down applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY removes primary keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY disables constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY permanently modifies stored records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ORDER BY Basics",
+            "content": "Which statements are true about ORDER BY?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "ORDER BY sorts query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "ASC represents ascending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "DESC represents descending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently changes stored data order",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Sorting Benefits",
+            "content": "Why is ORDER BY commonly used in SQL queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Organizes data meaningfully",
+                    "is_correct": true
+                },
+                {
+                    "text": "Helps in report generation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically removes duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ORDER BY Features",
+            "content": "Which capabilities are supported by ORDER BY?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sorting text data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting numeric data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting date values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Default Behavior",
+            "content": "Which statements are correct regarding default sorting in ORDER BY?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ascending order is usually the default",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY works during SELECT queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting direction can be specified explicitly",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently rearranges rows in storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Food Delivery App Scenario",
+            "content": "A food delivery app sorts restaurants by rating from highest to lowest. Why is ORDER BY useful here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Users can quickly find top-rated restaurants",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data becomes easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Results become more user-friendly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate restaurants are automatically removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Banking Dashboard Scenario",
+            "content": "A banking system sorts transactions from latest to oldest. Which benefits does ORDER BY provide?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improved user experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "Recent transactions are easily accessible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reports become easier to review",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rows are permanently rearranged in the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Analytics Scenario",
+            "content": "Why must ORDER BY queries be optimized in enterprise analytics systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large-scale sorting can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting may require extra memory and processing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized queries improve scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY automatically deletes old data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced ORDER BY Concepts",
+            "content": "Which statements are true regarding ORDER BY?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "ORDER BY improves readability of query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting large datasets may impact performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY is important in reporting systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently modifies stored records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur because of inefficient ORDER BY usage in production systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Higher memory consumption",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding ORDER BY (ASC, DESC)?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "ORDER BY (ASC, DESC)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "ASC sorts data in ascending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "DESC sorts data in descending order",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY affects only query output order",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY permanently rearranges database rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of LIMIT",
+            "content": "What is the main purpose of the LIMIT clause in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To restrict the number of rows returned",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete extra rows permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort rows automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "TOP Keyword",
+            "content": "Which SQL keyword is commonly used in some databases like SQL Server to limit returned rows?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "TOP",
+                    "is_correct": true
+                },
+                {
+                    "text": "MAXROWS",
+                    "is_correct": false
+                },
+                {
+                    "text": "FIRST",
+                    "is_correct": false
+                },
+                {
+                    "text": "BOUND",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "LIMIT Usage",
+            "content": "Why is LIMIT commonly used in SQL queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To fetch only a specific number of records",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently reduce table size",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To modify table structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "LIMIT with ORDER BY",
+            "content": "LIMIT is often used together with ORDER BY for what purpose?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve top or bottom records after sorting",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently reorder database rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create constraints automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To normalize data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An online shopping website displays only the top 10 best-selling products on the homepage. Why is LIMIT useful here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It restricts results to only the required number of rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes extra products",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts by sales",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables duplicate products",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Social Media Feed Scenario",
+            "content": "A social media app loads only the latest 20 posts initially. What is the main advantage of using LIMIT here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It improves performance by reducing data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently removes old posts",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically groups posts",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables sorting",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics Dashboard Scenario",
+            "content": "A dashboard shows the top 5 highest revenue-generating products. Why is LIMIT combined with ORDER BY useful?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It retrieves only the highest-ranked records after sorting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently changes row order",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes low-revenue products from the table",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Performance",
+            "content": "Why is LIMIT important in enterprise applications handling millions of records?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Restricting result size improves performance and scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT permanently deletes unnecessary rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT automatically normalizes tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT disables transactions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pagination Scenario",
+            "content": "Why do modern applications use LIMIT for pagination systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching smaller result sets improves efficiency and user experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT permanently stores only paginated data",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT removes duplicate records automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT disables sorting operations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Challenge",
+            "content": "Why can retrieving all rows without LIMIT become problematic in large systems?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large result sets increase memory and processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "Queries automatically delete duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Primary keys stop functioning",
+                    "is_correct": false
+                },
+                {
+                    "text": "Databases automatically normalize tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LIMIT Basics",
+            "content": "Which statements are true about LIMIT / TOP?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIMIT restricts the number of returned rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "TOP is used in some SQL databases like SQL Server",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT is commonly used with SELECT queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT permanently deletes extra rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of LIMIT",
+            "content": "Why is LIMIT commonly used in applications?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces unnecessary data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Makes pagination possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically removes duplicates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LIMIT with ORDER BY",
+            "content": "Why are LIMIT and ORDER BY frequently used together?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To fetch top-ranked rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "To retrieve sorted subsets of data",
+                    "is_correct": true
+                },
+                {
+                    "text": "To display highest or lowest values",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently reorder database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Use Cases",
+            "content": "In which situations are LIMIT / TOP commonly used?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Leaderboards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Pagination",
+                    "is_correct": true
+                },
+                {
+                    "text": "Top-selling product lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting database schemas",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Streaming Platform Scenario",
+            "content": "A streaming platform shows only the top 10 trending movies. Why is LIMIT useful here?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduces unnecessary data loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves response time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Displays only the most relevant records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Permanently deletes non-trending movies",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Dashboard Scenario",
+            "content": "Why do enterprise dashboards often use LIMIT with analytics queries?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improves dashboard performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Restricts results to meaningful summaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces server resource usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically removes duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Large Dataset Scenario",
+            "content": "Why is LIMIT especially important when working with very large tables?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching fewer rows improves efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memory usage can be reduced",
+                    "is_correct": true
+                },
+                {
+                    "text": "Network bandwidth usage becomes lower",
+                    "is_correct": true
+                },
+                {
+                    "text": "Indexes are permanently removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced LIMIT Concepts",
+            "content": "Which statements are true regarding LIMIT / TOP?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIMIT helps optimize large query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT is important for pagination systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT improves scalability in large applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT permanently changes stored table data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur when applications retrieve huge datasets without LIMIT?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poor scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding LIMIT / TOP in SQL?",
+            "level": "subtopic",
+            "unit_name": "Basic SQL Queries",
+            "subunit_name": "LIMIT / TOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIMIT restricts the number of returned rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "TOP is used in SQL Server-style databases",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT is often combined with ORDER BY",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIMIT permanently deletes extra rows from the table",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}
