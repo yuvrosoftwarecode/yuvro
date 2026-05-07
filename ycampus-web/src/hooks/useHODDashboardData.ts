@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 // Dummy data hook for HOD Dashboard - structured as if from backend
 export interface StudentData {
   id: string;
@@ -125,6 +127,7 @@ export interface PRIData {
   almostReadyPct: number;
   needsImprovementPct: number;
   breakdown: PRIBreakdown;
+  coreSubjectPerformance: { subject: string; score: number }[];
   studentPRIs: { id: string; pri: number }[];
   sectionPRIs: { sectionId: string; pri: number }[];
   semesterPRIs: { semester: number; pri: number }[];
@@ -362,7 +365,15 @@ function buildAllData() {
     trendPRI,
   };
 
-  return { semesters, trends, attendanceShortage, subjectAnalytics, facultyPerformance, placementReadiness, assessmentReports, testAnalytics, priData };
+  return { 
+    semesters, trends, attendanceShortage, subjectAnalytics, facultyPerformance, 
+    placementReadiness, assessmentReports, testAnalytics, priData,
+    filterOptions: {
+      batches: [],
+      semesters: [],
+      academicYears: []
+    }
+  };
 }
 
 const buildData = () => {
@@ -376,62 +387,111 @@ export function useHODDashboardData(filters: {
   semester: string;
   batch: string;
   dateRange: string;
-}) {
-  const data = buildData();
-  const { semesters, trends, attendanceShortage, subjectAnalytics, facultyPerformance, placementReadiness, assessmentReports, testAnalytics, priData } = data;
+}, departmentId?: string) {
+  const [backendData, setBackendData] = useState<any>(null);
+  const [loading, setLoading] = useState(!!departmentId);
+
+  useEffect(() => {
+    if (departmentId) {
+      setLoading(true);
+      import('@/services/departmentService').then(m => {
+        m.default.getDepartmentStats(departmentId, filters)
+          .then(data => {
+            setBackendData(data);
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error('Failed to fetch department stats:', err);
+            setLoading(false);
+          });
+      });
+    }
+  }, [departmentId, filters.academicYear, filters.batch, filters.semester, filters.dateRange]);
+
+  // Initialize with empty defaults to prevent mock data flash
+  const emptyData = {
+    summary: { totalStudents: 0, totalFaculty: 0, totalSections: 0, dpi: 0, overallAttendance: 0, overallTaskCompletion: 0, overallAssessmentAvg: 0 },
+    semesters: [],
+    trends: [],
+    attendanceShortage: [],
+    subjectAnalytics: [],
+    facultyPerformance: [],
+    placementReadiness: { totalPreparing: 0, interviewReady: 0, needsPreparation: 0, weakInDSA: 0, companyWise: [] },
+    assessmentReports: [],
+    testAnalytics: { avgTestScore: 0, easyAccuracy: 0, mediumAccuracy: 0, hardAccuracy: 0, totalTestsTaken: 0, avgAccuracy: 0 },
+    priData: { avgPRI: 0, readyPct: 0, almostReadyPct: 0, needsImprovementPct: 0, breakdown: { coreSubjects: 0, mockInterviews: 0, aptitude: 0, logicalReasoning: 0, communication: 0 }, coreSubjectPerformance: [], studentPRIs: [], sectionPRIs: [], semesterPRIs: [], trendPRI: [] },
+    insights: [],
+    filterOptions: { batches: [], semesters: [], academicYears: [] }
+  };
+
+  // If we have backend data, we use it. 
+  // If we don't have it yet but we ARE expecting it (departmentId exists), use empty state.
+  // Only use buildData() if we are in pure mock mode (no departmentId).
+  const data = backendData || (departmentId ? emptyData : buildData());
+  
+  const { 
+    semesters, trends, attendanceShortage, subjectAnalytics, facultyPerformance, 
+    placementReadiness, assessmentReports, testAnalytics, priData, insights: backendInsights,
+    filterOptions: backendFilters
+  } = data;
 
   const filteredSemesters = filters.semester === 'all'
     ? semesters
-    : semesters.filter(s => s.semester === Number(filters.semester));
+    : semesters.filter((s: any) => s.semester === Number(filters.semester));
 
-  const allSections = filteredSemesters.flatMap(s => s.sections);
-  const allStudents = allSections.flatMap(s => s.students);
+  // If backendData is present, use rankedSections (which has full object data). 
+  // Otherwise, fallback to flatMapping mock semesters.
+  const allSections = backendData ? data.rankedSections : filteredSemesters.flatMap((s: any) => s.sections);
+  const allStudents = backendData ? [] : allSections.flatMap((s: any) => s.students || []);
 
-  const totalStudents = allStudents.length;
-  const totalFaculty = 24;
-  const totalSections = allSections.length;
-  const dpi = allSections.length > 0 ? Math.round(allSections.reduce((a, s) => a + s.spiValue, 0) / allSections.length) : 0;
-  const overallAttendance = allSections.length > 0 ? Math.round(allSections.reduce((a, s) => a + s.attendance, 0) / allSections.length) : 0;
-  const overallTaskCompletion = allSections.length > 0 ? Math.round(allSections.reduce((a, s) => a + s.taskCompletion, 0) / allSections.length) : 0;
-  const overallAssessmentAvg = allSections.length > 0 ? Math.round(allSections.reduce((a, s) => a + s.assessmentAvg, 0) / allSections.length) : 0;
+  const totalStudents = data.summary?.totalStudents ?? allStudents.length;
+  const totalFaculty = data.summary?.totalFaculty ?? 24;
+  const totalSections = data.summary?.totalSections ?? allSections.length;
+  const dpi = data.summary?.dpi ?? (allSections.length > 0 ? Math.round(allSections.reduce((a: any, s: any) => a + (s.spiValue || 0), 0) / allSections.length) : 0);
+  const overallAttendance = data.summary?.overallAttendance ?? (allSections.length > 0 ? Math.round(allSections.reduce((a: any, s: any) => a + (s.attendance || 0), 0) / allSections.length) : 0);
+  const overallTaskCompletion = data.summary?.overallTaskCompletion ?? (allSections.length > 0 ? Math.round(allSections.reduce((a: any, s: any) => a + (s.taskCompletion || 0), 0) / allSections.length) : 0);
+  const overallAssessmentAvg = data.summary?.overallAssessmentAvg ?? (allSections.length > 0 ? Math.round(allSections.reduce((a: any, s: any) => a + (s.assessmentAvg || 0), 0) / allSections.length) : 0);
 
-  const rankedSections = [...allSections].sort((a, b) => b.spiValue - a.spiValue);
-  const semesterComparison = [...filteredSemesters].sort((a, b) => b.avgPerformanceIndex - a.avgPerformanceIndex);
+  const rankedSections = backendData ? data.rankedSections : [...allSections].sort((a: any, b: any) => b.spiValue - a.spiValue);
+  const semesterComparison = backendData ? data.semesterPerformance : [...filteredSemesters].sort((a: any, b: any) => b.avgPerformanceIndex - a.avgPerformanceIndex);
 
-  const riskStudentsCount = allStudents.filter(s => s.performanceIndex < 60).length;
-  const lowAttSections = allSections.filter(s => s.attendance < 75);
-  const lowAssessmentSections = allSections.filter(s => s.assessmentAvg < 60);
+  const riskStudentsCount = data.risk?.riskStudentsCount ?? allStudents.filter((s: any) => s.performanceIndex < 60).length;
+  const lowAttSections = data.risk?.lowAttSections ?? allSections.filter((s: any) => s.attendance < 75);
+  const lowAssessmentSections = data.risk?.lowAssessmentSections ?? allSections.filter((s: any) => s.assessmentAvg < 60);
 
-  const bestSection = rankedSections[0];
-  const worstAttSection = [...allSections].sort((a, b) => a.attendance - b.attendance)[0];
-  const highestRiskSection = [...allSections].sort((a, b) => {
-    const aRisk = a.students.filter(s => s.performanceIndex < 60).length / a.students.length;
-    const bRisk = b.students.filter(s => s.performanceIndex < 60).length / b.students.length;
-    return bRisk - aRisk;
-  })[0];
+  const insights: InsightItem[] = backendInsights || [];
+  
+  if (!backendData) {
+    const bestSection = rankedSections[0];
+    const worstAttSection = [...allSections].sort((a: any, b: any) => a.attendance - b.attendance)[0];
+    const highestRiskSection = [...allSections].sort((a: any, b: any) => {
+      const aRisk = a.students.filter((s: any) => s.performanceIndex < 60).length / a.students.length;
+      const bRisk = b.students.filter((s: any) => s.performanceIndex < 60).length / b.students.length;
+      return bRisk - aRisk;
+    })[0];
 
-  const insights: InsightItem[] = [];
-  if (bestSection) insights.push({ label: 'Best Performing Section', value: `${bestSection.name} – Semester ${bestSection.semester}`, type: 'success' });
-  if (worstAttSection) insights.push({ label: 'Lowest Attendance Section', value: `${worstAttSection.name} – Semester ${worstAttSection.semester}`, type: 'warning' });
-  if (semesterComparison[0]) insights.push({ label: 'Strongest Semester', value: `Semester ${semesterComparison[0].semester}`, type: 'success' });
-  if (highestRiskSection) insights.push({ label: 'Highest Risk Group', value: `${highestRiskSection.name} – Semester ${highestRiskSection.semester}`, type: 'danger' });
+    if (bestSection) insights.push({ label: 'Best Performing Section', value: `${bestSection.name} – Semester ${bestSection.semester}`, type: 'success' });
+    if (worstAttSection) insights.push({ label: 'Lowest Attendance Section', value: `${worstAttSection.name} – Semester ${worstAttSection.semester}`, type: 'warning' });
+    if (semesterComparison[0]) insights.push({ label: 'Strongest Semester', value: `Semester ${semesterComparison[0].semester}`, type: 'success' });
+    if (highestRiskSection) insights.push({ label: 'Highest Risk Group', value: `${highestRiskSection.name} – Semester ${highestRiskSection.semester}`, type: 'danger' });
 
-  // Extra insights
-  const weakSubjectInsight = subjectAnalytics.sort((a, b) => a.passRate - b.passRate)[0];
-  if (weakSubjectInsight) insights.push({ label: 'Highest Failure Rate Subject', value: weakSubjectInsight.name, type: 'danger' });
-  insights.push({ label: 'Placement Ready Students', value: `${placementReadiness.interviewReady} of ${placementReadiness.totalPreparing}`, type: 'info' });
-  insights.push({ label: 'Attendance Shortage Students', value: `${attendanceShortage.length} students below 75%`, type: 'warning' });
-  const topFaculty = [...facultyPerformance].sort((a, b) => b.avgStudentPI - a.avgStudentPI)[0];
-  if (topFaculty) insights.push({ label: 'Top Faculty (by Student PI)', value: topFaculty.name, type: 'success' });
+    // Extra insights
+    const weakSubjectInsight = subjectAnalytics.sort((a: any, b: any) => a.passRate - b.passRate)[0];
+    if (weakSubjectInsight) insights.push({ label: 'Highest Failure Rate Subject', value: weakSubjectInsight.name, type: 'danger' });
+    insights.push({ label: 'Placement Ready Students', value: `${placementReadiness.interviewReady} of ${placementReadiness.totalPreparing}`, type: 'info' });
+    insights.push({ label: 'Attendance Shortage Students', value: `${attendanceShortage.length} students below 75%`, type: 'warning' });
+    const topFaculty = [...facultyPerformance].sort((a: any, b: any) => b.avgStudentPI - a.avgStudentPI)[0];
+    if (topFaculty) insights.push({ label: 'Top Faculty (by Student PI)', value: topFaculty.name, type: 'success' });
 
-  // PRI insights
-  if (priData.breakdown.mockInterviews < 55) insights.push({ label: 'Mock Interview Gap', value: 'Mock interview performance is low across department', type: 'danger' });
-  if (priData.breakdown.communication < 55) insights.push({ label: 'Communication Skills', value: 'Communication skills affecting placement readiness', type: 'warning' });
-  if (priData.breakdown.coreSubjects >= 70 && priData.breakdown.mockInterviews < 60) insights.push({ label: 'PRI Insight', value: 'Core subjects strong but interview readiness is weak', type: 'warning' });
-  const lowPRISections = priData.sectionPRIs.filter(s => s.pri < 65);
-  if (lowPRISections.length > 0) insights.push({ label: 'Low PRI Sections', value: `${lowPRISections.length} sections below 65 PRI`, type: 'danger' });
-  const lowPRIStudents = priData.studentPRIs.filter(s => s.pri < 55).length;
-  if (lowPRIStudents > 0) insights.push({ label: 'Low PRI Students', value: `${lowPRIStudents} students with PRI below 55`, type: 'danger' });
+    // PRI insights
+    if (priData.breakdown.mockInterviews < 55) insights.push({ label: 'Mock Interview Gap', value: 'Mock interview performance is low across department', type: 'danger' });
+    if (priData.breakdown.communication < 55) insights.push({ label: 'Communication Skills', value: 'Communication skills affecting placement readiness', type: 'warning' });
+    if (priData.breakdown.coreSubjects >= 70 && priData.breakdown.mockInterviews < 60) insights.push({ label: 'PRI Insight', value: 'Core subjects strong but interview readiness is weak', type: 'warning' });
+    const lowPRISections = priData.sectionPRIs.filter((s: any) => s.pri < 65);
+    if (lowPRISections.length > 0) insights.push({ label: 'Low PRI Sections', value: `${lowPRISections.length} sections below 65 PRI`, type: 'danger' });
+    const lowPRIStudents = priData.studentPRIs.filter((s: any) => s.pri < 55).length;
+    if (lowPRIStudents > 0) insights.push({ label: 'Low PRI Students', value: `${lowPRIStudents} students with PRI below 55`, type: 'danger' });
+  }
 
   return {
     summary: { totalStudents, totalFaculty, totalSections, dpi, overallAttendance, overallTaskCompletion, overallAssessmentAvg },
@@ -450,5 +510,7 @@ export function useHODDashboardData(filters: {
     filteredSemesters,
     allStudents,
     priData,
+    loading,
+    filterOptions: data.filterOptions,
   };
 }

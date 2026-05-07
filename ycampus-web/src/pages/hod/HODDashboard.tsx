@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { HODSidebar } from '@/components/hod/HODSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,14 +15,19 @@ import { useHODDashboardData, type SectionData, type StudentData, type PRIData }
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HODDashboardProps {
   sidebarComponent?: React.ReactNode;
   title?: string;
   headerExtra?: React.ReactNode;
+  departmentId?: string;
 }
 
-const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProps = {}) => {
+const HODDashboard = ({ sidebarComponent, title, headerExtra, departmentId: propDepartmentId }: HODDashboardProps = {}) => {
+  const { user } = useAuth();
+  const departmentId = propDepartmentId || user?.department_id;
+
   const [filters, setFilters] = useState({
     academicYear: '2025-26',
     semester: 'all',
@@ -36,9 +41,31 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
     summary, rankedSections, semesterComparison, trends, risk, insights, allSections,
     attendanceShortage, subjectAnalytics, facultyPerformance, placementReadiness,
     assessmentReports, testAnalytics, filteredSemesters, allStudents, priData,
-  } = useHODDashboardData(filters);
+    loading, filterOptions,
+  } = useHODDashboardData(filters, departmentId);
 
-  const updateFilter = (key: string, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
+  React.useEffect(() => {
+    if (filterOptions?.academicYears?.length > 0 && filters.academicYear === '2025-26') {
+       // Optional: set to first available if needed, or keep 2025-26 as a default
+    }
+  }, [filterOptions]);
+
+  const updateFilter = (key: string, value: string) => {
+    setFilters(prev => {
+      const next = { ...prev, [key]: value };
+      if (key === 'academicYear') {
+        next.batch = 'all';
+        next.semester = 'all';
+        next.dateRange = 'full-year';
+      } else if (key === 'batch') {
+        next.semester = 'all';
+        next.dateRange = 'full-year';
+      } else if (key === 'semester') {
+        next.dateRange = 'full-year';
+      }
+      return next;
+    });
+  };
 
   const summaryCards = [
     { title: 'Total Students', value: summary.totalStudents, icon: Users, color: 'text-blue-600' },
@@ -58,11 +85,20 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
   };
 
   const renderSectionDetail = (section: SectionData) => {
+    if (!section.students || section.students.length === 0) {
+      return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/20 rounded-lg">No student data available for this section yet.</div>;
+    }
     const sorted = [...section.students].sort((a, b) => b.performanceIndex - a.performanceIndex);
+    
+    // If we have 5 or fewer students, just show one list.
+    // Otherwise, show top 5 and bottom 5 (without overlap).
     const top5 = sorted.slice(0, 5);
-    const bottom5 = sorted.slice(-5).reverse();
+    const bottom5 = sorted.length > 5 
+      ? sorted.slice(Math.max(5, sorted.length - 5)).reverse() 
+      : [];
+      
     const riskCount = section.students.filter(s => s.performanceIndex < 60).length;
-    const gap = sorted[0].performanceIndex - sorted[sorted.length - 1].performanceIndex;
+    const gap = sorted.length > 0 ? (sorted[0].performanceIndex - sorted[sorted.length - 1].performanceIndex) : 0;
 
     return (
       <div className="bg-muted/30 p-4 rounded-lg mt-2 space-y-4">
@@ -88,9 +124,12 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
             <div className="text-xs font-medium truncate">{section.facultyName}</div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 ${bottom5.length > 0 ? 'md:grid-cols-2' : ''} gap-4`}>
           <div>
-            <h5 className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Top 5 Students</h5>
+            <h5 className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1">
+              <ArrowUpRight className="h-3 w-3" /> 
+              {bottom5.length > 0 ? 'Top 5 Students' : 'Student Rankings'}
+            </h5>
             <div className="space-y-1">
               {top5.map((s, i) => (
                 <div key={s.id} className="flex justify-between text-xs p-1.5 bg-emerald-50 rounded cursor-pointer hover:bg-emerald-100" onClick={() => setSelectedStudent(s)}>
@@ -100,17 +139,19 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
               ))}
             </div>
           </div>
-          <div>
-            <h5 className="text-xs font-semibold text-red-700 mb-2 flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> Bottom 5 Students</h5>
-            <div className="space-y-1">
-              {bottom5.map((s, i) => (
-                <div key={s.id} className="flex justify-between text-xs p-1.5 bg-red-50 rounded cursor-pointer hover:bg-red-100" onClick={() => setSelectedStudent(s)}>
-                  <span className="text-foreground">{i + 1}. {s.name}</span>
-                  <span className="font-semibold text-red-700">{s.performanceIndex}%</span>
-                </div>
-              ))}
+          {bottom5.length > 0 && (
+            <div>
+              <h5 className="text-xs font-semibold text-red-700 mb-2 flex items-center gap-1"><ArrowDownRight className="h-3 w-3" /> Bottom 5 Students</h5>
+              <div className="space-y-1">
+                {bottom5.map((s, i) => (
+                  <div key={s.id} className="flex justify-between text-xs p-1.5 bg-red-50 rounded cursor-pointer hover:bg-red-100" onClick={() => setSelectedStudent(s)}>
+                    <span className="text-foreground">{i + 1}. {s.name}</span>
+                    <span className="font-semibold text-red-700">{s.performanceIndex}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     );
@@ -192,35 +233,61 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
       <div className="min-h-screen flex w-full bg-[hsl(210,40%,98%)]">
         {sidebarComponent || <HODSidebar />}
         <div className="flex-1 flex flex-col min-h-0">
-
+          
           <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
-            <h1 className="text-2xl font-bold">{title || 'Dashboard'}</h1>
-            {/* GLOBAL FILTERS */}
+            {loading && (!summary || summary.totalStudents === 0) ? (
+              <div className="flex flex-col items-center justify-center h-[70vh] gap-6">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+                <p className="text-gray-500 text-lg font-medium animate-pulse">Initializing Department Dashboard...</p>
+              </div>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold">{title || 'Dashboard'}</h1>
+                {/* GLOBAL FILTERS */}
             <Card className="shadow-sm">
               <CardContent className="py-3 px-4">
                 <div className="flex flex-wrap gap-3 items-center">
                   <Select value={filters.academicYear || ""} onValueChange={v => updateFilter('academicYear', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>{filters.academicYear || "Select Year"}</SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2025-26">2025-26</SelectItem>
-                      <SelectItem value="2024-25">2024-25</SelectItem>
+                      {filterOptions?.academicYears?.map((ay: string) => (
+                        <SelectItem key={ay} value={ay}>{ay}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select value={filters.semester || ""} onValueChange={v => updateFilter('semester', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Semesters</SelectItem>
-                      {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.batch || ""} onValueChange={v => updateFilter('batch', v)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
+
+                  <Select value={filters.batch || "all"} onValueChange={v => updateFilter('batch', v)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>
+                        {filters.batch === 'all' ? 'All Batches' : (filterOptions?.batches?.find((b: any) => b.id === filters.batch)?.name || 'All Batches')}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Batches</SelectItem>
-                      <SelectItem value="2023">2023 Batch</SelectItem>
-                      <SelectItem value="2024">2024 Batch</SelectItem>
+                      {filterOptions?.batches
+                        ?.filter((b: any) => b.id !== 'all' && b.name !== 'All Batches')
+                        ?.map((b: any) => (
+                          <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
+
+                  <Select value={filters.semester || "all"} onValueChange={v => updateFilter('semester', v)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue>
+                        {filters.semester === 'all' ? 'All Semesters' : `Semester ${filters.semester}`}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Semesters</SelectItem>
+                      {filterOptions?.semesters?.map((s: number) => (
+                        <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   <Select value={filters.dateRange || ""} onValueChange={v => updateFilter('dateRange', v)}>
                     <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -534,7 +601,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                       </TableHeader>
                       <TableBody>
                         {rankedSections.map((sec, i) => (
-                          <React.Fragment key={sec.id}>
+                          <Fragment key={sec.id}>
                             <TableRow
                               className={`cursor-pointer ${i < 3 ? 'bg-emerald-50/50' : ''}`}
                               onClick={() => setExpandedSection(expandedSection === sec.id ? null : sec.id)}
@@ -566,7 +633,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                                 </TableCell>
                               </TableRow>
                             )}
-                          </React.Fragment>
+                          </Fragment>
                         ))}
                       </TableBody>
                     </Table>
@@ -775,23 +842,24 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {[
-                        { subject: 'DSA', score: priData.breakdown.coreSubjects },
-                        { subject: 'Python', score: Math.round(priData.breakdown.coreSubjects * 1.05 + (Math.random() * 6 - 3)) },
-                        { subject: 'Database', score: Math.round(priData.breakdown.coreSubjects * 0.95 + (Math.random() * 8 - 4)) },
-                        { subject: 'System Design', score: Math.round(priData.breakdown.coreSubjects * 0.85 + (Math.random() * 6 - 3)) },
-                      ].map((item, i) => {
-                        const strength = item.score >= 75 ? 'Strong' : item.score >= 55 ? 'Moderate' : 'Weak';
-                        const strengthColor = strength === 'Strong' ? 'bg-emerald-100 text-emerald-700' : strength === 'Moderate' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
-                        return (
-                          <div key={i} className="flex items-center gap-3">
-                            <span className="text-xs font-medium w-28 shrink-0">{item.subject}</span>
-                            <Progress value={item.score} className="h-2 flex-1" />
-                            <span className={`text-xs font-bold w-10 text-right ${item.score >= 70 ? 'text-emerald-600' : item.score >= 55 ? 'text-amber-600' : 'text-red-600'}`}>{item.score}%</span>
-                            <Badge className={`border-0 text-[10px] ${strengthColor}`}>{strength}</Badge>
-                          </div>
-                        );
-                      })}
+                      {priData.coreSubjectPerformance?.length > 0 ? (
+                        priData.coreSubjectPerformance.map((item, i) => {
+                          const strength = item.score >= 75 ? 'Strong' : item.score >= 55 ? 'Moderate' : 'Weak';
+                          const strengthColor = strength === 'Strong' ? 'bg-emerald-100 text-emerald-700' : strength === 'Moderate' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+                          return (
+                            <div key={i} className="flex items-center gap-3">
+                              <span className="text-xs font-medium w-28 shrink-0 truncate">{item.subject}</span>
+                              <Progress value={item.score} className="h-2 flex-1" />
+                              <span className={`text-xs font-bold w-10 text-right ${item.score >= 70 ? 'text-emerald-600' : item.score >= 55 ? 'text-amber-600' : 'text-red-600'}`}>{item.score}%</span>
+                              <Badge className={`border-0 text-[10px] ${strengthColor}`}>{strength}</Badge>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center py-4 text-xs text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                          No placement-related assessment data found in the backend.
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -835,14 +903,23 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                   <CardContent className="space-y-3">
                     {(() => {
                       const items: { text: string; type: 'danger' | 'warning' | 'info' }[] = [];
-                      if (priData.breakdown.coreSubjects < 65) items.push({ text: 'Core subject scores are low — increase focus on DSA and System Design workshops.', type: 'danger' });
-                      if (priData.breakdown.mockInterviews < 55) items.push({ text: 'Mock interview performance is low — schedule more practice sessions.', type: 'danger' });
-                      if (priData.breakdown.communication < 55) items.push({ text: 'Communication skills need improvement — add group discussion and presentation sessions.', type: 'warning' });
-                      if (priData.breakdown.aptitude < 60) items.push({ text: 'Aptitude scores are moderate — add daily aptitude practice sessions.', type: 'warning' });
-                      if (priData.breakdown.logicalReasoning < 60) items.push({ text: 'Logical reasoning needs improvement — include more puzzle-solving activities.', type: 'warning' });
-                      if (priData.breakdown.coreSubjects >= 70 && priData.breakdown.mockInterviews < 60) items.push({ text: 'Core subjects are strong but interview readiness is weak — bridge the gap with mock interviews.', type: 'info' });
-                      items.push({ text: 'Conduct System Design sessions for final-year students.', type: 'info' });
-                      items.push({ text: 'Focus on DSA problem-solving with timed practice.', type: 'info' });
+                      if (priData.breakdown.coreSubjects < 60) items.push({ text: 'Core academic performance is below target. Consider subject-specific remedial sessions.', type: 'danger' });
+                      if (priData.breakdown.mockInterviews < 55) items.push({ text: 'Mock interview readiness is critical. Schedule one-on-one feedback sessions.', type: 'danger' });
+                      if (priData.breakdown.communication < 50) items.push({ text: 'Communication skills are impacting placement readiness. Initiate soft-skills training.', type: 'warning' });
+                      if (priData.breakdown.aptitude < 60) items.push({ text: 'Aptitude performance is moderate. Weekly practice tests recommended.', type: 'warning' });
+                      
+                      // Subject specific insights
+                      priData.coreSubjectPerformance?.forEach(cp => {
+                        if (cp.score < 55) {
+                          items.push({ text: `Performance in ${cp.subject} is weak. Targeted workshops needed.`, type: 'danger' });
+                        }
+                      });
+
+                      if (items.length === 0) {
+                        items.push({ text: 'Overall placement readiness is strong. Focus on advanced competitive coding.', type: 'info' });
+                        items.push({ text: 'Maintain current progress in mock interviews.', type: 'info' });
+                      }
+
                       return items.map((item, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs">
                           <span className={`w-2 h-2 rounded-full mt-1 shrink-0 ${item.type === 'danger' ? 'bg-red-500' : item.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`} />
@@ -897,7 +974,9 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
                   </CardContent>
                 </Card>
               </TabsContent>
-            </Tabs>
+              </Tabs>
+              </>
+            )}
           </main>
         </div>
       </div>

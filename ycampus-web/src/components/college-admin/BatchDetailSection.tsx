@@ -47,23 +47,28 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
     const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
     const [selectedSubjectForFaculty, setSelectedSubjectForFaculty] = useState<SemesterSubject | null>(null);
 
+    const loadSections = async (semesterId: string) => {
+        try {
+            const sectionsData = await sectionService.getSections(semesterId);
+            setSections(sectionsData);
+            if (sectionsData.length > 0 && !selectedSection) {
+                setSelectedSection(sectionsData[0]);
+            }
+        } catch (err) {
+            console.error("Failed to load sections", err);
+        }
+    };
+
     useEffect(() => {
         const loadBatchData = async () => {
             try {
                 setLoading(true);
-                // 1. Get semesters for the batch
                 const semestersData = await semesterService.getSemesters(batch.id);
-                // Filter for current semester only
                 const current = semestersData.find(s => s.is_current) || semestersData[0];
 
                 if (current) {
                     setCurrentSemester(current);
-                    // 2. Fetch sections for this semester
-                    const sectionsData = await sectionService.getSections(current.id);
-                    setSections(sectionsData);
-                    if (sectionsData.length > 0) {
-                        setSelectedSection(sectionsData[0]);
-                    }
+                    await loadSections(current.id);
                 }
             } catch (err) {
                 console.error("Failed to load batch data", err);
@@ -91,7 +96,8 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
         try {
             setStudentsLoading(true);
             const params: any = {
-                section: selectedSection.id,
+                section__name: selectedSection.name, // Use exact backend filter field
+                batch: batch.id,
                 page: page,
                 search: searchQuery
             };
@@ -127,6 +133,7 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
             await studentService.deleteStudent(student.id);
             toast.success("Student deleted successfully");
             loadStudentsList();
+            if (currentSemester) loadSections(currentSemester.id);
         } catch (err) {
             console.error("Failed to delete student", err);
             toast.error("Failed to delete student");
@@ -214,7 +221,9 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
                                         >
                                             <div className="flex flex-col items-start min-w-0">
                                                 <span className="font-bold text-sm">Section {section.name}</span>
-                                                <span className="text-[10px] opacity-70 font-semibold">{section.student_count || 0} Students</span>
+                                                <span className="text-[10px] opacity-70 font-semibold">
+                                                    {selectedSection?.id === section.id ? totalCount : (section.student_count || 0)} Students
+                                                </span>
                                             </div>
                                         </Button>
                                     ))
@@ -552,7 +561,10 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
                 <AddStudentDialog 
                     open={isStudentModalOpen}
                     onOpenChange={setIsStudentModalOpen}
-                    onSuccess={() => loadStudentsList()}
+                    onSuccess={() => {
+                        loadStudentsList();
+                        if (currentSemester) loadSections(currentSemester.id);
+                    }}
                     initialData={{
                         department_id: batch.department,
                         batch_id: batch.id,

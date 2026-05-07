@@ -42,20 +42,18 @@ export function useDepartments() {
           dept.batches.forEach((batch: any) => {
             if (batch.semesters) {
               batch.semesters.forEach((sem: any) => {
-                // If we want to avoid duplicate semester numbers from different batches,
-                // we could filter here. For now, let's just include them all or follow a logic.
-                // Logic for mapping Department -> Semesters.
-                
-                // If this is a specific management UI, they might only want active batch semesters.
-                // But let's try to match the expected format.
-                allSemesters.push({
-                  id: sem.id,
-                  number: sem.number,
-                  sections: (sem.sections || []).map((sec: any) => ({
-                    id: sec.id,
-                    name: sec.name
-                  }))
-                });
+                // Avoid duplicate semester numbers from different batches
+                if (!seenSemesters.has(sem.number)) {
+                  seenSemesters.add(sem.number);
+                  allSemesters.push({
+                    id: sem.id,
+                    number: sem.number,
+                    sections: (sem.sections || []).map((sec: any) => ({
+                      id: sec.id,
+                      name: sec.name
+                    }))
+                  });
+                }
               });
             }
           });

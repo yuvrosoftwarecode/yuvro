@@ -125,95 +125,6 @@ export default function MockInterviewPage() {
     }
   };
 
-  const headerActions = currentView === 'list' ? (
-    <button
-      onClick={() => navigate('/admin/mock-interview/add')}
-      className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors text-sm font-medium"
-    >
-      + Add Mock Interview
-    </button>
-  ) : (
-    <button
-      onClick={() => {
-        setCurrentView('list');
-        setSelectedInterview(null);
-      }}
-      className="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors text-sm font-medium"
-    >
-      Back to Interviews
-    </button>
-  );
-
-  const columns: Column<MockInterviewUI>[] = [
-    {
-      header: 'Interview',
-      cell: (interview) => (
-        <button
-          onClick={() => openViewForm(interview)}
-          className="text-left hover:text-blue-700 transition-colors"
-        >
-          <div className="font-medium text-gray-900">{interview.title}</div>
-          <div className="text-xs text-gray-500 truncate max-w-[280px]">
-            {interview.description || 'No description'}
-          </div>
-        </button>
-      )
-    },
-    {
-      header: 'Duration',
-      cell: (interview) => `${interview.max_duration} mins`
-    },
-    {
-      header: 'Status',
-      cell: (interview) => <Badge status={interview.publish_status} />
-    },
-    {
-      header: 'Participants',
-      cell: (interview) => (
-        <div className="text-sm text-gray-600 flex items-center">
-          <Users className="h-4 w-4 mr-1.5 text-gray-400" />
-          {interview.participants || 0}
-        </div>
-      )
-    },
-    {
-      header: 'Actions',
-      className: 'text-right',
-      cell: (interview) => (
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => openViewForm(interview)}
-            className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
-            title="View Details"
-          >
-            <Eye className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => navigate(`/admin/mock-interview/${interview.id}/analytics`)}
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-            title="View Analytics"
-          >
-            <BarChart2 className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => openEditForm(interview)}
-            className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
-            title="Edit"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => handleDelete(interview.id)}
-            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-            title="Delete"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      )
-    }
-  ];
-
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -242,7 +153,7 @@ export default function MockInterviewPage() {
                         setCurrentView('list');
                         setSelectedInterview(null);
                       }}
-                      className="variant-outline"
+                      variant="outline"
                     >
                       Back to List
                     </Button>
@@ -489,6 +400,7 @@ export default function MockInterviewPage() {
             </div>
           </main>
         </div>
-      </SidebarProvider>
+      </div>
+    </SidebarProvider>
   );
 }

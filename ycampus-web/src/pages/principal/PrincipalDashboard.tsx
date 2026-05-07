@@ -17,6 +17,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, BarChart, Bar, PieChart, Pie, Cell,
 } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { collegeService } from '@/services/collegeService';
 import { usePrincipalDashboardData } from '@/hooks/usePrincipalDashboardData';
 
 const SAFFRON = '#F59E0B';
@@ -31,6 +34,9 @@ const GRAY = '#6B7280';
 const PIE_COLORS = [GREEN, BLUE, SAFFRON, RED];
 
 const PrincipalDashboard = () => {
+  const { user } = useAuth();
+  const collegeId = (user as any)?.college_id || user?.college?.id || user?.college;
+
   const [filters, setFilters] = useState({
     academicYear: '2025-26',
     department: 'all',
@@ -40,6 +46,12 @@ const PrincipalDashboard = () => {
   });
 
   const { data, isLoading } = usePrincipalDashboardData(filters);
+
+  const { data: batches } = useQuery({
+    queryKey: ['unique-batches', collegeId],
+    queryFn: () => collegeService.getUniqueBatches(collegeId),
+    enabled: !!collegeId
+  });
 
   if (isLoading || !data) {
     return (
@@ -107,19 +119,20 @@ const PrincipalDashboard = () => {
                         {departmentRanking.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                    <Select value={filters.batch || ""} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
+                      <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue placeholder="Batch" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Batches</SelectItem>
+                        {batches?.map(b => (
+                          <SelectItem key={b} value={b}>{b}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Select value={filters.semester || ""} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
                       <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Semester" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Semesters</SelectItem>
                         {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select value={filters.batch || ""} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
-                      <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue placeholder="Batch" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Batches</SelectItem>
-                        <SelectItem value="2022-26">2022–26</SelectItem>
-                        <SelectItem value="2023-27">2023–27</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select value={filters.dateRange || ""} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
@@ -281,7 +294,7 @@ const PrincipalDashboard = () => {
                       </TableHeader>
                       <TableBody>
                         {topSections.map(s => (
-                          <TableRow key={s.name}>
+                          <TableRow key={s.id}>
                             <TableCell className="text-xs font-medium">{s.name}</TableCell>
                             <TableCell className="text-[11px] text-muted-foreground">{s.department}</TableCell>
                             <TableCell className="text-xs text-center">{s.semester}</TableCell>
@@ -312,7 +325,7 @@ const PrincipalDashboard = () => {
                       </TableHeader>
                       <TableBody>
                         {bottomSections.map(s => (
-                          <TableRow key={s.name}>
+                          <TableRow key={s.id}>
                             <TableCell className="text-xs font-medium">{s.name}</TableCell>
                             <TableCell className="text-[11px] text-muted-foreground">{s.department}</TableCell>
                             <TableCell className="text-xs text-center">{s.semester}</TableCell>
@@ -526,7 +539,7 @@ const PrincipalDashboard = () => {
                     </TableHeader>
                     <TableBody>
                       {facultyImpact.map(f => (
-                        <TableRow key={f.name}>
+                        <TableRow key={f.id}>
                           <TableCell className="text-xs font-medium">{f.name}</TableCell>
                           <TableCell className="text-[11px] text-muted-foreground">{f.sections.join(', ')}</TableCell>
                           <TableCell className="text-xs text-center">{f.avgStudentPI}%</TableCell>
@@ -556,7 +569,7 @@ const PrincipalDashboard = () => {
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={attendanceOverview.departmentWise} layout="vertical">
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis type="number" tick={{ fontSize: 10 }} domain={[60, 100]} />
+                          <XAxis type="number" tick={{ fontSize: 10 }} domain={[0, 100]} />
                           <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={120} />
                           <Tooltip contentStyle={{ fontSize: 11 }} />
                           <Bar dataKey="attendance" fill={GREEN} radius={[0, 4, 4, 0]} barSize={16} />
@@ -572,7 +585,7 @@ const PrincipalDashboard = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                       {attendanceOverview.lowAlerts.map((a, i) => (
                         <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: RED_LIGHT }}>
                           <div>
