@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "ai_assistant",
     "job",
     "assessment",
+    "gamification",
 ]
 
 MIDDLEWARE = [

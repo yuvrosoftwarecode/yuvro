@@ -41,7 +41,7 @@ export const useLeaderboard = () => {
   return useQuery({
     queryKey: ['student-leaderboard'],
     queryFn: async () => {
-      return await restApiAuthUtil.get<any[]>('/course/student-course-progress/leaderboard/');
+      return await restApiAuthUtil.get<any[]>('/gamification/leaderboard/');
     },
   });
 };
@@ -93,7 +93,7 @@ export const useCalendarActivity = () => {
     queryKey: ['student-calendar-activity', year, month],
     queryFn: async () => {
       const res = await restApiAuthUtil.get<{ active_dates: string[] }>(
-        `/course/student-course-progress/calendar_activity/?year=${year}&month=${month}`
+        `/gamification/calendar_activity/?year=${year}&month=${month}`
       );
       return res.active_dates || [];
     },
@@ -127,3 +127,46 @@ export const useDailyActivity = () => {
     },
   });
 };
+
+// 8. Fetch all badges with earned status
+export const useBadges = () => {
+  return useQuery({
+    queryKey: ['student-badges'],
+    queryFn: async () => {
+      return await restApiAuthUtil.get<any[]>('/gamification/all_badges/');
+    },
+  });
+};
+
+// 9. Fetch today's daily missions
+export const useDailyMissions = () => {
+  return useQuery({
+    queryKey: ['student-daily-missions'],
+    queryFn: async () => {
+      return await restApiAuthUtil.get<{
+        missions: DailyMission[];
+        completed_count: number;
+        total_count: number;
+      }>('/gamification/daily_missions/');
+    },
+    staleTime: 1000 * 60 * 5, // 5 min
+  });
+};
+
+export interface DailyMission {
+  id: number;
+  mission: {
+    key: string;
+    title: string;
+    description: string;
+    mission_type: string;
+    target: number;
+    xp_reward: number;
+    icon: string;
+  };
+  date: string;
+  progress: number;
+  progress_pct: number;
+  is_completed: boolean;
+  completed_at: string | null;
+}

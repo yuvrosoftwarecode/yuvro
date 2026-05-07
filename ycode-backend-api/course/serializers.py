@@ -12,7 +12,7 @@ from .models import (
     UserCourseProgress,
     StudentCodePractice,
 )
-from .gamification_models import UserGamificationProfile
+from gamification.models import UserGamificationProfile
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 

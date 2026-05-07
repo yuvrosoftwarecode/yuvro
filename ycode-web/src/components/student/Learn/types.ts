@@ -21,6 +21,10 @@ export interface Stats {
   max_streak?: number;
   xp?: number;
   level?: number;
+  tier_name?: string;
+  xp_progress_pct?: number;
+  xp_for_next_level?: number;
+  streak_freezes?: number;
 }
 
 export interface ContinueProgress {

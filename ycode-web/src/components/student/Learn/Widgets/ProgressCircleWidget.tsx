@@ -5,6 +5,7 @@ interface ProgressCircleWidgetProps {
   title?: string;
   totalSolved: number;
   totalQuestions: number;
+  progressPercent?: number; // direct percent from server (0-100)
   onNext?: () => void;
   onPrev?: () => void;
   canNext?: boolean;
@@ -15,13 +16,16 @@ const ProgressCircleWidget: React.FC<ProgressCircleWidgetProps> = ({
   title = "DSA Topics",
   totalSolved,
   totalQuestions,
+  progressPercent,
   onNext,
   onPrev,
   canNext = false,
   canPrev = false
 }) => {
   const circumference = 2 * Math.PI * 40;
-  const progress = totalQuestions > 0 ? (totalSolved / totalQuestions) * 100 : 0;
+  const progress = progressPercent != null
+    ? Math.min(progressPercent, 100)
+    : totalQuestions > 0 ? (totalSolved / totalQuestions) * 100 : 0;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
@@ -91,8 +95,8 @@ const ProgressCircleWidget: React.FC<ProgressCircleWidgetProps> = ({
 
           {/* Center Text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-extrabold text-gray-900 leading-none">{totalSolved}</span>
-            <span className="text-[10px] text-gray-400 mt-0.5">of {totalQuestions}</span>
+            <span className="text-2xl font-extrabold text-gray-900 leading-none">{Math.round(progress)}%</span>
+            <span className="text-[10px] text-gray-400 mt-0.5">{totalSolved} / {totalQuestions} topics</span>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import RoleSidebar from "../../components/common/RoleSidebar";
 import EdgeHoverSidebar from "../../components/common/EdgeHoverSidebar";
@@ -7,6 +7,7 @@ import StudentQuizEmbed from "./StudentQuizEmbed";
 import StudentCodingEmbed from "./StudentCodingEmbed";
 import StudentNotes from "./StudentNotes";
 import { toast } from "sonner";
+import { showGamificationToasts } from "@/utils/gamificationToast";
 import { ChevronRight, ChevronLeft, Layout, Video as VideoIcon } from "lucide-react";
 import CustomContentSidebar, { ContentItem } from "./CustomContentSidebar";
 import {
@@ -135,6 +136,8 @@ const CourseDetail: React.FC = () => {
             // This ensures persistence across refreshes without needing a history menu
             setChatSessionId(`subtopic-chat-${selectedSubtopic.id}`);
             checkRequirements(selectedSubtopic.id);
+            // Reload progress to set activeProgress for the newly selected subtopic
+            loadProgress(selectedSubtopic.id);
         }
     }, [selectedSubtopic?.id]);
 
@@ -247,7 +250,7 @@ const CourseDetail: React.FC = () => {
         }
     };
 
-    const loadProgress = async () => {
+    const loadProgress = async (activeSubtopicId?: string) => {
         if (!courseId || loadingProgressRef.current) return;
 
         const now = Date.now();
@@ -260,6 +263,9 @@ const CourseDetail: React.FC = () => {
         lastProgressFetchRef.current = now;
         console.log('loadProgress called for course:', courseId);
 
+        // Use the passed subtopicId to avoid stale closure over selectedSubtopic
+        const currentSubId = activeSubtopicId || selectedSubtopic?.id;
+
         try {
             const progressData = await fetchUserCourseProgress(courseId) as any;
 
@@ -270,7 +276,7 @@ const CourseDetail: React.FC = () => {
                 newProgressMap[subId] = data.progress_percent || 0;
                 newReadMap[subId] = data.is_completed || false;
 
-                if (selectedSubtopic && selectedSubtopic.id === subId) {
+                if (currentSubId && currentSubId === subId) {
                     setActiveProgress({
                         quiz: data.is_quiz_completed,
                         coding: data.is_coding_completed,
@@ -535,8 +541,8 @@ const CourseDetail: React.FC = () => {
                                         onClick={async () => {
                                             if (selectedSubtopic) {
                                                 try {
-                                                    await markSubtopicVideoWatched(selectedSubtopic.id);
-                                                    toast.success("Videos marked as watched");
+                                                    const res: any = await markSubtopicVideoWatched(selectedSubtopic.id);
+                                                    showGamificationToasts(res?.gamification);
                                                     loadProgress();
                                                 } catch (e) {
                                                     toast.error("Failed to mark video watched");

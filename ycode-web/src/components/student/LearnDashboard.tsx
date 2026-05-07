@@ -16,10 +16,10 @@ import {
   useCourses,
   useStudentStats,
   useLeaderboard,
+  useBadges,
   useContinueProgress,
   useProgressMap,
   useCalendarActivity,
-  useDailyActivity
 } from "@/hooks/useLearnDashboard";
 
 // Helper to match the pastel style from LearnCourseCard
@@ -46,12 +46,13 @@ const LearnDashboard: React.FC = () => {
   const { data: courses = [], isLoading: loadingCourses } = useCourses();
   const { data: stats = { lessons_completed: 0, time_spent: "0h", avg_progress: 0 }, isLoading: loadingStats } = useStudentStats();
   const { data: leaderboardData = [], isLoading: loadingLeaderboard } = useLeaderboard();
+  const { data: badges = [] } = useBadges();
   const { data: continueProgress, isLoading: loadingContinue } = useContinueProgress();
   const { data: progressMap = {}, isLoading: loadingMap } = useProgressMap();
   const { data: activeDates = [], isLoading: loadingDates } = useCalendarActivity();
-  const { data: dailyStats = { solvedToday: 0, timeSpentToday: "0m" }, isLoading: loadingDaily } = useDailyActivity();
 
-  const loading = loadingCourses || loadingStats || loadingLeaderboard || loadingContinue || loadingMap || loadingDates || loadingDaily;
+
+  const loading = loadingCourses || loadingStats || loadingLeaderboard || loadingContinue || loadingMap || loadingDates;
 
   const handleStartLearning = (courseId: string) => {
     navigate(`/student/learn/${courseId}`);
@@ -127,6 +128,11 @@ const LearnDashboard: React.FC = () => {
               hoursSpent={stats.time_spent || '0h'}
               avgProgress={stats.avg_progress || 0}
               certificates={(stats as any).certificates || 0}
+              tierName={(stats as any).tier_name}
+              level={(stats as any).level}
+              xp={(stats as any).xp || 0}
+              xpProgressPct={(stats as any).xp_progress_pct || 0}
+              xpForNextLevel={(stats as any).xp_for_next_level}
             />
 
             {/* Sub-header Search removed */}
@@ -219,9 +225,9 @@ const LearnDashboard: React.FC = () => {
             courses={courses}
             progressMap={progressMap}
             leaderboardData={leaderboardData}
+            badges={badges}
             activeDates={activeDates}
-            solvedToday={dailyStats.solvedToday}
-            timeSpentToday={dailyStats.timeSpentToday}
+
           />
         </div>
 
