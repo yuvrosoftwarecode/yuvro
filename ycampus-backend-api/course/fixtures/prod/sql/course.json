@@ -2,7 +2,7 @@
     "subjects": [
         {
             "short_code": "SQL100",
-            "subject_name": "Structured Query (SQL)",
+            "subject_name": "Structured Query Language(SQL)",
             "category": "fundamentals",
             "instructor_email": "admin@yuvro.com"
         }
