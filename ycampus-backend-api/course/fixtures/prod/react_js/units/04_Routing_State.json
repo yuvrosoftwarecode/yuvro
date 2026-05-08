@@ -1,0 +1,4531 @@
+{
+    "name": "Routing & State",
+    "subject_short_code": "RJS100",
+    "order_index": 4,
+    "subunits": [
+        {
+            "name": "React Router",
+            "content": "React Router is a powerful routing library for React that allows you to build single-page applications with navigation. It enables you to define multiple routes and render different components based on the URL, providing a seamless user experience.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Nested Routes",
+            "content": "Nested routes allow you to define routes within other routes, matching the nested structure of your UI. This is useful for layouts where a portion of the page stays constant while another portion changes based on the sub-route.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "Context API",
+            "content": "The Context API provides a way to pass data through the component tree without having to pass props down manually at every level. It is designed to share data that can be considered 'global' for a tree of React components.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Prop Drilling",
+            "content": "Prop drilling is a situation where data is passed from a parent component through several intermediate components just to reach a deeply nested child component. While simple, it can make code harder to maintain as the app grows.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Redux Toolkit",
+            "content": "Redux Toolkit is the official, opinionated, batteries-included toolset for efficient Redux development. It simplifies common Redux tasks like store setup, creating reducers, and writing immutable update logic.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Global State",
+            "content": "Global state refers to data that is shared across the entire application. Managing global state effectively is crucial for complex applications where multiple components need to stay in sync with the same data source.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Local Storage",
+            "content": "Web Storage API's localStorage allows you to save key-value pairs in a web browser with no expiration date. In React, it's often used to persist user preferences or authentication tokens across browser sessions.",
+            "order_index": 6,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "React Router Purpose",
+            "content": "What is React Router used for?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handling navigation between pages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Managing database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling components",
+                    "is_correct": false
+                },
+                {
+                    "text": "API creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Router Component",
+            "content": "Which component wraps React Router setup?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "BrowserRouter",
+                    "is_correct": true
+                },
+                {
+                    "text": "AppRouter",
+                    "is_correct": false
+                },
+                {
+                    "text": "RouteManager",
+                    "is_correct": false
+                },
+                {
+                    "text": "NavigationWrapper",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Route Definition",
+            "content": "Which component defines a route?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Linker",
+                    "is_correct": false
+                },
+                {
+                    "text": "Navigator",
+                    "is_correct": false
+                },
+                {
+                    "text": "SwitchBoard",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Link Component",
+            "content": "What does Link do in React Router?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Navigate without page reload",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reload page",
+                    "is_correct": false
+                },
+                {
+                    "text": "Fetch API",
+                    "is_correct": false
+                },
+                {
+                    "text": "Update database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dynamic Routing",
+            "content": "What is dynamic routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Routes with parameters",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static HTML pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend routing only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useParams Hook",
+            "content": "What does useParams provide?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Route parameters",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database connection",
+                    "is_correct": false
+                },
+                {
+                    "text": "API headers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Navigation Hook",
+            "content": "Which hook is used for navigation?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useNavigate",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "useRouterDOM",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Protected Routes",
+            "content": "What are protected routes used for?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Restrict access based on authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Style pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "Improve performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handle APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Routes",
+            "content": "What are nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Routes inside another route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database relations",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS nesting",
+                    "is_correct": false
+                },
+                {
+                    "text": "API nesting",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Route Matching",
+            "content": "How does route matching work?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Matches URL path with defined route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matches CSS classes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Matches database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Matches API headers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Router Features",
+            "content": "What features does React Router provide?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Navigation without reload",
+                    "is_correct": true
+                },
+                {
+                    "text": "URL management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Core Components",
+            "content": "Which are React Router components?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Link",
+                    "is_correct": true
+                },
+                {
+                    "text": "BrowserRouter",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQLRouter",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Navigation Types",
+            "content": "What types of navigation exist?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Client-side routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Router Hooks",
+            "content": "Which hooks are used in routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useNavigate",
+                    "is_correct": true
+                },
+                {
+                    "text": "useParams",
+                    "is_correct": true
+                },
+                {
+                    "text": "useLocation",
+                    "is_correct": true
+                },
+                {
+                    "text": "useSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dynamic Routing Benefits",
+            "content": "What are benefits of dynamic routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable route structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles parameters",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slows application",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Routing Setup",
+            "content": "What is required for React Router setup?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "BrowserRouter wrapper",
+                    "is_correct": true
+                },
+                {
+                    "text": "Route definitions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Link components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Navigation Control",
+            "content": "What controls navigation?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useNavigate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Link",
+                    "is_correct": true
+                },
+                {
+                    "text": "Navigate component",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL engine",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Routing Concepts",
+            "content": "What are advanced routing features?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loading routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Protected routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Route Protection",
+            "content": "What is used in protected routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication checks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Role-based access",
+                    "is_correct": true
+                },
+                {
+                    "text": "Redirect logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Optimization",
+            "content": "What improves routing performance?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "React Router",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Routes Meaning",
+            "content": "What are nested routes in React Router?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Routes inside another route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Routes without URLs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend routing only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS routing system",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Parent Route",
+            "content": "What is a parent route?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A route that contains child routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "A route without children",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database route",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS class",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Outlet Component",
+            "content": "What does Outlet do in nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Renders child routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages state",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Route Structure",
+            "content": "Where are nested routes defined?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside Route components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside backend APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Layout Routes",
+            "content": "What is a layout route?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A route that provides shared UI structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "A route without children",
+                    "is_correct": false
+                },
+                {
+                    "text": "A backend route",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Index Route",
+            "content": "What is an index route?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Default child route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database index",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS index file",
+                    "is_correct": false
+                },
+                {
+                    "text": "API index route",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Routing Benefit",
+            "content": "Why use nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To share layouts across pages",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase CSS complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove navigation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Outlet Requirement",
+            "content": "What happens if Outlet is not used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Child routes won't render",
+                    "is_correct": true
+                },
+                {
+                    "text": "App breaks completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database fails",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS stops working",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Route Complexity",
+            "content": "What is a challenge of nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Managing deeply nested structures",
+                    "is_correct": true
+                },
+                {
+                    "text": "Writing HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Route Hierarchy",
+            "content": "What does route hierarchy define?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Parent-child relationship between routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "API structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Nested Route Features",
+            "content": "What are features of nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Parent-child routing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Shared layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Router Components",
+            "content": "Which are used in nested routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Route",
+                    "is_correct": true
+                },
+                {
+                    "text": "Outlet",
+                    "is_correct": true
+                },
+                {
+                    "text": "BrowserRouter",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQLRouter",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Layout Usage",
+            "content": "What do layout routes provide?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Shared UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Header/Footer reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Route Types",
+            "content": "Which are types of nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Parent routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Index routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Routing Structure",
+            "content": "What defines nested routing structure?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hierarchy of routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parent-child mapping",
+                    "is_correct": true
+                },
+                {
+                    "text": "Layout sharing",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Outlet Behavior",
+            "content": "What does Outlet handle?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Renders child routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maintains layout structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles nested UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Manages database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where are nested routes used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dashboards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Admin panels",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multi-page layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Nested Routing",
+            "content": "What are advanced nested routing concepts?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loading nested routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Protected nested routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deep nesting optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static HTML pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Issues",
+            "content": "What are common issues in nested routing?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing Outlet",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incorrect path nesting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex hierarchy",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS issues only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for nested routes?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Nested Routes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep hierarchy shallow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use layout routes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reuse components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid Outlet usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context API Purpose",
+            "content": "What is the main purpose of Context API in React?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To manage global state",
+                    "is_correct": true
+                },
+                {
+                    "text": "To handle SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create backend APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context Provider",
+            "content": "What does a Provider do in Context API?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Supplies data to components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styles UI components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useContext Hook",
+            "content": "What is useContext used for?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Access context data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Create routes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Fetch APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handle forms",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context Creation",
+            "content": "Which function creates a context?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "createContext",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "createStore",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Prop Drilling Problem",
+            "content": "What problem does Context API solve?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prop drilling",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS conflicts",
+                    "is_correct": false
+                },
+                {
+                    "text": "API latency",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing errors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context Value",
+            "content": "What is passed in Context Provider?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Value object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Consumer Access",
+            "content": "How do components consume context?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useContext hook",
+                    "is_correct": true
+                },
+                {
+                    "text": "useRouter hook",
+                    "is_correct": false
+                },
+                {
+                    "text": "useSQL hook",
+                    "is_correct": false
+                },
+                {
+                    "text": "useForm hook",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context Performance",
+            "content": "What is a drawback of Context API?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better performance always",
+                    "is_correct": false
+                },
+                {
+                    "text": "No state sharing",
+                    "is_correct": false
+                },
+                {
+                    "text": "No component updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context Structure",
+            "content": "What is Context composed of?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Provider and Consumer",
+                    "is_correct": true
+                },
+                {
+                    "text": "Model and View",
+                    "is_correct": false
+                },
+                {
+                    "text": "Route and Link",
+                    "is_correct": false
+                },
+                {
+                    "text": "State and SQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Use Case",
+            "content": "When should Context API be used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Global state like theme or auth",
+                    "is_correct": true
+                },
+                {
+                    "text": "Small local state only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database operations",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Context API Features",
+            "content": "What does Context API provide?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Global state management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid prop drilling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data sharing across components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Context API Components",
+            "content": "Which are part of Context API?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Provider",
+                    "is_correct": true
+                },
+                {
+                    "text": "Consumer",
+                    "is_correct": true
+                },
+                {
+                    "text": "Context Object",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL Engine",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useContext Usage",
+            "content": "What can useContext access?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Theme data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Auth data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Global settings",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Context Creation",
+            "content": "What is required to create context?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "createContext()",
+                    "is_correct": true
+                },
+                {
+                    "text": "Provider wrapper",
+                    "is_correct": true
+                },
+                {
+                    "text": "Value object",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Prop Drilling Solutions",
+            "content": "What solves prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Context Behavior",
+            "content": "What happens when context updates?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Consumers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State propagates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is Context API used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Theme switching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Language settings",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What are Context API performance concerns?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Frequent re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large context updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deep tree updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Techniques",
+            "content": "How can Context be optimized?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Split contexts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selective updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline duplication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Usage",
+            "content": "What are advanced Context API uses?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Context API",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Auth management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Theme systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multi-context architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct SQL handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Prop Drilling Meaning",
+            "content": "What is prop drilling in React?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing props through multiple components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct database access",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating routes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Main Issue",
+            "content": "What is the main problem with prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary passing of props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Better performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Improved routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Flow",
+            "content": "How is data passed in prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Parent to child components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child to database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend to frontend only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Random flow",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Levels",
+            "content": "Prop drilling usually happens in?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Deep component trees",
+                    "is_correct": true
+                },
+                {
+                    "text": "Single component apps",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend systems",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Avoid Prop Drilling",
+            "content": "What helps avoid prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Management Issue",
+            "content": "Why is prop drilling inefficient?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props passed through unnecessary components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reduces code size",
+                    "is_correct": false
+                },
+                {
+                    "text": "Simplifies routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Re-render Issue",
+            "content": "What can excessive prop drilling cause?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Better routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Issue",
+            "content": "Why is prop drilling bad for large apps?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Makes code harder to maintain",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves scalability",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reduces complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "Optimizes database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Alternative Solution",
+            "content": "What is a better alternative to prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Context API or Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Deep Tree Problem",
+            "content": "What happens in deeply nested prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex and hard to debug code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Better performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Simplified logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Prop Drilling Characteristics",
+            "content": "What are characteristics of prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing props through multiple levels",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data flow from parent to child",
+                    "is_correct": true
+                },
+                {
+                    "text": "Occurs in deep component trees",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database communication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Where It Happens",
+            "content": "Where does prop drilling occur?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Nested components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large component trees",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parent-child hierarchy",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database layer",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Problems",
+            "content": "What problems does prop drilling cause?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hard maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unnecessary passing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improved performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Flow",
+            "content": "How does data flow in prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Top to bottom",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parent to child",
+                    "is_correct": true
+                },
+                {
+                    "text": "Through props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random flow",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Avoiding Prop Drilling",
+            "content": "What can reduce prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Impact",
+            "content": "What performance issues arise?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increased complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hard debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster UI always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Better Approaches",
+            "content": "What are better alternatives?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Redux Toolkit",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management libraries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM manipulation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Large App Issues",
+            "content": "What happens in large apps with prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hard to maintain code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scattered data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Debugging becomes difficult",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improved scalability",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Refactoring Solutions",
+            "content": "How can prop drilling be refactored?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Introduce Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lift state properly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increase nesting",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Architecture Impact",
+            "content": "What is impacted by prop drilling?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Prop Drilling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component design",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Redux Toolkit Purpose",
+            "content": "What is Redux Toolkit used for?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Simplify Redux state management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handle CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create HTML pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manage databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Store Meaning",
+            "content": "What is a Redux store?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Central state container",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS manager",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database table",
+                    "is_correct": false
+                },
+                {
+                    "text": "API server",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Slice Concept",
+            "content": "What is a slice in Redux Toolkit?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A part of Redux state + reducers",
+                    "is_correct": true
+                },
+                {
+                    "text": "A database slice",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "A route handler",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "configureStore",
+            "content": "What does configureStore do?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Creates Redux store easily",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates database connection",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reducer Function",
+            "content": "What does a reducer do?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Updates state based on actions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles UI rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Action Purpose",
+            "content": "What is an action in Redux?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Describes what happened",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updates database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styles components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useSelector Hook",
+            "content": "What does useSelector do?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reads state from store",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates store",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Middleware Concept",
+            "content": "What is middleware in Redux?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Intercepts actions before reducer",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS enhancer",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database layer",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML processor",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Immer Usage",
+            "content": "Why does Redux Toolkit use Immer?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To handle immutable state easily",
+                    "is_correct": true
+                },
+                {
+                    "text": "To manage routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To connect database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "RTK Advantage",
+            "content": "What is a major advantage of Redux Toolkit?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduces boilerplate code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increases complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "Removes state management",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only for CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Redux Toolkit Features",
+            "content": "What does Redux Toolkit provide?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Simplified store setup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Auto reducer creation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less boilerplate code",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS management",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Core Concepts",
+            "content": "Which are Redux Toolkit core concepts?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Store",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slice",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducer",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML DOM",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Redux Usage",
+            "content": "Where is Redux Toolkit used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Global state management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex UI state",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Redux Hooks",
+            "content": "Which hooks are used in Redux?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useSelector",
+                    "is_correct": true
+                },
+                {
+                    "text": "useDispatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "useStore",
+                    "is_correct": true
+                },
+                {
+                    "text": "useRouter",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Redux Flow",
+            "content": "What is part of Redux data flow?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Action dispatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducer updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Slice Features",
+            "content": "What does a slice include?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Actions",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML templates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Toolkit Benefits",
+            "content": "What are Redux Toolkit benefits?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Less boilerplate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Built-in best practices",
+                    "is_correct": true
+                },
+                {
+                    "text": "Easy setup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Redux Toolkit",
+            "content": "What advanced features does RTK include?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "createAsyncThunk",
+                    "is_correct": true
+                },
+                {
+                    "text": "RTK Query",
+                    "is_correct": true
+                },
+                {
+                    "text": "Middleware support",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS engine",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Handling",
+            "content": "How does RTK handle async logic?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "createAsyncThunk",
+                    "is_correct": true
+                },
+                {
+                    "text": "Middleware integration",
+                    "is_correct": true
+                },
+                {
+                    "text": "RTK Query",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Redux Architecture",
+            "content": "What is part of Redux architecture?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Redux Toolkit",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unidirectional data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Centralized store",
+                    "is_correct": true
+                },
+                {
+                    "text": "Immutable state updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random state mutation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Global State Meaning",
+            "content": "What is global state in React?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State shared across multiple components",
+                    "is_correct": true
+                },
+                {
+                    "text": "State inside one function only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS state",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend database state",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Local vs Global",
+            "content": "Which best describes global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Accessible across components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only inside one component",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend use",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CSS usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Use Case",
+            "content": "Which is a use case of global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "User authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Button styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Sharing",
+            "content": "How is global state accessed?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Across multiple components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only inside one file",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Management Tools",
+            "content": "Which tool manages global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML DOM",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Context vs Redux",
+            "content": "Which is better for large-scale global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Redux Toolkit",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Local storage only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Problem",
+            "content": "What problem does global state solve?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prop drilling",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS conflicts",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image loading",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Architecture",
+            "content": "What is a challenge of global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex state management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better performance always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Simple UI design",
+                    "is_correct": false
+                },
+                {
+                    "text": "No updates needed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalability Issue",
+            "content": "Why is global state tricky in large apps?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hard to track updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves debugging",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reduces complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "Removes state issues",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Practice",
+            "content": "What is a best practice for global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use only necessary global state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Put everything in global state",
+                    "is_correct": false
+                },
+                {
+                    "text": "Avoid state management",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use only CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Global State Features",
+            "content": "What are features of global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Shared across components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Centralized data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Single source of truth",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only local usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is global state used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Theme management",
+                    "is_correct": true
+                },
+                {
+                    "text": "User preferences",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tools",
+            "content": "Which tools manage global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Redux",
+                    "is_correct": true
+                },
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Zustand",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Sharing",
+            "content": "How is global state shared?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Across components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via store",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via context",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Problems",
+            "content": "What problems does global state solve?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prop drilling",
+                    "is_correct": true
+                },
+                {
+                    "text": "State inconsistency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data duplication",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS issues",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Architecture",
+            "content": "What defines global state architecture?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Central store",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management layer",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unidirectional flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Minimal global state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalize state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use slices/modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store everything globally",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Scaling Issues",
+            "content": "What issues occur in large-scale global state?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hard debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "State coupling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster updates always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization",
+            "content": "How can global state be optimized?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State normalization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selective updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Everything global",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Design Principles",
+            "content": "What are global state design principles?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Global State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Single source of truth",
+                    "is_correct": true
+                },
+                {
+                    "text": "Predictable updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Immutable state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random mutation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Local Storage Purpose",
+            "content": "What is local storage used for?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Store data in browser permanently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store data in server only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handle CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manage routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Persistence",
+            "content": "Does local storage persist after refresh?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yes, it persists",
+                    "is_correct": true
+                },
+                {
+                    "text": "No, it clears immediately",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in backend",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in memory",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Storage Type",
+            "content": "What type of storage is local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Key-value storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Relational database",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS storage",
+                    "is_correct": false
+                },
+                {
+                    "text": "API storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Browser Feature",
+            "content": "Where is local storage available?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Browser",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Storage Limit",
+            "content": "What is the approximate limit of local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "5-10 MB",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unlimited",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 GB",
+                    "is_correct": false
+                },
+                {
+                    "text": "100 GB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Format",
+            "content": "What format is stored in local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "String only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Objects directly",
+                    "is_correct": false
+                },
+                {
+                    "text": "Images",
+                    "is_correct": false
+                },
+                {
+                    "text": "Binary files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Common Methods",
+            "content": "Which method stores data in local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "setItem()",
+                    "is_correct": true
+                },
+                {
+                    "text": "getState()",
+                    "is_correct": false
+                },
+                {
+                    "text": "saveData()",
+                    "is_correct": false
+                },
+                {
+                    "text": "storeData()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security Concern",
+            "content": "What is a limitation of local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Not secure for sensitive data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically encrypted",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server protected",
+                    "is_correct": false
+                },
+                {
+                    "text": "Unlimited storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Retrieval",
+            "content": "Which method retrieves data from local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "getItem()",
+                    "is_correct": true
+                },
+                {
+                    "text": "fetchItem()",
+                    "is_correct": false
+                },
+                {
+                    "text": "readItem()",
+                    "is_correct": false
+                },
+                {
+                    "text": "loadItem()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Storage Behavior",
+            "content": "When is local storage cleared?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only when manually cleared",
+                    "is_correct": true
+                },
+                {
+                    "text": "On every refresh",
+                    "is_correct": false
+                },
+                {
+                    "text": "On server restart",
+                    "is_correct": false
+                },
+                {
+                    "text": "Automatically every hour",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Local Storage Features",
+            "content": "What are features of local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Persistent storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Browser-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Key-value format",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is local storage used?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Saving theme preference",
+                    "is_correct": true
+                },
+                {
+                    "text": "Storing login tokens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Saving cart data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Limitations",
+            "content": "What are limitations of local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Limited storage size",
+                    "is_correct": true
+                },
+                {
+                    "text": "No automatic expiry",
+                    "is_correct": true
+                },
+                {
+                    "text": "String-only storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unlimited space",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Browser Storage Types",
+            "content": "Which are browser storage types?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Local Storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Session Storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cookies",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL Storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Methods",
+            "content": "Which methods belong to local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "setItem()",
+                    "is_correct": true
+                },
+                {
+                    "text": "getItem()",
+                    "is_correct": true
+                },
+                {
+                    "text": "removeItem()",
+                    "is_correct": true
+                },
+                {
+                    "text": "deleteRow()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Data Handling",
+            "content": "What must be done before storing objects?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Convert to JSON string",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use JSON.stringify",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parse on retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store directly as object",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Usage Scenarios",
+            "content": "When is local storage useful?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Remembering user preferences",
+                    "is_correct": true
+                },
+                {
+                    "text": "Storing UI state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Saving small offline data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Security Concerns",
+            "content": "What are security concerns with local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Accessible via JavaScript",
+                    "is_correct": true
+                },
+                {
+                    "text": "Vulnerable to XSS attacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Not encrypted by default",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fully server-secured",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for local storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoid sensitive data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use JSON encoding",
+                    "is_correct": true
+                },
+                {
+                    "text": "Clear unused data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store passwords directly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Comparison",
+            "content": "How does local storage differ from session storage?",
+            "level": "subunit",
+            "unit_name": "Routing & State",
+            "subunit_name": "Local Storage",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Local storage persists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Session storage is temporary",
+                    "is_correct": true
+                },
+                {
+                    "text": "Local storage is shared across tabs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Session storage is permanent",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}
