@@ -1,0 +1,2701 @@
+{
+  "name": "CSS Grid",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 16,
+  "sub_units": [
+    {
+      "name": "Grid Basics",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Grid Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Basics+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Grid Basics in HTML/CSS."
+        },
+        {
+          "title": "Advanced Grid Basics Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Basics+html+css",
+          "ai_context": "In-depth explanation and practical examples for Grid Basics."
+        }
+      ]
+    },
+    {
+      "name": "Grid Areas",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Grid Areas",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Areas+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Grid Areas in HTML/CSS."
+        },
+        {
+          "title": "Advanced Grid Areas Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Areas+html+css",
+          "ai_context": "In-depth explanation and practical examples for Grid Areas."
+        }
+      ]
+    },
+    {
+      "name": "Grid Alignment",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Grid Alignment",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Alignment+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Grid Alignment in HTML/CSS."
+        },
+        {
+          "title": "Advanced Grid Alignment Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Grid+Alignment+html+css",
+          "ai_context": "In-depth explanation and practical examples for Grid Alignment."
+        }
+      ]
+    },
+    {
+      "name": "Advanced Grid",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Advanced Grid",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Grid+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Grid in HTML/CSS."
+        },
+        {
+          "title": "Advanced Advanced Grid Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Grid+html+css",
+          "ai_context": "In-depth explanation and practical examples for Advanced Grid."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Grid Container",
+      "content": "Which CSS property makes an element a grid container?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: grid",
+          "is_correct": true
+        },
+        {
+          "text": "position: grid",
+          "is_correct": false
+        },
+        {
+          "text": "grid: container",
+          "is_correct": false
+        },
+        {
+          "text": "display: flex",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Columns",
+      "content": "What does grid-template-columns define?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Number and size of columns",
+          "is_correct": true
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Background color",
+          "is_correct": false
+        },
+        {
+          "text": "Border style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Rows",
+      "content": "Which property defines the size of rows in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-rows",
+          "is_correct": true
+        },
+        {
+          "text": "grid-row-size",
+          "is_correct": false
+        },
+        {
+          "text": "row-template",
+          "is_correct": false
+        },
+        {
+          "text": "display-row",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Layout Purpose",
+      "content": "What is CSS Grid mainly used for?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating two-dimensional layouts",
+          "is_correct": true
+        },
+        {
+          "text": "Only text formatting",
+          "is_correct": false
+        },
+        {
+          "text": "Only animations",
+          "is_correct": false
+        },
+        {
+          "text": "Hiding elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Tracks",
+      "content": "In CSS Grid, what are columns and rows collectively called?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid tracks",
+          "is_correct": true
+        },
+        {
+          "text": "Grid borders",
+          "is_correct": false
+        },
+        {
+          "text": "Grid gaps",
+          "is_correct": false
+        },
+        {
+          "text": "Grid blocks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Column Sizing",
+      "content": "What does grid-template-columns: 1fr 1fr mean?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Two equal-width columns",
+          "is_correct": true
+        },
+        {
+          "text": "One fixed-width column",
+          "is_correct": false
+        },
+        {
+          "text": "Two hidden columns",
+          "is_correct": false
+        },
+        {
+          "text": "Two rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Row Creation",
+      "content": "What happens if grid-template-rows is not specified?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows are created automatically based on content",
+          "is_correct": true
+        },
+        {
+          "text": "Rows disappear",
+          "is_correct": false
+        },
+        {
+          "text": "Grid stops working",
+          "is_correct": false
+        },
+        {
+          "text": "Columns become rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "FR Unit",
+      "content": "What does the fr unit represent in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fraction of available space",
+          "is_correct": true
+        },
+        {
+          "text": "Fixed row size",
+          "is_correct": false
+        },
+        {
+          "text": "Font ratio",
+          "is_correct": false
+        },
+        {
+          "text": "Frame spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid vs Flexbox",
+      "content": "What is a major advantage of CSS Grid over Flexbox?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid handles rows and columns together in two dimensions",
+          "is_correct": true
+        },
+        {
+          "text": "Grid only works vertically",
+          "is_correct": false
+        },
+        {
+          "text": "Grid removes need for HTML",
+          "is_correct": false
+        },
+        {
+          "text": "Grid cannot create layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Implicit Grid",
+      "content": "What happens when grid items exceed defined columns or rows?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Implicit rows or columns are automatically created",
+          "is_correct": true
+        },
+        {
+          "text": "Extra items are deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Grid stops rendering",
+          "is_correct": false
+        },
+        {
+          "text": "Items overlap permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Template Combination",
+      "content": "What is the purpose of using both grid-template-columns and grid-template-rows together?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To define a complete two-dimensional grid layout",
+          "is_correct": true
+        },
+        {
+          "text": "To change font sizes",
+          "is_correct": false
+        },
+        {
+          "text": "To create animations only",
+          "is_correct": false
+        },
+        {
+          "text": "To hide grid items",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Template Areas Purpose",
+      "content": "What does grid-template-areas help with in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating named layout sections",
+          "is_correct": true
+        },
+        {
+          "text": "Changing font colors",
+          "is_correct": false
+        },
+        {
+          "text": "Adding animations",
+          "is_correct": false
+        },
+        {
+          "text": "Hiding elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Area Naming",
+      "content": "How are areas identified in grid-template-areas?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using custom names inside quotes",
+          "is_correct": true
+        },
+        {
+          "text": "Using RGB values",
+          "is_correct": false
+        },
+        {
+          "text": "Using px units",
+          "is_correct": false
+        },
+        {
+          "text": "Using HTML comments",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Area Assignment",
+      "content": "Which property assigns an item to a named grid area?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-area",
+          "is_correct": true
+        },
+        {
+          "text": "grid-item",
+          "is_correct": false
+        },
+        {
+          "text": "grid-template",
+          "is_correct": false
+        },
+        {
+          "text": "area-layout",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Layout Readability",
+      "content": "Why are grid-template-areas useful?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They make layouts easier to read and manage",
+          "is_correct": true
+        },
+        {
+          "text": "They replace HTML completely",
+          "is_correct": false
+        },
+        {
+          "text": "They remove CSS styles",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Layout Design",
+      "content": "What type of layouts are grid-template-areas commonly used for?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Page layouts like headers, sidebars, and footers",
+          "is_correct": true
+        },
+        {
+          "text": "Only text formatting",
+          "is_correct": false
+        },
+        {
+          "text": "Only image editing",
+          "is_correct": false
+        },
+        {
+          "text": "Database layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Empty Grid Cell",
+      "content": "How can an empty space be represented in grid-template-areas?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using a dot (.)",
+          "is_correct": true
+        },
+        {
+          "text": "Using a comma (,)",
+          "is_correct": false
+        },
+        {
+          "text": "Using a dash (-)",
+          "is_correct": false
+        },
+        {
+          "text": "Using an asterisk (*)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Area Matching",
+      "content": "What happens if a grid-area name does not exist in grid-template-areas?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The item will not be placed into the intended named area",
+          "is_correct": true
+        },
+        {
+          "text": "The grid stops working",
+          "is_correct": false
+        },
+        {
+          "text": "All items disappear",
+          "is_correct": false
+        },
+        {
+          "text": "The browser crashes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Layouts",
+      "content": "Why are grid-template-areas helpful in responsive design?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Layouts can be rearranged easily with media queries",
+          "is_correct": true
+        },
+        {
+          "text": "They remove need for CSS",
+          "is_correct": false
+        },
+        {
+          "text": "They work only on mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent resizing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Area Structure",
+      "content": "What is important when defining grid-template-areas?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Each row must contain the same number of columns",
+          "is_correct": true
+        },
+        {
+          "text": "Area names must use numbers only",
+          "is_correct": false
+        },
+        {
+          "text": "Rows can have random column counts",
+          "is_correct": false
+        },
+        {
+          "text": "Only one area can exist",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Areas Advantage",
+      "content": "What is a major benefit of named grid areas compared to manual positioning?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Layouts become more semantic and maintainable",
+          "is_correct": true
+        },
+        {
+          "text": "They reduce HTML size automatically",
+          "is_correct": false
+        },
+        {
+          "text": "They disable responsiveness",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with fixed layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Justify Items Purpose",
+      "content": "What does justify-items control in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Horizontal alignment of grid items inside their cells",
+          "is_correct": true
+        },
+        {
+          "text": "Vertical alignment of text only",
+          "is_correct": false
+        },
+        {
+          "text": "Grid column size",
+          "is_correct": false
+        },
+        {
+          "text": "Spacing between rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Align Items Function",
+      "content": "What does align-items do in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aligns grid items vertically inside their cells",
+          "is_correct": true
+        },
+        {
+          "text": "Changes font alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Adjusts grid gaps",
+          "is_correct": false
+        },
+        {
+          "text": "Creates new rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Place Items Shortcut",
+      "content": "What is place-items in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A shorthand for align-items and justify-items",
+          "is_correct": true
+        },
+        {
+          "text": "A property for adding rows",
+          "is_correct": false
+        },
+        {
+          "text": "A shorthand for margin and padding",
+          "is_correct": false
+        },
+        {
+          "text": "A display property",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Centering Items",
+      "content": "Which value is commonly used to center grid items?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "center",
+          "is_correct": true
+        },
+        {
+          "text": "auto",
+          "is_correct": false
+        },
+        {
+          "text": "hidden",
+          "is_correct": false
+        },
+        {
+          "text": "inherit-all",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Cell Alignment",
+      "content": "Grid alignment properties affect alignment relative to what?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The individual grid cell",
+          "is_correct": true
+        },
+        {
+          "text": "The browser window only",
+          "is_correct": false
+        },
+        {
+          "text": "The HTML document",
+          "is_correct": false
+        },
+        {
+          "text": "The font size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Justify vs Align",
+      "content": "What is the difference between justify-items and align-items?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items aligns horizontally, align-items aligns vertically",
+          "is_correct": true
+        },
+        {
+          "text": "Both work only vertically",
+          "is_correct": false
+        },
+        {
+          "text": "Both work only horizontally",
+          "is_correct": false
+        },
+        {
+          "text": "There is no difference",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stretch Default",
+      "content": "What is the default value of align-items in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "stretch",
+          "is_correct": true
+        },
+        {
+          "text": "center",
+          "is_correct": false
+        },
+        {
+          "text": "start",
+          "is_correct": false
+        },
+        {
+          "text": "end",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Place Items Usage",
+      "content": "What does place-items: center do?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Centers items both horizontally and vertically",
+          "is_correct": true
+        },
+        {
+          "text": "Centers text only",
+          "is_correct": false
+        },
+        {
+          "text": "Adds space between items",
+          "is_correct": false
+        },
+        {
+          "text": "Creates new grid rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Alignment Scope",
+      "content": "How do grid alignment properties behave when applied to the grid container?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They affect all grid items inside the container",
+          "is_correct": true
+        },
+        {
+          "text": "They affect only the first item",
+          "is_correct": false
+        },
+        {
+          "text": "They only style text",
+          "is_correct": false
+        },
+        {
+          "text": "They disable grid layout",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grid Alignment Advantage",
+      "content": "Why is place-items considered useful in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It simplifies writing alignment rules with a single property",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces grid-template-columns",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for rows",
+          "is_correct": false
+        },
+        {
+          "text": "It only works for text elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Auto-fit Purpose",
+      "content": "What is auto-fit used for in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automatically fitting columns into available space",
+          "is_correct": true
+        },
+        {
+          "text": "Changing text size",
+          "is_correct": false
+        },
+        {
+          "text": "Hiding grid items",
+          "is_correct": false
+        },
+        {
+          "text": "Creating animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Auto-fill Purpose",
+      "content": "What does auto-fill do in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creates as many columns as possible within the container",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes empty columns",
+          "is_correct": false
+        },
+        {
+          "text": "Adds margins automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Aligns text center",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Grid Meaning",
+      "content": "What is a responsive grid layout?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A layout that adapts to different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "A fixed-width layout",
+          "is_correct": false
+        },
+        {
+          "text": "A layout without rows",
+          "is_correct": false
+        },
+        {
+          "text": "A layout only for mobile devices",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Repeat Function",
+      "content": "Which CSS function is commonly used with auto-fit and auto-fill?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "repeat()",
+          "is_correct": true
+        },
+        {
+          "text": "align()",
+          "is_correct": false
+        },
+        {
+          "text": "grid()",
+          "is_correct": false
+        },
+        {
+          "text": "size()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Minmax Usage",
+      "content": "What is minmax() commonly used for in responsive grids?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Setting minimum and maximum sizes for grid tracks",
+          "is_correct": true
+        },
+        {
+          "text": "Adding margins",
+          "is_correct": false
+        },
+        {
+          "text": "Changing text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Hiding columns",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Auto-fit vs Auto-fill",
+      "content": "What is a key difference between auto-fit and auto-fill?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit collapses empty tracks, auto-fill keeps them",
+          "is_correct": true
+        },
+        {
+          "text": "Both behave exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "auto-fill removes columns",
+          "is_correct": false
+        },
+        {
+          "text": "auto-fit only works vertically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Grid Benefit",
+      "content": "Why are responsive grids useful in web design?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They improve layouts across different devices and screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "They disable resizing",
+          "is_correct": false
+        },
+        {
+          "text": "They remove CSS styling",
+          "is_correct": false
+        },
+        {
+          "text": "They only work on desktops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Auto-fit Grid Behavior",
+      "content": "What happens when extra space is available with auto-fit?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Existing columns expand to fill available space",
+          "is_correct": true
+        },
+        {
+          "text": "Columns disappear",
+          "is_correct": false
+        },
+        {
+          "text": "Rows are deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Grid stops working",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Grid Combination",
+      "content": "Which combination is commonly used for responsive grids?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "repeat(auto-fit, minmax())",
+          "is_correct": true
+        },
+        {
+          "text": "display:block",
+          "is_correct": false
+        },
+        {
+          "text": "position:absolute",
+          "is_correct": false
+        },
+        {
+          "text": "overflow:hidden",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Grid Advantage",
+      "content": "What is the biggest advantage of using auto-fit and auto-fill in CSS Grid?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They create flexible layouts without manually defining column counts",
+          "is_correct": true
+        },
+        {
+          "text": "They replace HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent responsiveness",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Grid Basics",
+      "content": "Which of the following statements about CSS Grid are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: grid enables grid layout",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns defines column structure",
+          "is_correct": true
+        },
+        {
+          "text": "display: grid hides elements",
+          "is_correct": false
+        },
+        {
+          "text": "grid-template-rows defines row sizes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Container Basics",
+      "content": "Which of the following statements about grid containers are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: grid converts an element into a grid container",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns controls number and size of columns",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows controls font size",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid organizes items into rows and columns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Layout Introduction",
+      "content": "Which of the following statements about grid layout are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-columns defines horizontal tracks",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows defines vertical tracks",
+          "is_correct": true
+        },
+        {
+          "text": "display: grid removes child elements",
+          "is_correct": false
+        },
+        {
+          "text": "Grid layout supports two-dimensional layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Rows and Columns",
+      "content": "Which of the following statements about grid rows and columns are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-columns can define multiple columns",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows can define multiple rows",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "Grid layout uses rows and columns together",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Basics Understanding",
+      "content": "Which of the following statements about CSS Grid basics are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display: grid creates a grid formatting context",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns controls column sizes",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows controls image visibility",
+          "is_correct": false
+        },
+        {
+          "text": "Grid layout is useful for page layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Template Behavior",
+      "content": "Which of the following statements about grid-template properties are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-columns defines width of columns",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows defines height of rows",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns only supports one column",
+          "is_correct": false
+        },
+        {
+          "text": "Grid tracks can have different sizes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Layout Behavior",
+      "content": "Which of the following statements about grid layout behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS Grid supports two-dimensional layouts",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns defines horizontal layout structure",
+          "is_correct": true
+        },
+        {
+          "text": "display: grid works only for tables",
+          "is_correct": false
+        },
+        {
+          "text": "grid-template-rows defines vertical structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Sizing Concepts",
+      "content": "Which of the following statements about grid sizing are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Columns and rows can have custom sizes",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns accepts multiple values",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows controls stacking order",
+          "is_correct": false
+        },
+        {
+          "text": "Grid layout helps create structured page designs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Concepts",
+      "content": "Which of the following statements about advanced CSS Grid concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid layout handles rows and columns simultaneously",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns defines explicit grid tracks",
+          "is_correct": true
+        },
+        {
+          "text": "display: grid disables responsive layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Grid layout simplifies complex layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Track Management",
+      "content": "Which of the following statements about advanced grid track management are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-rows and columns define explicit grid structure",
+          "is_correct": true
+        },
+        {
+          "text": "Grid layouts support flexible sizing systems",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns affects only text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "display: grid enables advanced layout capabilities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Layout Deep Dive",
+      "content": "Which of the following statements about CSS Grid deep concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid layout provides two-dimensional control",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-columns can create responsive column layouts",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-rows changes z-index behavior",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid is suitable for complex application layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Areas Basics",
+      "content": "Which of the following statements about grid-template-areas are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-areas helps define page layouts visually",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas allow naming sections of a layout",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Grid areas improve layout readability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Area Layout Basics",
+      "content": "Which of the following statements about CSS Grid areas are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-areas creates named layout regions",
+          "is_correct": true
+        },
+        {
+          "text": "Named grid areas simplify layout management",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas hides elements",
+          "is_correct": false
+        },
+        {
+          "text": "Grid areas are useful for webpage structures",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Layout Design Basics",
+      "content": "Which of the following statements about layout design using grid areas are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid areas can represent headers and sidebars",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas provides visual layout structure",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas affect only text formatting",
+          "is_correct": false
+        },
+        {
+          "text": "Named areas improve maintainability of layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Areas Understanding",
+      "content": "Which of the following statements about grid area usage are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid areas can span multiple rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas helps organize layouts clearly",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas automatically create animations",
+          "is_correct": false
+        },
+        {
+          "text": "Layout sections can be assigned names",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Grid Areas Introduction",
+      "content": "Which of the following statements about CSS Grid area concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-areas improves layout readability",
+          "is_correct": true
+        },
+        {
+          "text": "Named areas make complex layouts easier to manage",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas changes element colors",
+          "is_correct": false
+        },
+        {
+          "text": "Grid areas are useful in dashboard layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Area Layout Behavior",
+      "content": "Which of the following statements about grid area layout behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Named areas help separate layout sections logically",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas provides a visual representation of layout",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas only work for single-column layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Grid area names are referenced using grid-area property",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Template Area Concepts",
+      "content": "Which of the following statements about grid-template-areas concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid templates simplify responsive layout design",
+          "is_correct": true
+        },
+        {
+          "text": "Area names can repeat to create larger regions",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas changes stacking order",
+          "is_correct": false
+        },
+        {
+          "text": "Grid areas improve code maintainability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Layout Design Concepts",
+      "content": "Which of the following statements about layout design using grid areas are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid areas can define headers, footers, and sidebars",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas supports structured page layouts",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas are unrelated to layout positioning",
+          "is_correct": false
+        },
+        {
+          "text": "Named areas simplify rearranging layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Area Concepts",
+      "content": "Which of the following statements about advanced grid area concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "grid-template-areas enables semantic layout visualization",
+          "is_correct": true
+        },
+        {
+          "text": "Repeated area names create spanning regions",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas replace the need for CSS positioning",
+          "is_correct": false
+        },
+        {
+          "text": "Complex dashboards can be designed using grid areas",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Layout Structuring",
+      "content": "Which of the following statements about advanced layout structuring with grid areas are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Areas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grid area naming improves readability of layout code",
+          "is_correct": true
+        },
+        {
+          "text": "grid-template-areas supports maintainable page structures",
+          "is_correct": true
+        },
+        {
+          "text": "Grid areas only work with fixed-width layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Named grid layouts are easier to debug and modify",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Alignment Basics",
+      "content": "Which of the following statements about grid alignment properties are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items aligns items horizontally inside grid cells",
+          "is_correct": true
+        },
+        {
+          "text": "align-items aligns items vertically inside grid cells",
+          "is_correct": true
+        },
+        {
+          "text": "place-items changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "place-items is shorthand for align-items and justify-items",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Item Alignment Overview",
+      "content": "Which of the following statements about grid item alignment are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items controls inline-axis alignment",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls block-axis alignment",
+          "is_correct": true
+        },
+        {
+          "text": "place-items removes alignment behavior",
+          "is_correct": false
+        },
+        {
+          "text": "Grid alignment properties help position content neatly",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Alignment Concepts",
+      "content": "Which of the following statements about CSS Grid alignment concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items affects horizontal positioning",
+          "is_correct": true
+        },
+        {
+          "text": "align-items affects vertical positioning",
+          "is_correct": true
+        },
+        {
+          "text": "place-items only works with Flexbox",
+          "is_correct": false
+        },
+        {
+          "text": "Grid alignment improves layout consistency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Place-items Basics",
+      "content": "Which of the following statements about place-items are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "place-items combines justify-items and align-items",
+          "is_correct": true
+        },
+        {
+          "text": "place-items can center content in grid cells",
+          "is_correct": true
+        },
+        {
+          "text": "place-items changes element visibility",
+          "is_correct": false
+        },
+        {
+          "text": "place-items simplifies alignment code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Alignment Introduction",
+      "content": "Which of the following statements about grid alignment introduction are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items aligns content within each grid item",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls alignment across grid cells",
+          "is_correct": true
+        },
+        {
+          "text": "Grid alignment properties affect only text",
+          "is_correct": false
+        },
+        {
+          "text": "place-items is useful for quick centering",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Alignment Behavior",
+      "content": "Which of the following statements about grid alignment behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items works along the inline axis",
+          "is_correct": true
+        },
+        {
+          "text": "align-items works along the block axis",
+          "is_correct": true
+        },
+        {
+          "text": "place-items cannot align items centrally",
+          "is_correct": false
+        },
+        {
+          "text": "Alignment properties improve layout precision",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Item Positioning",
+      "content": "Which of the following statements about positioning grid items are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items can align content to start, center, or end",
+          "is_correct": true
+        },
+        {
+          "text": "align-items affects vertical placement inside cells",
+          "is_correct": true
+        },
+        {
+          "text": "place-items changes grid-template-columns",
+          "is_correct": false
+        },
+        {
+          "text": "Grid alignment properties are useful in dashboards and cards",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Alignment Shorthand",
+      "content": "Which of the following statements about alignment shorthand properties are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "place-items reduces repetitive alignment code",
+          "is_correct": true
+        },
+        {
+          "text": "place-items sets both horizontal and vertical alignment",
+          "is_correct": true
+        },
+        {
+          "text": "place-items replaces grid-template-areas",
+          "is_correct": false
+        },
+        {
+          "text": "Grid alignment properties support cleaner layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Alignment Concepts",
+      "content": "Which of the following statements about advanced grid alignment concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "place-items is shorthand for justify-items and align-items",
+          "is_correct": true
+        },
+        {
+          "text": "Grid alignment properties work independently of grid-template settings",
+          "is_correct": true
+        },
+        {
+          "text": "justify-items changes the number of columns",
+          "is_correct": false
+        },
+        {
+          "text": "Alignment properties improve UI consistency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Positioning",
+      "content": "Which of the following statements about advanced grid positioning are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Grid Alignment",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "justify-items controls horizontal alignment inside cells",
+          "is_correct": true
+        },
+        {
+          "text": "align-items controls vertical alignment inside cells",
+          "is_correct": true
+        },
+        {
+          "text": "place-items affects only row alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Grid alignment helps create balanced layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Basics",
+      "content": "Which of the following statements about advanced CSS Grid features are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit helps create responsive grid layouts",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill automatically fills available grid space",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fit changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive grids adapt to screen size changes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsive Grid Introduction",
+      "content": "Which of the following statements about responsive grids are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit can collapse empty tracks",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill keeps empty tracks visible",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids work only on desktop screens",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid supports dynamic layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Auto-fit and Auto-fill Basics",
+      "content": "Which of the following statements about auto-fit and auto-fill are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit adjusts grid items to available space",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill creates as many tracks as possible",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill controls font size",
+          "is_correct": false
+        },
+        {
+          "text": "Both auto-fit and auto-fill help build responsive layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsive Layout Concepts",
+      "content": "Which of the following statements about responsive layout concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Responsive grids adapt to different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fit is commonly used with minmax()",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids remove the need for layouts",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid helps create flexible designs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grid Responsiveness Basics",
+      "content": "Which of the following statements about CSS Grid responsiveness are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit expands items when space is available",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill may leave empty columns",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids only support fixed-width columns",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive grid layouts improve user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Auto-fit vs Auto-fill Behavior",
+      "content": "Which of the following statements about auto-fit and auto-fill behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit collapses unused tracks",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill preserves empty tracks",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fit and auto-fill work only with rows",
+          "is_correct": false
+        },
+        {
+          "text": "Both are useful for responsive card layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsive Grid Design",
+      "content": "Which of the following statements about responsive grid design are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Responsive grids can adapt without media queries",
+          "is_correct": true
+        },
+        {
+          "text": "minmax() is commonly combined with auto-fit",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids are unrelated to screen width",
+          "is_correct": false
+        },
+        {
+          "text": "Advanced Grid simplifies responsive layouts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dynamic Grid Layouts",
+      "content": "Which of the following statements about dynamic grid layouts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fill creates additional tracks if space exists",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fit stretches items to fill available space",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids work only with fixed layouts",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid supports adaptive UI patterns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Responsive Grid Concepts",
+      "content": "Which of the following statements about advanced responsive grid concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit redistributes available space among existing items",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill maintains empty tracks in the grid",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fit and auto-fill behave exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive grids reduce dependency on manual breakpoints",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Grid Layout Techniques",
+      "content": "Which of the following statements about advanced grid layout techniques are correct?",
+      "level": "subtopic",
+      "unit_name": "CSS Grid",
+      "subunit_name": "Advanced Grid",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "auto-fit is ideal for fluid responsive layouts",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive grids improve scalability across devices",
+          "is_correct": true
+        },
+        {
+          "text": "auto-fill removes unused columns automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Advanced Grid enables modern responsive UI patterns",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}
