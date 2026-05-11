@@ -1,0 +1,4002 @@
+{
+  "name": "Data Structures (Core)",
+  "subject_short_code": "PY101",
+  "order_index": 2,
+  "sub_units": [
+    {
+      "name": "Lists",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Lists",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Lists in Python."
+        },
+        {
+          "title": "Advanced Lists Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Lists."
+        }
+      ]
+    },
+    {
+      "name": "Tuples",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Tuples",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Tuples in Python."
+        },
+        {
+          "title": "Advanced Tuples Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Tuples."
+        }
+      ]
+    },
+    {
+      "name": "Sets",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Sets",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Sets in Python."
+        },
+        {
+          "title": "Advanced Sets Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Sets."
+        }
+      ]
+    },
+    {
+      "name": "Dictionaries",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Dictionaries",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Dictionaries in Python."
+        },
+        {
+          "title": "Advanced Dictionaries Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Dictionaries."
+        }
+      ]
+    },
+    {
+      "name": "Strings (Deep Dive)",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "Introduction to Strings (Deep Dive)",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Strings (Deep Dive) in Python."
+        },
+        {
+          "title": "Advanced Strings (Deep Dive) Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Strings (Deep Dive)."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "List Creation",
+      "content": "Which of the following correctly creates a list in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": true
+        },
+        {
+          "text": "(1, 2, 3)",
+          "is_correct": false
+        },
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": false
+        },
+        {
+          "text": "list(1, 2, 3)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "List Indexing",
+      "content": "What will be the output?\n\nlst = [10, 20, 30]\nprint(lst[1])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "20",
+          "is_correct": true
+        },
+        {
+          "text": "10",
+          "is_correct": false
+        },
+        {
+          "text": "30",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "List Slicing",
+      "content": "What will be the output?\n\nlst = [1, 2, 3, 4]\nprint(lst[1:3])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[2, 3]",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "[2, 3, 4]",
+          "is_correct": false
+        },
+        {
+          "text": "[1, 2]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Append Method",
+      "content": "What will be the output?\n\nlst = [1, 2]\nlst.append(3)\nprint(lst)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": true
+        },
+        {
+          "text": "[3, 1, 2]",
+          "is_correct": false
+        },
+        {
+          "text": "[1, 2]",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Remove Method",
+      "content": "What will be the output?\n\nlst = [1, 2, 3, 2]\nlst.remove(2)\nprint(lst)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[1, 3, 2]",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Negative Indexing",
+      "content": "What will be the output?\n\nlst = [10, 20, 30]\nprint(lst[-1])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "30",
+          "is_correct": true
+        },
+        {
+          "text": "10",
+          "is_correct": false
+        },
+        {
+          "text": "20",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Slicing with Step",
+      "content": "What will be the output?\n\nlst = [0, 1, 2, 3, 4]\nprint(lst[::2])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[0, 2, 4]",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "[0, 1, 2]",
+          "is_correct": false
+        },
+        {
+          "text": "[2, 4]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Creation",
+      "content": "Which of the following correctly creates a tuple in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "(1, 2, 3)",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": false
+        },
+        {
+          "text": "tuple{1, 2, 3}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Immutability",
+      "content": "What does it mean that tuples are immutable?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Their elements cannot be changed after creation",
+          "is_correct": true
+        },
+        {
+          "text": "They cannot store multiple values",
+          "is_correct": false
+        },
+        {
+          "text": "They must contain only numbers",
+          "is_correct": false
+        },
+        {
+          "text": "They can only store strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Single Element Tuple",
+      "content": "How do you create a tuple with one element?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "(5,)",
+          "is_correct": true
+        },
+        {
+          "text": "(5)",
+          "is_correct": false
+        },
+        {
+          "text": "[5]",
+          "is_correct": false
+        },
+        {
+          "text": "{5}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Modification",
+      "content": "What will happen?\n\nt = (1, 2, 3)\nt[0] = 10",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TypeError",
+          "is_correct": true
+        },
+        {
+          "text": "t becomes (10, 2, 3)",
+          "is_correct": false
+        },
+        {
+          "text": "Nothing changes",
+          "is_correct": false
+        },
+        {
+          "text": "SyntaxError",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Use Case",
+      "content": "Why are tuples preferred over lists in some cases?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They are immutable and can be used as dictionary keys",
+          "is_correct": true
+        },
+        {
+          "text": "They allow dynamic resizing",
+          "is_correct": false
+        },
+        {
+          "text": "They are faster for appending elements",
+          "is_correct": false
+        },
+        {
+          "text": "They support more methods than lists",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Inside List",
+      "content": "What will be the output?\n\nlst = [(1, 2), (3, 4)]\nprint(lst[1][0])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "3",
+          "is_correct": true
+        },
+        {
+          "text": "4",
+          "is_correct": false
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tuple Packing and Unpacking",
+      "content": "What will be the output?\n\na, b = (5, 10)\nprint(a + b)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "15",
+          "is_correct": true
+        },
+        {
+          "text": "510",
+          "is_correct": false
+        },
+        {
+          "text": "(5, 10)",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Set Creation",
+      "content": "Which of the following correctly creates a set in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "(1, 2, 3)",
+          "is_correct": false
+        },
+        {
+          "text": "{} (empty set)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Unique Values in Set",
+      "content": "What will be the output?\n\ns = {1, 2, 2, 3}\nprint(s)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "{1, 2, 2, 3}",
+          "is_correct": false
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Empty Set Creation",
+      "content": "How do you correctly create an empty set in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "set()",
+          "is_correct": true
+        },
+        {
+          "text": "{}",
+          "is_correct": false
+        },
+        {
+          "text": "[]",
+          "is_correct": false
+        },
+        {
+          "text": "()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Set Union Operation",
+      "content": "What will be the output?\n\na = {1, 2}\nb = {2, 3}\nprint(a | b)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "{2}",
+          "is_correct": false
+        },
+        {
+          "text": "{1, 3}",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Set Intersection Operation",
+      "content": "What will be the output?\n\na = {1, 2, 3}\nb = {2, 3, 4}\nprint(a & b)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{2, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "{1, 2, 3, 4}",
+          "is_correct": false
+        },
+        {
+          "text": "{1, 4}",
+          "is_correct": false
+        },
+        {
+          "text": "{}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Set Difference",
+      "content": "What will be the output?\n\na = {1, 2, 3}\nb = {2}\nprint(a - b)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{1, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "{2}",
+          "is_correct": false
+        },
+        {
+          "text": "{1, 2, 3}",
+          "is_correct": false
+        },
+        {
+          "text": "{}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Set Membership",
+      "content": "What will be the output?\n\ns = {1, 2, 3}\nprint(2 in s)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "True",
+          "is_correct": true
+        },
+        {
+          "text": "False",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        },
+        {
+          "text": "None",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dictionary Creation",
+      "content": "Which of the following correctly creates a dictionary in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{'a': 1, 'b': 2}",
+          "is_correct": true
+        },
+        {
+          "text": "['a', 1, 'b', 2]",
+          "is_correct": false
+        },
+        {
+          "text": "('a', 1, 'b', 2)",
+          "is_correct": false
+        },
+        {
+          "text": "{'a', 'b'}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Accessing Values",
+      "content": "What will be the output?\n\nd = {'x': 10, 'y': 20}\nprint(d['x'])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "10",
+          "is_correct": true
+        },
+        {
+          "text": "20",
+          "is_correct": false
+        },
+        {
+          "text": "'x'",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Uniqueness",
+      "content": "What happens if duplicate keys are used in a dictionary?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The last value overwrites the previous one",
+          "is_correct": true
+        },
+        {
+          "text": "It throws an error",
+          "is_correct": false
+        },
+        {
+          "text": "Both values are stored",
+          "is_correct": false
+        },
+        {
+          "text": "Keys are merged",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Dictionary Access",
+      "content": "What will be the output?\n\nd = {'a': {'b': 5}}\nprint(d['a']['b'])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "5",
+          "is_correct": true
+        },
+        {
+          "text": "{'b': 5}",
+          "is_correct": false
+        },
+        {
+          "text": "b",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Adding Key-Value Pair",
+      "content": "What will be the output?\n\nd = {'x': 1}\nd['y'] = 2\nprint(d)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{'x': 1, 'y': 2}",
+          "is_correct": true
+        },
+        {
+          "text": "{'x': 1}",
+          "is_correct": false
+        },
+        {
+          "text": "{'y': 2}",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Missing Key Access",
+      "content": "What will happen?\n\nd = {'a': 1}\nprint(d['b'])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "KeyError",
+          "is_correct": true
+        },
+        {
+          "text": "None",
+          "is_correct": false
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        },
+        {
+          "text": "b",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Dictionary Update",
+      "content": "What will be the output?\n\nd = {'a': {'b': 2}}\nd['a']['b'] = 5\nprint(d)",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "{'a': {'b': 5}}",
+          "is_correct": true
+        },
+        {
+          "text": "{'a': {'b': 2}}",
+          "is_correct": false
+        },
+        {
+          "text": "{'b': 5}",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Upper Method",
+      "content": "What will be the output?\n\ns = \"hello\"\nprint(s.upper())",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HELLO",
+          "is_correct": true
+        },
+        {
+          "text": "hello",
+          "is_correct": false
+        },
+        {
+          "text": "Hello",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Length",
+      "content": "What will be the output?\n\ns = \"Python\"\nprint(len(s))",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "6",
+          "is_correct": true
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "7",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Slicing",
+      "content": "What will be the output?\n\ns = \"abcdef\"\nprint(s[1:4])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "bcd",
+          "is_correct": true
+        },
+        {
+          "text": "abc",
+          "is_correct": false
+        },
+        {
+          "text": "cde",
+          "is_correct": false
+        },
+        {
+          "text": "bcde",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Replace Method",
+      "content": "What will be the output?\n\ns = \"banana\"\nprint(s.replace('a', 'o'))",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "bonono",
+          "is_correct": true
+        },
+        {
+          "text": "banana",
+          "is_correct": false
+        },
+        {
+          "text": "bonana",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Formatting f-string",
+      "content": "What will be the output?\n\nname = \"John\"\nprint(f\"Hello {name}\")",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hello John",
+          "is_correct": true
+        },
+        {
+          "text": "Hello {name}",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        },
+        {
+          "text": "John Hello",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Negative Slicing",
+      "content": "What will be the output?\n\ns = \"Python\"\nprint(s[-3:])",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "hon",
+          "is_correct": true
+        },
+        {
+          "text": "tho",
+          "is_correct": false
+        },
+        {
+          "text": "yth",
+          "is_correct": false
+        },
+        {
+          "text": "Error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "String Immutability",
+      "content": "What will happen?\n\ns = \"hello\"\ns[0] = 'H'",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TypeError",
+          "is_correct": true
+        },
+        {
+          "text": "Hello",
+          "is_correct": false
+        },
+        {
+          "text": "hello",
+          "is_correct": false
+        },
+        {
+          "text": "SyntaxError",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Creation",
+      "content": "Which of the following are valid ways to create a list in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using square brackets []",
+          "is_correct": true
+        },
+        {
+          "text": "Using list() constructor",
+          "is_correct": true
+        },
+        {
+          "text": "Using curly braces {}",
+          "is_correct": false
+        },
+        {
+          "text": "Using comma-separated values without brackets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Indexing",
+      "content": "Which of the following statements about list indexing are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexing starts from 0",
+          "is_correct": true
+        },
+        {
+          "text": "Negative indexing is allowed",
+          "is_correct": true
+        },
+        {
+          "text": "Indexing starts from 1",
+          "is_correct": false
+        },
+        {
+          "text": "Out-of-range index causes error",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Slicing",
+      "content": "Which of the following are true about list slicing in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Slicing uses the syntax list[start:end]",
+          "is_correct": true
+        },
+        {
+          "text": "End index is included in slicing",
+          "is_correct": false
+        },
+        {
+          "text": "Slicing returns a new list",
+          "is_correct": true
+        },
+        {
+          "text": "Step value can be used in slicing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Methods Basics",
+      "content": "Which of the following are common list methods in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "append()",
+          "is_correct": true
+        },
+        {
+          "text": "remove()",
+          "is_correct": true
+        },
+        {
+          "text": "insert()",
+          "is_correct": true
+        },
+        {
+          "text": "push()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Modification",
+      "content": "Which of the following statements about modifying lists are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "append() adds element at the end",
+          "is_correct": true
+        },
+        {
+          "text": "remove() deletes first occurrence of value",
+          "is_correct": true
+        },
+        {
+          "text": "pop() removes element by index",
+          "is_correct": true
+        },
+        {
+          "text": "Lists are immutable",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced List Operations",
+      "content": "Which of the following are true about advanced list operations?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "list1 + list2 concatenates two lists",
+          "is_correct": true
+        },
+        {
+          "text": "list * n repeats the list",
+          "is_correct": true
+        },
+        {
+          "text": "Lists can store elements of different types",
+          "is_correct": true
+        },
+        {
+          "text": "Lists cannot be nested",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Lists",
+      "content": "Which of the following are correct regarding edge cases in list operations?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accessing invalid index raises IndexError",
+          "is_correct": true
+        },
+        {
+          "text": "Removing non-existing element raises ValueError",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing out of range causes error",
+          "is_correct": false
+        },
+        {
+          "text": "Empty list can be created using []",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tuple Basics",
+      "content": "Which of the following statements about tuples in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tuples are ordered collections",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples are immutable",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples are defined using parentheses ()",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples can only store integers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Immutability of Tuples",
+      "content": "Which of the following statements correctly describe tuple immutability?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Elements of a tuple cannot be changed after creation",
+          "is_correct": true
+        },
+        {
+          "text": "You cannot add or remove elements from a tuple",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples support item assignment",
+          "is_correct": false
+        },
+        {
+          "text": "Tuple immutability makes them faster than lists in some cases",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tuple Creation",
+      "content": "Which of the following are valid ways to create tuples?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "(1, 2, 3)",
+          "is_correct": true
+        },
+        {
+          "text": "1, 2, 3",
+          "is_correct": true
+        },
+        {
+          "text": "tuple([1, 2, 3])",
+          "is_correct": true
+        },
+        {
+          "text": "[1, 2, 3]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tuple Use Cases",
+      "content": "Which of the following are common use cases of tuples?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Storing fixed collections of data",
+          "is_correct": true
+        },
+        {
+          "text": "Using as keys in dictionaries",
+          "is_correct": true
+        },
+        {
+          "text": "Frequent modification of elements",
+          "is_correct": false
+        },
+        {
+          "text": "Returning multiple values from functions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tuple vs List",
+      "content": "Which of the following statements correctly compare tuples and lists?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tuples are immutable while lists are mutable",
+          "is_correct": true
+        },
+        {
+          "text": "Lists are generally slower than tuples for iteration",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples use square brackets",
+          "is_correct": false
+        },
+        {
+          "text": "Lists cannot contain different data types",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Tuple Concepts",
+      "content": "Which of the following are true about advanced tuple behavior?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A tuple can contain mutable elements like lists",
+          "is_correct": true
+        },
+        {
+          "text": "Modifying a mutable element inside a tuple is possible",
+          "is_correct": true
+        },
+        {
+          "text": "Tuples cannot be nested",
+          "is_correct": false
+        },
+        {
+          "text": "Tuple unpacking is supported",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Tuples",
+      "content": "Which of the following are correct regarding tuple edge cases?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A single element tuple requires a trailing comma",
+          "is_correct": true
+        },
+        {
+          "text": "(5) is considered a tuple",
+          "is_correct": false
+        },
+        {
+          "text": "Empty tuple can be created using ()",
+          "is_correct": true
+        },
+        {
+          "text": "Tuple elements can be reassigned directly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Set Basics",
+      "content": "Which of the following statements about sets in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sets store unique values",
+          "is_correct": true
+        },
+        {
+          "text": "Sets are unordered collections",
+          "is_correct": true
+        },
+        {
+          "text": "Sets allow duplicate values",
+          "is_correct": false
+        },
+        {
+          "text": "Sets are defined using {}",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Set Creation",
+      "content": "Which of the following are valid ways to create a set in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using curly braces with values {1, 2, 3}",
+          "is_correct": true
+        },
+        {
+          "text": "Using set() constructor",
+          "is_correct": true
+        },
+        {
+          "text": "{} creates an empty set",
+          "is_correct": false
+        },
+        {
+          "text": "set([]) creates an empty set",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Properties of Sets",
+      "content": "Which of the following properties are true for Python sets?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sets do not support indexing",
+          "is_correct": true
+        },
+        {
+          "text": "Sets are mutable",
+          "is_correct": true
+        },
+        {
+          "text": "Elements in a set must be immutable",
+          "is_correct": true
+        },
+        {
+          "text": "Sets maintain insertion order strictly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Set Operations",
+      "content": "Which of the following are valid set operations in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Union (|)",
+          "is_correct": true
+        },
+        {
+          "text": "Intersection (&)",
+          "is_correct": true
+        },
+        {
+          "text": "Difference (-)",
+          "is_correct": true
+        },
+        {
+          "text": "Concatenation (+)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Set Methods",
+      "content": "Which of the following are commonly used set methods?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "add()",
+          "is_correct": true
+        },
+        {
+          "text": "remove()",
+          "is_correct": true
+        },
+        {
+          "text": "discard()",
+          "is_correct": true
+        },
+        {
+          "text": "append()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Set Behavior",
+      "content": "Which of the following statements about advanced set behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sets automatically remove duplicates",
+          "is_correct": true
+        },
+        {
+          "text": "Sets can contain other sets as elements",
+          "is_correct": false
+        },
+        {
+          "text": "frozenset is an immutable version of set",
+          "is_correct": true
+        },
+        {
+          "text": "Set elements must be hashable",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Sets",
+      "content": "Which of the following are correct regarding edge cases in sets?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removing a non-existing element using remove() raises KeyError",
+          "is_correct": true
+        },
+        {
+          "text": "discard() does not raise error if element is absent",
+          "is_correct": true
+        },
+        {
+          "text": "Empty set is created using {}",
+          "is_correct": false
+        },
+        {
+          "text": "Sets support slicing operations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dictionary Basics",
+      "content": "Which of the following statements about dictionaries in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Dictionaries store data as key-value pairs",
+          "is_correct": true
+        },
+        {
+          "text": "Keys in a dictionary must be unique",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionaries are ordered collections (Python 3.7+)",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionaries allow duplicate keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dictionary Creation",
+      "content": "Which of the following are valid ways to create dictionaries in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using curly braces {\"a\": 1, \"b\": 2}",
+          "is_correct": true
+        },
+        {
+          "text": "Using dict() constructor",
+          "is_correct": true
+        },
+        {
+          "text": "Using list of tuples with dict()",
+          "is_correct": true
+        },
+        {
+          "text": "Using square brackets []",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Accessing Dictionary Values",
+      "content": "Which of the following statements about accessing dictionary values are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Values can be accessed using keys",
+          "is_correct": true
+        },
+        {
+          "text": "dict[key] retrieves the value",
+          "is_correct": true
+        },
+        {
+          "text": "Accessing a missing key raises KeyError",
+          "is_correct": true
+        },
+        {
+          "text": "Index numbers can be used to access values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Nested Dictionaries",
+      "content": "Which of the following statements about nested dictionaries are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A dictionary can contain another dictionary as a value",
+          "is_correct": true
+        },
+        {
+          "text": "Nested dictionaries help represent hierarchical data",
+          "is_correct": true
+        },
+        {
+          "text": "Nested dictionaries are not allowed in Python",
+          "is_correct": false
+        },
+        {
+          "text": "Values in nested dictionaries can be accessed using multiple keys",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dictionary Methods",
+      "content": "Which of the following are commonly used dictionary methods?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "keys()",
+          "is_correct": true
+        },
+        {
+          "text": "values()",
+          "is_correct": true
+        },
+        {
+          "text": "items()",
+          "is_correct": true
+        },
+        {
+          "text": "append()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Dictionary Concepts",
+      "content": "Which of the following statements about advanced dictionary behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keys must be immutable types",
+          "is_correct": true
+        },
+        {
+          "text": "Values can be of any data type",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionaries can be nested to multiple levels",
+          "is_correct": true
+        },
+        {
+          "text": "Lists can be used as dictionary keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Dictionaries",
+      "content": "Which of the following are correct regarding edge cases in dictionaries?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accessing a non-existing key using [] raises KeyError",
+          "is_correct": true
+        },
+        {
+          "text": "get() method returns None if key is missing (by default)",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate keys overwrite previous values",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionaries support slicing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "String Basics",
+      "content": "Which of the following statements about strings in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Strings are immutable",
+          "is_correct": true
+        },
+        {
+          "text": "Strings can be defined using single or double quotes",
+          "is_correct": true
+        },
+        {
+          "text": "Strings support indexing",
+          "is_correct": true
+        },
+        {
+          "text": "Strings are mutable",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "String Methods",
+      "content": "Which of the following are common string methods in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "upper()",
+          "is_correct": true
+        },
+        {
+          "text": "lower()",
+          "is_correct": true
+        },
+        {
+          "text": "replace()",
+          "is_correct": true
+        },
+        {
+          "text": "append()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "String Slicing",
+      "content": "Which of the following are true about string slicing?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Slicing uses the syntax string[start:end]",
+          "is_correct": true
+        },
+        {
+          "text": "End index is excluded in slicing",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing returns a new string",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing modifies the original string",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "String Formatting Methods",
+      "content": "Which of the following are valid string formatting techniques in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "f-strings",
+          "is_correct": true
+        },
+        {
+          "text": "format() method",
+          "is_correct": true
+        },
+        {
+          "text": "% formatting",
+          "is_correct": true
+        },
+        {
+          "text": "printf()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced String Methods",
+      "content": "Which of the following are advanced string operations?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "split()",
+          "is_correct": true
+        },
+        {
+          "text": "join()",
+          "is_correct": true
+        },
+        {
+          "text": "strip()",
+          "is_correct": true
+        },
+        {
+          "text": "push()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex String Behavior",
+      "content": "Which of the following statements about string behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Strings can be concatenated using + operator",
+          "is_correct": true
+        },
+        {
+          "text": "String repetition is possible using * operator",
+          "is_correct": true
+        },
+        {
+          "text": "Strings support negative indexing",
+          "is_correct": true
+        },
+        {
+          "text": "Strings can be modified in place",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Strings",
+      "content": "Which of the following are correct regarding edge cases in strings?",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accessing out-of-range index raises IndexError",
+          "is_correct": true
+        },
+        {
+          "text": "Empty string is represented as \"\"",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing out of range raises error",
+          "is_correct": false
+        },
+        {
+          "text": "Strings can contain unicode characters",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print First and Last Element",
+      "content": "Write a program to take a list of integers and print the first and last elements.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n10 20 30",
+          "expected_output": "10 30"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5",
+          "explanation": "First = arr[0], Last = arr[-1]"
+        }
+      ],
+      "inputFormat": "First line N, second line list elements.",
+      "outputFormat": "Print first and last element.",
+      "solutions": [
+        {
+          "title": "Indexing",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nprint(arr[0], arr[-1])",
+          "complexity_analysis": "Time: O(1), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use arr[0] and arr[-1]."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Reverse a List",
+      "content": "Write a program to reverse a list using slicing.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "4\n1 2 3 4",
+          "expected_output": "4 3 2 1"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n10 20 30",
+          "expected_output": "30 20 10"
+        }
+      ],
+      "examples": [
+        {
+          "input": "4\n1 2 3 4",
+          "expected_output": "4 3 2 1",
+          "explanation": "Use slicing [::-1]"
+        }
+      ],
+      "inputFormat": "N and list.",
+      "outputFormat": "Print reversed list.",
+      "solutions": [
+        {
+          "title": "Slicing",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nprint(*arr[::-1])",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use arr[::-1]."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Append Element",
+      "content": "Write a program to take a list and append an element to it, then print the updated list.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3\n4",
+          "expected_output": "1 2 3 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n5 6\n7",
+          "expected_output": "5 6 7"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3\n4",
+          "expected_output": "1 2 3 4",
+          "explanation": "Append new element."
+        }
+      ],
+      "inputFormat": "N, list, and element to append.",
+      "outputFormat": "Print updated list.",
+      "solutions": [
+        {
+          "title": "Append Method",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nx = int(input())\narr.append(x)\nprint(*arr)",
+          "complexity_analysis": "Time: O(1), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use append()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Remove Element from List",
+      "content": "Write a program to remove a given element from a list if it exists.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5\n3",
+          "expected_output": "1 2 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n1 2 2 3\n2",
+          "expected_output": "1 2 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5\n3",
+          "expected_output": "1 2 4 5",
+          "explanation": "Remove first occurrence."
+        }
+      ],
+      "inputFormat": "N, list, and element.",
+      "outputFormat": "Print updated list.",
+      "solutions": [
+        {
+          "title": "Remove Method",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nx = int(input())\nif x in arr:\n    arr.remove(x)\nprint(*arr)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Check existence first.",
+        "Use remove()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Sublist using Slicing",
+      "content": "Write a program to print elements from index L to R (inclusive) using slicing.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5\n1 3",
+          "expected_output": "2 3 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n10 20 30 40\n0 2",
+          "expected_output": "10 20 30"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5\n1 3",
+          "expected_output": "2 3 4",
+          "explanation": "Slice arr[L:R+1]"
+        }
+      ],
+      "inputFormat": "N, list, L and R.",
+      "outputFormat": "Print sublist.",
+      "solutions": [
+        {
+          "title": "Slicing Range",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nl, r = map(int, input().split())\nprint(*arr[l:r+1])",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use arr[l:r+1]."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Remove Duplicates from List",
+      "content": "Write a program to remove duplicates from a list while preserving order.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "6\n1 2 2 3 4 4",
+          "expected_output": "1 2 3 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5\n5 5 5 5 5",
+          "expected_output": "5"
+        }
+      ],
+      "examples": [
+        {
+          "input": "6\n1 2 2 3 4 4",
+          "expected_output": "1 2 3 4",
+          "explanation": "Remove duplicates but keep order."
+        }
+      ],
+      "inputFormat": "N and list.",
+      "outputFormat": "Print unique elements.",
+      "solutions": [
+        {
+          "title": "Using Set + List",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nres = []\nfor x in arr:\n    if x not in res:\n        res.append(x)\nprint(*res)",
+          "complexity_analysis": "Time: O(N^2), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Track seen elements.",
+        "Avoid using set directly for order."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Rotate List by K Steps",
+      "content": "Write a program to rotate a list to the right by K steps.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Lists",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5\n2",
+          "expected_output": "4 5 1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n10 20 30 40\n1",
+          "expected_output": "40 10 20 30"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5\n2",
+          "expected_output": "4 5 1 2 3",
+          "explanation": "Rotate right by 2."
+        }
+      ],
+      "inputFormat": "N, list, and K.",
+      "outputFormat": "Print rotated list.",
+      "solutions": [
+        {
+          "title": "Slicing Rotation",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nk = int(input())\nk = k % n\nprint(*(arr[-k:] + arr[:-k]))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use slicing.",
+        "Handle k > n."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Access Tuple Elements",
+      "content": "Write a program to take a tuple of integers and print the first and last elements.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n10 20 30",
+          "expected_output": "10 30"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5",
+          "explanation": "Access using indexing."
+        }
+      ],
+      "inputFormat": "First line N, second line tuple elements.",
+      "outputFormat": "Print first and last element.",
+      "solutions": [
+        {
+          "title": "Tuple Indexing",
+          "language": "python",
+          "code": "n = int(input())\nt = tuple(map(int, input().split()))\nprint(t[0], t[-1])",
+          "complexity_analysis": "Time: O(1), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use t[0] and t[-1]."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Count Element in Tuple",
+      "content": "Write a program to count occurrences of a given element in a tuple.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 2 3 2\n2",
+          "expected_output": "3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n1 2 3 4\n5",
+          "expected_output": "0"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 2 3 2\n2",
+          "expected_output": "3",
+          "explanation": "Use count() method."
+        }
+      ],
+      "inputFormat": "N, tuple, and element.",
+      "outputFormat": "Print count.",
+      "solutions": [
+        {
+          "title": "Count Method",
+          "language": "python",
+          "code": "n = int(input())\nt = tuple(map(int, input().split()))\nx = int(input())\nprint(t.count(x))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use tuple.count()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Convert List to Tuple",
+      "content": "Write a program to convert a given list into a tuple and print it.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3",
+          "expected_output": "(1, 2, 3)"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n5 6",
+          "expected_output": "(5, 6)"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3",
+          "expected_output": "(1, 2, 3)",
+          "explanation": "Use tuple() constructor."
+        }
+      ],
+      "inputFormat": "N and list elements.",
+      "outputFormat": "Print tuple.",
+      "solutions": [
+        {
+          "title": "Tuple Conversion",
+          "language": "python",
+          "code": "n = int(input())\nl = list(map(int, input().split()))\nt = tuple(l)\nprint(t)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use tuple(list)."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Swap Values Using Tuple",
+      "content": "Write a program to swap two numbers using tuple unpacking.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3 5",
+          "expected_output": "5 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "10 20",
+          "expected_output": "20 10"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3 5",
+          "expected_output": "5 3",
+          "explanation": "Use a, b = b, a"
+        }
+      ],
+      "inputFormat": "Two integers.",
+      "outputFormat": "Print swapped values.",
+      "solutions": [
+        {
+          "title": "Tuple Unpacking",
+          "language": "python",
+          "code": "a, b = map(int, input().split())\na, b = b, a\nprint(a, b)",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use tuple unpacking."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Minimum and Maximum",
+      "content": "Write a program to find the minimum and maximum values in a tuple.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n10 20 5 15",
+          "expected_output": "5 20"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5",
+          "expected_output": "1 5",
+          "explanation": "Use min() and max()."
+        }
+      ],
+      "inputFormat": "N and tuple elements.",
+      "outputFormat": "Print min and max.",
+      "solutions": [
+        {
+          "title": "Min Max",
+          "language": "python",
+          "code": "n = int(input())\nt = tuple(map(int, input().split()))\nprint(min(t), max(t))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use built-in functions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Remove Element (Tuple Workaround)",
+      "content": "Write a program to remove an element from a tuple (since tuples are immutable, convert it to list first).",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 3 4 5\n3",
+          "expected_output": "(1, 2, 4, 5)"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n1 2 2 3\n2",
+          "expected_output": "(1, 2, 3)"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 3 4 5\n3",
+          "expected_output": "(1, 2, 4, 5)",
+          "explanation": "Convert to list, remove, convert back."
+        }
+      ],
+      "inputFormat": "N, tuple, and element.",
+      "outputFormat": "Print updated tuple.",
+      "solutions": [
+        {
+          "title": "List Conversion",
+          "language": "python",
+          "code": "n = int(input())\nt = tuple(map(int, input().split()))\nx = int(input())\nl = list(t)\nif x in l:\n    l.remove(x)\nt = tuple(l)\nprint(t)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Tuples are immutable.",
+        "Use list conversion."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Tuple of Tuples Sum",
+      "content": "Write a program to take a tuple of tuples and compute the sum of each inner tuple.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Tuples",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2\n1 2\n3 4",
+          "expected_output": "3 7"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n1 1\n2 2\n3 3",
+          "expected_output": "2 4 6"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2\n1 2\n3 4",
+          "expected_output": "3 7",
+          "explanation": "Sum each inner tuple."
+        }
+      ],
+      "inputFormat": "N followed by N tuples (2 elements each).",
+      "outputFormat": "Print sum of each tuple.",
+      "solutions": [
+        {
+          "title": "Nested Tuple Sum",
+          "language": "python",
+          "code": "n = int(input())\nres = []\nfor _ in range(n):\n    t = tuple(map(int, input().split()))\n    res.append(sum(t))\nprint(*res)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use sum().",
+        "Store results."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Count Unique Elements",
+      "content": "Write a program to count the number of unique elements in a list using a set.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 2 3 3",
+          "expected_output": "3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n10 10 10 10",
+          "expected_output": "1"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 2 3 3",
+          "expected_output": "3",
+          "explanation": "Unique values are {1,2,3}"
+        }
+      ],
+      "inputFormat": "N and list elements.",
+      "outputFormat": "Print count of unique elements.",
+      "solutions": [
+        {
+          "title": "Using set()",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nprint(len(set(arr)))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Convert list to set.",
+        "Use len()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Remove Duplicates",
+      "content": "Write a program to remove duplicates from a list and print unique elements.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 2 3 4",
+          "expected_output": "1 2 3 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n5 5 5",
+          "expected_output": "5"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 2 3 4",
+          "expected_output": "1 2 3 4",
+          "explanation": "Set removes duplicates."
+        }
+      ],
+      "inputFormat": "N and list.",
+      "outputFormat": "Print unique elements.",
+      "solutions": [
+        {
+          "title": "Set Conversion",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nprint(*set(arr))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use set().",
+        "Order may not be preserved."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Membership in Set",
+      "content": "Write a program to check whether an element exists in a set.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "4\n1 2 3 4\n3",
+          "expected_output": "Yes"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3\n5 6 7\n8",
+          "expected_output": "No"
+        }
+      ],
+      "examples": [
+        {
+          "input": "4\n1 2 3 4\n3",
+          "expected_output": "Yes",
+          "explanation": "3 exists in set."
+        }
+      ],
+      "inputFormat": "N, elements, and query element.",
+      "outputFormat": "Print Yes or No.",
+      "solutions": [
+        {
+          "title": "Membership Check",
+          "language": "python",
+          "code": "n = int(input())\ns = set(map(int, input().split()))\nx = int(input())\nprint(\"Yes\" if x in s else \"No\")",
+          "complexity_analysis": "Time: O(1), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use 'in' operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Union of Two Sets",
+      "content": "Write a program to find the union of two sets.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3\n3\n3 4 5",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n1 2\n2\n2 3",
+          "expected_output": "1 2 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3\n3\n3 4 5",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "Union combines elements."
+        }
+      ],
+      "inputFormat": "Size and elements of two sets.",
+      "outputFormat": "Print union set.",
+      "solutions": [
+        {
+          "title": "Set Union",
+          "language": "python",
+          "code": "n1 = int(input())\ns1 = set(map(int, input().split()))\nn2 = int(input())\ns2 = set(map(int, input().split()))\nprint(*(s1 | s2))",
+          "complexity_analysis": "Time: O(N+M), Space: O(N+M)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use | operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Intersection of Two Sets",
+      "content": "Write a program to find common elements between two sets.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3\n3\n2 3 4",
+          "expected_output": "2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n1 5\n2\n2 6",
+          "expected_output": ""
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3\n3\n2 3 4",
+          "expected_output": "2 3",
+          "explanation": "Common elements."
+        }
+      ],
+      "inputFormat": "Two sets.",
+      "outputFormat": "Print intersection.",
+      "solutions": [
+        {
+          "title": "Set Intersection",
+          "language": "python",
+          "code": "n1 = int(input())\ns1 = set(map(int, input().split()))\nn2 = int(input())\ns2 = set(map(int, input().split()))\nprint(*(s1 & s2))",
+          "complexity_analysis": "Time: O(min(N,M)), Space: O(min(N,M))",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use & operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Symmetric Difference",
+      "content": "Write a program to find elements present in either set but not both.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3\n3\n2 3 4",
+          "expected_output": "1 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n1 2\n2\n1 2",
+          "expected_output": ""
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3\n3\n2 3 4",
+          "expected_output": "1 4",
+          "explanation": "Exclude common elements."
+        }
+      ],
+      "inputFormat": "Two sets.",
+      "outputFormat": "Print symmetric difference.",
+      "solutions": [
+        {
+          "title": "Symmetric Difference",
+          "language": "python",
+          "code": "n1 = int(input())\ns1 = set(map(int, input().split()))\nn2 = int(input())\ns2 = set(map(int, input().split()))\nprint(*(s1 ^ s2))",
+          "complexity_analysis": "Time: O(N+M), Space: O(N+M)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use ^ operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Subset Check",
+      "content": "Write a program to check if one set is a subset of another.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Sets",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\n1 2 3\n5\n1 2 3 4 5",
+          "expected_output": "Yes"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\n1 6\n3\n1 2 3",
+          "expected_output": "No"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\n1 2 3\n5\n1 2 3 4 5",
+          "expected_output": "Yes",
+          "explanation": "All elements of first set exist in second."
+        }
+      ],
+      "inputFormat": "Two sets.",
+      "outputFormat": "Print Yes or No.",
+      "solutions": [
+        {
+          "title": "Subset Check",
+          "language": "python",
+          "code": "n1 = int(input())\ns1 = set(map(int, input().split()))\nn2 = int(input())\ns2 = set(map(int, input().split()))\nprint(\"Yes\" if s1.issubset(s2) else \"No\")",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use issubset()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Value by Key",
+      "content": "Write a program to create a dictionary and print the value of a given key.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\na 1\nb 2\nc 3\nb",
+          "expected_output": "2"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\nx 10\ny 20\nz",
+          "expected_output": "Key not found"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\na 1\nb 2\nc 3\nb",
+          "expected_output": "2",
+          "explanation": "Access using key."
+        }
+      ],
+      "inputFormat": "N pairs of key value, then query key.",
+      "outputFormat": "Print value or 'Key not found'.",
+      "solutions": [
+        {
+          "title": "Dictionary Lookup",
+          "language": "python",
+          "code": "n = int(input())\nd = {}\nfor _ in range(n):\n    k, v = input().split()\n    d[k] = int(v)\nq = input()\nprint(d[q] if q in d else \"Key not found\")",
+          "complexity_analysis": "Time: O(1) avg lookup, Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use dictionary indexing.",
+        "Check key existence."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Count Frequency of Elements",
+      "content": "Write a program to count frequency of each element in a list using a dictionary.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5\n1 2 2 3 3",
+          "expected_output": "1:1 2:2 3:2"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4\n5 5 5 5",
+          "expected_output": "5:4"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5\n1 2 2 3 3",
+          "expected_output": "1:1 2:2 3:2",
+          "explanation": "Count occurrences."
+        }
+      ],
+      "inputFormat": "N and list.",
+      "outputFormat": "Print element:count pairs.",
+      "solutions": [
+        {
+          "title": "Frequency Count",
+          "language": "python",
+          "code": "n = int(input())\narr = list(map(int, input().split()))\nd = {}\nfor x in arr:\n    d[x] = d.get(x, 0) + 1\nfor k in sorted(d):\n    print(f\"{k}:{d[k]}\", end=' ')",
+          "complexity_analysis": "Time: O(N log N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use get().",
+        "Iterate list."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Merge Two Dictionaries",
+      "content": "Write a program to merge two dictionaries. If a key exists in both, sum their values.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2\na 1\nb 2\n2\nb 3\nc 4",
+          "expected_output": "a:1 b:5 c:4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "1\nx 5\n1\nx 10",
+          "expected_output": "x:15"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2\na 1\nb 2\n2\nb 3\nc 4",
+          "expected_output": "a:1 b:5 c:4",
+          "explanation": "Combine dictionaries."
+        }
+      ],
+      "inputFormat": "Two dictionaries.",
+      "outputFormat": "Print merged dictionary.",
+      "solutions": [
+        {
+          "title": "Merge Logic",
+          "language": "python",
+          "code": "n1 = int(input())\nd1 = {}\nfor _ in range(n1):\n    k, v = input().split()\n    d1[k] = int(v)\nn2 = int(input())\nd2 = {}\nfor _ in range(n2):\n    k, v = input().split()\n    d2[k] = int(v)\nfor k in d2:\n    d1[k] = d1.get(k, 0) + d2[k]\nfor k in sorted(d1):\n    print(f\"{k}:{d1[k]}\", end=' ')",
+          "complexity_analysis": "Time: O(N log N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use get() for merging.",
+        "Loop through second dictionary."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Sort Dictionary by Values",
+      "content": "Write a program to sort a dictionary by its values.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\na 3\nb 1\nc 2",
+          "expected_output": "b:1 c:2 a:3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\nx 10\ny 5",
+          "expected_output": "y:5 x:10"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\na 3\nb 1\nc 2",
+          "expected_output": "b:1 c:2 a:3",
+          "explanation": "Sort by value."
+        }
+      ],
+      "inputFormat": "Dictionary entries.",
+      "outputFormat": "Print sorted dictionary.",
+      "solutions": [
+        {
+          "title": "Sort by Value",
+          "language": "python",
+          "code": "n = int(input())\nd = {}\nfor _ in range(n):\n    k, v = input().split()\n    d[k] = int(v)\nfor k, v in sorted(d.items(), key=lambda x: x[1]):\n    print(f\"{k}:{v}\", end=' ')",
+          "complexity_analysis": "Time: O(N log N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use sorted().",
+        "Sort by value."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Nested Dictionary Access",
+      "content": "Write a program to store student data in a nested dictionary and print marks of a given student.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2\nJohn 85\nAlice 90\nJohn",
+          "expected_output": "85"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "1\nBob 75\nTom",
+          "expected_output": "Student not found"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2\nJohn 85\nAlice 90\nJohn",
+          "expected_output": "85",
+          "explanation": "Access nested dict."
+        }
+      ],
+      "inputFormat": "Student name and marks.",
+      "outputFormat": "Print marks.",
+      "solutions": [
+        {
+          "title": "Nested Dict",
+          "language": "python",
+          "code": "n = int(input())\nd = {}\nfor _ in range(n):\n    name, marks = input().split()\n    d[name] = {\"marks\": int(marks)}\nq = input()\nprint(d[q][\"marks\"] if q in d else \"Student not found\")",
+          "complexity_analysis": "Time: O(1), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use nested dictionaries.",
+        "Access inner keys."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Group Words by Length",
+      "content": "Write a program to group words by their lengths using a dictionary.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "3\ncat dog apple",
+          "expected_output": "3:cat dog 5:apple"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2\nhi hello",
+          "expected_output": "2:hi 5:hello"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3\ncat dog apple",
+          "expected_output": "3:cat dog 5:apple",
+          "explanation": "Group by word length."
+        }
+      ],
+      "inputFormat": "N and words.",
+      "outputFormat": "Print grouped words.",
+      "solutions": [
+        {
+          "title": "Group by Length",
+          "language": "python",
+          "code": "n = int(input())\nwords = input().split()\nd = {}\nfor w in words:\n    l = len(w)\n    d.setdefault(l, []).append(w)\nfor k in sorted(d):\n    print(f\"{k}:{' '.join(d[k])}\", end=' ')",
+          "complexity_analysis": "Time: O(N log N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use length as key.",
+        "Store list of words."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Flatten Nested Dictionary",
+      "content": "Write a program to flatten a nested dictionary into a single-level dictionary with keys joined by '.'",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Dictionaries",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "{\"a\": {\"b\": 1}}",
+          "expected_output": "a.b:1"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "{\"x\": {\"y\": {\"z\": 2}}}",
+          "expected_output": "x.y.z:2"
+        }
+      ],
+      "examples": [
+        {
+          "input": "{\"a\": {\"b\": 1}}",
+          "expected_output": "a.b:1",
+          "explanation": "Flatten nested keys."
+        }
+      ],
+      "inputFormat": "Nested dictionary (string format).",
+      "outputFormat": "Print flattened dictionary.",
+      "solutions": [
+        {
+          "title": "Recursive Flatten",
+          "language": "python",
+          "code": "import ast\n\ndef flatten(d, parent=''):\n    res = {}\n    for k, v in d.items():\n        key = f\"{parent}.{k}\" if parent else k\n        if isinstance(v, dict):\n            res.update(flatten(v, key))\n        else:\n            res[key] = v\n    return res\n\nd = ast.literal_eval(input())\nres = flatten(d)\nfor k in res:\n    print(f\"{k}:{res[k]}\", end=' ')",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use recursion.",
+        "Track parent keys."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Reverse a String",
+      "content": "Write a program to reverse a given string using slicing.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "hello",
+          "expected_output": "olleh"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Python",
+          "expected_output": "nohtyP"
+        }
+      ],
+      "examples": [
+        {
+          "input": "hello",
+          "expected_output": "olleh",
+          "explanation": "Use slicing [::-1]"
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Reversed string.",
+      "solutions": [
+        {
+          "title": "Slicing Reverse",
+          "language": "python",
+          "code": "s = input()\nprint(s[::-1])",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use slicing syntax."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Count Vowels",
+      "content": "Write a program to count the number of vowels in a string.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "hello",
+          "expected_output": "2"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "AEIOU",
+          "expected_output": "5"
+        }
+      ],
+      "examples": [
+        {
+          "input": "hello",
+          "expected_output": "2",
+          "explanation": "Vowels are e and o."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Count of vowels.",
+      "solutions": [
+        {
+          "title": "Vowel Count",
+          "language": "python",
+          "code": "s = input().lower()\nvowels = 'aeiou'\ncount = sum(1 for c in s if c in vowels)\nprint(count)",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Convert to lowercase.",
+        "Check membership."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Convert to Uppercase",
+      "content": "Write a program to convert a string to uppercase.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "hello",
+          "expected_output": "HELLO"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "PyThOn",
+          "expected_output": "PYTHON"
+        }
+      ],
+      "examples": [
+        {
+          "input": "hello",
+          "expected_output": "HELLO",
+          "explanation": "Use upper()."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Uppercase string.",
+      "solutions": [
+        {
+          "title": "Upper Method",
+          "language": "python",
+          "code": "s = input()\nprint(s.upper())",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use upper()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Palindrome String",
+      "content": "Write a program to check if a string is a palindrome.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "madam",
+          "expected_output": "Yes"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "hello",
+          "expected_output": "No"
+        }
+      ],
+      "examples": [
+        {
+          "input": "madam",
+          "expected_output": "Yes",
+          "explanation": "Same forward and backward."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Yes or No.",
+      "solutions": [
+        {
+          "title": "Palindrome Check",
+          "language": "python",
+          "code": "s = input()\nprint(\"Yes\" if s == s[::-1] else \"No\")",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Compare string with reverse."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Format Name and Age",
+      "content": "Write a program to take name and age and print formatted string: 'My name is X and I am Y years old'.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John\n25",
+          "expected_output": "My name is John and I am 25 years old"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice\n30",
+          "expected_output": "My name is Alice and I am 30 years old"
+        }
+      ],
+      "examples": [
+        {
+          "input": "John\n25",
+          "expected_output": "My name is John and I am 25 years old",
+          "explanation": "Use f-strings."
+        }
+      ],
+      "inputFormat": "Name and age.",
+      "outputFormat": "Formatted string.",
+      "solutions": [
+        {
+          "title": "f-string",
+          "language": "python",
+          "code": "name = input()\nage = int(input())\nprint(f\"My name is {name} and I am {age} years old\")",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use f-string formatting."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Longest Word in Sentence",
+      "content": "Write a program to find the longest word in a sentence.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "I love programming",
+          "expected_output": "programming"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Python is powerful",
+          "expected_output": "powerful"
+        }
+      ],
+      "examples": [
+        {
+          "input": "I love programming",
+          "expected_output": "programming",
+          "explanation": "Split and compare lengths."
+        }
+      ],
+      "inputFormat": "Sentence string.",
+      "outputFormat": "Longest word.",
+      "solutions": [
+        {
+          "title": "Split and Max",
+          "language": "python",
+          "code": "s = input().split()\nprint(max(s, key=len))",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Use split().",
+        "Use max with key."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "String Compression",
+      "content": "Write a program to compress a string such that consecutive characters are replaced by character + count.",
+      "level": "subtopic",
+      "unit_name": "Data Structures (Core)",
+      "subunit_name": "Strings (Deep Dive)",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "aaabbc",
+          "expected_output": "a3b2c1"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "abcd",
+          "expected_output": "a1b1c1d1"
+        }
+      ],
+      "examples": [
+        {
+          "input": "aaabbc",
+          "expected_output": "a3b2c1",
+          "explanation": "Count consecutive characters."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Compressed string.",
+      "solutions": [
+        {
+          "title": "Compression Logic",
+          "language": "python",
+          "code": "s = input()\nres = ''\ncount = 1\nfor i in range(1, len(s)+1):\n    if i < len(s) and s[i] == s[i-1]:\n        count += 1\n    else:\n        res += s[i-1] + str(count)\n        count = 1\nprint(res)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "optimal"
+        }
+      ],
+      "hints": [
+        "Track count of characters.",
+        "Reset when char changes."
+      ]
+    }
+  ]
+}

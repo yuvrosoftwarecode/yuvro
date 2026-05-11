@@ -1,0 +1,10 @@
+{
+    "courses": [
+        {
+            "short_code": "PY101",
+            "name": "Python",
+            "category": "fundamentals",
+            "instructor_email": "admin@yuvro.com"
+        }
+    ]
+}
