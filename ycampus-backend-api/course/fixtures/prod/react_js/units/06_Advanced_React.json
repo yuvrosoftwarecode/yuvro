@@ -1,0 +1,4531 @@
+{
+    "name": "Advanced React",
+    "subject_short_code": "RJS100",
+    "order_index": 6,
+    "subunits": [
+        {
+            "name": "Performance Optimization",
+            "content": "Performance optimization in React involves measuring and improving the rendering speed of your application. Key strategies include using tools like React DevTools Profiler, avoiding anonymous functions in render, and optimizing list rendering.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "React.memo",
+            "content": "React.memo is a higher-order component for functional components. If your component renders the same result given the same props, you can wrap it in React.memo to skip re-rendering the component and reuse the last rendered result.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "Lazy Loading & Suspense",
+            "content": "React.lazy lets you define a component that is loaded dynamically. This helps reduce the bundle size and load components on demand. Suspense allows you to show a placeholder (like a spinner) while the lazy component is loading.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Code Splitting",
+            "content": "Code splitting is a feature supported by bundlers like Webpack and Vite. It allows you to split your code into various bundles which can then be loaded on demand or in parallel, significantly improving the initial load time of your application.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Error Boundaries",
+            "content": "Error boundaries are React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of the component tree that crashed. They catch errors during rendering and in lifecycle methods.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "HOC",
+            "content": "A higher-order component (HOC) is an advanced technique in React for reusing component logic. HOCs are not part of the React API, per se. They are a pattern that emerges from React's compositional nature. A HOC is a function that takes a component and returns a new component.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "React Patterns",
+            "content": "React patterns like Render Props and Compound Components provide structured ways to share stateful logic or build complex components that are easy to use and customize. Mastering these patterns leads to more maintainable and flexible codebases.",
+            "order_index": 6,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Performance Meaning",
+            "content": "What does performance optimization in React mean?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Making app faster and efficient",
+                    "is_correct": true
+                },
+                {
+                    "text": "Adding more CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating more components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increasing API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Re-render Meaning",
+            "content": "What is a re-render in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component updates UI again",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting component",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS update only",
+                    "is_correct": false
+                },
+                {
+                    "text": "API call only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Optimization Tool",
+            "content": "Which hook is used for performance optimization?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useMemo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "useRef",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Optimization Goal",
+            "content": "What is the main goal of optimization?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduce unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increase UI size",
+                    "is_correct": false
+                },
+                {
+                    "text": "Add more states",
+                    "is_correct": false
+                },
+                {
+                    "text": "Slow API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Usage",
+            "content": "What does React.memo do?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates new components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Purpose",
+            "content": "Why do we use useMemo?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To memoize expensive calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "To fetch APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Purpose",
+            "content": "What does useCallback optimize?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function reference stability",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reconciliation",
+            "content": "What is React reconciliation?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Process of updating DOM efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting components",
+                    "is_correct": false
+                },
+                {
+                    "text": "API caching",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Virtual DOM Benefit",
+            "content": "What is the main benefit of Virtual DOM?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "More CSS usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend speed increase",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Issue",
+            "content": "What causes performance issues in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "API URLs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Basics",
+            "content": "What are performance optimization goals?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduce re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve speed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increase CSS load",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Tools",
+            "content": "Which are optimization tools in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useMemo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useCallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "React.memo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useStyle",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What causes slow React apps?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Heavy calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS colors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Benefits",
+            "content": "What are benefits of optimization?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Better UX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster load time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "More CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memoization",
+            "content": "What uses memoization in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useMemo",
+                    "is_correct": true
+                },
+                {
+                    "text": "React.memo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useCallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "useStyle",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rendering Optimization",
+            "content": "What improves rendering performance?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoid unnecessary state updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimized props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Optimization Techniques",
+            "content": "Which techniques improve performance?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline rendering everything",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Optimization",
+            "content": "What are advanced React optimizations?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tree shaking",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS duplication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Re-render Control",
+            "content": "What helps control re-renders?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React.memo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useMemo",
+                    "is_correct": true
+                },
+                {
+                    "text": "useCallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS classes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Bottlenecks",
+            "content": "What are performance bottlenecks?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Performance Optimization",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large component trees",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frequent re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Heavy computations",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS colors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Purpose",
+            "content": "What is React.memo used for?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To prevent unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "To create API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Type",
+            "content": "React.memo is a type of:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher Order Component",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS function",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hook",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reducer",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Usage",
+            "content": "When should React.memo be used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When component renders frequently without prop changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "When creating CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "When using APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "When routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Effect",
+            "content": "React.memo affects:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rendering performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Shallow Comparison",
+            "content": "React.memo uses what kind of comparison by default?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Shallow comparison",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deep comparison",
+                    "is_correct": false
+                },
+                {
+                    "text": "No comparison",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS comparison",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.memo Input",
+            "content": "React.memo optimizes a component based on:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props comparison",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Memo Benefit",
+            "content": "What is a benefit of React.memo?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improved performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Faster backend",
+                    "is_correct": false
+                },
+                {
+                    "text": "Improved routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Memo Limitation",
+            "content": "When does React.memo NOT help?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When props change frequently",
+                    "is_correct": true
+                },
+                {
+                    "text": "When using CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "When routing pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "When rendering HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Memo Optimization",
+            "content": "React.memo optimizes which process?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component re-rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "API fetching",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Memo Internals",
+            "content": "React.memo works by:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Skipping re-render if props are same",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Updating DOM directly",
+                    "is_correct": false
+                },
+                {
+                    "text": "Changing CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React.memo Basics",
+            "content": "What are benefits of React.memo?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizes components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changes CSS layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Use Cases",
+            "content": "Where can React.memo be used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI-heavy components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Repeated rendering components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Trigger",
+            "content": "What triggers re-render despite React.memo?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prop change",
+                    "is_correct": true
+                },
+                {
+                    "text": "State change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Context change",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS change",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Purpose",
+            "content": "What does React.memo help reduce?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rendering cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Mechanism",
+            "content": "How does React.memo work?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Shallow comparison of props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skips rendering if same props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changes CSS dynamically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo vs Normal Component",
+            "content": "Difference between memo and normal component?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memo avoids unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normal always re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memo is optimized version",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are same always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Optimization Areas",
+            "content": "Where does React.memo help?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "UI-heavy components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frequent renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Edge Cases",
+            "content": "When React.memo may fail to optimize?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When props are new references every render",
+                    "is_correct": true
+                },
+                {
+                    "text": "When using inline objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "When functions are recreated",
+                    "is_correct": true
+                },
+                {
+                    "text": "When using CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Limitations",
+            "content": "What are limitations of React.memo?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Does not help with deep comparison by default",
+                    "is_correct": true
+                },
+                {
+                    "text": "Overhead for comparison",
+                    "is_correct": true
+                },
+                {
+                    "text": "Not useful for all components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves CSS performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Memo Best Use",
+            "content": "Where is React.memo most effective?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React.memo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Pure functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large UI lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stable props components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS layouts",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lazy Loading Meaning",
+            "content": "What is lazy loading in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loading components only when needed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loading all components at once",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting unused components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling components lazily",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.lazy Purpose",
+            "content": "What does React.lazy do?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loads components dynamically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styles components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Manages state",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Suspense Purpose",
+            "content": "What is React Suspense used for?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Showing fallback UI while loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Benefit",
+            "content": "What is the main benefit of lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster initial load time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "More CSS usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increased API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Suspense Fallback",
+            "content": "What does fallback in Suspense do?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Shows loading UI while waiting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles API calls only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Changes CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React.lazy Import",
+            "content": "React.lazy uses which syntax?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dynamic import()",
+                    "is_correct": true
+                },
+                {
+                    "text": "require()",
+                    "is_correct": false
+                },
+                {
+                    "text": "fetch()",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios.get()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Suspense Usage",
+            "content": "Suspense works with:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loaded components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend APIs only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Redux reducers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Code Splitting",
+            "content": "Lazy loading is part of which concept?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS bundling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Suspense Behavior",
+            "content": "What happens when lazy component loads?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Suspense replaces fallback with component",
+                    "is_correct": true
+                },
+                {
+                    "text": "App crashes",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS resets",
+                    "is_correct": false
+                },
+                {
+                    "text": "API stops working",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Optimization Goal",
+            "content": "Lazy loading improves:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Initial bundle size",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database size",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lazy Loading Benefits",
+            "content": "What are benefits of lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster initial load",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced bundle size",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improved performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increased CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Suspense Features",
+            "content": "What does Suspense handle?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loading states",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Async rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React.lazy Usage",
+            "content": "Where is React.lazy used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Route-based splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Impact",
+            "content": "What improves with lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Page load speed",
+                    "is_correct": true
+                },
+                {
+                    "text": "User experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bandwidth usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS size increase",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Suspense Behavior",
+            "content": "What does Suspense manage?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loading fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Async component rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Waiting states",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lazy Loading Advantages",
+            "content": "What are advantages of lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Improved performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Smaller initial bundle",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increased CSS complexity",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Code Splitting Relation",
+            "content": "What relates to lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic imports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Route splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS bundling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Suspense Limitations",
+            "content": "What are limitations of Suspense?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Works mainly with lazy components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Requires fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Not for all async cases",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves CSS performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Flow",
+            "content": "What happens in lazy loading flow?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component loads on demand",
+                    "is_correct": true
+                },
+                {
+                    "text": "Suspense shows fallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component replaces fallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rebuilds",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Gains",
+            "content": "What performance gains come from lazy loading?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Lazy Loading & Suspense",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduced initial JS bundle",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster first paint",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better UX",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Code Splitting Meaning",
+            "content": "What is code splitting in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Breaking code into smaller bundles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Merging all code into one file",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting unused code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling components separately",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Main Benefit",
+            "content": "What is the main benefit of code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster initial load time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "More CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increased API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Used With",
+            "content": "Code splitting is commonly used with:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React.lazy",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "Redux reducers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose",
+            "content": "Why do we use code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce bundle size",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase CSS size",
+                    "is_correct": false
+                },
+                {
+                    "text": "To slow app",
+                    "is_correct": false
+                },
+                {
+                    "text": "To duplicate code",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tool Used",
+            "content": "Which feature enables code splitting in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dynamic import()",
+                    "is_correct": true
+                },
+                {
+                    "text": "require()",
+                    "is_correct": false
+                },
+                {
+                    "text": "fetch()",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios.get()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Route Based Splitting",
+            "content": "Code splitting is often done based on:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Routes/pages",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bundle Impact",
+            "content": "Code splitting affects:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JavaScript bundle size",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database size",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server memory",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lazy Relation",
+            "content": "Code splitting is closely related to:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML parsing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Optimization Goal",
+            "content": "Code splitting mainly improves:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Initial page load performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Webpack Role",
+            "content": "Which tool supports code splitting in React apps?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Webpack",
+                    "is_correct": true
+                },
+                {
+                    "text": "MySQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "MongoDB",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS compiler",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Code Splitting Basics",
+            "content": "What does code splitting help with?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster load time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Smaller bundles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "More CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Where Used",
+            "content": "Where is code splitting used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multi-page apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "React apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS design only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits",
+            "content": "What are benefits of code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduced initial load",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better UX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increased bundle size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Relation",
+            "content": "What is related to code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic import",
+                    "is_correct": true
+                },
+                {
+                    "text": "Suspense",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS grid",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Mechanism",
+            "content": "How does code splitting work?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Splits bundle into chunks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loads chunks on demand",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses dynamic import",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changes CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Impact",
+            "content": "What improves due to code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Initial bundle size",
+                    "is_correct": true
+                },
+                {
+                    "text": "Load performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering speed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Implementation",
+            "content": "What is used in code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Webpack",
+                    "is_correct": true
+                },
+                {
+                    "text": "React.lazy",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic import()",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS preprocessors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Concepts",
+            "content": "What is involved in code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Chunk generation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lazy loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Route-based splitting",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS compression only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Factors",
+            "content": "What improves with code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "First contentful paint",
+                    "is_correct": true
+                },
+                {
+                    "text": "User experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "App scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS size increase",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tooling",
+            "content": "What tools support code splitting?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Code Splitting",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Webpack",
+                    "is_correct": true
+                },
+                {
+                    "text": "Vite",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parcel",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS frameworks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Boundary Purpose",
+            "content": "What is the main purpose of an Error Boundary in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To catch JavaScript errors in UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To handle API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Boundary Type",
+            "content": "Error Boundaries are implemented using:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hooks only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "Redux reducers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Handling",
+            "content": "What do Error Boundaries prevent?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Whole app crash",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "API requests",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lifecycle Method",
+            "content": "Which lifecycle method is used in Error Boundaries?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "componentDidCatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "renderEffect",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Boundary Scope",
+            "content": "Error Boundaries catch errors in:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Child components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Fallback UI",
+            "content": "What does an Error Boundary display when error occurs?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Blank screen always",
+                    "is_correct": false
+                },
+                {
+                    "text": "API response",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS reset",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Boundary Limitation",
+            "content": "Error Boundaries do NOT catch errors in:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event handlers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render phase",
+                    "is_correct": false
+                },
+                {
+                    "text": "Child components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Lifecycle methods",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Static Method",
+            "content": "Which static method defines fallback UI in Error Boundary?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "getDerivedStateFromError",
+                    "is_correct": true
+                },
+                {
+                    "text": "useError",
+                    "is_correct": false
+                },
+                {
+                    "text": "catchError",
+                    "is_correct": false
+                },
+                {
+                    "text": "handleError",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Boundary Behavior",
+            "content": "What happens when an error is caught?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fallback UI is rendered",
+                    "is_correct": true
+                },
+                {
+                    "text": "App reloads automatically always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend restarts",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS is reset",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Use Case",
+            "content": "Error Boundaries are useful in:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Production apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static HTML only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Boundary Basics",
+            "content": "What do Error Boundaries do?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Catch UI errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Show fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevent app crash",
+                    "is_correct": true
+                },
+                {
+                    "text": "Modify CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Where Used",
+            "content": "Where can Error Boundaries be used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component tree",
+                    "is_correct": true
+                },
+                {
+                    "text": "Page sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Fallback UI",
+            "content": "What is fallback UI used for?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Display error message",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevent blank screen",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve UX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Style components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling",
+            "content": "What helps prevent UI crash?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Error Boundaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentDidCatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Methods",
+            "content": "Which methods are used in Error Boundaries?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "componentDidCatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "getDerivedStateFromError",
+                    "is_correct": true
+                },
+                {
+                    "text": "render()",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Scope",
+            "content": "Where do Error Boundaries work?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Child component tree",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render phase errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component UI errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling Flow",
+            "content": "What happens when error occurs?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Error is caught",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fallback UI shown",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI continues safely",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS breaks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Limitations",
+            "content": "What are limitations of Error Boundaries?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Do not catch async errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Do not catch event handler errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only class components support them",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve CSS performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Use",
+            "content": "Where are Error Boundaries used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Production apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large UI systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Critical components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS layouts",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Recovery",
+            "content": "What helps recover UI from crash?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "Error Boundaries",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fallback UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Error Boundary reset",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentDidCatch",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS reset",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Meaning",
+            "content": "What does HOC stand for in React?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher Order Component",
+                    "is_correct": true
+                },
+                {
+                    "text": "High Output Component",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hook Oriented Component",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hyper Object Class",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Purpose",
+            "content": "What is the main purpose of a Higher-Order Component?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reuse component logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "To create APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Input",
+            "content": "A Higher-Order Component takes:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A component and returns a new component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only API data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only hooks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Usage",
+            "content": "HOCs are mainly used for:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML rendering only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Pattern",
+            "content": "HOC follows which pattern?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function that returns a component",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS function",
+                    "is_correct": false
+                },
+                {
+                    "text": "API function",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Behavior",
+            "content": "HOC enhances:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Existing components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Reusability",
+            "content": "What does HOC improve?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS complexity",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML parsing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC vs Hooks",
+            "content": "HOCs are mostly replaced by:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React Hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML templates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Limitation",
+            "content": "A limitation of HOC is:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Wrapper hell (deep nesting)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better performance always",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS improvement",
+                    "is_correct": false
+                },
+                {
+                    "text": "API optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HOC Concept",
+            "content": "HOC is similar to:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Decorator pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS grid",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML DOM tree",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Basics",
+            "content": "What are characteristics of HOC?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reuses logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wraps components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Returns new component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changes CSS only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Use Cases",
+            "content": "Where are HOCs used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logging",
+                    "is_correct": true
+                },
+                {
+                    "text": "Permissions",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Structure",
+            "content": "What defines a HOC?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function returning component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component wrapping another",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logic reuse pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS function",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Benefits",
+            "content": "What are benefits of HOC?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleaner components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Pattern",
+            "content": "What does HOC pattern include?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Input component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Enhancement logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Output component",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS transformation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC vs Hooks",
+            "content": "Differences between HOC and Hooks?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HOC wraps components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hooks are functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hooks are modern approach",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are CSS tools",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HOC Risks",
+            "content": "What are risks of HOC?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Wrapper hell",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hard debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prop conflicts",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS issues only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced HOC Concepts",
+            "content": "What are advanced HOC concepts?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Composition of HOCs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Function currying",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prop proxy pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS inheritance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Real World Usage",
+            "content": "Where are HOCs used in real apps?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication layers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logging systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Feature toggles",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS frameworks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Design Pattern",
+            "content": "HOC is related to which patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "HOC",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Decorator pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "Higher-order functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS grid system",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Patterns Meaning",
+            "content": "What are React patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable solutions to common problems",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS design techniques",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database structures",
+                    "is_correct": false
+                },
+                {
+                    "text": "API endpoints",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose",
+            "content": "Why are React patterns used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To write clean and reusable code",
+                    "is_correct": true
+                },
+                {
+                    "text": "To design databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage servers",
+                    "is_correct": false
+                },
+                {
+                    "text": "To build APIs only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pattern Benefit",
+            "content": "React patterns mainly improve:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Example Pattern",
+            "content": "Which is a React pattern?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HOC",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query",
+                    "is_correct": false
+                },
+                {
+                    "text": "REST API",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML form",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pattern Usage",
+            "content": "React patterns are used to solve:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Common UI problems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server deployment",
+                    "is_correct": false
+                },
+                {
+                    "text": "Network setup",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pattern Types",
+            "content": "Which is a React pattern type?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Render Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTTP methods",
+                    "is_correct": false
+                },
+                {
+                    "text": "DNS routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reusability Goal",
+            "content": "React patterns mainly improve:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reusability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Network latency",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pattern Concept",
+            "content": "React patterns are based on:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database normalization",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS inheritance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server clustering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Usage",
+            "content": "Patterns help in building:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Scalable applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static websites only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database engines",
+                    "is_correct": false
+                },
+                {
+                    "text": "Operating systems",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Design Principle",
+            "content": "React patterns follow:",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DRY principle",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL normalization",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTTP protocol",
+                    "is_correct": false
+                },
+                {
+                    "text": "DNS structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Patterns Basics",
+            "content": "What are React patterns used for?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable code solutions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleaner architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better component design",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Examples",
+            "content": "Which are React patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HOC",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compound Components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits",
+            "content": "What do patterns improve?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS performance only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Usage",
+            "content": "Where are React patterns used?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large applications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable UI components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frontend architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Types",
+            "content": "Which are React design patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HOC",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compound Components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Goals",
+            "content": "What do React patterns aim for?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reusability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maintainable code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Architecture",
+            "content": "What do patterns influence?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server setup",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Patterns",
+            "content": "Which are advanced React patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Render Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "HOC composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compound Components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Advantages",
+            "content": "What are advantages of patterns?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Scalable code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleaner architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database performance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Core Principles",
+            "content": "What principles do patterns follow?",
+            "level": "subunit",
+            "unit_name": "Advanced React",
+            "subunit_name": "React Patterns",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DRY principle",
+                    "is_correct": true
+                },
+                {
+                    "text": "Composition over inheritance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS specificity",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}
