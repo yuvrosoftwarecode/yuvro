@@ -1,0 +1,2394 @@
+{
+  "name": "Concurrency & Performance",
+  "subject_short_code": "PY101",
+  "order_index": 7,
+  "sub_units": [
+    {
+      "name": "Multithreading",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Multithreading",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Multithreading in Python."
+        },
+        {
+          "title": "Advanced Multithreading Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Multithreading."
+        }
+      ]
+    },
+    {
+      "name": "Multiprocessing",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Multiprocessing",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Multiprocessing in Python."
+        },
+        {
+          "title": "Advanced Multiprocessing Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Multiprocessing."
+        }
+      ]
+    },
+    {
+      "name": "Async Programming",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Async Programming",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Async Programming in Python."
+        },
+        {
+          "title": "Advanced Async Programming Techniques",
+          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+          "ai_context": "In-depth explanation and practical examples for Async Programming."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Threading Module",
+      "content": "Which module is used for multithreading in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "threading",
+          "is_correct": true
+        },
+        {
+          "text": "multiprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "asyncio",
+          "is_correct": false
+        },
+        {
+          "text": "thread",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Thread Purpose",
+      "content": "What is the main purpose of multithreading?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To run multiple tasks concurrently",
+          "is_correct": true
+        },
+        {
+          "text": "To increase code size",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid functions",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce memory to zero",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Creating Thread",
+      "content": "Which class is used to create a thread in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Thread",
+          "is_correct": true
+        },
+        {
+          "text": "Process",
+          "is_correct": false
+        },
+        {
+          "text": "Task",
+          "is_correct": false
+        },
+        {
+          "text": "Worker",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Thread Start Method",
+      "content": "Which method is used to start a thread?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "start()",
+          "is_correct": true
+        },
+        {
+          "text": "run()",
+          "is_correct": false
+        },
+        {
+          "text": "execute()",
+          "is_correct": false
+        },
+        {
+          "text": "begin()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Join Method",
+      "content": "What does the join() method do in threading?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Waits for a thread to finish",
+          "is_correct": true
+        },
+        {
+          "text": "Starts a thread",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes a thread",
+          "is_correct": false
+        },
+        {
+          "text": "Pauses program permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GIL Impact",
+      "content": "What is the effect of GIL (Global Interpreter Lock) in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Only one thread executes Python bytecode at a time",
+          "is_correct": true
+        },
+        {
+          "text": "Allows unlimited parallel threads",
+          "is_correct": false
+        },
+        {
+          "text": "Deletes threads automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Stops all threads",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multithreading Use Case",
+      "content": "Which scenario best suits multithreading?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "I/O-bound tasks like file or network operations",
+          "is_correct": true
+        },
+        {
+          "text": "Heavy CPU computations",
+          "is_correct": false
+        },
+        {
+          "text": "Single variable operations",
+          "is_correct": false
+        },
+        {
+          "text": "Static code execution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiprocessing Module",
+      "content": "Which module is used for multiprocessing in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "multiprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "threading",
+          "is_correct": false
+        },
+        {
+          "text": "asyncio",
+          "is_correct": false
+        },
+        {
+          "text": "process",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Parallel Execution Meaning",
+      "content": "What does parallel execution mean?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Running tasks simultaneously on multiple CPU cores",
+          "is_correct": true
+        },
+        {
+          "text": "Running tasks one after another",
+          "is_correct": false
+        },
+        {
+          "text": "Using only one thread",
+          "is_correct": false
+        },
+        {
+          "text": "Stopping tasks early",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CPU-bound Task",
+      "content": "Which of the following is a CPU-bound task?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Complex mathematical computation",
+          "is_correct": true
+        },
+        {
+          "text": "Reading a file",
+          "is_correct": false
+        },
+        {
+          "text": "Downloading data",
+          "is_correct": false
+        },
+        {
+          "text": "Waiting for user input",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Process Creation",
+      "content": "Which class is used to create a process in multiprocessing?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Process",
+          "is_correct": true
+        },
+        {
+          "text": "Thread",
+          "is_correct": false
+        },
+        {
+          "text": "Worker",
+          "is_correct": false
+        },
+        {
+          "text": "Executor",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiprocessing Advantage",
+      "content": "Why is multiprocessing preferred for CPU-bound tasks?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It bypasses the GIL and uses multiple cores",
+          "is_correct": true
+        },
+        {
+          "text": "It reduces CPU usage to zero",
+          "is_correct": false
+        },
+        {
+          "text": "It runs only one process",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids memory usage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Process Isolation",
+      "content": "What is a key property of processes in multiprocessing?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Each process has its own memory space",
+          "is_correct": true
+        },
+        {
+          "text": "All processes share the same memory automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Processes cannot run in parallel",
+          "is_correct": false
+        },
+        {
+          "text": "Processes do not use CPU",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "IO-bound vs CPU-bound",
+      "content": "Which combination is correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "IO-bound \u2192 threading, CPU-bound \u2192 multiprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "CPU-bound \u2192 threading, IO-bound \u2192 multiprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "Both use threading only",
+          "is_correct": false
+        },
+        {
+          "text": "Both use multiprocessing only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Keyword",
+      "content": "What does the 'async' keyword do in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Defines an asynchronous function",
+          "is_correct": true
+        },
+        {
+          "text": "Creates a thread",
+          "is_correct": false
+        },
+        {
+          "text": "Stops execution",
+          "is_correct": false
+        },
+        {
+          "text": "Imports modules",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Await Keyword",
+      "content": "What is the purpose of the 'await' keyword?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To wait for an async function to complete",
+          "is_correct": true
+        },
+        {
+          "text": "To stop a loop",
+          "is_correct": false
+        },
+        {
+          "text": "To create a class",
+          "is_correct": false
+        },
+        {
+          "text": "To raise exceptions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Asyncio Module",
+      "content": "Which module is commonly used for async programming in Python?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "asyncio",
+          "is_correct": true
+        },
+        {
+          "text": "threading",
+          "is_correct": false
+        },
+        {
+          "text": "multiprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "time",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Function Call",
+      "content": "What happens if you call an async function without await?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It returns a coroutine object",
+          "is_correct": true
+        },
+        {
+          "text": "It executes immediately",
+          "is_correct": false
+        },
+        {
+          "text": "It throws syntax error",
+          "is_correct": false
+        },
+        {
+          "text": "It returns None",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Event Loop",
+      "content": "What is the role of an event loop in asyncio?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Manages and schedules async tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Creates threads",
+          "is_correct": false
+        },
+        {
+          "text": "Handles file storage",
+          "is_correct": false
+        },
+        {
+          "text": "Compiles code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Concurrency Model",
+      "content": "Async programming is best suited for which type of tasks?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "IO-bound tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Heavy CPU computations",
+          "is_correct": false
+        },
+        {
+          "text": "Only mathematical calculations",
+          "is_correct": false
+        },
+        {
+          "text": "Static variable operations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Async Execution Order",
+      "content": "What will be the output order?\n\nimport asyncio\n\nasync def main():\n    print('A')\n    await asyncio.sleep(1)\n    print('B')\n\nasyncio.run(main())",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A then B",
+          "is_correct": true
+        },
+        {
+          "text": "B then A",
+          "is_correct": false
+        },
+        {
+          "text": "Only A",
+          "is_correct": false
+        },
+        {
+          "text": "Random order",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multithreading Basics",
+      "content": "Which of the following statements about multithreading in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multithreading allows multiple threads to run concurrently",
+          "is_correct": true
+        },
+        {
+          "text": "Threads share the same memory space",
+          "is_correct": true
+        },
+        {
+          "text": "Threads cannot communicate with each other",
+          "is_correct": false
+        },
+        {
+          "text": "Multithreading can improve performance for I/O-bound tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Threading Module",
+      "content": "Which of the following statements about the threading module are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "threading module is used to create threads in Python",
+          "is_correct": true
+        },
+        {
+          "text": "Thread class is used to define a new thread",
+          "is_correct": true
+        },
+        {
+          "text": "threading module is not available in Python",
+          "is_correct": false
+        },
+        {
+          "text": "start() method begins thread execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Thread Lifecycle",
+      "content": "Which of the following statements about thread lifecycle are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Threads are created using Thread class",
+          "is_correct": true
+        },
+        {
+          "text": "start() method invokes run() internally",
+          "is_correct": true
+        },
+        {
+          "text": "Threads execute automatically without start()",
+          "is_correct": false
+        },
+        {
+          "text": "join() waits for thread to finish",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multithreading Use Cases",
+      "content": "Which of the following are common use cases of multithreading?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling multiple I/O operations",
+          "is_correct": true
+        },
+        {
+          "text": "Running background tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Heavy CPU-bound computations always benefit from threads",
+          "is_correct": false
+        },
+        {
+          "text": "Concurrent network requests",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Thread Synchronization",
+      "content": "Which of the following statements about thread synchronization are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Locks are used to prevent race conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Race conditions occur when multiple threads access shared data",
+          "is_correct": true
+        },
+        {
+          "text": "Synchronization is not needed in multithreading",
+          "is_correct": false
+        },
+        {
+          "text": "threading.Lock is used for synchronization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Thread Concepts",
+      "content": "Which of the following statements about advanced threading concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Global Interpreter Lock (GIL) affects multithreading in Python",
+          "is_correct": true
+        },
+        {
+          "text": "GIL allows only one thread to execute Python bytecode at a time",
+          "is_correct": true
+        },
+        {
+          "text": "Threads can fully utilize multiple CPU cores in Python always",
+          "is_correct": false
+        },
+        {
+          "text": "Threading is better suited for I/O-bound tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Multithreading",
+      "content": "Which of the following are correct regarding edge cases in multithreading?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Deadlocks can occur due to improper locking",
+          "is_correct": true
+        },
+        {
+          "text": "Threads share global variables by default",
+          "is_correct": true
+        },
+        {
+          "text": "Thread execution order is always predictable",
+          "is_correct": false
+        },
+        {
+          "text": "Race conditions can lead to inconsistent results",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multiprocessing Basics",
+      "content": "Which of the following statements about multiprocessing in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiprocessing allows parallel execution",
+          "is_correct": true
+        },
+        {
+          "text": "Each process has its own memory space",
+          "is_correct": true
+        },
+        {
+          "text": "Processes share memory by default",
+          "is_correct": false
+        },
+        {
+          "text": "Multiprocessing is useful for CPU-bound tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CPU-bound vs IO-bound",
+      "content": "Which of the following statements about CPU-bound and IO-bound tasks are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CPU-bound tasks require heavy computation",
+          "is_correct": true
+        },
+        {
+          "text": "IO-bound tasks spend time waiting for input/output",
+          "is_correct": true
+        },
+        {
+          "text": "Multiprocessing is always best for IO-bound tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Multithreading is often used for IO-bound tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Process Creation",
+      "content": "Which of the following statements about creating processes in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "multiprocessing module is used to create processes",
+          "is_correct": true
+        },
+        {
+          "text": "Process class is used to define a new process",
+          "is_correct": true
+        },
+        {
+          "text": "Processes start automatically without calling start()",
+          "is_correct": false
+        },
+        {
+          "text": "join() waits for process completion",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multiprocessing Behavior",
+      "content": "Which of the following statements about multiprocessing behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Processes run independently",
+          "is_correct": true
+        },
+        {
+          "text": "Processes avoid GIL limitations",
+          "is_correct": true
+        },
+        {
+          "text": "Processes share variables automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Inter-process communication is required for data sharing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Parallel Execution",
+      "content": "Which of the following statements about parallel execution are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Parallel execution uses multiple CPU cores",
+          "is_correct": true
+        },
+        {
+          "text": "Multiprocessing can achieve true parallelism",
+          "is_correct": true
+        },
+        {
+          "text": "Threads always provide true parallel execution in Python",
+          "is_correct": false
+        },
+        {
+          "text": "Parallelism improves performance for CPU-heavy tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Multiprocessing Concepts",
+      "content": "Which of the following statements about advanced multiprocessing concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pools can be used to manage multiple worker processes",
+          "is_correct": true
+        },
+        {
+          "text": "Multiprocessing avoids GIL constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Processes are lighter than threads",
+          "is_correct": false
+        },
+        {
+          "text": "Shared memory or queues are used for communication",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Multiprocessing",
+      "content": "Which of the following are correct regarding edge cases in multiprocessing?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improper process handling can lead to zombie processes",
+          "is_correct": true
+        },
+        {
+          "text": "Processes require more memory than threads",
+          "is_correct": true
+        },
+        {
+          "text": "Multiprocessing always guarantees performance improvement",
+          "is_correct": false
+        },
+        {
+          "text": "Data serialization (pickling) is often required",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Async Basics",
+      "content": "Which of the following statements about async programming in Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "async is used to define asynchronous functions",
+          "is_correct": true
+        },
+        {
+          "text": "await is used to pause execution until a result is ready",
+          "is_correct": true
+        },
+        {
+          "text": "async functions execute synchronously always",
+          "is_correct": false
+        },
+        {
+          "text": "Async programming helps in handling I/O-bound tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Coroutine Behavior",
+      "content": "Which of the following statements about coroutines are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Coroutines are defined using async def",
+          "is_correct": true
+        },
+        {
+          "text": "Calling a coroutine returns a coroutine object",
+          "is_correct": true
+        },
+        {
+          "text": "Coroutines run immediately when defined",
+          "is_correct": false
+        },
+        {
+          "text": "Coroutines require an event loop to execute",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Asyncio Basics",
+      "content": "Which of the following statements about asyncio are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "asyncio is a library for asynchronous programming",
+          "is_correct": true
+        },
+        {
+          "text": "asyncio uses an event loop",
+          "is_correct": true
+        },
+        {
+          "text": "asyncio creates threads for each task",
+          "is_correct": false
+        },
+        {
+          "text": "Tasks can run concurrently using asyncio",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Async Execution",
+      "content": "Which of the following statements about async execution are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "await suspends execution of coroutine",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple coroutines can run concurrently",
+          "is_correct": true
+        },
+        {
+          "text": "await can be used outside async functions",
+          "is_correct": false
+        },
+        {
+          "text": "Event loop schedules tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Async Use Cases",
+      "content": "Which of the following are common use cases of async programming?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling multiple network requests",
+          "is_correct": true
+        },
+        {
+          "text": "Database queries",
+          "is_correct": true
+        },
+        {
+          "text": "Heavy CPU-bound tasks",
+          "is_correct": false
+        },
+        {
+          "text": "File I/O operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Async Concepts",
+      "content": "Which of the following statements about advanced async concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "asyncio.gather() can run multiple coroutines concurrently",
+          "is_correct": true
+        },
+        {
+          "text": "Event loop manages execution of coroutines",
+          "is_correct": true
+        },
+        {
+          "text": "Async programming always uses multiple CPU cores",
+          "is_correct": false
+        },
+        {
+          "text": "Tasks can be cancelled in asyncio",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Edge Cases in Async Programming",
+      "content": "Which of the following are correct regarding edge cases in async programming?",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Blocking calls can break async performance",
+          "is_correct": true
+        },
+        {
+          "text": "Mixing sync and async code improperly can cause issues",
+          "is_correct": true
+        },
+        {
+          "text": "Async code always runs faster than synchronous code",
+          "is_correct": false
+        },
+        {
+          "text": "Deadlocks can occur in async programming",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Basic Thread Execution",
+      "content": "Create a thread that prints 'Hello Thread'.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello Thread"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hello Thread"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello Thread",
+          "explanation": "Thread runs function."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Printed message.",
+      "solutions": [
+        {
+          "title": "Basic Thread",
+          "language": "python",
+          "code": "import threading\n\ndef task():\n    print('Hello Thread')\n\nt = threading.Thread(target=task)\nt.start()\nt.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use threading.Thread."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Multiple Threads Printing",
+      "content": "Create two threads that print numbers from 1 to 3.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3",
+          "explanation": "Two threads execute same function."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Numbers printed.",
+      "solutions": [
+        {
+          "title": "Two Threads",
+          "language": "python",
+          "code": "import threading\n\ndef task():\n    for i in range(1,4):\n        print(i, end=' ')\n\nt1 = threading.Thread(target=task)\nt2 = threading.Thread(target=task)\nt1.start()\nt2.start()\nt1.join()\nt2.join()",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Start multiple threads."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Thread with Arguments",
+      "content": "Create a thread that takes a number and prints its square.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "25"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "7",
+          "expected_output": "49"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5",
+          "expected_output": "25",
+          "explanation": "Thread receives argument."
+        }
+      ],
+      "inputFormat": "Integer.",
+      "outputFormat": "Square.",
+      "solutions": [
+        {
+          "title": "Thread Args",
+          "language": "python",
+          "code": "import threading\n\ndef task(x):\n    print(x*x)\n\nn = int(input())\nt = threading.Thread(target=task, args=(n,))\nt.start()\nt.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use args parameter."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Thread Synchronization using Lock",
+      "content": "Use a lock to safely increment a shared variable using multiple threads.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2",
+          "expected_output": "2000"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5",
+          "expected_output": "5000"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2",
+          "expected_output": "2000",
+          "explanation": "Each thread increments 1000 times."
+        }
+      ],
+      "inputFormat": "Number of threads.",
+      "outputFormat": "Final count.",
+      "solutions": [
+        {
+          "title": "Lock Example",
+          "language": "python",
+          "code": "import threading\n\ncount = 0\nlock = threading.Lock()\n\ndef task():\n    global count\n    for _ in range(1000):\n        with lock:\n            count += 1\n\nn = int(input())\nthreads = []\nfor _ in range(n):\n    t = threading.Thread(target=task)\n    threads.append(t)\n    t.start()\n\nfor t in threads:\n    t.join()\n\nprint(count)",
+          "complexity_analysis": "Time: O(N*1000), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use threading.Lock."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Thread Pool Execution",
+      "content": "Use ThreadPoolExecutor to execute tasks concurrently.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "1 2 3",
+          "expected_output": "1 4 9"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2 4",
+          "expected_output": "4 16"
+        }
+      ],
+      "examples": [
+        {
+          "input": "1 2 3",
+          "expected_output": "1 4 9",
+          "explanation": "Parallel execution."
+        }
+      ],
+      "inputFormat": "List of integers.",
+      "outputFormat": "Squares.",
+      "solutions": [
+        {
+          "title": "ThreadPool",
+          "language": "python",
+          "code": "from concurrent.futures import ThreadPoolExecutor\n\ndef square(x):\n    return x*x\n\narr = list(map(int, input().split()))\nwith ThreadPoolExecutor() as ex:\n    res = list(ex.map(square, arr))\nprint(*res)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use ThreadPoolExecutor."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Producer-Consumer Problem",
+      "content": "Implement producer-consumer using threads and a shared list.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed",
+          "explanation": "Producer adds, consumer removes."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Messages.",
+      "solutions": [
+        {
+          "title": "Producer Consumer",
+          "language": "python",
+          "code": "import threading\nimport time\n\nbuffer = []\nlock = threading.Lock()\n\ndef producer():\n    with lock:\n        buffer.append(1)\n        print('Produced', end=' ')\n\ndef consumer():\n    with lock:\n        if buffer:\n            buffer.pop()\n            print('Consumed')\n\nt1 = threading.Thread(target=producer)\nt2 = threading.Thread(target=consumer)\nt1.start()\nt2.start()\nt1.join()\nt2.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use shared resource with lock."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Race Condition Demonstration",
+      "content": "Demonstrate race condition without using locks.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multithreading",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2",
+          "expected_output": "Non-deterministic output"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5",
+          "expected_output": "Non-deterministic output"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2",
+          "expected_output": "Non-deterministic output",
+          "explanation": "Race condition occurs."
+        }
+      ],
+      "inputFormat": "Number of threads.",
+      "outputFormat": "Final value.",
+      "solutions": [
+        {
+          "title": "Race Condition",
+          "language": "python",
+          "code": "import threading\n\ncount = 0\n\ndef task():\n    global count\n    for _ in range(1000):\n        count += 1\n\nn = int(input())\nthreads = []\nfor _ in range(n):\n    t = threading.Thread(target=task)\n    threads.append(t)\n    t.start()\n\nfor t in threads:\n    t.join()\n\nprint(count)",
+          "complexity_analysis": "Time: O(N*1000), Space: O(N)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "No lock leads to inconsistency."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Basic Process Execution",
+      "content": "Create a process that prints 'Hello Process'.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello Process"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hello Process"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello Process",
+          "explanation": "Process runs independently."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Printed message.",
+      "solutions": [
+        {
+          "title": "Basic Process",
+          "language": "python",
+          "code": "from multiprocessing import Process\n\ndef task():\n    print('Hello Process')\n\np = Process(target=task)\np.start()\np.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use multiprocessing.Process."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Multiple Processes Execution",
+      "content": "Create two processes that print numbers from 1 to 3.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3",
+          "explanation": "Processes run in parallel."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Numbers printed.",
+      "solutions": [
+        {
+          "title": "Two Processes",
+          "language": "python",
+          "code": "from multiprocessing import Process\n\ndef task():\n    for i in range(1,4):\n        print(i, end=' ')\n\np1 = Process(target=task)\np2 = Process(target=task)\np1.start()\np2.start()\np1.join()\np2.join()",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Start multiple processes."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Process with Arguments",
+      "content": "Create a process that takes a number and prints its square.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "6",
+          "expected_output": "36"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "8",
+          "expected_output": "64"
+        }
+      ],
+      "examples": [
+        {
+          "input": "6",
+          "expected_output": "36",
+          "explanation": "Arguments passed to process."
+        }
+      ],
+      "inputFormat": "Integer.",
+      "outputFormat": "Square.",
+      "solutions": [
+        {
+          "title": "Process Args",
+          "language": "python",
+          "code": "from multiprocessing import Process\n\ndef task(x):\n    print(x*x)\n\nn = int(input())\np = Process(target=task, args=(n,))\np.start()\np.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use args parameter."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Parallel Sum using Pool",
+      "content": "Use multiprocessing Pool to compute squares of numbers in parallel.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "1 2 3",
+          "expected_output": "1 4 9"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "2 5",
+          "expected_output": "4 25"
+        }
+      ],
+      "examples": [
+        {
+          "input": "1 2 3",
+          "expected_output": "1 4 9",
+          "explanation": "Parallel execution using pool."
+        }
+      ],
+      "inputFormat": "List of integers.",
+      "outputFormat": "Squares.",
+      "solutions": [
+        {
+          "title": "Pool Example",
+          "language": "python",
+          "code": "from multiprocessing import Pool\n\ndef square(x):\n    return x*x\n\narr = list(map(int, input().split()))\nwith Pool() as p:\n    res = p.map(square, arr)\nprint(*res)",
+          "complexity_analysis": "Time: O(N), Space: O(N)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use Pool().map()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "CPU-bound Task Comparison",
+      "content": "Compute factorial using multiprocessing and compare performance with single process.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "120"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "6",
+          "expected_output": "720"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5",
+          "expected_output": "120",
+          "explanation": "CPU-bound task."
+        }
+      ],
+      "inputFormat": "Integer.",
+      "outputFormat": "Factorial.",
+      "solutions": [
+        {
+          "title": "Factorial Process",
+          "language": "python",
+          "code": "from multiprocessing import Process\n\ndef fact(n):\n    res = 1\n    for i in range(1, n+1):\n        res *= i\n    print(res)\n\nn = int(input())\np = Process(target=fact, args=(n,))\np.start()\np.join()",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use process for CPU-bound tasks."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Shared Memory using Value",
+      "content": "Use multiprocessing.Value to share data between processes.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2",
+          "expected_output": "2000"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3",
+          "expected_output": "3000"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2",
+          "expected_output": "2000",
+          "explanation": "Shared variable updated by processes."
+        }
+      ],
+      "inputFormat": "Number of processes.",
+      "outputFormat": "Final count.",
+      "solutions": [
+        {
+          "title": "Shared Value",
+          "language": "python",
+          "code": "from multiprocessing import Process, Value\n\ndef task(val):\n    for _ in range(1000):\n        val.value += 1\n\nn = int(input())\nval = Value('i', 0)\nprocs = []\nfor _ in range(n):\n    p = Process(target=task, args=(val,))\n    procs.append(p)\n    p.start()\n\nfor p in procs:\n    p.join()\n\nprint(val.value)",
+          "complexity_analysis": "Time: O(N*1000), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Value for shared memory."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Producer-Consumer using Queue",
+      "content": "Implement producer-consumer using multiprocessing Queue.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Multiprocessing",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed",
+          "explanation": "Queue used for communication."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Messages.",
+      "solutions": [
+        {
+          "title": "Queue Example",
+          "language": "python",
+          "code": "from multiprocessing import Process, Queue\n\ndef producer(q):\n    q.put(1)\n    print('Produced', end=' ')\n\ndef consumer(q):\n    q.get()\n    print('Consumed')\n\nq = Queue()\np1 = Process(target=producer, args=(q,))\np2 = Process(target=consumer, args=(q,))\np1.start()\np2.start()\np1.join()\np2.join()",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Queue for IPC."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Basic Async Function",
+      "content": "Write an async function that prints 'Hello Async' using asyncio.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello Async"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hello Async"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Hello Async",
+          "explanation": "Basic async function execution."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Printed message.",
+      "solutions": [
+        {
+          "title": "Async Hello",
+          "language": "python",
+          "code": "import asyncio\n\nasync def main():\n    print('Hello Async')\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use async def and asyncio.run()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Async Sleep Example",
+      "content": "Write an async function that waits for 1 second and prints 'Done'.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Done"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Done"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Done",
+          "explanation": "Uses asyncio.sleep."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Printed message.",
+      "solutions": [
+        {
+          "title": "Async Sleep",
+          "language": "python",
+          "code": "import asyncio\n\nasync def main():\n    await asyncio.sleep(1)\n    print('Done')\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use await asyncio.sleep()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Run Multiple Async Tasks",
+      "content": "Run two async functions concurrently that print numbers.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 1 2 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Numbers printed concurrently",
+          "explanation": "Use asyncio.gather."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Printed numbers.",
+      "solutions": [
+        {
+          "title": "Async Gather",
+          "language": "python",
+          "code": "import asyncio\n\nasync def task():\n    for i in range(1,4):\n        print(i, end=' ')\n\nasync def main():\n    await asyncio.gather(task(), task())\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(N), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use asyncio.gather()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Async Function with Return Value",
+      "content": "Write an async function that returns square of a number.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "25"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "7",
+          "expected_output": "49"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5",
+          "expected_output": "25",
+          "explanation": "Async function returns value."
+        }
+      ],
+      "inputFormat": "Integer.",
+      "outputFormat": "Square.",
+      "solutions": [
+        {
+          "title": "Async Return",
+          "language": "python",
+          "code": "import asyncio\n\nasync def square(x):\n    return x*x\n\nasync def main():\n    n = int(input())\n    res = await square(n)\n    print(res)\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use return inside async function."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Async HTTP Simulation",
+      "content": "Simulate multiple async API calls using asyncio.sleep and gather.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Fetched Fetched"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Fetched Fetched"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Fetched Fetched",
+          "explanation": "Simulates IO-bound async calls."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Messages.",
+      "solutions": [
+        {
+          "title": "Async API Simulation",
+          "language": "python",
+          "code": "import asyncio\n\nasync def fetch():\n    await asyncio.sleep(1)\n    print('Fetched', end=' ')\n\nasync def main():\n    await asyncio.gather(fetch(), fetch())\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use gather for concurrency."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Async Queue Producer-Consumer",
+      "content": "Implement producer-consumer using asyncio.Queue.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Produced Consumed",
+          "explanation": "Queue manages async communication."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Messages.",
+      "solutions": [
+        {
+          "title": "Async Queue",
+          "language": "python",
+          "code": "import asyncio\n\nasync def producer(q):\n    await q.put(1)\n    print('Produced', end=' ')\n\nasync def consumer(q):\n    await q.get()\n    print('Consumed')\n\nasync def main():\n    q = asyncio.Queue()\n    await asyncio.gather(producer(q), consumer(q))\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use asyncio.Queue."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Async Task Cancellation",
+      "content": "Create an async task and cancel it before completion.",
+      "level": "subtopic",
+      "unit_name": "Concurrency & Performance",
+      "subunit_name": "Async Programming",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Task Cancelled"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Task Cancelled"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Task Cancelled",
+          "explanation": "Task cancelled using cancel()."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "Cancellation message.",
+      "solutions": [
+        {
+          "title": "Task Cancel",
+          "language": "python",
+          "code": "import asyncio\n\nasync def task():\n    try:\n        await asyncio.sleep(5)\n    except asyncio.CancelledError:\n        print('Task Cancelled')\n\nasync def main():\n    t = asyncio.create_task(task())\n    await asyncio.sleep(1)\n    t.cancel()\n    await t\n\nasyncio.run(main())",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use cancel() method."
+      ]
+    }
+  ]
+}
