@@ -1,0 +1,3239 @@
+{
+  "name": "Performance, Transactions & Real-World Practice",
+  "course_short_code": "SQL101",
+  "order_index": 6,
+  "subtopics": [
+    {
+      "name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "content": "A transaction is a single logical unit of work that contains one or more SQL statements. The BEGIN statement starts a transaction, COMMIT saves all changes made during the transaction permanently to the database, and ROLLBACK undoes all changes if an error occurs, ensuring data consistency.",
+      "order_index": 0,
+      "videos": []
+    },
+    {
+      "name": "ACID Properties",
+      "content": "ACID stands for Atomicity, Consistency, Isolation, and Durability. These properties guarantee that database transactions are processed reliably. Atomicity ensures all or nothing. Consistency ensures data validity. Isolation ensures concurrent transactions don't interfere. Durability ensures committed changes survive system failures.",
+      "order_index": 1,
+      "videos": []
+    },
+    {
+      "name": "Basic Query Optimization ideas",
+      "content": "Query optimization involves writing SQL that executes efficiently. Best practices include retrieving only necessary columns (avoiding SELECT *), using WHERE clauses instead of filtering at the application level, utilizing appropriate joins, and minimizing the use of subqueries where joins can perform better.",
+      "order_index": 2,
+      "videos": []
+    },
+    {
+      "name": "Index usage in queries",
+      "content": "Indexes are special data structures that improve the speed of data retrieval operations on a table at the cost of slower writes and increased storage space. Understanding when to use indexes, particularly on columns used frequently in WHERE clauses, JOIN conditions, or ORDER BY clauses, is crucial for database performance.",
+      "order_index": 3,
+      "videos": []
+    },
+    {
+      "name": "Real-world SQL problems: Sales analysis",
+      "content": "Sales analysis involves querying databases to find trends, top-selling products, and revenue over time. It typically requires a combination of grouping, filtering, date functions, and aggregate functions to generate actionable business intelligence.",
+      "order_index": 4,
+      "videos": []
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Transactions",
+      "content": "What is the main purpose of transactions in SQL?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To ensure a group of database operations is handled safely as one unit",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently merge database tables",
+          "is_correct": false
+        },
+        {
+          "text": "To automatically delete duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "To create indexes automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "BEGIN Transaction",
+      "content": "What does BEGIN typically indicate in SQL transactions?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The start of a transaction block",
+          "is_correct": true
+        },
+        {
+          "text": "Permanent deletion of records",
+          "is_correct": false
+        },
+        {
+          "text": "The end of database connection",
+          "is_correct": false
+        },
+        {
+          "text": "Automatic backup creation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "COMMIT Usage",
+      "content": "What happens after executing COMMIT in a transaction?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Changes become permanently saved in the database",
+          "is_correct": true
+        },
+        {
+          "text": "All changes are automatically deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Tables are permanently locked",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are removed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ROLLBACK Usage",
+      "content": "What is the purpose of ROLLBACK in SQL transactions?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To undo changes made during a transaction before commit",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently delete a database",
+          "is_correct": false
+        },
+        {
+          "text": "To create duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "To optimize indexes automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking System Scenario",
+      "content": "A banking application transfers money from one account to another. Why are transactions important in this scenario?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Both debit and credit operations must succeed together to maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently merge bank accounts",
+          "is_correct": false
+        },
+        {
+          "text": "ROLLBACK increases account balance automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions remove the need for security",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Order Scenario",
+      "content": "An e-commerce platform updates inventory and creates payment records together. Why should transactions be used?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All related operations should either fully succeed or fully fail",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently combine order tables",
+          "is_correct": false
+        },
+        {
+          "text": "ROLLBACK automatically ships products",
+          "is_correct": false
+        },
+        {
+          "text": "COMMIT removes inventory records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hospital Management Scenario",
+      "content": "A hospital system updates patient billing and appointment records together. Why is ROLLBACK useful if one update fails?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It restores the database to its previous consistent state",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently deletes patient records",
+          "is_correct": false
+        },
+        {
+          "text": "It encrypts failed records automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It merges appointments permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Enterprise Transaction Systems",
+      "content": "Why are transactions critical in enterprise database systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Enterprise systems require strong consistency and reliable recovery during failures",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently replace normalization",
+          "is_correct": false
+        },
+        {
+          "text": "COMMIT automatically creates backup servers",
+          "is_correct": false
+        },
+        {
+          "text": "ROLLBACK removes the need for validation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Concurrency Scenario",
+      "content": "Why are transactions important when many users access a database simultaneously?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help maintain data consistency during concurrent operations",
+          "is_correct": true
+        },
+        {
+          "text": "They permanently prevent all database access",
+          "is_correct": false
+        },
+        {
+          "text": "ROLLBACK duplicates records automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions remove all locking mechanisms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "System Failure Scenario",
+      "content": "A database server crashes during a payment transaction. Why is transaction management valuable here?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Incomplete operations can be safely rolled back to maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently repair hardware failures",
+          "is_correct": false
+        },
+        {
+          "text": "COMMIT prevents server crashes completely",
+          "is_correct": false
+        },
+        {
+          "text": "ROLLBACK automatically upgrades the database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transaction Basics",
+      "content": "Which statements are true regarding SQL transactions?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transactions group multiple operations into one logical unit",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT permanently saves changes",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK undoes uncommitted changes",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently merge tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "BEGIN and COMMIT",
+      "content": "Which statements correctly describe BEGIN and COMMIT?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "BEGIN starts a transaction",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT saves changes permanently",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions help maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT automatically deletes duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ROLLBACK Concepts",
+      "content": "Which statements are true about ROLLBACK?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ROLLBACK reverses uncommitted changes",
+          "is_correct": true
+        },
+        {
+          "text": "It helps recover from errors",
+          "is_correct": true
+        },
+        {
+          "text": "It helps maintain database consistency",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK permanently deletes databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Transaction Usage",
+      "content": "In which systems are transactions especially important?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Banking systems",
+          "is_correct": true
+        },
+        {
+          "text": "E-commerce platforms",
+          "is_correct": true
+        },
+        {
+          "text": "Hospital management systems",
+          "is_correct": true
+        },
+        {
+          "text": "Basic image viewers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking Transaction Scenario",
+      "content": "A bank uses transactions during money transfers. Which advantages does this provide?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Account balances remain consistent",
+          "is_correct": true
+        },
+        {
+          "text": "Partial updates can be avoided",
+          "is_correct": true
+        },
+        {
+          "text": "Errors can trigger rollback safely",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently merge bank accounts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce System Scenario",
+      "content": "An e-commerce platform uses transactions during checkout. Which benefits does this provide?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inventory updates remain consistent",
+          "is_correct": true
+        },
+        {
+          "text": "Payment failures can trigger rollback",
+          "is_correct": true
+        },
+        {
+          "text": "Order processing becomes safer",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions automatically create invoices permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Enterprise Systems Scenario",
+      "content": "Why do enterprise systems rely heavily on transaction management?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Large systems require reliable recovery mechanisms",
+          "is_correct": true
+        },
+        {
+          "text": "Concurrent users may access the same data",
+          "is_correct": true
+        },
+        {
+          "text": "Data consistency is critical",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions automatically remove all locks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Transaction Concepts",
+      "content": "Which statements are true regarding transactions in enterprise databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transactions help maintain consistency during failures",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK supports error recovery",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT finalizes successful operations",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently replace database security",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concurrency Risks",
+      "content": "Which issues can transactions help prevent in multi-user systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inconsistent updates",
+          "is_correct": true
+        },
+        {
+          "text": "Partial transaction failures",
+          "is_correct": true
+        },
+        {
+          "text": "Data corruption during concurrent access",
+          "is_correct": true
+        },
+        {
+          "text": "All server hardware failures permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding BEGIN, COMMIT, and ROLLBACK?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Transactions: BEGIN, COMMIT, ROLLBACK",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "BEGIN starts a transaction block",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT saves successful changes permanently",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK undoes failed or incomplete operations",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions permanently combine all related tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Meaning of ACID",
+      "content": "What does ACID stand for in database systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Atomicity, Consistency, Isolation, Durability",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy, Connectivity, Integrity, Dependency",
+          "is_correct": false
+        },
+        {
+          "text": "Atomicity, Connectivity, Isolation, Duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Availability, Consistency, Integrity, Distribution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Atomicity Concept",
+      "content": "What does Atomicity ensure in a transaction?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Either all operations succeed or none of them do",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions execute faster automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate rows are removed permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are created automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Consistency Concept",
+      "content": "What does Consistency ensure in database transactions?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The database remains valid before and after transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Tables are permanently merged",
+          "is_correct": false
+        },
+        {
+          "text": "Queries always execute instantly",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions bypass validation rules",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Durability Concept",
+      "content": "What does Durability guarantee after a transaction is committed?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Committed changes remain saved even after failures",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions can never fail",
+          "is_correct": false
+        },
+        {
+          "text": "Databases become permanently read-only",
+          "is_correct": false
+        },
+        {
+          "text": "All data is duplicated automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking Transaction Scenario",
+      "content": "A bank transfers money between two accounts. Why is Atomicity important in this scenario?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Both debit and credit operations must complete together or not happen at all",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions should permanently merge customer accounts",
+          "is_correct": false
+        },
+        {
+          "text": "Databases should remove balance validation",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions automatically increase account balance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Scenario",
+      "content": "An e-commerce platform updates inventory after successful payment. Which ACID property ensures inventory data stays valid?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Duplication",
+          "is_correct": false
+        },
+        {
+          "text": "Compression",
+          "is_correct": false
+        },
+        {
+          "text": "Fragmentation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Concurrent User Scenario",
+      "content": "Many users are booking movie tickets simultaneously. Which ACID property prevents transactions from interfering with each other?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Isolation",
+          "is_correct": true
+        },
+        {
+          "text": "Durability",
+          "is_correct": false
+        },
+        {
+          "text": "Atomicity",
+          "is_correct": false
+        },
+        {
+          "text": "Normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Enterprise System Reliability",
+      "content": "Why are ACID properties critical in enterprise database systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Enterprise systems require reliable, consistent, and recoverable transactions",
+          "is_correct": true
+        },
+        {
+          "text": "ACID permanently removes database failures",
+          "is_correct": false
+        },
+        {
+          "text": "ACID replaces the need for backups",
+          "is_correct": false
+        },
+        {
+          "text": "ACID automatically creates distributed databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Crash Recovery Scenario",
+      "content": "A database server crashes immediately after COMMIT. Which ACID property ensures the committed data is still preserved?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Durability",
+          "is_correct": true
+        },
+        {
+          "text": "Atomicity",
+          "is_correct": false
+        },
+        {
+          "text": "Isolation",
+          "is_correct": false
+        },
+        {
+          "text": "Consistency",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "High-Concurrency Systems",
+      "content": "Why is Isolation extremely important in high-traffic applications like airline booking systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It prevents simultaneous transactions from corrupting shared data",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently locks the database for all users",
+          "is_correct": false
+        },
+        {
+          "text": "It duplicates ticket bookings automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for transactions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ACID Basics",
+      "content": "Which statements are true regarding ACID properties?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ACID improves transaction reliability",
+          "is_correct": true
+        },
+        {
+          "text": "ACID helps maintain data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "ACID is important in relational databases",
+          "is_correct": true
+        },
+        {
+          "text": "ACID permanently removes all hardware failures",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Atomicity and Consistency",
+      "content": "Which statements correctly describe Atomicity and Consistency?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Atomicity ensures all-or-nothing execution",
+          "is_correct": true
+        },
+        {
+          "text": "Consistency ensures valid database states",
+          "is_correct": true
+        },
+        {
+          "text": "Both are important for reliable transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Consistency permanently merges tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Isolation and Durability",
+      "content": "Which statements are true about Isolation and Durability?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Isolation prevents transaction interference",
+          "is_correct": true
+        },
+        {
+          "text": "Durability preserves committed data after failures",
+          "is_correct": true
+        },
+        {
+          "text": "Both improve reliability in multi-user systems",
+          "is_correct": true
+        },
+        {
+          "text": "Durability automatically removes duplicates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Usage",
+      "content": "In which systems are ACID properties especially important?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Banking applications",
+          "is_correct": true
+        },
+        {
+          "text": "E-commerce systems",
+          "is_correct": true
+        },
+        {
+          "text": "Hospital management systems",
+          "is_correct": true
+        },
+        {
+          "text": "Basic calculator apps without databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking System Scenario",
+      "content": "A banking system relies on ACID properties. Which advantages does this provide?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Partial money transfers can be avoided",
+          "is_correct": true
+        },
+        {
+          "text": "Concurrent operations remain safer",
+          "is_correct": true
+        },
+        {
+          "text": "Committed balances remain durable after crashes",
+          "is_correct": true
+        },
+        {
+          "text": "ACID permanently merges customer accounts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Platform Scenario",
+      "content": "An e-commerce system uses ACID properties during checkout. Which benefits does this provide?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inventory and payment records remain consistent",
+          "is_correct": true
+        },
+        {
+          "text": "Concurrent orders become safer",
+          "is_correct": true
+        },
+        {
+          "text": "Failed transactions can be rolled back safely",
+          "is_correct": true
+        },
+        {
+          "text": "ACID automatically ships products",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Enterprise Systems Scenario",
+      "content": "Why do enterprise systems strongly rely on ACID properties?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Enterprise systems require reliable transaction management",
+          "is_correct": true
+        },
+        {
+          "text": "Data consistency is critical",
+          "is_correct": true
+        },
+        {
+          "text": "System recovery after failures is important",
+          "is_correct": true
+        },
+        {
+          "text": "ACID removes the need for database security",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ACID Concepts",
+      "content": "Which statements are true regarding ACID properties in enterprise databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Isolation is important in concurrent systems",
+          "is_correct": true
+        },
+        {
+          "text": "Durability helps recover committed transactions after crashes",
+          "is_correct": true
+        },
+        {
+          "text": "Atomicity prevents partial transaction completion",
+          "is_correct": true
+        },
+        {
+          "text": "ACID permanently eliminates all database failures",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concurrency Risks",
+      "content": "Which problems can ACID properties help reduce in multi-user systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Dirty reads and inconsistent data",
+          "is_correct": true
+        },
+        {
+          "text": "Partial transaction failures",
+          "is_correct": true
+        },
+        {
+          "text": "Data corruption during concurrent access",
+          "is_correct": true
+        },
+        {
+          "text": "All network failures permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding ACID properties?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "ACID Properties",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Atomicity ensures all-or-nothing execution",
+          "is_correct": true
+        },
+        {
+          "text": "Consistency keeps the database in a valid state",
+          "is_correct": true
+        },
+        {
+          "text": "Isolation prevents transaction interference",
+          "is_correct": true
+        },
+        {
+          "text": "Durability means transactions can never fail",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Query Optimization",
+      "content": "What is the main goal of query optimization in SQL?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve query performance and reduce execution time",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently merge all tables",
+          "is_correct": false
+        },
+        {
+          "text": "To automatically delete duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "To convert SQL into NoSQL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance of Indexes",
+      "content": "Why are indexes commonly used in databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To speed up data retrieval operations",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently duplicate data",
+          "is_correct": false
+        },
+        {
+          "text": "To remove relationships between tables",
+          "is_correct": false
+        },
+        {
+          "text": "To replace transactions completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Selecting Required Columns",
+      "content": "Why is selecting only required columns considered a good optimization practice?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It reduces unnecessary data retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently removes unused columns",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically creates indexes",
+          "is_correct": false
+        },
+        {
+          "text": "It duplicates rows automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "WHERE Clause Optimization",
+      "content": "Why is using a WHERE clause important for query optimization?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It filters unnecessary rows and reduces processing",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently deletes unmatched records",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically normalizes tables",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all NULL values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Reporting Scenario",
+      "content": "An e-commerce website is slowing down because reports use SELECT * on huge tables. Which optimization idea would help most?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieve only the required columns instead of all columns",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate the tables permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Remove all WHERE clauses",
+          "is_correct": false
+        },
+        {
+          "text": "Disable indexes completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking System Scenario",
+      "content": "A banking application frequently searches accounts using account numbers. Which optimization idea would improve performance?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating an index on the account number column",
+          "is_correct": true
+        },
+        {
+          "text": "Removing primary keys",
+          "is_correct": false
+        },
+        {
+          "text": "Using SELECT * everywhere",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicating all account records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hospital Database Scenario",
+      "content": "A hospital report takes too long because millions of records are scanned without filtering. What optimization idea would help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use efficient WHERE conditions to reduce scanned rows",
+          "is_correct": true
+        },
+        {
+          "text": "Remove all filtering conditions",
+          "is_correct": false
+        },
+        {
+          "text": "Store everything in one giant table permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Disable query execution plans",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Enterprise Database Performance",
+      "content": "Why is query optimization extremely important in enterprise systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Large-scale systems process huge amounts of data and inefficient queries can severely impact performance",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently removes all database locks",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization eliminates the need for indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization converts relational databases into NoSQL systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Index Trade-off Scenario",
+      "content": "Why should indexes be created carefully instead of indexing every column?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Too many indexes can increase storage usage and slow down insert/update operations",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently duplicate entire tables",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes automatically remove foreign keys",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes replace transactions completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Analytics System Scenario",
+      "content": "A business intelligence system runs complex joins on massive datasets. Why is optimization important here?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poorly optimized analytical queries can consume excessive CPU, memory, and execution time",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently merges analytical tables",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization removes the need for relationships",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization automatically creates dashboards",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Query Optimization Basics",
+      "content": "Which statements are true regarding query optimization?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optimization improves query performance",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient queries reduce resource usage",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization is important in large databases",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently removes all data redundancy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Good Optimization Practices",
+      "content": "Which are considered good basic query optimization practices?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using WHERE clauses effectively",
+          "is_correct": true
+        },
+        {
+          "text": "Selecting only required columns",
+          "is_correct": true
+        },
+        {
+          "text": "Using indexes appropriately",
+          "is_correct": true
+        },
+        {
+          "text": "Using SELECT * unnecessarily everywhere",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Indexes and Performance",
+      "content": "Which statements are true about indexes?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes can improve search performance",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes help speed up filtering operations",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are useful for frequently searched columns",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently replace tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "WHERE Clause Optimization",
+      "content": "Why are WHERE clauses useful in optimization?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They reduce unnecessary row processing",
+          "is_correct": true
+        },
+        {
+          "text": "They help limit query results",
+          "is_correct": true
+        },
+        {
+          "text": "They can improve execution speed",
+          "is_correct": true
+        },
+        {
+          "text": "They permanently delete filtered rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Optimization Scenario",
+      "content": "An e-commerce system optimizes slow reports. Which improvements may help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Avoid unnecessary SELECT * usage",
+          "is_correct": true
+        },
+        {
+          "text": "Use indexes on frequently searched columns",
+          "is_correct": true
+        },
+        {
+          "text": "Filter unnecessary rows with WHERE clauses",
+          "is_correct": true
+        },
+        {
+          "text": "Disable all indexes permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking Application Scenario",
+      "content": "A banking system processes millions of account searches daily. Which optimization techniques may help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating indexes on account numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Reducing unnecessary full-table scans",
+          "is_correct": true
+        },
+        {
+          "text": "Selecting only required columns",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all filtering conditions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Enterprise Systems Scenario",
+      "content": "Why is optimization critical in enterprise database systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Enterprise systems handle huge datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Poor queries can waste CPU and memory resources",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient queries improve scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization removes the need for normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Optimization Concepts",
+      "content": "Which statements are true regarding query optimization in enterprise databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes can improve query speed but may slow writes",
+          "is_correct": true
+        },
+        {
+          "text": "Complex joins may require optimization for better performance",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient filtering can reduce resource consumption",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently eliminates hardware limitations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Risks",
+      "content": "Which problems can poor query optimization cause?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Slow query execution",
+          "is_correct": true
+        },
+        {
+          "text": "High CPU and memory usage",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced scalability under heavy load",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic deletion of all duplicate rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding query optimization?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Basic Query Optimization ideas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optimization improves performance and scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are useful for frequently searched columns",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient filtering reduces unnecessary processing",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently removes the need for good database design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Indexes",
+      "content": "What is the primary purpose of indexes in SQL databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve the speed of data retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently duplicate tables",
+          "is_correct": false
+        },
+        {
+          "text": "To automatically normalize databases",
+          "is_correct": false
+        },
+        {
+          "text": "To remove all NULL values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Indexed Column Usage",
+      "content": "Indexes are most useful on columns that are:",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frequently searched or filtered",
+          "is_correct": true
+        },
+        {
+          "text": "Never used in queries",
+          "is_correct": false
+        },
+        {
+          "text": "Always empty",
+          "is_correct": false
+        },
+        {
+          "text": "Only used for comments",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Benefit",
+      "content": "Why can indexes improve query performance?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They reduce the need for full table scans in many cases",
+          "is_correct": true
+        },
+        {
+          "text": "They permanently remove rows from tables",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically create backups",
+          "is_correct": false
+        },
+        {
+          "text": "They merge all database tables together",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key Index",
+      "content": "Which type of column commonly has an index automatically created?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary Key column",
+          "is_correct": true
+        },
+        {
+          "text": "Random comment column",
+          "is_correct": false
+        },
+        {
+          "text": "Unused text column",
+          "is_correct": false
+        },
+        {
+          "text": "Temporary notes column",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking System Scenario",
+      "content": "A banking application frequently searches accounts using account numbers. Which approach would most improve performance?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating an index on the account number column",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all WHERE clauses",
+          "is_correct": false
+        },
+        {
+          "text": "Using SELECT * in every query",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicating the accounts table",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Search Scenario",
+      "content": "An e-commerce website has millions of products. Product searches by product_id are slow. What is the best optimization idea?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Add an index to the product_id column",
+          "is_correct": true
+        },
+        {
+          "text": "Remove primary keys from products",
+          "is_correct": false
+        },
+        {
+          "text": "Store all products in a single text field",
+          "is_correct": false
+        },
+        {
+          "text": "Disable filtering conditions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hospital Management Scenario",
+      "content": "A hospital database frequently filters patient records using patient_id and appointment_date. Why would indexes help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes help locate matching records faster",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently remove duplicate patients",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes automatically normalize the database",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes delete old appointments automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Too Many Indexes Scenario",
+      "content": "Why can creating too many indexes negatively affect database performance?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Additional indexes increase storage usage and can slow INSERT, UPDATE, and DELETE operations",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently delete transaction logs",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes automatically corrupt tables",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes prevent all joins from working",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Analytics Platform Scenario",
+      "content": "A reporting system runs complex queries on billions of rows. Why are indexes important in such systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes can significantly reduce query execution time on large datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently merge reporting tables",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes eliminate the need for filtering",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes automatically create dashboards",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Write-heavy Systems Scenario",
+      "content": "A social media platform performs massive numbers of inserts every second. Why should indexes be carefully planned?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Every insert must also update related indexes, which can impact write performance",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently prevent new posts from being inserted",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes automatically delete inactive users",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes remove the need for transactions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Index Basics",
+      "content": "Which statements are true regarding indexes in SQL?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes help improve query speed",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are useful for frequently searched columns",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes can reduce full table scans",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently replace tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Index Usage",
+      "content": "In which situations are indexes commonly useful?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Searching records using WHERE conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Joining tables on key columns",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting data using ORDER BY",
+          "is_correct": true
+        },
+        {
+          "text": "Permanently removing duplicate tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Primary Keys and Indexes",
+      "content": "Which statements are true regarding primary keys and indexes?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Primary keys are commonly indexed automatically",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes help locate rows faster",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes improve lookup efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Primary keys permanently duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Index Benefits",
+      "content": "Which benefits can indexes provide?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Faster filtering operations",
+          "is_correct": true
+        },
+        {
+          "text": "Improved query performance",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced search time in large datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic removal of all NULL values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Banking Application Scenario",
+      "content": "A banking system performs millions of searches daily. Which optimization practices involving indexes may help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexing frequently searched columns",
+          "is_correct": true
+        },
+        {
+          "text": "Using indexes on account numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Reducing unnecessary table scans",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all WHERE clauses",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Platform Scenario",
+      "content": "An e-commerce platform wants faster product searches. Which index-related strategies may help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating indexes on product_id and category columns",
+          "is_correct": true
+        },
+        {
+          "text": "Using indexed columns in filtering conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Optimizing joins using indexed keys",
+          "is_correct": true
+        },
+        {
+          "text": "Disabling all indexes permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Enterprise Database Scenario",
+      "content": "Why are indexes critical in enterprise databases?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Enterprise systems handle massive datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes improve performance for large-scale searches",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes help reduce query execution time",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes remove the need for normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Index Concepts",
+      "content": "Which statements are true regarding indexes in large systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes improve read/query performance",
+          "is_correct": true
+        },
+        {
+          "text": "Too many indexes can slow write operations",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes consume additional storage space",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently eliminate all performance problems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Risks",
+      "content": "Which issues may occur if indexes are poorly designed?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Slower INSERT and UPDATE operations",
+          "is_correct": true
+        },
+        {
+          "text": "Higher storage consumption",
+          "is_correct": true
+        },
+        {
+          "text": "Unnecessary maintenance overhead",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic deletion of all duplicate rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding index usage in queries?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Index usage in queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexes can speed up searches on large datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are useful for filtering and joins",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes can improve ORDER BY performance in some cases",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes permanently replace good query design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Sales Analysis",
+      "content": "What is the primary purpose of SQL-based sales analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To analyze business sales data and generate insights",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently delete sales records",
+          "is_correct": false
+        },
+        {
+          "text": "To replace all customer tables",
+          "is_correct": false
+        },
+        {
+          "text": "To automatically normalize databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Common SQL Function",
+      "content": "Which SQL aggregate function is commonly used to calculate total sales revenue?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SUM()",
+          "is_correct": true
+        },
+        {
+          "text": "COUNT()",
+          "is_correct": false
+        },
+        {
+          "text": "MIN()",
+          "is_correct": false
+        },
+        {
+          "text": "AVGROW()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Grouping Sales Data",
+      "content": "Which SQL clause is commonly used to group sales by product category or region?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GROUP BY",
+          "is_correct": true
+        },
+        {
+          "text": "ORDER BY",
+          "is_correct": false
+        },
+        {
+          "text": "LIMIT",
+          "is_correct": false
+        },
+        {
+          "text": "TRUNCATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Filtering Sales Records",
+      "content": "Which clause is mainly used to filter sales records based on conditions?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "WHERE",
+          "is_correct": true
+        },
+        {
+          "text": "VALUES",
+          "is_correct": false
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Sales Scenario",
+      "content": "An e-commerce company wants to identify its highest-selling product category. Which SQL concept would be most useful?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using GROUP BY with SUM() on sales amounts",
+          "is_correct": true
+        },
+        {
+          "text": "Using DROP TABLE on product records",
+          "is_correct": false
+        },
+        {
+          "text": "Removing all duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "Using TRUNCATE to reduce sales data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Retail Chain Scenario",
+      "content": "A retail chain wants to compare monthly revenue across different stores. What SQL technique would best help?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grouping sales data by store and month using GROUP BY",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting old sales records permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Removing primary keys from sales tables",
+          "is_correct": false
+        },
+        {
+          "text": "Disabling joins between tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Restaurant Business Scenario",
+      "content": "A restaurant chain wants to identify peak sales hours using SQL queries. Which approach is most appropriate?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grouping orders by time periods and analyzing revenue totals",
+          "is_correct": true
+        },
+        {
+          "text": "Removing timestamps from the orders table",
+          "is_correct": false
+        },
+        {
+          "text": "Using SELECT * without filtering",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing sales tables with text files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Enterprise Analytics Scenario",
+      "content": "Why are SQL-based sales analysis queries important in enterprise organizations?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Organizations rely on sales insights for forecasting, strategy, and business decision-making",
+          "is_correct": true
+        },
+        {
+          "text": "Sales analysis permanently removes the need for transactions",
+          "is_correct": false
+        },
+        {
+          "text": "Sales analysis automatically replaces customer databases",
+          "is_correct": false
+        },
+        {
+          "text": "Sales analysis eliminates the need for indexing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Large Dataset Scenario",
+      "content": "A multinational company analyzes billions of sales records daily. Why is query optimization critical in this case?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poorly optimized analytical queries can consume excessive resources and delay reporting",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization permanently deletes unused sales records",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization removes the need for GROUP BY clauses",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization automatically predicts future sales",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Business Intelligence Scenario",
+      "content": "A company combines sales, customer, and product tables for analytics. Why are joins important in such sales analysis queries?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Joins combine related data from multiple tables to generate meaningful business insights",
+          "is_correct": true
+        },
+        {
+          "text": "Joins permanently merge tables into one structure",
+          "is_correct": false
+        },
+        {
+          "text": "Joins automatically remove duplicate customers",
+          "is_correct": false
+        },
+        {
+          "text": "Joins replace the need for filtering conditions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Sales Analysis Basics",
+      "content": "Which SQL concepts are commonly used in sales analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GROUP BY",
+          "is_correct": true
+        },
+        {
+          "text": "SUM()",
+          "is_correct": true
+        },
+        {
+          "text": "WHERE filtering",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Revenue Analysis",
+      "content": "Which operations are commonly performed during revenue analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Calculating total revenue using SUM()",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping sales by region or product",
+          "is_correct": true
+        },
+        {
+          "text": "Filtering records by date ranges",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting all sales records permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Sales Reporting",
+      "content": "Which statements are true regarding SQL sales reports?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reports help businesses identify trends",
+          "is_correct": true
+        },
+        {
+          "text": "Reports can compare sales across regions",
+          "is_correct": true
+        },
+        {
+          "text": "Reports help analyze customer behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Reports permanently replace databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Common Analysis Tasks",
+      "content": "Which are common real-world SQL sales analysis tasks?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Finding top-selling products",
+          "is_correct": true
+        },
+        {
+          "text": "Calculating monthly sales revenue",
+          "is_correct": true
+        },
+        {
+          "text": "Analyzing customer purchase trends",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all primary keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Scenario",
+      "content": "An e-commerce company analyzes product sales using SQL. Which techniques may be useful?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grouping sales by category",
+          "is_correct": true
+        },
+        {
+          "text": "Using aggregate functions like SUM() and AVG()",
+          "is_correct": true
+        },
+        {
+          "text": "Filtering data using WHERE clauses",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all customer records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Retail Business Scenario",
+      "content": "A retail company wants deeper sales insights. Which analyses are commonly performed?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monthly revenue analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Store-wise sales comparison",
+          "is_correct": true
+        },
+        {
+          "text": "Identifying high-performing products",
+          "is_correct": true
+        },
+        {
+          "text": "Dropping sales tables after each report",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Enterprise Analytics Scenario",
+      "content": "Why do enterprise organizations use SQL for sales analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SQL can handle large structured datasets efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "SQL supports powerful aggregation and reporting",
+          "is_correct": true
+        },
+        {
+          "text": "SQL helps generate business insights from transactional data",
+          "is_correct": true
+        },
+        {
+          "text": "SQL permanently removes the need for data backups",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Sales Analytics",
+      "content": "Which statements are true regarding advanced SQL sales analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Large sales datasets often require query optimization",
+          "is_correct": true
+        },
+        {
+          "text": "Joins help combine sales, product, and customer data",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes can improve reporting query performance",
+          "is_correct": true
+        },
+        {
+          "text": "Sales analysis permanently replaces transactional systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Challenges",
+      "content": "Which challenges commonly occur in large-scale sales analysis systems?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Slow query execution on huge datasets",
+          "is_correct": true
+        },
+        {
+          "text": "High CPU and memory usage during reporting",
+          "is_correct": true
+        },
+        {
+          "text": "Complex joins across multiple business tables",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic deletion of all duplicate customers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding SQL-based sales analysis?",
+      "level": "subtopic",
+      "topic_name": "Performance, Transactions & Real-World Practice",
+      "subtopic_name": "Real-world SQL problems: Sales analysis",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GROUP BY is commonly used for category-wise or region-wise analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Aggregate functions help summarize business data",
+          "is_correct": true
+        },
+        {
+          "text": "Joins are important for combining related business information",
+          "is_correct": true
+        },
+        {
+          "text": "Sales analysis permanently eliminates the need for transactions",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5177 @@
+{
+    "name": "Joins & Relationships",
+    "course_short_code": "SQL101",
+    "order_index": 5,
+    "subtopics": [
+        {
+            "name": "Why Joins are needed",
+            "content": "In relational databases, data is distributed across multiple tables to avoid redundancy and maintain integrity. Joins are necessary to retrieve and combine this related data from two or more tables based on a logical relationship between them, allowing for comprehensive querying and analysis.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "INNER JOIN",
+            "content": "An INNER JOIN returns only the rows that have matching values in both tables being joined. If there is no match for a row in the specified columns, that row is excluded from the result set. It is the most common type of join used.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "LEFT JOIN",
+            "content": "A LEFT JOIN (or LEFT OUTER JOIN) returns all records from the left table, and the matched records from the right table. The result is NULL from the right side if there is no match. It is useful when you want to keep all primary records regardless of related secondary data.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "RIGHT JOIN",
+            "content": "A RIGHT JOIN (or RIGHT OUTER JOIN) returns all records from the right table, and the matched records from the left table. The result is NULL from the left side when there is no match. It is essentially the reverse of a LEFT JOIN.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "FULL JOIN",
+            "content": "A FULL JOIN (or FULL OUTER JOIN) returns all records when there is a match in either the left or right table records. Unmatched rows will contain NULL values for columns from the table that lacks a match. It combines the results of both LEFT and RIGHT joins.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "CROSS JOIN",
+            "content": "A CROSS JOIN returns the Cartesian product of the two tables, meaning it joins every row from the first table with every row from the second table. This join does not require a condition and can result in a very large dataset if the tables are large.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "SELF JOIN",
+            "content": "A SELF JOIN is a regular join, but the table is joined with itself. It is useful for querying hierarchical data or comparing rows within the same table. To perform a self join, you must use table aliases to distinguish the instances of the table.",
+            "order_index": 6,
+            "videos": []
+        },
+        {
+            "name": "Joining multiple tables",
+            "content": "SQL allows joining more than two tables in a single query by chaining multiple JOIN clauses. Each JOIN typically connects a new table to the existing result set based on a specified relationship. Proper indexing and understanding of table relationships are crucial for performance.",
+            "order_index": 7,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Joins",
+            "content": "Why are joins used in SQL databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To combine related data from multiple tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently merge databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete relationships",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Relational Database Concept",
+            "content": "Why do relational databases often store data in multiple tables instead of one large table?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce redundancy and improve organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently duplicate records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid using keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "To disable normalization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Joins and Relationships",
+            "content": "Which database concept makes joins possible between tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Relationships using keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indexes only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Real-world Database Design",
+            "content": "Why are joins important in real-world applications?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Applications often store related information in separate tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently merge all tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins replace primary keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins automatically normalize databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company stores customer details in one table and orders in another table. Why are joins required?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve customer and order information together",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine both tables into one",
+                    "is_correct": false
+                },
+                {
+                    "text": "To duplicate customer records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university stores student information and course enrollments in separate tables. Why are joins useful here?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To fetch related student-course data efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently duplicate course records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically delete unused data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid using primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital System Scenario",
+            "content": "A hospital stores doctor details separately from patient appointments. Why are joins important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To connect related appointment and doctor information",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently merge all hospital tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove normalization rules",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically encrypt appointment records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Database Design",
+            "content": "Why are joins fundamental in enterprise relational database systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise systems rely on normalized tables that must be connected dynamically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently flatten all database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins eliminate the need for relationships",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins automatically create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance and Scalability",
+            "content": "Why should joins be optimized carefully in large-scale applications?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex joins across massive tables can impact query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins automatically delete duplicate records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins disable normalization permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins convert SQL databases into NoSQL systems",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why are joins critical for business intelligence and analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Insights often require combining data from multiple related tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins automatically create dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins permanently merge business datasets",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins replace foreign keys completely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Joins Basics",
+            "content": "Which statements are true regarding joins in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joins combine related data from tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins rely on relationships between tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins are important in relational databases",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently merge tables into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Why Separate Tables",
+            "content": "Why do databases commonly store information in multiple related tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce redundancy",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve data organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To support normalization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently duplicate information",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Joins in Applications",
+            "content": "In which applications are joins commonly required?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "E-commerce systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hospital management systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "University databases",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simple text editors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of Joins",
+            "content": "Why are joins useful in SQL databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They connect related data efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "They support normalized database structures",
+                    "is_correct": true
+                },
+                {
+                    "text": "They help generate combined reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically delete unused tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company stores products, customers, and orders in separate tables. Why are joins beneficial?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Related business data can be connected dynamically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reports become more flexible and detailed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database normalization becomes practical",
+                    "is_correct": true
+                },
+                {
+                    "text": "All tables are permanently merged automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital database connects doctors, patients, and appointments using joins. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Related healthcare information becomes accessible together",
+                    "is_correct": true
+                },
+                {
+                    "text": "Appointment tracking becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reporting and analytics improve",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently duplicate patient records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why are joins heavily used in enterprise database systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise data is usually distributed across many related tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business reporting requires connected information",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalized structures depend on relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins automatically remove primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Join Concepts",
+            "content": "Which statements are true regarding joins in large-scale relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joins are essential for connecting normalized data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems rely heavily on joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex joins can impact performance if not optimized",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently flatten database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient joins on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding why joins are needed?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Why Joins are needed",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joins help combine related information from different tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins support normalized relational database design",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins are widely used in real-world enterprise systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joins permanently merge all tables into one structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of INNER JOIN",
+            "content": "What is the main purpose of an INNER JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return matching rows from both tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To return all rows from both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Matching Records",
+            "content": "What happens to non-matching rows in an INNER JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are excluded from the result",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are permanently deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are automatically updated",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are converted into NULL values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "INNER JOIN Relationship",
+            "content": "INNER JOIN usually works based on which database concept?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Matching key relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting rules only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indexes only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aliases only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "INNER JOIN Usage",
+            "content": "Why is INNER JOIN commonly used in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve only related records between tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To duplicate data permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "To normalize tables automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company stores customers in one table and orders in another. Why would INNER JOIN be useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve only customers who placed orders",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To show customers without orders only",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove duplicate customer records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university stores students in one table and course enrollments in another. Why would INNER JOIN be appropriate?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To fetch students who are enrolled in courses",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently merge student and course data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To display only courses without students",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically normalize the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital System Scenario",
+            "content": "A hospital stores doctors and appointments in separate tables. Why is INNER JOIN important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve appointments linked to valid doctors",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently delete unmatched appointments",
+                    "is_correct": false
+                },
+                {
+                    "text": "To duplicate doctor records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Database Systems",
+            "content": "Why is INNER JOIN heavily used in enterprise applications?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise systems often need only valid related records across tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN permanently merges enterprise tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN removes normalization requirements",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN replaces foreign keys completely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should INNER JOIN queries be optimized carefully in large-scale databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joining massive tables can increase query execution cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN automatically deletes unmatched rows from tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN disables indexes permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is INNER JOIN critical in business intelligence systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analytics often require combining only matching business records",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN automatically creates dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN permanently stores analytics results",
+                    "is_correct": false
+                },
+                {
+                    "text": "INNER JOIN removes relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "INNER JOIN Basics",
+            "content": "Which statements are true regarding INNER JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "INNER JOIN returns matching rows from tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN relies on relationships between tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched rows are excluded",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN permanently merges tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "INNER JOIN Usage",
+            "content": "In which scenarios is INNER JOIN commonly used?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Customer-order systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Student-course databases",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hospital appointment systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Image editing software",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of INNER JOIN",
+            "content": "Why is INNER JOIN useful in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It retrieves meaningful related data",
+                    "is_correct": true
+                },
+                {
+                    "text": "It reduces irrelevant unmatched records in results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports normalized database structures",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically deletes unused rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "INNER JOIN Concepts",
+            "content": "Which statements correctly describe INNER JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rows must satisfy the join condition to appear",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN works with matching values",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is one of the most commonly used joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN permanently modifies tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company uses INNER JOIN between orders and customers tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only valid customer-order combinations are retrieved",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business reporting becomes more accurate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Related information becomes easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tables are permanently combined",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital connects doctors and appointments using INNER JOIN. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Valid appointment records become accessible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Doctor-related analytics improve",
+                    "is_correct": true
+                },
+                {
+                    "text": "Appointment reporting becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched doctor rows are permanently deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why is INNER JOIN heavily used in enterprise database systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise reporting depends on related datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN helps retrieve only valid connected records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalized databases rely on relationships between tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN automatically removes primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced INNER JOIN Concepts",
+            "content": "Which statements are true regarding INNER JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "INNER JOIN is essential for relational data retrieval",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems frequently rely on INNER JOIN",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized joins can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient INNER JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched records from tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding INNER JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "INNER JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "INNER JOIN returns only matching records",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is based on relationships between tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is commonly used in enterprise systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "INNER JOIN permanently combines tables into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of LEFT JOIN",
+            "content": "What is the main purpose of a LEFT JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return all rows from the left table and matching rows from the right table",
+                    "is_correct": true
+                },
+                {
+                    "text": "To return only matching rows from both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Unmatched Rows in LEFT JOIN",
+            "content": "What happens when there is no matching row in the right table during a LEFT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NULL values are returned for the right table columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "The row is permanently deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "The query fails automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Duplicate rows are created",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "LEFT JOIN Usage",
+            "content": "Why is LEFT JOIN commonly used in reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To include all records from the primary table even if matches are missing",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove unmatched rows permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "To normalize databases automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "LEFT JOIN Concept",
+            "content": "Which table's rows are always preserved in a LEFT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Left table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Right table",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both tables equally",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only matching rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company wants to display all customers, including those who never placed an order. Why is LEFT JOIN appropriate?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It keeps all customer records even if no order exists",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines customers and orders tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes customers without orders",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university wants to list all students, including those not enrolled in any course. Why would LEFT JOIN be useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It preserves all student records while showing enrollment details when available",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges student and course tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes students without enrollments",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically normalizes the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital Reporting Scenario",
+            "content": "A hospital wants to display all doctors, even those without appointments. Why is LEFT JOIN important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It keeps all doctor records regardless of appointment matches",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes doctors without appointments",
+                    "is_correct": false
+                },
+                {
+                    "text": "It duplicates unmatched doctor records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts doctor data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting Systems",
+            "content": "Why is LEFT JOIN heavily used in enterprise reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses often need complete master records even when related data is missing",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN permanently combines enterprise tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN removes the need for relationships",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN replaces primary keys completely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should LEFT JOIN queries be optimized carefully in large-scale applications?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joining massive datasets while preserving unmatched rows can increase query cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN automatically deletes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN permanently disables indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is LEFT JOIN important in business intelligence systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analytics often require complete datasets including records without matches",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN automatically generates dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN permanently stores analytical results",
+                    "is_correct": false
+                },
+                {
+                    "text": "LEFT JOIN removes relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LEFT JOIN Basics",
+            "content": "Which statements are true regarding LEFT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LEFT JOIN preserves all rows from the left table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows from the right table are included",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched right-side values appear as NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN permanently merges tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LEFT JOIN Usage",
+            "content": "In which scenarios is LEFT JOIN commonly used?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Displaying all customers with or without orders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Showing all students with optional enrollments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Listing all employees including inactive ones",
+                    "is_correct": true
+                },
+                {
+                    "text": "Editing images in graphic software",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of LEFT JOIN",
+            "content": "Why is LEFT JOIN useful in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps preserve important master data",
+                    "is_correct": true
+                },
+                {
+                    "text": "It allows incomplete relationships to be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports flexible reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically deletes unmatched records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LEFT JOIN Concepts",
+            "content": "Which statements correctly describe LEFT JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All rows from the left table are returned",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows from the right table are included",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing matches result in NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN permanently modifies table structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company uses LEFT JOIN between customers and orders tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Customers without orders can still appear in reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Customer retention analysis becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incomplete business relationships can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Customer records are permanently merged with orders",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital connects doctors and appointments using LEFT JOIN. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Doctors without appointments can still be listed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Healthcare reporting becomes more complete",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inactive doctor analysis becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Appointments without doctors are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why is LEFT JOIN heavily used in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses often require complete master data visibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incomplete relationships must still be reported",
+                    "is_correct": true
+                },
+                {
+                    "text": "Enterprise analytics often depend on optional relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN automatically removes foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced LEFT JOIN Concepts",
+            "content": "Which statements are true regarding LEFT JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LEFT JOIN is important for handling incomplete relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems frequently use LEFT JOIN",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized joins can affect query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient LEFT JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High CPU and memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched rows from tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding LEFT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "LEFT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LEFT JOIN keeps all rows from the left table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched right-table rows appear as NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN is useful for incomplete relationship analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "LEFT JOIN permanently merges tables into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of RIGHT JOIN",
+            "content": "What is the main purpose of a RIGHT JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return all rows from the right table and matching rows from the left table",
+                    "is_correct": true
+                },
+                {
+                    "text": "To return only matching rows from both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Unmatched Rows in RIGHT JOIN",
+            "content": "What happens when there is no matching row in the left table during a RIGHT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NULL values are returned for the left table columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "The row is permanently deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "The query automatically fails",
+                    "is_correct": false
+                },
+                {
+                    "text": "Duplicate rows are created",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "RIGHT JOIN Concept",
+            "content": "Which table's rows are always preserved in a RIGHT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Right table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Left table",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both tables equally",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only matching rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "RIGHT JOIN Usage",
+            "content": "Why is RIGHT JOIN useful in reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To include all records from the right table even when matches are missing",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove unmatched rows permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically normalize databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company wants to display all products, including products that have never been ordered. Why is RIGHT JOIN appropriate if the products table is on the right side?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It preserves all product records even if no order exists",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges orders and products tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes products without orders",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university wants to display all available courses, including courses without enrolled students. Why would RIGHT JOIN be useful if the courses table is on the right side?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It keeps all course records while showing enrollment details when available",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines student and course tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes courses without enrollments",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically normalizes the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital Reporting Scenario",
+            "content": "A hospital wants to display all departments, including departments without doctors assigned yet. Why is RIGHT JOIN important if the departments table is on the right side?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It preserves all department records regardless of doctor matches",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes unmatched departments",
+                    "is_correct": false
+                },
+                {
+                    "text": "It duplicates department records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts department data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting Systems",
+            "content": "Why is RIGHT JOIN useful in enterprise reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses sometimes need complete visibility of right-side master records even without matches",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN permanently combines enterprise tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN removes the need for relationships",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN replaces primary keys completely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should RIGHT JOIN queries be optimized carefully in large-scale systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joining massive datasets while preserving unmatched right-side rows can impact performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN automatically deletes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN disables indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is RIGHT JOIN important in analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analytics may require complete right-side datasets even without matching records",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN automatically creates dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN permanently stores analytical results",
+                    "is_correct": false
+                },
+                {
+                    "text": "RIGHT JOIN removes foreign keys automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "RIGHT JOIN Basics",
+            "content": "Which statements are true regarding RIGHT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "RIGHT JOIN preserves all rows from the right table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows from the left table are included",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched left-side values appear as NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN permanently merges tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "RIGHT JOIN Usage",
+            "content": "In which scenarios is RIGHT JOIN commonly useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Displaying all products including unordered ones",
+                    "is_correct": true
+                },
+                {
+                    "text": "Showing all courses including unenrolled ones",
+                    "is_correct": true
+                },
+                {
+                    "text": "Listing all departments even without employees",
+                    "is_correct": true
+                },
+                {
+                    "text": "Designing graphics in photo editors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of RIGHT JOIN",
+            "content": "Why is RIGHT JOIN useful in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps preserve important right-side master records",
+                    "is_correct": true
+                },
+                {
+                    "text": "It allows incomplete relationships to be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports flexible reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically deletes unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "RIGHT JOIN Concepts",
+            "content": "Which statements correctly describe RIGHT JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All rows from the right table are returned",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows from the left table are included",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing matches result in NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN permanently modifies table structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company uses RIGHT JOIN between orders and products tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Products without orders can still appear in reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inventory analysis becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incomplete business relationships can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product records are permanently merged with orders",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "University Analytics Scenario",
+            "content": "A university connects enrollments and courses using RIGHT JOIN. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Courses without students can still be displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Course reporting becomes more complete",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unused course analysis becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Student records are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why is RIGHT JOIN used in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses often require visibility of complete right-side master data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optional relationships must still be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Enterprise reporting often depends on incomplete relationship tracking",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN automatically removes foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced RIGHT JOIN Concepts",
+            "content": "Which statements are true regarding RIGHT JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "RIGHT JOIN is useful for analyzing incomplete relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems may rely on RIGHT JOIN",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized joins can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient RIGHT JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High CPU and memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched rows from tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding RIGHT JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "RIGHT JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "RIGHT JOIN keeps all rows from the right table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched left-table values appear as NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN is useful for incomplete relationship analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "RIGHT JOIN permanently merges tables into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of FULL JOIN",
+            "content": "What is the main purpose of a FULL JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return all rows from both tables including unmatched rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "To return only matching rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "FULL JOIN Behavior",
+            "content": "What happens to unmatched rows in a FULL JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are included with NULL values for missing columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are automatically deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are duplicated permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "The query automatically fails",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "FULL JOIN Usage",
+            "content": "Why is FULL JOIN useful in reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps retrieve complete data from both tables even if relationships are missing",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes unmatched rows automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It replaces primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "FULL JOIN Concept",
+            "content": "Which rows are guaranteed to appear in a FULL JOIN result?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All rows from both tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only matching rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only left table rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only right table rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company wants to view all customers and all orders, including customers without orders and orders without linked customers. Why is FULL JOIN appropriate?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It preserves all records from both tables regardless of matching relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges customers and orders tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes unmatched records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically normalizes the database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university wants to list all students and all courses, including students without courses and courses without students. Why would FULL JOIN be useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It retrieves all records from both sides even when no relationship exists",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines both tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes unmatched student records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital Reporting Scenario",
+            "content": "A hospital wants to display all doctors and all departments, including departments without doctors and doctors without assigned departments. Why is FULL JOIN important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It keeps all records from both tables regardless of matching relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes unmatched records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It duplicates department data",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting Systems",
+            "content": "Why is FULL JOIN useful in enterprise reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses sometimes require complete visibility of all records from multiple systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN permanently combines enterprise tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN removes the need for foreign keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN replaces normalization completely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should FULL JOIN queries be optimized carefully in large-scale databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Preserving all matched and unmatched rows from huge datasets can increase query cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN automatically deletes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN disables indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is FULL JOIN important in analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analytics may require all available records even when relationships are incomplete",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN automatically creates dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN permanently stores analytical reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "FULL JOIN removes relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "FULL JOIN Basics",
+            "content": "Which statements are true regarding FULL JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "FULL JOIN preserves all rows from both tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows are combined",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched values appear as NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN permanently merges tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "FULL JOIN Usage",
+            "content": "In which scenarios is FULL JOIN commonly useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Displaying all customers and all orders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Showing all students and all courses",
+                    "is_correct": true
+                },
+                {
+                    "text": "Listing all employees and all departments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Editing photos in graphic software",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of FULL JOIN",
+            "content": "Why is FULL JOIN useful in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps preserve all records from both tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "It allows analysis of incomplete relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports comprehensive reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically deletes unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "FULL JOIN Concepts",
+            "content": "Which statements correctly describe FULL JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All rows from both tables are returned",
+                    "is_correct": true
+                },
+                {
+                    "text": "Matching rows are combined into one result",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing matches result in NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN permanently modifies table structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company uses FULL JOIN between customers and orders tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Customers without orders can still appear",
+                    "is_correct": true
+                },
+                {
+                    "text": "Orders without linked customers can still appear",
+                    "is_correct": true
+                },
+                {
+                    "text": "Relationship gaps can be identified easily",
+                    "is_correct": true
+                },
+                {
+                    "text": "All records are permanently merged into storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital connects doctors and departments using FULL JOIN. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Departments without doctors can still be displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Doctors without departments can still appear",
+                    "is_correct": true
+                },
+                {
+                    "text": "Healthcare reporting becomes more comprehensive",
+                    "is_correct": true
+                },
+                {
+                    "text": "Doctor records are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why is FULL JOIN useful in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses may require complete visibility across systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched records may still contain valuable information",
+                    "is_correct": true
+                },
+                {
+                    "text": "Enterprise analytics often require full data coverage",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN automatically removes foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced FULL JOIN Concepts",
+            "content": "Which statements are true regarding FULL JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "FULL JOIN is useful for complete relationship analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems may rely on FULL JOIN",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized FULL JOIN queries can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient FULL JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High CPU and memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched rows from tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding FULL JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "FULL JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "FULL JOIN keeps all rows from both tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmatched rows appear with NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN is useful for identifying missing relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "FULL JOIN permanently combines tables into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of CROSS JOIN",
+            "content": "What is the main purpose of a CROSS JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return every possible combination of rows from two tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To return only matching rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove duplicate rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CROSS JOIN Output",
+            "content": "If Table A has 3 rows and Table B has 4 rows, how many rows will a CROSS JOIN produce?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "12",
+                    "is_correct": true
+                },
+                {
+                    "text": "7",
+                    "is_correct": false
+                },
+                {
+                    "text": "4",
+                    "is_correct": false
+                },
+                {
+                    "text": "3",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CROSS JOIN Concept",
+            "content": "What type of result does CROSS JOIN generate?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cartesian product",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only matching records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only unmatched records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorted records only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CROSS JOIN Relationship",
+            "content": "Does CROSS JOIN require a matching condition between tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No, it combines every row with every other row",
+                    "is_correct": true
+                },
+                {
+                    "text": "Yes, it always requires a foreign key",
+                    "is_correct": false
+                },
+                {
+                    "text": "Yes, it requires a primary key",
+                    "is_correct": false
+                },
+                {
+                    "text": "No, but it deletes unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An online store wants to generate every possible combination of shirt sizes and colors. Why is CROSS JOIN useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It creates all possible size-color combinations",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges product tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate combinations automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It filters matching rows only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Scheduling Scenario",
+            "content": "A university wants to create all possible combinations of classrooms and exam slots. Why would CROSS JOIN be useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It generates every classroom-slot pairing",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines schedules",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes unavailable classrooms automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It only returns matching schedules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Restaurant Menu Scenario",
+            "content": "A restaurant wants to generate all possible meal and drink combinations for combo offers. Why is CROSS JOIN important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It creates every possible meal-drink pairing",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently stores menu combinations",
+                    "is_correct": false
+                },
+                {
+                    "text": "It filters only matching meal categories",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically normalizes the menu database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Data Generation",
+            "content": "Why should CROSS JOIN be used carefully in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It can generate extremely large result sets",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically deletes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "It permanently merges all enterprise tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes the need for filtering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why can CROSS JOIN queries negatively affect performance in large databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The number of generated rows grows rapidly as table sizes increase",
+                    "is_correct": true
+                },
+                {
+                    "text": "CROSS JOIN automatically duplicates database schemas",
+                    "is_correct": false
+                },
+                {
+                    "text": "CROSS JOIN disables indexes permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "CROSS JOIN converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why might CROSS JOIN be used in analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To generate all possible analytical combinations for simulations or comparisons",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently store reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically filter data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove unmatched records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CROSS JOIN Basics",
+            "content": "Which statements are true regarding CROSS JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CROSS JOIN returns every possible combination of rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "It generates a Cartesian product",
+                    "is_correct": true
+                },
+                {
+                    "text": "It does not require a join condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "It returns only matching rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CROSS JOIN Usage",
+            "content": "In which scenarios is CROSS JOIN commonly useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Generating all product combinations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating all seating arrangements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Generating all schedule combinations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Editing videos in media software",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of CROSS JOIN",
+            "content": "Why is CROSS JOIN useful in SQL databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps generate all possible combinations",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is useful for simulations and testing",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports combination analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes duplicate records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CROSS JOIN Concepts",
+            "content": "Which statements correctly describe CROSS JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Every row from one table combines with every row from another table",
+                    "is_correct": true
+                },
+                {
+                    "text": "No matching condition is required",
+                    "is_correct": true
+                },
+                {
+                    "text": "The result size can grow very quickly",
+                    "is_correct": true
+                },
+                {
+                    "text": "CROSS JOIN permanently modifies tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company uses CROSS JOIN between product sizes and colors tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All product variation combinations can be generated",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inventory planning becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product configuration analysis improves",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate combinations are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "University Scheduling Scenario",
+            "content": "A university uses CROSS JOIN between classrooms and exam slots. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Every possible classroom-slot pairing can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scheduling flexibility improves",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unused combinations can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Exam conflicts are automatically removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why might enterprise systems use CROSS JOIN carefully?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It can generate useful simulation datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports combination analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It can create huge result sets quickly",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes all NULL values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced CROSS JOIN Concepts",
+            "content": "Which statements are true regarding CROSS JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CROSS JOIN can produce extremely large datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems may use CROSS JOIN for simulations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized CROSS JOIN queries can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "CROSS JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient CROSS JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Massive result sets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding CROSS JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "CROSS JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CROSS JOIN creates all possible row combinations",
+                    "is_correct": true
+                },
+                {
+                    "text": "It generates a Cartesian product",
+                    "is_correct": true
+                },
+                {
+                    "text": "It can significantly increase result size",
+                    "is_correct": true
+                },
+                {
+                    "text": "CROSS JOIN returns only matching records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of SELF JOIN",
+            "content": "What is the main purpose of a SELF JOIN in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To join a table with itself",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently duplicate a table",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To join two unrelated databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SELF JOIN Usage",
+            "content": "When is SELF JOIN commonly used?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When records in the same table are related to each other",
+                    "is_correct": true
+                },
+                {
+                    "text": "When deleting duplicate databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "When converting SQL into NoSQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "When encrypting data automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SELF JOIN Example",
+            "content": "Which scenario commonly requires a SELF JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Employees and their managers stored in the same table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Products stored in different databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "Combining unrelated files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating backups automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SELF JOIN Concept",
+            "content": "Why are aliases important in SELF JOIN queries?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help differentiate the same table used multiple times",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently rename the table",
+                    "is_correct": false
+                },
+                {
+                    "text": "They remove duplicate rows automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "They convert tables into views",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Corporate Hierarchy Scenario",
+            "content": "A company stores employee and manager details in the same Employees table. Why is SELF JOIN useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps connect employees with their managers within the same table",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges employee records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically deletes duplicate managers",
+                    "is_correct": false
+                },
+                {
+                    "text": "It normalizes the table automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Social Media Scenario",
+            "content": "A social media platform stores users and their referrals in the same table. Why would SELF JOIN be useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It can connect users with the users who referred them",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines user accounts",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes inactive users automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates duplicate profiles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Scenario",
+            "content": "A university stores mentors and students in the same table. Why is SELF JOIN important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps map students to their mentors using one table",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently duplicates mentor records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates foreign keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes unmatched students",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Hierarchy Systems",
+            "content": "Why is SELF JOIN commonly used in enterprise organizational systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Many hierarchical relationships exist within the same table structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN permanently combines all records",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELF JOIN removes the need for primary keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELF JOIN converts tables into NoSQL collections",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should SELF JOIN queries be optimized carefully in large databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joining a large table with itself can increase query complexity and execution cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN automatically deletes duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELF JOIN permanently disables indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "SELF JOIN removes relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why might SELF JOIN be useful in analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps analyze hierarchical and recursive relationships within the same dataset",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently stores analytical reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes recursive relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELF JOIN Basics",
+            "content": "Which statements are true regarding SELF JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELF JOIN joins a table with itself",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases are commonly used in SELF JOIN",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps analyze relationships within the same table",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN permanently duplicates tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELF JOIN Usage",
+            "content": "In which scenarios is SELF JOIN commonly useful?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Employee-manager relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Student-mentor relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Referral systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Image editing software",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of SELF JOIN",
+            "content": "Why is SELF JOIN useful in relational databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps analyze hierarchical relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "It avoids creating unnecessary duplicate tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports recursive relationship analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes NULL values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SELF JOIN Concepts",
+            "content": "Which statements correctly describe SELF JOIN behavior?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The same table appears more than once in the query",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases are used to differentiate table references",
+                    "is_correct": true
+                },
+                {
+                    "text": "Relationships within a table can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN permanently changes table structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Corporate Hierarchy Scenario",
+            "content": "A company uses SELF JOIN on an Employees table. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Employees can be linked to managers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Organizational hierarchies become easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reporting structures can be generated",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate employee records are automatically removed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "University Mentorship Scenario",
+            "content": "A university uses SELF JOIN between students and mentors stored in the same table. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mentorship relationships can be tracked",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hierarchical student networks can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "The same table can represent multiple roles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Student records are permanently merged",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why do enterprise systems use SELF JOIN carefully?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hierarchical data structures are common",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex recursive relationships can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large self-joins may impact performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN automatically removes all duplicates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced SELF JOIN Concepts",
+            "content": "Which statements are true regarding SELF JOIN in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELF JOIN is useful for hierarchical analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems may use SELF JOIN for recursive data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized SELF JOIN queries can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN permanently flattens database structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient SELF JOIN operations on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex recursive calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding SELF JOIN?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "SELF JOIN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SELF JOIN can analyze relationships within the same table",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aliases help differentiate table references",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN is useful for hierarchical structures",
+                    "is_correct": true
+                },
+                {
+                    "text": "SELF JOIN permanently duplicates the table",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Joining Multiple Tables",
+            "content": "Why are multiple tables joined together in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To combine related data stored across different tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently merge all database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically delete duplicate records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To convert SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Table Relationships",
+            "content": "Which database concept makes joining multiple tables possible?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Relationships using keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random table duplication",
+                    "is_correct": false
+                },
+                {
+                    "text": "File compression",
+                    "is_correct": false
+                },
+                {
+                    "text": "Automatic indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple JOIN Usage",
+            "content": "What is commonly used while joining more than two tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple JOIN clauses",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple DELETE statements",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only aggregate functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Triggers only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Real-world Database Design",
+            "content": "Why do modern databases store data in multiple related tables instead of one huge table?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce redundancy and improve organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To make SQL queries impossible",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid using keys",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently separate all data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Platform Scenario",
+            "content": "An e-commerce company stores customers, orders, and products in separate tables. Why would joining multiple tables be necessary?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To generate complete order reports containing customer and product information",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine all tables into one",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically delete duplicate products",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove relationships between tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "University Management Scenario",
+            "content": "A university database contains Students, Courses, and Enrollments tables. Why are multiple joins useful here?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To retrieve complete enrollment information involving students and courses",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently merge all academic records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically remove inactive students",
+                    "is_correct": false
+                },
+                {
+                    "text": "To eliminate foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hospital Reporting Scenario",
+            "content": "A hospital system stores patients, doctors, appointments, and departments in separate tables. Why are multiple joins important?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To create detailed reports connecting patients, doctors, and departments",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently combine hospital records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To automatically encrypt patient data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove appointment records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Database Systems",
+            "content": "Why is joining multiple tables essential in enterprise-level databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise data is usually distributed across normalized tables for scalability and maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Enterprise systems avoid relationships between tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Multiple joins permanently merge databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins replace the need for database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should queries involving multiple table joins be optimized carefully?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Joining many large tables can significantly increase query complexity and execution time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple joins automatically delete unused rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Multiple joins permanently disable indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Multiple joins convert SQL databases into NoSQL systems",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why do business intelligence systems frequently join multiple tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analytics often require combining data from many related business entities",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business intelligence systems permanently merge tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Multiple joins automatically create dashboards",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joins remove the need for relationships",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Joining Multiple Tables Basics",
+            "content": "Which statements are true regarding joining multiple tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple tables can be joined using JOIN clauses",
+                    "is_correct": true
+                },
+                {
+                    "text": "Relationships between tables are important",
+                    "is_correct": true
+                },
+                {
+                    "text": "Keys are commonly used to connect tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "All tables must always contain identical columns",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Why Multiple Tables are Used",
+            "content": "Why do databases commonly use multiple related tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reduce data redundancy",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To support normalization",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently separate related data forever",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of Multiple Joins",
+            "content": "Why are multiple joins useful in SQL?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help retrieve complete business information",
+                    "is_correct": true
+                },
+                {
+                    "text": "They support complex reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "They combine related data from several tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically delete duplicate records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Multiple JOIN Concepts",
+            "content": "Which statements correctly describe joining multiple tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Several JOIN clauses can exist in one query",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tables are usually connected using keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalized databases often require multiple joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple joins permanently modify table structures",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "E-commerce Reporting Scenario",
+            "content": "An e-commerce company joins Customers, Orders, Products, and Payments tables. Which advantages does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Detailed business reports can be generated",
+                    "is_correct": true
+                },
+                {
+                    "text": "Customer purchasing behavior can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sales and payment trends can be tracked",
+                    "is_correct": true
+                },
+                {
+                    "text": "All tables are permanently merged into one",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital joins Patients, Doctors, Appointments, and Billing tables. Which benefits does this provide?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Comprehensive patient reports can be created",
+                    "is_correct": true
+                },
+                {
+                    "text": "Department-wise healthcare analytics become possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Billing and treatment data can be connected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Doctor records are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Systems Scenario",
+            "content": "Why do enterprise systems rely heavily on joining multiple tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Enterprise databases are usually normalized",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business data is spread across many related entities",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex analytics often require combining many datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple joins automatically remove all NULL values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Multiple JOIN Concepts",
+            "content": "Which statements are true regarding joining multiple tables in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex business analytics often require multiple joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized joins can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Indexes are important for optimizing joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple joins permanently flatten databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient multiple-table join operations?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex execution plans",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of related rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding joining multiple tables?",
+            "level": "subtopic",
+            "topic_name": "Joins & Relationships",
+            "subtopic_name": "Joining multiple tables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple joins help combine related data from several entities",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalized databases commonly require joins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Keys are important when joining tables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Joining tables permanently merges them into storage",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}
