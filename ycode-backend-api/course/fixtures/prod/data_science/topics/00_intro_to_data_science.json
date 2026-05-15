@@ -1,0 +1,2108 @@
+{
+  "name": "Introduction to Data Science",
+  "subject_short_code": "DS100",
+  "order_index": 0,
+  "sub_units": [
+    {
+      "name": "What is Data Science?",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "What is Data Science?",
+          "video_link": "https://www.youtube.com/results?search_query=What%20is%20Data%20Science%3F",
+          "ai_context": "Detailed overview and key concepts of What is Data Science?"
+        },
+        {
+          "title": "What is Data Science?",
+          "video_link": "https://www.youtube.com/results?search_query=What%20is%20Data%20Science%3F",
+          "ai_context": "Detailed overview and key concepts of What is Data Science?"
+        }
+      ]
+    },
+    {
+      "name": "Data Science Workflow",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Data Science Workflow",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Science%20Workflow",
+          "ai_context": "Detailed overview and key concepts of Data Science Workflow"
+        },
+        {
+          "title": "Data Science Workflow",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Science%20Workflow",
+          "ai_context": "Detailed overview and key concepts of Data Science Workflow"
+        }
+      ]
+    },
+    {
+      "name": "Essential Tools",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Essential Tools",
+          "video_link": "https://www.youtube.com/results?search_query=Essential%20Tools",
+          "ai_context": "Detailed overview and key concepts of Essential Tools"
+        },
+        {
+          "title": "Essential Tools",
+          "video_link": "https://www.youtube.com/results?search_query=Essential%20Tools",
+          "ai_context": "Detailed overview and key concepts of Essential Tools"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Definition of Data Science",
+      "content": "What is Data Science mainly concerned with?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Extracting insights from data",
+          "is_correct": true
+        },
+        {
+          "text": "Designing computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Building only websites",
+          "is_correct": false
+        },
+        {
+          "text": "Managing operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Science Lifecycle",
+      "content": "Which phase comes first in the data science lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection",
+          "is_correct": true
+        },
+        {
+          "text": "Model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Data visualization",
+          "is_correct": false
+        },
+        {
+          "text": "Model evaluation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Applications of Data Science",
+      "content": "Which industry commonly uses data science applications?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Healthcare",
+          "is_correct": true
+        },
+        {
+          "text": "Agriculture only",
+          "is_correct": false
+        },
+        {
+          "text": "Printing only",
+          "is_correct": false
+        },
+        {
+          "text": "Furniture making only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Role of Data Analyst",
+      "content": "What is a primary responsibility of a Data Analyst?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Analyzing and visualizing data",
+          "is_correct": true
+        },
+        {
+          "text": "Designing network cables",
+          "is_correct": false
+        },
+        {
+          "text": "Building mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "Managing computer hardware",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Role of ML Engineer",
+      "content": "What does a Machine Learning Engineer mainly focus on?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Building and deploying machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Creating only spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "Managing office documents",
+          "is_correct": false
+        },
+        {
+          "text": "Repairing servers physically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Science Workflow",
+      "content": "Why is data cleaning important in the data science lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves the quality and accuracy of analysis",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for models",
+          "is_correct": false
+        },
+        {
+          "text": "It converts data into hardware",
+          "is_correct": false
+        },
+        {
+          "text": "It stops data collection",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Difference Between Roles",
+      "content": "What is a key difference between a Data Scientist and a Data Analyst?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Scientists often build predictive models, while Analysts focus more on insights and reporting",
+          "is_correct": true
+        },
+        {
+          "text": "Data Analysts only work with hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Data Scientists do not use data",
+          "is_correct": false
+        },
+        {
+          "text": "Both roles are exactly the same",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "End-to-End Data Science",
+      "content": "Which sequence best represents a typical data science lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection → Cleaning → Analysis/Modeling → Deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → Cleaning → Collection → Analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Visualization → Hardware setup → Deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Coding → Printing → Deployment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-World Data Science Impact",
+      "content": "How can data science improve business decision-making?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By identifying patterns and predicting future trends using data",
+          "is_correct": true
+        },
+        {
+          "text": "By replacing all employees with hardware",
+          "is_correct": false
+        },
+        {
+          "text": "By avoiding the use of data completely",
+          "is_correct": false
+        },
+        {
+          "text": "By focusing only on website colors",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Collection Basics",
+      "content": "What is the purpose of data collection in the data science workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To gather relevant information for analysis",
+          "is_correct": true
+        },
+        {
+          "text": "To delete all existing data",
+          "is_correct": false
+        },
+        {
+          "text": "To create website layouts",
+          "is_correct": false
+        },
+        {
+          "text": "To install operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance of Data Cleaning",
+      "content": "Why is data cleaning necessary?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve data quality and accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "To remove all rows from a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "To create network devices",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid using models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Data Analysis",
+      "content": "What is the main goal of data analysis?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To discover patterns and insights from data",
+          "is_correct": true
+        },
+        {
+          "text": "To design computer chips",
+          "is_correct": false
+        },
+        {
+          "text": "To manage printers",
+          "is_correct": false
+        },
+        {
+          "text": "To replace databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Modeling Stage",
+      "content": "What happens during the modeling phase?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Machine learning models are trained using data",
+          "is_correct": true
+        },
+        {
+          "text": "Data is printed on paper",
+          "is_correct": false
+        },
+        {
+          "text": "Hardware devices are repaired",
+          "is_correct": false
+        },
+        {
+          "text": "Web pages are styled",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deployment Meaning",
+      "content": "What does deployment mean in data science?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Making the model available for real-world use",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting trained models",
+          "is_correct": false
+        },
+        {
+          "text": "Formatting a hard drive",
+          "is_correct": false
+        },
+        {
+          "text": "Creating only charts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Handling Missing Data",
+      "content": "Which task is commonly performed during data cleaning?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling missing or incorrect values",
+          "is_correct": true
+        },
+        {
+          "text": "Building physical servers",
+          "is_correct": false
+        },
+        {
+          "text": "Creating HTML tags",
+          "is_correct": false
+        },
+        {
+          "text": "Installing software drivers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Workflow Order",
+      "content": "Which sequence correctly represents a standard data science workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Collection → Cleaning → Analysis → Modeling → Deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → Collection → Modeling → Cleaning",
+          "is_correct": false
+        },
+        {
+          "text": "Analysis → Deployment → Cleaning",
+          "is_correct": false
+        },
+        {
+          "text": "Modeling → Printing → Collection",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Analysis Before Modeling",
+      "content": "Why is analysis important before modeling?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps understand trends and relationships in data",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for data collection",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces deployment completely",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids using machine learning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring After Deployment",
+      "content": "What is commonly done after deploying a machine learning model?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monitoring model performance in real-world use",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting all training data immediately",
+          "is_correct": false
+        },
+        {
+          "text": "Stopping all analysis permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Converting the model into hardware",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Effect of Poor Data Cleaning",
+      "content": "What can happen if data cleaning is skipped before modeling?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The model may produce inaccurate or unreliable predictions",
+          "is_correct": true
+        },
+        {
+          "text": "The model automatically becomes more accurate",
+          "is_correct": false
+        },
+        {
+          "text": "Data collection becomes unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Deployment happens faster without any risks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing the Right Model",
+      "content": "Why is model evaluation important during the modeling stage?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To measure how well the model performs on data",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently delete the dataset",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid testing the model",
+          "is_correct": false
+        },
+        {
+          "text": "To convert predictions into HTML pages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "End-to-End Workflow Understanding",
+      "content": "Which statement best describes the relationship between the stages of the data science workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Each stage depends on the quality and output of the previous stage",
+          "is_correct": true
+        },
+        {
+          "text": "All stages are completely independent",
+          "is_correct": false
+        },
+        {
+          "text": "Deployment is always done before data collection",
+          "is_correct": false
+        },
+        {
+          "text": "Data cleaning is optional in every project",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Python Usage in Data Science",
+      "content": "Why is Python widely used in data science?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It has simple syntax and powerful libraries",
+          "is_correct": true
+        },
+        {
+          "text": "It is only used for gaming",
+          "is_correct": false
+        },
+        {
+          "text": "It cannot handle data analysis",
+          "is_correct": false
+        },
+        {
+          "text": "It only works without internet",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Anaconda Purpose",
+      "content": "What is Anaconda mainly used for?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Managing Python packages and environments",
+          "is_correct": true
+        },
+        {
+          "text": "Designing websites",
+          "is_correct": false
+        },
+        {
+          "text": "Creating mobile hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Git Basics",
+      "content": "What is Git primarily used for?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Version control and tracking code changes",
+          "is_correct": true
+        },
+        {
+          "text": "Editing images",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases only",
+          "is_correct": false
+        },
+        {
+          "text": "Running machine hardware",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GitHub Purpose",
+      "content": "What is GitHub commonly used for?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hosting and sharing Git repositories online",
+          "is_correct": true
+        },
+        {
+          "text": "Creating spreadsheets only",
+          "is_correct": false
+        },
+        {
+          "text": "Building operating systems",
+          "is_correct": false
+        },
+        {
+          "text": "Managing internet cables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Python Libraries",
+      "content": "Which of the following is a popular Python library for data analysis?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas",
+          "is_correct": true
+        },
+        {
+          "text": "Photoshop",
+          "is_correct": false
+        },
+        {
+          "text": "Bootstrap",
+          "is_correct": false
+        },
+        {
+          "text": "Apache",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Virtual Environments",
+      "content": "Why are virtual environments useful in Anaconda?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help manage separate project dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "They permanently delete packages",
+          "is_correct": false
+        },
+        {
+          "text": "They replace Python completely",
+          "is_correct": false
+        },
+        {
+          "text": "They only work for web design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Git Commit Purpose",
+      "content": "What does a Git commit do?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Saves a snapshot of changes in a repository",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes the entire project",
+          "is_correct": false
+        },
+        {
+          "text": "Uploads files automatically to all servers",
+          "is_correct": false
+        },
+        {
+          "text": "Creates databases automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Python in Machine Learning",
+      "content": "Why is Python preferred for machine learning projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides powerful machine learning frameworks and libraries",
+          "is_correct": true
+        },
+        {
+          "text": "It only supports hardware programming",
+          "is_correct": false
+        },
+        {
+          "text": "It cannot process datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids automation completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GitHub Collaboration",
+      "content": "How does GitHub help teams collaborate on projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By allowing multiple developers to share and manage code repositories",
+          "is_correct": true
+        },
+        {
+          "text": "By blocking version tracking",
+          "is_correct": false
+        },
+        {
+          "text": "By replacing programming languages",
+          "is_correct": false
+        },
+        {
+          "text": "By disabling file sharing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Managing Dependencies",
+      "content": "What problem can occur if project dependencies are not managed properly?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Projects may face package conflicts and compatibility issues",
+          "is_correct": true
+        },
+        {
+          "text": "Git automatically fixes all issues",
+          "is_correct": false
+        },
+        {
+          "text": "Python stops supporting libraries permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Data science models become hardware devices",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Version Control Importance",
+      "content": "Why is version control important in data science projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps track changes, collaborate, and restore previous versions of code",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for coding",
+          "is_correct": false
+        },
+        {
+          "text": "It permanently stores data in RAM only",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically trains machine learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Integrated Data Science Setup",
+      "content": "Which combination is most commonly used together in a data science workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Python, Anaconda, Git, and GitHub",
+          "is_correct": true
+        },
+        {
+          "text": "HTML, CSS, and Photoshop only",
+          "is_correct": false
+        },
+        {
+          "text": "Printers, routers, and scanners",
+          "is_correct": false
+        },
+        {
+          "text": "Operating systems without programming tools",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Data Science",
+      "content": "Which of the following statements about Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Science involves extracting insights from data",
+          "is_correct": true
+        },
+        {
+          "text": "Data Science combines statistics and programming",
+          "is_correct": true
+        },
+        {
+          "text": "Data Science is only related to hardware repair",
+          "is_correct": false
+        },
+        {
+          "text": "Data Science helps in decision-making",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Science Lifecycle",
+      "content": "Which of the following are common stages in the Data Science lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning and preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Painting digital images",
+          "is_correct": false
+        },
+        {
+          "text": "Model building and evaluation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Data Science",
+      "content": "Which of the following are applications of Data Science?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Recommendation systems",
+          "is_correct": true
+        },
+        {
+          "text": "Fraud detection",
+          "is_correct": true
+        },
+        {
+          "text": "Weather prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Manual typewriter manufacturing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Roles in Data Science",
+      "content": "Which of the following roles are commonly found in Data Science?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Analyst",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientist",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineer",
+          "is_correct": true
+        },
+        {
+          "text": "Car Mechanic",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsibilities in Data Science",
+      "content": "Which statements about responsibilities in Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Analysts interpret and visualize data",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineers deploy machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientists build predictive models",
+          "is_correct": true
+        },
+        {
+          "text": "All data roles only focus on hardware maintenance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Importance of Data Science",
+      "content": "Which of the following statements explain the importance of Data Science?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps organizations make data-driven decisions",
+          "is_correct": true
+        },
+        {
+          "text": "It improves efficiency through automation and prediction",
+          "is_correct": true
+        },
+        {
+          "text": "It eliminates the need for all employees",
+          "is_correct": false
+        },
+        {
+          "text": "It supports business growth using insights from data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Data Science Collaboration",
+      "content": "Which statements correctly describe collaboration in Data Science teams?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Analysts help identify trends and patterns",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineers focus on deploying and scaling models",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientists often work with machine learning algorithms",
+          "is_correct": true
+        },
+        {
+          "text": "All team members perform identical tasks only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Science Lifecycle and Applications",
+      "content": "Which of the following statements about the Data Science lifecycle and applications are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing improves data quality before modeling",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning models can be evaluated before deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Data Science applications are limited to the IT industry only",
+          "is_correct": false
+        },
+        {
+          "text": "Healthcare and finance commonly use Data Science solutions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Concepts in Data Science",
+      "content": "Which of the following statements about advanced Data Science concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "What is Data Science?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data Science combines domain knowledge, statistics, and programming",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning is often a part of Data Science workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Data Science avoids using data visualization techniques",
+          "is_correct": false
+        },
+        {
+          "text": "A complete Data Science project may include collection, analysis, modeling, and deployment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Data Collection",
+      "content": "Which of the following statements about data collection are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection is the process of gathering raw data",
+          "is_correct": true
+        },
+        {
+          "text": "Data can be collected from databases, APIs, and surveys",
+          "is_correct": true
+        },
+        {
+          "text": "Data collection is unnecessary in Data Science projects",
+          "is_correct": false
+        },
+        {
+          "text": "Good quality data improves analysis results",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Data Cleaning",
+      "content": "Which statements about data cleaning are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data cleaning helps remove incorrect or missing values",
+          "is_correct": true
+        },
+        {
+          "text": "Clean data improves model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning means deleting all collected data",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate records may be removed during data cleaning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Data Analysis",
+      "content": "Which of the following statements about data analysis are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data analysis helps identify patterns and trends",
+          "is_correct": true
+        },
+        {
+          "text": "Charts and graphs are useful for analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Analysis is unrelated to decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "Statistical methods are often used during analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Modeling",
+      "content": "Which statements about modeling in Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Modeling involves creating predictive or analytical models",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning algorithms are often used in modeling",
+          "is_correct": true
+        },
+        {
+          "text": "Models are built without using any data",
+          "is_correct": false
+        },
+        {
+          "text": "Model evaluation helps measure performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Deployment",
+      "content": "Which of the following statements about deployment are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Deployment makes models available for real-world use",
+          "is_correct": true
+        },
+        {
+          "text": "Deployed models can be integrated into applications",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment happens before data collection",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring is important after deployment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Workflow Sequence in Data Science",
+      "content": "Which statements correctly describe the Data Science workflow sequence?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data cleaning is commonly performed after data collection",
+          "is_correct": true
+        },
+        {
+          "text": "Modeling generally happens after analysis and preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment is usually the first step in a workflow",
+          "is_correct": false
+        },
+        {
+          "text": "Each workflow stage contributes to project success",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Importance of Data Cleaning and Analysis",
+      "content": "Which of the following statements about cleaning and analysis are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poor quality data can negatively affect analysis results",
+          "is_correct": true
+        },
+        {
+          "text": "Exploratory analysis helps understand the dataset",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning has no impact on model accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Visualizations can support data interpretation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Modeling and Deployment Concepts",
+      "content": "Which statements correctly describe modeling and deployment concepts?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Machine learning models can be trained using historical data",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment allows users or systems to access model predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Models never require updates after deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Performance monitoring is useful after deployment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding End-to-End Workflow",
+      "content": "Which of the following statements about end-to-end Data Science workflow are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different workflow stages are interconnected",
+          "is_correct": true
+        },
+        {
+          "text": "Feedback from deployed models can improve future models",
+          "is_correct": true
+        },
+        {
+          "text": "The workflow ends permanently after the first deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Iterative improvements are common in Data Science projects",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Collection and Cleaning",
+      "content": "Which of the following statements about advanced data collection and cleaning are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reliable data sources improve the trustworthiness of analysis results",
+          "is_correct": true
+        },
+        {
+          "text": "Handling missing values is an important part of preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate and inconsistent data always improve model accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Proper preprocessing helps improve model performance and reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Modeling Concepts",
+      "content": "Which statements about advanced modeling concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model evaluation helps compare the effectiveness of algorithms",
+          "is_correct": true
+        },
+        {
+          "text": "Overfitting can reduce model performance on unseen data",
+          "is_correct": true
+        },
+        {
+          "text": "A model should always memorize training data completely",
+          "is_correct": false
+        },
+        {
+          "text": "Feature selection can impact model accuracy and efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Deployment and Workflow Concepts",
+      "content": "Which of the following statements about deployment and workflow optimization are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Data Science Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Continuous monitoring helps detect performance issues in deployed models",
+          "is_correct": true
+        },
+        {
+          "text": "Real-world data changes may require retraining models",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment removes the need for future maintenance",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient workflows improve scalability and maintainability of Data Science projects",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Python Overview Basics",
+      "content": "Which of the following statements about Python are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Python is a popular programming language for Data Science",
+          "is_correct": true
+        },
+        {
+          "text": "Python has simple and readable syntax",
+          "is_correct": true
+        },
+        {
+          "text": "Python can only be used for web design",
+          "is_correct": false
+        },
+        {
+          "text": "Python supports libraries like NumPy and Pandas",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Anaconda",
+      "content": "Which statements about Anaconda are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Anaconda is a distribution commonly used for Data Science",
+          "is_correct": true
+        },
+        {
+          "text": "Anaconda includes tools like Jupyter Notebook",
+          "is_correct": true
+        },
+        {
+          "text": "Anaconda cannot manage Python packages",
+          "is_correct": false
+        },
+        {
+          "text": "Anaconda simplifies environment management",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Git Basics",
+      "content": "Which of the following statements about Git are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Git is a version control system",
+          "is_correct": true
+        },
+        {
+          "text": "Git helps track changes in files",
+          "is_correct": true
+        },
+        {
+          "text": "Git can only be used offline without repositories",
+          "is_correct": false
+        },
+        {
+          "text": "Git supports collaboration among developers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "GitHub Basics",
+      "content": "Which statements about GitHub are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GitHub is a platform for hosting Git repositories",
+          "is_correct": true
+        },
+        {
+          "text": "GitHub supports project collaboration",
+          "is_correct": true
+        },
+        {
+          "text": "GitHub replaces the need for Git completely",
+          "is_correct": false
+        },
+        {
+          "text": "Developers can share code using GitHub",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Python in Data Science",
+      "content": "Which of the following statements about Python in Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Python is widely used for machine learning and data analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Python provides libraries for visualization and statistics",
+          "is_correct": true
+        },
+        {
+          "text": "Python cannot handle automation tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Python supports rapid development and prototyping",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Essential Tool Usage",
+      "content": "Which statements correctly describe essential Data Science tools?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Jupyter Notebook is commonly used with Python for analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Git helps manage project versions and changes",
+          "is_correct": true
+        },
+        {
+          "text": "Anaconda can help install Python packages easily",
+          "is_correct": true
+        },
+        {
+          "text": "GitHub is mainly used for hardware manufacturing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Git and GitHub",
+      "content": "Which of the following statements about working with Git and GitHub are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Repositories store project files and version history",
+          "is_correct": true
+        },
+        {
+          "text": "GitHub enables collaboration through pull requests and repositories",
+          "is_correct": true
+        },
+        {
+          "text": "Git automatically writes machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "Version control helps developers track and revert changes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Anaconda and Python Environment Management",
+      "content": "Which statements correctly describe Anaconda and Python environment management?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Virtual environments help manage project dependencies separately",
+          "is_correct": true
+        },
+        {
+          "text": "Anaconda includes package and environment management tools",
+          "is_correct": true
+        },
+        {
+          "text": "All Python projects must use the exact same package versions",
+          "is_correct": false
+        },
+        {
+          "text": "Environment isolation can reduce dependency conflicts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Concepts in Essential Tools",
+      "content": "Which of the following statements about advanced concepts in essential tools are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Version control systems improve collaboration and project reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Python ecosystems support libraries for machine learning, visualization, and data processing",
+          "is_correct": true
+        },
+        {
+          "text": "Environment management is unnecessary in large Data Science projects",
+          "is_correct": false
+        },
+        {
+          "text": "GitHub workflows can support collaborative software and Data Science development",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Tool Integration",
+      "content": "Which statements correctly describe advanced integration of Data Science tools?",
+      "level": "subtopic",
+      "unit_name": "Introduction to Data Science",
+      "subunit_name": "Essential Tools",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Git, GitHub, and Python tools together support collaborative Data Science workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Package managers help maintain consistent project dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Version control systems are unrelated to reproducibility in projects",
+          "is_correct": false
+        },
+        {
+          "text": "Integrated tool usage improves productivity and project organization",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}
