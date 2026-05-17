@@ -15,6 +15,7 @@ import {
     CollegeSubject,
     Subject,
 } from "@/services/subjectService";
+import { collegeService, College } from "@/services/collegeService";
 import {
     Dialog,
     DialogContent,
@@ -35,6 +36,7 @@ const CollegeSubjects: React.FC = () => {
     const navigate = useNavigate();
 
     const [assignments, setAssignments] = useState<CollegeSubject[]>([]);
+    const [collegeDetail, setCollegeDetail] = useState<College | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -57,9 +59,20 @@ const CollegeSubjects: React.FC = () => {
 
     useEffect(() => {
         if (collegeId) {
+            loadCollegeDetails();
             loadAssignments();
         }
     }, [collegeId]);
+
+    const loadCollegeDetails = async () => {
+        if (!collegeId) return;
+        try {
+            const data = await collegeService.getCollege(collegeId);
+            setCollegeDetail(data);
+        } catch (err) {
+            console.error("Failed to load college details", err);
+        }
+    };
 
     const loadAssignments = async () => {
         if (!collegeId) return;
@@ -79,7 +92,13 @@ const CollegeSubjects: React.FC = () => {
     const loadAllSubjects = async () => {
         try {
             const data = await fetchSubjects();
-            setAllSubjects(data as Subject[]);
+            // Filter by product type
+            const filteredData = data.filter(s => {
+                const subjectProductType = s.product_type || 'campus';
+                const requiredProductType = collegeDetail?.product_type || 'campus';
+                return subjectProductType === requiredProductType;
+            });
+            setAllSubjects(filteredData as Subject[]);
         } catch (err) {
             console.error("Failed to load subjects", err);
             toast.error("Failed to load subjects");
@@ -181,7 +200,7 @@ const CollegeSubjects: React.FC = () => {
                 <div className="flex-1 overflow-y-auto">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
                         {/* Header Container */}
-                        <PageHeader 
+                        <PageHeader
                             title="College Allocation"
                             actions={
                                 <div className="flex items-center gap-3">
@@ -249,7 +268,7 @@ const CollegeSubjects: React.FC = () => {
                                                     <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10">
                                                         <BookOpen className="h-24 w-24" />
                                                     </div>
-                                                    <div className="flex items-center gap-2 mb-2 text-primary-foreground text-[10px] uppercase font-bold tracking-widest relative z-10 opacity-80">
+                                                    <div className="flex items-center gap-2 mb-2 text-primary-foreground text-[10px]   font-bold tracking-widest relative z-10 opacity-80">
                                                         <BookOpen className="h-3.5 w-3.5" />
                                                         {subject?.yuvro_id?.split('-')[0] || "SUBJECT"}
                                                     </div>
@@ -270,7 +289,7 @@ const CollegeSubjects: React.FC = () => {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-xs font-semibold text-primary/80 group-hover:text-primary flex items-center px-0 hover:bg-transparent uppercase tracking-tight"
+                                                        className="text-xs font-semibold text-primary/80 group-hover:text-primary flex items-center px-0 hover:bg-transparent   tracking-tight"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             subject && navigate(`/admin/subjects/${subject.id}/manage`);
@@ -342,7 +361,7 @@ const CollegeSubjects: React.FC = () => {
                                     placeholder="CS101"
                                     value={subjectCode}
                                     onChange={(e) => setSubjectCode(e.target.value)}
-                                    className="h-11 font-mono uppercase"
+                                    className="h-11 font-mono  "
                                 />
                                 <p className="text-xs text-muted-foreground">
                                     An alias recognized inside this domain natively.
@@ -379,7 +398,7 @@ const CollegeSubjects: React.FC = () => {
                                     placeholder="CS101"
                                     value={editSubjectCode}
                                     onChange={(e) => setEditSubjectCode(e.target.value)}
-                                    className="h-11 uppercase font-mono"
+                                    className="h-11   font-mono"
                                 />
                             </div>
                         </div>

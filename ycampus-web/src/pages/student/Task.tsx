@@ -54,14 +54,14 @@ const StudentTask: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [submissions, setSubmissions] = useState<Record<string, TaskSubmission>>({});
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
-  
+
   const [taskContent, setTaskContent] = useState<string>('');
   const [answersData, setAnswersData] = useState<Record<number, string>>({});
   const [activeQuestionIndex, setActiveQuestionIndex] = useState<number | null>(null);
-  
+
   // File Upload State: maps index (or 'general') to File
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
-  
+
   const [newComment, setNewComment] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,7 +152,7 @@ const StudentTask: React.FC = () => {
     setCurrentTask(task);
     const sub = submissions[task.id];
     setTaskContent(sub?.answer || '');
-    
+
     // Parse answers_data if available
     if (sub?.answers_data) {
       try {
@@ -161,7 +161,7 @@ const StudentTask: React.FC = () => {
         setAnswersData({});
       }
     } else {
-       setAnswersData({});
+      setAnswersData({});
     }
 
     setActiveQuestionIndex(null);
@@ -225,22 +225,22 @@ const StudentTask: React.FC = () => {
       setIsSubmitting(true);
       const sub = submissions[currentTask.id];
       const formData = new FormData();
-      
+
       const hasMultipleQuestions = currentTask.question_details && currentTask.question_details.length > 1;
 
       if (hasMultipleQuestions) {
-         formData.append('answers_data', JSON.stringify(answersData));
-         
-         // Fallback robust aggregation for `answer` field
-         let aggregatedAnswer = '';
-         Object.entries(answersData).forEach(([idxStr, text]) => {
-            const numIdx = parseInt(idxStr);
-            const questionTitle = currentTask.question_details?.[numIdx]?.question_text || `Question ${numIdx + 1}`;
-            aggregatedAnswer += `\n--- ${questionTitle} ---\n${text}\n`;
-         });
-         formData.append('answer', aggregatedAnswer.trim() || 'No text submitted.');
+        formData.append('answers_data', JSON.stringify(answersData));
+
+        // Fallback robust aggregation for `answer` field
+        let aggregatedAnswer = '';
+        Object.entries(answersData).forEach(([idxStr, text]) => {
+          const numIdx = parseInt(idxStr);
+          const questionTitle = currentTask.question_details?.[numIdx]?.question_text || `Question ${numIdx + 1}`;
+          aggregatedAnswer += `\n--- ${questionTitle} ---\n${text}\n`;
+        });
+        formData.append('answer', aggregatedAnswer.trim() || 'No text submitted.');
       } else {
-         formData.append('answer', taskContent);
+        formData.append('answer', taskContent);
       }
 
       formData.append('is_submitted', 'true');
@@ -256,8 +256,8 @@ const StudentTask: React.FC = () => {
           const zip = new JSZip();
           toast({ title: "Processing", description: "Zipping files before upload..." });
           for (const [key, file] of Object.entries(selectedFiles)) {
-             const fileNamePrefix = key === 'general' ? `Main_` : `Q${parseInt(key) + 1}_`;
-             zip.file(`${fileNamePrefix}${file.name}`, file);
+            const fileNamePrefix = key === 'general' ? `Main_` : `Q${parseInt(key) + 1}_`;
+            zip.file(`${fileNamePrefix}${file.name}`, file);
           }
           const zipBlob = await zip.generateAsync({ type: 'blob' });
           formData.append('file', zipBlob, `${currentTask.title.replace(/[^a-zA-Z0-9]/g, '_')}_Files.zip`);
@@ -356,7 +356,7 @@ const StudentTask: React.FC = () => {
                 <div className="flex items-center justify-between text-sm text-primary font-medium">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center shrink-0">
-                       <FileText className="h-5 w-5 text-slate-500" />
+                      <FileText className="h-5 w-5 text-slate-500" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">
@@ -365,8 +365,8 @@ const StudentTask: React.FC = () => {
                       <p className="text-xs font-semibold text-slate-400 mt-0.5">File already submitted — cannot change natively.</p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => openFileViewer(getAccessibleUrl(submissions[currentTask.id].file!))}
                     className="font-bold border-slate-200"
                   >
@@ -378,245 +378,243 @@ const StudentTask: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-             {/* Left Side - Content Area */}
-             <div className="lg:col-span-2">
-               <Card>
-                 <CardHeader>
-                   <CardTitle className="flex items-center justify-between">
-                     <div className="flex items-center justify-between w-full gap-4">
-                       <span>
-                         {isMultiQuestion
-                           ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List')
-                           : 'Your Work'}
-                       </span>
-                       {canShowHeaderUpload && (
-                         <div className="flex items-center gap-2">
-                           {!currentSelectedFile ? (
-                             <>
-                               <input
-                                 type="file"
-                                 className="hidden"
-                                 id={`file-upload-${currentFileKey}`}
-                                 accept="*/*"
-                                 onChange={(e) => handleFileUpload(e, currentFileKey)}
-                               />
-                               <Button
-                                 type="button"
-                                 variant="outline"
-                                 className="font-semibold"
-                                 onClick={() => {
-                                   const inputEl = document.getElementById(`file-upload-${currentFileKey}`) as HTMLInputElement | null;
-                                   inputEl?.click();
-                                 }}
-                               >
-                                 <Upload className="h-4 w-4 mr-2" />
-                                 Upload Task
-                               </Button>
-                             </>
-                           ) : (
-                             <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm max-w-[320px]">
-                               <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                               <span className="text-xs font-semibold truncate" title={currentSelectedFile.name}>
-                                 {currentSelectedFile.name}
-                               </span>
-                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                             </div>
-                           )}
-                         </div>
-                       )}
-                     </div>
-                   </CardTitle>
-                 </CardHeader>
-                 <CardContent>
-                    
-                    {/* Master List View */}
-                    {isMultiQuestion && activeQuestionIndex === null ? (
-                      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="grid grid-cols-1 gap-4">
-                          {currentTask.question_details?.map((q: any, idx: number) => {
-                            const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
-                            const hasFile = !!selectedFiles[idx];
-                            return (
-                              <div 
-                                key={idx} 
-                                onClick={() => setActiveQuestionIndex(idx)}
-                                className={`p-6 rounded-xl border transition-all cursor-pointer min-h-[132px] ${
-                                  (isAnswered || hasFile) ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
-                                }`}
+            {/* Left Side - Content Area */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center justify-between w-full gap-4">
+                      <span>
+                        {isMultiQuestion
+                          ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List')
+                          : 'Your Work'}
+                      </span>
+                      {canShowHeaderUpload && (
+                        <div className="flex items-center gap-2">
+                          {!currentSelectedFile ? (
+                            <>
+                              <input
+                                type="file"
+                                className="hidden"
+                                id={`file-upload-${currentFileKey}`}
+                                accept="*/*"
+                                onChange={(e) => handleFileUpload(e, currentFileKey)}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="font-semibold"
+                                onClick={() => {
+                                  const inputEl = document.getElementById(`file-upload-${currentFileKey}`) as HTMLInputElement | null;
+                                  inputEl?.click();
+                                }}
                               >
-                                <div className="flex justify-between items-start gap-4 mb-2">
-                                  <h4 className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-                                    Question {idx + 1}
-                                    {(isAnswered || hasFile) && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
-                                    {hasFile && <Paperclip className="h-3 w-3 text-emerald-600" />}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-semibold shadow-none">{q.marks} Marks</Badge>}
-                                    {q.difficulty_level && (
-                                      <Badge className={`text-[10px] shadow-none font-semibold ${
-                                        q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
-                                        q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
-                                        'bg-emerald-50 text-emerald-600'
-                                      }`}>
-                                        {q.difficulty_level}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <p className="text-sm font-normal text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
-                                  {q.question_text || q.title || 'Untitled Question'}
-                                </p>
-                                {(isAnswered || hasFile) && (
-                                  <p className="mt-3 text-xs font-medium text-emerald-600">
-                                    {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
-                                  </p>
-                                )}
-                              </div>
-                            );
-                          })}
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload Task
+                              </Button>
+                            </>
+                          ) : (
+                            <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm max-w-[320px]">
+                              <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                              <span className="text-xs font-semibold truncate" title={currentSelectedFile.name}>
+                                {currentSelectedFile.name}
+                              </span>
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                            </div>
+                          )}
                         </div>
-                        
-                        {getTaskStatus(currentTask.id) !== 'completed' && (
-                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                            <p className="text-sm font-medium text-slate-500">
-                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
-                            </p>
-                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
+                      )}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+
+                  {/* Master List View */}
+                  {isMultiQuestion && activeQuestionIndex === null ? (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="grid grid-cols-1 gap-4">
+                        {currentTask.question_details?.map((q: any, idx: number) => {
+                          const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
+                          const hasFile = !!selectedFiles[idx];
+                          return (
+                            <div
+                              key={idx}
+                              onClick={() => setActiveQuestionIndex(idx)}
+                              className={`p-6 rounded-xl border transition-all cursor-pointer min-h-[132px] ${(isAnswered || hasFile) ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
+                                }`}
+                            >
+                              <div className="flex justify-between items-start gap-4 mb-2">
+                                <h4 className="font-semibold text-slate-800 text-sm flex items-center gap-2">
+                                  Question {idx + 1}
+                                  {(isAnswered || hasFile) && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                  {hasFile && <Paperclip className="h-3 w-3 text-emerald-600" />}
+                                </h4>
+                                <div className="flex gap-2">
+                                  {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-semibold shadow-none">{q.marks} Marks</Badge>}
+                                  {q.difficulty_level && (
+                                    <Badge className={`text-[10px] shadow-none font-semibold ${q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
+                                        q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
+                                          'bg-emerald-50 text-emerald-600'
+                                      }`}>
+                                      {q.difficulty_level}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-sm font-normal text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
+                                {q.question_text || q.title || 'Untitled Question'}
+                              </p>
+                              {(isAnswered || hasFile) && (
+                                <p className="mt-3 text-xs font-medium text-emerald-600">
+                                  {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {getTaskStatus(currentTask.id) !== 'completed' && (
+                        <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                          <p className="text-sm font-medium text-slate-500">
+                            Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
+                          </p>
+                          <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
+                            {isSubmitting ? (
+                              <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            ) : (
+                              <Send className="h-4 w-4 mr-2" />
+                            )}
+                            Submit Entire Task
+                          </Button>
+                        </div>
+                      )}
+                      {getTaskStatus(currentTask.id) === 'completed' && (
+                        <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                          <p className="text-sm font-bold text-slate-500">
+                            Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
+                          </p>
+                          <p className="text-sm text-emerald-600 font-bold flex items-center gap-2">
+                            <CheckCircle2 className="h-5 w-5" />
+                            Task submitted
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      {isMultiQuestion && activeQuestionIndex !== null && (
+                        <div className="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-xl relative shadow-sm">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl"></div>
+                          <div className="flex justify-between items-start gap-4 mb-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setActiveQuestionIndex(null)}
+                              className="text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 -ml-2 h-8 px-2 font-bold transition-colors"
+                            >
+                              <ArrowLeft className="h-4 w-4 mr-1" /> Back to list
+                            </Button>
+                            <div className="flex gap-2">
+                              {currentTask.question_details?.[activeQuestionIndex]?.marks && (
+                                <Badge variant="outline" className="text-[10px] bg-white text-slate-600 font-bold shadow-none">
+                                  {currentTask.question_details[activeQuestionIndex].marks} Marks
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm font-semibold text-slate-700 leading-relaxed whitespace-pre-wrap pl-1">
+                            {currentTask.question_details?.[activeQuestionIndex]?.question_text || currentTask.question_details?.[activeQuestionIndex]?.title || 'Untitled Question'}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="h-[520px] w-full rounded-md border">
+                        {isCoding ? (
+                          <CodeEditor
+                            initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
+                            onCodeChange={(code: string) => {
+                              if (isMultiQuestion && activeQuestionIndex !== null) {
+                                setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: code }));
+                              } else {
+                                setTaskContent(code);
+                              }
+                            }}
+                            readOnly={getTaskStatus(currentTask.id) === 'completed'}
+                            className="h-full border-0"
+                          />
+                        ) : (
+                          <Textarea
+                            value={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
+                            onChange={(e) => {
+                              if (isMultiQuestion && activeQuestionIndex !== null) {
+                                setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: e.target.value }));
+                              } else {
+                                setTaskContent(e.target.value);
+                              }
+                            }}
+                            placeholder={getTaskStatus(currentTask.id) === 'completed'
+                              ? 'No content available for this task.'
+                              : 'Explain your answer in detail...'
+                            }
+                            className="h-full resize-none border-0 focus-visible:ring-0 text-sm"
+                            disabled={getTaskStatus(currentTask.id) === 'completed'}
+                          />
+                        )}
+                      </div>
+
+                      {getTaskStatus(currentTask.id) !== 'completed' && (
+                        <div className="flex justify-end mt-5 pt-5 border-t border-slate-50">
+                          {isMultiQuestion && activeQuestionIndex !== null ? (
+                            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                              <Button
+                                variant="outline"
+                                onClick={() => setActiveQuestionIndex(null)}
+                                className="font-bold border-slate-200"
+                              >
+                                Save & Return to List
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  const nextIdx = activeQuestionIndex + 1;
+                                  if (nextIdx < (currentTask.question_details?.length || 0)) {
+                                    setActiveQuestionIndex(nextIdx);
+                                  } else {
+                                    setActiveQuestionIndex(null);
+                                    toast({ title: 'Saved', description: 'All questions reached. You can now submit.' });
+                                  }
+                                }}
+                                className="font-bold shadow-md hover:shadow-lg px-8"
+                              >
+                                Save & Next Question
+                              </Button>
+                            </div>
+                          ) : !isMultiQuestion && (
+                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md w-full sm:w-auto px-8">
                               {isSubmitting ? (
                                 <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                               ) : (
                                 <Send className="h-4 w-4 mr-2" />
                               )}
-                              Submit Entire Task
+                              Submit Work
                             </Button>
-                          </div>
-                        )}
-                        {getTaskStatus(currentTask.id) === 'completed' && (
-                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                            <p className="text-sm font-bold text-slate-500">
-                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
-                            </p>
-                            <p className="text-sm text-emerald-600 font-bold flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5" />
-                                Task submitted
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        {isMultiQuestion && activeQuestionIndex !== null && (
-                          <div className="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-xl relative shadow-sm">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl"></div>
-                            <div className="flex justify-between items-start gap-4 mb-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => setActiveQuestionIndex(null)}
-                                className="text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 -ml-2 h-8 px-2 font-bold transition-colors"
-                              >
-                                <ArrowLeft className="h-4 w-4 mr-1" /> Back to list
-                              </Button>
-                              <div className="flex gap-2">
-                                {currentTask.question_details?.[activeQuestionIndex]?.marks && (
-                                  <Badge variant="outline" className="text-[10px] bg-white text-slate-600 font-bold shadow-none">
-                                    {currentTask.question_details[activeQuestionIndex].marks} Marks
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <p className="text-sm font-semibold text-slate-700 leading-relaxed whitespace-pre-wrap pl-1">
-                              {currentTask.question_details?.[activeQuestionIndex]?.question_text || currentTask.question_details?.[activeQuestionIndex]?.title || 'Untitled Question'}
-                            </p>
-                          </div>
-                        )}
-
-                        <div className="h-[520px] w-full rounded-md border">
-                          {isCoding ? (
-                            <CodeEditor 
-                              initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
-                              onCodeChange={(code: string) => {
-                                if (isMultiQuestion && activeQuestionIndex !== null) {
-                                  setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: code }));
-                                } else {
-                                  setTaskContent(code);
-                                }
-                              }}
-                              readOnly={getTaskStatus(currentTask.id) === 'completed'}
-                              className="h-full border-0"
-                            />
-                          ) : (
-                            <Textarea
-                              value={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
-                              onChange={(e) => {
-                                if (isMultiQuestion && activeQuestionIndex !== null) {
-                                  setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: e.target.value }));
-                                } else {
-                                  setTaskContent(e.target.value);
-                                }
-                              }}
-                              placeholder={getTaskStatus(currentTask.id) === 'completed' 
-                                ? 'No content available for this task.' 
-                                : 'Explain your answer in detail...'
-                              }
-                              className="h-full resize-none border-0 focus-visible:ring-0 text-sm"
-                              disabled={getTaskStatus(currentTask.id) === 'completed'}
-                            />
                           )}
                         </div>
-                        
-                        {getTaskStatus(currentTask.id) !== 'completed' && (
-                          <div className="flex justify-end mt-5 pt-5 border-t border-slate-50">
-                            {isMultiQuestion && activeQuestionIndex !== null ? (
-                              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                <Button 
-                                  variant="outline"
-                                  onClick={() => setActiveQuestionIndex(null)}
-                                  className="font-bold border-slate-200"
-                                >
-                                  Save & Return to List
-                                </Button>
-                                <Button 
-                                  onClick={() => {
-                                    const nextIdx = activeQuestionIndex + 1;
-                                    if (nextIdx < (currentTask.question_details?.length || 0)) {
-                                      setActiveQuestionIndex(nextIdx);
-                                    } else {
-                                      setActiveQuestionIndex(null); 
-                                      toast({ title: 'Saved', description: 'All questions reached. You can now submit.' });
-                                    }
-                                  }}
-                                  className="font-bold shadow-md hover:shadow-lg px-8"
-                                >
-                                  Save & Next Question
-                                </Button>
-                              </div>
-                            ) : !isMultiQuestion && (
-                              <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md w-full sm:w-auto px-8">
-                                {isSubmitting ? (
-                                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                ) : (
-                                  <Send className="h-4 w-4 mr-2" />
-                                )}
-                                Submit Work
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                        {getTaskStatus(currentTask.id) === 'completed' && !isMultiQuestion && (
-                          <div className="flex justify-end mt-4">
-                            <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-lg">
-                              <CheckCircle2 className="h-5 w-5" />
-                              Task fully submitted
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                      )}
+                      {getTaskStatus(currentTask.id) === 'completed' && !isMultiQuestion && (
+                        <div className="flex justify-end mt-4">
+                          <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-lg">
+                            <CheckCircle2 className="h-5 w-5" />
+                            Task fully submitted
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                 </CardContent>
-               </Card>
-             </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Right Side - Comments */}
             <div>
@@ -630,64 +628,63 @@ const StudentTask: React.FC = () => {
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                          <div
+                        <div
                           key={comment.id}
-                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
-                            comment.faculty 
-                              ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto' 
+                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${comment.faculty
+                              ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto'
                               : 'bg-[#F0FDF4] border-emerald-200 border-l-4 border-l-emerald-500 ml-auto mr-0'
-                          } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer' : ''}`}
-                            onClick={() => {
-                              // Robust regex to match various formats: name_8, name_L8, name:8
-                              const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
-                              if (match) {
-                                const [, filename, lineStr] = match;
-                                // Also try to get quoted text if it exists later in the string
-                                const quoteMatch = comment.comment.match(/"([^"]*)"/);
-                                handleAnnotationLinkClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
+                            } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer' : ''}`}
+                          onClick={() => {
+                            // Robust regex to match various formats: name_8, name_L8, name:8
+                            const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
+                            if (match) {
+                              const [, filename, lineStr] = match;
+                              // Also try to get quoted text if it exists later in the string
+                              const quoteMatch = comment.comment.match(/"([^"]*)"/);
+                              handleAnnotationLinkClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-6 mb-2">
+                            <span className="font-semibold text-[11px] text-[#020817]">
+                              {comment.faculty ? 'Faculty' : 'Student'}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-[#020817] leading-relaxed font-normal">
+                            {(() => {
+                              const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
+                              const parts = [];
+                              let lastIndex = 0;
+                              let match;
+
+                              while ((match = regex.exec(comment.comment)) !== null) {
+                                if (match.index > lastIndex) {
+                                  parts.push(comment.comment.substring(lastIndex, match.index));
+                                }
+
+                                const [, filename, lineStr, quotedText] = match;
+                                parts.push(
+                                  <button
+                                    key={match.index}
+                                    onClick={() => handleAnnotationLinkClick(filename, parseInt(lineStr), quotedText)}
+                                    className="text-primary hover:underline font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-1 group transition-all mr-1"
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    {filename}:{lineStr}
+                                  </button>
+                                );
+                                lastIndex = regex.lastIndex;
                               }
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-6 mb-2">
-                              <span className="font-semibold text-[11px] text-[#020817]">
-                                {comment.faculty ? 'Faculty' : 'Student'}
-                              </span>
-                              <span className="text-[10px] text-slate-500 font-medium">
-                                {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
-                              </span>
-                            </div>
-                            <p className="text-sm text-[#020817] leading-relaxed font-normal">
-                             {(() => {
-                                const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
-                                const parts = [];
-                                let lastIndex = 0;
-                                let match;
 
-                                while ((match = regex.exec(comment.comment)) !== null) {
-                                   if (match.index > lastIndex) {
-                                      parts.push(comment.comment.substring(lastIndex, match.index));
-                                   }
+                              if (lastIndex < comment.comment.length) {
+                                parts.push(comment.comment.substring(lastIndex));
+                              }
 
-                                   const [, filename, lineStr, quotedText] = match;
-                                   parts.push(
-                                      <button
-                                         key={match.index}
-                                         onClick={() => handleAnnotationLinkClick(filename, parseInt(lineStr), quotedText)}
-                                        className="text-primary hover:underline font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-1 group transition-all mr-1"
-                                      >
-                                         <FileText className="h-3 w-3" />
-                                         {filename}:{lineStr}
-                                      </button>
-                                   );
-                                   lastIndex = regex.lastIndex;
-                                }
-
-                                if (lastIndex < comment.comment.length) {
-                                   parts.push(comment.comment.substring(lastIndex));
-                                }
-
-                                return parts.length > 0 ? parts : comment.comment;
-                             })()}
+                              return parts.length > 0 ? parts : comment.comment;
+                            })()}
                           </p>
                         </div>
                       ))}
@@ -723,7 +720,7 @@ const StudentTask: React.FC = () => {
         </div>
 
         {/* 3-Pane File Viewer Modal */}
-        <TaskFileViewer 
+        <TaskFileViewer
           isOpen={isFileViewerOpen}
           onClose={() => setIsFileViewerOpen(false)}
           fileUrl={fileViewerUrl}
@@ -738,9 +735,9 @@ const StudentTask: React.FC = () => {
   return (
     <StudentLayout>
       <div className="space-y-6">
-        <PageHeader 
-          title="Tasks" 
-          subtitle="View and complete your assigned tasks" 
+        <PageHeader
+          title="Tasks"
+          subtitle="View and complete your assigned tasks"
         />
 
         <Card className="mb-6">
@@ -786,90 +783,89 @@ const StudentTask: React.FC = () => {
         </Card>
 
         {isLoading ? (
-           <div className="grid gap-4">
-             {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 flex p-6 gap-6 items-center shadow-sm">
-                   <div className="space-y-3 flex-1">
-                      <div className="h-3 bg-slate-100 rounded-full w-20 animate-pulse"></div>
-                      <div className="h-6 bg-slate-100 rounded-full w-1/3 animate-pulse"></div>
-                      <div className="h-3 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
-                   </div>
-                   <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse"></div>
+          <div className="grid gap-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 flex p-6 gap-6 items-center shadow-sm">
+                <div className="space-y-3 flex-1">
+                  <div className="h-3 bg-slate-100 rounded-full w-20 animate-pulse"></div>
+                  <div className="h-6 bg-slate-100 rounded-full w-1/3 animate-pulse"></div>
+                  <div className="h-3 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
                 </div>
+                <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse"></div>
+              </div>
             ))}
           </div>
         ) : filteredTasks.length > 0 ? (
-            <div className="grid gap-4">
-              {filteredTasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => handleTaskClick(task)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm ${
-                              (task.task_type || '').toLowerCase() === 'descriptive'
-                                ? 'bg-black text-white border-black'
-                                : 'text-slate-600 border-slate-300 bg-white'
+          <div className="grid gap-4">
+            {filteredTasks.map((task) => (
+              <Card
+                key={task.id}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleTaskClick(task)}
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm ${(task.task_type || '').toLowerCase() === 'descriptive'
+                              ? 'bg-black text-white border-black'
+                              : 'text-slate-600 border-slate-300 bg-white'
                             }`}
-                          >
-                            {formatTaskTypeLabel(task.task_type)}
-                          </Badge>
-                          <span className="text-sm text-slate-500 tracking-wide">
-                            {capitalizeFirstLetter(getSubjectName(task))}
-                          </span>
-                        </div>
-                        <CardTitle className="text-lg">
-                          {task.title}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-2">
-                          {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
-                        </CardDescription>
-                      </div>
-
-                      <Badge
-                        variant={getStatusBadgeVariant(task.id) as any}
-                        className={`py-1 ${getTaskStatus(task.id) === 'pending' ? 'px-4' : 'px-3'}`}
-                      >
-                        {getStatusLabelText(task.id)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>
-                          Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                        >
+                          {formatTaskTypeLabel(task.task_type)}
+                        </Badge>
+                        <span className="text-sm text-slate-500 tracking-wide">
+                          {capitalizeFirstLetter(getSubjectName(task))}
                         </span>
                       </div>
-                      {task.due_date && (
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5" />
-                          <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
-                        </div>
-                      )}
+                      <CardTitle className="text-lg">
+                        {task.title}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
+                      </CardDescription>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
-              <CardContent>
-                <div className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
-                <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
-              </CardContent>
-            </Card>
-          )}
+
+                    <Badge
+                      variant={getStatusBadgeVariant(task.id) as any}
+                      className={`py-1 ${getTaskStatus(task.id) === 'pending' ? 'px-4' : 'px-3'}`}
+                    >
+                      {getStatusLabelText(task.id)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>
+                        Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                      </span>
+                    </div>
+                    {task.due_date && (
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+            <CardContent>
+              <div className="text-center">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
+              <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </StudentLayout>
   );

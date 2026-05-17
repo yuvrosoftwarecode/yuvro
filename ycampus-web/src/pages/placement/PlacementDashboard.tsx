@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, FunnelChart } from 'recharts';
 import { FixRoleTool } from '@/components/placement/FixRoleTool';
+import { AssessmentDashboard } from '@/components/dashboard/AssessmentDashboard';
+import { collegeService, College } from '@/services/collegeService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DEPARTMENTS = ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'];
 const SECTIONS = ['A', 'B', 'C'];
@@ -26,6 +29,9 @@ const PlacementDashboard = () => {
 
   const { data: stats, isLoading } = usePlacementStats();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const isAssessments = user?.college_product_type === 'assessments';
 
   const statCards = [
     { title: 'Pending Approvals', value: stats?.pendingCount || 0, icon: ClipboardCheck, color: WARNING, bg: 'hsl(38,100%,95%)' },
@@ -63,7 +69,13 @@ const PlacementDashboard = () => {
     <PlacementLayout title="Dashboard">
       <FixRoleTool />
 
-      {/* FILTERS */}
+      {isAssessments ? (
+        <div className="mt-4">
+          <AssessmentDashboard />
+        </div>
+      ) : (
+        <>
+          {/* FILTERS */}
       <Card className="mb-6 border-0 shadow-sm rounded-xl">
         <CardContent className="pt-4 pb-3">
           <div className="flex flex-wrap gap-3">
@@ -182,6 +194,8 @@ const PlacementDashboard = () => {
           </CardContent>
         </Card>
       </div>
+        </>
+      )}
     </PlacementLayout>
   );
 };

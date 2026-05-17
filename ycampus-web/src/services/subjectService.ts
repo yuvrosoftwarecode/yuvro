@@ -42,8 +42,10 @@ export interface Subject {
   duration?: number;
   description?: string;
   price?: number;
+  product_type?: 'campus' | 'assessments';
   modules?: Module[];
   enrolled_count?: number;
+  college_count?: number;
   created_at: string;
   updated_at: string;
   units: UnitBasic[];
@@ -168,11 +170,26 @@ export async function getFacultyAssignments(facultyId?: string | number): Promis
 }
 
 export async function fetchSubjectById(subjectId: string): Promise<Subject> {
-  return restApiAuthUtil.get(`/course/subjects/${subjectId}/`);
+  const subject = await restApiAuthUtil.get<Subject>(`/course/subjects/${subjectId}/`);
+  if (subject.units) {
+    subject.units.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+    subject.units.forEach((u: any) => {
+      if (u.sub_units) {
+        u.sub_units.sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0));
+      }
+    });
+  }
+  return subject;
 }
 
 export async function fetchUnitsBySubject(subjectId: string): Promise<UnitBasic[]> {
-  return restApiAuthUtil.get('/course/units/', { params: { subject: subjectId } });
+  const units = await restApiAuthUtil.get<UnitBasic[]>('/course/units/', { params: { subject: subjectId } });
+  units.forEach((u: any) => {
+    if (u.sub_units) {
+      u.sub_units.sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0));
+    }
+  });
+  return units.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 }
 
 export async function fetchSubjectStructure(subjectId: string) {
@@ -222,7 +239,8 @@ export async function deleteUnit(unitId: string) {
 export async function fetchSubUnitsByUnit(unitId: string, sectionId?: string): Promise<SubUnit[]> {
   const params: Record<string, string> = { unit: unitId };
   if (sectionId) params.section_id = sectionId;
-  return restApiAuthUtil.get('/course/subunits/', { params });
+  const subunits = await restApiAuthUtil.get<SubUnit[]>('/course/subunits/', { params });
+  return subunits.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 }
 
 export async function createSubUnit(payload: {

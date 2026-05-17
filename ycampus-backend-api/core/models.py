@@ -32,6 +32,26 @@ class BaseTimestampedModel(models.Model):
         abstract = True
         ordering = ["-created_at"]
 
+class University(models.Model):
+    """
+    Model representing a university.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+    short_form = models.CharField(max_length=50, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "Universities"
+
+    def __str__(self):
+        return self.name
+
+
 class College(models.Model):
     """
     Model representing a college/institution.
@@ -44,11 +64,9 @@ class College(models.Model):
         ("private", "Private"),
     ]
 
-    UNIVERSITY_CHOICES = [
-        ("jntu", "JNTU"),
-        ("anna", "Anna"),
-        ("vtu", "VTU"),
-        ("ou", "OU"),
+    PRODUCT_CHOICES = [
+        ("campus", "Yuvro Campus"),
+        ("assessments", "Yuvro Assessments"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -59,8 +77,11 @@ class College(models.Model):
     college_type = models.CharField(
         max_length=20, choices=COLLEGE_TYPES, default="private"
     )
-    affiliated_university = models.CharField(
-        max_length=20, choices=UNIVERSITY_CHOICES, default="jntu"
+    university = models.ForeignKey(
+        University, on_delete=models.SET_NULL, null=True, blank=True, related_name="colleges"
+    )
+    product_type = models.CharField(
+        max_length=20, choices=PRODUCT_CHOICES, default="campus"
     )
     is_aicte_approved = models.BooleanField(default=False)
     is_ugc_approved = models.BooleanField(default=False)

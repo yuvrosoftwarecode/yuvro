@@ -1724,10 +1724,30 @@ class SubjectViewSet(viewsets.ModelViewSet):
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
                 distinct=True
-            )
+            ),
+            college_count=Count('subject_colleges', distinct=True),
+            unit_count=Count('units', distinct=True)
         )
 
+
         if self.request.user.is_authenticated and self.request.user.role == 'student':
+            student_profile = getattr(self.request.user, 'student_profile', None)
+            if student_profile and student_profile.college:
+                college = student_profile.college
+                if college.product_type == 'assessments':
+                    # For assessments, only show subjects allocated to the college
+                    assigned_subject_ids = CollegeSubject.objects.filter(college=college).values_list('subject_id', flat=True)
+                    queryset = queryset.filter(id__in=assigned_subject_ids)
+                else:
+                    # For campus, show subjects mapped to their section via SectionSubjectFaculty
+                    if student_profile.section:
+                        section_subject_ids = SectionSubjectFaculty.objects.filter(
+                            section=student_profile.section
+                        ).values_list('semester_subject__subject_id', flat=True)
+                        queryset = queryset.filter(id__in=section_subject_ids)
+                    else:
+                        queryset = queryset.none()
+            
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 subject=OuterRef('pk'),
@@ -1885,18 +1905,26 @@ class UnitViewSet(viewsets.ModelViewSet):
             qs = qs.filter(subject_id=subject_id)
 
         if user.role == "student":
-            profile = StudentProfile.objects.filter(user=user).first()
-            if profile and profile.section:
-                # Filter by unlocked status for this student's section
-                # A Unit is visible if it has at least one unlocked SubUnit
-                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                    section=profile.section, is_unlocked=True
-                ).values_list("sub_unit_id", flat=True)
-                
-                # Filter units that have subunits among the unlocked ones
-                qs = qs.filter(subunits__id__in=unlocked_subunit_ids).distinct()
+            profile = getattr(user, 'student_profile', None)
+            if profile:
+                college = profile.college
+                if college and college.product_type == 'assessments':
+                    # All units are opened by default for assessments product
+                    pass 
+                elif profile.section:
+                    # Filter by unlocked status for this student's section
+                    # A Unit is visible if it has at least one unlocked SubUnit
+                    unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                        section=profile.section, is_unlocked=True
+                    ).values_list("sub_unit_id", flat=True)
+                    
+                    # Filter units that have subunits among the unlocked ones
+                    qs = qs.filter(subunits__id__in=unlocked_subunit_ids).distinct()
+                else:
+                    qs = qs.none()
             else:
                 qs = qs.none()
+
 
         
         qs = qs.annotate(
@@ -2004,15 +2032,23 @@ class SubUnitViewSet(viewsets.ModelViewSet):
             else:
                 qs = qs.none()
         elif user.role == "student":
-            profile = StudentProfile.objects.filter(user=user).first()
-            if profile and profile.section:
-                # Filter by unlocked status for this student's section
-                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                    section=profile.section, is_unlocked=True
-                ).values_list("sub_unit_id", flat=True)
-                qs = qs.filter(id__in=unlocked_subunit_ids)
+            profile = getattr(user, 'student_profile', None)
+            if profile:
+                college = profile.college
+                if college and college.product_type == 'assessments':
+                    # All subunits are opened by default for assessments product
+                    pass
+                elif profile.section:
+                    # Filter by unlocked status for this student's section
+                    unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                        section=profile.section, is_unlocked=True
+                    ).values_list("sub_unit_id", flat=True)
+                    qs = qs.filter(id__in=unlocked_subunit_ids)
+                else:
+                    qs = qs.none()
             else:
                 qs = qs.none()
+
 
         return qs
 

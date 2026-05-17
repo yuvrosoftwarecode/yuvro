@@ -212,7 +212,9 @@ const App = () => (
                       <Route path="notes" element={<StudentNotes />} />
                       <Route path="notes/:subjectId" element={<SubjectDetail />} />
                       <Route path="test" element={<StudentTest />} />
+                      <Route path="skill-test" element={<StudentTest />} />
                       <Route path="assessment" element={<StudentAssessment />} />
+
                       <Route path="jobs" element={<StudentJobs />} />
                       <Route path="announcements" element={<StudentAnnouncements />} />
                       <Route path="community" element={<StudentCommunity />} />
@@ -228,6 +230,8 @@ const App = () => (
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
                       <Route path="test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="skill-test/:subjectId" element={<TestSubjectDetail />} />
+
                       <Route path="profile" element={<StudentProfile />} />
                     </Routes>
                   </ProtectedRoute>

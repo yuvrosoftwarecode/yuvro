@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import AIChatContainer from './ai-buddy/AIChatContainer';
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  ArrowLeft,
+  TrendingUp,
+  TrendingDown,
   MessageCircle,
   ChevronDown,
   ChevronUp,
@@ -434,11 +434,10 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                     <button
                       key={tab}
                       onClick={() => { setActiveTab(tab); setShowAiChat(false); }}
-                      className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${
-                        activeTab === tab
+                      className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${activeTab === tab
                           ? tab === 'incorrect' ? 'bg-red-500 text-white' : tab === 'correct' ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'
                           : tab === 'incorrect' ? 'text-black hover:bg-red-50 hover:text-red-600' : tab === 'correct' ? 'text-black hover:bg-green-50 hover:text-green-600' : 'text-black hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {tab === 'all' ? `All (${questionActivities.length})` : tab === 'incorrect' ? `Incorrect (${questionActivities.length - correctAnswers})` : `Correct (${correctAnswers})`}
                     </button>
@@ -450,9 +449,8 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                     <button
                       key={type}
                       onClick={() => setTypeFilter(type)}
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${
-                        typeFilter === type ? 'bg-white text-black border border-gray-300' : 'text-black hover:text-black hover:bg-white'
-                      }`}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${typeFilter === type ? 'bg-white text-black border border-gray-300' : 'text-black hover:text-black hover:bg-white'
+                        }`}
                     >
                       {type === 'all' ? 'All Types' : type.toUpperCase()}
                     </button>
@@ -503,15 +501,15 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
-                                <Badge className="text-[10px] h-4 px-1.5 bg-white text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
+                                <span className="text-xs font-bold text-gray-400   tracking-wider">Q{idx + 1}</span>
+                                <Badge className="text-[10px] h-4 px-1.5 bg-white text-slate-600 border-0 hover:bg-slate-100 font-bold   tracking-wider">{qType}</Badge>
                               </div>
                               <p className="text-sm font-medium text-gray-900 line-clamp-2">{activity.question_content || activity.question_title}</p>
                             </div>
 
                             <div className="flex items-center gap-3 shrink-0">
                               <div className="text-right hidden sm:block">
-                                <p className="text-[10px] text-gray-400 uppercase font-bold">Score</p>
+                                <p className="text-[10px] text-gray-400   font-bold">Score</p>
                                 <p className={`text-sm font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
                                   {activity.marks_obtained || 0}/{activity.marks}
                                 </p>
@@ -533,8 +531,8 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                                     const style = isOptionCorrect
                                       ? 'border-green-200 bg-green-50 text-green-800'
                                       : isSelected && !isCorrect
-                                      ? 'border-red-200 bg-red-50 text-red-800'
-                                      : 'border-gray-200 bg-white text-gray-600';
+                                        ? 'border-red-200 bg-red-50 text-red-800'
+                                        : 'border-gray-200 bg-white text-gray-600';
                                     return (
                                       <div key={optIndex} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
                                         <span>{option}</span>

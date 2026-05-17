@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    College, Batch, Department, Semester, Section,
+    College, Batch, Department, Semester, Section, University,
     StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile,
     AttendanceSession, AttendanceRecord,
     PlacementOfficerProfile, Note, Announcement
@@ -31,17 +31,24 @@ class SectionInline(admin.TabularInline):
     fields = ["name"]
 
 
+@admin.register(University)
+class UniversityAdmin(admin.ModelAdmin):
+    list_display = ["name", "short_form", "location", "created_at"]
+    search_fields = ["name", "short_form"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
 @admin.register(College)
 class CollegeAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "short_form",
         "college_type",
-        "affiliated_university",
+        "university",
         "is_aicte_approved",
         "is_ugc_approved",
     ]
-    list_filter = ["college_type", "affiliated_university", "is_aicte_approved", "is_ugc_approved"]
+    list_filter = ["college_type", "university", "is_aicte_approved", "is_ugc_approved"]
     search_fields = ["name", "short_form"]
     readonly_fields = ["id", "created_at", "updated_at"]
     inlines = [DepartmentInline]

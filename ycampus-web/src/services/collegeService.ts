@@ -17,7 +17,9 @@ export interface College {
     location: string;
     website: string;
     college_type: 'government' | 'autonomous' | 'deemed' | 'private';
-    affiliated_university: 'jntu' | 'anna' | 'vtu' | 'ou';
+    university?: string | number;
+    university_details?: University;
+    product_type: 'campus' | 'assessments';
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
     departments: Department[];
@@ -43,10 +45,23 @@ export interface College {
     updated_at?: string;
 }
 
-export interface CollegeCreateData {
+export interface University {
+    id: string | number;
     name: string;
     short_form?: string;
-    location: string;
+    location?: string;
+    college_count?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+
+export interface CollegeCreateData {
+    name: string;
+    website: string;
+    college_type: string;
+    university?: string | number;
+    product_type: 'campus' | 'assessments';
     principals?: any[]; // Changed from principal (single) to principals (list)
     college_admins?: any[];
     department_names?: string[];
@@ -75,8 +90,25 @@ export const collegeService = {
         return response;
     },
 
-    deleteCollege: async (id: string | number): Promise<void> => {
-        await restApiAuthUtil.delete(`/course/colleges/${id}/`);
+    deleteCollege: async (id: string | number) => {
+        return restApiAuthUtil.delete(`/core/college/${id}/`);
+    },
+
+    // University endpoints
+    getUniversities: async () => {
+        return restApiAuthUtil.get('/core/universities/');
+    },
+
+    createUniversity: async (data: Partial<University>) => {
+        return restApiAuthUtil.post('/core/universities/', data);
+    },
+
+    updateUniversity: async (id: string | number, data: Partial<University>) => {
+        return restApiAuthUtil.patch(`/core/universities/${id}/`, data);
+    },
+
+    deleteUniversity: async (id: string | number) => {
+        return restApiAuthUtil.delete(`/core/universities/${id}/`);
     },
 
     allocatePrincipal: async (collegeId: string | number, userId: string): Promise<void> => {
@@ -90,6 +122,10 @@ export const collegeService = {
 
     createPrincipal: async (collegeId: string | number, userData: any): Promise<void> => {
         await restApiAuthUtil.post(`/core/college/${collegeId}/create-principal/`, userData);
+    },
+    
+    createTpo: async (collegeId: string | number, userData: any): Promise<void> => {
+        await restApiAuthUtil.post(`/core/college/${collegeId}/create-tpo/`, userData);
     },
     
     getDashboardStats: async (collegeId: string | number, filters?: any): Promise<any> => {

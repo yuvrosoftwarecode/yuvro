@@ -1,40 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  SquareFunction, Atom, Code, Database, Globe, Cpu, Layers,
-  FlaskConical, BookMarked, PenLine, Sigma,
-  Pencil, Binary, BrainCircuit, BookOpen, ClipboardCheck, Zap
-} from 'lucide-react';
+import { BookMarked } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import { fetchSkillTests } from '@/services/skillTestService';
 import { toast } from 'sonner';
 import PageHeader from '@/components/common/PageHeader';
-
-// ─── Icon mapping ─────────────────────────────────────────────────────────────
-
-function getSubjectIcon(name: string) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('calculus') || n.includes('matrices') || n.includes('math')) return Sigma;
-  if (n.includes('python') || n.includes('java') || n.includes('programming') || n.includes('problem solving')) return Code;
-  if (n.includes('data') || n.includes('sql') || n.includes('database')) return Database;
-  if (n.includes('physics')) return Atom;
-  if (n.includes('chemistry')) return FlaskConical;
-  if (n.includes('network') || n.includes('web') || n.includes('internet')) return Globe;
-  if (n.includes('os') || n.includes('operating') || n.includes('computer') || n.includes('engineering')) return Cpu;
-  if (n.includes('structure') || n.includes('algorithm') || n.includes('dsa')) return Layers;
-  if (n.includes('english') || n.includes('communication')) return PenLine;
-  if (n.includes('drawing') || n.includes('cad') || n.includes('design') || n.includes('graphics')) return Pencil;
-  if (n.includes('digital') || n.includes('logic') || n.includes('circuit') || n.includes('electrical')) return Zap;
-  if (n.includes('ai') || n.includes('machine') || n.includes('deep')) return BrainCircuit;
-  if (n.includes('algebra') || n.includes('linear') || n.includes('discrete')) return SquareFunction;
-  return BookOpen;
-}
-
-
+import { getSubjectIconComponent } from '@/utils/subjectIcon';
 
 // ─── Skeleton card ────────────────────────────────────────────────────────────
 
@@ -57,7 +34,15 @@ const SubjectCardSkeleton = () => (
 
 const StudentTest = () => {
   const navigate = useNavigate();
+
+  const location = useLocation();
   const { user } = useAuth();
+
+  const isSkillTest = location.pathname.includes('skill-test');
+  const pageTitle = isSkillTest ? "Skill Test" : "Practice Test";
+  const pageSubtitle = isSkillTest ? "Master your skills with these comprehensive tests." : "Select a subject to start your practice tests.";
+  const baseUrl = isSkillTest ? "/student/skill-test" : "/student/test";
+
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,9 +52,17 @@ const StudentTest = () => {
   // Load subjects
   useEffect(() => {
     const loadSubjects = async () => {
-      if (!user?.college_id) { setLoading(false); return; }
+      if (!user?.college_id) {
+        setLoading(false);
+        return;
+      }
       try {
-        const data = await fetchSubjectsByCollege(user.college_id);
+        let data = await fetchSubjectsByCollege(user.college_id);
+        if (user.college_product_type) {
+            data = data.filter(s => s.product_type === user.college_product_type);
+        }
+        // Sort subjects alphabetically
+        data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);
       } catch {
         toast.error('Failed to load subjects');
@@ -106,17 +99,19 @@ const StudentTest = () => {
   }, [subjects]);
 
   const handleCardClick = (subjectId: string | number, subjectDisplayName: string) => {
-    navigate(`/student/test/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`);
+    navigate(`${baseUrl}/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`);
   };
+
 
   return (
     <StudentLayout>
       <div className="space-y-6">
         {/* Header */}
         <PageHeader 
-          title="Practice Test" 
-          subtitle="Select a subject to start your practice tests." 
+          title={pageTitle} 
+          subtitle={pageSubtitle} 
         />
+
 
         {/* Subject grid */}
         {loading ? (
@@ -136,7 +131,7 @@ const StudentTest = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {subjects.map((subject, index) => {
-              const Icon = getSubjectIcon(subject.subject_name);
+              const Icon = getSubjectIconComponent(subject.subject_name);
               const count = testCounts[String(subject.id)];
               const hasTests = typeof count === 'number' && count > 0;
 

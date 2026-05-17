@@ -12,6 +12,7 @@ from .views import (
     NoteViewSet,
     AnnouncementViewSet,
     FileUploadViewSet,
+    UniversityViewSet,
 )
 router = DefaultRouter()
 router.register(r"college-allocation", CollegeUserAllocationViewSet, basename="college-allocation")
@@ -26,6 +27,8 @@ router.register(r"task-submissions", TaskSubmissionViewSet, basename="task-submi
 router.register(r"notes", NoteViewSet, basename="note")
 router.register(r"announcement", AnnouncementViewSet, basename="announcement")
 router.register(r"upload", FileUploadViewSet, basename="upload")
+router.register(r"universities", UniversityViewSet, basename="university")
+
 
 urlpatterns = [
     path("", include(router.urls)),
