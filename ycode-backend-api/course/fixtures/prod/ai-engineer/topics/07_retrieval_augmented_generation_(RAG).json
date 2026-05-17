@@ -1,0 +1,2381 @@
+{
+  "name": "Retrieval Augmented Generation(RAG)",
+  "subject_short_code": "AI100",
+  "order_index": 7,
+  "sub_units": [
+    {
+      "name": "RAG Basics",
+      "content": "This module provides a detailed exploration of RAG Basics, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "RAG Basics",
+          "video_link": "https://www.youtube.com/results?search_query=RAG%20Basics",
+          "ai_context": "Detailed overview and key concepts of RAG Basics"
+        },
+        {
+          "title": "RAG Basics",
+          "video_link": "https://www.youtube.com/results?search_query=RAG%20Basics",
+          "ai_context": "Detailed overview and key concepts of RAG Basics"
+        }
+      ]
+    },
+    {
+      "name": "Embeddings",
+      "content": "This module provides a detailed exploration of Embeddings, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Embeddings",
+          "video_link": "https://www.youtube.com/results?search_query=Embeddings",
+          "ai_context": "Detailed overview and key concepts of Embeddings"
+        },
+        {
+          "title": "Embeddings",
+          "video_link": "https://www.youtube.com/results?search_query=Embeddings",
+          "ai_context": "Detailed overview and key concepts of Embeddings"
+        }
+      ]
+    },
+    {
+      "name": "Vector Databases",
+      "content": "This module provides a detailed exploration of Vector Databases, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Vector Databases",
+          "video_link": "https://www.youtube.com/results?search_query=Vector%20Databases",
+          "ai_context": "Detailed overview and key concepts of Vector Databases"
+        },
+        {
+          "title": "Vector Databases",
+          "video_link": "https://www.youtube.com/results?search_query=Vector%20Databases",
+          "ai_context": "Detailed overview and key concepts of Vector Databases"
+        }
+      ]
+    },
+    {
+      "name": "RAG Pipeline",
+      "content": "This module provides a detailed exploration of RAG Pipeline, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "RAG Pipeline",
+          "video_link": "https://www.youtube.com/results?search_query=RAG%20Pipeline",
+          "ai_context": "Detailed overview and key concepts of RAG Pipeline"
+        },
+        {
+          "title": "RAG Pipeline",
+          "video_link": "https://www.youtube.com/results?search_query=RAG%20Pipeline",
+          "ai_context": "Detailed overview and key concepts of RAG Pipeline"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Purpose of RAG",
+      "content": "Why is Retrieval Augmented Generation (RAG) used with LLMs?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To provide external information to language models",
+          "is_correct": true
+        },
+        {
+          "text": "To reduce internet speed",
+          "is_correct": false
+        },
+        {
+          "text": "To replace neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "To remove tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LLM Limitation",
+      "content": "Which limitation of LLMs motivates the use of RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Models may not have access to updated or specific information",
+          "is_correct": true
+        },
+        {
+          "text": "Models cannot process text",
+          "is_correct": false
+        },
+        {
+          "text": "Models only understand numbers",
+          "is_correct": false
+        },
+        {
+          "text": "Models cannot generate responses",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RAG Full Form",
+      "content": "What does RAG stand for?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieval Augmented Generation",
+          "is_correct": true
+        },
+        {
+          "text": "Rapid AI Generation",
+          "is_correct": false
+        },
+        {
+          "text": "Random Access Generator",
+          "is_correct": false
+        },
+        {
+          "text": "Resource Allocation Grid",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "External Knowledge Benefit",
+      "content": "RAG improves model responses by using:",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieved external knowledge sources",
+          "is_correct": true
+        },
+        {
+          "text": "Additional hardware devices",
+          "is_correct": false
+        },
+        {
+          "text": "Image compression algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Database deletion methods",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hallucination Reduction",
+      "content": "How can RAG help reduce hallucinations in LLMs?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By grounding responses using retrieved information",
+          "is_correct": true
+        },
+        {
+          "text": "By deleting all training data",
+          "is_correct": false
+        },
+        {
+          "text": "By removing prompts",
+          "is_correct": false
+        },
+        {
+          "text": "By disabling tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Need for RAG Systems",
+      "content": "Why is RAG useful for question-answering systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can access relevant information beyond model training data",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents all computation",
+          "is_correct": false
+        },
+        {
+          "text": "It removes machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates user queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Knowledge Updates",
+      "content": "Why is RAG useful when information changes frequently?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "New documents can be retrieved without retraining the model",
+          "is_correct": true
+        },
+        {
+          "text": "The model architecture changes automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Context windows disappear",
+          "is_correct": false
+        },
+        {
+          "text": "Training data becomes unnecessary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RAG vs Traditional LLMs",
+      "content": "How does a RAG system differ from a traditional LLM setup?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG retrieves external information before generating responses",
+          "is_correct": true
+        },
+        {
+          "text": "RAG removes the language model entirely",
+          "is_correct": false
+        },
+        {
+          "text": "RAG only works with images",
+          "is_correct": false
+        },
+        {
+          "text": "RAG eliminates prompts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Understanding LLM Limitations",
+      "content": "Which issue is most directly addressed by RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Limited access to updated and domain-specific knowledge",
+          "is_correct": true
+        },
+        {
+          "text": "The existence of neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Image resolution issues",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Definition of Embeddings",
+      "content": "What are embeddings in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Numerical vector representations of data",
+          "is_correct": true
+        },
+        {
+          "text": "Database tables",
+          "is_correct": false
+        },
+        {
+          "text": "Neural network layers",
+          "is_correct": false
+        },
+        {
+          "text": "Programming languages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Embeddings",
+      "content": "Why are embeddings commonly used in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To represent content in a form suitable for comparison",
+          "is_correct": true
+        },
+        {
+          "text": "To delete datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To remove model parameters",
+          "is_correct": false
+        },
+        {
+          "text": "To increase screen resolution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Similarity Search Goal",
+      "content": "What is the goal of similarity search?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Find items that are semantically similar",
+          "is_correct": true
+        },
+        {
+          "text": "Sort files alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "Train neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce image size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Embedding Representation",
+      "content": "Embeddings convert text into:",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Dense numerical vectors",
+          "is_correct": true
+        },
+        {
+          "text": "Database indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Programming functions",
+          "is_correct": false
+        },
+        {
+          "text": "Image pixels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Embedding Similarity Meaning",
+      "content": "If two text embeddings are close together in vector space, what does it generally indicate?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The texts are semantically similar",
+          "is_correct": true
+        },
+        {
+          "text": "The texts contain identical characters only",
+          "is_correct": false
+        },
+        {
+          "text": "The texts use the same font",
+          "is_correct": false
+        },
+        {
+          "text": "The texts are sorted alphabetically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Use Case of Similarity Search",
+      "content": "Which application commonly uses embedding-based similarity search?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Document retrieval systems",
+          "is_correct": true
+        },
+        {
+          "text": "CPU manufacturing",
+          "is_correct": false
+        },
+        {
+          "text": "File compression only",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system updates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Embeddings",
+      "content": "Why are embeddings preferred over simple keyword matching?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They capture semantic meaning and context",
+          "is_correct": true
+        },
+        {
+          "text": "They remove all words from text",
+          "is_correct": false
+        },
+        {
+          "text": "They only work on numbers",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid vector calculations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Embedding Role in RAG",
+      "content": "Why are embeddings important in Retrieval Augmented Generation systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They enable efficient retrieval of relevant information using vector similarity",
+          "is_correct": true
+        },
+        {
+          "text": "They replace language models completely",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate databases",
+          "is_correct": false
+        },
+        {
+          "text": "They reduce hardware memory to zero",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Similarity Search Reasoning",
+      "content": "Why can similarity search find relevant results even when exact keywords are absent?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings capture semantic relationships beyond exact word matching",
+          "is_correct": true
+        },
+        {
+          "text": "Similarity search ignores vector representations",
+          "is_correct": false
+        },
+        {
+          "text": "Keywords are always required",
+          "is_correct": false
+        },
+        {
+          "text": "Embeddings only compare text length",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Vector Databases",
+      "content": "What is the main purpose of a vector database in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store and search vector embeddings efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "To create neural network layers",
+          "is_correct": false
+        },
+        {
+          "text": "To train operating systems",
+          "is_correct": false
+        },
+        {
+          "text": "To compress image files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "FAISS Overview",
+      "content": "FAISS is primarily used for:",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient similarity search on vector embeddings",
+          "is_correct": true
+        },
+        {
+          "text": "Image editing",
+          "is_correct": false
+        },
+        {
+          "text": "Website hosting",
+          "is_correct": false
+        },
+        {
+          "text": "Text tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pinecone Type",
+      "content": "What is Pinecone mainly known as?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A managed vector database service",
+          "is_correct": true
+        },
+        {
+          "text": "A deep learning optimizer",
+          "is_correct": false
+        },
+        {
+          "text": "A data visualization tool",
+          "is_correct": false
+        },
+        {
+          "text": "A web browser",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Weaviate Function",
+      "content": "Weaviate is mainly used for:",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Storing and retrieving vector-based information",
+          "is_correct": true
+        },
+        {
+          "text": "Building hardware processors",
+          "is_correct": false
+        },
+        {
+          "text": "Creating datasets manually",
+          "is_correct": false
+        },
+        {
+          "text": "Generating animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Similarity Search in Databases",
+      "content": "How do vector databases typically retrieve relevant results?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By comparing embedding similarity",
+          "is_correct": true
+        },
+        {
+          "text": "By sorting files alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "By counting database tables",
+          "is_correct": false
+        },
+        {
+          "text": "By deleting duplicate entries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Pinecone",
+      "content": "Why might developers choose Pinecone for RAG applications?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides scalable managed vector search infrastructure",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for embeddings",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically trains LLMs",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "FAISS Advantage",
+      "content": "What is a key advantage of FAISS?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fast nearest-neighbor search on large vector datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic website generation",
+          "is_correct": false
+        },
+        {
+          "text": "Direct neural network training",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system management",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Role of Vector Databases in RAG",
+      "content": "Why are vector databases important in Retrieval Augmented Generation systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They enable efficient storage and retrieval of semantically similar information",
+          "is_correct": true
+        },
+        {
+          "text": "They replace language models entirely",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate tokenization",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent the use of embeddings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Vector Databases",
+      "content": "Why might one choose a managed solution like Pinecone over local tools like FAISS?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Managed services can simplify scaling and infrastructure maintenance",
+          "is_correct": true
+        },
+        {
+          "text": "FAISS cannot perform similarity search",
+          "is_correct": false
+        },
+        {
+          "text": "Pinecone does not use vectors",
+          "is_correct": false
+        },
+        {
+          "text": "Managed services remove the need for retrieval",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Document Ingestion Purpose",
+      "content": "What is document ingestion in a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The process of collecting and loading documents into the system",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting old documents permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Training a neural network",
+          "is_correct": false
+        },
+        {
+          "text": "Generating images from text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Meaning of Chunking",
+      "content": "What is chunking in a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Splitting documents into smaller pieces",
+          "is_correct": true
+        },
+        {
+          "text": "Compressing documents into images",
+          "is_correct": false
+        },
+        {
+          "text": "Removing all text from files",
+          "is_correct": false
+        },
+        {
+          "text": "Building database servers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Retrieval Stage Purpose",
+      "content": "What happens during the retrieval stage in RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relevant information is fetched based on a query",
+          "is_correct": true
+        },
+        {
+          "text": "The model hardware is upgraded",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization is removed",
+          "is_correct": false
+        },
+        {
+          "text": "Images are generated automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Generation Step Meaning",
+      "content": "In RAG, the generation step mainly involves:",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating responses using retrieved information",
+          "is_correct": true
+        },
+        {
+          "text": "Installing databases",
+          "is_correct": false
+        },
+        {
+          "text": "Creating operating systems",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing embeddings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Need for Chunking",
+      "content": "Why is chunking commonly used in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Smaller document sections improve retrieval efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Chunking removes all document content",
+          "is_correct": false
+        },
+        {
+          "text": "Chunking replaces language models",
+          "is_correct": false
+        },
+        {
+          "text": "Chunking converts text into images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RAG Pipeline Flow",
+      "content": "Which sequence correctly represents a typical RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Document ingestion → chunking → retrieval → generation",
+          "is_correct": true
+        },
+        {
+          "text": "Generation → retrieval → ingestion",
+          "is_correct": false
+        },
+        {
+          "text": "Training → deployment → deletion",
+          "is_correct": false
+        },
+        {
+          "text": "Embedding → hardware → API",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Retrieval Importance",
+      "content": "Why is retrieval important before generation in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides relevant context for better response generation",
+          "is_correct": true
+        },
+        {
+          "text": "It removes embeddings permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates user queries",
+          "is_correct": false
+        },
+        {
+          "text": "It trains a new LLM from scratch",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Chunk Size Tradeoff",
+      "content": "What can happen if document chunks are excessively large in a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieval quality may decrease due to less focused information",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings stop working entirely",
+          "is_correct": false
+        },
+        {
+          "text": "Neural networks are removed",
+          "is_correct": false
+        },
+        {
+          "text": "Generation becomes unnecessary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "RAG Pipeline Understanding",
+      "content": "Why does RAG separate retrieval and generation into different stages?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To retrieve relevant knowledge first and then generate grounded responses",
+          "is_correct": true
+        },
+        {
+          "text": "To avoid using language models",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate document storage",
+          "is_correct": false
+        },
+        {
+          "text": "To prevent embeddings from being used",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to RAG",
+      "content": "Which statements correctly describe Retrieval Augmented Generation (RAG)?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG combines retrieval systems with language models",
+          "is_correct": true
+        },
+        {
+          "text": "RAG can provide external information to LLMs",
+          "is_correct": true
+        },
+        {
+          "text": "RAG completely removes the need for data sources",
+          "is_correct": false
+        },
+        {
+          "text": "RAG helps improve access to relevant information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Why RAG is Needed",
+      "content": "Which statements correctly explain why RAG is needed?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG helps provide more up-to-date information",
+          "is_correct": true
+        },
+        {
+          "text": "RAG can access external knowledge sources",
+          "is_correct": true
+        },
+        {
+          "text": "RAG exists only to increase model size",
+          "is_correct": false
+        },
+        {
+          "text": "RAG can improve information relevance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "LLM Limitations Basics",
+      "content": "Which statements correctly describe limitations of LLMs?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LLMs may not always contain current information",
+          "is_correct": true
+        },
+        {
+          "text": "LLMs can generate incorrect responses",
+          "is_correct": true
+        },
+        {
+          "text": "LLMs always provide perfectly accurate answers",
+          "is_correct": false
+        },
+        {
+          "text": "Knowledge may depend on training data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Knowledge Access Concepts",
+      "content": "Which statements correctly describe knowledge access in LLM systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "External sources can supplement language models",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved information can support responses",
+          "is_correct": true
+        },
+        {
+          "text": "Models never require external information",
+          "is_correct": false
+        },
+        {
+          "text": "Knowledge retrieval can improve usefulness",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "RAG and LLM Limitations",
+      "content": "Which statements correctly describe the relationship between RAG and LLM limitations?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG can help reduce dependence on static training knowledge",
+          "is_correct": true
+        },
+        {
+          "text": "External retrieval may improve answer relevance",
+          "is_correct": true
+        },
+        {
+          "text": "RAG guarantees perfect factual accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Retrieval can provide additional context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding RAG Benefits",
+      "content": "Which statements correctly describe advantages of RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG can help provide domain-specific information",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved documents can support generation",
+          "is_correct": true
+        },
+        {
+          "text": "RAG eliminates all model limitations",
+          "is_correct": false
+        },
+        {
+          "text": "Information retrieval can improve contextual responses",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Retrieval Strategy Concepts",
+      "content": "Which statements correctly describe retrieval strategies in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieved information should be relevant to user queries",
+          "is_correct": true
+        },
+        {
+          "text": "Quality retrieval can influence generated responses",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved data has no effect on outputs",
+          "is_correct": false
+        },
+        {
+          "text": "Context quality matters in RAG systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced RAG Concepts",
+      "content": "Which statements correctly describe advanced RAG concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG extends model capability using external knowledge",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieval quality can affect generated responses",
+          "is_correct": true
+        },
+        {
+          "text": "RAG replaces language models completely",
+          "is_correct": false
+        },
+        {
+          "text": "Combining retrieval and generation can improve usefulness",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "RAG System Understanding",
+      "content": "Which statements correctly describe strategic understanding of RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RAG addresses some limitations of standalone LLMs",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved context can improve response grounding",
+          "is_correct": true
+        },
+        {
+          "text": "External information is never useful in LLM systems",
+          "is_correct": false
+        },
+        {
+          "text": "Knowledge access strategies influence system performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Embeddings",
+      "content": "Which statements correctly describe embeddings?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings convert data into numerical vector representations",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings help represent semantic meaning",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings store only image pixels",
+          "is_correct": false
+        },
+        {
+          "text": "Words or documents can be represented as embeddings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Embedding Purpose",
+      "content": "Which statements correctly describe why embeddings are used?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings help capture relationships between data points",
+          "is_correct": true
+        },
+        {
+          "text": "Similar concepts can have similar vector representations",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings remove the need for machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic similarity can be represented numerically",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Similarity Search Basics",
+      "content": "Which statements correctly describe similarity search?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Similarity search identifies related items",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings are commonly used for similarity search",
+          "is_correct": true
+        },
+        {
+          "text": "Similarity search selects random results",
+          "is_correct": false
+        },
+        {
+          "text": "Vector comparison can support retrieval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Embedding Applications",
+      "content": "Which statements correctly describe embedding applications?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings can support search systems",
+          "is_correct": true
+        },
+        {
+          "text": "Recommendation systems may use embeddings",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings are useful only in spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "RAG systems can use embeddings for retrieval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Embedding and Similarity Concepts",
+      "content": "Which statements correctly describe embeddings and similarity concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Semantically similar items often have closer embeddings",
+          "is_correct": true
+        },
+        {
+          "text": "Vector distance can indicate similarity",
+          "is_correct": true
+        },
+        {
+          "text": "Embedding positions are assigned randomly",
+          "is_correct": false
+        },
+        {
+          "text": "Meaningful representations support retrieval quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Similarity Search Techniques",
+      "content": "Which statements correctly describe similarity search techniques?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Similarity search often compares vector representations",
+          "is_correct": true
+        },
+        {
+          "text": "Relevant results may depend on embedding quality",
+          "is_correct": true
+        },
+        {
+          "text": "Similarity search ignores relationships between vectors",
+          "is_correct": false
+        },
+        {
+          "text": "Search systems can rank items by similarity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Embeddings in RAG Systems",
+      "content": "Which statements correctly describe embedding usage in RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings help retrieve relevant documents",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved context can improve generated responses",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings are unrelated to retrieval systems",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic matching can improve search quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Embedding Concepts",
+      "content": "Which statements correctly describe advanced embedding concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embedding quality influences retrieval effectiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Similarity calculations can support semantic search",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings guarantee perfect search results",
+          "is_correct": false
+        },
+        {
+          "text": "Vector representations help organize semantic information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Embeddings",
+      "content": "Which statements correctly describe strategic embedding concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Embeddings",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Embeddings can improve retrieval and search experiences",
+          "is_correct": true
+        },
+        {
+          "text": "Similarity measures help identify related information",
+          "is_correct": true
+        },
+        {
+          "text": "Embedding systems work without numerical representations",
+          "is_correct": false
+        },
+        {
+          "text": "Semantic understanding supports effective RAG systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Vector Databases",
+      "content": "Which statements correctly describe vector databases?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vector databases store vector representations of data",
+          "is_correct": true
+        },
+        {
+          "text": "Vector databases support similarity-based retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Vector databases only store spreadsheet files",
+          "is_correct": false
+        },
+        {
+          "text": "They are commonly used in RAG systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "FAISS Basics",
+      "content": "Which statements correctly describe FAISS?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "FAISS is used for efficient similarity search",
+          "is_correct": true
+        },
+        {
+          "text": "FAISS can handle large collections of vectors",
+          "is_correct": true
+        },
+        {
+          "text": "FAISS is designed only for image editing",
+          "is_correct": false
+        },
+        {
+          "text": "Vector retrieval is a common FAISS use case",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pinecone Overview",
+      "content": "Which statements correctly describe Pinecone?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pinecone is a managed vector database platform",
+          "is_correct": true
+        },
+        {
+          "text": "Pinecone supports vector search operations",
+          "is_correct": true
+        },
+        {
+          "text": "Pinecone is used only for website styling",
+          "is_correct": false
+        },
+        {
+          "text": "Pinecone can be integrated with AI applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Weaviate Overview",
+      "content": "Which statements correctly describe Weaviate?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Weaviate supports vector-based search",
+          "is_correct": true
+        },
+        {
+          "text": "Weaviate can be used in semantic retrieval systems",
+          "is_correct": true
+        },
+        {
+          "text": "Weaviate stores only plain text files",
+          "is_correct": false
+        },
+        {
+          "text": "Weaviate can support AI-powered search applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Vector Database Usage",
+      "content": "Which statements correctly describe the usage of vector databases?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vector databases help retrieve semantically similar content",
+          "is_correct": true
+        },
+        {
+          "text": "Embeddings are commonly stored in vector databases",
+          "is_correct": true
+        },
+        {
+          "text": "Traditional keyword matching always replaces vector search",
+          "is_correct": false
+        },
+        {
+          "text": "Similarity measures are important in retrieval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing FAISS, Pinecone, and Weaviate",
+      "content": "Which statements correctly compare FAISS, Pinecone, and Weaviate?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All three support vector-based retrieval use cases",
+          "is_correct": true
+        },
+        {
+          "text": "These systems can be used with embeddings",
+          "is_correct": true
+        },
+        {
+          "text": "FAISS, Pinecone, and Weaviate are identical systems",
+          "is_correct": false
+        },
+        {
+          "text": "They can support RAG workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Retrieval System Concepts",
+      "content": "Which statements correctly describe retrieval systems using vector databases?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vector databases can improve semantic search experiences",
+          "is_correct": true
+        },
+        {
+          "text": "Relevant document retrieval can support LLM responses",
+          "is_correct": true
+        },
+        {
+          "text": "Vector databases eliminate the need for embeddings",
+          "is_correct": false
+        },
+        {
+          "text": "Search quality can affect generated outputs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Vector Database Concepts",
+      "content": "Which statements correctly describe advanced vector database concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient vector indexing improves retrieval performance",
+          "is_correct": true
+        },
+        {
+          "text": "Semantic similarity search is central to vector databases",
+          "is_correct": true
+        },
+        {
+          "text": "Vector databases always return perfect matches",
+          "is_correct": false
+        },
+        {
+          "text": "Embedding quality influences retrieval results",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Vector Databases",
+      "content": "Which statements correctly describe strategic concepts of vector databases?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "Vector Databases",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Choosing a vector database depends on application requirements",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieval quality impacts downstream AI systems",
+          "is_correct": true
+        },
+        {
+          "text": "All vector database tools provide identical capabilities",
+          "is_correct": false
+        },
+        {
+          "text": "Vector databases play an important role in modern RAG systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Document Ingestion Basics",
+      "content": "Which statements correctly describe document ingestion in a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Document ingestion involves bringing data into the system",
+          "is_correct": true
+        },
+        {
+          "text": "Files and text can be processed during ingestion",
+          "is_correct": true
+        },
+        {
+          "text": "Document ingestion only stores images",
+          "is_correct": false
+        },
+        {
+          "text": "Data preparation often begins with ingestion",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Chunking Concepts",
+      "content": "Which statements correctly describe chunking in RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Chunking divides large documents into smaller pieces",
+          "is_correct": true
+        },
+        {
+          "text": "Chunking can help retrieval efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Chunking removes all information from documents",
+          "is_correct": false
+        },
+        {
+          "text": "Smaller text segments may improve search quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Retrieval Basics",
+      "content": "Which statements correctly describe retrieval in RAG systems?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Retrieval finds relevant information for a query",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieved content can support response generation",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieval randomly selects documents",
+          "is_correct": false
+        },
+        {
+          "text": "Similarity search may be used during retrieval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Generation Stage Overview",
+      "content": "Which statements correctly describe the generation stage in a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Generation creates responses using retrieved context",
+          "is_correct": true
+        },
+        {
+          "text": "LLMs may use retrieved information during generation",
+          "is_correct": true
+        },
+        {
+          "text": "Generation ignores all retrieved content",
+          "is_correct": false
+        },
+        {
+          "text": "Generated responses may become more relevant with context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "RAG Pipeline Workflow",
+      "content": "Which statements correctly describe the workflow of a RAG pipeline?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Documents are often ingested before retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Chunking commonly occurs before embedding and retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "Generation happens before document ingestion",
+          "is_correct": false
+        },
+        {
+          "text": "Pipeline stages work together to support responses",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Chunking and Retrieval Relationship",
+      "content": "Which statements correctly describe chunking and retrieval behavior?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Chunk size can affect retrieval quality",
+          "is_correct": true
+        },
+        {
+          "text": "Smaller chunks may improve relevance in some cases",
+          "is_correct": true
+        },
+        {
+          "text": "Chunking has no impact on search performance",
+          "is_correct": false
+        },
+        {
+          "text": "Document segmentation influences retrieved context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Retrieval and Generation Concepts",
+      "content": "Which statements correctly describe retrieval and generation in RAG?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Generated responses depend partly on retrieved information",
+          "is_correct": true
+        },
+        {
+          "text": "Relevant retrieval can improve response quality",
+          "is_correct": true
+        },
+        {
+          "text": "Generation always works independently of context",
+          "is_correct": false
+        },
+        {
+          "text": "Retrieval quality affects downstream outputs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced RAG Pipeline Concepts",
+      "content": "Which statements correctly describe advanced RAG pipeline concepts?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pipeline quality depends on multiple stages working together",
+          "is_correct": true
+        },
+        {
+          "text": "Poor retrieval can negatively affect generated answers",
+          "is_correct": true
+        },
+        {
+          "text": "Document chunking is irrelevant in RAG systems",
+          "is_correct": false
+        },
+        {
+          "text": "Data preparation influences system performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of RAG Pipelines",
+      "content": "Which statements correctly describe strategic concepts in RAG pipelines?",
+      "level": "subtopic",
+      "unit_name": "Retrieval Augmented Generation (RAG)",
+      "subunit_name": "RAG Pipeline",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "End-to-end pipeline design affects system effectiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Retrieval and generation stages are interconnected",
+          "is_correct": true
+        },
+        {
+          "text": "Only the generation stage matters in RAG systems",
+          "is_correct": false
+        },
+        {
+          "text": "Optimizing each stage can improve overall performance",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

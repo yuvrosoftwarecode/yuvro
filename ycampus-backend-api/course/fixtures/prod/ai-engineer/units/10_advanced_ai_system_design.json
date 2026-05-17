@@ -1,0 +1,1788 @@
+{
+  "name": "Advanced AI System Design",
+  "subject_short_code": "AI100",
+  "order_index": 10,
+  "sub_units": [
+    {
+      "name": "System Design for AI",
+      "content": "This module provides a detailed exploration of System Design for AI, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "System Design for AI",
+          "video_link": "https://www.youtube.com/results?search_query=System%20Design%20for%20AI",
+          "ai_context": "Detailed overview and key concepts of System Design for AI"
+        },
+        {
+          "title": "System Design for AI",
+          "video_link": "https://www.youtube.com/results?search_query=System%20Design%20for%20AI",
+          "ai_context": "Detailed overview and key concepts of System Design for AI"
+        }
+      ]
+    },
+    {
+      "name": "Distributed AI Systems",
+      "content": "This module provides a detailed exploration of Distributed AI Systems, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Distributed AI Systems",
+          "video_link": "https://www.youtube.com/results?search_query=Distributed%20AI%20Systems",
+          "ai_context": "Detailed overview and key concepts of Distributed AI Systems"
+        },
+        {
+          "title": "Distributed AI Systems",
+          "video_link": "https://www.youtube.com/results?search_query=Distributed%20AI%20Systems",
+          "ai_context": "Detailed overview and key concepts of Distributed AI Systems"
+        }
+      ]
+    },
+    {
+      "name": "Optimization",
+      "content": "This module provides a detailed exploration of Optimization, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Optimization",
+          "video_link": "https://www.youtube.com/results?search_query=Optimization",
+          "ai_context": "Detailed overview and key concepts of Optimization"
+        },
+        {
+          "title": "Optimization",
+          "video_link": "https://www.youtube.com/results?search_query=Optimization",
+          "ai_context": "Detailed overview and key concepts of Optimization"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Scalable AI Architecture Meaning",
+      "content": "What is the main goal of scalable AI architecture?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To handle increasing workloads efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "To reduce screen resolution",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid user requests",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Latency Definition",
+      "content": "In AI systems, what does latency refer to?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The time taken to generate a response or prediction",
+          "is_correct": true
+        },
+        {
+          "text": "The size of a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "The number of model parameters",
+          "is_correct": false
+        },
+        {
+          "text": "The amount of storage available",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Accuracy in AI",
+      "content": "What does model accuracy represent?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How often predictions are correct",
+          "is_correct": true
+        },
+        {
+          "text": "How quickly hardware starts",
+          "is_correct": false
+        },
+        {
+          "text": "The internet speed of a server",
+          "is_correct": false
+        },
+        {
+          "text": "The number of CPUs in a system",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Scaling Benefit",
+      "content": "Why do AI systems need scalability?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To support more users and larger workloads",
+          "is_correct": true
+        },
+        {
+          "text": "To remove AI models",
+          "is_correct": false
+        },
+        {
+          "text": "To stop handling requests",
+          "is_correct": false
+        },
+        {
+          "text": "To disable monitoring",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Latency vs Accuracy Tradeoff",
+      "content": "Why does a latency versus accuracy tradeoff exist in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "More accurate models can require more computation time",
+          "is_correct": true
+        },
+        {
+          "text": "Faster systems always reduce model quality to zero",
+          "is_correct": false
+        },
+        {
+          "text": "Accuracy only depends on hardware color",
+          "is_correct": false
+        },
+        {
+          "text": "Latency is unrelated to system performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Scalable System Strategy",
+      "content": "Which approach can improve AI system scalability?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Distributing workloads across multiple servers",
+          "is_correct": true
+        },
+        {
+          "text": "Reducing available computing resources",
+          "is_correct": false
+        },
+        {
+          "text": "Avoiding model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Stopping user requests",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-time System Need",
+      "content": "Why do real-time AI applications often prioritize lower latency?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Users expect fast responses for immediate decision-making",
+          "is_correct": true
+        },
+        {
+          "text": "Real-time systems never use AI models",
+          "is_correct": false
+        },
+        {
+          "text": "Latency has no effect on user experience",
+          "is_correct": false
+        },
+        {
+          "text": "Slow responses improve system interaction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Architecture Design Challenge",
+      "content": "What is a major challenge in designing scalable AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Balancing performance, cost, and resource usage",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminating all computation requirements",
+          "is_correct": false
+        },
+        {
+          "text": "Removing prediction systems",
+          "is_correct": false
+        },
+        {
+          "text": "Avoiding system monitoring",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tradeoff Understanding",
+      "content": "Why might developers intentionally choose a slightly less accurate model?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To achieve lower latency and improve user experience",
+          "is_correct": true
+        },
+        {
+          "text": "To eliminate prediction outputs",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid using datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To remove scalability requirements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Microservices Definition",
+      "content": "What are microservices in distributed AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Small independent services that work together",
+          "is_correct": true
+        },
+        {
+          "text": "Large single applications",
+          "is_correct": false
+        },
+        {
+          "text": "Computer storage devices",
+          "is_correct": false
+        },
+        {
+          "text": "Types of neural networks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Load Balancing Purpose",
+      "content": "What is the purpose of load balancing?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To distribute incoming requests across resources",
+          "is_correct": true
+        },
+        {
+          "text": "To remove servers from a system",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "To create machine learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Microservices",
+      "content": "What is a key advantage of using microservices?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Independent development and deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminating all maintenance",
+          "is_correct": false
+        },
+        {
+          "text": "Removing APIs",
+          "is_correct": false
+        },
+        {
+          "text": "Preventing scalability",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Load Distribution Goal",
+      "content": "Why do systems use load balancing?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To avoid overloading a single server",
+          "is_correct": true
+        },
+        {
+          "text": "To stop incoming traffic",
+          "is_correct": false
+        },
+        {
+          "text": "To remove monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate user requests",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Microservices Architecture",
+      "content": "How do microservices improve scalability in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Individual services can scale independently",
+          "is_correct": true
+        },
+        {
+          "text": "All services must always scale together",
+          "is_correct": false
+        },
+        {
+          "text": "Scaling becomes impossible",
+          "is_correct": false
+        },
+        {
+          "text": "Microservices reduce all processing needs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Load Balancer Function",
+      "content": "Which task is performed by a load balancer?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Routing requests among available servers",
+          "is_correct": true
+        },
+        {
+          "text": "Training neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting user data",
+          "is_correct": false
+        },
+        {
+          "text": "Compressing datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Distributed System Benefit",
+      "content": "Why are distributed AI systems preferred for large applications?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They improve scalability and reliability",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate hardware requirements",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent user interactions",
+          "is_correct": false
+        },
+        {
+          "text": "They remove APIs entirely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Microservices Challenge",
+      "content": "What is a common challenge when using microservices?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Managing communication between many services",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminating deployment pipelines",
+          "is_correct": false
+        },
+        {
+          "text": "Preventing software updates",
+          "is_correct": false
+        },
+        {
+          "text": "Removing model predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Load Balancing Understanding",
+      "content": "Why is load balancing critical in distributed AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves availability and prevents bottlenecks",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for servers",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents scaling completely",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces machine learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GPU Purpose in AI",
+      "content": "Why are GPUs commonly used in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They can process many computations in parallel",
+          "is_correct": true
+        },
+        {
+          "text": "They replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "They only store datasets",
+          "is_correct": false
+        },
+        {
+          "text": "They disable model training",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Compression Meaning",
+      "content": "What is the goal of model compression?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To reduce model size and computational requirements",
+          "is_correct": true
+        },
+        {
+          "text": "To increase dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "To remove model predictions",
+          "is_correct": false
+        },
+        {
+          "text": "To stop training processes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GPU Advantage",
+      "content": "Which AI task benefits significantly from GPU usage?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Training deep learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Changing desktop themes",
+          "is_correct": false
+        },
+        {
+          "text": "Formatting documents",
+          "is_correct": false
+        },
+        {
+          "text": "Managing browser bookmarks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Compression Benefit",
+      "content": "Why is model compression useful?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It enables deployment on resource-constrained devices",
+          "is_correct": true
+        },
+        {
+          "text": "It eliminates all hardware requirements",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for predictions",
+          "is_correct": false
+        },
+        {
+          "text": "It increases training time intentionally",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GPU Performance",
+      "content": "Why do GPUs accelerate deep learning workloads?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They support massive parallel processing operations",
+          "is_correct": true
+        },
+        {
+          "text": "They remove all mathematical calculations",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically improve dataset quality",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Compression Techniques Goal",
+      "content": "What is a major reason to apply model compression techniques?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve efficiency while maintaining acceptable accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "To completely remove training requirements",
+          "is_correct": false
+        },
+        {
+          "text": "To stop inference processes",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid hardware usage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Optimization in Deployment",
+      "content": "Why are optimization techniques important for AI deployment?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve speed and resource utilization",
+          "is_correct": true
+        },
+        {
+          "text": "To prevent model inference",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate system monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid model updates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GPU Resource Challenge",
+      "content": "What is a limitation of using GPUs in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They can be expensive and consume significant power",
+          "is_correct": true
+        },
+        {
+          "text": "They prevent neural network training",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate scalability needs",
+          "is_correct": false
+        },
+        {
+          "text": "They remove model parameters",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Optimization Tradeoff",
+      "content": "What tradeoff may occur when compressing AI models aggressively?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduced model size may lead to lower prediction accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Compression guarantees perfect accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Compression removes datasets automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Compression prevents deployment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Scalable AI Architecture",
+      "content": "Which statements correctly describe scalable AI architecture?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scalable AI systems are designed to handle growing workloads",
+          "is_correct": true
+        },
+        {
+          "text": "Architecture planning can support future system growth",
+          "is_correct": true
+        },
+        {
+          "text": "Scalable systems are limited to small datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Scalability can improve system reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Latency Basics",
+      "content": "Which statements correctly describe latency in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Latency refers to response delay in a system",
+          "is_correct": true
+        },
+        {
+          "text": "Lower latency often improves user experience",
+          "is_correct": true
+        },
+        {
+          "text": "Latency always increases model accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "System performance can be affected by latency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Accuracy Tradeoff Concepts",
+      "content": "Which statements correctly describe AI accuracy considerations?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Higher model accuracy can require additional computation",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy can influence AI system effectiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy has no impact on predictions",
+          "is_correct": false
+        },
+        {
+          "text": "Design decisions may affect model accuracy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "AI System Design Basics",
+      "content": "Which statements correctly describe AI system design principles?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "System design considers performance requirements",
+          "is_correct": true
+        },
+        {
+          "text": "Architecture affects AI system behavior",
+          "is_correct": true
+        },
+        {
+          "text": "AI systems never require scaling",
+          "is_correct": false
+        },
+        {
+          "text": "Design planning supports efficient deployment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Latency vs Accuracy Tradeoff",
+      "content": "Which statements correctly describe latency and accuracy tradeoffs?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Faster systems may sometimes reduce prediction complexity",
+          "is_correct": true
+        },
+        {
+          "text": "System design often balances speed and accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Latency and accuracy are always unrelated",
+          "is_correct": false
+        },
+        {
+          "text": "Tradeoffs depend on application requirements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Scalability Concepts",
+      "content": "Which statements correctly describe scalability concepts in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scalable systems can handle increasing workloads",
+          "is_correct": true
+        },
+        {
+          "text": "Distributed components can support scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Scalability prevents all performance issues",
+          "is_correct": false
+        },
+        {
+          "text": "Architecture choices influence system capacity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Design Concepts",
+      "content": "Which statements correctly describe AI performance design?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performance goals influence architecture decisions",
+          "is_correct": true
+        },
+        {
+          "text": "Resource optimization can improve system efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "System design ignores user requirements",
+          "is_correct": false
+        },
+        {
+          "text": "Performance tuning supports better deployment outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced AI Architecture Concepts",
+      "content": "Which statements correctly describe advanced AI architecture concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scalable architecture supports long-term system growth",
+          "is_correct": true
+        },
+        {
+          "text": "Balancing latency and accuracy can improve user experience",
+          "is_correct": true
+        },
+        {
+          "text": "Higher complexity always guarantees better AI systems",
+          "is_correct": false
+        },
+        {
+          "text": "Design tradeoffs affect production system quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of AI System Design",
+      "content": "Which statements correctly describe strategic concepts in AI system design?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "System Design for AI",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Architecture choices impact scalability and performance",
+          "is_correct": true
+        },
+        {
+          "text": "Tradeoff analysis helps optimize AI systems",
+          "is_correct": true
+        },
+        {
+          "text": "All AI applications require identical designs",
+          "is_correct": false
+        },
+        {
+          "text": "System requirements influence design decisions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Microservices",
+      "content": "Which statements correctly describe microservices?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Microservices divide applications into smaller services",
+          "is_correct": true
+        },
+        {
+          "text": "Each microservice can handle a specific function",
+          "is_correct": true
+        },
+        {
+          "text": "Microservices require a single large codebase only",
+          "is_correct": false
+        },
+        {
+          "text": "Microservices can improve modularity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Load Balancing Basics",
+      "content": "Which statements correctly describe load balancing?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Load balancing distributes traffic across resources",
+          "is_correct": true
+        },
+        {
+          "text": "Load balancing can improve system performance",
+          "is_correct": true
+        },
+        {
+          "text": "Load balancing sends all requests to one server",
+          "is_correct": false
+        },
+        {
+          "text": "Balanced workloads can improve reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Distributed Systems Concepts",
+      "content": "Which statements correctly describe distributed AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Distributed systems use multiple components working together",
+          "is_correct": true
+        },
+        {
+          "text": "Components may run on different machines",
+          "is_correct": true
+        },
+        {
+          "text": "Distributed systems always run on a single device",
+          "is_correct": false
+        },
+        {
+          "text": "Workloads can be shared across systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Benefits of Microservices",
+      "content": "Which statements correctly describe benefits of microservices?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Independent services can simplify updates",
+          "is_correct": true
+        },
+        {
+          "text": "Microservices can improve scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Microservices remove all system complexity",
+          "is_correct": false
+        },
+        {
+          "text": "Different services can be developed independently",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Microservice Architecture Concepts",
+      "content": "Which statements correctly describe microservice architectures?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Services can communicate with each other through APIs",
+          "is_correct": true
+        },
+        {
+          "text": "Independent deployment supports flexibility",
+          "is_correct": true
+        },
+        {
+          "text": "Microservices prevent service communication",
+          "is_correct": false
+        },
+        {
+          "text": "Distributed architectures can improve scalability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Load Distribution Concepts",
+      "content": "Which statements correctly describe load balancing concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Balanced workloads can prevent server overload",
+          "is_correct": true
+        },
+        {
+          "text": "Traffic distribution may improve responsiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Load balancing reduces all system failures permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Resource utilization can improve through balancing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Scalability in Distributed Systems",
+      "content": "Which statements correctly describe scalability in distributed AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Additional services can help manage higher demand",
+          "is_correct": true
+        },
+        {
+          "text": "Distributed components support workload expansion",
+          "is_correct": true
+        },
+        {
+          "text": "Scalability eliminates all performance issues",
+          "is_correct": false
+        },
+        {
+          "text": "Architecture design affects scalability outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Distributed AI Concepts",
+      "content": "Which statements correctly describe advanced distributed AI concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Microservices and load balancing support scalable systems",
+          "is_correct": true
+        },
+        {
+          "text": "Distributed design can improve system flexibility",
+          "is_correct": true
+        },
+        {
+          "text": "Adding services always guarantees better performance",
+          "is_correct": false
+        },
+        {
+          "text": "System architecture influences reliability and scalability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Distributed AI Systems",
+      "content": "Which statements correctly describe strategic concepts in distributed AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Distributed AI Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Distributed architectures support large-scale AI applications",
+          "is_correct": true
+        },
+        {
+          "text": "Load balancing can contribute to system stability",
+          "is_correct": true
+        },
+        {
+          "text": "All distributed systems follow identical designs",
+          "is_correct": false
+        },
+        {
+          "text": "Architectural choices impact system performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to GPU Usage",
+      "content": "Which statements correctly describe GPU usage in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GPUs can accelerate AI computations",
+          "is_correct": true
+        },
+        {
+          "text": "GPUs support parallel processing",
+          "is_correct": true
+        },
+        {
+          "text": "GPUs are designed only for text editing",
+          "is_correct": false
+        },
+        {
+          "text": "Deep learning training often uses GPUs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Compression Basics",
+      "content": "Which statements correctly describe model compression?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model compression aims to reduce model size",
+          "is_correct": true
+        },
+        {
+          "text": "Compressed models can improve deployment efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Compression always increases model size",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization can support resource efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Optimization Concepts",
+      "content": "Which statements correctly describe optimization in AI systems?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optimization can improve system efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Reducing computational cost is an optimization goal",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization prevents any future system issues",
+          "is_correct": false
+        },
+        {
+          "text": "Performance improvements may come from optimization techniques",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Hardware Acceleration Concepts",
+      "content": "Which statements correctly describe hardware acceleration?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Specialized hardware can improve computation speed",
+          "is_correct": true
+        },
+        {
+          "text": "GPUs may process many operations simultaneously",
+          "is_correct": true
+        },
+        {
+          "text": "Hardware acceleration is unrelated to AI workloads",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient hardware usage can improve performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "GPU Performance Concepts",
+      "content": "Which statements correctly describe GPU performance concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Parallel processing can improve training speed",
+          "is_correct": true
+        },
+        {
+          "text": "GPUs can process multiple operations simultaneously",
+          "is_correct": true
+        },
+        {
+          "text": "GPUs always reduce model accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Hardware choice can influence performance outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Compression Techniques Concepts",
+      "content": "Which statements correctly describe model compression concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Compressed models may reduce storage requirements",
+          "is_correct": true
+        },
+        {
+          "text": "Compression can improve deployment on limited devices",
+          "is_correct": true
+        },
+        {
+          "text": "Compression guarantees no performance tradeoffs",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization strategies can improve efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "AI Resource Optimization",
+      "content": "Which statements correctly describe AI resource optimization?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient resource usage supports scalable systems",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization can improve execution speed",
+          "is_correct": true
+        },
+        {
+          "text": "Resource optimization removes all hardware limitations",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization strategies can reduce operational costs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Optimization Concepts",
+      "content": "Which statements correctly describe advanced optimization concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GPU acceleration and model compression can improve efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization techniques can support production deployment",
+          "is_correct": true
+        },
+        {
+          "text": "More computational resources always guarantee better systems",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization decisions can affect performance and cost",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of AI Optimization",
+      "content": "Which statements correctly describe strategic optimization concepts?",
+      "level": "subtopic",
+      "unit_name": "Advanced AI System Design",
+      "subunit_name": "Optimization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optimization balances performance and resource usage",
+          "is_correct": true
+        },
+        {
+          "text": "Hardware and compression choices influence deployment outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "All AI systems require identical optimization methods",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization strategies contribute to scalable AI solutions",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

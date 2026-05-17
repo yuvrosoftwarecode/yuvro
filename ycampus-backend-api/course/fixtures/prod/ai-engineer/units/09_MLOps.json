@@ -1,0 +1,2381 @@
+{
+  "name": "MLOps",
+  "subject_short_code": "AI100",
+  "order_index": 9,
+  "sub_units": [
+    {
+      "name": "MLOps Basics",
+      "content": "This module provides a detailed exploration of MLOps Basics, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "MLOps Basics",
+          "video_link": "https://www.youtube.com/results?search_query=MLOps%20Basics",
+          "ai_context": "Detailed overview and key concepts of MLOps Basics"
+        },
+        {
+          "title": "MLOps Basics",
+          "video_link": "https://www.youtube.com/results?search_query=MLOps%20Basics",
+          "ai_context": "Detailed overview and key concepts of MLOps Basics"
+        }
+      ]
+    },
+    {
+      "name": "Model Management",
+      "content": "This module provides a detailed exploration of Model Management, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Model Management",
+          "video_link": "https://www.youtube.com/results?search_query=Model%20Management",
+          "ai_context": "Detailed overview and key concepts of Model Management"
+        },
+        {
+          "title": "Model Management",
+          "video_link": "https://www.youtube.com/results?search_query=Model%20Management",
+          "ai_context": "Detailed overview and key concepts of Model Management"
+        }
+      ]
+    },
+    {
+      "name": "CI/CD for ML",
+      "content": "This module provides a detailed exploration of CI/CD for ML, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "CI/CD for ML",
+          "video_link": "https://www.youtube.com/results?search_query=CI/CD%20for%20ML",
+          "ai_context": "Detailed overview and key concepts of CI/CD for ML"
+        },
+        {
+          "title": "CI/CD for ML",
+          "video_link": "https://www.youtube.com/results?search_query=CI/CD%20for%20ML",
+          "ai_context": "Detailed overview and key concepts of CI/CD for ML"
+        }
+      ]
+    },
+    {
+      "name": "Monitoring",
+      "content": "This module provides a detailed exploration of Monitoring, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Monitoring",
+          "video_link": "https://www.youtube.com/results?search_query=Monitoring",
+          "ai_context": "Detailed overview and key concepts of Monitoring"
+        },
+        {
+          "title": "Monitoring",
+          "video_link": "https://www.youtube.com/results?search_query=Monitoring",
+          "ai_context": "Detailed overview and key concepts of Monitoring"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Definition of MLOps",
+      "content": "What does MLOps primarily refer to?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Practices for managing machine learning systems in production",
+          "is_correct": true
+        },
+        {
+          "text": "A programming language for AI",
+          "is_correct": false
+        },
+        {
+          "text": "A database storage format",
+          "is_correct": false
+        },
+        {
+          "text": "A graphics processing unit",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Lifecycle Stage",
+      "content": "Which of the following is a stage in the ML production lifecycle?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Screen brightness adjustment",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard calibration",
+          "is_correct": false
+        },
+        {
+          "text": "Printer installation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of MLOps",
+      "content": "Why is MLOps important?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To streamline development, deployment, and monitoring of ML models",
+          "is_correct": true
+        },
+        {
+          "text": "To replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "To build computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate data preprocessing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production ML Goal",
+      "content": "What is the goal of ML systems in production?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To deliver reliable and scalable model predictions",
+          "is_correct": true
+        },
+        {
+          "text": "To only train models once",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid using datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To remove evaluation steps",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Lifecycle Sequence",
+      "content": "Which sequence best represents a simplified ML lifecycle in production?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data → training → deployment → monitoring",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → delete → restart",
+          "is_correct": false
+        },
+        {
+          "text": "Testing → hardware → shutdown",
+          "is_correct": false
+        },
+        {
+          "text": "Storage → printing → networking",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring Importance",
+      "content": "Why is monitoring an important step in MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To track model performance and detect issues over time",
+          "is_correct": true
+        },
+        {
+          "text": "To remove all model updates",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid collecting data",
+          "is_correct": false
+        },
+        {
+          "text": "To replace deployment pipelines",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "MLOps Team Benefit",
+      "content": "How does MLOps help data science and engineering teams?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By improving collaboration and automation",
+          "is_correct": true
+        },
+        {
+          "text": "By eliminating machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "By removing evaluation metrics",
+          "is_correct": false
+        },
+        {
+          "text": "By preventing deployment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production ML Challenge",
+      "content": "What is a major challenge in maintaining ML models in production?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model performance can change due to evolving real-world data",
+          "is_correct": true
+        },
+        {
+          "text": "Models stop using algorithms automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Data never changes after training",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring removes all errors",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "MLOps Concept Understanding",
+      "content": "Why is MLOps often compared to DevOps practices?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It applies automation and lifecycle management principles to machine learning systems",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces software development completely",
+          "is_correct": false
+        },
+        {
+          "text": "It removes deployment requirements",
+          "is_correct": false
+        },
+        {
+          "text": "It only focuses on hardware systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Versioning",
+      "content": "Why is versioning important in ML model management?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To keep track of different model versions and changes",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently delete old models",
+          "is_correct": false
+        },
+        {
+          "text": "To create computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "To remove training data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "MLflow Purpose",
+      "content": "What is MLflow commonly used for?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Experiment tracking and ML lifecycle management",
+          "is_correct": true
+        },
+        {
+          "text": "Building computer processors",
+          "is_correct": false
+        },
+        {
+          "text": "Creating spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "Designing web browsers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Experiment Tracking Meaning",
+      "content": "What does experiment tracking help data scientists record?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Parameters, metrics, and model results",
+          "is_correct": true
+        },
+        {
+          "text": "Monitor brightness settings",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Network passwords",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Model Tracking",
+      "content": "What is a key benefit of tracking ML experiments?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps reproduce and compare results",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for training",
+          "is_correct": false
+        },
+        {
+          "text": "It disables model evaluation",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Versioning Use Case",
+      "content": "How does versioning help teams working on ML projects?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It enables teams to manage and compare multiple model iterations",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents collaboration",
+          "is_correct": false
+        },
+        {
+          "text": "It removes training pipelines",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically guarantees perfect accuracy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "MLflow Logged Information",
+      "content": "Which information can MLflow track during experiments?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hyperparameters, metrics, and artifacts",
+          "is_correct": true
+        },
+        {
+          "text": "Computer monitor settings",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard drivers",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system themes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Need for Experiment Tracking",
+      "content": "Why is experiment tracking valuable in machine learning projects?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps identify which configurations produced better results",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for evaluation metrics",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids storing models",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates feature engineering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Versioning Challenge",
+      "content": "What issue can arise if model versioning is not used?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Teams may struggle to identify and reproduce previous models",
+          "is_correct": true
+        },
+        {
+          "text": "Model training becomes impossible",
+          "is_correct": false
+        },
+        {
+          "text": "Data preprocessing stops working",
+          "is_correct": false
+        },
+        {
+          "text": "Hyperparameters disappear automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Management Understanding",
+      "content": "How do versioning and experiment tracking complement each other in MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Versioning tracks model evolution while experiment tracking records results and configurations",
+          "is_correct": true
+        },
+        {
+          "text": "Both are used only for deleting models",
+          "is_correct": false
+        },
+        {
+          "text": "They replace deployment pipelines",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate the need for datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of CI/CD in ML",
+      "content": "What is the main purpose of CI/CD in machine learning?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To automate building, testing, and deployment workflows",
+          "is_correct": true
+        },
+        {
+          "text": "To replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "To create hardware devices",
+          "is_correct": false
+        },
+        {
+          "text": "To remove training datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pipeline Meaning",
+      "content": "What is an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A sequence of steps for ML workflows",
+          "is_correct": true
+        },
+        {
+          "text": "A computer storage device",
+          "is_correct": false
+        },
+        {
+          "text": "A programming language",
+          "is_correct": false
+        },
+        {
+          "text": "A graphical interface theme",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Automation Benefit",
+      "content": "Why is automation useful in ML systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It reduces repetitive manual work",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for data",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents deployment",
+          "is_correct": false
+        },
+        {
+          "text": "It disables model evaluation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Continuous Integration Goal",
+      "content": "What does Continuous Integration (CI) mainly focus on?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automatically testing and integrating updates",
+          "is_correct": true
+        },
+        {
+          "text": "Building hardware components",
+          "is_correct": false
+        },
+        {
+          "text": "Removing datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Stopping deployment pipelines",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Pipeline Stages",
+      "content": "Which sequence represents a typical ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preparation → training → testing → deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → delete → shutdown",
+          "is_correct": false
+        },
+        {
+          "text": "Testing → printing → networking",
+          "is_correct": false
+        },
+        {
+          "text": "Storage → browsing → formatting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Role of Automation",
+      "content": "How does automation improve ML workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By making processes faster and more consistent",
+          "is_correct": true
+        },
+        {
+          "text": "By eliminating model monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "By preventing retraining",
+          "is_correct": false
+        },
+        {
+          "text": "By removing deployment stages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Continuous Deployment Purpose",
+      "content": "What is a key purpose of Continuous Deployment (CD) in ML?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automatically releasing validated models to production",
+          "is_correct": true
+        },
+        {
+          "text": "Removing model evaluation metrics",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting training datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Preventing model updates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Pipeline Challenge",
+      "content": "What challenge can occur without automated ML pipelines?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Processes may become slow, inconsistent, and error-prone",
+          "is_correct": true
+        },
+        {
+          "text": "Models automatically become more accurate",
+          "is_correct": false
+        },
+        {
+          "text": "Data collection becomes unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Deployment becomes impossible",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CI/CD Understanding",
+      "content": "Why is CI/CD important for large-scale ML systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It enables reliable, repeatable, and scalable model delivery",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces machine learning models completely",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all monitoring requirements",
+          "is_correct": false
+        },
+        {
+          "text": "It only applies to hardware systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Definition of Model Drift",
+      "content": "What is model drift in machine learning systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A decline in model effectiveness due to changes in data patterns",
+          "is_correct": true
+        },
+        {
+          "text": "A process of increasing hardware speed",
+          "is_correct": false
+        },
+        {
+          "text": "Removing features from datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Creating new ML algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Performance Tracking",
+      "content": "Why is performance tracking important in MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To continuously evaluate model behavior in production",
+          "is_correct": true
+        },
+        {
+          "text": "To remove all datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid deployment",
+          "is_correct": false
+        },
+        {
+          "text": "To disable model predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring Goal",
+      "content": "What is the primary goal of monitoring ML models?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To ensure models continue performing well over time",
+          "is_correct": true
+        },
+        {
+          "text": "To remove training data",
+          "is_correct": false
+        },
+        {
+          "text": "To stop model updates",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production Data Changes",
+      "content": "What can commonly trigger model drift?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Changes in real-world data distributions",
+          "is_correct": true
+        },
+        {
+          "text": "Changing monitor resolution",
+          "is_correct": false
+        },
+        {
+          "text": "Installing office software",
+          "is_correct": false
+        },
+        {
+          "text": "Updating keyboard drivers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Need for Drift Detection",
+      "content": "Why should teams detect model drift early?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To retrain or update models before performance degrades significantly",
+          "is_correct": true
+        },
+        {
+          "text": "To avoid collecting future data",
+          "is_correct": false
+        },
+        {
+          "text": "To permanently stop predictions",
+          "is_correct": false
+        },
+        {
+          "text": "To remove feature engineering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Metrics Role",
+      "content": "Which of the following is commonly tracked for model monitoring?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accuracy and prediction quality metrics",
+          "is_correct": true
+        },
+        {
+          "text": "Screen brightness settings",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard layout configurations",
+          "is_correct": false
+        },
+        {
+          "text": "Browser themes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring Benefit",
+      "content": "How does performance tracking help ML systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps identify issues and maintain reliable predictions",
+          "is_correct": true
+        },
+        {
+          "text": "It eliminates the need for deployment",
+          "is_correct": false
+        },
+        {
+          "text": "It removes model retraining needs forever",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents datasets from changing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Drift Challenge",
+      "content": "Why can model drift become difficult to identify in production systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performance degradation may happen gradually over time",
+          "is_correct": true
+        },
+        {
+          "text": "Drift instantly removes datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Models automatically stop running",
+          "is_correct": false
+        },
+        {
+          "text": "Prediction systems disable themselves",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring in Production",
+      "content": "Why is monitoring considered a critical part of MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Production environments continuously change and models must adapt",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring replaces machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring removes deployment pipelines",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring only affects hardware performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to MLOps",
+      "content": "Which statements correctly describe MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MLOps combines machine learning with operational practices",
+          "is_correct": true
+        },
+        {
+          "text": "MLOps helps manage machine learning systems in production",
+          "is_correct": true
+        },
+        {
+          "text": "MLOps is used only for creating charts",
+          "is_correct": false
+        },
+        {
+          "text": "Automation is an important concept in MLOps",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Lifecycle Basics",
+      "content": "Which statements correctly describe the ML lifecycle in production?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The ML lifecycle includes model development and deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring can be part of the ML lifecycle",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning ends immediately after training",
+          "is_correct": false
+        },
+        {
+          "text": "Production systems may require ongoing maintenance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "MLOps Goals",
+      "content": "Which statements correctly describe goals of MLOps?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MLOps can improve reliability of ML systems",
+          "is_correct": true
+        },
+        {
+          "text": "Automation can reduce manual effort",
+          "is_correct": true
+        },
+        {
+          "text": "MLOps removes the need for deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Operational efficiency is a key objective",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Production Workflow Concepts",
+      "content": "Which statements correctly describe production machine learning workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Production systems require maintenance over time",
+          "is_correct": true
+        },
+        {
+          "text": "Models may require updates after deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Production ML workflows contain only one step",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring can help maintain performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding the ML Lifecycle",
+      "content": "Which statements correctly describe ML lifecycle stages in production?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preparation is part of the ML lifecycle",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment often follows model development",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring is unrelated to production systems",
+          "is_correct": false
+        },
+        {
+          "text": "Lifecycle stages may repeat over time",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "MLOps Workflow Concepts",
+      "content": "Which statements correctly describe MLOps workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automation supports efficient ML workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Model deployment and monitoring are related processes",
+          "is_correct": true
+        },
+        {
+          "text": "MLOps only focuses on training models",
+          "is_correct": false
+        },
+        {
+          "text": "Operational processes help maintain systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Production ML Concepts",
+      "content": "Which statements correctly describe production ML systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Models may require retraining after deployment",
+          "is_correct": true
+        },
+        {
+          "text": "System behavior can change over time",
+          "is_correct": true
+        },
+        {
+          "text": "Production models never require updates",
+          "is_correct": false
+        },
+        {
+          "text": "Performance tracking can support maintenance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced MLOps Concepts",
+      "content": "Which statements correctly describe advanced MLOps concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Production ML systems involve continuous lifecycle management",
+          "is_correct": true
+        },
+        {
+          "text": "Automation can improve scalability and consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment marks the end of all ML activities",
+          "is_correct": false
+        },
+        {
+          "text": "Long-term system performance depends on maintenance practices",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of MLOps",
+      "content": "Which statements correctly describe strategic MLOps concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "MLOps Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MLOps bridges machine learning and operational systems",
+          "is_correct": true
+        },
+        {
+          "text": "Lifecycle planning affects production success",
+          "is_correct": true
+        },
+        {
+          "text": "All machine learning systems follow identical workflows",
+          "is_correct": false
+        },
+        {
+          "text": "Production environments require ongoing system management",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Model Versioning",
+      "content": "Which statements correctly describe model versioning?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model versioning helps track different model iterations",
+          "is_correct": true
+        },
+        {
+          "text": "Versioning supports reproducibility of ML models",
+          "is_correct": true
+        },
+        {
+          "text": "Versioning is useful only for images",
+          "is_correct": false
+        },
+        {
+          "text": "Teams can compare model changes using versioning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "MLflow Basics",
+      "content": "Which statements correctly describe MLflow?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MLflow can track machine learning experiments",
+          "is_correct": true
+        },
+        {
+          "text": "MLflow helps organize training runs",
+          "is_correct": true
+        },
+        {
+          "text": "MLflow is used only for web design",
+          "is_correct": false
+        },
+        {
+          "text": "Experiment details can be stored using MLflow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Experiment Tracking Concepts",
+      "content": "Which statements correctly describe experiment tracking?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Experiment tracking records model training details",
+          "is_correct": true
+        },
+        {
+          "text": "Parameters and metrics can be tracked",
+          "is_correct": true
+        },
+        {
+          "text": "Experiment tracking removes the need for evaluation",
+          "is_correct": false
+        },
+        {
+          "text": "Tracking improves organization of ML workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Management Basics",
+      "content": "Which statements correctly describe model management?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model management helps organize ML lifecycle activities",
+          "is_correct": true
+        },
+        {
+          "text": "Tracking model history can improve collaboration",
+          "is_correct": true
+        },
+        {
+          "text": "Model management only applies before training",
+          "is_correct": false
+        },
+        {
+          "text": "Managing models can support production workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Versioning and Reproducibility",
+      "content": "Which statements correctly describe model versioning and reproducibility?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Versioning can help recreate earlier model states",
+          "is_correct": true
+        },
+        {
+          "text": "Tracked experiments support reproducibility",
+          "is_correct": true
+        },
+        {
+          "text": "Model history has no practical value",
+          "is_correct": false
+        },
+        {
+          "text": "Reproducibility is important in production ML",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "MLflow Tracking Concepts",
+      "content": "Which statements correctly describe MLflow tracking capabilities?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MLflow can store metrics and parameters",
+          "is_correct": true
+        },
+        {
+          "text": "Experiment tracking can compare model runs",
+          "is_correct": true
+        },
+        {
+          "text": "MLflow replaces machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Experiment records can improve workflow understanding",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Workflow Concepts",
+      "content": "Which statements correctly describe model management workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tracking tools can support team collaboration",
+          "is_correct": true
+        },
+        {
+          "text": "Model management improves organization of experiments",
+          "is_correct": true
+        },
+        {
+          "text": "Experiment tracking has no impact on development",
+          "is_correct": false
+        },
+        {
+          "text": "Managing experiments can simplify analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Model Management Concepts",
+      "content": "Which statements correctly describe advanced model management concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Versioning and tracking support reliable ML operations",
+          "is_correct": true
+        },
+        {
+          "text": "Experiment history can assist decision-making",
+          "is_correct": true
+        },
+        {
+          "text": "Tracking tools guarantee perfect model performance",
+          "is_correct": false
+        },
+        {
+          "text": "Workflow visibility can improve development processes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Model Management",
+      "content": "Which statements correctly describe strategic concepts in model management?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Model Management",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Experiment tracking helps maintain organized ML workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Versioning improves transparency in model development",
+          "is_correct": true
+        },
+        {
+          "text": "All machine learning projects can ignore model management",
+          "is_correct": false
+        },
+        {
+          "text": "Model lifecycle management supports production systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to ML Pipelines",
+      "content": "Which statements correctly describe ML pipelines?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ML pipelines organize machine learning workflow stages",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines can automate repetitive tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines are only used for image editing",
+          "is_correct": false
+        },
+        {
+          "text": "Training and deployment can be part of a pipeline",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Automation Basics",
+      "content": "Which statements correctly describe automation in ML workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automation can reduce manual effort",
+          "is_correct": true
+        },
+        {
+          "text": "Automated workflows can improve efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Automation prevents all human involvement",
+          "is_correct": false
+        },
+        {
+          "text": "ML systems can benefit from repeatable processes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CI/CD Concepts in ML",
+      "content": "Which statements correctly describe CI/CD in machine learning?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CI/CD can support automated model deployment workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Continuous practices can improve development processes",
+          "is_correct": true
+        },
+        {
+          "text": "CI/CD is unrelated to machine learning operations",
+          "is_correct": false
+        },
+        {
+          "text": "Automation can support frequent updates",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Workflow Automation Benefits",
+      "content": "Which statements correctly describe workflow automation benefits?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automation can improve consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Automated systems may reduce repetitive tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Automation makes workflows less organized",
+          "is_correct": false
+        },
+        {
+          "text": "Pipelines can simplify workflow execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pipeline Workflow Concepts",
+      "content": "Which statements correctly describe ML pipeline workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data processing and model training can be pipeline stages",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines can improve reproducibility",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines contain only one task",
+          "is_correct": false
+        },
+        {
+          "text": "Workflow structure can support efficient execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Automation in CI/CD Systems",
+      "content": "Which statements correctly describe automation concepts in CI/CD systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automation can reduce operational complexity",
+          "is_correct": true
+        },
+        {
+          "text": "Repeatable processes support system reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Automation removes the need for monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "Automated workflows can improve deployment speed",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Continuous ML Concepts",
+      "content": "Which statements correctly describe continuous practices in ML systems?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Continuous integration can support workflow consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment pipelines can help automate updates",
+          "is_correct": true
+        },
+        {
+          "text": "Continuous systems never require validation",
+          "is_correct": false
+        },
+        {
+          "text": "Automation can assist scalable ML operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced CI/CD Concepts",
+      "content": "Which statements correctly describe advanced CI/CD concepts in ML?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Well-designed pipelines support reliable ML delivery",
+          "is_correct": true
+        },
+        {
+          "text": "Automation can improve scalability and efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "CI/CD guarantees perfect ML model performance",
+          "is_correct": false
+        },
+        {
+          "text": "Pipeline orchestration can improve workflow management",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of CI/CD for ML",
+      "content": "Which statements correctly describe strategic concepts of CI/CD for ML?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "CI/CD for ML",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Automation supports efficient ML lifecycle management",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines can improve collaboration and deployment processes",
+          "is_correct": true
+        },
+        {
+          "text": "All ML systems can ignore CI/CD practices",
+          "is_correct": false
+        },
+        {
+          "text": "Continuous workflows support production readiness",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Model Drift",
+      "content": "Which statements correctly describe model drift?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model drift occurs when model behavior changes over time",
+          "is_correct": true
+        },
+        {
+          "text": "Changes in data patterns can contribute to drift",
+          "is_correct": true
+        },
+        {
+          "text": "Model drift only affects hardware systems",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring can help detect drift issues",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Tracking Basics",
+      "content": "Which statements correctly describe performance tracking?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performance tracking helps evaluate model behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Metrics can be monitored over time",
+          "is_correct": true
+        },
+        {
+          "text": "Performance tracking is useful only during training",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring supports production model maintenance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Monitoring Concepts",
+      "content": "Which statements correctly describe model monitoring?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monitoring can help identify system issues",
+          "is_correct": true
+        },
+        {
+          "text": "Tracking metrics can support model maintenance",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring removes the need for updates",
+          "is_correct": false
+        },
+        {
+          "text": "Production models may require ongoing observation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Production Model Health",
+      "content": "Which statements correctly describe model health monitoring?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Production models can degrade over time",
+          "is_correct": true
+        },
+        {
+          "text": "Regular tracking can help detect performance changes",
+          "is_correct": true
+        },
+        {
+          "text": "Model performance always remains constant",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring supports long-term reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Model Drift Effects",
+      "content": "Which statements correctly describe the effects of model drift?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data changes can reduce prediction quality",
+          "is_correct": true
+        },
+        {
+          "text": "Drift can impact model reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Model drift improves accuracy automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring systems can detect abnormal changes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Metrics Concepts",
+      "content": "Which statements correctly describe model performance tracking concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accuracy and latency may be monitored metrics",
+          "is_correct": true
+        },
+        {
+          "text": "Performance trends help identify issues",
+          "is_correct": true
+        },
+        {
+          "text": "Metrics tracking is unrelated to monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "Long-term tracking supports system maintenance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Monitoring Workflow Concepts",
+      "content": "Which statements correctly describe monitoring workflows?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performance monitoring can trigger model updates",
+          "is_correct": true
+        },
+        {
+          "text": "Tracking systems support operational awareness",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring completely removes maintenance requirements",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring workflows improve visibility into production systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Monitoring Concepts",
+      "content": "Which statements correctly describe advanced monitoring concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monitoring systems support reliable production ML operations",
+          "is_correct": true
+        },
+        {
+          "text": "Model drift detection can improve long-term performance",
+          "is_correct": true
+        },
+        {
+          "text": "Performance tracking guarantees perfect predictions",
+          "is_correct": false
+        },
+        {
+          "text": "Continuous monitoring helps identify changing behavior patterns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of ML Monitoring",
+      "content": "Which statements correctly describe strategic monitoring concepts?",
+      "level": "subtopic",
+      "unit_name": "MLOps",
+      "subunit_name": "Monitoring",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monitoring is important for maintaining production model quality",
+          "is_correct": true
+        },
+        {
+          "text": "Performance trends can guide maintenance decisions",
+          "is_correct": true
+        },
+        {
+          "text": "Production systems do not require model monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring contributes to stable ML lifecycle management",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}
