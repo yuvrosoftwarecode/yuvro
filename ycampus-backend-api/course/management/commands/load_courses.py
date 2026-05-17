@@ -169,14 +169,26 @@ class Command(BaseCommand):
 
             subject, created = Subject.objects.get_or_create(
                 short_code=subject_data["short_code"],
-                defaults={"subject_name": name},
+                defaults={
+                    "subject_name": name,
+                    "product_type": subject_data.get("product_type", "campus"),
+                },
             )
             if created:
                 self.stdout.write(f"  ✓ Created subject: {subject.subject_name}")
             else:
-                # Update name if it changed
+                # Update name or product_type if it changed
+                needs_save = False
                 if subject.subject_name != name:
                     subject.subject_name = name
+                    needs_save = True
+                
+                ptype = subject_data.get("product_type")
+                if ptype and subject.product_type != ptype:
+                    subject.product_type = ptype
+                    needs_save = True
+                
+                if needs_save:
                     subject.save()
                 self.stdout.write(f"  → Subject exists: {subject.subject_name}")
 

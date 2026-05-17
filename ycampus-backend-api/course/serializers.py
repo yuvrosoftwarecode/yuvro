@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from core.models import College, Batch, Department, Semester, Section, Task
+from core.models import College, Batch, Department, Semester, Section, Task, University
 from core.models import Note
 from .models import (
     Subject,
@@ -27,7 +27,8 @@ User = get_user_model()
 class CollegeBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = College
-        fields = ["id", "name", "short_form"]
+        fields = ["id", "name", "short_form", "college_type", "university", "product_type", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class DepartmentBasicSerializer(serializers.ModelSerializer):
@@ -146,6 +147,12 @@ class CollegeSerializer(serializers.ModelSerializer):
     departments = DepartmentSerializer(many=True, read_only=True)
     principals = serializers.SerializerMethodField()
     college_admins = serializers.SerializerMethodField()
+    placement_officers = serializers.SerializerMethodField()
+    university_details = serializers.SerializerMethodField()
+
+    def get_university_details(self, obj):
+        from core.serializers import UniversitySerializer
+        return UniversitySerializer(obj.university).data if obj.university else None
 
     class Meta:
         model = College
@@ -156,13 +163,16 @@ class CollegeSerializer(serializers.ModelSerializer):
             "location",
             "website",
             "college_type",
-            "affiliated_university",
+            "university",
+            "university_details",
+            "product_type",
             "is_aicte_approved",
             "is_ugc_approved",
             "department_names",
             "departments",
             "principals",
             "college_admins",
+            "placement_officers",
             "created_at",
             "updated_at",
         ]
@@ -175,6 +185,10 @@ class CollegeSerializer(serializers.ModelSerializer):
     def get_college_admins(self, obj):
         from core.serializers import CollegeAdminProfileSerializer
         return CollegeAdminProfileSerializer(obj.college_admins.all(), many=True, context=self.context).data
+
+    def get_placement_officers(self, obj):
+        from core.serializers import PlacementOfficerProfileSerializer
+        return PlacementOfficerProfileSerializer(obj.placement_officers.all(), many=True, context=self.context).data
 
     department_names = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False
@@ -403,18 +417,41 @@ class SubjectSerializer(serializers.ModelSerializer):
             "short_code",
             "subject_name",
             "name",
+            "product_type",
+            "university",
             "created_at",
             "updated_at",
             "units",
             "total_problems",
             "solved_problems",
             "progress_percentage",
+            "college_count",
+            "unit_count",
         ]
-        read_only_fields = ["id", "yuvro_id", "created_at", "updated_at"]
+        read_only_fields = ["id", "yuvro_id", "created_at", "updated_at", "college_count", "unit_count"]
 
-    total_problems = serializers.IntegerField(read_only=True)
-    solved_problems = serializers.IntegerField(read_only=True)
-    progress_percentage = serializers.FloatField(read_only=True)
+
+    total_problems = serializers.SerializerMethodField()
+    solved_problems = serializers.SerializerMethodField()
+    progress_percentage = serializers.SerializerMethodField()
+    college_count = serializers.SerializerMethodField()
+    unit_count = serializers.SerializerMethodField()
+
+    def get_total_problems(self, obj):
+        return getattr(obj, 'total_problems', 0)
+
+    def get_solved_problems(self, obj):
+        return getattr(obj, 'solved_problems', 0)
+
+    def get_progress_percentage(self, obj):
+        return getattr(obj, 'progress_percentage', 0.0)
+
+    def get_college_count(self, obj):
+        return getattr(obj, 'college_count', 0)
+
+    def get_unit_count(self, obj):
+        return getattr(obj, 'unit_count', 0)
+
 
     def validate_short_code(self, value):
         """
@@ -440,6 +477,8 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "short_code",
             "subject_name",
             "name",
+            "product_type",
+            "university",
             "created_at",
             "updated_at",
             "total_problems",
@@ -447,13 +486,40 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "progress_percentage",
             "total_score",
             "ai_help_used",
+            "college_count",
+            "unit_count",
         ]
 
-    total_problems = serializers.IntegerField(read_only=True)
-    solved_problems = serializers.IntegerField(read_only=True)
-    progress_percentage = serializers.FloatField(read_only=True)
-    total_score = serializers.FloatField(read_only=True)
-    ai_help_used = serializers.IntegerField(read_only=True)
+
+    total_problems = serializers.SerializerMethodField()
+    solved_problems = serializers.SerializerMethodField()
+    progress_percentage = serializers.SerializerMethodField()
+    total_score = serializers.SerializerMethodField()
+    ai_help_used = serializers.SerializerMethodField()
+    college_count = serializers.SerializerMethodField()
+    unit_count = serializers.SerializerMethodField()
+
+    def get_total_problems(self, obj):
+        return getattr(obj, 'total_problems', 0)
+
+    def get_solved_problems(self, obj):
+        return getattr(obj, 'solved_problems', 0)
+
+    def get_progress_percentage(self, obj):
+        return getattr(obj, 'progress_percentage', 0.0)
+
+    def get_total_score(self, obj):
+        return getattr(obj, 'total_score', 0.0)
+
+    def get_ai_help_used(self, obj):
+        return getattr(obj, 'ai_help_used', 0)
+
+    def get_college_count(self, obj):
+        return getattr(obj, 'college_count', 0)
+
+    def get_unit_count(self, obj):
+        return getattr(obj, 'unit_count', 0)
+
 
 
 class VideoSerializer(serializers.ModelSerializer):

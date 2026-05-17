@@ -34,14 +34,15 @@ class CollegeSubjectInline(admin.TabularInline):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ["yuvro_id", "subject_name", "short_code", "created_at", "updated_at"]
-    list_filter = ["created_at", "updated_at"]
+    list_display = ["yuvro_id", "subject_name", "short_code", "product_type", "created_at", "updated_at"]
+    list_filter = ["product_type", "created_at", "updated_at"]
     search_fields = ["yuvro_id", "subject_name", "short_code"]
     readonly_fields = ["id", "yuvro_id", "created_at", "updated_at"]
     fields = [
         "subject_name",
         "short_code",
         "yuvro_id",
+        "product_type",
         "id",
         "created_at",
         "updated_at",

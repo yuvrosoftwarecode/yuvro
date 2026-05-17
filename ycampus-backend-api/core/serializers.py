@@ -19,11 +19,26 @@ from .models import (
     TaskComment,
     Note,
     Announcement,
+    University,
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+class UniversitySerializer(serializers.ModelSerializer):
+    college_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = University
+        fields = ["id", "name", "short_form", "location", "college_count", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_college_count(self, obj):
+        return obj.colleges.count()
+
+
 
 
 class StudentProfileSerializer(serializers.ModelSerializer):
@@ -33,6 +48,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     batch_name = serializers.CharField(source="batch.name", read_only=True)
     semester_number = serializers.IntegerField(source="semester.number", read_only=True)
     section_name = serializers.CharField(source="section.name", read_only=True)
+    college_product_type = serializers.CharField(source="college.product_type", read_only=True)
 
     class Meta:
         model = StudentProfile
@@ -42,6 +58,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "user_details",
             "college",
             "college_name",
+            "college_product_type",
             "department",
             "department_name",
             "batch",

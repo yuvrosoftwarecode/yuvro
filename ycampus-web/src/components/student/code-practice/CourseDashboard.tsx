@@ -3,13 +3,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Code2, Database, Cpu, FileCode, Braces, Terminal,
-  Trophy, Brain, CheckCircle2, Zap, Layout, Monitor, Calculator
+  Trophy, Brain, CheckCircle2, Zap, Layout, Monitor, Calculator, Play
 } from 'lucide-react';
 import { fetchSubjects, type Subject as apiSubject } from '@/services/subjectService';
 import type { Subject as CodePracticeSubject } from '@/types/codePractice';
 import { toast } from 'sonner';
-import ModernCard from '@/components/common/ModernCard';
+import PageHeader from '@/components/common/PageHeader';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+
 
 interface SubjectDashboardProps {
   onSubjectSelect: (subject: CodePracticeSubject) => void;
@@ -31,17 +34,17 @@ const getIcon = (category: string) => {
 
 const getSubjectStyle = (id: string | number) => {
   const styles = [
-    { bg: "bg-blue-50 text-blue-600", gradient: "from-blue-600" },
-    { bg: "bg-purple-50 text-purple-600", gradient: "from-purple-600" },
-    { bg: "bg-emerald-50 text-emerald-600", gradient: "from-emerald-600" },
-    { bg: "bg-amber-50 text-amber-600", gradient: "from-amber-600" },
-    { bg: "bg-rose-50 text-rose-600", gradient: "from-rose-600" },
-    { bg: "bg-indigo-50 text-indigo-600", gradient: "from-indigo-600" },
-    { bg: "bg-cyan-50 text-cyan-600", gradient: "from-cyan-600" },
+    { bg: "bg-blue-500/10 text-blue-600", border: "border-blue-100", icon: "text-blue-600" },
+    { bg: "bg-purple-500/10 text-purple-600", border: "border-purple-100", icon: "text-purple-600" },
+    { bg: "bg-emerald-500/10 text-emerald-600", border: "border-emerald-100", icon: "text-emerald-600" },
+    { bg: "bg-amber-500/10 text-amber-600", border: "border-amber-100", icon: "text-amber-600" },
+    { bg: "bg-rose-500/10 text-rose-600", border: "border-rose-100", icon: "text-rose-600" },
+    { bg: "bg-indigo-500/10 text-indigo-600", border: "border-indigo-100", icon: "text-indigo-600" },
   ];
-  const index = String(id).charCodeAt(0) % styles.length;
+  const index = Math.abs(String(id).split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % styles.length;
   return styles[index];
 };
+
 
 const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboardProps) => {
   const [subjects, setSubjects] = useState<CodePracticeSubject[]>([]);
@@ -60,8 +63,10 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
           solvedProblems: s.solved_problems || 0,
           totalScore: s.total_score || 0,
           aiHelpUsed: s.ai_help_used || 0,
-          iconColor: '', 
+          unitCount: (s as any).unit_count || 0,
+          iconColor: '',
           category: s.category || '',
+
         }));
         setSubjects(transformedSubjects);
       } catch (error) {
@@ -78,14 +83,14 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
     return (
       <div className="w-full flex-1 overflow-hidden p-8 pt-0 space-y-10 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-           {[...Array(4)].map((_, i) => (
-             <div key={i} className="h-24 bg-muted rounded-xl"></div>
-           ))}
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 bg-muted rounded-xl"></div>
+          ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-           {[...Array(6)].map((_, i) => (
-             <div key={i} className="h-72 bg-muted rounded-2xl"></div>
-           ))}
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-72 bg-muted rounded-2xl"></div>
+          ))}
         </div>
       </div>
     );
@@ -99,43 +104,39 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
   ];
 
   return (
-    <div className="w-full flex-1 overflow-y-auto space-y-10 p-8 pt-0 custom-scrollbar max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Code2 className="w-4 h-4 text-primary" />
-             </div>
-             <h2 className="text-2xl font-bold tracking-tight text-foreground">Practice Modules</h2>
-          </div>
-          <p className="text-sm text-muted-foreground pl-10">Select a subject to begin your coding practice session.</p>
-        </div>
-        <Button
-          onClick={onViewAnalytics}
-          variant="outline"
-          className="rounded-lg font-semibold gap-2"
-        >
-          <Zap className="w-4 h-4 text-amber-500 fill-amber-500" /> 
-          Practice Insights
-        </Button>
-      </div>
+    <div className="w-full flex-1 overflow-y-auto space-y-8 p-6 custom-scrollbar max-w-7xl mx-auto">
+      <PageHeader
+        title="Practice Modules"
+        subtitle="Select a subject to begin your coding practice session."
+        actions={
+          <Button
+            onClick={onViewAnalytics}
+            variant="outline"
+            className="rounded-xl font-semibold gap-2 border-border/60 hover:bg-muted/50"
+          >
+            <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+            Practice Insights
+          </Button>
+        }
+      />
+
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {overallStats.map((stat, i) => (
-          <Card key={i} className="group border-border/50 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden bg-card">
+          <Card key={i} className="border-border hover:shadow-md transition-all duration-200">
             <CardContent className="p-6 flex items-center gap-4">
               <div className={cn(
-                "flex items-center justify-center w-12 h-12 rounded-xl shrink-0 transition-transform group-hover:scale-110",
-                stat.color === 'emerald' ? "bg-emerald-50 text-emerald-600" :
-                stat.color === 'indigo' ? "bg-indigo-50 text-indigo-600" :
-                stat.color === 'rose' ? "bg-rose-50 text-rose-600" :
-                "bg-amber-50 text-amber-600"
+                "flex items-center justify-center w-12 h-12 rounded-xl shrink-0",
+                stat.color === 'emerald' ? "bg-emerald-500/10 text-emerald-600" :
+                  stat.color === 'indigo' ? "bg-indigo-500/10 text-indigo-600" :
+                    stat.color === 'rose' ? "bg-rose-500/10 text-rose-600" :
+                      "bg-amber-500/10 text-amber-600"
               )}>
                 {stat.icon}
               </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{stat.label}</p>
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
                 <p className="text-2xl font-bold tracking-tight text-foreground">{stat.value}</p>
               </div>
             </CardContent>
@@ -143,33 +144,70 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
         ))}
       </div>
 
+
+
       {/* Subject Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {subjects.map(subject => {
           const Icon = getIcon(subject.category);
           const style = getSubjectStyle(subject.id);
           return (
-            <ModernCard
+            <Card
               key={subject.id}
-              title={subject.name}
-              description={`Master key concepts in ${subject.name} through targeted practice problems.`}
-              icon={<Icon className="h-6 w-6" />}
-              iconClassName={cn(style.bg, "shadow-sm")}
-              gradientColor={style.gradient}
-              progress={subject.progress}
-              tags={[
-                { text: subject.category.replace(/_/g, ' '), className: "bg-secondary text-secondary-foreground text-[10px] font-semibold uppercase tracking-wide px-2 shrink-0 max-w-[120px] truncate" }
-              ]}
-              footerItems={[
-                { icon: <Monitor className="w-3.5 h-3.5" />, text: `${subject.totalProblems} Units` },
-                { icon: <Calculator className="w-3.5 h-3.5" />, text: `${subject.solvedProblems} Solved` }
-              ]}
-              actionLabel="Get Started"
-              onAction={() => onSubjectSelect(subject)}
-            />
+              className="group cursor-pointer border-border hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+              onClick={() => onSubjectSelect(subject)}
+            >
+              <div className="p-6 flex-1 space-y-6">
+                <div className="flex items-start justify-between">
+                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", style.bg)}>
+                    <Icon className={cn("h-6 w-6", style.icon)} />
+                  </div>
+                  <Badge variant="secondary" className="capitalize text-[10px] font-bold tracking-wide px-2.5 py-0.5 rounded-full bg-muted/40 border-none text-muted-foreground">
+                    {subject.category.replace(/_/g, ' ')}
+                  </Badge>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-bold text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
+                    {subject.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    Master key concepts in {subject.name} through targeted practice problems.
+                  </p>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <div className="flex justify-between items-end mb-1.5 px-0.5">
+                    <span className="text-[11px] font-medium text-muted-foreground tracking-wider">progress</span>
+                    <span className="text-xs font-bold text-primary">{subject.progress}%</span>
+                  </div>
+                  <Progress value={subject.progress} className="h-1.5" />
+                </div>
+              </div>
+
+
+              <div className="px-6 py-4 border-t border-border/60 flex items-center justify-between bg-muted/10">
+                <div className="flex items-center gap-5 text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Monitor className="w-4 h-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{subject.unitCount} Units</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Calculator className="w-4 h-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{subject.solvedProblems} Solved</span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                  <Play className="h-3.5 w-3.5 text-primary fill-primary" />
+                </div>
+              </div>
+            </Card>
           );
         })}
       </div>
+
+
     </div>
   );
 };

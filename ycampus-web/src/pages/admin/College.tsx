@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Trash2, Building2, Search, MapPin, Globe, X, CheckCircle2, XCircle, Plus, Layers } from 'lucide-react';
+import { Edit, Trash2, Building2, Search, MapPin, Globe, X, CheckCircle2, XCircle, Plus, Layers, GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { collegeService, College, CollegeCreateData } from '@/services/collegeService';
@@ -23,10 +24,18 @@ const EMPTY_FORM: CollegeCreateData = {
     location: "",
     website: "",
     college_type: "private",
-    affiliated_university: "jntu",
+    university: "",
+    product_type: "campus",
     is_aicte_approved: false,
     is_ugc_approved: false,
 };
+
+const EMPTY_UNI_FORM = {
+    name: "",
+    short_form: "",
+    location: ""
+};
+
 
 const COLLEGE_TYPES = [
     { value: 'government', label: 'Government' },
@@ -35,31 +44,45 @@ const COLLEGE_TYPES = [
     { value: 'private', label: 'Private' }
 ];
 
-const UNIVERSITIES = [
-    { value: 'jntu', label: 'JNTU' },
-    { value: 'anna', label: 'Anna University' },
-    { value: 'vtu', label: 'VTU' },
-    { value: 'ou', label: 'Osmania University' }
+
+const PRODUCT_TYPES = [
+    { value: 'campus', label: 'Yuvro Campus' },
+    { value: 'assessments', label: 'Yuvro Assessments' }
 ];
 
 const CollegePage = () => {
     const navigate = useNavigate();
     const [colleges, setColleges] = useState<College[]>([]);
+    const [universities, setUniversities] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    
+    const [loadingUniversities, setLoadingUniversities] = useState(false);
+
+    const [activeTab, setActiveTab] = useState('colleges');
+
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingCollegeId, setEditingCollegeId] = useState<string | number | null>(null);
     const [deleteId, setDeleteId] = useState<string | number | null>(null);
     const [form, setForm] = useState<CollegeCreateData>(EMPTY_FORM);
+
+    const [uniDialogOpen, setUniDialogOpen] = useState(false);
+    const [editingUniId, setEditingUniId] = useState<string | number | null>(null);
+    const [uniForm, setUniForm] = useState(EMPTY_UNI_FORM);
+    const [uniDeleteId, setUniDeleteId] = useState<string | number | null>(null);
+
     const [saving, setSaving] = useState(false);
+
 
     // Filters
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all');
+    const [uniSearchQuery, setUniSearchQuery] = useState('');
+
 
     useEffect(() => {
         loadColleges();
+        loadUniversities();
     }, []);
+
 
     const loadColleges = async () => {
         try {
@@ -74,6 +97,19 @@ const CollegePage = () => {
         }
     };
 
+    const loadUniversities = async () => {
+        try {
+            setLoadingUniversities(true);
+            const data = await collegeService.getUniversities();
+            setUniversities(data);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to load universities");
+        } finally {
+            setLoadingUniversities(false);
+        }
+    };
+
     const filtered = useMemo(() => {
         return colleges.filter(c => {
             const q = searchQuery.toLowerCase();
@@ -82,6 +118,14 @@ const CollegePage = () => {
             return matchesSearch && matchesType;
         });
     }, [colleges, searchQuery, filterType]);
+
+    const filteredUniversities = useMemo(() => {
+        return universities.filter(u => {
+            const q = uniSearchQuery.toLowerCase();
+            return !q || u.name.toLowerCase().includes(q) || (u.short_form || '').toLowerCase().includes(q) || (u.location || '').toLowerCase().includes(q);
+        });
+    }, [universities, uniSearchQuery]);
+
 
     const hasActiveFilters = searchQuery || filterType !== 'all';
 
@@ -104,7 +148,8 @@ const CollegePage = () => {
             location: c.location || "",
             website: c.website || "",
             college_type: c.college_type,
-            affiliated_university: c.affiliated_university,
+            university: c.university || "",
+            product_type: c.product_type || "campus",
             is_aicte_approved: c.is_aicte_approved,
             is_ugc_approved: c.is_ugc_approved,
         };
@@ -138,6 +183,49 @@ const CollegePage = () => {
         }
     };
 
+    const saveUniversity = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!uniForm.name.trim()) {
+            toast.error("University Name is required");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            if (editingUniId) {
+                await collegeService.updateUniversity(editingUniId, uniForm);
+                toast.success('University updated successfully');
+            } else {
+                await collegeService.createUniversity(uniForm);
+                toast.success('University added successfully');
+            }
+            setUniDialogOpen(false);
+            loadUniversities();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to save university");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const confirmDeleteUni = async () => {
+        if (!uniDeleteId) return;
+        try {
+            setSaving(true);
+            await collegeService.deleteUniversity(uniDeleteId);
+            toast.success('University deleted successfully');
+            loadUniversities();
+            setUniDeleteId(null);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to delete university");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+
     const handleDelete = async () => {
         if (!deleteId) return;
         try {
@@ -166,161 +254,237 @@ const CollegePage = () => {
                 <AdminSidebar />
                 <div className="flex-1 flex flex-col">
                     <main className="flex-1 p-6 bg-background">
-                        <PageHeader 
-                            title="College Management" 
+                        <PageHeader
+                            title="College Management"
                             actions={
-                                <Button onClick={openAdd}>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add College
-                                </Button>
+                                <div className="flex gap-2">
+                                    <Button variant="outline" onClick={() => {
+                                        setEditingUniId(null);
+                                        setUniForm(EMPTY_UNI_FORM);
+                                        setUniDialogOpen(true);
+                                    }}>
+                                        <GraduationCap className="h-4 w-4 mr-2" />
+                                        Add University
+                                    </Button>
+                                    <Button onClick={openAdd}>
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add College
+                                    </Button>
+                                </div>
                             }
                         />
-                        
-                        {/* Search & Filters */}
-                        <Card className="mb-6">
-                            <CardContent className="p-4">
-                                <div className="flex flex-col md:flex-row gap-3">
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search by name, code, or location..."
-                                            className="pl-9"
-                                            value={searchQuery}
-                                            onChange={e => setSearchQuery(e.target.value)}
-                                        />
-                                    </div>
-                                    <Select value={filterType} onValueChange={setFilterType}>
-                                        <SelectTrigger className="w-full md:w-48">
-                                            <SelectValue placeholder="Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Types</SelectItem>
-                                            {COLLEGE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                    {hasActiveFilters && (
-                                        <Button variant="ghost" size="icon" onClick={clearFilters} className="shrink-0">
-                                            <X className="h-4 w-4" />
-                                        </Button>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Badge variant="secondary">{filtered.length} college{filtered.length !== 1 ? 's' : ''}</Badge>
-                                    {hasActiveFilters && <span className="text-xs text-muted-foreground">Filtered results</span>}
-                                </div>
-                            </CardContent>
-                        </Card>
 
-                        {/* List View Table */}
-                        <Card>
-                            <CardContent className="p-0">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[300px]">College</TableHead>
-                                            <TableHead>Location</TableHead>
-                                            <TableHead>Type</TableHead>
-                                            <TableHead>Affiliation</TableHead>
-                                            <TableHead>Departments</TableHead>
-                                            <TableHead>Approvals</TableHead>
-                                            <TableHead className="text-right w-[120px]">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {loading ? (
-                                            <TableRow>
-                                                <TableCell colSpan={7} className="text-center py-10">
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
-                                                        <p className="text-muted-foreground text-sm">Loading colleges...</p>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : filtered.length > 0 ? filtered.map(college => (
-                                            <TableRow key={college.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleCollegeClick(college.id)}>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                                            <Building2 className="h-5 w-5 text-primary" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-medium text-sm leading-tight">{college.name}</p>
-                                                            <div className="flex items-center gap-2 mt-1">
-                                                                {college.short_form && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{college.short_form}</Badge>}
-                                                                {college.website && (
-                                                                    <a href={college.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] text-primary hover:underline" onClick={e => e.stopPropagation()}>
-                                                                        <Globe className="h-3 w-3" />
-                                                                        Website
-                                                                    </a>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                                        <MapPin className="h-3 w-3" />
-                                                        {college.location || '—'}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="text-xs capitalize">{college.college_type}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="text-sm font-medium uppercase">{college.affiliated_university}</span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                                        {college.departments && college.departments.length > 0 ? (
-                                                            college.departments.slice(0, 3).map((dept) => (
-                                                                <Badge key={dept.id} variant="outline" className="text-[10px] bg-background">
-                                                                    {dept.short_form || dept.name.split(' ').map(w => w[0]).join('')}
+
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                            <TabsList className="grid w-full max-w-[400px] grid-cols-2 mb-6">
+                                <TabsTrigger value="colleges">
+                                    <Building2 className="h-4 w-4 mr-2" />
+                                    Colleges
+                                </TabsTrigger>
+                                <TabsTrigger value="universities">
+                                    <GraduationCap className="h-4 w-4 mr-2" />
+                                    Universities
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="colleges">
+                                {/* Search & Filters */}
+                                <Card className="mb-6">
+                                    <CardContent className="p-4">
+                                        <div className="flex flex-col md:flex-row gap-3">
+                                            <div className="relative flex-1">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input
+                                                    placeholder="Search by name, code, or location..."
+                                                    className="pl-9"
+                                                    value={searchQuery}
+                                                    onChange={e => setSearchQuery(e.target.value)}
+                                                />
+                                            </div>
+                                            <Select value={filterType} onValueChange={setFilterType}>
+                                                <SelectTrigger className="w-full md:w-48">
+                                                    <SelectValue placeholder="Type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All Types</SelectItem>
+                                                    {COLLEGE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            {hasActiveFilters && (
+                                                <Button variant="ghost" size="icon" onClick={clearFilters} className="shrink-0">
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Badge variant="secondary">{filtered.length} college{filtered.length !== 1 ? 's' : ''}</Badge>
+                                            {hasActiveFilters && <span className="text-xs text-muted-foreground">Filtered results</span>}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card>
+                                    <CardContent className="p-0">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[300px]">College</TableHead>
+                                                    <TableHead>Location</TableHead>
+                                                    <TableHead>University</TableHead>
+                                                    <TableHead>Product</TableHead>
+                                                    <TableHead>Type</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {loading ? (
+                                                    Array.from({ length: 5 }).map((_, i) => (
+                                                        <TableRow key={i}>
+                                                            <TableCell colSpan={6} className="h-16 animate-pulse bg-muted/20" />
+                                                        </TableRow>
+                                                    ))
+                                                ) : filtered.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                                            No colleges found. Try adding one or adjusting filters.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    filtered.map(c => (
+                                                        <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleCollegeClick(c.id)}>
+                                                            <TableCell>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-semibold text-foreground">{c.name}</span>
+                                                                    <span className="text-xs text-muted-foreground">{c.short_form || 'No code'}</span>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <div className="flex items-center text-sm text-muted-foreground">
+                                                                    <MapPin className="h-3.5 w-3.5 mr-1.5" />
+                                                                    {c.location || 'N/A'}
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Badge variant="outline">{c.university_details?.name || 'N/A'}</Badge>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Badge variant={c.product_type === 'campus' ? 'default' : 'secondary'}>
+                                                                    {c.product_type === 'campus' ? 'Campus' : 'Assessments'}
                                                                 </Badge>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-xs text-muted-foreground italic">None</span>
-                                                        )}
-                                                        {college.departments && college.departments.length > 3 && (
-                                                            <Badge variant="outline" className="text-[10px] text-muted-foreground bg-muted">
-                                                                +{college.departments.length - 3}
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex flex-col gap-1.5">
-                                                        <div className="flex items-center gap-1.5 text-xs">
-                                                            {college.is_aicte_approved ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : <XCircle className="h-3.5 w-3.5 text-muted-foreground/40" />}
-                                                            <span className={college.is_aicte_approved ? 'font-medium' : 'text-muted-foreground'}>AICTE</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-xs">
-                                                            {college.is_ugc_approved ? <CheckCircle2 className="h-3.5 w-3.5 text-blue-500" /> : <XCircle className="h-3.5 w-3.5 text-muted-foreground/40" />}
-                                                            <span className={college.is_ugc_approved ? 'font-medium' : 'text-muted-foreground'}>UGC</span>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-1">
-                                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); openEdit(college); }}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteId(college.id); }}>
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
-                                            <TableRow>
-                                                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                                                    {hasActiveFilters ? 'No colleges match your filters.' : 'No colleges added yet. Click "Add College" to get started.'}
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
+                                                            </TableCell>
+                                                            <TableCell className="capitalize">{c.college_type}</TableCell>
+                                                            <TableCell className="text-right" onClick={e => e.stopPropagation()}>
+                                                                <div className="flex justify-end gap-1">
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(c)}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(c.id)}>
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value="universities">
+                                <Card className="mb-6">
+                                    <CardContent className="p-4">
+                                        <div className="flex flex-col md:flex-row gap-4 items-center">
+                                            <div className="relative flex-1">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input
+                                                    placeholder="Search universities by name, code, or location..."
+                                                    value={uniSearchQuery}
+                                                    onChange={(e) => setUniSearchQuery(e.target.value)}
+                                                    className="pl-10"
+                                                />
+                                            </div>
+                                            {uniSearchQuery && (
+                                                <Button variant="ghost" size="sm" onClick={() => setUniSearchQuery('')}>
+                                                    Clear Filters
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Badge variant="secondary" className="px-2 py-0.5 font-medium">
+                                                {filteredUniversities.length} {filteredUniversities.length === 1 ? 'university' : 'universities'}
+                                            </Badge>
+                                            {uniSearchQuery && <span className="text-xs text-muted-foreground">Filtered results</span>}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+
+                                <Card>
+                                    <CardContent className="p-0">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[300px]">University Name</TableHead>
+                                                    <TableHead>Short Form</TableHead>
+                                                    <TableHead>Location</TableHead>
+                                                    <TableHead className="text-center">Colleges</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {loadingUniversities ? (
+                                                    Array.from({ length: 5 }).map((_, i) => (
+                                                        <TableRow key={i}>
+                                                            <TableCell colSpan={4} className="h-16 animate-pulse bg-muted/20" />
+                                                        </TableRow>
+                                                    ))
+                                                ) : filteredUniversities.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                                                            {uniSearchQuery ? "No universities match your search criteria." : "No universities found. Add one to get started."}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    filteredUniversities.map(u => (
+                                                        <TableRow key={u.id}>
+                                                            <TableCell className="font-medium">{u.name}</TableCell>
+                                                            <TableCell>{u.short_form || 'N/A'}</TableCell>
+                                                            <TableCell>{u.location || 'N/A'}</TableCell>
+                                                            <TableCell className="text-center">
+                                                                <Badge variant="secondary" className="font-semibold">
+                                                                    {u.college_count || 0}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-right">
+                                                                <div className="flex justify-end gap-1">
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                                                                        setEditingUniId(u.id);
+                                                                        setUniForm({
+                                                                            name: u.name,
+                                                                            short_form: u.short_form || "",
+                                                                            location: u.location || ""
+                                                                        });
+                                                                        setUniDialogOpen(true);
+                                                                    }}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setUniDeleteId(u.id)}>
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+
+                        </Tabs>
                     </main>
                 </div>
             </div>
@@ -333,7 +497,7 @@ const CollegePage = () => {
                         <DialogDescription>Provide the institutional identity and core details.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        
+
                         <div className="space-y-4">
                             <h4 className="text-sm font-semibold text-muted-foreground border-b pb-1">Core Identity</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -343,7 +507,7 @@ const CollegePage = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Short Code</Label>
-                                    <Input value={form.short_form} onChange={e => updateForm('short_form', e.target.value)} placeholder="e.g. SU" className="uppercase" />
+                                    <Input value={form.short_form} onChange={e => updateForm('short_form', e.target.value)} placeholder="e.g. SU" className=" " />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Location</Label>
@@ -360,6 +524,15 @@ const CollegePage = () => {
                             <h4 className="text-sm font-semibold text-muted-foreground border-b pb-1">Institutional Setup</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
+                                    <Label>Product Subscription <span className="text-destructive">*</span></Label>
+                                    <Select value={form.product_type} onValueChange={v => updateForm('product_type', v as any)}>
+                                        <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
+                                        <SelectContent>
+                                            {PRODUCT_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
                                     <Label>Institution Type</Label>
                                     <Select value={form.college_type} onValueChange={v => updateForm('college_type', v)}>
                                         <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
@@ -369,16 +542,21 @@ const CollegePage = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>University Affiliation</Label>
-                                    <Select value={form.affiliated_university} onValueChange={v => updateForm('affiliated_university', v)}>
-                                        <SelectTrigger><SelectValue placeholder="Select Affiliation" /></SelectTrigger>
+                                    <Label htmlFor="university">Affiliated University</Label>
+                                    <Select value={form.university?.toString()} onValueChange={v => updateForm('university', v)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select University" />
+                                        </SelectTrigger>
                                         <SelectContent>
-                                            {UNIVERSITIES.map(u => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                                            {universities.map(u => (
+                                                <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
+                                            ))}
+                                            {universities.length === 0 && <SelectItem value="none" disabled>No universities added</SelectItem>}
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                            
+
                             <div className="flex flex-col sm:flex-row gap-4 pt-2">
                                 <div className="flex items-center space-x-3 bg-muted/50 p-3 rounded-lg border flex-1">
                                     <Checkbox
@@ -414,6 +592,76 @@ const CollegePage = () => {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {/* University Dialog */}
+            <Dialog open={uniDialogOpen} onOpenChange={setUniDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingUniId ? 'Edit University' : 'Add New University'}</DialogTitle>
+                        <DialogDescription>
+                            Configure university details for college affiliations.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={saveUniversity}>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="uni-name">University Name</Label>
+                                <Input
+                                    id="uni-name"
+                                    value={uniForm.name}
+                                    onChange={e => setUniForm({ ...uniForm, name: e.target.value })}
+                                    placeholder="e.g. Jawaharlal Nehru Technological University"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="uni-short">Short Form</Label>
+                                    <Input
+                                        id="uni-short"
+                                        value={uniForm.short_form}
+                                        onChange={e => setUniForm({ ...uniForm, short_form: e.target.value })}
+                                        placeholder="e.g. JNTU"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="uni-location">Location</Label>
+                                    <Input
+                                        id="uni-location"
+                                        value={uniForm.location}
+                                        onChange={e => setUniForm({ ...uniForm, location: e.target.value })}
+                                        placeholder="e.g. Hyderabad"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setUniDialogOpen(false)}>Cancel</Button>
+                            <Button type="submit" disabled={saving}>
+                                {saving ? 'Saving...' : (editingUniId ? 'Update' : 'Create')}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Uni Dialog */}
+            <AlertDialog open={!!uniDeleteId} onOpenChange={(open) => !open && setUniDeleteId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently delete this university. Colleges affiliated with it will have their affiliation cleared.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDeleteUni} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Delete University
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
 
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>

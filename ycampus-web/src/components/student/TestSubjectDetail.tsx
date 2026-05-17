@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,14 +50,14 @@ interface Course {
 // Subject problems data organized by unit
 // Mock data removed.
 
-const UnitSidebar = ({ 
-  units, 
-  selectedUnit, 
+const UnitSidebar = ({
+  units,
+  selectedUnit,
   onUnitSelect,
   subjectName
-}: { 
-  units: UnitWithSubUnits[]; 
-  selectedUnit: string | null; 
+}: {
+  units: UnitWithSubUnits[];
+  selectedUnit: string | null;
   onUnitSelect: (unitId: string) => void;
   subjectName: string;
 }) => {
@@ -78,13 +79,13 @@ const UnitSidebar = ({
             </div>
           </div>
         )}
-        
+
         <div className="px-4 py-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <h3 className="text-xs font-semibold text-muted-foreground   tracking-wider">
             {open ? 'TOPICS' : ''}
           </h3>
         </div>
-        
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -146,7 +147,12 @@ const UnitSidebar = ({
 const TestSubjectDetail = () => {
   const { subject, id, subjectId } = useParams<{ subject?: string; id?: string; subjectId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+
+  const isSkillTest = location.pathname.includes('skill-test');
+  const baseUrl = isSkillTest ? "/student/skill-test" : "/student/test";
+
   const [testsLoading, setTestsLoading] = useState(false);
   const [unitsLoading, setUnitsLoading] = useState(false);
   const [units, setUnits] = useState<UnitWithSubUnits[]>([]);
@@ -210,7 +216,7 @@ const TestSubjectDetail = () => {
   }, [subjectName]);
 
   // Filter problems by selected unit
-  const problems = selectedUnit 
+  const problems = selectedUnit
     ? allTests.filter(p => String(p.unit) === selectedUnit)
     : [];
 
@@ -219,8 +225,9 @@ const TestSubjectDetail = () => {
 
 
   const handleBackToTest = () => {
-    navigate('/student/test');
+    navigate(baseUrl);
   };
+
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);
@@ -399,74 +406,74 @@ const TestSubjectDetail = () => {
                   };
 
                   return (
-                  <Card
-                    key={problem.id}
-                    className="hover:shadow-lg transition-all duration-300 group overflow-hidden border-border bg-card"
-                  >
-                    <div className={`h-2 bg-gradient-to-r ${getTriColorGradient()}`} />
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="group-hover:text-primary transition-colors text-base leading-tight">
-                          {problem.title}
-                        </CardTitle>
-                        <Badge variant={
-                          problem.difficulty === 'easy' ? 'secondary' :
-                          problem.difficulty === 'medium' ? 'default' : 'destructive'
-                        } className="shrink-0 capitalize">
-                          {problem.difficulty}
-                        </Badge>
-                      </div>
-                      {(problem.description || problem.instructions) && (
-                        <CardDescription className="line-clamp-2">{problem.description || problem.instructions}</CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>{problem.duration} min</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <CheckCircle className="h-3.5 w-3.5" />
-                            <span>{problem.total_questions || 0} questions</span>
-                          </div>
+                    <Card
+                      key={problem.id}
+                      className="hover:shadow-lg transition-all duration-300 group overflow-hidden border-border bg-card"
+                    >
+                      <div className={`h-2 bg-gradient-to-r ${getTriColorGradient()}`} />
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="group-hover:text-primary transition-colors text-base leading-tight">
+                            {problem.title}
+                          </CardTitle>
+                          <Badge variant={
+                            problem.difficulty === 'easy' ? 'secondary' :
+                              problem.difficulty === 'medium' ? 'default' : 'destructive'
+                          } className="shrink-0 capitalize">
+                            {problem.difficulty}
+                          </Badge>
                         </div>
+                        {(problem.description || problem.instructions) && (
+                          <CardDescription className="line-clamp-2">{problem.description || problem.instructions}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" />
+                              <span>{problem.duration} min</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <CheckCircle className="h-3.5 w-3.5" />
+                              <span>{problem.total_questions || 0} questions</span>
+                            </div>
+                          </div>
 
-                        <Button
-                          className={`w-full bg-gradient-to-r ${getTriColorGradient()} hover:opacity-90 border-0 text-white font-semibold`}
-                          onClick={() => {
-                            const topicData: Topic = {
-                              id: problem.id,
-                              name: problem.title,
-                              duration: problem.duration,
-                              questions: problem.total_questions || 0,
-                              totalMarks: problem.total_marks || 0,
-                              difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
-                            };
+                          <Button
+                            className={`w-full bg-gradient-to-r ${getTriColorGradient()} hover:opacity-90 border-0 text-white font-semibold`}
+                            onClick={() => {
+                              const topicData: Topic = {
+                                id: problem.id,
+                                name: problem.title,
+                                duration: problem.duration,
+                                questions: problem.total_questions || 0,
+                                totalMarks: problem.total_marks || 0,
+                                difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
+                              };
 
-                            if (completedTests.has(problem.id)) {
-                              handleViewResults(problem);
-                            } else {
-                              handleTopicSelect(topicData);
-                            }
-                          }}
-                        >
-                          {completedTests.has(problem.id) ? (
-                            <>
-                              <BarChart3 className="mr-2 h-4 w-4" />
-                              View Results
-                            </>
-                          ) : (
-                            <>
-                              <Play className="mr-2 h-4 w-4" />
-                              Start Test
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                              if (completedTests.has(problem.id)) {
+                                handleViewResults(problem);
+                              } else {
+                                handleTopicSelect(topicData);
+                              }
+                            }}
+                          >
+                            {completedTests.has(problem.id) ? (
+                              <>
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                View Results
+                              </>
+                            ) : (
+                              <>
+                                <Play className="mr-2 h-4 w-4" />
+                                Start Test
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>

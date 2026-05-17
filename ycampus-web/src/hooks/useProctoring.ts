@@ -228,6 +228,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
         let isActive = true;
         let intervalId: NodeJS.Timeout;
         const video = document.createElement('video');
+        video.muted = true; // Essential to prevent audio feedback/repeating sound
         const canvas = document.createElement('canvas');
 
         const takeAndUploadSnapshot = async (currentStream: MediaStream) => {

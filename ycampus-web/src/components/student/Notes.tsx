@@ -1,34 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  SquareFunction, Atom,
-  BookOpen, Code, Database, Globe, Cpu, Layers, 
-  FlaskConical, BookMarked, PenLine, Sigma, 
-  Pencil, Binary, BrainCircuit 
-} from 'lucide-react';
+import { BookMarked } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import { toast } from 'sonner';
 import PageHeader from '@/components/common/PageHeader';
-
-function getSubjectIcon(name: string) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('calculus') || n.includes('matrices') || n.includes('math')) return Sigma;
-  if (n.includes('python') || n.includes('java') || n.includes('programming') || n.includes('problem solving')) return Code;
-  if (n.includes('data') || n.includes('sql') || n.includes('database')) return Database;
-  if (n.includes('physics')) return Atom;
-  if (n.includes('chemistry')) return FlaskConical;
-  if (n.includes('network') || n.includes('web') || n.includes('internet')) return Globe;
-  if (n.includes('os') || n.includes('operating') || n.includes('computer')) return Cpu;
-  if (n.includes('structure') || n.includes('algorithm') || n.includes('dsa')) return Layers;
-  if (n.includes('english') || n.includes('communication')) return PenLine;
-  if (n.includes('drawing') || n.includes('cad') || n.includes('design')) return Pencil;
-  if (n.includes('digital') || n.includes('logic') || n.includes('circuit')) return Binary;
-  if (n.includes('ai') || n.includes('machine') || n.includes('deep')) return BrainCircuit;
-  if (n.includes('algebra') || n.includes('linear') || n.includes('discrete')) return SquareFunction;
-  return BookOpen;
-}
+import { getSubjectIconComponent } from '@/utils/subjectIcon';
 
 const Notes = () => {
   const navigate = useNavigate();
@@ -43,7 +21,12 @@ const Notes = () => {
         return;
       }
       try {
-        const data = await fetchSubjectsByCollege(user.college_id);
+        let data = await fetchSubjectsByCollege(user.college_id);
+        if (user.college_product_type) {
+            data = data.filter(s => s.product_type === user.college_product_type);
+        }
+        // Sort subjects alphabetically
+        data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);
       } catch (error) {
         console.error("Failed to load subjects:", error);
@@ -79,7 +62,7 @@ const Notes = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {subjects.map((subject) => {
-            const Icon = getSubjectIcon(subject.subject_name);
+            const Icon = getSubjectIconComponent(subject.subject_name);
             return (
               <Card
                 key={subject.id}
