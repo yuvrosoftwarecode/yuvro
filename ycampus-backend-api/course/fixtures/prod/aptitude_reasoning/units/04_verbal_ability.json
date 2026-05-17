@@ -1476,7 +1476,7 @@
         {
             "type": "mcq_single",
             "title": "AI Product Launch",
-            "content": "Arrange the following in a meaningful order:\n\nA. Customers praised the chatbot’s accuracy.\nB. Developers spent months training the AI model.\nC. Initial testing revealed multiple flaws.\nD. The product was finally launched globally.",
+            "content": "Arrange the following in a meaningful order:\n\nA. Customers praised the chatbot\u2019s accuracy.\nB. Developers spent months training the AI model.\nC. Initial testing revealed multiple flaws.\nD. The product was finally launched globally.",
             "level": "subtopic",
             "unit_name": "Verbal Ability",
             "subunit_name": "Para Jumbles",
@@ -2530,7 +2530,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Advanced Workplace Grammar",
             "content": "Choose the words that correctly complete the sentence:\n\n'No sooner ______ the announcement made than employees started discussing the merger.'",
             "level": "subtopic",
@@ -3586,7 +3586,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Grammar Accuracy - Workplace",
             "content": "Select all parts that contain grammatical errors:\n\n(A) The manager as well as the employees\n(B) were invited\n(C) to attend the conference\n(D) next Monday.",
             "level": "subtopic",
@@ -3618,7 +3618,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Office Email Error",
             "content": "Select the incorrect parts:\n\n(A) One of the interns\n(B) have forgotten\n(C) to upload the assignment\n(D) on the portal.",
             "level": "subtopic",
@@ -3650,7 +3650,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Business Communication",
             "content": "Select the parts with errors:\n\n(A) The sales figures\n(B) clearly indicates\n(C) that the campaign\n(D) was successful.",
             "level": "subtopic",
@@ -3682,7 +3682,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Software Deployment Mail",
             "content": "Select all erroneous parts:\n\n(A) The application crashed\n(B) because the servers\n(C) was not configured properly\n(D) before deployment.",
             "level": "subtopic",
@@ -3714,7 +3714,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Advanced Corporate Grammar",
             "content": "Select the incorrect parts:\n\n(A) Neither the directors\n(B) nor the CEO\n(C) were willing\n(D) to accept responsibility.",
             "level": "subtopic",
@@ -3746,7 +3746,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Professional Writing",
             "content": "Select all parts with errors:\n\n(A) The consultant suggested\n(B) to reduce unnecessary expenses\n(C) in order to improve\n(D) overall profitability.",
             "level": "subtopic",
@@ -3778,7 +3778,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Tech Industry Communication",
             "content": "Identify the incorrect parts:\n\n(A) The developers have completed\n(B) the module successfully\n(C) despite of facing\n(D) multiple technical issues.",
             "level": "subtopic",
@@ -3810,7 +3810,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Executive Announcement",
             "content": "Select all parts containing errors:\n\n(A) Hardly had the company launched\n(B) the new product\n(C) than customer complaints\n(D) started increasing rapidly.",
             "level": "subtopic",
@@ -3842,7 +3842,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Advanced Business English",
             "content": "Select the erroneous parts:\n\n(A) The CEO emphasized\n(B) that every employee\n(C) must follows the updated guidelines\n(D) without exception.",
             "level": "subtopic",
@@ -3874,7 +3874,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Formal Communication Accuracy",
             "content": "Select all parts with grammatical errors:\n\n(A) No sooner the presentation ended\n(B) than the investors\n(C) started asking difficult questions\n(D) regarding the proposal.",
             "level": "subtopic",
@@ -5090,7 +5090,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Executive-Level Grammar",
             "content": "Select correct passive forms: The board will finalize decisions.",
             "level": "subtopic",
@@ -5122,7 +5122,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Advanced Business Voice",
             "content": "Select correct passive forms: The company has launched products.",
             "level": "subtopic",
@@ -5154,7 +5154,7 @@
             ]
         },
         {
-            "type": "mcq_multiple",
+            "type": "mcq_single",
             "title": "Complex Sentence Conversion",
             "content": "Select correct passive forms: They had completed the analysis.",
             "level": "subtopic",

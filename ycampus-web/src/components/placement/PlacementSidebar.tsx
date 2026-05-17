@@ -7,7 +7,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { LayoutDashboard, ClipboardCheck, Briefcase, Users, BarChart3, Building2, CalendarDays, Bell, Settings, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, FileText, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, Briefcase, Users, BarChart3, Building2, CalendarDays, Bell, Settings, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, FileText, ChevronDown, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge as BadgeUI } from '@/components/ui/badge';
@@ -18,7 +18,7 @@ import knowledgeTree from '@/assets/knowledge-tree.png';
 import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 
-const menuItems = [
+const campusPlacementMenuItems = [
   { title: 'Dashboard',             url: '/placement/dashboard',   icon: LayoutDashboard },
   { title: 'PRI Report',            url: '/placement/pri-report',  icon: FileText },
   // Job Management dropdown renders here (see JSX below)
@@ -115,72 +115,95 @@ const PlacementSidebar = () => {
           <SidebarGroupLabel className="text-[11px]   tracking-wider text-muted-foreground/70 px-5">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Top items: Dashboard + PRI Report */}
-              {menuItems.slice(0, 2).map((item) => {
-                const isActive = location.pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
+              {isAssessments ? (
+                menuItems.map((item) => {
+                  const isActive = location.pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        onClick={() => navigate(item.url)}
+                        isActive={isActive}
+                        className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span className="flex-1">{item.title}</span>
+                        {item.title === 'Announcements' && unreadCount > 0 && (
+                          <BadgeUI className="h-5 min-w-5 text-[10px] bg-destructive text-destructive-foreground px-1.5">{unreadCount}</BadgeUI>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })
+              ) : (
+                <>
+                  {/* Top items: Dashboard + PRI Report */}
+                  {menuItems.slice(0, 2).map((item) => {
+                    const isActive = location.pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          onClick={() => navigate(item.url)}
+                          isActive={isActive}
+                          className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="flex-1">{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+
+                  {/* Job Management Dropdown – sits after PRI Report */}
+                  <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => navigate(item.url)}
-                      isActive={isActive}
-                      className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                      onClick={() => setJobMgmtOpen(!jobMgmtOpen)}
+                      isActive={isJobMgmtActive}
+                      className={`justify-between ${isJobMgmtActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span className="flex-1">{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-
-              {/* Job Management Dropdown – sits after PRI Report */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setJobMgmtOpen(!jobMgmtOpen)}
-                  isActive={isJobMgmtActive}
-                  className={`justify-between ${isJobMgmtActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <span className="flex items-center gap-2">
-                    <ClipboardCheck className="h-4 w-4" />
-                    <span className="flex-1">Job Management</span>
-                  </span>
-                  {!isCollapsed && (
-                    <ChevronDown className={`h-4 w-4 transition-transform ${jobMgmtOpen ? 'rotate-180' : ''}`} />
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {jobMgmtOpen && !isCollapsed && jobMgmtSubItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => navigate(item.url)}
-                    isActive={location.pathname === item.url}
-                    className={`pl-8 ${location.pathname === item.url ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span className="text-sm">{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-
-              {/* Remaining items: Offer Tracking → Settings */}
-              {menuItems.slice(2).map((item) => {
-                const isActive = location.pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      onClick={() => navigate(item.url)}
-                      isActive={isActive}
-                      className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span className="flex-1">{item.title}</span>
-                      {item.title === 'Notifications' && unreadCount > 0 && (
-                        <BadgeUI className="h-5 min-w-5 text-[10px] bg-destructive text-destructive-foreground px-1.5">{unreadCount}</BadgeUI>
+                      <span className="flex items-center gap-2">
+                        <ClipboardCheck className="h-4 w-4" />
+                        <span className="flex-1">Job Management</span>
+                      </span>
+                      {!isCollapsed && (
+                        <ChevronDown className={`h-4 w-4 transition-transform ${jobMgmtOpen ? 'rotate-180' : ''}`} />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                );
-              })}
+
+                  {jobMgmtOpen && !isCollapsed && jobMgmtSubItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        onClick={() => navigate(item.url)}
+                        isActive={location.pathname === item.url}
+                        className={`pl-8 ${location.pathname === item.url ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span className="text-sm">{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+
+                  {/* Remaining items: Offer Tracking → Settings */}
+                  {menuItems.slice(2).map((item) => {
+                    const isActive = location.pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          onClick={() => navigate(item.url)}
+                          isActive={isActive}
+                          className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="flex-1">{item.title}</span>
+                          {item.title === 'Notifications' && unreadCount > 0 && (
+                            <BadgeUI className="h-5 min-w-5 text-[10px] bg-destructive text-destructive-foreground px-1.5">{unreadCount}</BadgeUI>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

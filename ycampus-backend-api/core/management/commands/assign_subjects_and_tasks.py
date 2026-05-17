@@ -61,6 +61,9 @@ class Command(BaseCommand):
             campus_subjects = [s for s in subjects if getattr(s, 'product_type', 'campus') == getattr(college, 'product_type', 'campus')]
             shuffled_subjects = campus_subjects[:]
             random.shuffle(shuffled_subjects)
+            
+            if not shuffled_subjects:
+                continue
 
             for s_idx, subject in enumerate(shuffled_subjects):
                 # Ensure SemesterSubject exists

@@ -261,11 +261,15 @@ class SubUnitSerializer(serializers.ModelSerializer):
             return False
         
         section_id = self.context.get("section_id")
-        if not section_id and request.user.role == "student":
+        
+        if request.user.role == "student":
             from core.models import StudentProfile
-            profile = StudentProfile.objects.filter(user=request.user).first()
+            profile = StudentProfile.objects.filter(user=request.user).select_related('college').first()
             if profile:
-                section_id = profile.section_id
+                if profile.college and profile.college.product_type == 'assessments':
+                    return True
+                if not section_id:
+                    section_id = profile.section_id
         
         if not section_id:
             return False

@@ -4,7 +4,7 @@
             "short_code": "JS100",
             "subject_name": "Javascript",
             "category": "fundamentals",
-            "instructor_email": "[EMAIL_ADDRESS]"
+            "product_type": "assessments"
         }
     ]
 }
