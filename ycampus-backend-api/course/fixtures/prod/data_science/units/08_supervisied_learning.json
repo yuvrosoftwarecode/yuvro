@@ -1,0 +1,3759 @@
+{
+  "name": "Supervised Learning",
+  "subject_short_code": "DS100",
+  "order_index": 8,
+  "sub_units": [
+    {
+      "name": "Linear Regression",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Linear Regression",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Regression",
+          "ai_context": "Detailed overview and key concepts of Linear Regression"
+        },
+        {
+          "title": "Linear Regression",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Regression",
+          "ai_context": "Detailed overview and key concepts of Linear Regression"
+        }
+      ]
+    },
+    {
+      "name": "Logistic Regression",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Logistic Regression",
+          "video_link": "https://www.youtube.com/results?search_query=Logistic%20Regression",
+          "ai_context": "Detailed overview and key concepts of Logistic Regression"
+        },
+        {
+          "title": "Logistic Regression",
+          "video_link": "https://www.youtube.com/results?search_query=Logistic%20Regression",
+          "ai_context": "Detailed overview and key concepts of Logistic Regression"
+        }
+      ]
+    },
+    {
+      "name": "Decision Trees",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Decision Trees",
+          "video_link": "https://www.youtube.com/results?search_query=Decision%20Trees",
+          "ai_context": "Detailed overview and key concepts of Decision Trees"
+        },
+        {
+          "title": "Decision Trees",
+          "video_link": "https://www.youtube.com/results?search_query=Decision%20Trees",
+          "ai_context": "Detailed overview and key concepts of Decision Trees"
+        }
+      ]
+    },
+    {
+      "name": "Random Forest",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Random Forest",
+          "video_link": "https://www.youtube.com/results?search_query=Random%20Forest",
+          "ai_context": "Detailed overview and key concepts of Random Forest"
+        },
+        {
+          "title": "Random Forest",
+          "video_link": "https://www.youtube.com/results?search_query=Random%20Forest",
+          "ai_context": "Detailed overview and key concepts of Random Forest"
+        }
+      ]
+    },
+    {
+      "name": "K-Nearest Neighbors (KNN)",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "K-Nearest Neighbors (KNN)",
+          "video_link": "https://www.youtube.com/results?search_query=K-Nearest%20Neighbors%20%28KNN%29",
+          "ai_context": "Detailed overview and key concepts of K-Nearest Neighbors (KNN)"
+        },
+        {
+          "title": "K-Nearest Neighbors (KNN)",
+          "video_link": "https://www.youtube.com/results?search_query=K-Nearest%20Neighbors%20%28KNN%29",
+          "ai_context": "Detailed overview and key concepts of K-Nearest Neighbors (KNN)"
+        }
+      ]
+    },
+    {
+      "name": "Support Vector Machines (SVM)",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 5,
+      "videos": [
+        {
+          "title": "Support Vector Machines (SVM)",
+          "video_link": "https://www.youtube.com/results?search_query=Support%20Vector%20Machines%20%28SVM%29",
+          "ai_context": "Detailed overview and key concepts of Support Vector Machines (SVM)"
+        },
+        {
+          "title": "Support Vector Machines (SVM)",
+          "video_link": "https://www.youtube.com/results?search_query=Support%20Vector%20Machines%20%28SVM%29",
+          "ai_context": "Detailed overview and key concepts of Support Vector Machines (SVM)"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Regression",
+      "content": "What is the primary goal of regression in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predict continuous values",
+          "is_correct": true
+        },
+        {
+          "text": "Group similar records",
+          "is_correct": false
+        },
+        {
+          "text": "Find hidden clusters",
+          "is_correct": false
+        },
+        {
+          "text": "Encode categorical data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Simple Linear Regression",
+      "content": "Simple linear regression uses how many independent variables?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One",
+          "is_correct": true
+        },
+        {
+          "text": "Two",
+          "is_correct": false
+        },
+        {
+          "text": "Three",
+          "is_correct": false
+        },
+        {
+          "text": "Unlimited only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple Linear Regression",
+      "content": "Multiple linear regression differs from simple linear regression because it uses:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple input features",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple target values",
+          "is_correct": false
+        },
+        {
+          "text": "No independent variables",
+          "is_correct": false
+        },
+        {
+          "text": "Only categorical values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Line of Best Fit",
+      "content": "The line of best fit attempts to:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Minimize prediction errors",
+          "is_correct": true
+        },
+        {
+          "text": "Remove outliers",
+          "is_correct": false
+        },
+        {
+          "text": "Delete unnecessary rows",
+          "is_correct": false
+        },
+        {
+          "text": "Normalize data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Descent Purpose",
+      "content": "Gradient descent is mainly used to:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Minimize the cost function",
+          "is_correct": true
+        },
+        {
+          "text": "Increase training data",
+          "is_correct": false
+        },
+        {
+          "text": "Remove features",
+          "is_correct": false
+        },
+        {
+          "text": "Generate labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Scikit-learn Model Training",
+      "content": "Which Scikit-learn class is commonly used for linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LinearRegression",
+          "is_correct": true
+        },
+        {
+          "text": "DecisionTreeClassifier",
+          "is_correct": false
+        },
+        {
+          "text": "KMeans",
+          "is_correct": false
+        },
+        {
+          "text": "LabelEncoder",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cost Function Intuition",
+      "content": "What is the purpose of a cost function in linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Measure prediction error",
+          "is_correct": true
+        },
+        {
+          "text": "Increase feature count",
+          "is_correct": false
+        },
+        {
+          "text": "Store datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Generate labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Regression Evaluation Metric",
+      "content": "Which metric is commonly used to evaluate regression models?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean Squared Error (MSE)",
+          "is_correct": true
+        },
+        {
+          "text": "Precision",
+          "is_correct": false
+        },
+        {
+          "text": "Recall",
+          "is_correct": false
+        },
+        {
+          "text": "ROC Curve",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear Regression Assumption",
+      "content": "Which assumption is important in linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A linear relationship between variables",
+          "is_correct": true
+        },
+        {
+          "text": "All features must be categorical",
+          "is_correct": false
+        },
+        {
+          "text": "Target values must be text",
+          "is_correct": false
+        },
+        {
+          "text": "No numerical values allowed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Regression Use Case",
+      "content": "Predicting house prices based on area and location is an example of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Linear regression application",
+          "is_correct": true
+        },
+        {
+          "text": "Clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Association rule mining",
+          "is_correct": false
+        },
+        {
+          "text": "Image segmentation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Descent Learning Scenario",
+      "content": "If the learning rate in gradient descent is extremely high, what may happen?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The model may overshoot and fail to converge",
+          "is_correct": true
+        },
+        {
+          "text": "Training always becomes more accurate",
+          "is_correct": false
+        },
+        {
+          "text": "The cost instantly becomes zero",
+          "is_correct": false
+        },
+        {
+          "text": "The model removes features automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Classification",
+      "content": "What is the main goal of classification in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predict categories or class labels",
+          "is_correct": true
+        },
+        {
+          "text": "Predict continuous values",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce file size",
+          "is_correct": false
+        },
+        {
+          "text": "Group unlabeled data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sigmoid Function Output",
+      "content": "What range of values does the sigmoid function produce?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0 to 1",
+          "is_correct": true
+        },
+        {
+          "text": "-1 to 1",
+          "is_correct": false
+        },
+        {
+          "text": "1 to 100",
+          "is_correct": false
+        },
+        {
+          "text": "-100 to 100",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Binary Classification Meaning",
+      "content": "Binary classification involves:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Two possible output classes",
+          "is_correct": true
+        },
+        {
+          "text": "Unlimited classes",
+          "is_correct": false
+        },
+        {
+          "text": "No output labels",
+          "is_correct": false
+        },
+        {
+          "text": "Only numerical targets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Probability Interpretation",
+      "content": "In logistic regression, output probabilities represent:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Likelihood of belonging to a class",
+          "is_correct": true
+        },
+        {
+          "text": "Distance between records",
+          "is_correct": false
+        },
+        {
+          "text": "Training speed",
+          "is_correct": false
+        },
+        {
+          "text": "Number of features",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decision Boundary Purpose",
+      "content": "A decision boundary is used to:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Separate different classes",
+          "is_correct": true
+        },
+        {
+          "text": "Remove missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce file size",
+          "is_correct": false
+        },
+        {
+          "text": "Normalize data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Implementation Tool",
+      "content": "Which Scikit-learn class is commonly used for logistic regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LogisticRegression",
+          "is_correct": true
+        },
+        {
+          "text": "LinearRegression",
+          "is_correct": false
+        },
+        {
+          "text": "KMeans",
+          "is_correct": false
+        },
+        {
+          "text": "LabelEncoder",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Logistic Regression Workflow",
+      "content": "Which step usually comes before model training in a logistic regression workflow?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Model deletion",
+          "is_correct": false
+        },
+        {
+          "text": "File compression",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Classification Metric Selection",
+      "content": "Which metric balances precision and recall?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "F1-score",
+          "is_correct": true
+        },
+        {
+          "text": "MSE",
+          "is_correct": false
+        },
+        {
+          "text": "R-squared",
+          "is_correct": false
+        },
+        {
+          "text": "RMSE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decision Threshold",
+      "content": "If the prediction probability threshold is 0.5, predictions above 0.5 are generally classified as:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Positive class",
+          "is_correct": true
+        },
+        {
+          "text": "Negative class",
+          "is_correct": false
+        },
+        {
+          "text": "Missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Outliers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Classification Use Case",
+      "content": "Predicting whether a transaction is fraudulent or not is an example of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Binary classification",
+          "is_correct": true
+        },
+        {
+          "text": "Regression",
+          "is_correct": false
+        },
+        {
+          "text": "Clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sigmoid Function Scenario",
+      "content": "A logistic regression model predicts a probability of 0.92 for a customer purchasing a product. What does this indicate?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "There is a high likelihood that the customer belongs to the positive class",
+          "is_correct": true
+        },
+        {
+          "text": "The prediction is incorrect",
+          "is_correct": false
+        },
+        {
+          "text": "The customer belongs to multiple classes",
+          "is_correct": false
+        },
+        {
+          "text": "The model cannot classify the customer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Decision Trees",
+      "content": "What is the primary purpose of a decision tree model?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Make predictions using a tree-like structure",
+          "is_correct": true
+        },
+        {
+          "text": "Store files in folders",
+          "is_correct": false
+        },
+        {
+          "text": "Encode categorical values",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce image size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Root Node Meaning",
+      "content": "What is the root node in a decision tree?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The first node where splitting begins",
+          "is_correct": true
+        },
+        {
+          "text": "The last prediction node",
+          "is_correct": false
+        },
+        {
+          "text": "A duplicate node",
+          "is_correct": false
+        },
+        {
+          "text": "A missing value node",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Leaf Node Purpose",
+      "content": "Leaf nodes in a decision tree usually represent:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Final predictions or outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Input features",
+          "is_correct": false
+        },
+        {
+          "text": "Training datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate branches",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Branches in Trees",
+      "content": "Branches in a decision tree represent:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Decision paths between nodes",
+          "is_correct": true
+        },
+        {
+          "text": "Target variables only",
+          "is_correct": false
+        },
+        {
+          "text": "Dataset rows",
+          "is_correct": false
+        },
+        {
+          "text": "Programming errors",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gini Impurity Purpose",
+      "content": "Gini impurity is used to:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Measure node impurity",
+          "is_correct": true
+        },
+        {
+          "text": "Calculate prediction speed",
+          "is_correct": false
+        },
+        {
+          "text": "Normalize data",
+          "is_correct": false
+        },
+        {
+          "text": "Find missing values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decision Tree Implementation",
+      "content": "Which Scikit-learn class is commonly used to build a decision tree classifier?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DecisionTreeClassifier",
+          "is_correct": true
+        },
+        {
+          "text": "LinearRegression",
+          "is_correct": false
+        },
+        {
+          "text": "KMeans",
+          "is_correct": false
+        },
+        {
+          "text": "LabelEncoder",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Entropy and Information Gain",
+      "content": "Information gain helps a decision tree:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Select the best feature for splitting",
+          "is_correct": true
+        },
+        {
+          "text": "Increase dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce learning rate",
+          "is_correct": false
+        },
+        {
+          "text": "Remove labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Overfitting in Trees",
+      "content": "A decision tree with many deep branches may suffer from:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Overfitting",
+          "is_correct": true
+        },
+        {
+          "text": "Underfitting",
+          "is_correct": false
+        },
+        {
+          "text": "Feature scaling",
+          "is_correct": false
+        },
+        {
+          "text": "Data duplication",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tree Pruning Basics",
+      "content": "Tree pruning is mainly performed to:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce complexity and overfitting",
+          "is_correct": true
+        },
+        {
+          "text": "Increase the number of branches",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate nodes",
+          "is_correct": false
+        },
+        {
+          "text": "Remove training labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Split Criteria",
+      "content": "Why are Gini impurity and entropy used in decision trees?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To determine the quality of splits",
+          "is_correct": true
+        },
+        {
+          "text": "To normalize features",
+          "is_correct": false
+        },
+        {
+          "text": "To calculate missing values",
+          "is_correct": false
+        },
+        {
+          "text": "To increase training speed only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Decision Tree Use Case",
+      "content": "Loan approval prediction based on customer information is commonly an example of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Decision tree classification",
+          "is_correct": true
+        },
+        {
+          "text": "Clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Association mining",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Ensemble Learning Meaning",
+      "content": "What is ensemble learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combining multiple models to improve performance",
+          "is_correct": true
+        },
+        {
+          "text": "Using a single feature only",
+          "is_correct": false
+        },
+        {
+          "text": "Removing training data",
+          "is_correct": false
+        },
+        {
+          "text": "Encoding categorical values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Bagging Concept",
+      "content": "Bagging in Random Forest stands for:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Bootstrap Aggregating",
+          "is_correct": true
+        },
+        {
+          "text": "Balanced Grouping",
+          "is_correct": false
+        },
+        {
+          "text": "Batch Graphing",
+          "is_correct": false
+        },
+        {
+          "text": "Binary Aggregation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Forest Structure",
+      "content": "Random Forest is made up of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple decision trees",
+          "is_correct": true
+        },
+        {
+          "text": "One neural network",
+          "is_correct": false
+        },
+        {
+          "text": "Single regression line",
+          "is_correct": false
+        },
+        {
+          "text": "One feature only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Feature Selection",
+      "content": "Why does Random Forest use random feature selection?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To make trees more diverse",
+          "is_correct": true
+        },
+        {
+          "text": "To remove all features",
+          "is_correct": false
+        },
+        {
+          "text": "To increase file size",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Importance",
+      "content": "Feature importance in Random Forest helps identify:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Which features contribute most to predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Which rows are duplicated",
+          "is_correct": false
+        },
+        {
+          "text": "The training duration",
+          "is_correct": false
+        },
+        {
+          "text": "The number of labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Implementation",
+      "content": "Which Scikit-learn class is commonly used for Random Forest classification?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "RandomForestClassifier",
+          "is_correct": true
+        },
+        {
+          "text": "LinearRegression",
+          "is_correct": false
+        },
+        {
+          "text": "KMeans",
+          "is_correct": false
+        },
+        {
+          "text": "DecisionBoundary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advantage of Random Forest",
+      "content": "What is a major advantage of Random Forest?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduces overfitting compared to a single decision tree",
+          "is_correct": true
+        },
+        {
+          "text": "Always requires fewer computations",
+          "is_correct": false
+        },
+        {
+          "text": "Works only for regression",
+          "is_correct": false
+        },
+        {
+          "text": "Uses one tree only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hyperparameter Basics",
+      "content": "Which parameter controls the number of trees in a Random Forest?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "n_estimators",
+          "is_correct": true
+        },
+        {
+          "text": "learning_rate",
+          "is_correct": false
+        },
+        {
+          "text": "batch_size",
+          "is_correct": false
+        },
+        {
+          "text": "dropout",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Limitation of Random Forest",
+      "content": "Which is a limitation of Random Forest?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Can be computationally expensive",
+          "is_correct": true
+        },
+        {
+          "text": "Cannot handle multiple features",
+          "is_correct": false
+        },
+        {
+          "text": "Always underfits data",
+          "is_correct": false
+        },
+        {
+          "text": "Cannot work with classification",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Forest Prediction Process",
+      "content": "How does Random Forest usually make a final classification prediction?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By majority voting across trees",
+          "is_correct": true
+        },
+        {
+          "text": "Using only the first tree",
+          "is_correct": false
+        },
+        {
+          "text": "Selecting random labels",
+          "is_correct": false
+        },
+        {
+          "text": "Averaging feature names",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Random Forest Use Case",
+      "content": "Predicting customer churn using many customer attributes is a suitable use case for:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random Forest classification",
+          "is_correct": true
+        },
+        {
+          "text": "K-means clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Principal Component Analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Association rule mining",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Instance-Based Learning",
+      "content": "K-Nearest Neighbors (KNN) is known as:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Instance-based learning",
+          "is_correct": true
+        },
+        {
+          "text": "Rule-based learning",
+          "is_correct": false
+        },
+        {
+          "text": "Deep reinforcement learning",
+          "is_correct": false
+        },
+        {
+          "text": "Feature extraction method",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Distance Metrics Purpose",
+      "content": "Why are distance metrics used in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To find similar neighboring data points",
+          "is_correct": true
+        },
+        {
+          "text": "To remove labels",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce dataset size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Euclidean Distance",
+      "content": "Euclidean distance measures:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Straight-line distance between points",
+          "is_correct": true
+        },
+        {
+          "text": "Prediction accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Training time",
+          "is_correct": false
+        },
+        {
+          "text": "Feature importance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing K Value",
+      "content": "What does the K in KNN represent?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Number of nearest neighbors",
+          "is_correct": true
+        },
+        {
+          "text": "Number of datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Number of classes",
+          "is_correct": false
+        },
+        {
+          "text": "Learning rate value",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "KNN Implementation",
+      "content": "Which Scikit-learn class is commonly used for KNN classification?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "KNeighborsClassifier",
+          "is_correct": true
+        },
+        {
+          "text": "LinearRegression",
+          "is_correct": false
+        },
+        {
+          "text": "DecisionTreeClassifier",
+          "is_correct": false
+        },
+        {
+          "text": "RandomForestRegressor",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world KNN Use Case",
+      "content": "Movie recommendation based on users with similar preferences is an example of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "KNN application",
+          "is_correct": true
+        },
+        {
+          "text": "Linear regression",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction",
+          "is_correct": false
+        },
+        {
+          "text": "Data normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Classification vs Regression in KNN",
+      "content": "How does KNN regression differ from KNN classification?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Regression predicts continuous values while classification predicts categories",
+          "is_correct": true
+        },
+        {
+          "text": "Regression uses labels only",
+          "is_correct": false
+        },
+        {
+          "text": "Classification predicts numerical outputs only",
+          "is_correct": false
+        },
+        {
+          "text": "Regression does not use neighbors",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Effect of Scaling",
+      "content": "Why is feature scaling important in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Distance calculations are sensitive to feature ranges",
+          "is_correct": true
+        },
+        {
+          "text": "Scaling increases class labels",
+          "is_correct": false
+        },
+        {
+          "text": "Scaling removes neighbors",
+          "is_correct": false
+        },
+        {
+          "text": "Scaling creates duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "K Value Selection",
+      "content": "What may happen if K is set too small in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The model may become sensitive to noise and overfit",
+          "is_correct": true
+        },
+        {
+          "text": "The model always underfits",
+          "is_correct": false
+        },
+        {
+          "text": "The model ignores distance",
+          "is_correct": false
+        },
+        {
+          "text": "The dataset becomes smaller",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advantages and Limitations",
+      "content": "What is a major limitation of KNN for large datasets?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Prediction can be computationally expensive",
+          "is_correct": true
+        },
+        {
+          "text": "It cannot use numerical features",
+          "is_correct": false
+        },
+        {
+          "text": "It works only for regression",
+          "is_correct": false
+        },
+        {
+          "text": "It does not use distance metrics",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "KNN Prediction Scenario",
+      "content": "A KNN classifier uses K=5. Among the nearest neighbors, 4 belong to Class A and 1 belongs to Class B. What will be the predicted class?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Class A",
+          "is_correct": true
+        },
+        {
+          "text": "Class B",
+          "is_correct": false
+        },
+        {
+          "text": "Both classes",
+          "is_correct": false
+        },
+        {
+          "text": "Cannot be predicted",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of SVM",
+      "content": "What is the primary goal of Support Vector Machines (SVM)?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Separate classes using an optimal boundary",
+          "is_correct": true
+        },
+        {
+          "text": "Create missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce file size",
+          "is_correct": false
+        },
+        {
+          "text": "Perform clustering only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hyperplane Meaning",
+      "content": "In SVM, a hyperplane is:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A boundary used to separate classes",
+          "is_correct": true
+        },
+        {
+          "text": "A feature scaling method",
+          "is_correct": false
+        },
+        {
+          "text": "A preprocessing step",
+          "is_correct": false
+        },
+        {
+          "text": "A distance metric",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Support Vectors",
+      "content": "Support vectors are:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data points closest to the decision boundary",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "Randomly selected samples",
+          "is_correct": false
+        },
+        {
+          "text": "Features with missing values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Margin Maximization",
+      "content": "Why does SVM maximize the margin?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve generalization performance",
+          "is_correct": true
+        },
+        {
+          "text": "To remove labels",
+          "is_correct": false
+        },
+        {
+          "text": "To increase dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce features",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear vs Non-linear SVM",
+      "content": "Linear SVM is generally used when:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data can be separated with a straight boundary",
+          "is_correct": true
+        },
+        {
+          "text": "Data contains only images",
+          "is_correct": false
+        },
+        {
+          "text": "No labels exist",
+          "is_correct": false
+        },
+        {
+          "text": "The dataset is empty",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "SVM Implementation",
+      "content": "Which Scikit-learn class is commonly used for SVM classification?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SVC",
+          "is_correct": true
+        },
+        {
+          "text": "LinearRegression",
+          "is_correct": false
+        },
+        {
+          "text": "KNeighborsClassifier",
+          "is_correct": false
+        },
+        {
+          "text": "RandomForestRegressor",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Kernel Trick Purpose",
+      "content": "What is the purpose of the kernel trick in SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transform data into a higher-dimensional space",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce the number of rows",
+          "is_correct": false
+        },
+        {
+          "text": "Normalize all features",
+          "is_correct": false
+        },
+        {
+          "text": "Remove labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Types of Kernels",
+      "content": "Which of the following is a commonly used SVM kernel?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Radial Basis Function (RBF)",
+          "is_correct": true
+        },
+        {
+          "text": "Bagging Kernel",
+          "is_correct": false
+        },
+        {
+          "text": "Scaling Kernel",
+          "is_correct": false
+        },
+        {
+          "text": "Random Tree Kernel",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Non-linear SVM Usage",
+      "content": "When is a non-linear SVM generally preferred?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When classes cannot be separated by a straight line",
+          "is_correct": true
+        },
+        {
+          "text": "When there are no features",
+          "is_correct": false
+        },
+        {
+          "text": "When using only regression",
+          "is_correct": false
+        },
+        {
+          "text": "When labels are missing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Support Vector Identification",
+      "content": "Why are support vectors important in SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They determine the position of the decision boundary",
+          "is_correct": true
+        },
+        {
+          "text": "They remove noisy samples",
+          "is_correct": false
+        },
+        {
+          "text": "They normalize datasets",
+          "is_correct": false
+        },
+        {
+          "text": "They generate class labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world SVM Use Case",
+      "content": "Classifying emails as spam or not spam is a common application of:",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SVM classification",
+          "is_correct": true
+        },
+        {
+          "text": "Association rule mining",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction",
+          "is_correct": false
+        },
+        {
+          "text": "Hierarchical clustering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Regression",
+      "content": "Which statements correctly describe regression in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Regression predicts continuous numerical values",
+          "is_correct": true
+        },
+        {
+          "text": "Regression can estimate prices or sales values",
+          "is_correct": true
+        },
+        {
+          "text": "Regression is mainly used for clustering tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Linear regression is a supervised learning algorithm",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Simple vs Multiple Linear Regression",
+      "content": "Which statements correctly compare simple and multiple linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Simple linear regression uses one independent variable",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple linear regression uses multiple input features",
+          "is_correct": true
+        },
+        {
+          "text": "Both methods are used to predict continuous values",
+          "is_correct": true
+        },
+        {
+          "text": "Simple regression always requires multiple outputs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Line of Best Fit Basics",
+      "content": "Which statements are true about the line of best fit?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The line of best fit minimizes prediction error",
+          "is_correct": true
+        },
+        {
+          "text": "It represents the relationship between variables",
+          "is_correct": true
+        },
+        {
+          "text": "The line of best fit ignores all data points",
+          "is_correct": false
+        },
+        {
+          "text": "Linear regression attempts to find the optimal line",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Gradient Descent Basics",
+      "content": "Which statements correctly describe gradient descent?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Gradient descent is an optimization algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "It updates parameters to minimize error",
+          "is_correct": true
+        },
+        {
+          "text": "Gradient descent always increases cost values",
+          "is_correct": false
+        },
+        {
+          "text": "Learning rate influences update size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Cost Function and Model Training",
+      "content": "Which statements correctly describe cost functions and model training?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A cost function measures prediction error",
+          "is_correct": true
+        },
+        {
+          "text": "Lower cost values generally indicate better model fit",
+          "is_correct": true
+        },
+        {
+          "text": "Scikit-learn provides tools for training regression models",
+          "is_correct": true
+        },
+        {
+          "text": "Cost functions are unrelated to optimization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Regression Evaluation Metrics",
+      "content": "Which metrics are commonly used to evaluate regression models?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean Squared Error (MSE)",
+          "is_correct": true
+        },
+        {
+          "text": "Root Mean Squared Error (RMSE)",
+          "is_correct": true
+        },
+        {
+          "text": "R-squared score",
+          "is_correct": true
+        },
+        {
+          "text": "Confusion Matrix",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Linear Regression Assumptions",
+      "content": "Which statements correctly describe assumptions of linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A linear relationship is assumed between variables",
+          "is_correct": true
+        },
+        {
+          "text": "Observations should ideally be independent",
+          "is_correct": true
+        },
+        {
+          "text": "Residual errors should show consistent variance",
+          "is_correct": true
+        },
+        {
+          "text": "Linear regression requires all features to be categorical",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World Linear Regression Applications",
+      "content": "Which scenarios are common real-world uses of linear regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Linear Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predicting house prices",
+          "is_correct": true
+        },
+        {
+          "text": "Forecasting sales trends",
+          "is_correct": true
+        },
+        {
+          "text": "Estimating employee salaries",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping customers into clusters",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Classification",
+      "content": "Which statements correctly describe classification problems?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Classification predicts categories or labels",
+          "is_correct": true
+        },
+        {
+          "text": "Spam detection is a classification problem",
+          "is_correct": true
+        },
+        {
+          "text": "Classification predicts only continuous values",
+          "is_correct": false
+        },
+        {
+          "text": "Logistic regression is commonly used for classification",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding the Sigmoid Function",
+      "content": "Which statements are true about the sigmoid function?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The sigmoid function outputs values between 0 and 1",
+          "is_correct": true
+        },
+        {
+          "text": "Sigmoid converts linear values into probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "The sigmoid function always produces values greater than 100",
+          "is_correct": false
+        },
+        {
+          "text": "Sigmoid is important in logistic regression",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Probability Interpretation",
+      "content": "Which statements correctly describe probability interpretation in logistic regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predictions can be interpreted as probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "A probability close to 1 indicates stronger confidence",
+          "is_correct": true
+        },
+        {
+          "text": "Probabilities in logistic regression are always negative",
+          "is_correct": false
+        },
+        {
+          "text": "Thresholds can convert probabilities into class labels",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Binary Classification Basics",
+      "content": "Which statements correctly describe binary classification?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Binary classification has two output classes",
+          "is_correct": true
+        },
+        {
+          "text": "Yes/No prediction is a binary classification example",
+          "is_correct": true
+        },
+        {
+          "text": "Binary classification always requires more than 10 classes",
+          "is_correct": false
+        },
+        {
+          "text": "Fraud detection can be modeled as binary classification",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Decision Boundary Concepts",
+      "content": "Which statements correctly describe decision boundaries?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A decision boundary separates predicted classes",
+          "is_correct": true
+        },
+        {
+          "text": "Threshold values influence the decision boundary",
+          "is_correct": true
+        },
+        {
+          "text": "Decision boundaries can help visualize classification regions",
+          "is_correct": true
+        },
+        {
+          "text": "Decision boundaries are only used for regression tasks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Logistic Regression Workflow and Metrics",
+      "content": "Which statements correctly describe logistic regression workflow and evaluation?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing is often part of the workflow",
+          "is_correct": true
+        },
+        {
+          "text": "Model training learns patterns from labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy and precision can evaluate logistic regression models",
+          "is_correct": true
+        },
+        {
+          "text": "Evaluation metrics are unnecessary in classification tasks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Implementation and Classification Concepts",
+      "content": "Which statements correctly describe implementation and classification behavior?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scikit-learn can be used to implement logistic regression",
+          "is_correct": true
+        },
+        {
+          "text": "Classification metrics help measure prediction quality",
+          "is_correct": true
+        },
+        {
+          "text": "Changing classification thresholds can affect results",
+          "is_correct": true
+        },
+        {
+          "text": "Logistic regression is designed primarily for clustering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World Logistic Regression Applications",
+      "content": "Which scenarios are common real-world use cases of logistic regression?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Logistic Regression",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Email spam detection",
+          "is_correct": true
+        },
+        {
+          "text": "Customer churn prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Disease diagnosis prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping customers into clusters",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tree Structure Fundamentals",
+      "content": "Which statements correctly describe decision tree fundamentals?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A decision tree represents decisions using a tree-like structure",
+          "is_correct": true
+        },
+        {
+          "text": "Decision trees can be used for classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Decision trees cannot be used for regression problems",
+          "is_correct": false
+        },
+        {
+          "text": "Decision trees split data into smaller subsets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Root Node, Leaf Node, and Branches",
+      "content": "Which statements correctly describe components of a decision tree?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The root node is the top-most node of the tree",
+          "is_correct": true
+        },
+        {
+          "text": "Leaf nodes represent final predictions or outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Branches connect nodes based on decision rules",
+          "is_correct": true
+        },
+        {
+          "text": "Leaf nodes always split into additional nodes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Splitting Criteria Basics",
+      "content": "Which statements are true about splitting criteria in decision trees?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Splitting criteria help determine the best feature split",
+          "is_correct": true
+        },
+        {
+          "text": "The goal is to create purer child nodes",
+          "is_correct": true
+        },
+        {
+          "text": "Random guessing is the main splitting strategy",
+          "is_correct": false
+        },
+        {
+          "text": "Gini impurity and entropy are common measures",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Gini Impurity",
+      "content": "Which statements correctly describe Gini impurity?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Gini impurity measures node impurity",
+          "is_correct": true
+        },
+        {
+          "text": "Lower Gini values indicate purer nodes",
+          "is_correct": true
+        },
+        {
+          "text": "High impurity means more mixed classes",
+          "is_correct": true
+        },
+        {
+          "text": "Gini impurity is used only in regression models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Entropy and Information Gain",
+      "content": "Which statements correctly describe entropy and information gain?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entropy measures disorder or uncertainty",
+          "is_correct": true
+        },
+        {
+          "text": "Information gain measures reduction in entropy",
+          "is_correct": true
+        },
+        {
+          "text": "Higher information gain usually indicates a better split",
+          "is_correct": true
+        },
+        {
+          "text": "Entropy ignores class distribution completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Overfitting and Tree Pruning",
+      "content": "Which statements correctly describe overfitting and pruning in decision trees?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Deep trees can overfit training data",
+          "is_correct": true
+        },
+        {
+          "text": "Pruning removes unnecessary branches",
+          "is_correct": true
+        },
+        {
+          "text": "Pruning can improve generalization",
+          "is_correct": true
+        },
+        {
+          "text": "Overfitting always improves test performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Decision Tree Implementation Concepts",
+      "content": "Which statements correctly describe decision tree implementation and behavior?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scikit-learn can be used to implement decision trees",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperparameters can affect tree complexity",
+          "is_correct": true
+        },
+        {
+          "text": "Maximum depth can influence model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Decision trees require all features to be normalized",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World Decision Tree Applications",
+      "content": "Which scenarios are common real-world uses of decision trees?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Decision Trees",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Loan approval prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Medical diagnosis support",
+          "is_correct": true
+        },
+        {
+          "text": "Customer segmentation decisions",
+          "is_correct": true
+        },
+        {
+          "text": "Manual filing of paper records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Ensemble Learning",
+      "content": "Which statements correctly describe ensemble learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ensemble learning combines multiple models",
+          "is_correct": true
+        },
+        {
+          "text": "Combining models can improve prediction performance",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest is an ensemble learning method",
+          "is_correct": true
+        },
+        {
+          "text": "Ensemble learning always uses only one model",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Bagging",
+      "content": "Which statements correctly describe bagging?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Bagging stands for Bootstrap Aggregating",
+          "is_correct": true
+        },
+        {
+          "text": "Bagging trains models on different sampled datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Bagging helps reduce variance",
+          "is_correct": true
+        },
+        {
+          "text": "Bagging always increases overfitting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multiple Decision Trees",
+      "content": "Which statements correctly describe multiple trees in Random Forest?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random Forest uses multiple decision trees",
+          "is_correct": true
+        },
+        {
+          "text": "Predictions are often combined from many trees",
+          "is_correct": true
+        },
+        {
+          "text": "Individual trees can vote on outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest relies on a single decision tree only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Random Feature Selection",
+      "content": "Which statements are true about random feature selection?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random subsets of features can be selected during splitting",
+          "is_correct": true
+        },
+        {
+          "text": "Random feature selection increases diversity among trees",
+          "is_correct": true
+        },
+        {
+          "text": "All trees must always use identical features",
+          "is_correct": false
+        },
+        {
+          "text": "Feature randomness can improve model robustness",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Feature Importance and Hyperparameters",
+      "content": "Which statements correctly describe feature importance and hyperparameters?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random Forest can estimate feature importance",
+          "is_correct": true
+        },
+        {
+          "text": "The number of trees is a hyperparameter",
+          "is_correct": true
+        },
+        {
+          "text": "Maximum tree depth can affect model complexity",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperparameters have no impact on performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advantages and Limitations",
+      "content": "Which statements correctly describe Random Forest advantages and limitations?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random Forest can reduce overfitting compared to single trees",
+          "is_correct": true
+        },
+        {
+          "text": "It generally performs well on many datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest models can be harder to interpret",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest always trains faster than every algorithm",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Implementation Concepts",
+      "content": "Which statements correctly describe Random Forest implementation concepts?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scikit-learn provides Random Forest implementations",
+          "is_correct": true
+        },
+        {
+          "text": "Increasing trees can improve prediction stability",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperparameter tuning can influence model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest requires all features to be normalized",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World Random Forest Applications",
+      "content": "Which scenarios are common real-world uses of Random Forest?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Random Forest",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Fraud detection systems",
+          "is_correct": true
+        },
+        {
+          "text": "Disease prediction applications",
+          "is_correct": true
+        },
+        {
+          "text": "Customer churn prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Manual spreadsheet sorting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Instance-Based Learning",
+      "content": "Which statements correctly describe instance-based learning?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "KNN is an instance-based learning algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "KNN stores training examples for prediction",
+          "is_correct": true
+        },
+        {
+          "text": "KNN builds a complex explicit model during training",
+          "is_correct": false
+        },
+        {
+          "text": "Predictions depend on neighboring data points",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Distance Metrics",
+      "content": "Which statements correctly describe distance metrics in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Distance metrics measure similarity or closeness",
+          "is_correct": true
+        },
+        {
+          "text": "KNN uses distance to identify nearest neighbors",
+          "is_correct": true
+        },
+        {
+          "text": "Distance metrics are unrelated to KNN predictions",
+          "is_correct": false
+        },
+        {
+          "text": "Different metrics may produce different results",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Euclidean Distance Basics",
+      "content": "Which statements are true about Euclidean distance?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Euclidean distance measures straight-line distance",
+          "is_correct": true
+        },
+        {
+          "text": "Euclidean distance is commonly used in KNN",
+          "is_correct": true
+        },
+        {
+          "text": "Euclidean distance ignores feature values completely",
+          "is_correct": false
+        },
+        {
+          "text": "Distance calculations influence nearest neighbor selection",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Choosing the K Value",
+      "content": "Which statements correctly describe choosing the K value?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "K represents the number of neighbors considered",
+          "is_correct": true
+        },
+        {
+          "text": "Very small K values can lead to overfitting",
+          "is_correct": true
+        },
+        {
+          "text": "K always has to equal the total dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "The choice of K affects model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Classification vs Regression in KNN",
+      "content": "Which statements correctly compare classification and regression in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "KNN classification predicts category labels",
+          "is_correct": true
+        },
+        {
+          "text": "KNN regression predicts continuous values",
+          "is_correct": true
+        },
+        {
+          "text": "Classification may use majority voting",
+          "is_correct": true
+        },
+        {
+          "text": "Classification and regression in KNN always produce identical outputs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Effect of Scaling and KNN Limitations",
+      "content": "Which statements correctly describe scaling and limitations in KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature scaling can improve KNN performance",
+          "is_correct": true
+        },
+        {
+          "text": "Features with larger values may dominate distances",
+          "is_correct": true
+        },
+        {
+          "text": "KNN can become slower with large datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Scaling has no effect on distance calculations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "KNN Implementation and Advanced Concepts",
+      "content": "Which statements correctly describe KNN implementation concepts?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scikit-learn provides KNN implementations",
+          "is_correct": true
+        },
+        {
+          "text": "Distance metrics influence prediction outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperparameter tuning can improve KNN performance",
+          "is_correct": true
+        },
+        {
+          "text": "KNN automatically eliminates irrelevant features",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World KNN Applications",
+      "content": "Which scenarios are common real-world applications of KNN?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "K-Nearest Neighbors (KNN)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Recommendation systems",
+          "is_correct": true
+        },
+        {
+          "text": "Image recognition tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Pattern recognition applications",
+          "is_correct": true
+        },
+        {
+          "text": "Manual record filing systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Support Vector Machines",
+      "content": "Which statements correctly describe Support Vector Machines (SVM)?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SVM is a supervised learning algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "SVM can be used for classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "SVM is only used for clustering",
+          "is_correct": false
+        },
+        {
+          "text": "SVM aims to separate classes effectively",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding the Hyperplane Concept",
+      "content": "Which statements correctly describe hyperplanes in SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A hyperplane separates classes in SVM",
+          "is_correct": true
+        },
+        {
+          "text": "Different dimensions can have different forms of hyperplanes",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperplanes are unrelated to classification boundaries",
+          "is_correct": false
+        },
+        {
+          "text": "SVM attempts to find an optimal separating hyperplane",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Support Vectors Basics",
+      "content": "Which statements are true about support vectors?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Support vectors are important data points near decision boundaries",
+          "is_correct": true
+        },
+        {
+          "text": "Support vectors influence the position of the hyperplane",
+          "is_correct": true
+        },
+        {
+          "text": "Removing support vectors never affects SVM models",
+          "is_correct": false
+        },
+        {
+          "text": "Support vectors help define margins",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Margin Maximization",
+      "content": "Which statements correctly describe margin maximization?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "SVM aims to maximize the separation margin",
+          "is_correct": true
+        },
+        {
+          "text": "Larger margins can improve generalization",
+          "is_correct": true
+        },
+        {
+          "text": "Margin maximization means minimizing class separation",
+          "is_correct": false
+        },
+        {
+          "text": "Margins are influenced by support vectors",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Linear vs Non-Linear SVM",
+      "content": "Which statements correctly compare linear and non-linear SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Linear SVM works well for linearly separable data",
+          "is_correct": true
+        },
+        {
+          "text": "Non-linear SVM can handle complex patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Kernel methods support non-linear classification",
+          "is_correct": true
+        },
+        {
+          "text": "Linear and non-linear SVM always behave identically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Kernel Trick and Kernel Types",
+      "content": "Which statements correctly describe kernels in SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The kernel trick maps data into higher dimensions",
+          "is_correct": true
+        },
+        {
+          "text": "Linear, Polynomial, and RBF are kernel types",
+          "is_correct": true
+        },
+        {
+          "text": "Kernels help classify non-linear data",
+          "is_correct": true
+        },
+        {
+          "text": "Kernel functions are only useful in image editing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "SVM Model Implementation Concepts",
+      "content": "Which statements correctly describe SVM implementation concepts?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Scikit-learn provides SVM implementations",
+          "is_correct": true
+        },
+        {
+          "text": "Hyperparameters like C and kernel type affect performance",
+          "is_correct": true
+        },
+        {
+          "text": "Feature scaling often improves SVM performance",
+          "is_correct": true
+        },
+        {
+          "text": "SVM requires categorical features only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-World SVM Applications",
+      "content": "Which scenarios are common real-world uses of SVM?",
+      "level": "subtopic",
+      "unit_name": "Supervised Learning",
+      "subunit_name": "Support Vector Machines (SVM)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Face recognition systems",
+          "is_correct": true
+        },
+        {
+          "text": "Text classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Medical diagnosis prediction",
+          "is_correct": true
+        },
+        {
+          "text": "Manual paper record organization",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}
