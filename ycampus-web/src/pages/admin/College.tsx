@@ -12,11 +12,40 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Edit, Trash2, Building2, Search, MapPin, Globe, X, CheckCircle2, XCircle, Plus, Layers, GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { collegeService, College, CollegeCreateData } from '@/services/collegeService';
 import PageHeader from '@/components/common/PageHeader';
+
+const CAMPUS_TABS = [
+    { title: 'Dashboard', key: 'dashboard' },
+    { title: 'Learning', key: 'learning' },
+    { title: 'Practice Test', key: 'practice_test' },
+    { title: 'Task', key: 'task' },
+    { title: 'Assessment', key: 'assessment' },
+    { title: 'Interview Preparation', key: 'interview_preparation' },
+    { title: 'AI Interview Planner', key: 'ai_interview_planner' },
+    { title: 'Jobs', key: 'jobs' },
+    { title: 'Announcements', key: 'announcements' },
+    { title: 'Community', key: 'community' },
+    { title: 'Contest', key: 'contest' },
+];
+
+const ASSESSMENT_TABS = [
+    { title: 'Dashboard', key: 'dashboard' },
+    { title: 'Learning', key: 'learning' },
+    { title: 'Code Practice', key: 'code_practice' },
+    { title: 'Skill Test', key: 'skill_test' },
+    { title: 'Aptitude & Reasoning', key: 'aptitude_reasoning' },
+    { title: 'Mock Interviews', key: 'mock_interviews' },
+    { title: 'AI Interview Planner', key: 'ai_interview_planner' },
+    { title: 'Jobs', key: 'jobs' },
+    { title: 'Announcements', key: 'announcements' },
+    { title: 'Contest', key: 'contest' },
+    { title: 'Leaderboard', key: 'leaderboard' },
+];
 
 const EMPTY_FORM: CollegeCreateData = {
     name: "",
@@ -28,6 +57,7 @@ const EMPTY_FORM: CollegeCreateData = {
     product_type: "campus",
     is_aicte_approved: false,
     is_ugc_approved: false,
+    sidebar_config: {},
 };
 
 const EMPTY_UNI_FORM = {
@@ -152,6 +182,7 @@ const CollegePage = () => {
             product_type: c.product_type || "campus",
             is_aicte_approved: c.is_aicte_approved,
             is_ugc_approved: c.is_ugc_approved,
+            sidebar_config: c.sidebar_config || {},
         };
         setForm(editData);
         setDialogOpen(true);

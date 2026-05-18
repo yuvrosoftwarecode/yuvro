@@ -24,6 +24,7 @@ class Subject(models.Model):
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     subject_name = models.TextField()
     product_type = models.CharField(max_length=20, choices=PRODUCT_CHOICES, default="campus")
+    category = models.CharField(max_length=50, null=True, blank=True)
     university = models.ForeignKey(
         "core.University", on_delete=models.SET_NULL, null=True, blank=True, related_name="subjects"
     )

@@ -264,6 +264,10 @@ export async function deleteSubUnit(subUnitId: string) {
   return true;
 }
 
+export async function fetchSubUnitById(subUnitId: string): Promise<SubUnit> {
+  return restApiAuthUtil.get<SubUnit>(`/course/subunits/${subUnitId}/`);
+}
+
 export async function fetchVideosBySubUnit(subUnitId: string) {
   return restApiAuthUtil.get('/course/videos/', { params: { sub_unit: subUnitId } });
 }
@@ -524,6 +528,7 @@ const subjectService = {
   createSubUnit,
   updateSubUnit,
   deleteSubUnit,
+  getSubUnitById: fetchSubUnitById,
   getSubjectStructure: fetchSubjectStructure,
   getVideos: fetchVideosBySubUnit,
   createVideo,

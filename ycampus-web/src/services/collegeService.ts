@@ -23,6 +23,7 @@ export interface College {
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
     departments: Department[];
+    sidebar_config?: Record<string, boolean>;
     principal?: {
         user_details: {
             id: string;
@@ -67,6 +68,7 @@ export interface CollegeCreateData {
     department_names?: string[];
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
+    sidebar_config?: Record<string, boolean>;
 }
 
 export const collegeService = {

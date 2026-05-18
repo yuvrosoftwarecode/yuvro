@@ -54,7 +54,8 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
     const loadSubjects = async () => {
       try {
         const fetchedSubjects = await fetchSubjects();
-        const transformedSubjects: CodePracticeSubject[] = fetchedSubjects.map((s: apiSubject) => ({
+        const dsaSubjects = fetchedSubjects.filter((s: apiSubject) => s.short_code === 'DSA100');
+        const transformedSubjects: CodePracticeSubject[] = dsaSubjects.map((s: apiSubject) => ({
           id: s.id.toString(),
           name: s.subject_name || s.name || s.title || 'Untitled Subject',
           icon: s.category || '',
@@ -66,7 +67,6 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
           unitCount: (s as any).unit_count || 0,
           iconColor: '',
           category: s.category || '',
-
         }));
         setSubjects(transformedSubjects);
       } catch (error) {

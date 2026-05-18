@@ -168,6 +168,7 @@ class CollegeSerializer(serializers.ModelSerializer):
             "product_type",
             "is_aicte_approved",
             "is_ugc_approved",
+            "sidebar_config",
             "department_names",
             "departments",
             "principals",
@@ -431,6 +432,7 @@ class SubjectSerializer(serializers.ModelSerializer):
             "progress_percentage",
             "college_count",
             "unit_count",
+            "category",
         ]
         read_only_fields = ["id", "yuvro_id", "created_at", "updated_at", "college_count", "unit_count"]
 
@@ -492,6 +494,7 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "ai_help_used",
             "college_count",
             "unit_count",
+            "category",
         ]
 
 

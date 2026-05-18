@@ -25,6 +25,9 @@ const Notes = () => {
         if (user.college_product_type) {
             data = data.filter(s => s.product_type === user.college_product_type);
         }
+        if (user.college_product_type === 'assessments') {
+            data = data.filter(s => s.short_code === 'DSA100');
+        }
         // Sort subjects alphabetically
         data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);

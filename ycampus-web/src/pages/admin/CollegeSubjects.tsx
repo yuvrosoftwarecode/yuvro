@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil, Building2, Loader2, ChevronRight, Settings } from "lucide-react";
+import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil, Building2, Loader2, ChevronRight, Settings, Sparkles } from "lucide-react";
 import {
     fetchCollegeSubjects,
     fetchSubjects,
@@ -45,6 +45,8 @@ const CollegeSubjects: React.FC = () => {
     const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
     const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
     const [subjectCode, setSubjectCode] = useState("");
+    const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
+    const [bulkAssigning, setBulkAssigning] = useState(false);
     const [saving, setSaving] = useState(false);
 
     // Delete Confirmation
@@ -111,7 +113,7 @@ const CollegeSubjects: React.FC = () => {
             return;
         }
 
-        const alreadyAssigned = assignments.some((a) => a.subject === selectedSubjectId);
+        const alreadyAssigned = assignments.some((a) => String(a.subject) === String(selectedSubjectId));
         if (alreadyAssigned) {
             toast.error("This subject is already assigned to this college");
             return;
@@ -134,6 +136,49 @@ const CollegeSubjects: React.FC = () => {
             toast.error(err.message || "Failed to assign subject");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleAssignAllAvailable = async () => {
+        if (!collegeId) return;
+
+        try {
+            setBulkAssigning(true);
+            const data = await fetchSubjects();
+            const filteredSubjects = data.filter(s => {
+                const subjectProductType = s.product_type || 'campus';
+                const requiredProductType = collegeDetail?.product_type || 'campus';
+                return subjectProductType === requiredProductType;
+            });
+
+            const subjectsToAssign = filteredSubjects.filter(
+                s => !assignments.some(a => String(a.subject) === String(s.id))
+            );
+
+            if (subjectsToAssign.length === 0) {
+                toast.info("All available subjects are already assigned to this college.");
+                setIsBulkConfirmOpen(false);
+                return;
+            }
+
+            let assignedCount = 0;
+            for (const sub of subjectsToAssign) {
+                await assignSubjectToCollege({
+                    college: collegeId,
+                    subject: String(sub.id),
+                    subject_code: sub.short_code || "",
+                });
+                assignedCount++;
+            }
+            
+            toast.success(`Successfully assigned all ${assignedCount} available subjects!`);
+            setIsBulkConfirmOpen(false);
+            loadAssignments();
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err.message || "Failed to assign all available subjects");
+        } finally {
+            setBulkAssigning(false);
         }
     };
 
@@ -193,6 +238,8 @@ const CollegeSubjects: React.FC = () => {
         );
     });
 
+    const selectedSubject = allSubjects.find(s => String(s.id) === String(selectedSubjectId));
+
     return (
         <SidebarProvider>
             <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
@@ -215,12 +262,22 @@ const CollegeSubjects: React.FC = () => {
                                     <Button
                                         onClick={() => {
                                             loadAllSubjects();
+                                            setSelectedSubjectId("");
+                                            setSubjectCode("");
                                             setIsAddOpen(true);
                                         }}
                                         className="font-semibold shadow-sm rounded-lg"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Assign Subject Flow
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsBulkConfirmOpen(true)}
+                                        variant="outline"
+                                        className="font-semibold shadow-sm rounded-lg border-primary/20 text-primary hover:bg-primary/5"
+                                    >
+                                        <Sparkles className="h-4 w-4 mr-2" />
+                                        Assign All Available
                                     </Button>
                                 </div>
                             }
@@ -373,6 +430,31 @@ const CollegeSubjects: React.FC = () => {
                             <Button onClick={handleAddSubject} disabled={saving}>
                                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
                                 Authorize Assignment
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={isBulkConfirmOpen} onOpenChange={setIsBulkConfirmOpen}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                Bulk Assign Subjects
+                            </DialogTitle>
+                            <DialogDescription>
+                                This will automatically assign all available subjects (matching product type) that are not yet assigned, using their default short codes as local codes.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                            <Button variant="outline" onClick={() => setIsBulkConfirmOpen(false)}>Cancel</Button>
+                            <Button onClick={handleAssignAllAvailable} disabled={bulkAssigning}>
+                                {bulkAssigning ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                )}
+                                Confirm Assignment
                             </Button>
                         </DialogFooter>
                     </DialogContent>

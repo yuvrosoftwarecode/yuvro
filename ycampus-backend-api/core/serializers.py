@@ -49,6 +49,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     semester_number = serializers.IntegerField(source="semester.number", read_only=True)
     section_name = serializers.CharField(source="section.name", read_only=True)
     college_product_type = serializers.CharField(source="college.product_type", read_only=True)
+    college_sidebar_config = serializers.JSONField(source="college.sidebar_config", read_only=True)
 
     class Meta:
         model = StudentProfile
@@ -59,6 +60,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "college",
             "college_name",
             "college_product_type",
+            "college_sidebar_config",
             "department",
             "department_name",
             "batch",

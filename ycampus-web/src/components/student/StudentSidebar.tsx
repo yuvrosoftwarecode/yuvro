@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -68,14 +68,19 @@ const assessmentMenuItems = [
   { title: 'Learning', url: '/student/notes', icon: StickyNote },
   { title: 'Code Practice', url: '/student/code-practice', icon: ClipboardCheck },
   { title: 'Skill Test', url: '/student/skill-test', icon: BookOpen },
+  { title: 'Assessments', url: '/student/assessments', icon: ClipboardCheck },
   { title: 'Aptitude & Reasoning', url: '/student/aptitude-reasoning', icon: BrainCircuit },
-  { title: 'Mock Interviews', url: '/student/interview-preparation', icon: Mic },
+  { title: 'Mock Interviews', url: '/student/mock-interview', icon: Mic },
   { title: 'AI Interview Planner', url: '/student/ai-interview-planner', icon: MessageSquare },
   { title: 'Jobs', url: '/student/jobs', icon: Briefcase },
   { title: 'Announcements', url: '/student/announcements', icon: Megaphone },
   { title: 'Contest', url: '/student/contest', icon: Trophy },
   { title: 'Leaderboard', url: '/student/leaderboard', icon: Users },
 ];
+
+const getConfigKey = (title: string) => {
+  return title.toLowerCase().replace(/[&\s-]+/g, '_');
+};
 
 export function StudentSidebar() {
   const { state, toggleSidebar } = useSidebar();
@@ -153,7 +158,12 @@ export function StudentSidebar() {
   const profileImage = getMediaUrl(user?.profile?.avatar);
 
   const isAssessments = user?.college_product_type === 'assessments';
-  const menuItemsToDisplay = isAssessments ? assessmentMenuItems : campusMenuItems;
+  const rawMenuItems = isAssessments ? assessmentMenuItems : campusMenuItems;
+  const sidebarConfig = (user as any)?.college_sidebar_config || {};
+  const menuItemsToDisplay = rawMenuItems.filter(item => {
+    const key = getConfigKey(item.title);
+    return sidebarConfig[key] !== false;
+  });
 
   return (
     <Sidebar
@@ -286,19 +296,21 @@ export function StudentSidebar() {
           </button>
 
           {/* College Logo Section */}
-          <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
-            <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold text-foreground truncate   tracking-tight">
-                  JNTU Hyderabad
-                </p>
-                <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
-                  University Campus
-                </p>
-              </div>
-            )}
-          </div>
+          {!isAssessments && (
+            <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
+              <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-foreground truncate   tracking-tight">
+                    JNTU Hyderabad
+                  </p>
+                  <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
+                    University Campus
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Inline expandable options */}
           <div

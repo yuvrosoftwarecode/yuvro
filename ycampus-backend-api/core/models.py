@@ -85,6 +85,11 @@ class College(models.Model):
     )
     is_aicte_approved = models.BooleanField(default=False)
     is_ugc_approved = models.BooleanField(default=False)
+    sidebar_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="JSON mapping of student sidebar tab keys to visibility booleans"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

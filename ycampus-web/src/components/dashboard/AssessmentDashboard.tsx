@@ -1,12 +1,86 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Code, BrainCircuit, Mic, Trophy, Users } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';
-import { ContestPerformance } from './ContestPerformance';
-import { StreaksAndBadges } from './StreaksAndBadges';
+import { AssessmentsPerformance } from './AssessmentsPerformance';
+import { useQuery } from '@tanstack/react-query';
+import { studentDashboardService } from '@/services/studentDashboardService';
+import { mockInterviewService } from '@/services/mockInterviewService';
+import restApiAuthUtil from '@/utils/RestApiAuthUtil';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchSubjects } from '@/services/subjectService';
 
 export function AssessmentDashboard() {
+  const { user } = useAuth();
+
+  const { data: testPerformance } = useQuery({
+    queryKey: ['testPerformance', user?.college_product_type],
+    queryFn: () => studentDashboardService.getTestPerformance(user?.college_product_type)
+  });
+
+  const { data: practiceTests } = useQuery({
+    queryKey: ['practiceTests', user?.college_product_type],
+    queryFn: async () => {
+      try {
+        if (user?.college_product_type === 'assessments') {
+          const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
+          const allTests = Array.isArray(res) ? res : res?.results || [];
+          return allTests.filter((t: any) => t.unit !== null);
+        } else {
+          const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+          return Array.isArray(res) ? res : res?.results || [];
+        }
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+
+  const { data: assessments } = useQuery({
+    queryKey: ['assessmentsOverview', user?.college_product_type],
+    queryFn: () => studentDashboardService.getAssessments(user?.college_product_type)
+  });
+
+  const { data: myInterviews } = useQuery({
+    queryKey: ['myInterviews'],
+    queryFn: () => mockInterviewService.getMyInterviews()
+  });
+
+  const { data: dsaSubjects } = useQuery({
+    queryKey: ['dsaSubjects'],
+    queryFn: async () => {
+      try {
+        const fetched = await fetchSubjects();
+        return fetched.filter((s: any) => s.short_code === 'DSA100');
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+
+  const solvedProblems = dsaSubjects
+    ? dsaSubjects.reduce((sum: number, s: any) => sum + (s.solved_problems || 0), 0)
+    : 0;
+
+  const totalProblems = dsaSubjects
+    ? dsaSubjects.reduce((sum: number, s: any) => sum + (s.total_problems || 0), 0) || 150
+    : 150;
+
+  const completedInterviews = myInterviews
+    ? myInterviews.filter((i: any) => i.status === 'completed' || i.status === 'evaluated')
+    : [];
+
+  const interviewScores = completedInterviews
+    .map((i: any) => i.overall_score || i.score || 0)
+    .filter((s: number) => s > 0);
+
+  const interviewAvgScore = interviewScores.length > 0
+    ? Math.round(interviewScores.reduce((a: number, b: number) => a + b, 0) / interviewScores.length)
+    : 0;
+
+  const codePracticeProgress = totalProblems > 0 ? Math.round((solvedProblems / totalProblems) * 100) : 0;
+  const aptitudeProgress = assessments?.avgScore || 0;
+
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -22,9 +96,9 @@ export function AssessmentDashboard() {
             <Code className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45 / 150</div>
+            <div className="text-2xl font-bold">{solvedProblems} / {totalProblems}</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Problems Solved</p>
-            <Progress value={30} className="h-2" />
+            <Progress value={codePracticeProgress} className="h-2" />
           </CardContent>
         </Card>
 
@@ -34,9 +108,12 @@ export function AssessmentDashboard() {
             <BookOpen className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12 / 20</div>
-            <p className="text-xs text-muted-foreground mt-1 mb-3">Tests Completed</p>
-            <Progress value={60} className="h-2" />
+            <div className="text-2xl font-bold">{testPerformance?.avgScore || 0}%</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
+            <Progress value={testPerformance?.avgScore || 0} className="h-2" />
+            <div className="text-[10px] text-muted-foreground mt-2">
+              {testPerformance?.completed || 0} / {practiceTests?.length || 0} Tests Completed
+            </div>
           </CardContent>
         </Card>
 
@@ -46,9 +123,12 @@ export function AssessmentDashboard() {
             <BrainCircuit className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">85%</div>
+            <div className="text-2xl font-bold">{assessments?.avgScore || 0}%</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
-            <Progress value={85} className="h-2" />
+            <Progress value={aptitudeProgress} className="h-2" />
+            <div className="text-[10px] text-muted-foreground mt-2">
+              {assessments?.completed || 0} / 50 Assessments Completed
+            </div>
           </CardContent>
         </Card>
 
@@ -58,16 +138,19 @@ export function AssessmentDashboard() {
             <Mic className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground mt-1 mb-3">Interviews Attended</p>
-            <Progress value={40} className="h-2" />
+            <div className="text-2xl font-bold">{interviewAvgScore}%</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
+            <Progress value={interviewAvgScore} className="h-2" />
+            <div className="text-[10px] text-muted-foreground mt-2">
+              {myInterviews?.length || 0} / 15 Interviews Attended
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Middle Row: Contest and Leaderboard */}
+      {/* Middle Row: Assessments and Leaderboard */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ContestPerformance />
+        <AssessmentsPerformance />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -102,7 +185,7 @@ export function AssessmentDashboard() {
                   <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center font-bold text-primary-foreground">#15</div>
                   <div>
                     <p className="font-medium text-sm">You</p>
-                    <p className="text-xs text-muted-foreground">Score: 1850</p>
+                    <p className="text-xs text-muted-foreground">Score: {1000 + solvedProblems * 50}</p>
                   </div>
                 </div>
                 <Trophy className="h-4 w-4 text-primary" />
@@ -110,11 +193,6 @@ export function AssessmentDashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Bottom Row: Streaks */}
-      <div className="grid grid-cols-1 gap-6">
-        <StreaksAndBadges />
       </div>
     </div>
   );
