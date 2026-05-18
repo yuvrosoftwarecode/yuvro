@@ -303,8 +303,8 @@ echo "📦 Configuring environment..."
 sed -i 's/\.env\.local/.env.dev/g' docker-compose.yuvro.yml docker-compose.ycode.yml docker-compose.ycampus.yml 2>/dev/null || true
 
 # Create .env.dev files from .env.example if missing
-for dir in ycode-backend-api ycampus-backend-api ycode-web ycampus-web yuvro-code-executer; do
-  [ ! -f "$dir/.env.dev" ] && cp "$dir/.env.example" "$dir/.env.dev"
+for svcdir in ycode-backend-api ycampus-backend-api ycode-web ycampus-web yuvro-code-executer; do
+  [ ! -f "\$svcdir/.env.dev" ] && cp "\$svcdir/.env.example" "\$svcdir/.env.dev"
 done
 
 # Patch vite configs for subdomain + HMR support (Vite 7)
@@ -330,16 +330,18 @@ for filepath, cfg in fixes.items():
     except Exception as e:
         print(f'Warning: could not patch {filepath}: {e}')
 " 2>/dev/null || true
-  if grep -q '^ALLOWED_HOSTS=' "$dir/.env.dev" 2>/dev/null; then
-    sed -i 's/^ALLOWED_HOSTS=.*/ALLOWED_HOSTS=*/' "$dir/.env.dev"
+
+# Set ALLOWED_HOSTS=* and DEBUG=True in backend .env.dev
+for svcdir in ycode-backend-api ycampus-backend-api; do
+  if grep -q '^ALLOWED_HOSTS=' "\$svcdir/.env.dev" 2>/dev/null; then
+    sed -i 's/^ALLOWED_HOSTS=.*/ALLOWED_HOSTS=*/' "\$svcdir/.env.dev"
   else
-    echo 'ALLOWED_HOSTS=*' >> "$dir/.env.dev"
+    echo 'ALLOWED_HOSTS=*' >> "\$svcdir/.env.dev"
   fi
-  # Also ensure DEBUG is on for dev
-  if grep -q '^DEBUG=' "$dir/.env.dev" 2>/dev/null; then
-    sed -i 's/^DEBUG=.*/DEBUG=True/' "$dir/.env.dev"
+  if grep -q '^DEBUG=' "\$svcdir/.env.dev" 2>/dev/null; then
+    sed -i 's/^DEBUG=.*/DEBUG=True/' "\$svcdir/.env.dev"
   else
-    echo 'DEBUG=True' >> "$dir/.env.dev"
+    echo 'DEBUG=True' >> "\$svcdir/.env.dev"
   fi
 done
 
@@ -377,80 +379,80 @@ setup_nginx() {
 
     print_header "Setting up Nginx Reverse Proxy"
 
+    # Write nginx config locally then scp it - avoids heredoc escaping issues
+    local nginx_conf
+    nginx_conf=$(python3 -c "
+lines = [
+'server {',
+'    listen 80;',
+'    server_name code-dev.yuvro.ai;',
+'    location / {',
+'        proxy_pass http://localhost:3000;',
+'        proxy_http_version 1.1;',
+'        proxy_set_header Upgrade \$http_upgrade;',
+'        proxy_set_header Connection \"upgrade\";',
+'        proxy_set_header Host \$host;',
+'        proxy_set_header X-Real-IP \$remote_addr;',
+'        proxy_cache_bypass \$http_upgrade;',
+'    }',
+'}',
+'server {',
+'    listen 80;',
+'    server_name campus-dev.yuvro.ai;',
+'    location / {',
+'        proxy_pass http://localhost:3002;',
+'        proxy_http_version 1.1;',
+'        proxy_set_header Upgrade \$http_upgrade;',
+'        proxy_set_header Connection \"upgrade\";',
+'        proxy_set_header Host \$host;',
+'        proxy_set_header X-Real-IP \$remote_addr;',
+'        proxy_cache_bypass \$http_upgrade;',
+'    }',
+'}',
+'server {',
+'    listen 80;',
+'    server_name backend-code-dev.yuvro.ai;',
+'    location / {',
+'        proxy_pass http://localhost:8001;',
+'        proxy_http_version 1.1;',
+'        proxy_set_header Host \$host;',
+'        proxy_set_header X-Real-IP \$remote_addr;',
+'        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;',
+'        proxy_set_header X-Forwarded-Proto \$scheme;',
+'    }',
+'}',
+'server {',
+'    listen 80;',
+'    server_name backend-campus-dev.yuvro.ai;',
+'    location / {',
+'        proxy_pass http://localhost:8003;',
+'        proxy_http_version 1.1;',
+'        proxy_set_header Host \$host;',
+'        proxy_set_header X-Real-IP \$remote_addr;',
+'        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;',
+'        proxy_set_header X-Forwarded-Proto \$scheme;',
+'    }',
+'}',
+]
+print('\n'.join(lines))
+")
+
+    local tmp_conf
+    tmp_conf=$(mktemp)
+    echo "$nginx_conf" > "$tmp_conf"
+
+    scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$tmp_conf" "ubuntu@$instance_ip:/tmp/yuvro-nginx.conf"
+    rm -f "$tmp_conf"
+
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_EOF'
 set -e
-
-echo "📦 Installing Nginx..."
-apt-get install -y nginx
-
-# Remove default site
-rm -f /etc/nginx/sites-enabled/default
-
-# Write subdomain reverse proxy config
-cat > /etc/nginx/sites-available/yuvro-dev << 'NGINXCONF'
-# YCode Frontend - code-dev.yuvro.ai
-server {
-    listen 80;
-    server_name code-dev.yuvro.ai;
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-
-# YCampus Frontend - campus-dev.yuvro.ai
-server {
-    listen 80;
-    server_name campus-dev.yuvro.ai;
-    location / {
-        proxy_pass http://localhost:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-
-# YCode Backend - backend-code-dev.yuvro.ai
-server {
-    listen 80;
-    server_name backend-code-dev.yuvro.ai;
-    location / {
-        proxy_pass http://localhost:8001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# YCampus Backend - backend-campus-dev.yuvro.ai
-server {
-    listen 80;
-    server_name backend-campus-dev.yuvro.ai;
-    location / {
-        proxy_pass http://localhost:8003;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-NGINXCONF
-
-ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev
-nginx -t
-systemctl enable nginx
-systemctl restart nginx
+sudo apt-get install -y nginx -q
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo cp /tmp/yuvro-nginx.conf /etc/nginx/sites-available/yuvro-dev
+sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev
+sudo nginx -t
+sudo systemctl enable nginx
+sudo systemctl restart nginx
 echo "✅ Nginx configured"
 NGINX_EOF
 
@@ -509,19 +511,40 @@ main() {
 
     check_prerequisites
     check_aws_setup
+
+    # Check if EC2 instance is already running - skip infra if so
+    local existing_ip
+    existing_ip=$(aws ec2 describe-instances \
+        --region "$AWS_REGION" \
+        --filters "Name=tag:Environment,Values=dev" "Name=instance-state-name,Values=running" \
+        --query 'Reservations[0].Instances[0].PublicIpAddress' \
+        --output text 2>/dev/null || echo "")
+
+    if [ -n "$existing_ip" ] && [ "$existing_ip" != "None" ]; then
+        print_warning "EC2 instance already running at $existing_ip - skipping infrastructure provisioning"
+        print_info "Run 'DEPLOY_ENV=dev make clean' first to destroy and recreate infrastructure"
+        local instance_ip="$existing_ip"
+        wait_for_ssh "$instance_ip"
+        wait_for_docker "$instance_ip"
+        deploy_applications "$instance_ip" "$REPO_URL"
+        setup_nginx "$instance_ip"
+        show_summary "$instance_ip"
+        return
+    fi
+
     init_opentofu
     plan_deployment
-    
-    print_warning "This will create AWS resources and incur costs"
+
+    print_warning "This will create AWS resources and incur costs (~\$15-25/month)"
     read -p "Continue with deployment? (yes/no) " -r
     echo
     if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
         print_info "Deployment cancelled"
         exit 0
     fi
-    
+
     apply_deployment
-    
+
     local instance_ip
     instance_ip=$(get_instance_ip)
     wait_for_ssh "$instance_ip"
