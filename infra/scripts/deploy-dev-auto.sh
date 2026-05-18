@@ -299,32 +299,70 @@ else
 fi
 
 echo "📦 Configuring environment..."
-[ ! -f "ycode-backend-api/.env" ] && cp ycode-backend-api/.env.example ycode-backend-api/.env
-[ ! -f "ycampus-backend-api/.env" ] && cp ycampus-backend-api/.env.example ycampus-backend-api/.env
-[ ! -f "ycode-web/.env" ] && cp ycode-web/.env.example ycode-web/.env
-[ ! -f "ycampus-web/.env" ] && cp ycampus-web/.env.example ycampus-web/.env
-[ ! -f "yuvro-code-executer/.env" ] && cp yuvro-code-executer/.env.example yuvro-code-executer/.env
+# Patch compose files to use .env.dev instead of .env.local
+sed -i 's/\.env\.local/.env.dev/g' docker-compose.yuvro.yml docker-compose.ycode.yml docker-compose.ycampus.yml 2>/dev/null || true
+
+# Create .env.dev files from .env.example if missing
+for dir in ycode-backend-api ycampus-backend-api ycode-web ycampus-web yuvro-code-executer; do
+  [ ! -f "$dir/.env.dev" ] && cp "$dir/.env.example" "$dir/.env.dev"
+done
+
+# Patch vite configs for subdomain + HMR support (Vite 7)
+python3 -c "
+import re
+fixes = {
+    'ycode-web/vite.config.ts': {'host': 'code-dev.yuvro.ai', 'clientPort': 80},
+    'ycampus-web/vite.config.ts': {'host': 'campus-dev.yuvro.ai', 'clientPort': 80},
+}
+for filepath, cfg in fixes.items():
+    try:
+        content = open(filepath).read()
+        # allowedHosts: true (Vite 7 boolean)
+        if 'allowedHosts' not in content:
+            content = content.replace('host: \"0.0.0.0\"', 'host: \"0.0.0.0\",\n    allowedHosts: true')
+        else:
+            content = re.sub(r'allowedHosts:\s*[^\n,]+', 'allowedHosts: true', content)
+        # Fix HMR to use subdomain so WebSocket works through Nginx
+        new_hmr = 'hmr: {{\n      protocol: \"ws\",\n      host: \"{host}\",\n      clientPort: {clientPort},\n      overlay: true\n    }}'.format(**cfg)
+        content = re.sub(r'hmr:\s*\{{[^}}]+\}}', new_hmr, content)
+        open(filepath, 'w').write(content)
+        print(f'Patched {filepath}')
+    except Exception as e:
+        print(f'Warning: could not patch {filepath}: {e}')
+" 2>/dev/null || true
+  if grep -q '^ALLOWED_HOSTS=' "$dir/.env.dev" 2>/dev/null; then
+    sed -i 's/^ALLOWED_HOSTS=.*/ALLOWED_HOSTS=*/' "$dir/.env.dev"
+  else
+    echo 'ALLOWED_HOSTS=*' >> "$dir/.env.dev"
+  fi
+  # Also ensure DEBUG is on for dev
+  if grep -q '^DEBUG=' "$dir/.env.dev" 2>/dev/null; then
+    sed -i 's/^DEBUG=.*/DEBUG=True/' "$dir/.env.dev"
+  else
+    echo 'DEBUG=True' >> "$dir/.env.dev"
+  fi
+done
 
 echo "📦 Building services (this takes a few minutes on t3.medium)..."
 docker compose \
-  -f docker-compose.common.yml \
-  -f docker-compose.yml \
+  -f docker-compose.yuvro.yml \
+  -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
   build 2>&1 | tail -20
 
 echo "📦 Starting services..."
 docker compose \
-  -f docker-compose.common.yml \
-  -f docker-compose.yml \
+  -f docker-compose.yuvro.yml \
+  -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
   up -d
 
 echo "✅ Applications deployed!"
 docker compose \
-  -f docker-compose.common.yml \
-  -f docker-compose.yml \
+  -f docker-compose.yuvro.yml \
+  -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
   ps
@@ -334,42 +372,118 @@ DEPLOY_EOF
     echo ""
 }
 
+setup_nginx() {
+    local instance_ip=$1
+
+    print_header "Setting up Nginx Reverse Proxy"
+
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_EOF'
+set -e
+
+echo "📦 Installing Nginx..."
+apt-get install -y nginx
+
+# Remove default site
+rm -f /etc/nginx/sites-enabled/default
+
+# Write subdomain reverse proxy config
+cat > /etc/nginx/sites-available/yuvro-dev << 'NGINXCONF'
+# YCode Frontend - code-dev.yuvro.ai
+server {
+    listen 80;
+    server_name code-dev.yuvro.ai;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# YCampus Frontend - campus-dev.yuvro.ai
+server {
+    listen 80;
+    server_name campus-dev.yuvro.ai;
+    location / {
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# YCode Backend - backend-code-dev.yuvro.ai
+server {
+    listen 80;
+    server_name backend-code-dev.yuvro.ai;
+    location / {
+        proxy_pass http://localhost:8001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# YCampus Backend - backend-campus-dev.yuvro.ai
+server {
+    listen 80;
+    server_name backend-campus-dev.yuvro.ai;
+    location / {
+        proxy_pass http://localhost:8003;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINXCONF
+
+ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev
+nginx -t
+systemctl enable nginx
+systemctl restart nginx
+echo "✅ Nginx configured"
+NGINX_EOF
+
+    print_success "Nginx reverse proxy configured"
+    echo ""
+}
+
 show_summary() {
     local instance_ip=$1
-    
+
     print_header "Deployment Complete"
-    
+
     echo ""
     print_success "Infrastructure and applications deployed successfully!"
     echo ""
-    
+
     print_info "Access Information:"
     echo "  EC2 Instance IP: $instance_ip"
     echo "  SSH Command: ssh -i $SSH_KEY_PATH ubuntu@$instance_ip"
     echo ""
-    
-    print_info "Application URLs (direct access via EC2 IP):"
-    echo "  YCode Frontend:    http://$instance_ip:3000"
-    echo "  YCode Backend:     http://$instance_ip:8000"
-    echo "  YCampus Frontend:  http://$instance_ip:3001"
-    echo "  YCampus Backend:   http://$instance_ip:8001"
+
+    print_info "Application URLs (subdomain access):"
+    echo "  YCode Frontend:    http://code-dev.yuvro.ai"
+    echo "  YCampus Frontend:  http://campus-dev.yuvro.ai"
+    echo "  YCode Backend:     http://backend-code-dev.yuvro.ai"
+    echo "  YCampus Backend:   http://backend-campus-dev.yuvro.ai"
     echo "  Code Executor:     http://$instance_ip:8002"
     echo ""
-    
-    print_info "Setup port forwarding:"
-    echo "  ssh -i $SSH_KEY_PATH -L 3000:localhost:3000 -L 8001:localhost:8001 -L 3002:localhost:3002 -L 8003:localhost:8003 ubuntu@$instance_ip"
-    echo ""
-    
+
     print_info "View logs:"
     echo "  ssh -i $SSH_KEY_PATH ubuntu@$instance_ip"
     echo "  cd yuvro-code"
-    echo "  DEPLOY_ENV=dev docker-compose logs -f"
-    echo ""
-    
-    print_info "Stop applications:"
-    echo "  ssh -i $SSH_KEY_PATH ubuntu@$instance_ip"
-    echo "  cd yuvro-code"
-    echo "  DEPLOY_ENV=dev docker-compose down"
+    echo "  docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml logs -f"
     echo ""
 }
 
@@ -413,6 +527,7 @@ main() {
     wait_for_ssh "$instance_ip"
     wait_for_docker "$instance_ip"
     deploy_applications "$instance_ip" "$REPO_URL"
+    setup_nginx "$instance_ip"
     show_summary "$instance_ip"
 }
 
