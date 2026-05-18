@@ -22,6 +22,7 @@ export interface User {
   college_name?: string;
   college_id?: string;
   department_id?: string;
+  department_name?: string;
 }
 
 interface AuthState {
@@ -248,6 +249,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const updateUser = (user: User): void => {
+    localStorage.setItem('user', JSON.stringify(user));
     dispatch({ type: 'UPDATE_USER', payload: user });
   };
 

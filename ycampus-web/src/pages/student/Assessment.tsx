@@ -6,9 +6,9 @@ import AssessmentContent from '@/components/student/AssessmentContent';
 const StudentAssessment = () => {
   const [searchParams] = useSearchParams();
   
-  // Hide layout when in assessment interface, instructions, or results view
+  // Hide layout when in assessment interface, instructions, results, or thankyou view
   const view = searchParams.get('view');
-  const hideLayout = view === 'instructions' || view === 'assessment' || view === 'results';
+  const hideLayout = view === 'instructions' || view === 'assessment' || view === 'results' || view === 'thankyou';
 
   useEffect(() => {
     // Scroll to top on page load

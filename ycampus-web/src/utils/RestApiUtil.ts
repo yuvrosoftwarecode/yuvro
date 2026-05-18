@@ -26,6 +26,22 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
+        if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+            try {
+                const url = new URL(endpoint);
+                if (params) {
+                    Object.entries(params).forEach(([key, value]) => {
+                        const stringValue = String(value);
+                        if (value !== undefined && value !== null && stringValue !== 'undefined' && stringValue !== 'null') {
+                            url.searchParams.append(key, stringValue);
+                        }
+                    });
+                }
+                return url.toString();
+            } catch (e) {
+                return endpoint;
+            }
+        }
         // Handle URL construction safely whether baseURL is relative or absolute
         let urlString = `${this.baseURL}${endpoint}`;
         

@@ -249,8 +249,11 @@ class HODProfile(BaseTimestampedModel):
         User, on_delete=models.CASCADE, related_name="hod_profile"
     )
     college = models.ForeignKey(College, on_delete=models.CASCADE, related_name="hods")
-    department = models.OneToOneField(
-        Department, on_delete=models.CASCADE, related_name="hod"
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="hods", null=True, blank=True
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_hods", blank=True
     )
 
     def __str__(self):
@@ -263,6 +266,9 @@ class PrincipalProfile(BaseTimestampedModel):
     )
     college = models.ForeignKey(
         College, on_delete=models.CASCADE, related_name="principals"
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_principals", blank=True
     )
 
     def __str__(self):
@@ -408,6 +414,11 @@ class TaskSubmission(BaseTimestampedModel):
     def __str__(self):
         return f"{self.student.user.username} - {self.task.title}"
 
+    def save(self, *args, **kwargs):
+        if self.is_submitted and self.submitted_at is None:
+            self.submitted_at = timezone.now()
+        super().save(*args, **kwargs)
+
 class TaskComment(BaseTimestampedModel):
     """
     Model representing comments/feedback on a task submission.
@@ -470,6 +481,7 @@ class Announcement(BaseTimestampedModel):
     LEVEL_CHOICES = [
         ("college", "College"),
         ("department", "Department"),
+        ("batch", "Batch"),
     ]
 
     title = models.CharField(max_length=255)
@@ -485,6 +497,14 @@ class Announcement(BaseTimestampedModel):
         null=True,
         blank=True,
         help_text="If null, this is a college-level announcement"
+    )
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.CASCADE,
+        related_name="announcements",
+        null=True,
+        blank=True,
+        help_text="If set, this is a batch-level announcement"
     )
     level = models.CharField(
         max_length=20,

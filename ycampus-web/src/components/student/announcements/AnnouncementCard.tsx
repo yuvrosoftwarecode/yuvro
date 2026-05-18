@@ -21,6 +21,11 @@ const categoryStyles: Record<string, { border: string; badge: string; text: stri
     badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
     text: 'Department',
   },
+  batch: {
+    border: 'border-l-purple-400',
+    badge: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800',
+    text: 'Batch',
+  },
 };
 
 const priorityStyles: Record<string, { badge: string }> = {
@@ -30,8 +35,8 @@ const priorityStyles: Record<string, { badge: string }> = {
 };
 
 export function AnnouncementCard({ announcement, onOpen }: Props) {
-  const cat = categoryStyles[announcement.category];
-  const pri = priorityStyles[announcement.priority];
+  const cat = categoryStyles[announcement.category] || categoryStyles.department;
+  const pri = priorityStyles[announcement.priority] || priorityStyles.normal;
 
   return (
     <Card
@@ -58,7 +63,7 @@ export function AnnouncementCard({ announcement, onOpen }: Props) {
                   {announcement.title}
                 </h3>
                 <Badge variant="outline" className={`text-xs ${cat.badge}`}>
-                  {cat.text}
+                  {announcement.category === 'batch' && announcement.batch_name ? `Batch: ${announcement.batch_name}` : cat.text}
                 </Badge>
                 <Badge variant="outline" className={`text-xs capitalize ${pri.badge}`}>
                   {announcement.priority}

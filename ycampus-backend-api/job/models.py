@@ -7,6 +7,12 @@ User = get_user_model()
 
 
 class Company(BaseModel):
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("inactive", "Inactive"),
+        ("blacklisted", "Blacklisted"),
+    ]
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     benefits = models.TextField(blank=True, null=True)
@@ -14,6 +20,33 @@ class Company(BaseModel):
     website = models.URLField(blank=True, null=True)
     size = models.CharField(max_length=100, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
+    company_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("Product", "Product"),
+            ("Service", "Service"),
+            ("Startup", "Startup"),
+            ("MNC", "MNC"),
+            ("IT Service & Consulting", "IT Service & Consulting"),
+        ],
+        default="Service",
+    )
+
+    # Contact information
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+
+    # Recruiter information
+    recruiter_name = models.CharField(max_length=255, blank=True, null=True)
+    recruiter_designation = models.CharField(max_length=100, blank=True, null=True)
+    recruiter_email = models.EmailField(blank=True, null=True)
+    recruiter_phone = models.CharField(max_length=20, blank=True, null=True)
+
+    # Statistics
+    total_hires = models.PositiveIntegerField(default=0)
+    avg_ctc = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
 
     def __str__(self):
         return self.name
@@ -81,6 +114,12 @@ class Job(BaseModel):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     posted_at = models.DateTimeField(blank=True, null=True)
     expires_at = models.DateTimeField(blank=True, null=True)
+
+    vacancies = models.PositiveIntegerField(default=1)
+    min_cgpa = models.DecimalField(max_digits=3, decimal_places=1, default=0.0)
+    bond_details = models.TextField(blank=True, null=True)
+    eligible_branches = models.JSONField(default=list, blank=True)
+    selection_rounds = models.JSONField(default=list, blank=True)
 
     screening_questions_config = models.JSONField(default=dict, blank=True)
     screening_questions_random_config = models.JSONField(default=dict, blank=True)

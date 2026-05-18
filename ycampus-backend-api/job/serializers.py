@@ -39,6 +39,17 @@ class CompanySerializer(serializers.ModelSerializer):
             "description",
             "benefits",
             "location",
+            "status",
+            "company_type",
+            "email",
+            "phone",
+            "recruiter_name",
+            "recruiter_designation",
+            "recruiter_email",
+            "recruiter_phone",
+            "total_hires",
+            "avg_ctc",
+            "rating",
             "created_at",
             "updated_at",
         ]
@@ -50,6 +61,7 @@ class JobSerializer(serializers.ModelSerializer):
     company_id = serializers.UUIDField(write_only=True)
     screening_questions_config = serializers.JSONField(required=False)
     screening_questions_random_config = serializers.JSONField(required=False)
+    applications_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
@@ -73,12 +85,28 @@ class JobSerializer(serializers.ModelSerializer):
             "status",
             "posted_at",
             "expires_at",
+            "vacancies",
+            "min_cgpa",
+            "bond_details",
+            "eligible_branches",
+            "selection_rounds",
             "created_at",
             "updated_at",
             "screening_questions_config",
             "screening_questions_random_config",
+            "applications_count",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def get_applications_count(self, obj):
+        cache_key = f"job_applications_count_{obj.id}"
+        count = cache.get(cache_key)
+
+        if count is None:
+            count = obj.applications.filter(is_applied=True).count()
+            cache.set(cache_key, count, timeout=300)  # Cache for 5 minutes
+
+        return count
 
     def create(self, validated_data):
         logger.info(f"Creating job with data: {validated_data}")
@@ -230,6 +258,8 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 class JobApplicationListSerializer(serializers.ModelSerializer):
     applicant_name = serializers.SerializerMethodField()
     applicant_email = serializers.SerializerMethodField()
+    applicant_roll_no = serializers.SerializerMethodField()
+    applicant_department = serializers.SerializerMethodField()
     job = JobSerializer(read_only=True)
 
     class Meta:
@@ -238,6 +268,8 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
             "id",
             "applicant_name",
             "applicant_email",
+            "applicant_roll_no",
+            "applicant_department",
             "job",
             "status",
             "applied_at",
@@ -258,6 +290,21 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
 
     def get_applicant_email(self, obj):
         return obj.applicant.email
+
+    def get_applicant_roll_no(self, obj):
+        if obj.applicant.role == "student" and hasattr(obj.applicant, "student_profile"):
+            return obj.applicant.student_profile.roll_number
+        return "N/A"
+
+    def get_applicant_department(self, obj):
+        if obj.applicant.role == "student" and hasattr(obj.applicant, "student_profile"):
+            return obj.applicant.student_profile.department.name if obj.applicant.student_profile.department else "N/A"
+        return "N/A"
+
+
+class JobApplicationCandidateSerializer(JobApplicationListSerializer):
+    class Meta(JobApplicationListSerializer.Meta):
+        fields = [f for f in JobApplicationListSerializer.Meta.fields if f != "job"]
 
 
 class JobWithApplicationsSerializer(JobSerializer):

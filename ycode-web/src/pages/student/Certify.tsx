@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCertificationExams, CertificationExam } from '@/services/certificationService';
 import { fetchCourses, Course } from '@/services/courseService';
-import Navigation from "@/components/common/Navigation";
+import DashboardLayout from "@/components/common/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,18 +91,20 @@ const Certify: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50/50 flex flex-col">
-                <Navigation />
-                <div className="flex-1 flex items-center justify-center">
+            <DashboardLayout hideHeader={true} hideFooter={true}>
+                <div className="flex-1 flex items-center justify-center min-h-[400px]">
                     <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
                 </div>
-            </div>
+            </DashboardLayout>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/50 flex flex-col">
-            <Navigation />
+        <DashboardLayout
+            hideHeader={true}
+            hideFooter={true}
+            contentClassName="bg-gray-50/50"
+        >
             <div className="flex-1 px-8 py-1 pb-12">
                 <div className="max-w-[1600px] mx-auto space-y-8">
                     {/* Header */}
@@ -272,7 +274,7 @@ const Certify: React.FC = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 };
 

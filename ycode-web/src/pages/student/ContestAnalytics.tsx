@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { contestService } from '@/services/contestService';
-import Navigation from '@/components/common/Navigation';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, AlertCircle } from 'lucide-react';
@@ -27,22 +27,20 @@ const ContestAnalytics = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-slate-50">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F97316] mx-auto mb-4"></div>
             <p className="text-slate-600">Loading your analytics...</p>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-6">
@@ -57,7 +55,7 @@ const ContestAnalytics = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -74,8 +72,7 @@ const ContestAnalytics = () => {
         }
       `}</style>
 
-      <div className="min-h-screen bg-slate-50">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-slate-50">
         <div className="max-w-7xl mx-auto px-6 py-6 report-container">
           {/* Header Actions */}
           <div className="flex justify-between items-center mb-6 no-print">
@@ -95,7 +92,7 @@ const ContestAnalytics = () => {
 
           <ContestReportContent analytics={analytics} />
         </div>
-      </div>
+      </DashboardLayout>
     </>
   );
 };

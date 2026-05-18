@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchVideosBySubtopic } from "@/services/courseService";
-// Removed unused imports
 import { CodeEditor } from "@/components/code-editor";
 import AIChatContainer from "./Learn/AIChatWidget/AIChatContainer";
 import ExampleCodeGallery from "@/components/code-editor/ExampleCodeGallery";
 import { Sparkles, Code, Video as VideoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type Video = {
   id: string;
@@ -50,10 +51,29 @@ const StudentVideos = ({
 
   const [leftPanelWidth, setLeftPanelWidth] = useState(45); // % width of left panel (video gets 45%, code editor gets 55%)
 
-  // Vertical split state for 'video-chat-code' in Left Pane (Video height %)
   const [videoChatSplitRatio, setVideoChatSplitRatio] = useState(50);
 
   const [dragMode, setDragMode] = useState<'horizontal' | 'vertical' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragInfo = useRef<{ mode: 'horizontal' | 'vertical' | null; startVal: number }>({ mode: null, startVal: 0 });
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const isCodeOnLeft = layout === 'code-chat';
+    const isCodeOnRight = layout === 'video-code' || layout === 'video-chat-code';
+
+    let minWidth = 15;
+    let maxWidth = 85;
+
+    if (isCodeOnLeft) minWidth = 38;
+    if (isCodeOnRight) maxWidth = 62;
+
+    if (leftPanelWidth < minWidth) {
+      setLeftPanelWidth(minWidth);
+    } else if (leftPanelWidth > maxWidth) {
+      setLeftPanelWidth(maxWidth);
+    }
+  }, [layout]);
 
   useEffect(() => {
     loadVideos();
@@ -74,38 +94,84 @@ const StudentVideos = ({
     }
   };
 
-  const startHorizontalDrag = () => setDragMode('horizontal');
-  const startVerticalDrag = () => setDragMode('vertical');
-  const stopDrag = () => setDragMode(null);
+  const startHorizontalDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dragInfo.current = { mode: 'horizontal', startVal: leftPanelWidth };
+    setDragMode('horizontal');
+  };
 
-  const onDrag = (e: MouseEvent) => {
-    if (!dragMode) return;
-
-    if (dragMode === 'horizontal') {
-      const newWidth = (e.clientX / window.innerWidth) * 100;
-      if (newWidth >= 15 && newWidth <= 75) {
-        setLeftPanelWidth(newWidth);
-      }
-    } else if (dragMode === 'vertical' && leftPaneRef.current) {
-      const rect = leftPaneRef.current.getBoundingClientRect();
-      const relativeY = e.clientY - rect.top;
-      const newHeightPct = (relativeY / rect.height) * 100;
-
-      if (newHeightPct >= 20 && newHeightPct <= 80) {
-        setVideoChatSplitRatio(newHeightPct);
-      }
-    }
+  const startVerticalDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dragInfo.current = { mode: 'vertical', startVal: videoChatSplitRatio };
+    setDragMode('vertical');
   };
 
   useEffect(() => {
-    window.addEventListener("mousemove", onDrag);
-    window.addEventListener("mouseup", stopDrag);
+    const handleMouseUp = () => {
+      const { mode } = dragInfo.current;
+      if (!mode) return;
 
-    return () => {
-      window.removeEventListener("mousemove", onDrag);
-      window.removeEventListener("mouseup", stopDrag);
+      // Commit the final CSS var value to React state
+      if (containerRef.current) {
+        if (mode === 'horizontal') {
+          const cssVal = containerRef.current.style.getPropertyValue('--left-width');
+          const parsed = parseFloat(cssVal);
+          if (!isNaN(parsed)) setLeftPanelWidth(parsed);
+        }
+        if (mode === 'vertical') {
+          const cssVal = containerRef.current.style.getPropertyValue('--video-height');
+          const parsed = parseFloat(cssVal);
+          if (!isNaN(parsed)) setVideoChatSplitRatio(parsed);
+        }
+      }
+
+      dragInfo.current = { mode: null, startVal: 0 };
+      setDragMode(null);
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     };
-  }, [dragMode]);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { mode } = dragInfo.current;
+      if (!mode || !containerRef.current) return;
+
+      if (e.buttons !== 1) {
+        handleMouseUp();
+        return;
+      }
+
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+      rafRef.current = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
+        if (mode === 'horizontal') {
+          const newWidth = (e.clientX / window.innerWidth) * 100;
+          const isCodeOnLeft = layout === 'code-chat';
+          const isCodeOnRight = layout === 'video-code' || layout === 'video-chat-code';
+          let minW = 15, maxW = 85;
+          if (isCodeOnLeft) minW = 38;
+          if (isCodeOnRight) maxW = 62;
+
+          const clampedWidth = Math.max(minW, Math.min(maxW, newWidth));
+          containerRef.current!.style.setProperty('--left-width', `${clampedWidth}%`);
+          dragInfo.current.startVal = clampedWidth;
+        } else if (mode === 'vertical' && leftPaneRef.current) {
+          const rect = leftPaneRef.current.getBoundingClientRect();
+          const newHeightPct = ((e.clientY - rect.top) / rect.height) * 100;
+          const clampedHeight = Math.max(20, Math.min(80, newHeightPct));
+          containerRef.current!.style.setProperty('--video-height', `${clampedHeight}%`);
+          dragInfo.current.startVal = clampedHeight;
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    };
+  }, [layout]);
 
   const renderVideoPlayer = (url: string) => {
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -120,7 +186,7 @@ const StudentVideos = ({
       return (
         <iframe
           src={`https://www.youtube.com/embed/${videoId}`}
-          className="w-full h-full rounded-lg"
+          className="w-full h-full rounded-2xl"
           allow="autoplay; encrypted-media"
           allowFullScreen
         />
@@ -128,13 +194,13 @@ const StudentVideos = ({
     }
 
     if (url.endsWith(".mp4")) {
-      return <video src={url} controls className="w-full h-full rounded-lg" />;
+      return <video src={url} controls className="w-full h-full rounded-2xl" />;
     }
 
     return (
       <iframe
         src={url}
-        className="w-full h-full rounded-lg"
+        className="w-full h-full rounded-2xl"
         allowFullScreen
       />
     );
@@ -152,47 +218,38 @@ const StudentVideos = ({
     return ctx;
   };
 
-  // --- Components for Panes ---
-
-  const PaneWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <div className={`w-full h-full bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 ${className}`}>
-      {children}
+  const renderVideo = () => (
+    <div className="w-full h-full overflow-hidden p-6 flex items-center justify-center">
+      {loading ? (
+        <LoadingSpinner size="lg" />
+      ) : !selectedVideo ? (
+        <div className="text-gray-500 font-medium text-sm">No video selected</div>
+      ) : (
+        <div className="w-full h-full relative">
+          {renderVideoPlayer(selectedVideo.video_link)}
+        </div>
+      )}
     </div>
   );
 
 
-  const VideoComponent = () => (
-    <PaneWrapper>
-      <div className="w-full h-full flex flex-col bg-black relative">
-        {!selectedVideo ? (
-          <div className="text-gray-500 flex items-center justify-center h-full">No video selected</div>
-        ) : (
-          <div className="absolute inset-0">
-            {renderVideoPlayer(selectedVideo.video_link)}
-          </div>
-        )}
-      </div>
-    </PaneWrapper>
+  const renderChat = (isEmbedded = false) => (
+    <div className={cn("h-full w-full", !isEmbedded && "p-1")}>
+      <AIChatContainer
+        className={cn("w-full h-full", isEmbedded ? "shadow-none border-none rounded-none" : "rounded-xl border border-gray-200 shadow-sm")}
+        style={{ border: isEmbedded ? "none" : undefined, boxShadow: isEmbedded ? "none" : undefined }}
+        welcomeMessage={`Hi! I can help you with understanding "${selectedVideo?.title || subtopicName}".`}
+        persistenceKey={sessionId}
+        chatTitle="AI Learning Buddy"
+        contextGetter={getVideoContext}
+        onNewChat={onNewSession}
+        showHistory={false}
+      />
+    </div>
   );
 
-  const ChatComponent = () => (
-    <PaneWrapper>
-      <div className="w-full h-full flex flex-col">
-        <AIChatContainer
-          className="w-full h-full shadow-none border-none rounded-none"
-          welcomeMessage={`Hi! I can help you with understanding "${selectedVideo?.title || subtopicName}".`}
-          persistenceKey={sessionId}
-          chatTitle="AI Learning Buddy"
-          contextGetter={getVideoContext}
-          onNewChat={onNewSession}
-          showHistory={false}
-        />
-      </div>
-    </PaneWrapper>
-  );
-
-  const CodeEditorComponent = () => (
-    <PaneWrapper>
+  const renderCodeEditor = (isEmbedded = false) => (
+    <div className={cn("h-full w-full", !isEmbedded && "p-1")}>
       <CodeEditor
         problemTitle="Practice Coding"
         problemId={`video-coding-${subtopicId}`}
@@ -202,115 +259,166 @@ const StudentVideos = ({
         allowCustomTestCases={true}
         showFullscreenButton={true}
         showExamplesButton={true}
-        className="h-full"
+        className={cn("h-full", isEmbedded ? "border-none shadow-none rounded-none" : "rounded-xl border border-gray-200 shadow-sm")}
       />
-    </PaneWrapper>
+    </div>
   );
 
 
   // --- Layout Helpers ---
 
   const isSplit = layout !== "video";
+  const isVideoInLayout = layout.includes('video');
+  const isChatOnLeft = layout === 'video-chat-code';
+  const isCodeOnLeft = layout === 'code-chat';
+  const isRightPaneActive = isSplit;
 
-  const gapSize = 12;
-  const halfGap = gapSize / 2;
-
-  const styles = {
-    left: {
-      width: isSplit ? `calc(${leftPanelWidth}% - ${halfGap}px)` : "100%"
-    },
-    right: {
-      width: isSplit ? `calc(${100 - leftPanelWidth}% - ${halfGap}px)` : "0%",
-      display: isSplit ? 'flex' : 'none'
-    }
-  };
+  // Calculate widths and heights for transitions
+  const currentLeftWidth = isSplit ? leftPanelWidth : 100;
+  const currentRightWidth = isSplit ? (100 - leftPanelWidth) : 0;
+  const currentVideoHeight = layout === 'video-chat-code' ? videoChatSplitRatio : 100;
+  const currentChatHeight = layout === 'video-chat-code' ? (100 - videoChatSplitRatio) : 0;
 
   return (
-    <div className="flex flex-col h-full relative select-none bg-white">
-
+    <div
+      ref={containerRef}
+      className="flex flex-col h-full relative select-none bg-gray-50"
+      style={{
+        '--left-width': `${currentLeftWidth}%`,
+        '--video-height': `${currentVideoHeight}%`
+      } as React.CSSProperties}
+    >
       {/* MAIN CONTENT AREA WRAPPER */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        {dragMode && (
+          <div
+            className="absolute inset-0 z-[100] select-none"
+            style={{ cursor: dragMode === 'horizontal' ? 'col-resize' : 'row-resize' }}
+          />
+        )}
+        <div className="box-border relative flex-1 flex overflow-hidden">
 
-        {/* PANES AREA */}
-        <div className="flex-1 flex overflow-hidden p-3 gap-3 box-border relative">
-
-          {/* LEFT PANE */}
+          {/* LEFT PANE SLIDER */}
           <div
             ref={leftPaneRef}
-            className={`h-full flex flex-col ${dragMode ? "pointer-events-none select-none" : ""}`}
-            style={styles.left}
+            className={cn(
+              "h-full flex flex-col relative overflow-hidden shrink-0 will-change-[width]",
+              !dragMode && "transition-all duration-500 ease-in-out"
+            )}
+            style={{ width: `var(--left-width)` }}
           >
-            {/* Standard Modes */}
-            {(layout === 'video' || layout === 'video-chat' || layout === 'video-code') && <VideoComponent />}
-            {(layout === 'code-chat') && <CodeEditorComponent />}
-
-            {/* 3-Pane Vertical Split Mode (Left Side: Video Top, Chat Bottom) */}
-            {(layout === 'video-chat-code') && (
-              <div className="flex flex-col h-full w-full relative gap-3">
-                {/* TOP: VIDEO */}
-                <div style={{ height: `calc(${videoChatSplitRatio}% - 6px)` }} className="w-full">
-                  <VideoComponent />
-                </div>
-
-                {/* VERTICAL RESIZER - Invisible Absolute */}
-                <div
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    startVerticalDrag();
-                  }}
-                  className="absolute left-0 right-0 h-4 -mt-2 cursor-row-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
-                  style={{ top: `${videoChatSplitRatio}%` }}
-                >
-                  <div className="h-1 w-8 bg-gray-300 rounded-full shadow-sm" />
-                </div>
-
-                {/* BOTTOM: CHAT */}
-                <div style={{ height: `calc(${100 - videoChatSplitRatio}% - 6px)` }} className="w-full">
-                  <ChatComponent />
+            <div className="flex flex-col h-full w-full relative">
+              {/* TOP SLOT: Video or Code */}
+              <div
+                className={cn(
+                  "w-full transition-all duration-500 ease-in-out relative overflow-hidden flex flex-col items-center",
+                  !isVideoInLayout && !isCodeOnLeft && "opacity-0 pointer-events-none"
+                )}
+                style={{ height: `var(--video-height)` }}
+              >
+                <div className={cn("w-full h-full relative", !isSplit && "max-w-6xl mx-auto py-4")}>
+                  {/* Slot L1: Video or Code (Top Left) */}
+                  <div
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-500",
+                      (isCodeOnLeft) ? "opacity-100" : "opacity-0 pointer-events-none"
+                    )}
+                  >
+                    {renderCodeEditor(true)}
+                  </div>
+                  <div
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-500",
+                      (!isCodeOnLeft && isVideoInLayout) ? "opacity-100" : "opacity-0 pointer-events-none"
+                    )}
+                  >
+                    {renderVideo()}
+                  </div>
                 </div>
               </div>
-            )}
+
+              {/* VERTICAL RESIZER (only for video-chat-code) */}
+              <div
+                onMouseDown={startVerticalDrag}
+                className={cn(
+                  "absolute left-0 right-0 h-4 -mt-2 cursor-row-resize z-20 flex items-center justify-center group",
+                  !dragMode && "transition-all duration-500",
+                  layout === 'video-chat-code' ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
+                style={{ top: `var(--video-height)` }}
+              >
+                <div className="h-1.5 w-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+              </div>
+
+              {/* BOTTOM SLOT: AI Chat (for 3-pane mode) */}
+              <div
+                className={cn(
+                  "w-full transition-all duration-500 ease-in-out overflow-hidden",
+                  !isChatOnLeft && "opacity-0 pointer-events-none"
+                )}
+                style={{ height: `calc(100% - var(--video-height))` }}
+              >
+                {renderChat(true)}
+              </div>
+            </div>
           </div>
 
-          {/* RESIZER HANDLE (Horizontal) - Invisible functional area */}
-          {isSplit && (
-            <div
-              onMouseDown={startHorizontalDrag}
-              className={`w-4 -ml-2 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity absolute`}
-              style={{ left: `${leftPanelWidth}%` }} // Position absolutely to avoid layout shifts in flex gap
-            >
-              <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+          {/* HORIZONTAL RESIZER HANDLE */}
+          <div
+            onMouseDown={startHorizontalDrag}
+            className={cn(
+              "w-4 -ml-2 h-full cursor-col-resize z-20 flex items-center justify-center absolute group",
+              !dragMode && "transition-all duration-500",
+              isSplit ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}
+            style={{ left: `var(--left-width)` }}
+          >
+            <div className="w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
+          </div>
+
+          {/* RIGHT PANE SLIDER */}
+          <div
+            className={cn(
+              "h-full flex flex-col border-l border-slate-200 bg-white relative overflow-hidden shrink-0 will-change-[width]",
+              !dragMode && "transition-all duration-500 ease-in-out",
+              !isRightPaneActive && "opacity-0 pointer-events-none"
+            )}
+            style={{ width: `calc(100% - var(--left-width))` }}
+          >
+            <div className="h-full w-full relative">
+              {/* Slot R: Code or Chat */}
+              <div className="absolute inset-0">
+                <div
+                  className={cn(
+                    "absolute inset-0 transition-all duration-500",
+                    (layout === 'video-code' || layout === 'video-chat-code') ? "opacity-100" : "opacity-0 pointer-events-none"
+                  )}
+                >
+                  {renderCodeEditor(true)}
+                </div>
+                <div
+                  className={cn(
+                    "absolute inset-0 transition-all duration-500",
+                    (layout === 'video-chat' || layout === 'code-chat') ? "opacity-100" : "opacity-0 pointer-events-none"
+                  )}
+                >
+                  {renderChat(true)}
+                </div>
+              </div>
             </div>
-          )}
-
-          {/* RIGHT PANE (Only active in split modes) */}
-          {isSplit && (
-            <div
-              className={`h-full flex flex-col bg-transparent ${dragMode ? "pointer-events-none select-none" : ""}`}
-              style={styles.right}
-            >
-              {/* Standard Split Modes */}
-              {(layout === 'video-chat' || layout === 'code-chat') && <ChatComponent />}
-              {(layout === 'video-code' || layout === 'video-chat-code') && <CodeEditorComponent />}
-
-            </div>
-          )}
-
+          </div>
         </div>
-
       </div>
 
-      {
-        showExamples && (
-          <ExampleCodeGallery
-            currentLanguage="python"
-            onClose={() => setShowExamples(false)}
-            onApplyCode={(_exampleCode) => {
-              setShowExamples(false);
-            }}
-          />
-        )
-      }
+      {showExamples && (
+        <ExampleCodeGallery
+          currentLanguage="python"
+          onClose={() => setShowExamples(false)}
+          onApplyCode={(_exampleCode) => {
+            setShowExamples(false);
+          }}
+        />
+      )}
     </div>
   );
 };

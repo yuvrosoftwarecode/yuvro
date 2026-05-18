@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import Navigation from "@/components/common/Navigation";
 import { Button } from "@/components/ui/button";
 
 import SkillTestDashboard from "@/components/student/skill-test/SkillTestDashboard";
@@ -9,6 +8,7 @@ import TestCards from "@/components/student/skill-test/TestCards";
 import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
+import DashboardLayout from "@/components/common/DashboardLayout";
 
 import {
   fetchCourses,
@@ -274,19 +274,17 @@ const SkillTest: React.FC = () => {
 
   if (loadingView && !courses.length) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <TestInstructions
           test={{
             id: selectedTest.id,
@@ -301,7 +299,7 @@ const SkillTest: React.FC = () => {
           onStart={handleBeginTest}
           onBack={handleBackToTests}
         />
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -350,8 +348,7 @@ const SkillTest: React.FC = () => {
     });
 
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <TestResults
           test={{
             id: selectedTest.id,
@@ -365,7 +362,7 @@ const SkillTest: React.FC = () => {
           onBackToList={handleBackToTests}
           onTryAgain={handleRetakeTest}
         />
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -373,8 +370,7 @@ const SkillTest: React.FC = () => {
   if (currentView === "results") {
     console.log('Results view requested but conditions not met. Showing fallback.');
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <h2 className="text-xl font-bold mb-4">Unable to Load Results</h2>
@@ -386,16 +382,18 @@ const SkillTest: React.FC = () => {
             <Button onClick={handleBackToTests}>Back to Tests</Button>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <Navigation autoHide={hideNavigation} />
-
-      <div className="flex-1 flex min-h-0">
+    <DashboardLayout
+      hideHeader={true}
+      hideFooter={true}
+      contentClassName="h-full p-0 overflow-hidden"
+    >
+      <div className="h-full flex min-h-0 bg-background">
         {selectedCourse && (currentView === "tests" || (actualTestId && !isResultsRoute)) && (
           <TopicSidebar
             course={selectedCourse}
@@ -433,7 +431,7 @@ const SkillTest: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

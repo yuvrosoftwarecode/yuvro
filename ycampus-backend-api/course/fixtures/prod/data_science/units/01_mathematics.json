@@ -1,0 +1,2893 @@
+{
+  "name": "Mathematics",
+  "subject_short_code": "DS100",
+  "order_index": 1,
+  "sub_units": [
+    {
+      "name": "Statistics Basics",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Statistics Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Statistics%20Basics",
+          "ai_context": "Detailed overview and key concepts of Statistics Basics"
+        },
+        {
+          "title": "Statistics Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Statistics%20Basics",
+          "ai_context": "Detailed overview and key concepts of Statistics Basics"
+        }
+      ]
+    },
+    {
+      "name": "Probability",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Probability",
+          "video_link": "https://www.youtube.com/results?search_query=Probability",
+          "ai_context": "Detailed overview and key concepts of Probability"
+        },
+        {
+          "title": "Probability",
+          "video_link": "https://www.youtube.com/results?search_query=Probability",
+          "ai_context": "Detailed overview and key concepts of Probability"
+        }
+      ]
+    },
+    {
+      "name": "Linear Algebra",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Linear Algebra",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Algebra",
+          "ai_context": "Detailed overview and key concepts of Linear Algebra"
+        },
+        {
+          "title": "Linear Algebra",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Algebra",
+          "ai_context": "Detailed overview and key concepts of Linear Algebra"
+        }
+      ]
+    },
+    {
+      "name": "Calculus Basics",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Calculus Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Calculus%20Basics",
+          "ai_context": "Detailed overview and key concepts of Calculus Basics"
+        },
+        {
+          "title": "Calculus Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Calculus%20Basics",
+          "ai_context": "Detailed overview and key concepts of Calculus Basics"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Mean Definition",
+      "content": "What is the mean of a dataset?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The average value of all observations",
+          "is_correct": true
+        },
+        {
+          "text": "The middle value only",
+          "is_correct": false
+        },
+        {
+          "text": "The most frequent value",
+          "is_correct": false
+        },
+        {
+          "text": "The difference between values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Median Meaning",
+      "content": "What does the median represent in a dataset?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The middle value after sorting the data",
+          "is_correct": true
+        },
+        {
+          "text": "The largest value",
+          "is_correct": false
+        },
+        {
+          "text": "The average of two datasets",
+          "is_correct": false
+        },
+        {
+          "text": "The least frequent value",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Mode Definition",
+      "content": "What is the mode of a dataset?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The value that appears most frequently",
+          "is_correct": true
+        },
+        {
+          "text": "The average value",
+          "is_correct": false
+        },
+        {
+          "text": "The smallest value",
+          "is_correct": false
+        },
+        {
+          "text": "The range of the dataset",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Variance Purpose",
+      "content": "What does variance measure?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How spread out the data values are",
+          "is_correct": true
+        },
+        {
+          "text": "The middle value of data",
+          "is_correct": false
+        },
+        {
+          "text": "The most common value",
+          "is_correct": false
+        },
+        {
+          "text": "The total number of values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Standard Deviation Basics",
+      "content": "What is standard deviation commonly used for?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Measuring data variability around the mean",
+          "is_correct": true
+        },
+        {
+          "text": "Finding the mode only",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting data alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "Calculating percentages only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Mean Calculation",
+      "content": "What is the mean of the dataset: 2, 4, 6, 8?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "5",
+          "is_correct": true
+        },
+        {
+          "text": "4",
+          "is_correct": false
+        },
+        {
+          "text": "6",
+          "is_correct": false
+        },
+        {
+          "text": "8",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Median in Even Dataset",
+      "content": "What is the median of the dataset: 3, 5, 7, 9?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "6",
+          "is_correct": true
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "7",
+          "is_correct": false
+        },
+        {
+          "text": "8",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Variance Interpretation",
+      "content": "What does a high variance indicate about a dataset?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data points are spread far from the mean",
+          "is_correct": true
+        },
+        {
+          "text": "All data points are identical",
+          "is_correct": false
+        },
+        {
+          "text": "The dataset has no mean",
+          "is_correct": false
+        },
+        {
+          "text": "The mode is zero",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Standard Deviation Relation",
+      "content": "How is standard deviation related to variance?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Standard deviation is the square root of variance",
+          "is_correct": true
+        },
+        {
+          "text": "Variance is the square root of standard deviation",
+          "is_correct": false
+        },
+        {
+          "text": "Both are always equal",
+          "is_correct": false
+        },
+        {
+          "text": "They are unrelated concepts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing the Best Measure",
+      "content": "Which measure is most affected by extreme values in a dataset?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean",
+          "is_correct": true
+        },
+        {
+          "text": "Median",
+          "is_correct": false
+        },
+        {
+          "text": "Mode",
+          "is_correct": false
+        },
+        {
+          "text": "Frequency",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Zero Variance Meaning",
+      "content": "What does a variance of zero indicate?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All data values are the same",
+          "is_correct": true
+        },
+        {
+          "text": "The dataset has negative values",
+          "is_correct": false
+        },
+        {
+          "text": "The mean is zero",
+          "is_correct": false
+        },
+        {
+          "text": "The dataset is empty",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-World Statistics Usage",
+      "content": "Why are variance and standard deviation important in data science?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help understand the spread and consistency of data",
+          "is_correct": true
+        },
+        {
+          "text": "They replace the need for data collection",
+          "is_correct": false
+        },
+        {
+          "text": "They are only used for web development",
+          "is_correct": false
+        },
+        {
+          "text": "They permanently remove outliers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Probability Basics",
+      "content": "What does probability measure?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The likelihood of an event occurring",
+          "is_correct": true
+        },
+        {
+          "text": "The size of a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "The average value in data",
+          "is_correct": false
+        },
+        {
+          "text": "The speed of calculations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Probability Range",
+      "content": "What is the valid range of probability values?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0 to 1",
+          "is_correct": true
+        },
+        {
+          "text": "-1 to 1",
+          "is_correct": false
+        },
+        {
+          "text": "1 to 100",
+          "is_correct": false
+        },
+        {
+          "text": "0 to 1000",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Impossible Event",
+      "content": "What is the probability of an impossible event?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0",
+          "is_correct": true
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "0.5",
+          "is_correct": false
+        },
+        {
+          "text": "100",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Certain Event",
+      "content": "What is the probability of a certain event?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1",
+          "is_correct": true
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        },
+        {
+          "text": "0.25",
+          "is_correct": false
+        },
+        {
+          "text": "-1",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Conditional Probability Meaning",
+      "content": "What is conditional probability?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The probability of an event occurring given another event has occurred",
+          "is_correct": true
+        },
+        {
+          "text": "The probability of impossible events only",
+          "is_correct": false
+        },
+        {
+          "text": "The total number of outcomes",
+          "is_correct": false
+        },
+        {
+          "text": "The average of probabilities",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Coin Toss Probability",
+      "content": "What is the probability of getting heads when tossing a fair coin once?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0.5",
+          "is_correct": true
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        },
+        {
+          "text": "2",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dice Probability",
+      "content": "What is the probability of rolling a 3 on a fair six-sided die?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1/6",
+          "is_correct": true
+        },
+        {
+          "text": "1/3",
+          "is_correct": false
+        },
+        {
+          "text": "1/2",
+          "is_correct": false
+        },
+        {
+          "text": "6",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dependent Events",
+      "content": "Which situation is an example of conditional probability?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Finding the probability of drawing a red card after already drawing one card",
+          "is_correct": true
+        },
+        {
+          "text": "Rolling a single die once",
+          "is_correct": false
+        },
+        {
+          "text": "Counting total students in a class",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting numbers in ascending order",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Probability Sum Rule",
+      "content": "What is the sum of probabilities of all possible outcomes in a sample space?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1",
+          "is_correct": true
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        },
+        {
+          "text": "100",
+          "is_correct": false
+        },
+        {
+          "text": "Infinite",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Conditional Probability Formula",
+      "content": "Which formula represents conditional probability?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "P(A|B) = P(A and B) / P(B)",
+          "is_correct": true
+        },
+        {
+          "text": "P(A|B) = P(A) + P(B)",
+          "is_correct": false
+        },
+        {
+          "text": "P(A|B) = P(A) × P(B) × 2",
+          "is_correct": false
+        },
+        {
+          "text": "P(A|B) = 1 - P(B)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Independent Events",
+      "content": "If two events are independent, how does one event affect the probability of the other?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It does not affect the probability",
+          "is_correct": true
+        },
+        {
+          "text": "It doubles the probability",
+          "is_correct": false
+        },
+        {
+          "text": "It makes the probability zero",
+          "is_correct": false
+        },
+        {
+          "text": "It guarantees the outcome",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-World Probability Usage",
+      "content": "Why is probability important in data science and machine learning?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps model uncertainty and make predictions from data",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces all datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "It is only useful for games",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Scalar Definition",
+      "content": "What is a scalar in linear algebra?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A single numerical value",
+          "is_correct": true
+        },
+        {
+          "text": "A table of numbers",
+          "is_correct": false
+        },
+        {
+          "text": "A collection of equations",
+          "is_correct": false
+        },
+        {
+          "text": "A programming function",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vector Basics",
+      "content": "What is a vector?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An ordered list of numbers",
+          "is_correct": true
+        },
+        {
+          "text": "A single value only",
+          "is_correct": false
+        },
+        {
+          "text": "A type of database",
+          "is_correct": false
+        },
+        {
+          "text": "A sorting algorithm",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Meaning",
+      "content": "What is a matrix?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A rectangular arrangement of numbers in rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "A single mathematical operation",
+          "is_correct": false
+        },
+        {
+          "text": "A programming language",
+          "is_correct": false
+        },
+        {
+          "text": "A type of graph",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Addition",
+      "content": "When can two matrices be added together?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When they have the same dimensions",
+          "is_correct": true
+        },
+        {
+          "text": "When they have different row counts",
+          "is_correct": false
+        },
+        {
+          "text": "Only when both are square matrices",
+          "is_correct": false
+        },
+        {
+          "text": "Only when all values are positive",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Multiplication Basics",
+      "content": "What condition is required for matrix multiplication?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of columns in the first matrix must equal the number of rows in the second matrix",
+          "is_correct": true
+        },
+        {
+          "text": "Both matrices must have identical values",
+          "is_correct": false
+        },
+        {
+          "text": "Both matrices must be one-dimensional",
+          "is_correct": false
+        },
+        {
+          "text": "The matrices must contain only zeros",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vector Representation",
+      "content": "Which of the following is an example of a vector?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[2, 4, 6]",
+          "is_correct": true
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "{a:1, b:2}",
+          "is_correct": false
+        },
+        {
+          "text": "x + y",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Dimensions",
+      "content": "What are the dimensions of a matrix with 3 rows and 2 columns?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "3 × 2",
+          "is_correct": true
+        },
+        {
+          "text": "2 × 3",
+          "is_correct": false
+        },
+        {
+          "text": "3 × 3",
+          "is_correct": false
+        },
+        {
+          "text": "2 × 2",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Addition Example",
+      "content": "What is the result of adding matrices [[1,2],[3,4]] and [[5,6],[7,8]]?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[[6,8],[10,12]]",
+          "is_correct": true
+        },
+        {
+          "text": "[[5,12],[21,32]]",
+          "is_correct": false
+        },
+        {
+          "text": "[[4,4],[4,4]]",
+          "is_correct": false
+        },
+        {
+          "text": "[[1,2],[7,8]]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance in Data Science",
+      "content": "Why is linear algebra important in data science?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It is used in machine learning algorithms and data transformations",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces programming languages",
+          "is_correct": false
+        },
+        {
+          "text": "It is only used for web design",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids the need for datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Multiplication Result",
+      "content": "What is the result of multiplying a 2 × 3 matrix with a 3 × 2 matrix?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A 2 × 2 matrix",
+          "is_correct": true
+        },
+        {
+          "text": "A 3 × 3 matrix",
+          "is_correct": false
+        },
+        {
+          "text": "A 2 × 3 matrix",
+          "is_correct": false
+        },
+        {
+          "text": "A scalar value",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Identity Matrix",
+      "content": "What happens when a matrix is multiplied by an identity matrix of compatible size?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The original matrix remains unchanged",
+          "is_correct": true
+        },
+        {
+          "text": "All values become zero",
+          "is_correct": false
+        },
+        {
+          "text": "The matrix dimensions double",
+          "is_correct": false
+        },
+        {
+          "text": "The matrix becomes a vector",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matrix Operations in Machine Learning",
+      "content": "How are matrices commonly used in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To represent datasets, features, and mathematical transformations",
+          "is_correct": true
+        },
+        {
+          "text": "To replace probability concepts",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate the need for algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "To create website layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Derivative Meaning",
+      "content": "What does a derivative represent in calculus?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The rate of change of a function",
+          "is_correct": true
+        },
+        {
+          "text": "The total sum of all values",
+          "is_correct": false
+        },
+        {
+          "text": "The average of a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "The probability of an event",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Slope Interpretation",
+      "content": "In graph terms, what does the derivative at a point indicate?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The slope of the curve at that point",
+          "is_correct": true
+        },
+        {
+          "text": "The area under the curve",
+          "is_correct": false
+        },
+        {
+          "text": "The highest point of the graph",
+          "is_correct": false
+        },
+        {
+          "text": "The number of graph points",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Basics",
+      "content": "What does a gradient describe?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The direction and rate of steepest increase",
+          "is_correct": true
+        },
+        {
+          "text": "The probability of data values",
+          "is_correct": false
+        },
+        {
+          "text": "The frequency of events",
+          "is_correct": false
+        },
+        {
+          "text": "The shape of matrices",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Derivative of Constant",
+      "content": "What is the derivative of a constant value?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0",
+          "is_correct": true
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "The constant itself",
+          "is_correct": false
+        },
+        {
+          "text": "Undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Calculus in Data Science",
+      "content": "Why is calculus important in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps optimize models and minimize errors",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces datasets completely",
+          "is_correct": false
+        },
+        {
+          "text": "It is only used for graphics design",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for programming",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Derivative Calculation",
+      "content": "What is the derivative of x²?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "2x",
+          "is_correct": true
+        },
+        {
+          "text": "x",
+          "is_correct": false
+        },
+        {
+          "text": "x²",
+          "is_correct": false
+        },
+        {
+          "text": "2",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Positive Gradient",
+      "content": "What does a positive gradient indicate about a function?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The function is increasing",
+          "is_correct": true
+        },
+        {
+          "text": "The function is decreasing",
+          "is_correct": false
+        },
+        {
+          "text": "The function is constant",
+          "is_correct": false
+        },
+        {
+          "text": "The function is undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Descent Intuition",
+      "content": "What is the goal of gradient descent in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To minimize the error or loss function",
+          "is_correct": true
+        },
+        {
+          "text": "To maximize random values",
+          "is_correct": false
+        },
+        {
+          "text": "To increase dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid mathematical calculations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Derivative of Linear Function",
+      "content": "What is the derivative of the function 5x + 3?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "5",
+          "is_correct": true
+        },
+        {
+          "text": "3",
+          "is_correct": false
+        },
+        {
+          "text": "5x",
+          "is_correct": false
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Zero Gradient Meaning",
+      "content": "What does a gradient of zero usually indicate at a point on a graph?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The function may have a local maximum, minimum, or flat point",
+          "is_correct": true
+        },
+        {
+          "text": "The function is undefined everywhere",
+          "is_correct": false
+        },
+        {
+          "text": "The graph disappears",
+          "is_correct": false
+        },
+        {
+          "text": "The derivative becomes infinite",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multivariable Gradient",
+      "content": "In machine learning, what does the gradient of a multivariable function represent?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The direction of the steepest increase of the function",
+          "is_correct": true
+        },
+        {
+          "text": "The average value of all variables",
+          "is_correct": false
+        },
+        {
+          "text": "The total number of features",
+          "is_correct": false
+        },
+        {
+          "text": "The probability distribution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Optimization Importance",
+      "content": "Why are derivatives and gradients critical in training machine learning models?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help optimize parameters to reduce prediction errors",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate the need for data preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically generate datasets",
+          "is_correct": false
+        },
+        {
+          "text": "They replace all machine learning algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Mean",
+      "content": "Which of the following statements about mean are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean is calculated by dividing the sum of values by the total number of values",
+          "is_correct": true
+        },
+        {
+          "text": "Mean is also called the average",
+          "is_correct": true
+        },
+        {
+          "text": "Mean can never be affected by outliers",
+          "is_correct": false
+        },
+        {
+          "text": "Mean is a measure of central tendency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Median Basics",
+      "content": "Which statements about median are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Median represents the middle value in an ordered dataset",
+          "is_correct": true
+        },
+        {
+          "text": "Data must usually be sorted before finding the median",
+          "is_correct": true
+        },
+        {
+          "text": "Median is always the largest value in a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Median is less sensitive to outliers compared to mean",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Mode",
+      "content": "Which of the following statements about mode are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mode is the most frequently occurring value in a dataset",
+          "is_correct": true
+        },
+        {
+          "text": "A dataset can have more than one mode",
+          "is_correct": true
+        },
+        {
+          "text": "Mode cannot be used with categorical data",
+          "is_correct": false
+        },
+        {
+          "text": "Mode is a measure of central tendency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Variance Basics",
+      "content": "Which statements about variance are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Variance measures how spread out data values are",
+          "is_correct": true
+        },
+        {
+          "text": "Higher variance indicates greater variability in data",
+          "is_correct": true
+        },
+        {
+          "text": "Variance is always negative",
+          "is_correct": false
+        },
+        {
+          "text": "Variance is related to standard deviation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Standard Deviation Basics",
+      "content": "Which of the following statements about standard deviation are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Standard deviation measures data dispersion",
+          "is_correct": true
+        },
+        {
+          "text": "A low standard deviation means values are closer to the mean",
+          "is_correct": true
+        },
+        {
+          "text": "Standard deviation and variance are unrelated concepts",
+          "is_correct": false
+        },
+        {
+          "text": "Standard deviation is the square root of variance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Mean, Median, and Mode",
+      "content": "Which statements correctly compare mean, median, and mode?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean can be influenced by extreme values",
+          "is_correct": true
+        },
+        {
+          "text": "Median is often preferred when data contains outliers",
+          "is_correct": true
+        },
+        {
+          "text": "Mode identifies the most common value in data",
+          "is_correct": true
+        },
+        {
+          "text": "Mean, median, and mode always have the same value",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Variability Measures",
+      "content": "Which of the following statements about variance and standard deviation are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Variance uses squared differences from the mean",
+          "is_correct": true
+        },
+        {
+          "text": "Standard deviation is easier to interpret because it uses the original data unit",
+          "is_correct": true
+        },
+        {
+          "text": "Higher standard deviation means lower spread in the data",
+          "is_correct": false
+        },
+        {
+          "text": "Both variance and standard deviation measure data spread",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Statistical Measures",
+      "content": "Which statements correctly describe applications of statistical measures?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Statistical measures help summarize datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Standard deviation is useful in risk analysis and forecasting",
+          "is_correct": true
+        },
+        {
+          "text": "Variance is unrelated to machine learning and analytics",
+          "is_correct": false
+        },
+        {
+          "text": "Central tendency measures help identify typical data values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Concepts in Central Tendency",
+      "content": "Which of the following statements about advanced concepts in central tendency are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Skewed datasets can cause mean and median to differ significantly",
+          "is_correct": true
+        },
+        {
+          "text": "Mode is especially useful for identifying common categories in categorical datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Median is always affected more by outliers than mean",
+          "is_correct": false
+        },
+        {
+          "text": "Choosing the correct central tendency measure depends on dataset characteristics",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Understanding of Variance and Standard Deviation",
+      "content": "Which statements correctly describe advanced variance and standard deviation concepts?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Statistics Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Large variance indicates data points are widely distributed from the mean",
+          "is_correct": true
+        },
+        {
+          "text": "Standard deviation is commonly used in machine learning and statistical modeling",
+          "is_correct": true
+        },
+        {
+          "text": "Variance can never equal zero",
+          "is_correct": false
+        },
+        {
+          "text": "If all values in a dataset are identical, standard deviation becomes zero",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Basic Probability",
+      "content": "Which of the following statements about basic probability are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Probability measures the likelihood of an event occurring",
+          "is_correct": true
+        },
+        {
+          "text": "Probability values range from 0 to 1",
+          "is_correct": true
+        },
+        {
+          "text": "A probability greater than 1 is always valid",
+          "is_correct": false
+        },
+        {
+          "text": "An impossible event has probability 0",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Events in Probability",
+      "content": "Which statements about events in probability are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An event is an outcome or set of outcomes of an experiment",
+          "is_correct": true
+        },
+        {
+          "text": "Rolling a die is an example of a probability experiment",
+          "is_correct": true
+        },
+        {
+          "text": "Probability experiments cannot have multiple outcomes",
+          "is_correct": false
+        },
+        {
+          "text": "Sample space contains all possible outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Conditional Probability",
+      "content": "Which of the following statements about conditional probability are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conditional probability measures the probability of an event given another event has occurred",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional probability is written as P(A|B)",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional probability ignores existing conditions completely",
+          "is_correct": false
+        },
+        {
+          "text": "Conditional probability is useful in real-world predictions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Probability Basics",
+      "content": "Which statements about probability basics are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A certain event has probability 1",
+          "is_correct": true
+        },
+        {
+          "text": "Probability can help estimate uncertain outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Probability values can be negative",
+          "is_correct": false
+        },
+        {
+          "text": "Coin toss outcomes are often used in probability examples",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Probability",
+      "content": "Which of the following are applications of probability?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Weather forecasting",
+          "is_correct": true
+        },
+        {
+          "text": "Risk analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Manual paper cutting only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Conditional Relationships",
+      "content": "Which statements correctly describe conditional probability relationships?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conditional probability depends on prior information or conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Independent events do not affect each other's probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional probability is unrelated to event dependency",
+          "is_correct": false
+        },
+        {
+          "text": "Conditional probability is widely used in statistics and machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Probability and Data Science",
+      "content": "Which of the following statements about probability in Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Probability helps measure uncertainty in predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning models often rely on probabilistic concepts",
+          "is_correct": true
+        },
+        {
+          "text": "Probability has no role in statistical analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Probabilities can support decision-making under uncertainty",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Probability Relationships",
+      "content": "Which statements correctly describe advanced probability relationships?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The sum of probabilities of all possible outcomes in a sample space equals 1",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional probability can change based on new information",
+          "is_correct": true
+        },
+        {
+          "text": "All events in probability are always independent",
+          "is_correct": false
+        },
+        {
+          "text": "Probability theory forms a foundation for statistical inference",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Concepts in Basic Probability",
+      "content": "Which of the following statements about advanced basic probability concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Probabilistic reasoning is important for predictive modeling",
+          "is_correct": true
+        },
+        {
+          "text": "Rare events may still occur despite having low probability",
+          "is_correct": true
+        },
+        {
+          "text": "Probability guarantees exact outcomes in uncertain situations",
+          "is_correct": false
+        },
+        {
+          "text": "Probability distributions help model real-world random processes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Conditional Probability Concepts",
+      "content": "Which statements correctly describe advanced conditional probability concepts?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Probability",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conditional probability is fundamental to Bayesian reasoning",
+          "is_correct": true
+        },
+        {
+          "text": "Understanding event dependency improves prediction accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional probability is only useful in mathematics exams",
+          "is_correct": false
+        },
+        {
+          "text": "Many machine learning algorithms use conditional probability concepts internally",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Scalars",
+      "content": "Which of the following statements about scalars are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A scalar represents a single numerical value",
+          "is_correct": true
+        },
+        {
+          "text": "Scalars have magnitude only",
+          "is_correct": true
+        },
+        {
+          "text": "Scalars always contain multiple rows and columns",
+          "is_correct": false
+        },
+        {
+          "text": "Examples of scalars include temperature and mass",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Vectors",
+      "content": "Which statements about vectors are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectors contain both magnitude and direction",
+          "is_correct": true
+        },
+        {
+          "text": "Vectors can be represented as ordered lists of numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Vectors cannot be used in machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "A vector may have multiple dimensions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Matrices",
+      "content": "Which of the following statements about matrices are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A matrix is a rectangular arrangement of numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Matrices are organized into rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "Matrices cannot represent datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Matrices are widely used in Data Science and machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Matrix Operations Basics",
+      "content": "Which statements about matrix operations are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Matrices of the same dimensions can be added",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix multiplication follows specific dimension rules",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix subtraction is impossible in linear algebra",
+          "is_correct": false
+        },
+        {
+          "text": "Matrix operations are useful in computer graphics and AI",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Linear Algebra",
+      "content": "Which of the following are applications of linear algebra?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Machine learning algorithms",
+          "is_correct": true
+        },
+        {
+          "text": "Computer graphics transformations",
+          "is_correct": true
+        },
+        {
+          "text": "Data representation and analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Manual paper printing only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Matrix Relationships",
+      "content": "Which statements correctly describe matrix relationships and operations?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of columns in the first matrix must equal the number of rows in the second matrix for multiplication",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix addition requires matrices to have the same dimensions",
+          "is_correct": true
+        },
+        {
+          "text": "Any two matrices can always be multiplied together",
+          "is_correct": false
+        },
+        {
+          "text": "Matrices help efficiently represent multidimensional data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Vectors and Data Science",
+      "content": "Which of the following statements about vectors in Data Science are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature values in machine learning are often represented as vectors",
+          "is_correct": true
+        },
+        {
+          "text": "Vectors can represent positions and directions in space",
+          "is_correct": true
+        },
+        {
+          "text": "Vectors are unrelated to mathematical modeling",
+          "is_correct": false
+        },
+        {
+          "text": "Vector operations are important in optimization and analytics",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Matrix Operations in Practice",
+      "content": "Which statements correctly describe practical uses of matrix operations?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Matrix multiplication is widely used in neural networks",
+          "is_correct": true
+        },
+        {
+          "text": "Matrices can store image and tabular data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix operations have no role in machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "Linear algebra supports many modern AI algorithms",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Linear Algebra Concepts",
+      "content": "Which of the following statements about advanced linear algebra concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Large datasets in machine learning are often represented using matrices",
+          "is_correct": true
+        },
+        {
+          "text": "Linear algebra enables efficient computation in deep learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix operations are irrelevant in recommendation systems",
+          "is_correct": false
+        },
+        {
+          "text": "Vectors and matrices are foundational structures in scientific computing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Matrix Computation",
+      "content": "Which statements correctly describe advanced matrix computation concepts?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Linear Algebra",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient matrix operations improve performance in machine learning systems",
+          "is_correct": true
+        },
+        {
+          "text": "Matrix transformations are used in graphics and image processing",
+          "is_correct": true
+        },
+        {
+          "text": "Dimensional compatibility is unnecessary for matrix multiplication",
+          "is_correct": false
+        },
+        {
+          "text": "Linear algebra helps optimize computations involving large datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Derivatives",
+      "content": "Which of the following statements about derivatives are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A derivative measures the rate of change of a function",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives help determine slopes of curves",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives are unrelated to optimization problems",
+          "is_correct": false
+        },
+        {
+          "text": "Derivatives are commonly used in machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Gradients",
+      "content": "Which statements about gradients are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Gradients represent the direction of the steepest increase",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients are important in optimization algorithms",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients cannot be used with multivariable functions",
+          "is_correct": false
+        },
+        {
+          "text": "Gradient information helps adjust model parameters",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Derivatives",
+      "content": "Which of the following are applications of derivatives?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Finding maximum and minimum values",
+          "is_correct": true
+        },
+        {
+          "text": "Measuring rates of change",
+          "is_correct": true
+        },
+        {
+          "text": "Training machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Only drawing geometric shapes manually",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Derivative Concepts",
+      "content": "Which statements about derivative concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A positive derivative indicates an increasing function",
+          "is_correct": true
+        },
+        {
+          "text": "A negative derivative may indicate a decreasing function",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives are only used in theoretical mathematics",
+          "is_correct": false
+        },
+        {
+          "text": "Derivatives can describe motion and velocity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Gradients in Machine Learning",
+      "content": "Which of the following statements about gradients in machine learning are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Gradients help minimize loss functions",
+          "is_correct": true
+        },
+        {
+          "text": "Gradient descent is an optimization algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients have no role in neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Machine learning models often rely on gradient calculations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Optimization",
+      "content": "Which statements correctly describe optimization using derivatives and gradients?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Optimization aims to minimize or maximize objective functions",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients guide optimization algorithms toward better solutions",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives cannot help identify local minima or maxima",
+          "is_correct": false
+        },
+        {
+          "text": "Gradient-based optimization is widely used in AI systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Derivatives and Real-World Applications",
+      "content": "Which of the following statements about real-world applications of derivatives are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Derivatives are used in physics to calculate velocity and acceleration",
+          "is_correct": true
+        },
+        {
+          "text": "Economics uses derivatives for marginal analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives are unrelated to engineering applications",
+          "is_correct": false
+        },
+        {
+          "text": "Calculus concepts support predictive modeling and optimization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Gradient Intuition",
+      "content": "Which statements correctly explain gradient intuition?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A larger gradient magnitude indicates steeper change",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients help determine the direction of parameter updates",
+          "is_correct": true
+        },
+        {
+          "text": "Gradients are only meaningful in one-dimensional problems",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding gradients is important for neural network training",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Concepts in Derivatives",
+      "content": "Which of the following statements about advanced derivative concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Partial derivatives are used for functions with multiple variables",
+          "is_correct": true
+        },
+        {
+          "text": "Derivatives are fundamental in optimization and deep learning",
+          "is_correct": true
+        },
+        {
+          "text": "Gradient-based learning cannot scale to large datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Backpropagation in neural networks relies on derivatives",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Gradient and Optimization Concepts",
+      "content": "Which statements correctly describe advanced gradient and optimization concepts?",
+      "level": "subtopic",
+      "unit_name": "Mathematics",
+      "subunit_name": "Calculus Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Gradient descent iteratively updates parameters to reduce error",
+          "is_correct": true
+        },
+        {
+          "text": "Learning rate influences the speed and stability of optimization",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization algorithms never require tuning",
+          "is_correct": false
+        },
+        {
+          "text": "Calculus provides the mathematical foundation for many AI optimization methods",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "assessment",
     "django_filters",
     "community",
+    "ai_interview_planner",
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,9 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "observability.TracingMiddleware",
 ]
+
+# Allow embedding backend-served files (e.g. PDF previews) in the frontend
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 ROOT_URLCONF = "yc-backend-api.urls"
 
@@ -107,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 

@@ -2,24 +2,41 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Target, Lightbulb, TrendingUp, TrendingDown, MessageSquare } from 'lucide-react';
-import type { StudentReport } from '@/hooks/useStudentReport';
+import { Brain, Target, Lightbulb, TrendingUp, TrendingDown } from 'lucide-react';
+import type { StudentReport, SubjectPerformance } from '@/hooks/useStudentReport';
 
 interface PlacementReadinessProps {
   report: StudentReport;
 }
 
 function computePS(report: StudentReport) {
-  const components = {
-    dsa: 72, python: 78, database: 80, systemDesign: 55,
-    aptitude: 68, logicalReasoning: 74, communication: 60, mockInterview: 52,
-  };
-  const coreAvg = (components.dsa + components.python + components.database + components.systemDesign) / 4;
-  const otherAvg = (components.aptitude + components.logicalReasoning + components.communication + components.mockInterview) / 4;
-  const ps = Math.round(coreAvg * 0.6 + otherAvg * 0.4);
+  // Map core subjects from actual report data
+  const coreSubjects = report.subjects.slice(0, 4).map((s: SubjectPerformance) => ({
+    name: s.name,
+    score: s.testAvgScore || s.notesCompletion || 0,
+  }));
+
+  // Other components from the rest of the subjects
+  const otherComponents = report.subjects.slice(4, 8).map((s: SubjectPerformance) => ({
+    name: s.name,
+    score: s.testAvgScore || s.notesCompletion || 0,
+  }));
+
+  // Use values directly from report
+  const ps = report.ps;
   const pi = report.performanceIndex;
-  const pri = Math.round(pi * 0.5 + ps * 0.5);
-  return { ...components, ps, pi, pri, coreAvg: Math.round(coreAvg), otherAvg: Math.round(otherAvg) };
+  const pri = report.pri;
+  
+  // For display in the cards
+  const coreAvg = coreSubjects.length > 0 
+    ? Math.round(coreSubjects.reduce((acc: number, s: any) => acc + s.score, 0) / coreSubjects.length)
+    : 0;
+
+  const otherAvg = otherComponents.length > 0
+    ? Math.round(otherComponents.reduce((acc: number, s: any) => acc + s.score, 0) / otherComponents.length)
+    : Math.round((report.overallAttendance + report.learningCompletion) / 2);
+
+  return { coreSubjects, otherComponents, coreAvg, otherAvg, ps, pi, pri };
 }
 
 function getScoreColor(score: number) {
@@ -35,32 +52,58 @@ function getBarClass(score: number) {
 }
 
 const PlacementReadiness: React.FC<PlacementReadinessProps> = ({ report }) => {
-  const data = computePS(report);
+  const { coreSubjects, otherComponents, ...data } = computePS(report);
 
-  const coreSubjects = [
-    { name: 'DSA', score: data.dsa },
-    { name: 'Python', score: data.python },
-    { name: 'Database', score: data.database },
-    { name: 'System Design', score: data.systemDesign },
-  ];
-
-  const otherComponents = [
-    { name: 'Aptitude', score: data.aptitude },
-    { name: 'Logical Reasoning', score: data.logicalReasoning },
-    { name: 'Communication', score: data.communication },
-    { name: 'Mock Interviews', score: data.mockInterview },
-  ];
-
-  const allScores = [...coreSubjects, ...otherComponents];
-  const strongAreas = allScores.filter(s => s.score >= 75).map(s => s.name);
-  const weakAreas = allScores.filter(s => s.score < 65).map(s => s.name);
+  const strongAreas = report.subjects.filter((s: SubjectPerformance) => s.strength === 'Strong').map(s => s.name);
+  const weakAreas = report.subjects.filter((s: SubjectPerformance) => s.strength === 'Weak').map(s => s.name);
 
   const recommendations: { icon: React.ElementType; text: string; priority: 'high' | 'medium' | 'low' }[] = [];
-  if (data.mockInterview < 65) recommendations.push({ icon: Target, text: 'Increase mock interview practice.', priority: 'high' });
-  if (data.communication < 65) recommendations.push({ icon: MessageSquare, text: 'Improve communication skills for HR rounds.', priority: 'high' });
-  if (data.systemDesign < 65) recommendations.push({ icon: Brain, text: 'Focus on System Design fundamentals.', priority: 'high' });
-  if (data.dsa < 75) recommendations.push({ icon: Lightbulb, text: 'Practice more DSA problems.', priority: 'medium' });
-  if (data.aptitude < 70) recommendations.push({ icon: Lightbulb, text: 'Regular aptitude practice recommended.', priority: 'medium' });
+  
+  // Attendance Recommendation
+  if (report.overallAttendance < 75) {
+    recommendations.push({ 
+      icon: Target, 
+      text: `Attendance is critically low (${report.overallAttendance}%). Regular class attendance is required to improve understanding.`, 
+      priority: 'high' 
+    });
+  }
+
+  // Learning Progress Recommendation
+  if (report.learningCompletion < 70) {
+    recommendations.push({ 
+      icon: Brain, 
+      text: `Learning completion is at ${report.learningCompletion}%. Dedicate more time to reviewing curriculum subunits.`, 
+      priority: 'high' 
+    });
+  }
+
+  // Task Recommendation
+  const pendingTasksTotal = report.subjects.reduce((acc: number, s: SubjectPerformance) => acc + s.tasksPending, 0);
+  if (pendingTasksTotal > 0) {
+    recommendations.push({ 
+      icon: Lightbulb, 
+      text: `You have ${pendingTasksTotal} pending tasks across subjects. Complete them to reinforce your practical skills.`, 
+      priority: 'medium' 
+    });
+  }
+
+  // Subject Specific Recommendations (Top 2 weak subjects)
+  report.subjects.filter((s: SubjectPerformance) => s.strength === 'Weak').slice(0, 2).forEach(s => {
+    recommendations.push({ 
+      icon: TrendingDown, 
+      text: `Performance in ${s.name} needs attention. Focus on practice tests to improve scores.`, 
+      priority: 'high' 
+    });
+  });
+
+  // Overall Performance
+  if (report.performanceIndex > 85 && recommendations.length === 0) {
+    recommendations.push({
+      icon: TrendingUp,
+      text: 'Excellent overall consistency. Maintain this pace for coming assessments.',
+      priority: 'low'
+    });
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -77,7 +120,7 @@ const PlacementReadiness: React.FC<PlacementReadinessProps> = ({ report }) => {
             <div>
               <h4 className="text-xs font-medium text-muted-foreground mb-2.5">Core Subjects · Avg {data.coreAvg}%</h4>
               <div className="space-y-2.5">
-                {coreSubjects.map(s => (
+                {coreSubjects.map((s: any) => (
                   <ScoreRow key={s.name} name={s.name} score={s.score} />
                 ))}
               </div>
@@ -85,7 +128,7 @@ const PlacementReadiness: React.FC<PlacementReadinessProps> = ({ report }) => {
             <div>
               <h4 className="text-xs font-medium text-muted-foreground mb-2.5">Other Components · Avg {data.otherAvg}%</h4>
               <div className="space-y-2.5">
-                {otherComponents.map(s => (
+                {otherComponents.map((s: any) => (
                   <ScoreRow key={s.name} name={s.name} score={s.score} />
                 ))}
               </div>

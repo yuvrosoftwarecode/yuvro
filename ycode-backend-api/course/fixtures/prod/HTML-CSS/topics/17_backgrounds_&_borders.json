@@ -1,0 +1,956 @@
+{
+  "name": "Backgrounds & Borders",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 17,
+  "sub_units": [
+    {
+      "name": "Backgrounds Basics",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Backgrounds Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Backgrounds+Basics+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Backgrounds Basics in HTML/CSS."
+        },
+        {
+          "title": "Advanced Backgrounds Basics Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Backgrounds+Basics+html+css",
+          "ai_context": "In-depth explanation and practical examples for Backgrounds Basics."
+        }
+      ]
+    },
+    {
+      "name": "Borders",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Borders",
+          "video_link": "https://www.youtube.com/results?search_query=Borders+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Borders in HTML/CSS."
+        },
+        {
+          "title": "Advanced Borders Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Borders+html+css",
+          "ai_context": "In-depth explanation and practical examples for Borders."
+        }
+      ]
+    },
+    {
+      "name": "Box Shadows",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Box Shadows",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Shadows+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Box Shadows in HTML/CSS."
+        },
+        {
+          "title": "Advanced Box Shadows Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Shadows+html+css",
+          "ai_context": "In-depth explanation and practical examples for Box Shadows."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Background Color Property",
+      "content": "Which CSS property is used to set the background color of an element?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "background-color",
+          "is_correct": true
+        },
+        {
+          "text": "color-background",
+          "is_correct": false
+        },
+        {
+          "text": "bg-color",
+          "is_correct": false
+        },
+        {
+          "text": "background-style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Background Image Purpose",
+      "content": "What does background-image do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adds an image behind the element content",
+          "is_correct": true
+        },
+        {
+          "text": "Changes image size only",
+          "is_correct": false
+        },
+        {
+          "text": "Adds borders to images",
+          "is_correct": false
+        },
+        {
+          "text": "Removes element background",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Meaning",
+      "content": "What is a CSS gradient?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A smooth transition between colors",
+          "is_correct": true
+        },
+        {
+          "text": "A type of font",
+          "is_correct": false
+        },
+        {
+          "text": "A border style",
+          "is_correct": false
+        },
+        {
+          "text": "A text effect",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear Gradient",
+      "content": "Which function creates a linear gradient in CSS?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "linear-gradient()",
+          "is_correct": true
+        },
+        {
+          "text": "gradient-linear()",
+          "is_correct": false
+        },
+        {
+          "text": "bg-gradient()",
+          "is_correct": false
+        },
+        {
+          "text": "color-gradient()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Background Default",
+      "content": "What is the default background of an HTML element?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transparent",
+          "is_correct": true
+        },
+        {
+          "text": "Black",
+          "is_correct": false
+        },
+        {
+          "text": "White",
+          "is_correct": false
+        },
+        {
+          "text": "Blue",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple Backgrounds",
+      "content": "Can CSS apply multiple background images to one element?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Yes, by separating values with commas",
+          "is_correct": true
+        },
+        {
+          "text": "No, only one background image is allowed",
+          "is_correct": false
+        },
+        {
+          "text": "Only gradients can be multiple",
+          "is_correct": false
+        },
+        {
+          "text": "Only SVG images support it",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Advantage",
+      "content": "Why are gradients commonly used in modern web design?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They create visually appealing smooth color transitions",
+          "is_correct": true
+        },
+        {
+          "text": "They replace HTML",
+          "is_correct": false
+        },
+        {
+          "text": "They disable responsiveness",
+          "is_correct": false
+        },
+        {
+          "text": "They only work on images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Background Image Syntax",
+      "content": "Which syntax is correct for adding a background image?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "background-image: url('image.jpg');",
+          "is_correct": true
+        },
+        {
+          "text": "background-image: image.jpg;",
+          "is_correct": false
+        },
+        {
+          "text": "image-background: url();",
+          "is_correct": false
+        },
+        {
+          "text": "background: image();",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Radial Gradient",
+      "content": "Which CSS function creates a circular or elliptical gradient?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "radial-gradient()",
+          "is_correct": true
+        },
+        {
+          "text": "circle-gradient()",
+          "is_correct": false
+        },
+        {
+          "text": "ellipse-gradient()",
+          "is_correct": false
+        },
+        {
+          "text": "shape-gradient()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Gradient Rendering",
+      "content": "How are CSS gradients treated by browsers?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "As generated background images",
+          "is_correct": true
+        },
+        {
+          "text": "As font effects",
+          "is_correct": false
+        },
+        {
+          "text": "As HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "As JavaScript animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Background Layer Order",
+      "content": "When multiple backgrounds are used, which one appears on top?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Backgrounds",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The first background listed",
+          "is_correct": true
+        },
+        {
+          "text": "The last background listed",
+          "is_correct": false
+        },
+        {
+          "text": "The largest image",
+          "is_correct": false
+        },
+        {
+          "text": "The background color",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Property Purpose",
+      "content": "What is the purpose of the CSS border property?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adds a border around an element",
+          "is_correct": true
+        },
+        {
+          "text": "Changes text size",
+          "is_correct": false
+        },
+        {
+          "text": "Creates animations",
+          "is_correct": false
+        },
+        {
+          "text": "Aligns content",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Solid Border Style",
+      "content": "Which value creates a continuous straight border line?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "solid",
+          "is_correct": true
+        },
+        {
+          "text": "dotted",
+          "is_correct": false
+        },
+        {
+          "text": "dashed",
+          "is_correct": false
+        },
+        {
+          "text": "double",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Radius Purpose",
+      "content": "What does border-radius do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rounds the corners of an element",
+          "is_correct": true
+        },
+        {
+          "text": "Changes border thickness",
+          "is_correct": false
+        },
+        {
+          "text": "Adds shadow effects",
+          "is_correct": false
+        },
+        {
+          "text": "Changes text alignment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dashed Border",
+      "content": "Which border style displays broken line segments?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "dashed",
+          "is_correct": true
+        },
+        {
+          "text": "solid",
+          "is_correct": false
+        },
+        {
+          "text": "ridge",
+          "is_correct": false
+        },
+        {
+          "text": "hidden",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Circular Shape",
+      "content": "What value is commonly used to create a perfect circle with border-radius?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "50%",
+          "is_correct": true
+        },
+        {
+          "text": "100px",
+          "is_correct": false
+        },
+        {
+          "text": "10%",
+          "is_correct": false
+        },
+        {
+          "text": "1px",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Width",
+      "content": "Which property controls the thickness of a border?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border-width",
+          "is_correct": true
+        },
+        {
+          "text": "border-size",
+          "is_correct": false
+        },
+        {
+          "text": "width-border",
+          "is_correct": false
+        },
+        {
+          "text": "border-radius",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Shorthand",
+      "content": "Which shorthand correctly defines border width, style, and color?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border: 2px solid red;",
+          "is_correct": true
+        },
+        {
+          "text": "border: solid red;",
+          "is_correct": false
+        },
+        {
+          "text": "border: red 2px;",
+          "is_correct": false
+        },
+        {
+          "text": "border: radius solid red;",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hidden Border",
+      "content": "Which border style hides the border completely?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "hidden",
+          "is_correct": true
+        },
+        {
+          "text": "none-radius",
+          "is_correct": false
+        },
+        {
+          "text": "transparent",
+          "is_correct": false
+        },
+        {
+          "text": "collapse",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rounded Corner Usage",
+      "content": "Why is border-radius commonly used in modern UI design?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To create softer and visually appealing interfaces",
+          "is_correct": true
+        },
+        {
+          "text": "To remove all borders",
+          "is_correct": false
+        },
+        {
+          "text": "To improve JavaScript performance",
+          "is_correct": false
+        },
+        {
+          "text": "To create HTML tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Radius Behavior",
+      "content": "What happens if border-radius is larger than half the element\u2019s size?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The browser automatically adjusts the rounding",
+          "is_correct": true
+        },
+        {
+          "text": "The border disappears",
+          "is_correct": false
+        },
+        {
+          "text": "The element becomes invisible",
+          "is_correct": false
+        },
+        {
+          "text": "CSS throws an error",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Rendering",
+      "content": "Why does a border sometimes not appear even when border-width is set?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Borders",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Because border-style is not defined",
+          "is_correct": true
+        },
+        {
+          "text": "Because border-radius is missing",
+          "is_correct": false
+        },
+        {
+          "text": "Because padding is too small",
+          "is_correct": false
+        },
+        {
+          "text": "Because margin is required",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Box Shadow Purpose",
+      "content": "What does the box-shadow property do in CSS?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adds shadow effects around an element",
+          "is_correct": true
+        },
+        {
+          "text": "Changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "Rounds element corners",
+          "is_correct": false
+        },
+        {
+          "text": "Creates animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Shadow Blur",
+      "content": "Which value in box-shadow controls the blur effect?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Blur radius",
+          "is_correct": true
+        },
+        {
+          "text": "Spread radius",
+          "is_correct": false
+        },
+        {
+          "text": "Offset value",
+          "is_correct": false
+        },
+        {
+          "text": "Border width",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Neumorphism Style",
+      "content": "What is neumorphism in UI design?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A soft UI style using subtle shadows and highlights",
+          "is_correct": true
+        },
+        {
+          "text": "A type of CSS framework",
+          "is_correct": false
+        },
+        {
+          "text": "A JavaScript animation library",
+          "is_correct": false
+        },
+        {
+          "text": "A border-only design style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple Shadows",
+      "content": "How can multiple shadows be added to an element in CSS?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By separating shadow values with commas",
+          "is_correct": true
+        },
+        {
+          "text": "By using multiple box-shadow properties",
+          "is_correct": false
+        },
+        {
+          "text": "By adding extra divs only",
+          "is_correct": false
+        },
+        {
+          "text": "By using border-shadow",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inset Shadow",
+      "content": "What does the inset keyword do in box-shadow?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Places the shadow inside the element",
+          "is_correct": true
+        },
+        {
+          "text": "Removes the shadow",
+          "is_correct": false
+        },
+        {
+          "text": "Adds shadow only to text",
+          "is_correct": false
+        },
+        {
+          "text": "Makes the shadow transparent",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Neumorphism Accessibility",
+      "content": "What is a common challenge with neumorphism design?",
+      "level": "subtopic",
+      "unit_name": "Borders & Backgrounds",
+      "subunit_name": "Box Shadows",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Low contrast can reduce accessibility",
+          "is_correct": true
+        },
+        {
+          "text": "It cannot use shadows",
+          "is_correct": false
+        },
+        {
+          "text": "It only works in dark mode",
+          "is_correct": false
+        },
+        {
+          "text": "It disables responsive layouts",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

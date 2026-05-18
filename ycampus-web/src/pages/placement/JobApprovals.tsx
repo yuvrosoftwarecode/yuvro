@@ -3,18 +3,18 @@ import PlacementLayout from '@/components/placement/PlacementLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { usePlacementJobs, useUpdateJobStatus, PlacementJob } from '@/hooks/usePlacement';
+import { usePlacementJobs, useUpdateJobStatus, useDeleteJob, useCompanies, PlacementJob } from '@/hooks/usePlacement';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Building2, MapPin, Calendar, AlertTriangle, CheckCircle2, XCircle, Pause, ExternalLink, Star, Plus, MoreVertical, Users, Trash2, FileText } from 'lucide-react';
+import { Building2, MapPin, Calendar, AlertTriangle, CheckCircle2, XCircle, Pause, ExternalLink, Star, Plus, MoreVertical, Users, Trash2, FileText, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import CreateJobDialog from '@/components/placement/CreateJobDialog';
-import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import jobService from '@/services/jobService';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
@@ -35,11 +35,22 @@ const JobApprovals = () => {
   const [filter, setFilter] = useState('pending');
   const { data: jobs, isLoading, isError, error } = usePlacementJobs(filter);
   const updateStatus = useUpdateJobStatus();
+  const deleteJob = useDeleteJob();
   const qc = useQueryClient();
   const [selectedJob, setSelectedJob] = useState<PlacementJob | null>(null);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'hold' | null>(null);
   const [reason, setReason] = useState('');
   const [showCreateJob, setShowCreateJob] = useState(false);
+  const [editTarget, setEditTarget] = useState<PlacementJob | undefined>(undefined);
+  const [deleteTarget, setDeleteTarget] = useState<PlacementJob | null>(null);
+  const { data: companies = [] } = useCompanies();
+
+  /** Find the company linked to a job via company_name on the recruiter */
+  const linkedCompany = (job: PlacementJob | null) => {
+    if (!job) return undefined;
+    const name = (job.recruiter as any)?.company_name;
+    return companies.find(c => c.name === name);
+  };
 
   const handleAction = () => {
     if (!selectedJob || !actionType) return;
@@ -50,13 +61,23 @@ const JobApprovals = () => {
     );
   };
 
-  const handleDelete = async (jobId: string, e: React.MouseEvent) => {
+  const openEdit = (job: PlacementJob, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this job?')) return;
-    const { error } = await supabase.from('placement_jobs').delete().eq('id', jobId);
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-    toast({ title: 'Job deleted' });
-    qc.invalidateQueries({ queryKey: ['placement-jobs'] });
+    setEditTarget(job);
+    setShowCreateJob(true);
+  };
+
+  const openDelete = (job: PlacementJob, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteTarget(job);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      deleteJob.mutate(deleteTarget.id, {
+        onSuccess: () => setDeleteTarget(null)
+      });
+    }
   };
 
   return (
@@ -72,7 +93,11 @@ const JobApprovals = () => {
             ))}
           </TabsList>
         </Tabs>
-        <Button className="rounded-xl gap-2 text-sm" style={{ background: VIOLET }} onClick={() => setShowCreateJob(true)}>
+        <Button 
+          className="rounded-xl gap-2 text-sm" 
+          style={{ background: VIOLET }} 
+          onClick={() => { setEditTarget(undefined); setShowCreateJob(true); }}
+        >
           <Plus className="h-4 w-4" /> Create Job
         </Button>
       </div>
@@ -104,10 +129,10 @@ const JobApprovals = () => {
                       <DropdownMenuItem className="text-xs gap-2 cursor-pointer" onClick={() => setSelectedJob(job)}>
                         <FileText className="h-3.5 w-3.5" /> View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-xs gap-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/placement/job-applications/${job.id}`); }}>
-                        <Users className="h-3.5 w-3.5" /> View Applications
+                      <DropdownMenuItem className="text-xs gap-2 cursor-pointer" onClick={(e) => openEdit(job, e)}>
+                        <Pencil className="h-3.5 w-3.5" /> Edit Job
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-xs gap-2 cursor-pointer text-destructive" onClick={(e) => handleDelete(job.id, e as any)}>
+                      <DropdownMenuItem className="text-xs gap-2 cursor-pointer text-destructive" onClick={(e) => openDelete(job, e)}>
                         <Trash2 className="h-3.5 w-3.5" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -125,8 +150,8 @@ const JobApprovals = () => {
                         <p className="text-xs text-muted-foreground">{job.role_title}</p>
                       </div>
                     </div>
-                    <Badge className="text-[10px] capitalize" style={{ background: statusColors[job.status], color: '#fff' }}>
-                      {job.status === 'approved' ? 'Live' : job.status}
+                    <Badge className="text-[10px] capitalize" style={{ background: (job.status === 'approved' && job.deadline && new Date(job.deadline) < new Date()) ? 'hsl(220,15%,60%)' : statusColors[job.status], color: '#fff' }}>
+                      {(job.status === 'approved' && job.deadline && new Date(job.deadline) < new Date()) ? 'Expired' : job.status === 'approved' ? 'Live' : job.status}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
@@ -182,13 +207,27 @@ const JobApprovals = () => {
 
               <section>
                 <h3 className="font-semibold text-sm mb-2" style={{ color: VIOLET }}>Recruiter Information</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <p><span className="text-muted-foreground">Name:</span> {(selectedJob.recruiter as any)?.name}</p>
-                  <p><span className="text-muted-foreground">Designation:</span> {(selectedJob.recruiter as any)?.designation || 'N/A'}</p>
-                  <p><span className="text-muted-foreground">Email:</span> {(selectedJob.recruiter as any)?.email}</p>
-                  <p><span className="text-muted-foreground">Phone:</span> {(selectedJob.recruiter as any)?.phone || 'N/A'}</p>
-                  {(selectedJob.recruiter as any)?.is_verified && <Badge variant="outline" className="w-fit" style={{ color: TEAL, borderColor: TEAL }}>✓ Verified</Badge>}
-                </div>
+                {(() => {
+                  const company = linkedCompany(selectedJob);
+                  const rec = selectedJob.recruiter as any;
+                  const name        = company?.recruiter_name        || rec?.name;
+                  const designation = company?.recruiter_designation || rec?.designation;
+                  const email       = company?.recruiter_email       || rec?.email;
+                  const phone       = company?.recruiter_phone       || rec?.phone;
+                  const hasAny = name || email || phone;
+                  if (!hasAny) return (
+                    <p className="text-sm text-muted-foreground italic">No recruiter details available</p>
+                  );
+                  return (
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {name        && <p><span className="text-muted-foreground">Name:</span> {name}</p>}
+                      {designation && <p><span className="text-muted-foreground">Designation:</span> {designation}</p>}
+                      {email       && <p><span className="text-muted-foreground">Email:</span> {email}</p>}
+                      {phone       && <p><span className="text-muted-foreground">Phone:</span> {phone}</p>}
+                      {rec?.is_verified && <Badge variant="outline" className="w-fit" style={{ color: TEAL, borderColor: TEAL }}>✓ Verified</Badge>}
+                    </div>
+                  );
+                })()}
               </section>
 
               <section>
@@ -202,6 +241,9 @@ const JobApprovals = () => {
                     <p><span className="text-muted-foreground">Vacancies:</span> {selectedJob.vacancies}</p>
                     <p><span className="text-muted-foreground">Location:</span> {selectedJob.location || 'N/A'}</p>
                     <p><span className="text-muted-foreground">Min CGPA:</span> {selectedJob.min_cgpa}</p>
+                    {selectedJob.deadline && (
+                      <p><span className="text-muted-foreground">Deadline:</span> {format(new Date(selectedJob.deadline), 'dd MMM yyyy')}</p>
+                    )}
                   </div>
                   {selectedJob.skills_required?.length ? (
                     <div className="flex flex-wrap gap-1.5 mt-1">
@@ -259,8 +301,35 @@ const JobApprovals = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Create Job Dialog */}
-      <CreateJobDialog open={showCreateJob} onOpenChange={setShowCreateJob} />
+      {/* Create / Edit Job Dialog */}
+      <CreateJobDialog 
+        open={showCreateJob} 
+        onOpenChange={(open) => {
+          setShowCreateJob(open);
+          if (!open) setEditTarget(undefined);
+        }} 
+        editRecord={editTarget}
+      />
+
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <DialogContent className="rounded-xl max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Job</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{' '}
+              <span className="font-semibold text-foreground">{deleteTarget?.role_title}</span>?{' '}
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-2">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-lg" disabled={deleteJob.isPending}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm} className="rounded-lg" disabled={deleteJob.isPending}>
+              {deleteJob.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PlacementLayout>
   );
 };

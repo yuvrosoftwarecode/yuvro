@@ -91,6 +91,10 @@ export const collegeService = {
     createPrincipal: async (collegeId: string | number, userData: any): Promise<void> => {
         await restApiAuthUtil.post(`/core/college/${collegeId}/create-principal/`, userData);
     },
+    
+    getDashboardStats: async (collegeId: string | number, filters?: any): Promise<any> => {
+        return await restApiAuthUtil.get(`/course/colleges/${collegeId}/dashboard_stats/`, { params: filters });
+    },
 
     createCollegeAdmin: async (collegeId: string | number, userData: any): Promise<void> => {
         await restApiAuthUtil.post(`/core/college/${collegeId}/create-admin/`, userData);

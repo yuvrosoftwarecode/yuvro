@@ -61,6 +61,7 @@ export interface Profile {
   location: string | null;
   about: string | null;
   gender: string | null;
+  dob?: string | null;
   profile_image?: string | null;
   cover_image?: string | null;
   google_id?: string | null;
@@ -163,12 +164,12 @@ export const deleteCertification = async (id: string) => {
 };
 
 export async function updateProfile(data: EditProfileData) {
-  const userRes = await restApiAuthUtil.patch('/auth/profile/', {
+  const userRes = await restApiAuthUtil.patch<{ first_name: string; last_name: string }>('/auth/profile/', {
     first_name: data.first_name,
     last_name: data.last_name,
   });
 
-  const profileRes = await restApiAuthUtil.patch('/auth/profile/detail/', {
+  const profileRes = await restApiAuthUtil.patch<Profile>('/auth/profile/detail/', {
     title: data.title,
     location: data.location,
     about: data.about,
@@ -180,6 +181,25 @@ export async function updateProfile(data: EditProfileData) {
     last_name: userRes.last_name,
   };
 }
+
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append('profile_image', file);
+  
+  // Send to the profile detail endpoint which supports partial updates
+  const result = await restApiAuthUtil.patch<Profile>('/auth/profile/detail/', formData);
+  
+  return { 
+    success: true, 
+    profile_image: result.profile_image 
+  };
+};
+
+export const deleteProfileImage = async () => {
+  localStorage.removeItem('local_profile_image');
+  // Also clear it on the backend just in case
+  return restApiAuthUtil.patch<Profile>('/auth/profile/detail/', { profile_image: null });
+};
 
 const profileService = {
   fetchProfileDetail,
@@ -201,6 +221,8 @@ const profileService = {
   addCertification,
   updateCertification,
   deleteCertification,
+  uploadProfileImage,
+  deleteProfileImage,
 };
 
 export default profileService;

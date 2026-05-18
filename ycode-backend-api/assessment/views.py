@@ -204,12 +204,21 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                 }
             )
             certificate_id = cert.certificate_id
+
+        # --- Gamification: record activity for certification submission ---
+        gamification = {}
+        try:
+            from gamification.service import GamificationService
+            gamification = GamificationService.record_activity(request.user, 'quiz')
+        except Exception:
+            pass  # Gamification should never break assessment flow
             
         return Response({
             'status': 'submitted',
             'score': total_score,
             'passed': passed,
-            'certificate_id': certificate_id
+            'certificate_id': certificate_id,
+            'gamification': gamification,
         })
 
     @action(detail=True, methods=['get'])
@@ -546,8 +555,25 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                 
         submission.marks = total_score
         submission.save()
+
+        # --- Gamification: record activity for contest submission ---
+        gamification = {}
+        try:
+            from gamification.service import GamificationService
+            # Count correctly solved coding problems for separate credit
+            coding_correct = sum(
+                1 for q_id, ans in filtered_answers.items()
+                if q_id in q_map and q_map[q_id].type == 'coding'
+                and q_map[q_id].grade_answer(ans)[0]
+            )
+            for _ in range(coding_correct):
+                GamificationService.record_activity(request.user, 'coding')
+            # Record overall quiz activity for the submission itself
+            gamification = GamificationService.record_activity(request.user, 'quiz')
+        except Exception:
+            pass  # Gamification should never break assessment flow
         
-        return Response({'status': 'Submitted', 'score': total_score}, status=status.HTTP_200_OK)
+        return Response({'status': 'Submitted', 'score': total_score, 'gamification': gamification}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path="increment-participant")
     def increment_participant(self, request, pk=None):
@@ -1214,10 +1240,31 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         submission.marks = total_score
         submission.save()
+
+        # --- Gamification: record activity for skill test submission ---
+        gamification = {}
+        try:
+            from gamification.service import GamificationService
+            # Count correctly solved coding problems for separate credit
+            for q_id in question_ids:
+                user_ans = answers.get(q_id)
+                try:
+                    question = Question.objects.get(id=q_id)
+                    if question.type == 'coding':
+                        is_correct, _ = question.grade_answer(user_ans)
+                        if is_correct:
+                            GamificationService.record_activity(request.user, 'coding')
+                except Question.DoesNotExist:
+                    pass
+            # Record overall quiz activity for the submission itself
+            gamification = GamificationService.record_activity(request.user, 'quiz')
+        except Exception:
+            pass  # Gamification should never break assessment flow
         
         return Response({
             'status': 'submitted',
-            'score': total_score
+            'score': total_score,
+            'gamification': gamification,
         })
 
 class MockInterviewViewSet(viewsets.ModelViewSet):

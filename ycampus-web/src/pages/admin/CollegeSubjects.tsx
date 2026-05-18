@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import PageHeader from "@/components/common/PageHeader";
 
 const CollegeSubjects: React.FC = () => {
     const { user } = useAuth();
@@ -180,37 +181,31 @@ const CollegeSubjects: React.FC = () => {
                 <div className="flex-1 overflow-y-auto">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
                         {/* Header Container */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-10 w-10 shrink-0 shadow-sm"
-                                    onClick={() => navigate("/admin/subjects/colleges")}
-                                >
-                                    <ArrowLeft className="h-4 w-4" />
-                                </Button>
-                                <div>
-                                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                                        College Allocation
-                                    </h1>
-                                    <p className="text-muted-foreground mt-1 text-sm">
-                                        Configure inherited subjects dynamically
-                                    </p>
+                        <PageHeader 
+                            title="College Allocation"
+                            actions={
+                                <div className="flex items-center gap-3">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-10 w-10 shrink-0 shadow-sm"
+                                        onClick={() => navigate("/admin/subjects/colleges")}
+                                    >
+                                        <ArrowLeft className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            loadAllSubjects();
+                                            setIsAddOpen(true);
+                                        }}
+                                        className="font-semibold shadow-sm rounded-lg"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Assign Subject Flow
+                                    </Button>
                                 </div>
-                            </div>
-                            
-                            <Button
-                                onClick={() => {
-                                    loadAllSubjects();
-                                    setIsAddOpen(true);
-                                }}
-                                className="font-semibold shadow-sm rounded-lg"
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Assign Subject Flow
-                            </Button>
-                        </div>
+                            }
+                        />
 
                         <div className="relative max-w-lg mb-8">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

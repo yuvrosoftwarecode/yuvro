@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import Navigation from "@/components/common/Navigation";
+import DashboardLayout from "@/components/common/DashboardLayout";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import { FileText } from "lucide-react";
 
@@ -373,8 +373,7 @@ const Profile = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-background">
-      <Navigation />
+    <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50/50 dark:bg-background">
 
       <div className="max-w-[1480px] mx-auto px-8 py-8 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
@@ -1079,7 +1078,7 @@ const Profile = () => {
       />
 
 
-    </div>
+    </DashboardLayout>
   );
 };
 

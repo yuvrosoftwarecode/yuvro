@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 interface CommentThreadProps {
   comment: CommunityComment;
-  onReply: (commentId: string) => void;
+  onReply: (commentId: string, authorName: string) => void;
   onDelete: (commentId: string) => void;
   onLike: (commentId: string, isLiked: boolean) => void;
   depth?: number;
@@ -86,7 +86,7 @@ export function CommentThread({
                 variant="ghost"
                 size="sm"
                 className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
-                onClick={() => onReply(comment.id)}
+                onClick={() => onReply(comment.id, comment.author?.full_name || 'User')}
               >
                 <Reply className="h-3.5 w-3.5 mr-1" />
                 Reply

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Code, Play, CheckCircle, ChevronLeft } from "lucide-react";
-import Navigation from "@/components/common/Navigation";
+import DashboardLayout from "@/components/common/DashboardLayout";
 
 const StudentCoding = () => {
   const { subtopicId } = useParams<{ subtopicId: string }>();
@@ -61,34 +61,31 @@ const StudentCoding = () => {
 
   if (loading) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true}>
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-muted-foreground">Loading coding questions...</div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true}>
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center text-muted-foreground py-8">
             <Code className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="mb-4">No coding questions available for this subtopic.</p>
             <Button onClick={() => navigate(-1)}>Go Back</Button>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gray-50 py-8">
+    <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+      <div className="py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-6">
             <Button 
@@ -237,7 +234,7 @@ const StudentCoding = () => {
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

@@ -1,0 +1,10 @@
+{
+    "courses": [
+        {
+            "short_code": "SQL100",
+            "name": "Structured Query Language(SQL)",
+            "category": "fundamentals",
+            "instructor_email": "admin@yuvro.com"
+        }
+    ]
+}

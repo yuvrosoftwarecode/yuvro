@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { departmentService } from '@/services/departmentService';
 import { toast } from 'sonner';
 
 export interface Section {
@@ -29,92 +29,55 @@ export function useDepartments() {
   const { data: departments, isLoading, error } = useQuery({
     queryKey: ['departments'],
     queryFn: async () => {
-      // Fetch departments
-      const { data: deptData, error: deptError } = await supabase
-        .from('departments')
-        .select('*')
-        .order('name');
+      const data = await departmentService.getDepartments();
       
-      if (deptError) throw deptError;
-      
-      // Fetch all semesters with sections
-      const { data: semesterData, error: semError } = await supabase
-        .from('department_semesters')
-        .select(`
-          id,
-          department_id,
-          number,
-          department_sections (
-            id,
-            name
-          )
-        `)
-        .order('number');
-      
-      if (semError) throw semError;
-      
-      // Map semesters to departments
-      return deptData?.map(dept => ({
-        ...dept,
-        semesters: (semesterData || [])
-          .filter(sem => sem.department_id === dept.id)
-          .map(sem => ({
-            id: sem.id,
-            number: sem.number,
-            sections: (sem.department_sections || []).map((sec: any) => ({
-              id: sec.id,
-              name: sec.name
-            }))
-          }))
-      })) || [];
+      // Map backend Department (with nested batches) to frontend Department structure
+      return data.map((dept: any) => {
+        // Flatten semesters from all batches for this department
+        // (Assuming the UI expects a flat list of semesters for the department)
+        const allSemesters: Semester[] = [];
+        const seenSemesters = new Set<number>();
+
+        if (dept.batches) {
+          dept.batches.forEach((batch: any) => {
+            if (batch.semesters) {
+              batch.semesters.forEach((sem: any) => {
+                // Avoid duplicate semester numbers from different batches
+                if (!seenSemesters.has(sem.number)) {
+                  seenSemesters.add(sem.number);
+                  allSemesters.push({
+                    id: sem.id,
+                    number: sem.number,
+                    sections: (sem.sections || []).map((sec: any) => ({
+                      id: sec.id,
+                      name: sec.name
+                    }))
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        return {
+          id: String(dept.id),
+          name: dept.name,
+          code: dept.short_form || '',
+          description: '', // Backend Department model doesn't have description, but has short_form
+          semesters: allSemesters.sort((a, b) => a.number - b.number),
+          created_at: dept.created_at || '',
+          updated_at: dept.updated_at || '',
+        };
+      });
     },
   });
 
   const createDepartmentMutation = useMutation({
     mutationFn: async (newDepartment: { name: string; code: string; description?: string; semesters?: Semester[] }) => {
-      // Create department
-      const { data: deptData, error: deptError } = await supabase
-        .from('departments')
-        .insert({
-          name: newDepartment.name,
-          code: newDepartment.code,
-          description: newDepartment.description || null,
-        })
-        .select()
-        .single();
-      
-      if (deptError) throw deptError;
-      
-      // Create semesters and sections
-      if (newDepartment.semesters && newDepartment.semesters.length > 0) {
-        for (const semester of newDepartment.semesters) {
-          const { data: semData, error: semError } = await supabase
-            .from('department_semesters')
-            .insert({
-              department_id: deptData.id,
-              number: semester.number
-            })
-            .select()
-            .single();
-          
-          if (semError) throw semError;
-          
-          // Create sections for this semester
-          if (semester.sections && semester.sections.length > 0) {
-            const sectionInserts = semester.sections.map(sec => ({
-              semester_id: semData.id,
-              name: sec.name
-            }));
-            
-            const { error: secError } = await supabase
-              .from('department_sections')
-              .insert(sectionInserts);
-            
-            if (secError) throw secError;
-          }
-        }
-      }
-      
+      const deptData = await departmentService.createDepartment({
+        name: newDepartment.name,
+        short_form: newDepartment.code,
+      });
       return deptData;
     },
     onSuccess: () => {
@@ -128,58 +91,10 @@ export function useDepartments() {
 
   const updateDepartmentMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Department> }) => {
-      // Update department basic info
-      const { data: deptData, error: deptError } = await supabase
-        .from('departments')
-        .update({
-          name: updates.name,
-          code: updates.code,
-          description: updates.description || null,
-        })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (deptError) throw deptError;
-      
-      // Delete existing semesters (cascade will delete sections)
-      const { error: deleteError } = await supabase
-        .from('department_semesters')
-        .delete()
-        .eq('department_id', id);
-      
-      if (deleteError) throw deleteError;
-      
-      // Recreate semesters and sections
-      if (updates.semesters && updates.semesters.length > 0) {
-        for (const semester of updates.semesters) {
-          const { data: semData, error: semError } = await supabase
-            .from('department_semesters')
-            .insert({
-              department_id: id,
-              number: semester.number
-            })
-            .select()
-            .single();
-          
-          if (semError) throw semError;
-          
-          // Create sections for this semester
-          if (semester.sections && semester.sections.length > 0) {
-            const sectionInserts = semester.sections.map(sec => ({
-              semester_id: semData.id,
-              name: sec.name
-            }));
-            
-            const { error: secError } = await supabase
-              .from('department_sections')
-              .insert(sectionInserts);
-            
-            if (secError) throw secError;
-          }
-        }
-      }
-      
+      const deptData = await departmentService.updateDepartment(id, {
+        name: updates.name,
+        short_form: updates.code,
+      });
       return deptData;
     },
     onSuccess: () => {
@@ -193,12 +108,7 @@ export function useDepartments() {
 
   const deleteDepartmentMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('departments')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await departmentService.deleteDepartment(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['departments'] });

@@ -6,7 +6,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Plus, Eye, Edit, Trash2, Code, FileText, CheckCircle, Circle, GripVertical, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { Question, QuestionFilters, fetchQuestions, QUESTION_TYPES } from '@/services/questionService';
+import { Question, QuestionFilters, fetchQuestions, QUESTION_TYPES, deleteQuestion } from '@/services/questionService';
+import QuestionCreationModal from './QuestionCreationModal';
 
 interface QuestionBankProps {
   mode?: 'selection' | 'management';
@@ -22,6 +23,9 @@ interface QuestionBankProps {
   subjectFilter?: string;
   unitFilter?: string;
   categoryFilter?: string;
+  difficultyFilter?: string;
+  creationCategory?: string;
+  allowCreation?: boolean;
 }
 
 export default function QuestionBank({
@@ -37,7 +41,10 @@ export default function QuestionBank({
   showSplitView = false,
   subjectFilter,
   unitFilter,
-  categoryFilter
+  categoryFilter,
+  difficultyFilter,
+  creationCategory,
+  allowCreation = true
 }: QuestionBankProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [allSelectedQuestions, setAllSelectedQuestions] = useState<Question[]>([]);
@@ -48,12 +55,15 @@ export default function QuestionBank({
     search: '',
     subject: subjectFilter,
     unit: unitFilter,
-    categories: categoryFilter
+    categories: creationCategory || categoryFilter,
+    difficulty: difficultyFilter as any
   });
   const [selectedType, setSelectedType] = useState<string>('mcq_single');
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const [isDragging, setIsDragging] = useState(false);
   const [restrictToScope, setRestrictToScope] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchQuestionsData = async () => {
@@ -90,9 +100,10 @@ export default function QuestionBank({
       ...prev,
       subject: subjectFilter,
       unit: unitFilter,
-      categories: categoryFilter
+      categories: creationCategory || categoryFilter,
+      difficulty: difficultyFilter as any
     }));
-  }, [subjectFilter, unitFilter, categoryFilter]);
+  }, [subjectFilter, unitFilter, categoryFilter, difficultyFilter, creationCategory]);
 
   // Handle selectedQuestions changes - manage allSelectedQuestions
   useEffect(() => {
@@ -220,6 +231,30 @@ export default function QuestionBank({
             onQuestionsChange([...selectedQuestions, questionId]);
           }
         }
+      }
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, question: Question) => {
+    e.stopPropagation();
+    setEditingQuestion(question);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleDeleteClick = async (e: React.MouseEvent, questionId: string) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to permanently delete this question? This action cannot be undone.')) {
+      try {
+        await deleteQuestion(questionId);
+        toast.success('Question deleted successfully');
+        fetchQuestionsData();
+        // If the deleted question was selected, deselect it
+        if (selectedQuestions.includes(questionId)) {
+          handleQuestionToggle(questionId);
+        }
+      } catch (error) {
+        console.error('Failed to delete question:', error);
+        toast.error('Failed to delete question');
       }
     }
   };
@@ -367,15 +402,26 @@ export default function QuestionBank({
                   </TabsList>
                 </Tabs>
 
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search questions..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search questions..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  {mode === 'selection' && subjectFilter && allowCreation && (
+                    <button
+                      onClick={() => setIsCreateModalOpen(true)}
+                      className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm h-10"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create New
+                    </button>
+                  )}
                 </div>
 
                 {mode === 'selection' && (subjectFilter || unitFilter) && (
@@ -407,9 +453,9 @@ export default function QuestionBank({
                   <p className="mt-1 text-sm text-gray-500 mb-4">
                     {searchQuery ? `No questions found matching "${searchQuery}"` : 'No questions available.'}
                   </p>
-                  {mode === 'selection' && subjectFilter && (
+                  {mode === 'selection' && subjectFilter && allowCreation && (
                     <button
-                      onClick={() => window.open(`/admin/subjects/${subjectFilter}/manage`, '_blank')}
+                      onClick={() => setIsCreateModalOpen(true)}
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"
                     >
                       <Plus className="w-4 h-4" />
@@ -445,12 +491,28 @@ export default function QuestionBank({
                             {question.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                           </p>
                         </div>
-                        <div className="ml-3">
+                        <div className="ml-3 flex flex-col items-center gap-4">
                           {selectedQuestions.includes(question.id) ? (
                             <CheckCircle className="h-5 w-5 text-blue-600" />
                           ) : (
                             <Circle className="h-5 w-5 text-gray-400" />
                           )}
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={(e) => handleEditClick(e, question)}
+                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              title="Edit Question"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteClick(e, question.id)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              title="Delete Question"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -460,6 +522,29 @@ export default function QuestionBank({
             </div>
           </div>
         </div>
+        {isCreateModalOpen && (
+          <QuestionCreationModal
+            isOpen={isCreateModalOpen}
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              setEditingQuestion(null);
+            }}
+            editData={editingQuestion}
+            onSuccess={(newQuestion) => {
+              fetchQuestionsData();
+              if (mode === 'selection' && allowMultipleSelection) {
+                if (onQuestionsChange) {
+                  onQuestionsChange([...selectedQuestions, newQuestion.id]);
+                } else if (onQuestionSelect) {
+                  onQuestionSelect(newQuestion.id);
+                }
+              }
+            }}
+            subjectFilter={subjectFilter}
+            unitFilter={unitFilter}
+            categoryFilter={creationCategory || categoryFilter}
+          />
+        )}
       </div>
     );
   }
@@ -495,6 +580,15 @@ export default function QuestionBank({
                 <option key={type.value} value={type.value}>{type.label}</option>
               ))}
             </select>
+            {mode === 'selection' && subjectFilter && allowCreation && (
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                Create New Question
+              </button>
+            )}
           </div>
         </div>
 
@@ -526,9 +620,9 @@ export default function QuestionBank({
             <p className="mt-1 text-sm text-gray-500 mb-4">
               {searchQuery ? `No questions found matching "${searchQuery}"` : 'No questions available in the question bank.'}
             </p>
-            {mode === 'selection' && subjectFilter && (
+            {mode === 'selection' && subjectFilter && allowCreation && (
               <button
-                onClick={() => window.open(`/admin/subjects/${subjectFilter}/manage`, '_blank')}
+                onClick={() => setIsCreateModalOpen(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
@@ -547,7 +641,7 @@ export default function QuestionBank({
                   <TableHead>Difficulty</TableHead>
                   <TableHead>Marks</TableHead>
                   <TableHead>Categories</TableHead>
-                  {mode === 'management' && <TableHead className="text-right">Actions</TableHead>}
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -604,21 +698,29 @@ export default function QuestionBank({
                         )}
                       </div>
                     </TableCell>
-                    {mode === 'management' && (
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {mode === 'management' && (
                           <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="View Question">
                             <Eye className="h-4 w-4" />
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors" title="Edit Question">
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete Question">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    )}
+                        )}
+                        <button
+                          onClick={(e) => handleEditClick(e, question)}
+                          className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                          title="Edit Question"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteClick(e, question.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Delete Question"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -651,6 +753,29 @@ export default function QuestionBank({
           </div>
         )}
       </CardContent>
+      {isCreateModalOpen && (
+          <QuestionCreationModal
+            isOpen={isCreateModalOpen}
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              setEditingQuestion(null);
+            }}
+            editData={editingQuestion}
+          onSuccess={(newQuestion) => {
+            fetchQuestionsData();
+            if (mode === 'selection' && allowMultipleSelection) {
+              if (onQuestionsChange) {
+                onQuestionsChange([...selectedQuestions, newQuestion.id]);
+              } else if (onQuestionSelect) {
+                onQuestionSelect(newQuestion.id);
+              }
+            }
+          }}
+          subjectFilter={subjectFilter}
+          unitFilter={unitFilter}
+          categoryFilter={creationCategory || categoryFilter}
+        />
+      )}
     </Card>
   );
 }

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, UserCheck, Users, FileText, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, Building2, UserCheck, Users, FileText, Bell, Megaphone, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -9,9 +9,10 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
+import { badgeVariants } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import yuvroCampusLogo from '@/assets/yuvro-campus-combined.png';
 import knowledgeTreeIcon from '@/assets/knowledge-tree.png';
 import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
@@ -21,6 +22,7 @@ const mainItems = [
   { title: 'Department', url: '/principal/departments', icon: Building2 },
   { title: 'Faculty', url: '/principal/faculty', icon: UserCheck },
   { title: 'Students', url: '/principal/students', icon: Users },
+  { title: 'Announcements', url: '/principal/announcements', icon: Megaphone },
   { title: 'PRI Report', url: '/principal/pri-report', icon: FileText },
 ];
 
@@ -113,7 +115,7 @@ export function PrincipalSidebar() {
               <>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-sm font-medium truncate">{firstName}</p>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Principal</Badge>
+                  <div className={cn(badgeVariants({ variant: 'secondary' }), "text-[10px] px-1.5 py-0")}>Principal</div>
                 </div>
                 <ChevronsUpDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
               </>

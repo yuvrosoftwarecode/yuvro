@@ -1,25 +1,42 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileCheck, TrendingUp, TrendingDown } from 'lucide-react';
+import { FileCheck, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { studentDashboardService } from '@/services/studentDashboardService';
 
 export function AssessmentsOverview() {
   const navigate = useNavigate();
 
-  const stats = {
-    total: 12,
-    completed: 9,
-    inProgress: 2,
-    pending: 1,
-    avgScore: 85,
-    highestScore: 96,
-    lowestScore: 72,
-    lastStatus: 'Completed - 88%'
+  const { data, isLoading } = useQuery({
+    queryKey: ['assessmentsOverview'],
+    queryFn: () => studentDashboardService.getAssessments()
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="h-full flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
+
+  const stats = data || {
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    pending: 0,
+    avgScore: 0,
+    highestScore: 0,
+    lowestScore: 0,
+    recentStatus: 0
   };
 
+  const lastStatusText = stats.recentStatus > 0 ? `Completed - ${stats.recentStatus}%` : 'No recent activities';
+
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/student/assessment')}>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" onClick={() => navigate('/student/assessment')}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -29,7 +46,7 @@ export function AssessmentsOverview() {
           <Badge variant="outline">{stats.completed}/{stats.total}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1">
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center p-3 rounded-lg bg-muted/50">
             <div className="text-xl font-bold" style={{ color: 'hsl(var(--success))' }}>
@@ -49,7 +66,7 @@ export function AssessmentsOverview() {
           </div>
         </div>
 
-        <div className="space-y-3 pt-2 border-t">
+        <div className="space-y-3 pt-2 border-t flex-1">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Average Score</span>
             <div className="flex items-center gap-1">
@@ -86,12 +103,12 @@ export function AssessmentsOverview() {
               color: 'hsl(var(--success))',
               borderColor: 'hsl(var(--success) / 0.3)'
             }}>
-              {stats.lastStatus}
+              {lastStatusText}
             </Badge>
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-muted-foreground mt-auto">
           Click to view all assessments
         </div>
       </CardContent>

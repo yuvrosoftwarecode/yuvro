@@ -1,10 +1,11 @@
-import React, { useRef, useImperativeHandle, forwardRef } from 'react';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
 import MonacoEditor, { loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { Sparkles, Maximize2, Minimize2, X } from 'lucide-react';
 
-// Configure the loader if needed, but remove the local monaco-editor instance loader config which causes worker issues
-// loader.config({ monaco });
+// Configure the loader to use the local monaco-editor instance
+// This resolves "Tracking Prevention" issues in browsers that block CDN storage access
+loader.config({ monaco });
 
 interface MonacoCodeEditorProps {
   value: string;
@@ -39,7 +40,6 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
   onChange,
   language,
   onLanguageChange,
-  placeholder = "Write your code here...",
   readOnly = false,
   height = "400px",
   onShowExamples,

@@ -44,6 +44,18 @@ export const departmentService = {
         await restApiAuthUtil.delete(`/course/departments/${id}/`);
     },
 
+    getDepartmentStats: async (id: string | number, filters?: any): Promise<any> => {
+        let url = `/course/departments/${id}/stats/`;
+        if (filters) {
+            const params = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) params.append(key, String(value));
+            });
+            url += `?${params.toString()}`;
+        }
+        return await restApiAuthUtil.get<any>(url);
+    },
+
     allocateHOD: async (collegeId: string | number, data: { user_id: string; department_id: string | number }): Promise<any> => {
         return await restApiAuthUtil.post(`/core/college-allocation/${collegeId}/allocate-hod/`, data);
     },

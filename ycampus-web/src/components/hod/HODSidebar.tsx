@@ -1,4 +1,4 @@
-import { LayoutDashboard, UserCheck, FileText, ChevronDown, BarChart3, ClipboardCheck, Users2, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, UserCheck, FileText, ChevronDown, BarChart3, ClipboardCheck, Users2, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -19,6 +19,7 @@ import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 const mainItems = [
   { title: 'Dashboard', url: '/hod/dashboard', icon: LayoutDashboard },
   { title: 'Faculty', url: '/hod/faculty', icon: UserCheck },
+  { title: 'Announcements', url: '/hod/announcements', icon: Megaphone },
 ];
 
 const reportSubItems = [

@@ -13,7 +13,7 @@ interface CommentComposerProps {
   onChange: (value: string) => void;
   onSubmit: () => void;
   isSubmitting?: boolean;
-  replyingTo?: boolean;
+  replyingToName?: string;
   onCancelReply?: () => void;
 }
 
@@ -22,7 +22,7 @@ export function CommentComposer({
   onChange,
   onSubmit,
   isSubmitting = false,
-  replyingTo = false,
+  replyingToName,
   onCancelReply,
 }: CommentComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -30,11 +30,13 @@ export function CommentComposer({
 
   // Focus textarea on mount and when switching to reply mode
   useEffect(() => {
-    const timer = setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [replyingTo]);
+    if (replyingToName) {
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [replyingToName]);
 
   const emojis = useMemo(
     () => ['😀', '😄', '😂', '😍', '👍', '🙏', '🎉', '🔥', '💯', '✅', '❓', '🤝'],
@@ -66,9 +68,9 @@ export function CommentComposer({
 
   return (
     <div className="border-t p-4 bg-background">
-      {replyingTo && (
+      {replyingToName && (
         <div className="flex items-center justify-between mb-2 text-sm text-muted-foreground">
-          <span>Replying to comment</span>
+          <span>Replying to <span className="font-medium text-foreground">{replyingToName}</span></span>
           <Button
             variant="ghost"
             size="sm"

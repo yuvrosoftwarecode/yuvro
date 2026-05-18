@@ -301,6 +301,7 @@ class NoteSerializer(serializers.ModelSerializer):
 class AnnouncementSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     department_name = serializers.CharField(source="department.name", read_only=True, allow_null=True)
+    batch_name = serializers.CharField(source="batch.name", read_only=True, allow_null=True)
     created_by_name = serializers.CharField(source="created_by.email", read_only=True)
 
     class Meta:
@@ -313,6 +314,8 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "college_name",
             "department",
             "department_name",
+            "batch",
+            "batch_name",
             "level",
             "created_by",
             "created_by_name",

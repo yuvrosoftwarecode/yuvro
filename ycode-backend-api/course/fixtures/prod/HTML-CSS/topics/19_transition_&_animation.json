@@ -1,0 +1,1660 @@
+{
+  "name": "Transitions & Animations",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 19,
+  "sub_units": [
+    {
+      "name": "CSS Transitions",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to CSS Transitions",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Transitions+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of CSS Transitions in HTML/CSS."
+        },
+        {
+          "title": "Advanced CSS Transitions Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Transitions+html+css",
+          "ai_context": "In-depth explanation and practical examples for CSS Transitions."
+        }
+      ]
+    },
+    {
+      "name": "CSS Animations",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to CSS Animations",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Animations+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of CSS Animations in HTML/CSS."
+        },
+        {
+          "title": "Advanced CSS Animations Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Animations+html+css",
+          "ai_context": "In-depth explanation and practical examples for CSS Animations."
+        }
+      ]
+    },
+    {
+      "name": "Advanced Animations",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Advanced Animations",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Animations+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Animations in HTML/CSS."
+        },
+        {
+          "title": "Advanced Advanced Animations Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Animations+html+css",
+          "ai_context": "In-depth explanation and practical examples for Advanced Animations."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Transition Purpose",
+      "content": "What is the purpose of CSS transitions?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To create smooth changes between property values",
+          "is_correct": true
+        },
+        {
+          "text": "To store CSS variables",
+          "is_correct": false
+        },
+        {
+          "text": "To create database connections",
+          "is_correct": false
+        },
+        {
+          "text": "To replace JavaScript",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Transition Property",
+      "content": "Which CSS property is used to define transitions?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transition",
+          "is_correct": true
+        },
+        {
+          "text": "animation",
+          "is_correct": false
+        },
+        {
+          "text": "transform",
+          "is_correct": false
+        },
+        {
+          "text": "effect",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Timing Function Purpose",
+      "content": "What do timing functions control in CSS transitions?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The speed curve of the transition",
+          "is_correct": true
+        },
+        {
+          "text": "The background color",
+          "is_correct": false
+        },
+        {
+          "text": "The border thickness",
+          "is_correct": false
+        },
+        {
+          "text": "The HTML structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear Timing",
+      "content": "Which timing function keeps the same speed throughout the transition?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "linear",
+          "is_correct": true
+        },
+        {
+          "text": "ease",
+          "is_correct": false
+        },
+        {
+          "text": "ease-in",
+          "is_correct": false
+        },
+        {
+          "text": "ease-out",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hover Transition",
+      "content": "CSS transitions are commonly triggered using which pseudo-class?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ":hover",
+          "is_correct": true
+        },
+        {
+          "text": ":before",
+          "is_correct": false
+        },
+        {
+          "text": ":root",
+          "is_correct": false
+        },
+        {
+          "text": ":checked-only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Ease Timing Function",
+      "content": "What does the ease timing function do?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Starts slow, speeds up, then slows down",
+          "is_correct": true
+        },
+        {
+          "text": "Maintains constant speed",
+          "is_correct": false
+        },
+        {
+          "text": "Runs instantly",
+          "is_correct": false
+        },
+        {
+          "text": "Moves only backward",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Transition Shorthand",
+      "content": "Which shorthand correctly defines a transition?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transition: all 0.3s ease;",
+          "is_correct": true
+        },
+        {
+          "text": "transition: ease all;",
+          "is_correct": false
+        },
+        {
+          "text": "transition: 0.3 ease;",
+          "is_correct": false
+        },
+        {
+          "text": "transition: smooth fast;",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Transition Duration",
+      "content": "What happens if transition-duration is set to 0s?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The property changes instantly without animation",
+          "is_correct": true
+        },
+        {
+          "text": "The transition loops forever",
+          "is_correct": false
+        },
+        {
+          "text": "The element disappears",
+          "is_correct": false
+        },
+        {
+          "text": "The browser crashes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Best Practice",
+      "content": "Which properties are generally best for smooth CSS transitions?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transform and opacity",
+          "is_correct": true
+        },
+        {
+          "text": "width and height only",
+          "is_correct": false
+        },
+        {
+          "text": "margin and padding only",
+          "is_correct": false
+        },
+        {
+          "text": "display and position",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Transition Limitation",
+      "content": "Why can't display: none be smoothly transitioned in CSS?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "display is not an animatable property",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions only work on colors",
+          "is_correct": false
+        },
+        {
+          "text": "display requires JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "display disables CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Purpose",
+      "content": "What are CSS animations used for?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating animated effects using CSS",
+          "is_correct": true
+        },
+        {
+          "text": "Connecting databases",
+          "is_correct": false
+        },
+        {
+          "text": "Writing HTML content",
+          "is_correct": false
+        },
+        {
+          "text": "Compiling JavaScript",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Keyframes Rule",
+      "content": "Which CSS rule is used to define animation stages?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@keyframes",
+          "is_correct": true
+        },
+        {
+          "text": "@frames",
+          "is_correct": false
+        },
+        {
+          "text": "@animate",
+          "is_correct": false
+        },
+        {
+          "text": "@transition",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Duration",
+      "content": "Which property controls how long an animation takes to complete?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-duration",
+          "is_correct": true
+        },
+        {
+          "text": "animation-delay",
+          "is_correct": false
+        },
+        {
+          "text": "animation-loop",
+          "is_correct": false
+        },
+        {
+          "text": "animation-speed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Iteration",
+      "content": "Which property controls how many times an animation repeats?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-iteration-count",
+          "is_correct": true
+        },
+        {
+          "text": "animation-repeat",
+          "is_correct": false
+        },
+        {
+          "text": "animation-loop-count",
+          "is_correct": false
+        },
+        {
+          "text": "animation-timing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Infinite Animation",
+      "content": "Which value makes an animation repeat forever?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "infinite",
+          "is_correct": true
+        },
+        {
+          "text": "always",
+          "is_correct": false
+        },
+        {
+          "text": "forever-loop",
+          "is_correct": false
+        },
+        {
+          "text": "repeat-all",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Delay",
+      "content": "What does animation-delay do?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Waits before starting the animation",
+          "is_correct": true
+        },
+        {
+          "text": "Changes animation speed",
+          "is_correct": false
+        },
+        {
+          "text": "Stops the animation permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Controls animation direction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Direction",
+      "content": "Which property controls whether an animation plays forward or backward?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-direction",
+          "is_correct": true
+        },
+        {
+          "text": "animation-flow",
+          "is_correct": false
+        },
+        {
+          "text": "animation-path",
+          "is_correct": false
+        },
+        {
+          "text": "animation-style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Keyframe Percentages",
+      "content": "What do percentages inside @keyframes represent?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stages of the animation timeline",
+          "is_correct": true
+        },
+        {
+          "text": "Screen width values",
+          "is_correct": false
+        },
+        {
+          "text": "Opacity settings only",
+          "is_correct": false
+        },
+        {
+          "text": "Border thickness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Performance",
+      "content": "Which CSS properties are generally most efficient to animate?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transform and opacity",
+          "is_correct": true
+        },
+        {
+          "text": "width and margin",
+          "is_correct": false
+        },
+        {
+          "text": "padding and border",
+          "is_correct": false
+        },
+        {
+          "text": "display and float",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Fill Mode",
+      "content": "What does animation-fill-mode: forwards do?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keeps the final animation state after completion",
+          "is_correct": true
+        },
+        {
+          "text": "Restarts the animation automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Runs animation backward",
+          "is_correct": false
+        },
+        {
+          "text": "Disables the animation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hover Effect Purpose",
+      "content": "What is the purpose of hover effects in web design?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To provide visual feedback during user interaction",
+          "is_correct": true
+        },
+        {
+          "text": "To connect databases",
+          "is_correct": false
+        },
+        {
+          "text": "To replace HTML tags",
+          "is_correct": false
+        },
+        {
+          "text": "To stop page rendering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hover Selector",
+      "content": "Which pseudo-class is commonly used for hover effects?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ":hover",
+          "is_correct": true
+        },
+        {
+          "text": ":focus-only",
+          "is_correct": false
+        },
+        {
+          "text": ":active-link",
+          "is_correct": false
+        },
+        {
+          "text": ":checked",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loading Animation Purpose",
+      "content": "Why are loading animations commonly used?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To indicate that content is loading or processing",
+          "is_correct": true
+        },
+        {
+          "text": "To increase file size",
+          "is_correct": false
+        },
+        {
+          "text": "To disable user interaction",
+          "is_correct": false
+        },
+        {
+          "text": "To remove responsiveness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Smooth Hover Transitions",
+      "content": "Which CSS feature is commonly combined with hover effects for smooth animations?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transition",
+          "is_correct": true
+        },
+        {
+          "text": "float",
+          "is_correct": false
+        },
+        {
+          "text": "clear",
+          "is_correct": false
+        },
+        {
+          "text": "overflow",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Looping",
+      "content": "Which value allows a loading animation to repeat continuously?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "infinite",
+          "is_correct": true
+        },
+        {
+          "text": "repeat",
+          "is_correct": false
+        },
+        {
+          "text": "forever",
+          "is_correct": false
+        },
+        {
+          "text": "loop-all",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Accessible Hover Design",
+      "content": "Why should hover effects not be the only way to access important information?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Touchscreen devices may not support hover interactions",
+          "is_correct": true
+        },
+        {
+          "text": "Hover effects only work in JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Hover disables animations",
+          "is_correct": false
+        },
+        {
+          "text": "CSS removes hover on mobile automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loading Animation Best Practice",
+      "content": "What is a good practice when designing loading animations?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keep them simple and not distracting",
+          "is_correct": true
+        },
+        {
+          "text": "Make them cover the entire screen permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Use maximum flashing effects",
+          "is_correct": false
+        },
+        {
+          "text": "Disable responsiveness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Triggering",
+      "content": "Which CSS property is often animated in hover effects for visual emphasis?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "transform",
+          "is_correct": true
+        },
+        {
+          "text": "doctype",
+          "is_correct": false
+        },
+        {
+          "text": "charset",
+          "is_correct": false
+        },
+        {
+          "text": "display-only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Animation Performance Optimization",
+      "content": "Why are transform-based animations preferred for hover effects?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They are generally more performant and smoother",
+          "is_correct": true
+        },
+        {
+          "text": "They only work in Chrome",
+          "is_correct": false
+        },
+        {
+          "text": "They disable transitions",
+          "is_correct": false
+        },
+        {
+          "text": "They require no CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "User Experience and Loading States",
+      "content": "How do loading animations improve user experience?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "Advanced Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They reassure users that the system is working",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate network delays",
+          "is_correct": false
+        },
+        {
+          "text": "They replace backend processing",
+          "is_correct": false
+        },
+        {
+          "text": "They stop browser rendering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Transition Basics",
+      "content": "Which of the following statements about CSS transitions are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The transition property creates smooth changes between states",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions control animation speed behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions can only be applied to colors",
+          "is_correct": false
+        },
+        {
+          "text": "Transitions improve visual user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transition Property Introduction",
+      "content": "Which of the following statements about the transition property are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitions animate changes in CSS properties",
+          "is_correct": true
+        },
+        {
+          "text": "The transition property can define duration",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions automatically create HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "Timing functions affect how transitions progress",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Timing Function Basics",
+      "content": "Which of the following statements about timing functions are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ease is a common transition timing function",
+          "is_correct": true
+        },
+        {
+          "text": "linear creates a constant transition speed",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions change the page layout structure",
+          "is_correct": false
+        },
+        {
+          "text": "Timing functions affect animation feel",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transition Effects",
+      "content": "Which of the following statements about transition effects are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitions can be triggered by hover states",
+          "is_correct": true
+        },
+        {
+          "text": "Transition duration defines animation length",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions only work with JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Transitions help create interactive interfaces",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Transition Concepts",
+      "content": "Which of the following statements about CSS transition concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitions create smooth visual state changes",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions define acceleration patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions permanently modify CSS values",
+          "is_correct": false
+        },
+        {
+          "text": "Transitions are commonly used in buttons and menus",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transition Timing Behavior",
+      "content": "Which of the following statements about transition timing behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ease-in starts slowly and speeds up",
+          "is_correct": true
+        },
+        {
+          "text": "ease-out slows down near the end",
+          "is_correct": true
+        },
+        {
+          "text": "linear timing changes direction automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Timing functions improve animation realism",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Transition Usage",
+      "content": "Which of the following statements about advanced transition usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple properties can be transitioned simultaneously",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions can improve perceived application responsiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions require keyframes to work",
+          "is_correct": false
+        },
+        {
+          "text": "Transition timing influences user interaction feedback",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Transition Property Details",
+      "content": "Which of the following statements about transition property details are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The transition shorthand can include duration and timing function",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions define how intermediate values are calculated",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions can only animate opacity",
+          "is_correct": false
+        },
+        {
+          "text": "Transitions support smoother UI interactions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Transition Concepts",
+      "content": "Which of the following statements about advanced transition concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitions interpolate values between property states",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions influence acceleration curves",
+          "is_correct": true
+        },
+        {
+          "text": "Transitions permanently alter element structure",
+          "is_correct": false
+        },
+        {
+          "text": "Well-designed transitions improve user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Timing Functions",
+      "content": "Which of the following statements about advanced timing functions are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Transitions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different timing functions create different motion effects",
+          "is_correct": true
+        },
+        {
+          "text": "ease-in-out combines acceleration and deceleration",
+          "is_correct": true
+        },
+        {
+          "text": "Timing functions are unrelated to animation behavior",
+          "is_correct": false
+        },
+        {
+          "text": "Transitions help create polished interfaces",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Animation Basics",
+      "content": "Which of the following statements about CSS animations are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@keyframes defines animation steps",
+          "is_correct": true
+        },
+        {
+          "text": "Animation properties control animation behavior",
+          "is_correct": true
+        },
+        {
+          "text": "@keyframes changes HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "CSS animations can create movement effects",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Keyframes Introduction",
+      "content": "Which of the following statements about @keyframes are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@keyframes defines intermediate animation states",
+          "is_correct": true
+        },
+        {
+          "text": "Animations can run automatically after page load",
+          "is_correct": true
+        },
+        {
+          "text": "@keyframes only works with images",
+          "is_correct": false
+        },
+        {
+          "text": "CSS animations improve visual interaction",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Animation Properties Basics",
+      "content": "Which of the following statements about animation properties are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-duration controls animation speed",
+          "is_correct": true
+        },
+        {
+          "text": "animation-name connects an animation to keyframes",
+          "is_correct": true
+        },
+        {
+          "text": "animation-duration changes text size",
+          "is_correct": false
+        },
+        {
+          "text": "Animation properties customize animation behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Animation Effects",
+      "content": "Which of the following statements about CSS animation effects are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS animations can repeat infinitely",
+          "is_correct": true
+        },
+        {
+          "text": "animation-iteration-count controls repetition",
+          "is_correct": true
+        },
+        {
+          "text": "Animations require JavaScript to function",
+          "is_correct": false
+        },
+        {
+          "text": "Animations can enhance user engagement",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Animation Concepts",
+      "content": "Which of the following statements about animation concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@keyframes can define multiple animation stages",
+          "is_correct": true
+        },
+        {
+          "text": "animation-delay controls when an animation starts",
+          "is_correct": true
+        },
+        {
+          "text": "Animations only work on buttons",
+          "is_correct": false
+        },
+        {
+          "text": "CSS animations support interactive UI design",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Animation Timing Behavior",
+      "content": "Which of the following statements about animation timing behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-timing-function controls speed progression",
+          "is_correct": true
+        },
+        {
+          "text": "Animations can use easing effects",
+          "is_correct": true
+        },
+        {
+          "text": "animation-delay changes animation direction",
+          "is_correct": false
+        },
+        {
+          "text": "Timing functions improve animation realism",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Animation Usage",
+      "content": "Which of the following statements about advanced animation usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-fill-mode controls styles before or after animation",
+          "is_correct": true
+        },
+        {
+          "text": "animation-direction can reverse animation flow",
+          "is_correct": true
+        },
+        {
+          "text": "@keyframes permanently changes CSS files",
+          "is_correct": false
+        },
+        {
+          "text": "Animations can create loading and hover effects",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Animation Property Details",
+      "content": "Which of the following statements about animation property details are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "animation-name links an element to a keyframe rule",
+          "is_correct": true
+        },
+        {
+          "text": "animation-duration defines how long an animation runs",
+          "is_correct": true
+        },
+        {
+          "text": "animation-iteration-count changes layout structure",
+          "is_correct": false
+        },
+        {
+          "text": "Animation shorthand combines multiple animation settings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Keyframe Concepts",
+      "content": "Which of the following statements about advanced keyframe concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@keyframes allows control over multiple animation states",
+          "is_correct": true
+        },
+        {
+          "text": "Animations interpolate values between keyframes",
+          "is_correct": true
+        },
+        {
+          "text": "@keyframes replaces the need for CSS selectors",
+          "is_correct": false
+        },
+        {
+          "text": "Complex motion effects can be created using keyframes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Animation Techniques",
+      "content": "Which of the following statements about advanced animation techniques are correct?",
+      "level": "subtopic",
+      "unit_name": "Transitions & Animations",
+      "subunit_name": "CSS Animations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS animations can run independently without user interaction",
+          "is_correct": true
+        },
+        {
+          "text": "Animation properties provide detailed control over motion behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Animations can only affect position properties",
+          "is_correct": false
+        },
+        {
+          "text": "Well-designed animations improve interface usability",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

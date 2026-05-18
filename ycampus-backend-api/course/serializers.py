@@ -15,6 +15,7 @@ from .models import (
     CollegeSubject,
     SemesterSubject,
     SectionSubjectFaculty,
+    SubUnitSectionStatus,
 )
 from .gamification_models import UserGamificationProfile
 from django.contrib.auth import get_user_model
@@ -64,10 +65,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_details = CollegeBasicSerializer(source="college", read_only=True)
     hod_details = serializers.SerializerMethodField()
+    batches = BatchSerializer(many=True, read_only=True)
 
     class Meta:
         model = Department
-        fields = ["id", "college", "college_name", "college_details", "hod_details", "name", "short_form", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "college_details", "hod_details", "name", "short_form", "batches", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
     def get_hod_details(self, obj):
@@ -111,7 +113,11 @@ class SectionBasicSerializer(serializers.ModelSerializer):
     student_count = serializers.SerializerMethodField()
 
     def get_student_count(self, obj):
-        return obj.students.count()
+        from core.models import StudentProfile
+        return StudentProfile.objects.filter(
+            batch=obj.semester.batch,
+            section__name=obj.name
+        ).count()
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -126,7 +132,11 @@ class SectionSerializer(serializers.ModelSerializer):
     student_count = serializers.SerializerMethodField()
 
     def get_student_count(self, obj):
-        return obj.students.count()
+        from core.models import StudentProfile
+        return StudentProfile.objects.filter(
+            batch=obj.semester.batch,
+            section__name=obj.name
+        ).count()
 
 
 
@@ -203,14 +213,22 @@ class UserGamificationProfileSerializer(serializers.ModelSerializer):
 
 
 
+class SubUnitSectionStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubUnitSectionStatus
+        fields = ["id", "section", "sub_unit", "is_unlocked", "unlocked_at"]
+
+
 class SubUnitSerializer(serializers.ModelSerializer):
     """
     Serializer for SubUnit model.
     """
 
+    is_unlocked = serializers.SerializerMethodField()
+
     class Meta:
         model = SubUnit
-        fields = ["id", "unit", "name", "content", "order_index", "created_at"]
+        fields = ["id", "unit", "name", "content", "order_index", "created_at", "is_unlocked"]
         read_only_fields = ["id", "created_at"]
 
     def validate_video_url(self, value):
@@ -222,6 +240,26 @@ class SubUnitSerializer(serializers.ModelSerializer):
                 "Video URL must start with http:// or https://"
             )
         return value
+
+    def get_is_unlocked(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        section_id = self.context.get("section_id")
+        if not section_id and request.user.role == "student":
+            from core.models import StudentProfile
+            profile = StudentProfile.objects.filter(user=request.user).first()
+            if profile:
+                section_id = profile.section_id
+        
+        if not section_id:
+            return False
+            
+        return SubUnitSectionStatus.objects.filter(
+            section_id=section_id, sub_unit=obj, is_unlocked=True
+        ).exists()
+
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -303,6 +341,7 @@ class SectionSubjectFacultySerializer(serializers.ModelSerializer):
             "is_elective": obj.semester_subject.is_elective,
             "is_lab": obj.semester_subject.is_lab,
             "semester_number": obj.semester_subject.semester.number,
+            "batch_id": obj.semester_subject.semester.batch.id,
             "batch_name": obj.semester_subject.semester.batch.name,
             "department_id": obj.semester_subject.semester.batch.department.id,
             "department_name": obj.semester_subject.semester.batch.department.name,

@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import MockInterviewSession from '@/components/student/MockInterviewSession';
 import { fetchSubjects } from '@/services/subjectService';
 import { Loader2 } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 
 // Dummy data
 const psBreakdown = {
@@ -159,6 +160,7 @@ const InterviewPreparation = () => {
   const [dsaSubjectId, setDsaSubjectId] = useState<string | null>(null);
   const [isSubjectsLoading, setIsSubjectsLoading] = useState(true);
 
+  // DSA subject ID is fetched to allow direct navigation to the correct subject in Code Practice
   useEffect(() => {
     const loadSubjects = async () => {
       try {
@@ -182,18 +184,6 @@ const InterviewPreparation = () => {
     loadSubjects();
   }, []);
 
-  // If interview is active, show session
-  if (interviewConfig) {
-    return (
-      <StudentLayout>
-        <MockInterviewSession
-          config={interviewConfig}
-          onExit={() => setInterviewConfig(null)}
-        />
-      </StudentLayout>
-    );
-  }
-
   const chartConfig = {
     ps: { label: 'PS Score', color: 'hsl(var(--primary))' },
   };
@@ -202,10 +192,10 @@ const InterviewPreparation = () => {
     <StudentLayout>
       <div className="space-y-6">
         {/* Page Title */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Interview Preparation</h1>
-          <p className="text-sm text-muted-foreground mt-1">Track your preparation, practice skills, and stay ahead.</p>
-        </div>
+        <PageHeader 
+          title="Interview Preparation" 
+          subtitle="Track your preparation, practice skills, and stay ahead." 
+        />
 
         {/* ===== HERO SECTION ===== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

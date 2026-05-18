@@ -7,20 +7,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
-import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft } from 'lucide-react';
+import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
-import { MOCK_PLACEMENT_JOBS, MOCK_STUDENT_APPLICATIONS } from '@/services/mockPlacementData';
+import { usePlacementJob, useJobApplications, useUpdateApplicationStatus } from '@/hooks/usePlacement';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
-
-// Dummy data with previous offers info
-// Mock data source
-// Using MOCK_STUDENT_APPLICATIONS directly below to optimize bundle and reduce complexity
 
 const generateStudentMetrics = (name: string) => {
   const seed = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -54,57 +49,36 @@ const JobApplicationsPage = () => {
   const [ctcRangeFilter, setCtcRangeFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'pri' | 'cgpa' | 'name' | 'highest_ctc'>('pri');
 
-  const { data: job } = useQuery({
-    queryKey: ['placement-job-detail', jobId],
-    queryFn: async () => {
-      if (!jobId) return null;
-      // Search in mock jobs
-      const found = MOCK_PLACEMENT_JOBS.find(j => j.id === jobId);
-      if (found) return found;
-
-      // Fallback to Supabase if not in mocks
-      const { data, error } = await supabase.from('placement_jobs')
-        .select('*, recruiter:recruiters(*)')
-        .eq('id', jobId).single();
-      if (error) return null;
-      return data;
-    },
-    enabled: !!jobId,
-  });
-
-  const { data: realApplications } = useQuery({
-    queryKey: ['job-applications', jobId],
-    queryFn: async () => {
-      // For now, always prefer mock applications to ensure consistency with design
-      return MOCK_STUDENT_APPLICATIONS;
-    },
-    enabled: !!jobId,
-  });
+  const { data: job, isLoading: jobLoading } = usePlacementJob(jobId);
+  const { data: appData, isLoading: appsLoading } = useJobApplications(jobId);
+  const updateStatusMutation = useUpdateApplicationStatus();
 
   const applications = useMemo(() => {
-    return realApplications || [];
-  }, [realApplications]);
+    return appData?.applications || [];
+  }, [appData]);
 
   const enrichedApps = useMemo(() => {
     return applications.map((app: any) => {
-      // Use existing metrics from mock data if available
-      const metrics = {
-        pi: app.pi || 0,
-        ps: app.ps || 0,
-        pri: app.pri || 0
-      };
+      // Generate some consistent metrics based on student name if missing
+      const generated = generateStudentMetrics(app.applicant_name || '');
       
-      // If mock data doesn't have metrics, generate them
-      if (!metrics.pri) {
-        const generated = generateStudentMetrics(app.student_name);
-        metrics.pi = generated.pi;
-        metrics.ps = generated.ps;
-        metrics.pri = generated.pri;
-      }
+      const metrics = {
+        pi: app.pi || generated.pi,
+        ps: app.ps || generated.ps,
+        pri: app.pri || generated.pri
+      };
 
-      const hasPrevOffer = app.previous_offer ?? (app.ctc_offered && app.ctc_offered > 0);
-      const highestCtc = app.highest_ctc ?? (app.ctc_offered || 0);
-      return { ...app, ...metrics, previous_offer: !!hasPrevOffer, highest_ctc: highestCtc };
+      const hasPrevOffer = app.previous_offer ?? false;
+      const highestCtc = app.highest_ctc ?? 0;
+      return { 
+        ...app, 
+        ...metrics, 
+        student_name: app.applicant_name,
+        student_id: app.applicant_roll_no || 'N/A',
+        branch: app.applicant_department || 'N/A',
+        previous_offer: !!hasPrevOffer, 
+        highest_ctc: highestCtc 
+      };
     });
   }, [applications]);
 
@@ -112,7 +86,7 @@ const JobApplicationsPage = () => {
     let list = enrichedApps;
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && a.student_id.toLowerCase().includes(q)));
+      list = list.filter((a: any) => a.student_name.toLowerCase().includes(q) || (a.student_id && String(a.student_id).toLowerCase().includes(q)));
     }
     if (deptFilter !== 'all') list = list.filter((a: any) => a.branch === deptFilter);
     if (offerFilter === 'yes') list = list.filter((a: any) => a.previous_offer);
@@ -168,10 +142,8 @@ const JobApplicationsPage = () => {
 
   const updateAppStatus = async (ids: string[], status: string) => {
     for (const id of ids) {
-      await supabase.from('student_applications').update({ status: status as any }).eq('id', id);
+      await updateStatusMutation.mutateAsync({ applicationId: id, status });
     }
-    toast({ title: `${ids.length} student(s) ${status}` });
-    qc.invalidateQueries({ queryKey: ['job-applications', jobId] });
     setSelectedIds([]);
   };
 
@@ -198,6 +170,17 @@ const JobApplicationsPage = () => {
   const jobTitle = job?.role_title || 'Job Applications';
   const companyName = (job?.recruiter as any)?.company_name || '';
 
+  if (jobLoading || appsLoading) {
+    return (
+      <PlacementLayout title="">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-[hsl(249,60%,69%)]" />
+          <p className="text-sm text-muted-foreground font-medium">Fetching candidates...</p>
+        </div>
+      </PlacementLayout>
+    );
+  }
+
   return (
     <PlacementLayout title="">
       <div className="space-y-5">
@@ -216,10 +199,11 @@ const JobApplicationsPage = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
             { label: 'Total', value: stats.total, icon: Users, color: VIOLET },
             { label: 'Eligible (PRI≥70)', value: stats.eligible, icon: UserCheck, color: TEAL },
+            { label: 'Eligible Rate', value: `${stats.total > 0 ? Math.round((stats.eligible / stats.total) * 100) : 0}%`, icon: TrendingUp, color: 'hsl(249,60%,60%)' },
             { label: 'With Offers', value: stats.withOffers, icon: CheckCircle2, color: 'hsl(142,71%,35%)' },
             { label: 'No Offers', value: stats.withoutOffers, icon: UserX, color: 'hsl(38,100%,56%)' },
             { label: 'Avg PRI', value: stats.avgPri, icon: TrendingUp, color: getPriColor(stats.avgPri) },
@@ -376,16 +360,7 @@ const JobApplicationsPage = () => {
           </Table>
         </div>
 
-        {/* Job Performance */}
-        <div className="bg-[hsl(240,20%,97%)] rounded-xl p-4">
-          <p className="text-xs font-semibold mb-2">Job Performance Metrics</p>
-          <div className="grid grid-cols-4 gap-4 text-center">
-            <div><p className="text-lg font-bold">{stats.total}</p><p className="text-[10px] text-muted-foreground">Applications</p></div>
-            <div><p className="text-lg font-bold">{stats.withOffers}</p><p className="text-[10px] text-muted-foreground">With Offers</p></div>
-            <div><p className="text-lg font-bold">{stats.total > 0 ? Math.round((stats.eligible / stats.total) * 100) : 0}%</p><p className="text-[10px] text-muted-foreground">Eligible Rate</p></div>
-            <div><p className="text-lg font-bold">{stats.avgPri}</p><p className="text-[10px] text-muted-foreground">Avg PRI</p></div>
-          </div>
-        </div>
+
 
         {/* Download */}
         <div className="flex justify-end">

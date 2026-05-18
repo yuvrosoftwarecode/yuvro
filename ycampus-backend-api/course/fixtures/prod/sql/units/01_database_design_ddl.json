@@ -1,0 +1,5817 @@
+{
+  "name": "Database Design & DDL",
+  "subject_short_code": "SQL101",
+  "order_index": 1,
+  "sub_units": [
+    {
+      "name": "Creating a Database",
+      "content": "The CREATE DATABASE statement is used to create a new SQL database. It is the first step in setting up a data storage environment. Once created, you can start defining tables and relationships within it.",
+      "order_index": 0,
+      "videos": []
+    },
+    {
+      "name": "Creating Tables",
+      "content": "The CREATE TABLE statement is used to create a new table in a database. You must specify the table name and define its columns, including their data types and any initial constraints.",
+      "order_index": 1,
+      "videos": []
+    },
+    {
+      "name": "Modifying Tables (ALTER TABLE)",
+      "content": "The ALTER TABLE statement is used to add, delete, or modify columns in an existing table. It is also used to add and drop various constraints on an existing table without deleting the entire table.",
+      "order_index": 2,
+      "videos": []
+    },
+    {
+      "name": "Deleting Tables (DROP, TRUNCATE)",
+      "content": "DROP TABLE is used to remove a table definition and all data, indexes, triggers, constraints, and permission specifications for that table. TRUNCATE TABLE removes all rows from a table, but the table structure and its columns, constraints, indexes, and so on remain.",
+      "order_index": 3,
+      "videos": []
+    },
+    {
+      "name": "Constraints",
+      "content": "Constraints are used to specify rules for the data in a table. Common constraints include PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL, CHECK, DEFAULT, and Auto Increment. They ensure data accuracy and reliability.",
+      "order_index": 4,
+      "videos": []
+    },
+    {
+      "name": "Relationships (1-1, 1-M, M-M)",
+      "content": "Database relationships define how tables are linked together. The three main types are One-to-One (1-1), One-to-Many (1-M), and Many-to-Many (M-M). Relationships are typically implemented using Foreign Keys.",
+      "order_index": 5,
+      "videos": []
+    },
+    {
+      "name": "Introduction to ER Diagrams",
+      "content": "An Entity-Relationship (ER) Diagram is a visual representation of the database structure. It shows entities (tables), attributes (columns), and relationships between them, helping in the design phase of a database.",
+      "order_index": 6,
+      "videos": []
+    },
+    {
+      "name": "Normalization: 1NF, 2NF, 3NF",
+      "content": "Normalization is the process of organizing data in a database to reduce redundancy and improve data integrity. It involves dividing large tables into smaller ones and defining relationships between them (1NF, 2NF, 3NF).",
+      "order_index": 7,
+      "videos": []
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Create Database Command",
+      "content": "Which SQL command is used to create a new database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE DATABASE",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "NEW DATABASE",
+          "is_correct": false
+        },
+        {
+          "text": "ADD DATABASE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL Category",
+      "content": "The CREATE DATABASE command belongs to which category?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DDL",
+          "is_correct": true
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Database Purpose",
+      "content": "What is created using CREATE DATABASE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A container for tables and data",
+          "is_correct": true
+        },
+        {
+          "text": "A single table",
+          "is_correct": false
+        },
+        {
+          "text": "A column",
+          "is_correct": false
+        },
+        {
+          "text": "A row",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Syntax Check",
+      "content": "Which of the following is the correct syntax to create a database named 'company'?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE DATABASE company;",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE company DATABASE;",
+          "is_correct": false
+        },
+        {
+          "text": "NEW DATABASE company;",
+          "is_correct": false
+        },
+        {
+          "text": "ADD DATABASE company;",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Duplicate Database Scenario",
+      "content": "A developer tries to create a database with a name that already exists. What happens?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Error occurs unless IF NOT EXISTS is used",
+          "is_correct": true
+        },
+        {
+          "text": "Database is overwritten",
+          "is_correct": false
+        },
+        {
+          "text": "New database is created with same name",
+          "is_correct": false
+        },
+        {
+          "text": "Old database is deleted",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Safe Creation",
+      "content": "Which clause prevents error when creating a database that may already exist?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "IF NOT EXISTS",
+          "is_correct": true
+        },
+        {
+          "text": "IF EXISTS",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK EXISTS",
+          "is_correct": false
+        },
+        {
+          "text": "SAFE MODE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Startup Scenario",
+      "content": "A startup creates separate databases for users, analytics, and logs. What is the main advantage?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better organization and isolation",
+          "is_correct": true
+        },
+        {
+          "text": "Faster CPU processing",
+          "is_correct": false
+        },
+        {
+          "text": "Reduced memory usage automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Eliminates need for tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL Behavior",
+      "content": "What happens to transactions when CREATE DATABASE is executed in many DBMS?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It auto-commits the transaction",
+          "is_correct": true
+        },
+        {
+          "text": "It rolls back automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It pauses execution",
+          "is_correct": false
+        },
+        {
+          "text": "It deletes previous data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Permission Issue",
+      "content": "A user tries to create a database but lacks privileges. What happens?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Permission denied error",
+          "is_correct": true
+        },
+        {
+          "text": "Database created with warnings",
+          "is_correct": false
+        },
+        {
+          "text": "Database created partially",
+          "is_correct": false
+        },
+        {
+          "text": "System crashes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Naming Conflict",
+      "content": "Two developers try to create databases with same name simultaneously. What is the expected outcome?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One succeeds, the other fails",
+          "is_correct": true
+        },
+        {
+          "text": "Both succeed",
+          "is_correct": false
+        },
+        {
+          "text": "Both fail",
+          "is_correct": false
+        },
+        {
+          "text": "System duplicates database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Commands",
+      "content": "Which commands are part of DDL?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE DATABASE",
+          "is_correct": true
+        },
+        {
+          "text": "ALTER DATABASE",
+          "is_correct": true
+        },
+        {
+          "text": "DROP DATABASE",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Database Characteristics",
+      "content": "Which statements are true about databases?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They store structured data",
+          "is_correct": true
+        },
+        {
+          "text": "They contain tables",
+          "is_correct": true
+        },
+        {
+          "text": "They manage data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "They replace operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Correct Syntax",
+      "content": "Which statements are correct regarding CREATE DATABASE syntax?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE DATABASE db_name;",
+          "is_correct": true
+        },
+        {
+          "text": "IF NOT EXISTS can be used",
+          "is_correct": true
+        },
+        {
+          "text": "Semicolon ends statement",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT DATABASE db_name;",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Usage Scenarios",
+      "content": "When would you create a new database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Starting a new project",
+          "is_correct": true
+        },
+        {
+          "text": "Separating applications",
+          "is_correct": true
+        },
+        {
+          "text": "Organizing data",
+          "is_correct": true
+        },
+        {
+          "text": "Updating rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Design",
+      "content": "A company uses multiple databases for different modules. Why is this beneficial?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better data isolation",
+          "is_correct": true
+        },
+        {
+          "text": "Improved security control",
+          "is_correct": true
+        },
+        {
+          "text": "Easier maintenance",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminates need for queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Error Handling",
+      "content": "What helps avoid errors while creating databases?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "IF NOT EXISTS clause",
+          "is_correct": true
+        },
+        {
+          "text": "Checking existing names",
+          "is_correct": true
+        },
+        {
+          "text": "Using proper permissions",
+          "is_correct": true
+        },
+        {
+          "text": "Using DELETE command",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Admin Responsibilities",
+      "content": "Which tasks are typically performed by database admins?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating databases",
+          "is_correct": true
+        },
+        {
+          "text": "Managing permissions",
+          "is_correct": true
+        },
+        {
+          "text": "Maintaining structure",
+          "is_correct": true
+        },
+        {
+          "text": "Writing UI code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Behavior",
+      "content": "Which statements are true about CREATE DATABASE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It changes database structure",
+          "is_correct": true
+        },
+        {
+          "text": "It is a DDL command",
+          "is_correct": true
+        },
+        {
+          "text": "It often auto-commits",
+          "is_correct": true
+        },
+        {
+          "text": "It modifies table rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Common Mistakes",
+      "content": "Which mistakes may occur when creating databases?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using duplicate names",
+          "is_correct": true
+        },
+        {
+          "text": "Lack of permissions",
+          "is_correct": true
+        },
+        {
+          "text": "Missing syntax elements",
+          "is_correct": true
+        },
+        {
+          "text": "Using SELECT instead of CREATE",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding CREATE DATABASE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating a Database",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It creates a container for tables",
+          "is_correct": true
+        },
+        {
+          "text": "It belongs to DDL",
+          "is_correct": true
+        },
+        {
+          "text": "It can fail due to permissions",
+          "is_correct": true
+        },
+        {
+          "text": "It inserts records into tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Create Table Command",
+      "content": "Which SQL command is used to create a table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CREATE TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE DATABASE",
+          "is_correct": false
+        },
+        {
+          "text": "NEW TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "ADD TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NOT NULL Constraint",
+      "content": "Which constraint ensures that a column cannot store NULL values?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key Constraint",
+      "content": "Which constraint ensures uniqueness and non-null values in a column?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Default Value",
+      "content": "Which constraint automatically assigns a value if none is provided?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DEFAULT",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "NOT NULL",
+          "is_correct": false
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Table Design",
+      "content": "An e-commerce table must ensure each product_id is unique and not null. Which constraint should be used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "User Email Constraint",
+      "content": "A system must ensure no two users have the same email, but NULL values are allowed. Which constraint is suitable?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "UNIQUE",
+          "is_correct": true
+        },
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "NOT NULL",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Age Validation",
+      "content": "A table requires age to be greater than 18. Which constraint is used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CHECK",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Foreign Key Scenario",
+      "content": "An orders table references customer_id from customers table. Which constraint is required?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Conflict",
+      "content": "A column is defined as PRIMARY KEY and DEFAULT 0. What happens if no value is inserted?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0 is inserted if no conflict occurs",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is inserted",
+          "is_correct": false
+        },
+        {
+          "text": "Error always occurs",
+          "is_correct": false
+        },
+        {
+          "text": "Row is ignored",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple Constraints",
+      "content": "Which statement is true when multiple constraints are applied to a column?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All constraints must be satisfied",
+          "is_correct": true
+        },
+        {
+          "text": "Only one constraint is applied",
+          "is_correct": false
+        },
+        {
+          "text": "Constraints are ignored",
+          "is_correct": false
+        },
+        {
+          "text": "Only PRIMARY KEY is applied",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Common Constraints",
+      "content": "Which are valid SQL constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "FUNCTION",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Purpose",
+      "content": "Why are constraints used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ensure data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Prevent invalid data",
+          "is_correct": true
+        },
+        {
+          "text": "Enforce rules",
+          "is_correct": true
+        },
+        {
+          "text": "Increase file size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Primary Key Rules",
+      "content": "Which statements are true about primary keys?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Unique values",
+          "is_correct": true
+        },
+        {
+          "text": "Cannot be NULL",
+          "is_correct": true
+        },
+        {
+          "text": "Identifies records",
+          "is_correct": true
+        },
+        {
+          "text": "Allows duplicates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Foreign Key Rules",
+      "content": "Which are true about foreign keys?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "References another table",
+          "is_correct": true
+        },
+        {
+          "text": "Maintains relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Can have duplicates",
+          "is_correct": true
+        },
+        {
+          "text": "Must be unique",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "User Registration System",
+      "content": "A user table requires email uniqueness and mandatory username. Which constraints apply?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "UNIQUE on email",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL on username",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK on username length",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY on email",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Table",
+      "content": "Which constraints help maintain product data integrity?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY for product_id",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK for price > 0",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL for name",
+          "is_correct": true
+        },
+        {
+          "text": "DROP constraint",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Violations",
+      "content": "Which actions can cause constraint violations?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inserting NULL into NOT NULL column",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate values in PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid foreign key reference",
+          "is_correct": true
+        },
+        {
+          "text": "Valid insert",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Constraints",
+      "content": "Which statements are true about constraints in SQL?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple constraints can be applied to a column",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints enforce business rules",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints improve data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints are optional for correctness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Failures",
+      "content": "Which issues may occur if constraints are not used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Duplicate records",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid data",
+          "is_correct": true
+        },
+        {
+          "text": "Broken relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Faster queries always",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding SQL constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Creating Tables",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY enforces uniqueness and NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY maintains relationships",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK enforces conditions",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT enforces uniqueness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ALTER TABLE Purpose",
+      "content": "What is the primary purpose of ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Modify table structure",
+          "is_correct": true
+        },
+        {
+          "text": "Insert data",
+          "is_correct": false
+        },
+        {
+          "text": "Delete rows",
+          "is_correct": false
+        },
+        {
+          "text": "Retrieve data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Add Column",
+      "content": "Which clause is used to add a new column to an existing table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ADD",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE",
+          "is_correct": false
+        },
+        {
+          "text": "APPEND",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Drop Column",
+      "content": "Which clause removes a column from a table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP COLUMN",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE COLUMN",
+          "is_correct": false
+        },
+        {
+          "text": "REMOVE COLUMN",
+          "is_correct": false
+        },
+        {
+          "text": "CLEAR COLUMN",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Modify Column",
+      "content": "Which clause is used to change the data type of a column?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MODIFY / ALTER COLUMN",
+          "is_correct": true
+        },
+        {
+          "text": "CHANGE VALUE",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE COLUMN",
+          "is_correct": false
+        },
+        {
+          "text": "SET TYPE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Startup Scenario",
+      "content": "A startup adds a new column 'phone_number' to users table after launch. Which operation is used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ALTER TABLE ADD",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "CREATE TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Column Removal Scenario",
+      "content": "A column is no longer needed and must be permanently removed. Which operation should be used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP COLUMN",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        },
+        {
+          "text": "TRUNCATE",
+          "is_correct": false
+        },
+        {
+          "text": "REMOVE ROW",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Type Change",
+      "content": "A column storing age as INT needs to be changed to VARCHAR. Which operation is used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "MODIFY / ALTER COLUMN",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        },
+        {
+          "text": "DROP TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Addition",
+      "content": "Which operation is used to add a primary key to an existing table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ALTER TABLE ADD PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "CREATE PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "INSERT PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE PRIMARY KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL Behavior",
+      "content": "What happens when ALTER TABLE is executed in many DBMS?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It auto-commits changes",
+          "is_correct": true
+        },
+        {
+          "text": "It rolls back automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It deletes data",
+          "is_correct": false
+        },
+        {
+          "text": "It pauses execution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dependency Issue",
+      "content": "Dropping a column that is used in a foreign key relationship will result in?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Error due to dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Column is silently removed",
+          "is_correct": false
+        },
+        {
+          "text": "Table is deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Data is backed up automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ALTER TABLE Operations",
+      "content": "Which operations can be performed using ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Add column",
+          "is_correct": true
+        },
+        {
+          "text": "Drop column",
+          "is_correct": true
+        },
+        {
+          "text": "Modify column",
+          "is_correct": true
+        },
+        {
+          "text": "Insert row",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Nature",
+      "content": "Which statements are true about ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It modifies structure",
+          "is_correct": true
+        },
+        {
+          "text": "It is a DDL command",
+          "is_correct": true
+        },
+        {
+          "text": "It affects schema",
+          "is_correct": true
+        },
+        {
+          "text": "It retrieves data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Column Changes",
+      "content": "Which changes can be made to a column using ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Change data type",
+          "is_correct": true
+        },
+        {
+          "text": "Add constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Rename column",
+          "is_correct": true
+        },
+        {
+          "text": "Delete rows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Safe Operations",
+      "content": "Which practices are safe while modifying tables?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Backup before changes",
+          "is_correct": true
+        },
+        {
+          "text": "Check dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Test in staging",
+          "is_correct": true
+        },
+        {
+          "text": "Directly drop production columns",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Modifications",
+      "content": "Which actions are common in production schema updates?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adding new columns",
+          "is_correct": true
+        },
+        {
+          "text": "Changing data types",
+          "is_correct": true
+        },
+        {
+          "text": "Adding constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting entire database frequently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dependency Awareness",
+      "content": "Before modifying a column, what should be checked?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign key dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes",
+          "is_correct": true
+        },
+        {
+          "text": "Application usage",
+          "is_correct": true
+        },
+        {
+          "text": "Color of UI",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Updates",
+      "content": "Which operations can be done using ALTER TABLE related to constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Add PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "Add FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "Drop constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Insert constraint values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Behavior",
+      "content": "Which statements are true about ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It may lock the table during execution",
+          "is_correct": true
+        },
+        {
+          "text": "It can affect performance temporarily",
+          "is_correct": true
+        },
+        {
+          "text": "It modifies schema metadata",
+          "is_correct": true
+        },
+        {
+          "text": "It only affects one row",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Risk Factors",
+      "content": "Which risks are associated with ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data loss (if dropping columns)",
+          "is_correct": true
+        },
+        {
+          "text": "Downtime during schema changes",
+          "is_correct": true
+        },
+        {
+          "text": "Breaking dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic data backup always",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding ALTER TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Modifying Tables (ALTER TABLE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It modifies table structure",
+          "is_correct": true
+        },
+        {
+          "text": "It is a DDL command",
+          "is_correct": true
+        },
+        {
+          "text": "It can add constraints",
+          "is_correct": true
+        },
+        {
+          "text": "It retrieves data like SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DROP TABLE Purpose",
+      "content": "Which SQL command completely removes a table from the database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "REMOVE TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TRUNCATE Purpose",
+      "content": "What does TRUNCATE TABLE do?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removes all rows but keeps table structure",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes the entire database",
+          "is_correct": false
+        },
+        {
+          "text": "Removes selected rows only",
+          "is_correct": false
+        },
+        {
+          "text": "Renames the table",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DDL Identification",
+      "content": "DROP TABLE and TRUNCATE TABLE belong to which SQL category?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DDL",
+          "is_correct": true
+        },
+        {
+          "text": "DML",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Structure Preservation",
+      "content": "Which command keeps the table structure after execution?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TRUNCATE",
+          "is_correct": true
+        },
+        {
+          "text": "DROP",
+          "is_correct": false
+        },
+        {
+          "text": "REMOVE",
+          "is_correct": false
+        },
+        {
+          "text": "CLEAR",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production Cleanup Scenario",
+      "content": "A company wants to quickly remove all records from a logs table but keep the schema for future logs. Which command is best?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TRUNCATE TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "DROP TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE DATABASE",
+          "is_correct": false
+        },
+        {
+          "text": "ALTER TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Permanent Removal Scenario",
+      "content": "An unused temporary table must be removed permanently along with its structure. Which command should be used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        },
+        {
+          "text": "ALTER TABLE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Scenario",
+      "content": "Which command is generally faster for removing all rows from a large table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TRUNCATE",
+          "is_correct": true
+        },
+        {
+          "text": "DROP",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE",
+          "is_correct": false
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Foreign Key Restriction",
+      "content": "What may happen when TRUNCATE is executed on a table referenced by a foreign key?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Execution may fail due to constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Referenced tables are deleted automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Foreign keys are ignored permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Database is dropped",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Auto Commit Behavior",
+      "content": "Which statement is true regarding DROP and TRUNCATE in many DBMS?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They often auto-commit changes",
+          "is_correct": true
+        },
+        {
+          "text": "They always support rollback",
+          "is_correct": false
+        },
+        {
+          "text": "They belong to DML",
+          "is_correct": false
+        },
+        {
+          "text": "They preserve transaction history",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Recovery Risk",
+      "content": "Why is DROP TABLE considered more dangerous than TRUNCATE TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It removes both data and structure",
+          "is_correct": true
+        },
+        {
+          "text": "It only deletes rows",
+          "is_correct": false
+        },
+        {
+          "text": "It creates duplicate tables",
+          "is_correct": false
+        },
+        {
+          "text": "It disables constraints",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DROP TABLE Characteristics",
+      "content": "Which statements are true about DROP TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removes table structure",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes all data",
+          "is_correct": true
+        },
+        {
+          "text": "Table no longer exists after execution",
+          "is_correct": true
+        },
+        {
+          "text": "Keeps rows intact",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TRUNCATE Characteristics",
+      "content": "Which statements are true about TRUNCATE TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removes all rows",
+          "is_correct": true
+        },
+        {
+          "text": "Keeps table structure",
+          "is_correct": true
+        },
+        {
+          "text": "Usually faster than DELETE",
+          "is_correct": true
+        },
+        {
+          "text": "Drops the database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DDL Operations",
+      "content": "Which commands are considered DDL operations?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "ALTER TABLE",
+          "is_correct": true
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Usage Situations",
+      "content": "When is TRUNCATE TABLE commonly used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clearing temporary data",
+          "is_correct": true
+        },
+        {
+          "text": "Resetting log tables",
+          "is_correct": true
+        },
+        {
+          "text": "Removing test records quickly",
+          "is_correct": true
+        },
+        {
+          "text": "Creating new columns",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Production Best Practices",
+      "content": "Which precautions should be taken before DROP TABLE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Take backups",
+          "is_correct": true
+        },
+        {
+          "text": "Check dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Verify table usage",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore foreign keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TRUNCATE vs DROP",
+      "content": "Which statements correctly compare TRUNCATE and DROP?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TRUNCATE keeps structure",
+          "is_correct": true
+        },
+        {
+          "text": "DROP removes structure",
+          "is_correct": true
+        },
+        {
+          "text": "Both remove data",
+          "is_correct": true
+        },
+        {
+          "text": "Both preserve table schema",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Risks",
+      "content": "Which risks are associated with DROP and TRUNCATE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Permanent data loss",
+          "is_correct": true
+        },
+        {
+          "text": "Breaking dependencies",
+          "is_correct": true
+        },
+        {
+          "text": "Application failures",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic recovery always",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Behavior",
+      "content": "Which statements are true about DROP and TRUNCATE in many DBMS?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They may auto-commit",
+          "is_correct": true
+        },
+        {
+          "text": "Rollback support can be limited",
+          "is_correct": true
+        },
+        {
+          "text": "They modify schema metadata",
+          "is_correct": true
+        },
+        {
+          "text": "They are DML commands",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Issues",
+      "content": "Which situations may prevent TRUNCATE from executing?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Foreign key references",
+          "is_correct": true
+        },
+        {
+          "text": "Insufficient permissions",
+          "is_correct": true
+        },
+        {
+          "text": "Active locks",
+          "is_correct": true
+        },
+        {
+          "text": "Table contains NULL values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding DROP and TRUNCATE?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Deleting Tables (DROP, TRUNCATE)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DROP removes table structure",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE removes rows only",
+          "is_correct": true
+        },
+        {
+          "text": "Both are DDL commands",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE deletes the database",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Purpose",
+      "content": "Why are constraints used in SQL tables?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To enforce data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "To increase table size",
+          "is_correct": false
+        },
+        {
+          "text": "To speed up internet",
+          "is_correct": false
+        },
+        {
+          "text": "To create databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PRIMARY KEY Rule",
+      "content": "Which constraint ensures unique and non-null values?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NOT NULL Usage",
+      "content": "Which constraint prevents NULL values from being inserted?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DEFAULT Constraint",
+      "content": "Which constraint automatically inserts a predefined value when no value is provided?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DEFAULT",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "User Registration Scenario",
+      "content": "A company wants every user email to be unique while allowing only one account per email. Which constraint should be used?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "UNIQUE",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Order Management Scenario",
+      "content": "An orders table references customer_id from customers table. Which constraint maintains this relationship?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Validation Scenario",
+      "content": "A company requires employee salaries to always be greater than 10000. Which constraint is suitable?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CHECK",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        },
+        {
+          "text": "NOT NULL",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Violation",
+      "content": "What happens if duplicate values are inserted into a PRIMARY KEY column?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The insertion fails with an error",
+          "is_correct": true
+        },
+        {
+          "text": "The duplicate value is ignored silently",
+          "is_correct": false
+        },
+        {
+          "text": "The table is deleted",
+          "is_correct": false
+        },
+        {
+          "text": "NULL is inserted automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Composite Key Scenario",
+      "content": "A table uses student_id and course_id together to uniquely identify records. What type of key is this?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Composite Primary Key",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign Key",
+          "is_correct": false
+        },
+        {
+          "text": "Default Key",
+          "is_correct": false
+        },
+        {
+          "text": "Unique Constraint",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Constraint Dependency",
+      "content": "Why can dropping a parent table with referenced foreign keys cause errors?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It breaks referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "It increases storage automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It converts NULL values",
+          "is_correct": false
+        },
+        {
+          "text": "It changes data types",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Common SQL Constraints",
+      "content": "Which of the following are valid SQL constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": true
+        },
+        {
+          "text": "FUNCTION",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PRIMARY KEY Features",
+      "content": "Which statements are true about PRIMARY KEY?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ensures uniqueness",
+          "is_correct": true
+        },
+        {
+          "text": "Does not allow NULL values",
+          "is_correct": true
+        },
+        {
+          "text": "Identifies each row uniquely",
+          "is_correct": true
+        },
+        {
+          "text": "Allows duplicate values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "FOREIGN KEY Features",
+      "content": "Which statements are true about FOREIGN KEY constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Maintains table relationships",
+          "is_correct": true
+        },
+        {
+          "text": "References another table",
+          "is_correct": true
+        },
+        {
+          "text": "Helps maintain referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Must always contain unique values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Benefits",
+      "content": "Why are constraints important in databases?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Prevent invalid data",
+          "is_correct": true
+        },
+        {
+          "text": "Improve data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Replace SQL queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-commerce Product Rules",
+      "content": "An e-commerce platform wants strong product validation. Which constraints can help?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY for product_id",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK for price > 0",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL for product name",
+          "is_correct": true
+        },
+        {
+          "text": "DROP for validation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Constraint Violations",
+      "content": "Which situations can cause constraint violations?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Duplicate PRIMARY KEY values",
+          "is_correct": true
+        },
+        {
+          "text": "NULL in NOT NULL column",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid FOREIGN KEY reference",
+          "is_correct": true
+        },
+        {
+          "text": "Correct valid insertion",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Employee Table Scenario",
+      "content": "A company database requires every employee to have a unique email and valid department reference. Which constraints are appropriate?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "UNIQUE on email",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY on department_id",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL on employee name",
+          "is_correct": true
+        },
+        {
+          "text": "TRUNCATE on email",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Constraint Concepts",
+      "content": "Which statements are true about SQL constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple constraints can exist on one column",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints enforce business rules",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints improve data reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints eliminate need for validation completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Referential Integrity Risks",
+      "content": "What problems may occur without FOREIGN KEY constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Broken relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Inconsistent references",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Constraints",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PRIMARY KEY combines UNIQUE + NOT NULL behavior",
+          "is_correct": true
+        },
+        {
+          "text": "CHECK validates conditions",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT assigns predefined values",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY guarantees uniqueness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "One-to-One Relationship",
+      "content": "Which relationship type allows one record in Table A to relate to only one record in Table B?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-to-One",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Many-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Self Relationship",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "One-to-Many Example",
+      "content": "Which is a common example of a One-to-Many relationship?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One customer placing many orders",
+          "is_correct": true
+        },
+        {
+          "text": "One student having one ID card",
+          "is_correct": false
+        },
+        {
+          "text": "Many students joining many courses",
+          "is_correct": false
+        },
+        {
+          "text": "One table linked to itself only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Many-to-Many Relationship",
+      "content": "Which relationship usually requires a junction table?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Many-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-One",
+          "is_correct": false
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Primary-to-Foreign",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relationship Maintenance",
+      "content": "Which key is mainly used to maintain relationships between tables?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": true
+        },
+        {
+          "text": "DEFAULT",
+          "is_correct": false
+        },
+        {
+          "text": "CHECK",
+          "is_correct": false
+        },
+        {
+          "text": "UNIQUE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Banking Scenario",
+      "content": "A bank allows one customer to have multiple accounts, but each account belongs to only one customer. Which relationship is this?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-One",
+          "is_correct": false
+        },
+        {
+          "text": "Many-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Circular Relationship",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "University Scenario",
+      "content": "Students can enroll in many courses, and courses can have many students. Which relationship is suitable?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Many-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-One",
+          "is_correct": false
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Primary-to-Primary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Employee ID Scenario",
+      "content": "A company assigns exactly one ID card to each employee, and each ID card belongs to only one employee. Which relationship is this?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-to-One",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Many-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Recursive",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Junction Table Logic",
+      "content": "Why is a junction table used in Many-to-Many relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store mappings between related records",
+          "is_correct": true
+        },
+        {
+          "text": "To replace primary keys",
+          "is_correct": false
+        },
+        {
+          "text": "To remove normalization",
+          "is_correct": false
+        },
+        {
+          "text": "To duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Referential Integrity Scenario",
+      "content": "What problem can occur if relationships are not enforced using FOREIGN KEY constraints?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Orphan records may appear",
+          "is_correct": true
+        },
+        {
+          "text": "Tables merge automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are removed",
+          "is_correct": false
+        },
+        {
+          "text": "Data types change automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relationship Design",
+      "content": "Which relationship type is most likely to increase redundancy if not normalized properly?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Many-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-One",
+          "is_correct": false
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": false
+        },
+        {
+          "text": "Unary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Relationship Types",
+      "content": "Which are valid database relationship types?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-to-One",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "Many-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "Infinite-to-One",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "One-to-Many Examples",
+      "content": "Which scenarios represent One-to-Many relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One teacher teaches many students",
+          "is_correct": true
+        },
+        {
+          "text": "One customer places many orders",
+          "is_correct": true
+        },
+        {
+          "text": "One department has many employees",
+          "is_correct": true
+        },
+        {
+          "text": "Many students join many courses",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Many-to-Many Examples",
+      "content": "Which are examples of Many-to-Many relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Students and courses",
+          "is_correct": true
+        },
+        {
+          "text": "Doctors and patients",
+          "is_correct": true
+        },
+        {
+          "text": "Actors and movies",
+          "is_correct": true
+        },
+        {
+          "text": "One user and one profile",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "FOREIGN KEY Usage",
+      "content": "Why are FOREIGN KEY constraints important in relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Maintain referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Link related tables",
+          "is_correct": true
+        },
+        {
+          "text": "Prevent invalid references",
+          "is_correct": true
+        },
+        {
+          "text": "Increase duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "E-learning Platform Scenario",
+      "content": "An online learning platform stores students, courses, and enrollments. Which statements are correct?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Students and courses form Many-to-Many",
+          "is_correct": true
+        },
+        {
+          "text": "Enrollment table acts as junction table",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEYs maintain links",
+          "is_correct": true
+        },
+        {
+          "text": "No keys are needed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "One-to-One Characteristics",
+      "content": "Which statements are true about One-to-One relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One record maps to exactly one related record",
+          "is_correct": true
+        },
+        {
+          "text": "Often used for sensitive profile details",
+          "is_correct": true
+        },
+        {
+          "text": "Can reduce NULL-heavy tables",
+          "is_correct": true
+        },
+        {
+          "text": "Always requires a junction table",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Database Design Benefits",
+      "content": "How do proper relationships improve database design?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Improve consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Support normalization",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminate need for tables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Relationship Concepts",
+      "content": "Which statements are true about Many-to-Many relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Usually implemented using a junction table",
+          "is_correct": true
+        },
+        {
+          "text": "Require at least two FOREIGN KEYs in junction table",
+          "is_correct": true
+        },
+        {
+          "text": "Can increase redundancy if poorly designed",
+          "is_correct": true
+        },
+        {
+          "text": "Cannot exist in relational databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Referential Integrity Risks",
+      "content": "Which issues may occur if relationships are not enforced properly?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid references",
+          "is_correct": true
+        },
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding database relationships?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Relationships (1-1, 1-M, M-M)",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-to-Many is the most common relationship type",
+          "is_correct": true
+        },
+        {
+          "text": "Many-to-Many commonly uses junction tables",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEYs help maintain relationships",
+          "is_correct": true
+        },
+        {
+          "text": "One-to-One always causes redundancy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ER Diagram Purpose",
+      "content": "What is the main purpose of an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To visually represent database structure",
+          "is_correct": true
+        },
+        {
+          "text": "To execute SQL queries",
+          "is_correct": false
+        },
+        {
+          "text": "To delete tables",
+          "is_correct": false
+        },
+        {
+          "text": "To encrypt databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Entity Meaning",
+      "content": "In an ER Diagram, what does an entity represent?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A real-world object or concept",
+          "is_correct": true
+        },
+        {
+          "text": "A SQL command",
+          "is_correct": false
+        },
+        {
+          "text": "A database error",
+          "is_correct": false
+        },
+        {
+          "text": "A programming language",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Attribute Meaning",
+      "content": "What are attributes in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Properties of entities",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships between databases",
+          "is_correct": false
+        },
+        {
+          "text": "Types of constraints",
+          "is_correct": false
+        },
+        {
+          "text": "SQL operators",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relationship Representation",
+      "content": "What does a relationship represent in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Association between entities",
+          "is_correct": true
+        },
+        {
+          "text": "Database deletion",
+          "is_correct": false
+        },
+        {
+          "text": "Table indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Data encryption",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Online Shopping Scenario",
+      "content": "In an online shopping system, 'Customer' and 'Order' are represented in an ER Diagram as what?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Triggers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "University Scenario",
+      "content": "A university database shows students enrolling in courses. What does the line connecting Student and Course represent in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relationship",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute",
+          "is_correct": false
+        },
+        {
+          "text": "Constraint",
+          "is_correct": false
+        },
+        {
+          "text": "Normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Employee Database Scenario",
+      "content": "In an ER Diagram for employee management, employee_name, salary, and phone_number are examples of?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Entities",
+          "is_correct": false
+        },
+        {
+          "text": "Relationships",
+          "is_correct": false
+        },
+        {
+          "text": "Schemas",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key in ER Model",
+      "content": "Why is a primary key important in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To uniquely identify each entity instance",
+          "is_correct": true
+        },
+        {
+          "text": "To connect internet servers",
+          "is_correct": false
+        },
+        {
+          "text": "To duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "To create SQL functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ER Design Issue",
+      "content": "What problem may occur if relationships are not properly represented in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data redundancy and inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Improved normalization",
+          "is_correct": false
+        },
+        {
+          "text": "Faster backups",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Conceptual Design",
+      "content": "At which stage are ER Diagrams mainly used in database development?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conceptual database design",
+          "is_correct": true
+        },
+        {
+          "text": "Server installation",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system setup",
+          "is_correct": false
+        },
+        {
+          "text": "Frontend styling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ER Diagram Components",
+      "content": "Which are core components of an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Entity Examples",
+      "content": "Which can be considered entities in a college database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Student",
+          "is_correct": true
+        },
+        {
+          "text": "Faculty",
+          "is_correct": true
+        },
+        {
+          "text": "Course",
+          "is_correct": true
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Attribute Examples",
+      "content": "Which are examples of attributes?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Student Name",
+          "is_correct": true
+        },
+        {
+          "text": "Email Address",
+          "is_correct": true
+        },
+        {
+          "text": "Phone Number",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Benefits of ER Diagrams",
+      "content": "Why are ER Diagrams useful?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Visualize database structure",
+          "is_correct": true
+        },
+        {
+          "text": "Improve database planning",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce design confusion",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically execute SQL queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Hospital Management Scenario",
+      "content": "A hospital ER Diagram contains Doctor, Patient, and Appointment entities. Which statements are correct?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Doctor and Patient are entities",
+          "is_correct": true
+        },
+        {
+          "text": "Appointment can represent a relationship",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes describe entity details",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams are only for NoSQL databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Primary Key Importance",
+      "content": "Why are primary keys important in ER modeling?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Uniquely identify records",
+          "is_correct": true
+        },
+        {
+          "text": "Help maintain relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce ambiguity",
+          "is_correct": true
+        },
+        {
+          "text": "Increase duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Design Benefits",
+      "content": "How do ER Diagrams help software teams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improve communication among developers",
+          "is_correct": true
+        },
+        {
+          "text": "Detect design issues early",
+          "is_correct": true
+        },
+        {
+          "text": "Support normalization planning",
+          "is_correct": true
+        },
+        {
+          "text": "Replace database systems completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ER Concepts",
+      "content": "Which statements are true regarding ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ER models are used before physical database implementation",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships help define data connectivity",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes describe entity properties",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams eliminate the need for normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Design Risks",
+      "content": "Which issues may arise from poorly designed ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Inconsistent relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Difficulty in scaling databases",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic optimization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities represent real-world objects",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes store details about entities",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships connect entities",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams directly execute SQL queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ER Diagram Purpose",
+      "content": "What is the main purpose of an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To visually represent database structure",
+          "is_correct": true
+        },
+        {
+          "text": "To execute SQL queries",
+          "is_correct": false
+        },
+        {
+          "text": "To delete tables",
+          "is_correct": false
+        },
+        {
+          "text": "To encrypt databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Entity Meaning",
+      "content": "In an ER Diagram, what does an entity represent?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A real-world object or concept",
+          "is_correct": true
+        },
+        {
+          "text": "A SQL command",
+          "is_correct": false
+        },
+        {
+          "text": "A database error",
+          "is_correct": false
+        },
+        {
+          "text": "A programming language",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Attribute Meaning",
+      "content": "What are attributes in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Properties of entities",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships between databases",
+          "is_correct": false
+        },
+        {
+          "text": "Types of constraints",
+          "is_correct": false
+        },
+        {
+          "text": "SQL operators",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Relationship Representation",
+      "content": "What does a relationship represent in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Association between entities",
+          "is_correct": true
+        },
+        {
+          "text": "Database deletion",
+          "is_correct": false
+        },
+        {
+          "text": "Table indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Data encryption",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Online Shopping Scenario",
+      "content": "In an online shopping system, 'Customer' and 'Order' are represented in an ER Diagram as what?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Triggers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "University Scenario",
+      "content": "A university database shows students enrolling in courses. What does the line connecting Student and Course represent in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Relationship",
+          "is_correct": true
+        },
+        {
+          "text": "Attribute",
+          "is_correct": false
+        },
+        {
+          "text": "Constraint",
+          "is_correct": false
+        },
+        {
+          "text": "Normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Employee Database Scenario",
+      "content": "In an ER Diagram for employee management, employee_name, salary, and phone_number are examples of?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Entities",
+          "is_correct": false
+        },
+        {
+          "text": "Relationships",
+          "is_correct": false
+        },
+        {
+          "text": "Schemas",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Primary Key in ER Model",
+      "content": "Why is a primary key important in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To uniquely identify each entity instance",
+          "is_correct": true
+        },
+        {
+          "text": "To connect internet servers",
+          "is_correct": false
+        },
+        {
+          "text": "To duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "To create SQL functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ER Design Issue",
+      "content": "What problem may occur if relationships are not properly represented in an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data redundancy and inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Improved normalization",
+          "is_correct": false
+        },
+        {
+          "text": "Faster backups",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Conceptual Design",
+      "content": "At which stage are ER Diagrams mainly used in database development?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conceptual database design",
+          "is_correct": true
+        },
+        {
+          "text": "Server installation",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system setup",
+          "is_correct": false
+        },
+        {
+          "text": "Frontend styling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ER Diagram Components",
+      "content": "Which are core components of an ER Diagram?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Entity Examples",
+      "content": "Which can be considered entities in a college database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Student",
+          "is_correct": true
+        },
+        {
+          "text": "Faculty",
+          "is_correct": true
+        },
+        {
+          "text": "Course",
+          "is_correct": true
+        },
+        {
+          "text": "SELECT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Attribute Examples",
+      "content": "Which are examples of attributes?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Student Name",
+          "is_correct": true
+        },
+        {
+          "text": "Email Address",
+          "is_correct": true
+        },
+        {
+          "text": "Phone Number",
+          "is_correct": true
+        },
+        {
+          "text": "FOREIGN KEY",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Benefits of ER Diagrams",
+      "content": "Why are ER Diagrams useful?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Visualize database structure",
+          "is_correct": true
+        },
+        {
+          "text": "Improve database planning",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce design confusion",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically execute SQL queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Hospital Management Scenario",
+      "content": "A hospital ER Diagram contains Doctor, Patient, and Appointment entities. Which statements are correct?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Doctor and Patient are entities",
+          "is_correct": true
+        },
+        {
+          "text": "Appointment can represent a relationship",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes describe entity details",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams are only for NoSQL databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Primary Key Importance",
+      "content": "Why are primary keys important in ER modeling?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Uniquely identify records",
+          "is_correct": true
+        },
+        {
+          "text": "Help maintain relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce ambiguity",
+          "is_correct": true
+        },
+        {
+          "text": "Increase duplicate records",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world Design Benefits",
+      "content": "How do ER Diagrams help software teams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improve communication among developers",
+          "is_correct": true
+        },
+        {
+          "text": "Detect design issues early",
+          "is_correct": true
+        },
+        {
+          "text": "Support normalization planning",
+          "is_correct": true
+        },
+        {
+          "text": "Replace database systems completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ER Concepts",
+      "content": "Which statements are true regarding ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ER models are used before physical database implementation",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships help define data connectivity",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes describe entity properties",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams eliminate the need for normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Design Risks",
+      "content": "Which issues may arise from poorly designed ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Inconsistent relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Difficulty in scaling databases",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic optimization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding ER Diagrams?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Introduction to ER Diagrams",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Entities represent real-world objects",
+          "is_correct": true
+        },
+        {
+          "text": "Attributes store details about entities",
+          "is_correct": true
+        },
+        {
+          "text": "Relationships connect entities",
+          "is_correct": true
+        },
+        {
+          "text": "ER Diagrams directly execute SQL queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Normalization Purpose",
+      "content": "What is the primary goal of normalization in databases?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce data redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Increase duplicate data",
+          "is_correct": false
+        },
+        {
+          "text": "Delete all tables",
+          "is_correct": false
+        },
+        {
+          "text": "Improve internet speed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "First Normal Form",
+      "content": "Which normal form removes repeating groups and ensures atomic values?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1NF",
+          "is_correct": true
+        },
+        {
+          "text": "2NF",
+          "is_correct": false
+        },
+        {
+          "text": "3NF",
+          "is_correct": false
+        },
+        {
+          "text": "BCNF",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Second Normal Form",
+      "content": "2NF mainly removes which type of dependency?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Partial dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Transitive dependency",
+          "is_correct": false
+        },
+        {
+          "text": "Circular dependency",
+          "is_correct": false
+        },
+        {
+          "text": "Foreign dependency",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Third Normal Form",
+      "content": "3NF mainly removes which issue?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitive dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate tables",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "E-commerce Scenario",
+      "content": "An e-commerce table stores multiple phone numbers in a single column separated by commas. Which normalization rule is violated?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1NF",
+          "is_correct": true
+        },
+        {
+          "text": "2NF",
+          "is_correct": false
+        },
+        {
+          "text": "3NF",
+          "is_correct": false
+        },
+        {
+          "text": "BCNF",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Student Database Scenario",
+      "content": "A student-course table uses a composite key (student_id, course_id), but student_name depends only on student_id. Which normal form is violated?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "2NF",
+          "is_correct": true
+        },
+        {
+          "text": "1NF",
+          "is_correct": false
+        },
+        {
+          "text": "3NF",
+          "is_correct": false
+        },
+        {
+          "text": "No violation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Employee Table Scenario",
+      "content": "An employee table stores department_manager based on department_name instead of employee_id. Which issue does this create?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transitive dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Partial dependency",
+          "is_correct": false
+        },
+        {
+          "text": "Atomicity",
+          "is_correct": false
+        },
+        {
+          "text": "Referential integrity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Normalization Tradeoff",
+      "content": "Why can excessive normalization sometimes reduce performance?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "More joins may be required",
+          "is_correct": true
+        },
+        {
+          "text": "Primary keys stop working",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes disappear automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Tables cannot store data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Design Issue",
+      "content": "What problem is most likely in a poorly normalized database?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data anomalies",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic optimization",
+          "is_correct": false
+        },
+        {
+          "text": "Infinite scalability",
+          "is_correct": false
+        },
+        {
+          "text": "Encrypted storage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dependency Analysis",
+      "content": "Which normalization level requires the table to already satisfy both 1NF and 2NF before being applied?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "3NF",
+          "is_correct": true
+        },
+        {
+          "text": "1NF",
+          "is_correct": false
+        },
+        {
+          "text": "2NF",
+          "is_correct": false
+        },
+        {
+          "text": "None",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Benefits of Normalization",
+      "content": "Which are benefits of normalization?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Improve consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce anomalies",
+          "is_correct": true
+        },
+        {
+          "text": "Increase duplicate data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "1NF Characteristics",
+      "content": "Which statements are true about 1NF?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Values must be atomic",
+          "is_correct": true
+        },
+        {
+          "text": "No repeating groups",
+          "is_correct": true
+        },
+        {
+          "text": "Each row should be unique",
+          "is_correct": true
+        },
+        {
+          "text": "Removes transitive dependency",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "2NF Characteristics",
+      "content": "Which statements are true about 2NF?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Table must already be in 1NF",
+          "is_correct": true
+        },
+        {
+          "text": "Removes partial dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Works mainly with composite keys",
+          "is_correct": true
+        },
+        {
+          "text": "Removes transitive dependency directly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "3NF Characteristics",
+      "content": "Which statements are true about 3NF?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Table must already be in 2NF",
+          "is_correct": true
+        },
+        {
+          "text": "Removes transitive dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Improves data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Allows repeating groups",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Online Learning Platform Scenario",
+      "content": "A learning platform stores course names repeatedly for every student enrollment. Which problems may occur?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Update anomalies",
+          "is_correct": true
+        },
+        {
+          "text": "Storage wastage",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Partial Dependency Scenario",
+      "content": "Which situations indicate partial dependency?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Non-key attribute depends on part of composite key",
+          "is_correct": true
+        },
+        {
+          "text": "Composite primary key exists",
+          "is_correct": true
+        },
+        {
+          "text": "Some attributes depend only on one key column",
+          "is_correct": true
+        },
+        {
+          "text": "All attributes depend fully on entire key",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Normalization Benefits in Production",
+      "content": "How does normalization help real-world systems?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improves maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "Reduces inconsistent data",
+          "is_correct": true
+        },
+        {
+          "text": "Supports scalable design",
+          "is_correct": true
+        },
+        {
+          "text": "Eliminates need for joins",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Normalization Concepts",
+      "content": "Which statements are true regarding normalization?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Normalization minimizes redundancy",
+          "is_correct": true
+        },
+        {
+          "text": "Higher normalization can increase joins",
+          "is_correct": true
+        },
+        {
+          "text": "Normalization improves data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Normalization removes need for keys",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Anomalies",
+      "content": "Which anomalies can normalization help reduce?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Insertion anomaly",
+          "is_correct": true
+        },
+        {
+          "text": "Update anomaly",
+          "is_correct": true
+        },
+        {
+          "text": "Deletion anomaly",
+          "is_correct": true
+        },
+        {
+          "text": "Syntax anomaly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Concept Trap",
+      "content": "Which statements are correct regarding normalization?",
+      "level": "subtopic",
+      "unit_name": "Database Design & DDL",
+      "subunit_name": "Normalization: 1NF, 2NF, 3NF",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1NF removes repeating groups",
+          "is_correct": true
+        },
+        {
+          "text": "2NF removes partial dependency",
+          "is_correct": true
+        },
+        {
+          "text": "3NF removes transitive dependency",
+          "is_correct": true
+        },
+        {
+          "text": "Normalization increases redundancy",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

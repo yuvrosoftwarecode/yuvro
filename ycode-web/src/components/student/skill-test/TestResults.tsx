@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import SolutionViewer from '@/components/student/skill-test/SolutionViewer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -336,10 +336,10 @@ const TestResults: React.FC<TestResultsProps> = ({
               {/* Premium Custom Dropdown */}
               <div className="relative group z-50">
                 <button
-                  className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-saffron-100"
                 >
                   {typeFilter === 'all' && <><CheckCircle className="w-4 h-4 text-gray-500" /> All Types</>}
-                  {typeFilter === 'mcq' && <><Target className="w-4 h-4 text-indigo-500" /> MCQ</>}
+                  {typeFilter === 'mcq' && <><Target className="w-4 h-4 text-saffron-500" /> MCQ</>}
                   {typeFilter === 'coding' && <><Code className="w-4 h-4 text-emerald-500" /> Coding</>}
                   {typeFilter === 'descriptive' && <><FileText className="w-4 h-4 text-amber-500" /> Descriptive</>}
                   <ChevronDown className="w-4 h-4 text-gray-400 ml-1 transition-transform group-hover:rotate-180" />
@@ -357,9 +357,9 @@ const TestResults: React.FC<TestResultsProps> = ({
                     </button>
                     <button
                       onClick={() => setTypeFilter('mcq')}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'mcq' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'mcq' ? 'bg-saffron-50 text-saffron-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
                     >
-                      <Target className={`w-4 h-4 ${typeFilter === 'mcq' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      <Target className={`w-4 h-4 ${typeFilter === 'mcq' ? 'text-saffron-600' : 'text-gray-400'}`} />
                       MCQ
                     </button>
                     <button
@@ -386,8 +386,8 @@ const TestResults: React.FC<TestResultsProps> = ({
               <button
                 onClick={() => setActiveTab(activeTab === 'ai_buddy' ? 'all' : 'ai_buddy')}
                 className={`text-sm font-bold px-4 py-1.5 rounded-lg transition-all flex items-center gap-2 ${activeTab === 'ai_buddy'
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
-                  : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200'
+                  ? 'bg-gradient-to-r from-saffron-start to-saffron-end text-white shadow-md'
+                  : 'text-saffron-600 hover:bg-saffron-50 border border-saffron-200'
                   }`}
               >
                 <MessageCircle className="w-4 h-4" />

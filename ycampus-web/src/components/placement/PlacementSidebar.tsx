@@ -7,7 +7,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { LayoutDashboard, ClipboardCheck, Briefcase, Users, BarChart3, Building2, CalendarDays, Bell, Settings, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, FileText } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, Briefcase, Users, BarChart3, Building2, CalendarDays, Bell, Settings, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge as BadgeUI } from '@/components/ui/badge';
@@ -18,15 +18,20 @@ import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 
 const menuItems = [
-  { title: 'Dashboard', url: '/placement/dashboard', icon: LayoutDashboard },
-  { title: 'PRI Report', url: '/placement/pri-report', icon: FileText },
-  { title: 'Job Management', url: '/placement/job-approvals', icon: ClipboardCheck },
-  { title: 'Offer Tracking', url: '/placement/students', icon: Users },
-  { title: 'Analytics', url: '/placement/analytics', icon: BarChart3 },
-  { title: 'Recruiter Connections', url: '/placement/recruiters', icon: Building2 },
-  { title: 'Drive Calendar', url: '/placement/drives', icon: CalendarDays },
-  { title: 'Notifications', url: '/placement/notifications', icon: Bell },
-  { title: 'Settings', url: '/placement/settings', icon: Settings },
+  { title: 'Dashboard',             url: '/placement/dashboard',   icon: LayoutDashboard },
+  { title: 'PRI Report',            url: '/placement/pri-report',  icon: FileText },
+  // Job Management dropdown renders here (see JSX below)
+  { title: 'Offer Tracking',        url: '/placement/students',    icon: Users },
+  { title: 'Analytics',             url: '/placement/analytics',   icon: BarChart3 },
+  { title: 'Recruiter Connections', url: '/placement/recruiters',  icon: Building2 },
+  { title: 'Drive Calendar',        url: '/placement/drives',      icon: CalendarDays },
+  { title: 'Notifications',         url: '/placement/notifications', icon: Bell },
+  { title: 'Settings',              url: '/placement/settings',    icon: Settings },
+];
+
+const jobMgmtSubItems = [
+  { title: 'Company', url: '/placement/company',       icon: Building2 },
+  { title: 'Jobs',    url: '/placement/job-approvals', icon: Briefcase },
 ];
 
 const PlacementSidebar = () => {
@@ -38,6 +43,8 @@ const PlacementSidebar = () => {
   const { state, toggleSidebar } = useSidebar();
   const { theme, setTheme } = useTheme();
   const isCollapsed = state === 'collapsed';
+  const isJobMgmtActive = location.pathname.startsWith('/placement/job-approvals') || location.pathname.startsWith('/placement/company');
+  const [jobMgmtOpen, setJobMgmtOpen] = useState(isJobMgmtActive);
   const [profileOpen, setProfileOpen] = useState(false);
   const firstName = user?.first_name || user?.username || 'Placement';
   const initials = firstName.charAt(0).toUpperCase();
@@ -89,7 +96,55 @@ const PlacementSidebar = () => {
           <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-5">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
+              {/* Top items: Dashboard + PRI Report */}
+              {menuItems.slice(0, 2).map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      onClick={() => navigate(item.url)}
+                      isActive={isActive}
+                      className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="flex-1">{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+
+              {/* Job Management Dropdown – sits after PRI Report */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setJobMgmtOpen(!jobMgmtOpen)}
+                  isActive={isJobMgmtActive}
+                  className={`justify-between ${isJobMgmtActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <ClipboardCheck className="h-4 w-4" />
+                    <span className="flex-1">Job Management</span>
+                  </span>
+                  {!isCollapsed && (
+                    <ChevronDown className={`h-4 w-4 transition-transform ${jobMgmtOpen ? 'rotate-180' : ''}`} />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {jobMgmtOpen && !isCollapsed && jobMgmtSubItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    onClick={() => navigate(item.url)}
+                    isActive={location.pathname === item.url}
+                    className={`pl-8 ${location.pathname === item.url ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="text-sm">{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+
+              {/* Remaining items: Offer Tracking → Settings */}
+              {menuItems.slice(2).map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>

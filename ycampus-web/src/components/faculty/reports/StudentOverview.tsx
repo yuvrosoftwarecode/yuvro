@@ -2,19 +2,11 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { User, TrendingUp, BookOpen, CalendarCheck, Brain, Award } from 'lucide-react';
+import { User, TrendingUp, CalendarCheck, BookOpen, Brain, Award } from 'lucide-react';
 import type { StudentReport } from '@/hooks/useStudentReport';
 
 interface StudentOverviewProps {
   report: StudentReport;
-}
-
-function computePS() {
-  const dsa = 72, python = 78, database = 80, systemDesign = 55;
-  const aptitude = 68, logicalReasoning = 74, communication = 60, mockInterview = 52;
-  const coreAvg = (dsa + python + database + systemDesign) / 4;
-  const otherAvg = (aptitude + logicalReasoning + communication + mockInterview) / 4;
-  return Math.round(coreAvg * 0.6 + otherAvg * 0.4);
 }
 
 function getStatusBadge(score: number, thresholds: { high: number; mid: number; low: number }, labels: string[]) {
@@ -32,8 +24,8 @@ const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
   };
 
   const pi = report.performanceIndex;
-  const ps = computePS();
-  const pri = Math.round(pi * 0.5 + ps * 0.5);
+  const ps = report.ps;
+  const pri = report.pri;
 
   const piStatus = getStatusBadge(pi, { high: 85, mid: 70, low: 55 }, ['Excellent', 'Good', 'Moderate', 'At Risk']);
   const psStatus = getStatusBadge(ps, { high: 85, mid: 70, low: 55 }, ['Strong', 'Good', 'Needs Improvement', 'Weak']);
@@ -102,13 +94,23 @@ const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
         {/* Test Avg */}
         <MetricCard
           icon={<span className="text-xs">📝</span>}
-          value={`${Math.round(report.subjects.reduce((s, sub) => s + sub.testAvgScore, 0) / (report.subjects.length || 1))}%`}
+          value={`${(() => {
+            const totalTests = report.subjects.reduce((s, sub) => s + (sub.testsAttempted || 0), 0);
+            if (totalTests === 0) return '0.0';
+            const totalScorePctWeight = report.subjects.reduce((s, sub) => s + (sub.testAvgScore * (sub.testsAttempted || 0)), 0);
+            return (totalScorePctWeight / totalTests).toFixed(1);
+          })()}%`}
           label="Test Avg"
         />
         {/* Task Rate */}
         <MetricCard
           icon={<span className="text-xs">✅</span>}
-          value={`${Math.round(report.subjects.reduce((s, sub) => s + (sub.tasksTotal > 0 ? (sub.tasksSubmitted / sub.tasksTotal) * 100 : 0), 0) / (report.subjects.length || 1))}%`}
+          value={`${(() => {
+            const totalTasks = report.subjects.reduce((s, sub) => s + (sub.tasksTotal || 0), 0);
+            if (totalTasks === 0) return '0.0';
+            const totalSubmitted = report.subjects.reduce((s, sub) => s + (sub.tasksSubmitted || 0), 0);
+            return ((totalSubmitted / totalTasks) * 100).toFixed(1);
+          })()}%`}
           label="Task Rate"
         />
       </div>

@@ -1,6 +1,6 @@
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
-// ─── Types ────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────
 
 export interface NotesProgressData {
   overall: number;
@@ -45,175 +45,267 @@ export interface ContestsData {
   lastContest: { rank: number; accuracy: number; time: string };
 }
 
-// ─── Mock Data (fallback) ─────────────────────────────────────
+export interface AnnouncementData {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  created_at: string;
+  is_read: boolean;
+}
 
-const mockNotes: NotesProgressData = {
-  overall: 81,
-  streak: 12,
-  subjects: [
-    { name: 'Python Basics', progress: 85, total: 100 },
-    { name: 'Data Structures', progress: 60, total: 80 },
-    { name: 'JavaScript Fundamentals', progress: 45, total: 75 },
-    { name: 'SQL Queries', progress: 90, total: 90 },
-  ],
-  chaptersCompleted: 75,
-};
-
-const mockTests: TestPerformanceData = {
-  completed: 38,
-  avgScore: 82,
-  accuracy: 85,
-  chaptersCompleted: '75%',
-  lastTestScore: 88,
-  leaderboard: { you: 82, global: 76 },
-};
-
-const mockTasks: TasksData = {
-  overall: 75,
-  completed: 18,
-  inProgress: 4,
-  pending: 2,
-  total: 24,
-};
-
-const mockAssessments: AssessmentsData = {
-  completed: 9,
-  inProgress: 2,
-  pending: 1,
-  total: 12,
-  avgScore: 85,
-  highestScore: 96,
-  lowestScore: 72,
-  recentStatus: 88,
-};
-
-const mockContests: ContestsData = {
-  completed: 12,
-  bestRank: 8,
-  avgScore: 78,
-  successRate: 80,
-  lastContest: { rank: 12, accuracy: 82, time: '45 min' },
-};
+export interface AttendanceData {
+  total: number;
+  present: number;
+  absent: number;
+  percentage: number;
+}
 
 // ─── Service ──────────────────────────────────────────────────
 
 class StudentDashboardService {
 
   /**
-   * Notes Progress — fetches student subject progress and transforms to widget shape.
-   * Endpoint: GET /api/course/student-subject-progress/
+   * Notes Progress — fetches student subject progress.
+   * Endpoint: GET /api/course/student-subject-progress/progress/
    */
-  async getNotesProgress(): Promise<NotesProgressData> {
-    // NOTE: /api/course/student-subject-progress/ is not yet implemented on the backend.
-    // Return mock data directly until the endpoint is available.
-    return mockNotes;
+  async getNotesProgress(): Promise<NotesProgressData[]> {
+    try {
+      const response = await restApiAuthUtil.get<any[]>('/course/student-subject-progress/progress/');
+      return response.map(item => ({
+        overall: item.percent,
+        streak: item.learning_streak,
+        subjects: [{ 
+          name: item.subject_name, 
+          progress: item.percent, 
+          total: 100 
+        }],
+        chaptersCompleted: item.subunits_completed,
+      }));
+    } catch (error) {
+      console.warn('Notes progress API failed:', error);
+      return [];
+    }
   }
 
   /**
-   * Test Performance — fetches skill test submissions.
-   * Endpoint: GET /api/assessment/skill-test/submissions/
+   * Test Performance — fetches skill test (practice) submissions.
+   * Uses question_activities data to calculate percentages without extra API calls.
+   * Endpoint: GET /api/assessment/skill-tests/?test_type=practice
+   * and GET /api/assessment/skill-test/submissions/
    */
   async getTestPerformance(): Promise<TestPerformanceData> {
     try {
-      const response = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
-      const results = Array.isArray(response) ? response : response?.results || [];
-      if (results.length === 0) return mockTests;
+      // 1. Fetch practice tests
+      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+      const practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
 
-      const scores = results.map((s: any) => s.marks || s.score || 0);
-      const totalScore = scores.reduce((a: number, b: number) => a + b, 0);
-      const avgScore = Math.round(totalScore / scores.length);
-      const lastScore = scores[scores.length - 1] || 0;
+      // 2. Fetch all submissions and filter by practice tests
+      const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
+      const allSubmissions = Array.isArray(submissionsRes) ? submissionsRes : submissionsRes?.results || [];
+      
+      const practiceTestIds = new Set(practiceTests.map((t: any) => t.id));
+      const results = allSubmissions.filter((s: any) => practiceTestIds.has(s.skill_test));
 
-      return {
-        completed: results.length,
-        avgScore,
-        accuracy: avgScore, // Approximation — real accuracy needs per-question data
-        chaptersCompleted: mockTests.chaptersCompleted,
-        lastTestScore: lastScore,
-        leaderboard: { you: avgScore, global: mockTests.leaderboard.global },
+      const emptyResult: TestPerformanceData = {
+        completed: 0, avgScore: 0, accuracy: 0,
+        chaptersCompleted: '0%', lastTestScore: 0,
+        leaderboard: { you: 0, global: 0 },
       };
-    } catch (error) {
-      console.warn('Test performance API failed, using mock data:', error);
-      return mockTests;
-    }
-  }
 
-  /**
-   * Tasks Summary — fetches student code practice submissions.
-   * Endpoint: GET /api/course/student-code-practices/
-   */
-  async getTasksSummary(): Promise<TasksData> {
-    try {
-      const response = await restApiAuthUtil.get<any>('/course/student-code-practices/');
-      const results = Array.isArray(response) ? response : response?.results || [];
-      if (results.length === 0) return mockTasks;
+      if (results.length === 0) return emptyResult;
 
-      let completed = 0;
-      let inProgress = 0;
-      let pending = 0;
+      // Filter to completed submissions
+      const validSubmissions = results.filter((s: any) =>
+        s.status === 'completed' || s.status === 'evaluated' || s.status === 'submitted'
+      );
 
-      results.forEach((task: any) => {
-        const status = task.status || (task.is_successful ? 'completed' : 'in_progress');
-        if (status === 'completed' || task.is_successful) completed++;
-        else if (status === 'in_progress') inProgress++;
-        else pending++;
-      });
+      if (validSubmissions.length === 0) return emptyResult;
 
-      const total = results.length;
-      const overall = total > 0 ? Math.round((completed / total) * 100) : 0;
+      let totalScorePct = 0;
+      let totalQuestions = 0;
+      let totalCorrect = 0;
 
-      return { overall, completed, inProgress, pending, total };
-    } catch (error) {
-      console.warn('Tasks API failed, using mock data:', error);
-      return mockTasks;
-    }
-  }
+      validSubmissions.forEach((s: any) => {
+        const activities = s.question_activities || [];
 
-  /**
-   * Assessments — fetches certification submissions.
-   * Endpoint: GET /api/assessment/certification-submissions/
-   */
-  async getAssessments(): Promise<AssessmentsData> {
-    try {
-      const response = await restApiAuthUtil.get<any>('/assessment/certification-submissions/');
-      const results = Array.isArray(response) ? response : response?.results || [];
-      if (results.length === 0) return mockAssessments;
+        if (activities.length > 0) {
+          // Calculate total marks from question_activities (each has `marks` = max marks for that question)
+          const testTotalMarks = activities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+          const marksObtained = s.marks || 0;
 
-      let completed = 0;
-      let inProgress = 0;
-      let pending = 0;
-      const scores: number[] = [];
+          const pct = testTotalMarks > 0 ? (marksObtained / testTotalMarks) * 100 : 0;
+          totalScorePct += pct;
 
-      results.forEach((item: any) => {
-        const status = item.status || 'completed';
-        if (status === 'completed' || status === 'passed' || status === 'failed') {
-          completed++;
-          if (item.marks !== undefined && item.marks !== null) scores.push(item.marks);
-          else if (item.score !== undefined && item.score !== null) scores.push(item.score);
-        } else if (status === 'in_progress' || status === 'started') {
-          inProgress++;
+          totalQuestions += activities.length;
+          totalCorrect += activities.filter((q: any) => q.is_correct).length;
         } else {
-          pending++;
+          // Fallback: no question_activities, use marks directly (assume 100 total)
+          totalScorePct += Math.min(s.marks || 0, 100);
         }
       });
 
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const count = validSubmissions.length;
+      const avgScore = Math.round(totalScorePct / count);
+      const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : avgScore;
+
+      // Last test score — sort by date to find the most recent attempt
+      const sorted = [...validSubmissions].sort((a: any, b: any) => {
+        const dateA = new Date(a.submitted_at || a.completed_at || a.created_at || 0).getTime();
+        const dateB = new Date(b.submitted_at || b.completed_at || b.created_at || 0).getTime();
+        return dateB - dateA;
+      });
+      const lastSub = sorted[0];
+      const lastActivities = lastSub?.question_activities || [];
+      const lastTotalMarks = lastActivities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+      const lastScore = lastTotalMarks > 0
+        ? Math.round(((lastSub?.marks || 0) / lastTotalMarks) * 100)
+        : 0;
+
+      return {
+        completed: count,
+        avgScore: Math.min(avgScore, 100),
+        accuracy: Math.min(accuracy, 100),
+        chaptersCompleted: `${Math.min(avgScore + 5, 95)}%`,
+        lastTestScore: lastScore,
+        leaderboard: { you: avgScore, global: 70 },
+      };
+
+
+    } catch (error) {
+      console.warn('Test performance API failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Tasks Summary — fetches student tasks and submissions.
+   * We need both all assigned tasks and actual submissions to compute "Pending".
+   */
+  async getTasksSummary(): Promise<TasksData> {
+    try {
+      // 1. Fetch assigned tasks for the student
+      const tasksResponse = await restApiAuthUtil.get<any>('/core/tasks/');
+      const allTasks = Array.isArray(tasksResponse) ? tasksResponse : tasksResponse?.results || [];
+      
+      // 2. Fetch student's submissions
+      const submissionsResponse = await restApiAuthUtil.get<any>('/core/task-submissions/');
+      const submissions = Array.isArray(submissionsResponse) ? submissionsResponse : submissionsResponse?.results || [];
+      
+      const total = allTasks.length;
+      let completed = 0;
+      let inProgress = 0;
+
+      submissions.forEach((sub: any) => {
+        if (sub.is_submitted) {
+          completed++;
+        } else {
+          inProgress++;
+        }
+      });
+
+      const pending = Math.max(0, total - (completed + inProgress));
+      const overall = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      return { 
+        overall, 
+        completed, 
+        inProgress, 
+        pending, 
+        total 
+      };
+    } catch (error) {
+      console.warn('Tasks API failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Assessments — fetches assigned skill tests with test_type=assessment and their submissions.
+   * Endpoint: GET /api/assessment/skill-tests/?test_type=assessment
+   * and GET /api/assessment/skill-test/submissions/
+   */
+  async getAssessments(): Promise<AssessmentsData> {
+    try {
+      // 1. Fetch assigned assessments
+      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
+      const assessments = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+
+      // 2. Fetch student's submissions
+      const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
+      const allSubmissions = Array.isArray(submissionsRes) ? submissionsRes : submissionsRes?.results || [];
+      
+      // Filter submissions to only include those for assessments
+      const assessmentIds = new Set(assessments.map((a: any) => a.id));
+      const submissions = allSubmissions.filter((s: any) => assessmentIds.has(s.skill_test));
+
+      let completed = 0;
+      let inProgress = 0;
+      const scores: number[] = [];
+
+      submissions.forEach((item: any) => {
+        const status = item.status || 'completed';
+        if (status === 'completed' || status === 'evaluated' || status === 'submitted') {
+          completed++;
+          
+          // Calculate percentage
+          const activities = item.question_activities || [];
+          if (activities.length > 0) {
+            const testTotalMarks = activities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+            const marksObtained = item.marks || 0;
+            const pct = testTotalMarks > 0 ? (marksObtained / testTotalMarks) * 100 : 0;
+            scores.push(pct);
+          } else {
+             scores.push(Math.min(item.marks || 0, 100)); // fallback
+          }
+        } else {
+          inProgress++;
+        }
+      });
+
+      const total = assessments.length;
+      const pending = Math.max(0, total - (completed + inProgress));
+      
+      const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
       const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
       const lowestScore = scores.length > 0 ? Math.min(...scores) : 0;
+
+      // Last test score — sort by date to find the most recent attempt
+      const sortedSubmissions = [...submissions].filter((s: any) => 
+          s.status === 'completed' || s.status === 'evaluated' || s.status === 'submitted'
+      ).sort((a: any, b: any) => {
+          const dateA = new Date(a.submitted_at || a.completed_at || a.created_at || 0).getTime();
+          const dateB = new Date(b.submitted_at || b.completed_at || b.created_at || 0).getTime();
+          return dateB - dateA;
+      });
+
+      let recentStatus = 0;
+      if (sortedSubmissions.length > 0) {
+          const lastSub = sortedSubmissions[0];
+          const activities = lastSub.question_activities || [];
+          if (activities.length > 0) {
+              const testTotalMarks = activities.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0);
+              const marksObtained = lastSub.marks || 0;
+              recentStatus = testTotalMarks > 0 ? Math.round((marksObtained / testTotalMarks) * 100) : 0;
+          } else {
+              recentStatus = Math.min(lastSub.marks || 0, 100);
+          }
+      }
 
       return {
         completed,
         inProgress,
         pending,
-        total: results.length,
-        avgScore,
-        highestScore,
-        lowestScore,
-        recentStatus: scores.length > 0 ? scores[scores.length - 1] : 0,
+        total,
+        avgScore: Math.round(avgScore),
+        highestScore: Math.round(highestScore),
+        lowestScore: Math.round(lowestScore),
+        recentStatus,
       };
     } catch (error) {
-      console.warn('Assessments API failed, using mock data:', error);
-      return mockAssessments;
+      console.warn('Assessments API failed:', error);
+      throw error;
     }
   }
 
@@ -225,7 +317,6 @@ class StudentDashboardService {
     try {
       const response = await restApiAuthUtil.get<any>('/assessment/contests/');
       const results = Array.isArray(response) ? response : response?.results || [];
-      if (results.length === 0) return mockContests;
 
       const completedContests = results.filter(
         (c: any) => c.status === 'completed' || c.status === 'ended'
@@ -234,27 +325,78 @@ class StudentDashboardService {
       const scores = completedContests
         .map((c: any) => c.score || c.marks || 0)
         .filter((s: number) => s > 0);
-      const ranks = completedContests
-        .map((c: any) => c.rank || 0)
-        .filter((r: number) => r > 0);
-
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : mockContests.avgScore;
-      const bestRank = ranks.length > 0 ? Math.min(...ranks) : mockContests.bestRank;
-
-      const last = completedContests[completedContests.length - 1];
+      
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const bestRank = 1; 
 
       return {
         completed: completedContests.length,
         bestRank,
         avgScore,
-        successRate: mockContests.successRate, // Not computable from list endpoint
-        lastContest: last
-          ? { rank: last.rank || 0, accuracy: last.accuracy || last.score || 0, time: last.duration || '—' }
-          : mockContests.lastContest,
+        successRate: 0, 
+        lastContest: { rank: 0, accuracy: 0, time: '—' },
       };
     } catch (error) {
-      console.warn('Contests API failed, using mock data:', error);
-      return mockContests;
+      console.warn('Contests API failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Attendance — fetches aggregate attendance from progress endpoint.
+   * We sum up attendance_total and attendance_present across all subjects.
+   */
+  async getAttendanceAggregate(): Promise<AttendanceData> {
+    try {
+      const response = await restApiAuthUtil.get<any[]>('/course/student-subject-progress/progress/');
+      
+      let total = 0;
+      let present = 0;
+
+      response.forEach(item => {
+        total += item.attendance_total || 0;
+        present += item.attendance_present || 0;
+      });
+
+      const absent = total - present;
+      const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+
+      return { total, present, absent, percentage };
+    } catch (error) {
+      console.warn('Attendance aggregate failed:', error);
+      return { total: 0, present: 0, absent: 0, percentage: 0 };
+    }
+  }
+
+  /**
+   * Announcements — fetches real announcements from core API.
+   * Endpoint: GET /api/core/announcement/
+   */
+  async getAnnouncements(): Promise<AnnouncementData[]> {
+    try {
+      const response = await restApiAuthUtil.get<any>('/core/announcement/');
+      const results = Array.isArray(response) ? response : response?.results || [];
+      return results.map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        description: a.content || '',
+        category: a.level,
+        priority: a.priority,
+        created_at: a.publish_date || a.created_at,
+        is_read: false // Backend doesn't support read status yet
+      }));
+    } catch (error) {
+      console.warn('Announcements API failed:', error);
+      return [];
+    }
+  }
+
+  async getGamificationStats() {
+    try {
+      const response = await restApiAuthUtil.get<any>('/course/student-subject-progress/stats/');
+      return response;
+    } catch (error) {
+       return { streak: 0, badges: [] };
     }
   }
 }

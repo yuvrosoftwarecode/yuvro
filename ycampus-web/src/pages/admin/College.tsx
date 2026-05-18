@@ -15,6 +15,7 @@ import { Edit, Trash2, Building2, Search, MapPin, Globe, X, CheckCircle2, XCircl
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { collegeService, College, CollegeCreateData } from '@/services/collegeService';
+import PageHeader from '@/components/common/PageHeader';
 
 const EMPTY_FORM: CollegeCreateData = {
     name: "",
@@ -165,13 +166,15 @@ const CollegePage = () => {
                 <AdminSidebar />
                 <div className="flex-1 flex flex-col">
                     <main className="flex-1 p-6 bg-background">
-                        <div className="flex items-center justify-between mb-6">
-                            <h1 className="text-2xl font-bold">College Management</h1>
-                            <Button onClick={openAdd}>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add College
-                            </Button>
-                        </div>
+                        <PageHeader 
+                            title="College Management" 
+                            actions={
+                                <Button onClick={openAdd}>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add College
+                                </Button>
+                            }
+                        />
                         
                         {/* Search & Filters */}
                         <Card className="mb-6">

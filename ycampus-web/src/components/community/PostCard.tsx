@@ -20,12 +20,14 @@ import {
   ChevronDown,
   ChevronUp,
   Pin,
+  Edit3,
 } from 'lucide-react';
 import { CommunityPost } from '@/hooks/useCommunity';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { ImageCarousel } from './ImageCarousel';
 import { ReportDialog } from './ReportDialog';
+import { CreatePostDrawer } from './CreatePostDrawer';
 
 interface PostCardProps {
   post: CommunityPost;
@@ -55,6 +57,7 @@ export function PostCard({
   const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
 
   const isOwner = user?.id === post.author_id;
   const contentTruncateLength = 280;
@@ -127,16 +130,27 @@ export function PostCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {isOwner && (
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete();
-                    }}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowEditDrawer(true);
+                      }}
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
                 )}
                 {!isOwner && (
                   <DropdownMenuItem
@@ -260,6 +274,15 @@ export function PostCard({
         onSubmit={(reason) => {
           onReport(reason);
           setShowReportDialog(false);
+        }}
+      />
+
+      <CreatePostDrawer
+        open={showEditDrawer}
+        onOpenChange={setShowEditDrawer}
+        post={post}
+        onPostCreated={() => {
+          setShowEditDrawer(false);
         }}
       />
     </>

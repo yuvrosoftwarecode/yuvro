@@ -15,85 +15,12 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
+import { usePrincipalPRIData } from '@/hooks/usePrincipalPRIData';
+
 const DARK_GREEN = '#047857';
 const LIGHT_GREEN = '#34D399';
 const SAFFRON = '#F59E0B';
 const RED = '#EF4444';
-
-// ---------- DUMMY DATA ----------
-const DEPARTMENTS = ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'];
-const SECTIONS = ['A', 'B', 'C'];
-const CORE_SUBJECTS = ['DSA', 'Python', 'Database', 'System Design'];
-const PREP_AREAS = ['Aptitude', 'Logical Reasoning', 'Communication', 'Mock Interviews'];
-
-const STRENGTHS_POOL = ['Arrays', 'Database', 'Python', 'System Design', 'Aptitude', 'Communication', 'Logical Reasoning', 'Linked Lists', 'SQL', 'OOP'];
-const WEAKNESS_POOL = ['Dynamic Programming', 'Communication', 'Mock Interviews', 'Graph Algorithms', 'System Design', 'Aptitude', 'Recursion', 'OS Concepts'];
-
-function seededRandom(seed: number) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-function generateStudents() {
-  const students: any[] = [];
-  const names = [
-    'Aarav Sharma', 'Priya Mehta', 'Rahul Verma', 'Sneha Patel', 'Arjun Reddy',
-    'Divya Krishnan', 'Karan Singh', 'Meera Nair', 'Vikram Joshi', 'Ananya Gupta',
-    'Rohan Desai', 'Ishita Banerjee', 'Aditya Kulkarni', 'Pooja Iyer', 'Nikhil Rao',
-    'Tanvi Saxena', 'Siddharth Malhotra', 'Riya Agarwal', 'Varun Chauhan', 'Kavya Pillai',
-    'Amit Kumar', 'Neha Tiwari', 'Raj Prajapati', 'Shruti Bhat', 'Manish Dubey',
-    'Deepika Rajan', 'Harish Menon', 'Swati Mishra', 'Pranav Hegde', 'Anjali Das',
-    'Suresh Naik', 'Lakshmi Venkat', 'Gaurav Sinha', 'Pallavi Jain', 'Akash Patil',
-    'Bhavna Kapoor', 'Chinmay Deshpande', 'Disha Rawat', 'Eshan Bhatt', 'Falguni Shah',
-  ];
-
-  names.forEach((name, idx) => {
-    const dept = DEPARTMENTS[idx % DEPARTMENTS.length];
-    const sem = (idx % 8) + 1;
-    const sec = SECTIONS[idx % 3];
-    const seed = idx + 1;
-
-    const pi = Math.round(45 + seededRandom(seed * 1) * 50);
-    const attendance = Math.round(55 + seededRandom(seed * 2) * 40);
-    const taskCompletion = Math.round(40 + seededRandom(seed * 3) * 55);
-
-    const psBreakdown = {
-      DSA: Math.round(35 + seededRandom(seed * 10) * 60),
-      Python: Math.round(40 + seededRandom(seed * 11) * 55),
-      Database: Math.round(45 + seededRandom(seed * 12) * 50),
-      'System Design': Math.round(30 + seededRandom(seed * 13) * 60),
-      Aptitude: Math.round(40 + seededRandom(seed * 14) * 55),
-      'Logical Reasoning': Math.round(45 + seededRandom(seed * 15) * 50),
-      Communication: Math.round(35 + seededRandom(seed * 16) * 60),
-      'Mock Interviews': Math.round(30 + seededRandom(seed * 17) * 60),
-    };
-
-    const ps = Math.round(Object.values(psBreakdown).reduce((a, b) => a + b, 0) / 8);
-    const pri = Math.round(pi * 0.5 + ps * 0.5);
-
-    const numStr = Math.max(2, Math.round(seededRandom(seed * 20) * 4));
-    const numWeak = Math.max(2, Math.round(seededRandom(seed * 21) * 4));
-    const strengths = STRENGTHS_POOL.sort(() => seededRandom(seed * 30 + idx) - 0.5).slice(0, numStr);
-    const improvements = WEAKNESS_POOL.sort(() => seededRandom(seed * 40 + idx) - 0.5).slice(0, numWeak);
-
-    students.push({
-      id: `stu-${idx}`,
-      name,
-      rollNo: `${dept}${2021 + (idx % 3)}${String(idx + 1).padStart(3, '0')}`,
-      department: dept,
-      semester: sem,
-      section: sec,
-      batch: `${2021 + (idx % 3)}-${2025 + (idx % 3)}`,
-      pi, ps, pri, attendance, taskCompletion,
-      psBreakdown,
-      strengths,
-      improvements,
-    });
-  });
-  return students;
-}
-
-const ALL_STUDENTS = generateStudents();
 
 const getPRIStatus = (pri: number) => {
   if (pri >= 85) return { label: 'Ready', color: DARK_GREEN, bg: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-300' };
@@ -105,6 +32,8 @@ const getPRIStatus = (pri: number) => {
 const PIE_COLORS = [DARK_GREEN, LIGHT_GREEN, SAFFRON, RED];
 
 const PRIReport = () => {
+  const { data: ALL_STUDENTS, loading } = usePrincipalPRIData();
+  
   const [filters, setFilters] = useState({
     academicYear: '2025-26', department: 'all', semester: 'all', batch: 'all',
     section: 'all', priRange: 'all', piRange: 'all', psRange: 'all',
@@ -114,6 +43,18 @@ const PRIReport = () => {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
+  const DEPARTMENTS = useMemo(() => {
+    return Array.from(new Set(ALL_STUDENTS.map(s => s.department))).filter(Boolean).sort();
+  }, [ALL_STUDENTS]);
+
+  const BATCHES = useMemo(() => {
+    return Array.from(new Set(ALL_STUDENTS.map(s => s.batch))).filter(Boolean).sort();
+  }, [ALL_STUDENTS]);
+
+  const SECTIONS = useMemo(() => {
+    return Array.from(new Set(ALL_STUDENTS.map(s => s.section))).filter(Boolean).sort();
+  }, [ALL_STUDENTS]);
+
   const updateFilter = (key: string, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
 
   const handleSort = (key: string) => {
@@ -122,7 +63,7 @@ const PRIReport = () => {
   };
 
   const filteredStudents = useMemo(() => {
-    let list = [...ALL_STUDENTS];
+    let list = [...(ALL_STUDENTS || [])];
 
     if (filters.department !== 'all') list = list.filter(s => s.department === filters.department);
     if (filters.semester !== 'all') list = list.filter(s => s.semester === Number(filters.semester));
@@ -151,13 +92,13 @@ const PRIReport = () => {
     }
 
     list.sort((a, b) => {
-      const av = a[sortKey] ?? 0;
-      const bv = b[sortKey] ?? 0;
+      const av = (a as any)[sortKey] ?? 0;
+      const bv = (b as any)[sortKey] ?? 0;
       return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
     });
 
     return list;
-  }, [filters, search, sortKey, sortDir]);
+  }, [ALL_STUDENTS, filters, search, sortKey, sortDir]);
 
   // KPIs
   const totalStudents = filteredStudents.length;
@@ -183,13 +124,28 @@ const PRIReport = () => {
 
   // Avg PS breakdown across filtered
   const avgBreakdown = useMemo(() => {
-    if (!totalStudents) return [];
-    const keys = ['DSA', 'Python', 'Database', 'System Design', 'Aptitude', 'Logical Reasoning', 'Communication', 'Mock Interviews'];
+    if (!totalStudents || !ALL_STUDENTS) return [];
+    
+    // Get all unique subject names from all students' psBreakdown
+    const allKeys = new Set<string>();
+    ALL_STUDENTS.forEach(s => {
+      if (s.psBreakdown) {
+        Object.keys(s.psBreakdown).forEach(k => allKeys.add(k));
+      }
+    });
+    
+    let keys = Array.from(allKeys);
+    
+    // If no keys found in data, fallback to defaults just to show the axis
+    if (keys.length === 0) {
+      keys = ['DSA', 'Python', 'Database', 'System Design', 'Aptitude', 'Logical Reasoning', 'Communication', 'Mock Interviews'];
+    }
+
     return keys.map(k => ({
       name: k,
       avg: Math.round(filteredStudents.reduce((a, s) => a + (s.psBreakdown[k] || 0), 0) / totalStudents),
     }));
-  }, [filteredStudents, totalStudents]);
+  }, [filteredStudents, totalStudents, ALL_STUDENTS]);
 
   // AI Insights
   const insights = useMemo(() => {
@@ -258,6 +214,13 @@ const PRIReport = () => {
                         {DEPARTMENTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                    <Select value={filters.batch} onValueChange={v => updateFilter('batch', v)}>
+                      <SelectTrigger className="w-[120px] h-8 text-xs"><SelectValue placeholder="Batch" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Batches</SelectItem>
+                        {BATCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                     <Select value={filters.semester} onValueChange={v => updateFilter('semester', v)}>
                       <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue placeholder="Semester" /></SelectTrigger>
                       <SelectContent>
@@ -265,30 +228,11 @@ const PRIReport = () => {
                         {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <Select value={filters.batch} onValueChange={v => updateFilter('batch', v)}>
-                      <SelectTrigger className="w-[120px] h-8 text-xs"><SelectValue placeholder="Batch" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Batches</SelectItem>
-                        <SelectItem value="2021-2025">2021–25</SelectItem>
-                        <SelectItem value="2022-2026">2022–26</SelectItem>
-                        <SelectItem value="2023-2027">2023–27</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <Select value={filters.section} onValueChange={v => updateFilter('section', v)}>
                       <SelectTrigger className="w-[110px] h-8 text-xs"><SelectValue placeholder="Section" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Sections</SelectItem>
                         {SECTIONS.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select value={filters.priRange} onValueChange={v => updateFilter('priRange', v)}>
-                      <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue placeholder="PRI Range" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All PRI</SelectItem>
-                        <SelectItem value="85+">Ready (85+)</SelectItem>
-                        <SelectItem value="70-84">Almost (70–84)</SelectItem>
-                        <SelectItem value="55-69">Needs Imp (55–69)</SelectItem>
-                        <SelectItem value="<55">Not Ready (&lt;55)</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select value={filters.piRange} onValueChange={v => updateFilter('piRange', v)}>
@@ -299,6 +243,16 @@ const PRIReport = () => {
                         <SelectItem value="70-84">70–84</SelectItem>
                         <SelectItem value="55-69">55–69</SelectItem>
                         <SelectItem value="<55">&lt;55</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={filters.priRange} onValueChange={v => updateFilter('priRange', v)}>
+                      <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue placeholder="PRI Range" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All PRI</SelectItem>
+                        <SelectItem value="85+">Ready (85+)</SelectItem>
+                        <SelectItem value="70-84">Almost (70–84)</SelectItem>
+                        <SelectItem value="55-69">Needs Imp (55–69)</SelectItem>
+                        <SelectItem value="<55">Not Ready (&lt;55)</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select value={filters.psRange} onValueChange={v => updateFilter('psRange', v)}>
@@ -441,7 +395,16 @@ const PRIReport = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredStudents.length === 0 ? (
+                        {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={12} className="text-center py-20">
+                              <div className="flex flex-col items-center gap-2">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                <span className="text-sm text-muted-foreground">Loading report data...</span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : filteredStudents.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={12} className="text-center py-10 text-muted-foreground text-sm">No students found. Try different filters.</TableCell>
                           </TableRow>
@@ -498,9 +461,13 @@ const PRIReport = () => {
                                           <CheckCircle2 className="h-3.5 w-3.5" /> Strengths
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
-                                          {s.strengths.map((st: string) => (
-                                            <Badge key={st} variant="outline" className="text-[11px] px-2.5 py-1 border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:bg-emerald-900/20">{st}</Badge>
-                                          ))}
+                                          {s.strengths && s.strengths.length > 0 ? (
+                                            s.strengths.map((st: string) => (
+                                              <Badge key={st} variant="outline" className="text-[11px] px-2.5 py-1 border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:bg-emerald-900/20">{st}</Badge>
+                                            ))
+                                          ) : (
+                                            <span className="text-[11px] text-muted-foreground italic">No specific strengths identified yet.</span>
+                                          )}
                                         </div>
                                       </div>
                                       {/* Improvements */}
@@ -509,9 +476,13 @@ const PRIReport = () => {
                                           <AlertTriangle className="h-3.5 w-3.5" /> Areas to Improve
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
-                                          {s.improvements.map((im: string) => (
-                                            <Badge key={im} variant="outline" className="text-[11px] px-2.5 py-1 border-red-300 text-red-700 bg-red-50 dark:border-red-700 dark:text-red-400 dark:bg-red-900/20">{im}</Badge>
-                                          ))}
+                                          {s.improvements && s.improvements.length > 0 ? (
+                                            s.improvements.map((im: string) => (
+                                              <Badge key={im} variant="outline" className="text-[11px] px-2.5 py-1 border-red-300 text-red-700 bg-red-50 dark:border-red-700 dark:text-red-400 dark:bg-red-900/20">{im}</Badge>
+                                            ))
+                                          ) : (
+                                            <span className="text-[11px] text-muted-foreground italic">No urgent improvement areas identified.</span>
+                                          )}
                                         </div>
                                       </div>
                                     </div>

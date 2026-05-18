@@ -1,0 +1,2253 @@
+{
+  "name": "NumPy",
+  "subject_short_code": "DS100",
+  "order_index": 2,
+  "sub_units": [
+    {
+      "name": "Introduction to NumPy",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to NumPy",
+          "video_link": "https://www.youtube.com/results?search_query=Introduction%20to%20NumPy",
+          "ai_context": "Detailed overview and key concepts of Introduction to NumPy"
+        },
+        {
+          "title": "Introduction to NumPy",
+          "video_link": "https://www.youtube.com/results?search_query=Introduction%20to%20NumPy",
+          "ai_context": "Detailed overview and key concepts of Introduction to NumPy"
+        }
+      ]
+    },
+    {
+      "name": "Array Operations",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Array Operations",
+          "video_link": "https://www.youtube.com/results?search_query=Array%20Operations",
+          "ai_context": "Detailed overview and key concepts of Array Operations"
+        },
+        {
+          "title": "Array Operations",
+          "video_link": "https://www.youtube.com/results?search_query=Array%20Operations",
+          "ai_context": "Detailed overview and key concepts of Array Operations"
+        }
+      ]
+    },
+    {
+      "name": "Mathematical Operations",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Mathematical Operations",
+          "video_link": "https://www.youtube.com/results?search_query=Mathematical%20Operations",
+          "ai_context": "Detailed overview and key concepts of Mathematical Operations"
+        },
+        {
+          "title": "Mathematical Operations",
+          "video_link": "https://www.youtube.com/results?search_query=Mathematical%20Operations",
+          "ai_context": "Detailed overview and key concepts of Mathematical Operations"
+        }
+      ]
+    },
+    {
+      "name": "Advanced NumPy",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Advanced NumPy",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced%20NumPy",
+          "ai_context": "Detailed overview and key concepts of Advanced NumPy"
+        },
+        {
+          "title": "Advanced NumPy",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced%20NumPy",
+          "ai_context": "Detailed overview and key concepts of Advanced NumPy"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "NumPy Purpose",
+      "content": "What is NumPy mainly used for in Python?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Numerical computing and array operations",
+          "is_correct": true
+        },
+        {
+          "text": "Designing websites",
+          "is_correct": false
+        },
+        {
+          "text": "Managing databases only",
+          "is_correct": false
+        },
+        {
+          "text": "Creating operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Arrays vs Lists",
+      "content": "What is a key advantage of NumPy arrays over Python lists?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays are faster and more memory efficient",
+          "is_correct": true
+        },
+        {
+          "text": "Python lists cannot store numbers",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy arrays only store strings",
+          "is_correct": false
+        },
+        {
+          "text": "Lists do not support indexing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Creating Arrays",
+      "content": "Which NumPy function is commonly used to create an array?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.array()",
+          "is_correct": true
+        },
+        {
+          "text": "np.create()",
+          "is_correct": false
+        },
+        {
+          "text": "np.make()",
+          "is_correct": false
+        },
+        {
+          "text": "np.build()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NumPy Array Structure",
+      "content": "What does a NumPy array primarily store?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Elements of the same data type",
+          "is_correct": true
+        },
+        {
+          "text": "Only text values",
+          "is_correct": false
+        },
+        {
+          "text": "Only Boolean values",
+          "is_correct": false
+        },
+        {
+          "text": "Only dictionaries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "List vs Array Operations",
+      "content": "Why are NumPy arrays preferred for mathematical operations?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They support vectorized operations for faster computation",
+          "is_correct": true
+        },
+        {
+          "text": "They cannot store multiple values",
+          "is_correct": false
+        },
+        {
+          "text": "They replace Python completely",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "2D Array Creation",
+      "content": "Which code creates a 2D NumPy array?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.array([[1,2],[3,4]])",
+          "is_correct": true
+        },
+        {
+          "text": "np.array([1,2,3,4])",
+          "is_correct": false
+        },
+        {
+          "text": "np.array(1,2,3,4)",
+          "is_correct": false
+        },
+        {
+          "text": "np.make([[1,2],[3,4]])",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Memory Efficiency",
+      "content": "Why are NumPy arrays more memory efficient than Python lists?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They store elements of fixed data types in contiguous memory",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically compress all values",
+          "is_correct": false
+        },
+        {
+          "text": "They only allow integer values",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid using RAM completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Intuition",
+      "content": "What is one major feature of NumPy arrays that supports efficient mathematical computation?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Broadcasting operations across array elements",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic database creation",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Preventing array indexing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Indexing",
+      "content": "What is indexing in NumPy used for?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accessing specific elements in an array",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting the entire array",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays into strings",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting arrays automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Slicing",
+      "content": "What does slicing allow you to do in a NumPy array?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Extract a portion of the array",
+          "is_correct": true
+        },
+        {
+          "text": "Delete array elements permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Convert arrays into dictionaries",
+          "is_correct": false
+        },
+        {
+          "text": "Replace all values with zeros",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reshaping Arrays",
+      "content": "What is the purpose of reshaping a NumPy array?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Changing the dimensions of an array",
+          "is_correct": true
+        },
+        {
+          "text": "Changing array values into text",
+          "is_correct": false
+        },
+        {
+          "text": "Removing duplicate values",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting the array",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Basics",
+      "content": "What is broadcasting in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performing operations on arrays of different shapes",
+          "is_correct": true
+        },
+        {
+          "text": "Sending arrays over the internet",
+          "is_correct": false
+        },
+        {
+          "text": "Creating duplicate arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays into lists",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Slicing Syntax",
+      "content": "What will arr[1:4] return from the array [10, 20, 30, 40, 50]?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[20, 30, 40]",
+          "is_correct": true
+        },
+        {
+          "text": "[10, 20, 30]",
+          "is_correct": false
+        },
+        {
+          "text": "[20, 30, 40, 50]",
+          "is_correct": false
+        },
+        {
+          "text": "[30, 40, 50]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reshape Compatibility",
+      "content": "Can an array with 12 elements be reshaped into a 3 × 4 matrix?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Yes, because 3 × 4 equals 12",
+          "is_correct": true
+        },
+        {
+          "text": "No, reshaping changes the number of elements",
+          "is_correct": false
+        },
+        {
+          "text": "No, only square matrices are allowed",
+          "is_correct": false
+        },
+        {
+          "text": "Yes, but only for text arrays",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Broadcasting",
+      "content": "Why is broadcasting useful in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It allows efficient element-wise operations without manually looping",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically converts arrays into databases",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents reshaping of arrays",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all array dimensions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multidimensional Indexing",
+      "content": "How do you access the element in the second row and third column of a 2D NumPy array named arr?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "arr[1, 2]",
+          "is_correct": true
+        },
+        {
+          "text": "arr[2, 3]",
+          "is_correct": false
+        },
+        {
+          "text": "arr(1, 2)",
+          "is_correct": false
+        },
+        {
+          "text": "arr[2][3][1]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Aggregation Meaning",
+      "content": "What are aggregation operations in NumPy used for?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performing summary calculations on array data",
+          "is_correct": true
+        },
+        {
+          "text": "Creating HTML pages",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting arrays permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays into dictionaries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Finding Sum",
+      "content": "Which NumPy function is commonly used to calculate the sum of array elements?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.sum()",
+          "is_correct": true
+        },
+        {
+          "text": "np.total()",
+          "is_correct": false
+        },
+        {
+          "text": "np.addall()",
+          "is_correct": false
+        },
+        {
+          "text": "np.aggregate()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vectorized Operations",
+      "content": "What is a vectorized operation in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performing operations on entire arrays without explicit loops",
+          "is_correct": true
+        },
+        {
+          "text": "Converting vectors into text",
+          "is_correct": false
+        },
+        {
+          "text": "Removing array dimensions",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting arrays alphabetically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Average Calculation",
+      "content": "Which function is used to calculate the average of array elements in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.mean()",
+          "is_correct": true
+        },
+        {
+          "text": "np.middle()",
+          "is_correct": false
+        },
+        {
+          "text": "np.center()",
+          "is_correct": false
+        },
+        {
+          "text": "np.avgvalue()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Element-wise Addition",
+      "content": "What is the result of adding two NumPy arrays [1,2,3] and [4,5,6]?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[5,7,9]",
+          "is_correct": true
+        },
+        {
+          "text": "[1,2,3,4,5,6]",
+          "is_correct": false
+        },
+        {
+          "text": "[4,10,18]",
+          "is_correct": false
+        },
+        {
+          "text": "[3,3,3]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Aggregation Functions",
+      "content": "Which of the following is an aggregation function in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.max()",
+          "is_correct": true
+        },
+        {
+          "text": "np.reshape()",
+          "is_correct": false
+        },
+        {
+          "text": "np.slice()",
+          "is_correct": false
+        },
+        {
+          "text": "np.index()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Advantage",
+      "content": "Why are vectorized operations faster than Python loops in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They use optimized low-level implementations for computations",
+          "is_correct": true
+        },
+        {
+          "text": "They avoid using memory",
+          "is_correct": false
+        },
+        {
+          "text": "They convert arrays into strings automatically",
+          "is_correct": false
+        },
+        {
+          "text": "They disable mathematical calculations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Axis in Aggregation",
+      "content": "What does the axis parameter control in NumPy aggregation functions?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The direction along which calculations are performed",
+          "is_correct": true
+        },
+        {
+          "text": "The color of array output",
+          "is_correct": false
+        },
+        {
+          "text": "The datatype of the array only",
+          "is_correct": false
+        },
+        {
+          "text": "The memory size of the array",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NumPy Random Module",
+      "content": "What is the purpose of NumPy's random module?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Generating random numbers and samples",
+          "is_correct": true
+        },
+        {
+          "text": "Creating web pages",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Compiling Python code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Integer Generation",
+      "content": "Which NumPy function generates random integers?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.random.randint()",
+          "is_correct": true
+        },
+        {
+          "text": "np.random.number()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.integer()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.values()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Float Values",
+      "content": "Which function generates random float values between 0 and 1?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.random.rand()",
+          "is_correct": true
+        },
+        {
+          "text": "np.random.int()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.array()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.slice()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Performance Optimization",
+      "content": "Why is NumPy considered faster than regular Python lists for numerical operations?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It uses optimized low-level implementations and contiguous memory",
+          "is_correct": true
+        },
+        {
+          "text": "It avoids using CPU resources",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with text data",
+          "is_correct": false
+        },
+        {
+          "text": "It disables loops in Python",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Setting Random Seed",
+      "content": "What is the purpose of setting a random seed in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To generate reproducible random results",
+          "is_correct": true
+        },
+        {
+          "text": "To stop random number generation",
+          "is_correct": false
+        },
+        {
+          "text": "To increase array size",
+          "is_correct": false
+        },
+        {
+          "text": "To sort random values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vectorized Computation",
+      "content": "What improves NumPy performance during mathematical operations?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations",
+          "is_correct": true
+        },
+        {
+          "text": "Manual nested loops only",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays to strings",
+          "is_correct": false
+        },
+        {
+          "text": "Removing array indexing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Array Generation",
+      "content": "Which code creates a 2 × 2 array of random values between 0 and 1?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.random.rand(2,2)",
+          "is_correct": true
+        },
+        {
+          "text": "np.random.randint(2,2)",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.seed(2,2)",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.array(2,2)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance of Reproducibility",
+      "content": "Why is reproducibility important in data science experiments?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It ensures the same random results can be generated again",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It permanently stores arrays in memory",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents mathematical operations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Efficient Array Operations",
+      "content": "Which approach is generally more efficient in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using vectorized operations instead of Python loops",
+          "is_correct": true
+        },
+        {
+          "text": "Using multiple nested loops",
+          "is_correct": false
+        },
+        {
+          "text": "Converting arrays to lists repeatedly",
+          "is_correct": false
+        },
+        {
+          "text": "Avoiding NumPy functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Choice Function",
+      "content": "Which NumPy function is used to randomly select elements from an array?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "np.random.choice()",
+          "is_correct": true
+        },
+        {
+          "text": "np.random.select()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.pick()",
+          "is_correct": false
+        },
+        {
+          "text": "np.random.extract()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Memory Optimization",
+      "content": "How does NumPy improve memory efficiency compared to Python lists?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By storing elements of the same datatype in contiguous memory blocks",
+          "is_correct": true
+        },
+        {
+          "text": "By storing every element as a separate object",
+          "is_correct": false
+        },
+        {
+          "text": "By compressing arrays into strings",
+          "is_correct": false
+        },
+        {
+          "text": "By avoiding the use of RAM",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Performance",
+      "content": "Why does broadcasting improve performance in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It avoids unnecessary data copying and explicit loops",
+          "is_correct": true
+        },
+        {
+          "text": "It converts arrays into dictionaries",
+          "is_correct": false
+        },
+        {
+          "text": "It disables mathematical calculations",
+          "is_correct": false
+        },
+        {
+          "text": "It stores data only on disk",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Sampling in ML",
+      "content": "How is NumPy's random module commonly used in machine learning?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "For random sampling, initialization, and data shuffling",
+          "is_correct": true
+        },
+        {
+          "text": "For replacing all machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "For avoiding dataset preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "For converting arrays into databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Arrays vs Lists Basics",
+      "content": "Which of the following statements about NumPy arrays and Python lists are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays are generally faster than Python lists for numerical operations",
+          "is_correct": true
+        },
+        {
+          "text": "Python lists can store mixed data types",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays cannot store numerical data",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy arrays are optimized for mathematical computations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Creating NumPy Arrays",
+      "content": "Which statements about creating NumPy arrays are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays can be created using the array() function",
+          "is_correct": true
+        },
+        {
+          "text": "Lists can be converted into NumPy arrays",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays must always contain text values only",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy provides functions to create arrays of zeros and ones",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding NumPy Arrays",
+      "content": "Which of the following statements about NumPy arrays are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays support efficient element-wise operations",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays are commonly used in Data Science and machine learning",
+          "is_correct": true
+        },
+        {
+          "text": "Python lists always perform numerical computations faster than NumPy arrays",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy arrays can represent multidimensional data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Arrays and Lists",
+      "content": "Which statements correctly compare NumPy arrays and Python lists?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays consume less memory for large numerical datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Python lists are more flexible with mixed data types",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays do not support mathematical operations",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays are often preferred for scientific computing tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Array Creation Methods",
+      "content": "Which of the following statements about NumPy array creation methods are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Functions like arange() and linspace() can generate arrays automatically",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy supports creating multidimensional arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Array creation in NumPy is limited to one-dimensional data only",
+          "is_correct": false
+        },
+        {
+          "text": "Different NumPy functions simplify numerical data initialization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Understanding of NumPy Arrays",
+      "content": "Which statements correctly describe advanced concepts of NumPy arrays?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Introduction to NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations in NumPy improve computational efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays form the foundation for many Data Science libraries",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays are unsuitable for mathematical modeling",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient array operations are important for machine learning workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Indexing and Slicing Basics",
+      "content": "Which of the following statements about indexing and slicing in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Indexing is used to access specific elements in an array",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing allows extracting a portion of an array",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays cannot be sliced",
+          "is_correct": false
+        },
+        {
+          "text": "Negative indexing can access elements from the end of an array",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Reshaping",
+      "content": "Which statements about reshaping NumPy arrays are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reshaping changes the dimensions of an array without changing its data",
+          "is_correct": true
+        },
+        {
+          "text": "The reshape() method is commonly used in NumPy",
+          "is_correct": true
+        },
+        {
+          "text": "Reshaping always changes the number of elements in an array",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays can be reshaped into rows and columns when dimensions are compatible",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Broadcasting Basics",
+      "content": "Which of the following statements about broadcasting in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Broadcasting allows arithmetic operations on arrays with different shapes",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting helps avoid unnecessary data duplication",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting is unrelated to array operations",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy automatically applies broadcasting rules when possible",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Indexing and Reshaping",
+      "content": "Which statements correctly describe advanced indexing and reshaping concepts in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multidimensional arrays can be indexed using row and column positions",
+          "is_correct": true
+        },
+        {
+          "text": "Reshaping requires the total number of elements to remain consistent",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing always creates completely independent data copies only",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient indexing improves data manipulation performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Broadcasting and Array Efficiency",
+      "content": "Which of the following statements about broadcasting and efficiency are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Broadcasting enables efficient vectorized computations",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting can simplify mathematical operations on arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays with incompatible shapes can always be broadcast together",
+          "is_correct": false
+        },
+        {
+          "text": "Broadcasting is widely used in Data Science and machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Array Operations",
+      "content": "Which statements correctly describe advanced NumPy array operation concepts?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Array Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Broadcasting reduces the need for explicit loops in numerical computations",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient reshaping and slicing are important for handling multidimensional datasets",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy array operations are generally slower than manual Python loops for large datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Vectorized array operations improve performance in scientific computing tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Aggregations",
+      "content": "Which of the following statements about aggregation operations in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aggregation functions summarize array data",
+          "is_correct": true
+        },
+        {
+          "text": "Functions like sum() and mean() are aggregation operations",
+          "is_correct": true
+        },
+        {
+          "text": "Aggregation operations cannot be applied to NumPy arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Aggregations help analyze large datasets efficiently",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Vectorized Operations Basics",
+      "content": "Which statements about vectorized operations in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations apply computations to entire arrays at once",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized operations reduce the need for explicit Python loops",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized operations are generally slower than manual loops for numerical tasks",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy is optimized for vectorized computations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Common Mathematical Operations",
+      "content": "Which of the following statements about NumPy mathematical operations are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy supports element-wise mathematical operations",
+          "is_correct": true
+        },
+        {
+          "text": "Operations like addition and multiplication can be performed directly on arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Mathematical operations in NumPy require converting arrays into lists first",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy mathematical functions are widely used in Data Science",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Aggregation Concepts",
+      "content": "Which statements correctly describe advanced aggregation concepts in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Aggregations can be performed along specific axes in multidimensional arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Functions like max() and min() help summarize datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Aggregation functions are unrelated to statistical analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Aggregations improve efficiency when working with large numerical datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Efficiency of Vectorized Operations",
+      "content": "Which of the following statements about vectorized operation efficiency are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations are implemented using optimized low-level code",
+          "is_correct": true
+        },
+        {
+          "text": "Using vectorized operations can improve performance in Data Science workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized operations only work on one-dimensional arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient numerical computation is a major advantage of NumPy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced NumPy Mathematical Operations",
+      "content": "Which statements correctly describe advanced concepts in NumPy mathematical operations?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Mathematical Operations",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations help scale computations for large datasets efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "Aggregation functions are fundamental in statistical and machine learning workflows",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy mathematical operations provide no performance benefit over standard Python lists",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient array computations are essential for scientific computing and AI applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "NumPy Random Module Basics",
+      "content": "Which of the following statements about the NumPy random module are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The NumPy random module can generate random numbers",
+          "is_correct": true
+        },
+        {
+          "text": "Random values can be generated as arrays",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy cannot generate random integers",
+          "is_correct": false
+        },
+        {
+          "text": "Random number generation is useful in simulations and machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Random Arrays",
+      "content": "Which statements about random arrays in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy can generate arrays filled with random values",
+          "is_correct": true
+        },
+        {
+          "text": "Random arrays are useful for testing and experimentation",
+          "is_correct": true
+        },
+        {
+          "text": "Random arrays can only contain integers",
+          "is_correct": false
+        },
+        {
+          "text": "Machine learning workflows often use random initialization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Optimization Basics",
+      "content": "Which of the following statements about performance optimization in NumPy are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy operations are optimized for numerical computations",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized operations improve execution speed",
+          "is_correct": true
+        },
+        {
+          "text": "Using NumPy always makes programs slower",
+          "is_correct": false
+        },
+        {
+          "text": "Performance optimization is important for large datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using Random Functions",
+      "content": "Which statements about NumPy random functions are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Functions like rand() and randint() generate random values",
+          "is_correct": true
+        },
+        {
+          "text": "Random functions can help create sample datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Random number generation has no practical use in Data Science",
+          "is_correct": false
+        },
+        {
+          "text": "Random sampling is commonly used in statistical analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Optimization with Vectorization",
+      "content": "Which of the following statements about vectorization and optimization are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations reduce the need for explicit loops",
+          "is_correct": true
+        },
+        {
+          "text": "Optimized array operations improve computational efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy optimization techniques are irrelevant for scientific computing",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient computation is important in machine learning applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Advanced NumPy",
+      "content": "Which statements about advanced NumPy applications are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy is widely used in Data Science and AI workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Performance optimization helps process large numerical datasets efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "Random number generation is useful for simulations",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy cannot handle multidimensional numerical data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Random Module and Reproducibility",
+      "content": "Which of the following statements about reproducibility using the NumPy random module are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Setting a random seed helps reproduce the same random outputs",
+          "is_correct": true
+        },
+        {
+          "text": "Reproducibility is important in machine learning experiments",
+          "is_correct": true
+        },
+        {
+          "text": "Random seeds make generated values completely non-random forever",
+          "is_correct": false
+        },
+        {
+          "text": "Controlled randomness improves debugging and testing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance Optimization Techniques",
+      "content": "Which statements correctly describe performance optimization techniques in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using vectorized operations is generally faster than Python loops",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient memory usage improves array computation performance",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization techniques are unnecessary for large datasets",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy uses optimized low-level implementations for many operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Random Number Usage",
+      "content": "Which statements about advanced uses of random number generation are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random sampling is used in simulations and probabilistic models",
+          "is_correct": true
+        },
+        {
+          "text": "Random initialization is important in neural network training",
+          "is_correct": true
+        },
+        {
+          "text": "Generated random values can never be controlled or reproduced",
+          "is_correct": false
+        },
+        {
+          "text": "Statistical analysis often relies on random sampling techniques",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Efficient Numerical Computing",
+      "content": "Which of the following statements about efficient numerical computing are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy improves numerical computing performance through optimized array operations",
+          "is_correct": true
+        },
+        {
+          "text": "Large-scale scientific computing benefits from performance optimization",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient computation has no impact on machine learning systems",
+          "is_correct": false
+        },
+        {
+          "text": "Reducing unnecessary loops can improve program execution speed",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Optimization Concepts",
+      "content": "Which statements correctly describe advanced optimization concepts in NumPy?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized computations help scale numerical processing efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "Optimized NumPy operations are important in deep learning workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Python loops are always faster than NumPy vectorized operations for large datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Performance optimization reduces computational overhead in data-intensive tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Random Simulations",
+      "content": "Which of the following statements about advanced random simulations are correct?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monte Carlo simulations rely heavily on random number generation",
+          "is_correct": true
+        },
+        {
+          "text": "Randomized techniques are useful in probabilistic machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Random simulations are unrelated to Data Science applications",
+          "is_correct": false
+        },
+        {
+          "text": "Controlled randomness can improve experiment reproducibility",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "High-Performance NumPy Workflows",
+      "content": "Which statements correctly describe high-performance NumPy workflows?",
+      "level": "subtopic",
+      "unit_name": "NumPy",
+      "subunit_name": "Advanced NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient memory handling is important for processing large arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Combining vectorization and broadcasting improves computational efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Performance optimization matters only for very small datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Advanced NumPy techniques are widely used in scientific and AI computing",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

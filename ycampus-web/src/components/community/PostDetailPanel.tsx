@@ -51,7 +51,7 @@ export function PostDetailPanel({
 }: PostDetailPanelProps) {
   const isMobile = useIsMobile();
   const [newComment, setNewComment] = useState('');
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
 
   const {
     comments,
@@ -76,7 +76,7 @@ export function PostDetailPanel({
       await createComment({
         post_id: post.id,
         content: newComment.trim(),
-        parent_id: replyingTo || undefined,
+        parent_id: replyingTo?.id || undefined,
       });
       setNewComment('');
       setReplyingTo(null);
@@ -88,16 +88,7 @@ export function PostDetailPanel({
   if (!post) return null;
 
   const content = (
-    <div className="flex flex-col h-full">
-      {isMobile && (
-        <div className="flex items-center gap-2 p-4 border-b">
-          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="font-medium">Post</span>
-        </div>
-      )}
-
+    <div className="flex flex-col h-full min-h-0 bg-background">
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
           {/* Author Info */}
@@ -192,12 +183,12 @@ export function PostDetailPanel({
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : comments && comments.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4 pb-4">
                 {comments.map((comment) => (
                   <CommentThread
                     key={comment.id}
                     comment={comment}
-                    onReply={(id) => setReplyingTo(id)}
+                    onReply={(id, name) => setReplyingTo({ id, name })}
                     onDelete={deleteComment}
                     onLike={(id, isLiked) => toggleCommentLike({ commentId: id, isLiked })}
                   />
@@ -212,14 +203,14 @@ export function PostDetailPanel({
         </div>
       </ScrollArea>
 
-      {/* Comment Input - always visible */}
-      <div className="mt-auto">
+      {/* Comment Input - fixed at bottom */}
+      <div className="shrink-0 border-t bg-background">
         <CommentComposer
           value={newComment}
           onChange={setNewComment}
           onSubmit={handleSubmitComment}
           isSubmitting={isCreatingComment}
-          replyingTo={!!replyingTo}
+          replyingToName={replyingTo?.name}
           onCancelReply={() => setReplyingTo(null)}
         />
       </div>
@@ -236,8 +227,16 @@ export function PostDetailPanel({
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="w-full p-0 sm:max-w-full" {...sheetProps}>
-          {content}
+        <SheetContent side="right" className="w-full p-0 sm:max-w-full flex flex-col" {...sheetProps}>
+          <div className="flex items-center gap-2 p-4 border-b shrink-0">
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <span className="font-medium">Post Details</span>
+          </div>
+          <div className="flex-1 min-h-0">
+            {content}
+          </div>
         </SheetContent>
       </Sheet>
     );
@@ -245,11 +244,13 @@ export function PostDetailPanel({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg p-0" {...sheetProps}>
-        <SheetHeader className="p-4 border-b">
+      <SheetContent side="right" className="w-full sm:max-w-lg p-0 flex flex-col" {...sheetProps}>
+        <SheetHeader className="p-4 border-b shrink-0">
           <SheetTitle>Post Details</SheetTitle>
         </SheetHeader>
-        {content}
+        <div className="flex-1 min-h-0">
+          {content}
+        </div>
       </SheetContent>
     </Sheet>
   );

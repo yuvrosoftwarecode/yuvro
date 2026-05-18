@@ -70,6 +70,7 @@ export interface SkillTestFilters {
   difficulty?: 'easy' | 'medium' | 'hard';
   search?: string;
   test_type?: string;
+  publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
 }
 
 
@@ -161,17 +162,32 @@ export const startSkillTest = async (testId: string): Promise<StartTestResponse>
   }
 };
 
-export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[]): Promise<SubmitTestResponse> => {
+export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[], time_spent?: number): Promise<SubmitTestResponse> => {
   try {
     const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/submit/`, {
       submission_id: submissionId,
       answers,
       explanations,
-      all_question_ids
+      all_question_ids,
+      time_spent
     });
     return response as SubmitTestResponse;
   } catch (error) {
     console.error('Error submitting skill test:', error);
+    throw error;
+  }
+};
+
+export const uploadSnapshot = async (testId: string, submissionId: string, image: string, questionId?: string): Promise<any> => {
+  try {
+    const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/snapshot/`, {
+      submission_id: submissionId,
+      image,
+      question_id: questionId
+    });
+    return response;
+  } catch (error) {
+    console.error('Error uploading snapshot:', error);
     throw error;
   }
 };
@@ -206,6 +222,18 @@ export const getSkillTestSubmission = async (submissionId: string): Promise<any>
   }
 };
 
+export const getUserSubmissions = async (userId: string, extraParams: any = {}): Promise<any[]> => {
+  try {
+    const response = await restApiAuthUtil.get<any[]>('/assessment/skill-test/submissions/', {
+      params: { user: userId, ...extraParams }
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching student submissions:', error);
+    throw error;
+  }
+};
+
 export const DIFFICULTY_LEVELS = [
   { value: 'easy', label: 'Easy' },
   { value: 'medium', label: 'Medium' },
@@ -229,8 +257,10 @@ const skillTestService = {
   getSkillTestsByUnit,
   getSkillTestSubmissions,
   getSkillTestSubmission,
+  getUserSubmissions,
   startSkillTest,
   submitSkillTest,
+  uploadSnapshot,
 };
 
 export default skillTestService;

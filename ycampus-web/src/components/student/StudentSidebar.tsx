@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -39,13 +39,15 @@ import {
   PanelLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { getMediaUrl } from '@/utils/mediaUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 import knowledgeTree from '@/assets/knowledge-tree.png';
 import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
+import studentService, { Student } from '@/services/studentService';
 
 const studentMenuItems = [
   { title: 'Dashboard', url: '/student/dashboard', icon: Home },
@@ -70,6 +72,52 @@ export function StudentSidebar() {
   const { theme, setTheme } = useTheme();
   const collapsed = state === "collapsed";
   const [profileOpen, setProfileOpen] = useState(false);
+  const [studentProfile, setStudentProfile] = useState<Student | null>(null);
+
+  const getBranchShortForm = (name: string) => {
+    if (!name) return "...";
+    const commonMap: Record<string, string> = {
+      "Computer Science Engineering": "CSE",
+      "Computer Science and Engineering": "CSE",
+      "Electronics and Communication Engineering": "ECE",
+      "Electronics & Communication Engineering": "ECE",
+      "Information Technology": "IT",
+      "Mechanical Engineering": "MECH",
+      "Civil Engineering": "CIVIL",
+      "Electrical and Electronics Engineering": "EEE",
+    };
+    if (commonMap[name]) return commonMap[name];
+    return name
+      .split(/\s+/)
+      .filter(w => !["and", "&", "of"].includes(w.toLowerCase()))
+      .map(w => w.charAt(0))
+      .join("")
+      .toUpperCase();
+  };
+
+  const toRoman = (num: number) => {
+    const romanMap = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+    return romanMap[num] || num.toString();
+  };
+
+  const formatSection = (name: string) => {
+    if (!name) return "";
+    return name.replace(/section/gi, "").trim().toUpperCase();
+  };
+
+  useEffect(() => {
+    if (user?.role === 'student' && user?.id) {
+      studentService.getStudents({ user: user.id })
+        .then(res => {
+          if (res.results && res.results.length > 0) {
+            setStudentProfile(res.results[0]);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch student profile:', err);
+        });
+    }
+  }, [user]);
 
   const isActive = (path: string) => {
     if (path === '/student/dashboard') {
@@ -85,6 +133,8 @@ export function StudentSidebar() {
 
   const firstName = user?.first_name || user?.username || 'User';
   const initials = firstName.charAt(0).toUpperCase();
+
+  const profileImage = getMediaUrl(user?.profile?.avatar);
 
   return (
     <Sidebar
@@ -190,6 +240,7 @@ export function StudentSidebar() {
             className={`flex items-center w-full rounded-lg p-2 hover:bg-sidebar-accent/50 transition-colors ${collapsed ? 'justify-center' : 'gap-3'}`}
           >
             <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage src={profileImage} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                 {initials}
               </AvatarFallback>
@@ -200,9 +251,14 @@ export function StudentSidebar() {
                   <p className="text-sm font-medium truncate">{firstName}</p>
                   <div className="flex items-center gap-1.5">
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                      CSE
+                      {getBranchShortForm(studentProfile?.department_name || "")}
                     </Badge>
-                    <span className="text-[10px] text-muted-foreground">Sem I · Sec B</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {studentProfile?.semester_number ? `Sem ${toRoman(studentProfile.semester_number)}` : ""}
+                      {studentProfile?.semester_number && studentProfile?.section_name ? " - " : ""}
+                      {studentProfile?.section_name ? `Sec ${formatSection(studentProfile.section_name)}` : ""}
+                      {!studentProfile?.semester_number && !studentProfile?.section_name && "---"}
+                    </span>
                   </div>
                 </div>
                 <ChevronsUpDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
@@ -233,10 +289,14 @@ export function StudentSidebar() {
           >
             <div className="px-2 pb-2 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground px-2 pb-1 truncate">{user?.email}</p>
-              <button className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors">
+              <NavLink 
+                to="/student/profile" 
+                className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors"
+                onClick={() => setProfileOpen(false)}
+              >
                 <User className="mr-2 h-4 w-4" />
                 Profile
-              </button>
+              </NavLink>
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors"

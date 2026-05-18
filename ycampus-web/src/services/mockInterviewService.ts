@@ -7,28 +7,11 @@ export interface MockInterview {
   instructions: string;
   max_duration: number;
 
-  // AI Config
-  ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
-  ai_percentage: number;
-  ai_context?: any;
-  ai_coding_question_count?: number;
-
-
-  // Voice Config
-  voice_type: 'junnu' | 'munnu';
-  interviewer_name: string;
-  interviewer_voice_id: string;
-  voice_speed: number;
-  audio_settings: any;
-
-  // Skills
   required_skills: string[];
   optional_skills: string[];
 
-  // Publishing & Questions
   publish_status: 'draft' | 'active' | 'inactive' | 'archived';
-  questions_config: any;
-  questions_random_config: any;
+  predefined_tree?: any[];
 
   created_at: string;
   updated_at: string;
@@ -40,23 +23,11 @@ export interface CreateMockInterviewData {
   instructions: string;
   max_duration: number;
 
-  ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
-  ai_context?: any;
-  ai_coding_question_count?: number;
-
-
-  voice_type: 'junnu' | 'munnu';
-  interviewer_name: string;
-  interviewer_voice_id: string;
-  voice_speed: number;
-  audio_settings?: any;
-
   required_skills: string[];
   optional_skills: string[];
 
   publish_status: 'draft' | 'active' | 'inactive' | 'archived';
-  questions_config?: any;
-  questions_random_config?: any;
+  predefined_tree?: any[];
 }
 
 export interface CompleteMockInterviewData {
@@ -131,6 +102,26 @@ class MockInterviewService {
     }
   }
 
+  async updateMockInterviewSubmission(id: string, data: any): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.patch<any>(`/assessment/mock-interview/submissions/${id}/`, data);
+      return response;
+    } catch (error) {
+      console.error('Error updating mock interview submission:', error);
+      throw error;
+    }
+  }
+
+  async getSubmissionReport(id: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/report/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching submission report:', error);
+      throw error;
+    }
+  }
+
 
   async startInterview(id: string, experience_level?: string, selected_duration?: number, resume?: File): Promise<any> {
     try {
@@ -145,6 +136,30 @@ class MockInterviewService {
       return response;
     } catch (error) {
       console.error('Error starting interview:', error);
+      throw error;
+    }
+  }
+
+  async getMockInterviewSubmission(id: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/assessment/mock-interview/submissions/${id}/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching mock interview submission:', error);
+      throw error;
+    }
+  }
+
+  async getNextQuestion(id: string, interviewSessionId: string, userAnswer: string, status: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.post<any>(`/assessment/mock-interviews/${id}/get_next_question/`, {
+        interview_session_id: interviewSessionId,
+        user_answer: userAnswer,
+        status: status
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching next question:', error);
       throw error;
     }
   }

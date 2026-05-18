@@ -28,6 +28,7 @@ from .models import (
     Note,
     Announcement,
 )
+from course.models import SectionSubjectFaculty
 from .serializers import (
     StudentProfileSerializer,
     FacultyProfileSerializer,
@@ -72,6 +73,7 @@ class IsCollegeManagementOrFaculty(permissions.BasePermission):
             "college_admin",
             "principal",
             "faculty",
+            "student",
         ]
 
 
@@ -642,7 +644,18 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrFaculty]
-    filterset_fields = ["college", "department", "batch", "batch__name", "semester", "semester__number", "section", "section__name", "admission_type", "is_detained"]
+    filterset_fields = {
+        "college": ["exact"],
+        "department": ["exact"],
+        "batch": ["exact"],
+        "batch__name": ["exact"],
+        "semester": ["exact"],
+        "section": ["exact"],
+        "semester__number": ["exact"],
+        "section__name": ["exact"],
+        "admission_type": ["exact"],
+        "is_detained": ["exact"],
+    }
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
     ordering_fields = ["user__first_name", "user__last_name", "roll_number", "created_at"]
@@ -653,12 +666,20 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
+        # If user is a student, filter to only their profile
+        if user.role == "student":
+            return queryset.filter(user=user)
+            
         # If user is a College Admin, Principal or Faculty, filter by their college
         if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
             if college:
                 return queryset.filter(college=college)
             return queryset.none()
+
+        # Students can only see their own profile
+        if user.role == "student":
+            return queryset.filter(user=user)
             
         return queryset
 
@@ -1153,11 +1174,11 @@ class AttendanceSessionViewSet(viewsets.ModelViewSet):
         
         if not user or user.is_anonymous:
             return AttendanceSession.objects.none()
-            
         role = getattr(user, 'role', None)
         if role == "faculty":
-            # For faculty, only show sessions for their assigned subjects
-            qs = qs.filter(section_subject_faculty__faculty__user=user)
+            # For faculty, show sessions for any subject they are assigned to teach
+            assigned_subjects = SectionSubjectFaculty.objects.filter(faculty__user=user).values_list('semester_subject__subject', flat=True)
+            qs = qs.filter(section_subject_faculty__semester_subject__subject__in=assigned_subjects)
         elif role in ["college_admin", "principal"]:
             # For college management, only show sessions in their college
             qs = qs.filter(section_subject_faculty__section__semester__batch__college=user.college)
@@ -1188,8 +1209,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         user = self.request.user
         if user.role == "faculty":
-            # Faculty see tasks they assigned
-            qs = qs.filter(faculty__user=user)
+            # Faculty see tasks for subjects they teach
+            assigned_subjects = SectionSubjectFaculty.objects.filter(faculty__user=user).values_list('semester_subject__subject', flat=True)
+            qs = qs.filter(subject__in=assigned_subjects)
         elif user.role == "student":
             # Students see only SENT tasks assigned to their section
             if hasattr(user, 'student_profile') and user.student_profile.section:
@@ -1507,3 +1529,32 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         return super().destroy(request, *args, **kwargs)
+
+class FileUploadViewSet(viewsets.ViewSet):
+    """
+    Generic File Upload ViewSet
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request):
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from django.core.files.storage import default_storage
+        import os
+        from django.utils import timezone
+        
+        # Create a unique filename
+        ext = os.path.splitext(file_obj.name)[1]
+        timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+        new_filename = f'uploads/{request.user.id}/{timestamp}_{file_obj.name}'
+        
+        file_name = default_storage.save(new_filename, file_obj)
+        file_url = default_storage.url(file_name)
+        
+        # Ensure it's an absolute URL
+        if not file_url.startswith('http'):
+            file_url = request.build_absolute_uri(file_url)
+            
+        return Response({"url": file_url}, status=status.HTTP_201_CREATED)

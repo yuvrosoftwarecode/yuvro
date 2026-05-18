@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '@/components/common/Navigation';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1363,10 +1363,9 @@ const ResumeBuilder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <DashboardLayout hideHeader={true} hideFooter={true} sidebarClassName="z-50">
       
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-full">
         <div className="w-1/4 min-w-[280px] max-w-[320px] border-r bg-card flex flex-col">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between gap-2 mb-4">
@@ -1510,7 +1509,7 @@ const ResumeBuilder = () => {
         <Settings className="h-4 w-4" />
         Properties
       </Button>
-    </div>
+    </DashboardLayout>
   );
 };
 

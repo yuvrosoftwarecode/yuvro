@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -312,7 +312,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
             <Button variant="outline" onClick={handleCopyLink} className="gap-2 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl border-slate-200 shadow-sm">
               <Copy className="w-4 h-4" /> Copy Link
             </Button>
-            <Button onClick={handleDownloadPDF} className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 border-0 cursor-pointer transition-all hover:scale-105 active:scale-95 rounded-xl text-white font-medium">
+            <Button onClick={handleDownloadPDF} className="gap-2 bg-gradient-to-r from-blue-600 to-saffron-600 hover:from-blue-700 hover:to-saffron-700 shadow-lg shadow-blue-500/25 border-0 cursor-pointer transition-all hover:scale-105 active:scale-95 rounded-xl text-white font-medium">
               <Download className="w-4 h-4" /> Download PDF
             </Button>
           </div>
@@ -364,7 +364,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
 
           {/* Executive Summary Card */}
           <div className="xl:col-span-8 flex flex-col h-full">
-            <Card className="flex-1 border-0 shadow-2xl shadow-blue-900/10 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white relative overflow-hidden transition-transform duration-500 hover:shadow-3xl rounded-3xl group">
+            <Card className="flex-1 border-0 shadow-2xl shadow-blue-900/10 bg-gradient-to-br from-slate-900 via-slate-800 to-saffron-900 text-white relative overflow-hidden transition-transform duration-500 hover:shadow-3xl rounded-3xl group">
               <div className="absolute top-0 right-0 p-12 opacity-10 transition-opacity group-hover:opacity-20 duration-700">
                 <Bot className="w-80 h-80" />
               </div>

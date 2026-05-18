@@ -205,7 +205,7 @@ const DEFAULT_JOBS: MockJob[] = [
         id: "6",
         status: "pending",
         role_title: "Full Stack Developer",
-        role_description: "Build web applications using Next.js, Tailwind, and Supabase. Fast-paced startup environment with high ownership.",
+        role_description: "Build web applications using Next.js, Tailwind, and PostgreSQL. Fast-paced startup environment with high ownership.",
         location: "Delhi",
         ctc_total: 800000,
         ctc_fixed: 750000,

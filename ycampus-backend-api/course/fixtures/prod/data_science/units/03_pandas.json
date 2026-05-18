@@ -1,0 +1,2878 @@
+{
+  "name": "Pandas",
+  "subject_short_code": "DS100",
+  "order_index": 3,
+  "sub_units": [
+    {
+      "name": "Introduction to Pandas",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Pandas",
+          "video_link": "https://www.youtube.com/results?search_query=Introduction%20to%20Pandas",
+          "ai_context": "Detailed overview and key concepts of Introduction to Pandas"
+        },
+        {
+          "title": "Introduction to Pandas",
+          "video_link": "https://www.youtube.com/results?search_query=Introduction%20to%20Pandas",
+          "ai_context": "Detailed overview and key concepts of Introduction to Pandas"
+        }
+      ]
+    },
+    {
+      "name": "Data Loading",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Data Loading",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Loading",
+          "ai_context": "Detailed overview and key concepts of Data Loading"
+        },
+        {
+          "title": "Data Loading",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Loading",
+          "ai_context": "Detailed overview and key concepts of Data Loading"
+        }
+      ]
+    },
+    {
+      "name": "Data Cleaning",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Data Cleaning",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Cleaning",
+          "ai_context": "Detailed overview and key concepts of Data Cleaning"
+        },
+        {
+          "title": "Data Cleaning",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Cleaning",
+          "ai_context": "Detailed overview and key concepts of Data Cleaning"
+        }
+      ]
+    },
+    {
+      "name": "Data Manipulation",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Data Manipulation",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Manipulation",
+          "ai_context": "Detailed overview and key concepts of Data Manipulation"
+        },
+        {
+          "title": "Data Manipulation",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Manipulation",
+          "ai_context": "Detailed overview and key concepts of Data Manipulation"
+        }
+      ]
+    },
+    {
+      "name": "Time Series Basics",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "Time Series Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Time%20Series%20Basics",
+          "ai_context": "Detailed overview and key concepts of Time Series Basics"
+        },
+        {
+          "title": "Time Series Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Time%20Series%20Basics",
+          "ai_context": "Detailed overview and key concepts of Time Series Basics"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Pandas Purpose",
+      "content": "What is Pandas mainly used for in Python?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data analysis and manipulation",
+          "is_correct": true
+        },
+        {
+          "text": "Web page design",
+          "is_correct": false
+        },
+        {
+          "text": "Game development only",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system management",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Series Definition",
+      "content": "What is a Pandas Series?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A one-dimensional labeled array",
+          "is_correct": true
+        },
+        {
+          "text": "A two-dimensional table",
+          "is_correct": false
+        },
+        {
+          "text": "A collection of functions",
+          "is_correct": false
+        },
+        {
+          "text": "A machine learning model",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DataFrame Meaning",
+      "content": "What is a DataFrame in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A two-dimensional labeled data structure",
+          "is_correct": true
+        },
+        {
+          "text": "A mathematical equation",
+          "is_correct": false
+        },
+        {
+          "text": "A single numeric value",
+          "is_correct": false
+        },
+        {
+          "text": "A random number generator",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Series Example",
+      "content": "Which code creates a Pandas Series?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.Series([10,20,30])",
+          "is_correct": true
+        },
+        {
+          "text": "pd.Data([10,20,30])",
+          "is_correct": false
+        },
+        {
+          "text": "pd.List([10,20,30])",
+          "is_correct": false
+        },
+        {
+          "text": "pd.Frame([10,20,30])",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DataFrame Structure",
+      "content": "A Pandas DataFrame consists of:",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "Only rows",
+          "is_correct": false
+        },
+        {
+          "text": "Only columns",
+          "is_correct": false
+        },
+        {
+          "text": "Only dictionaries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Creating a DataFrame",
+      "content": "Which code creates a DataFrame from a dictionary?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.DataFrame({'A':[1,2],'B':[3,4]})",
+          "is_correct": true
+        },
+        {
+          "text": "pd.Series({'A':[1,2],'B':[3,4]})",
+          "is_correct": false
+        },
+        {
+          "text": "pd.Frame({'A':[1,2]})",
+          "is_correct": false
+        },
+        {
+          "text": "pd.Array({'A':[1,2]})",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Series Indexing",
+      "content": "What feature allows accessing values efficiently in a Pandas Series?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Labels or indexes",
+          "is_correct": true
+        },
+        {
+          "text": "Nested loops only",
+          "is_correct": false
+        },
+        {
+          "text": "Broadcasting",
+          "is_correct": false
+        },
+        {
+          "text": "Random seeds",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Series vs DataFrame",
+      "content": "What is the main difference between a Series and a DataFrame?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A Series is one-dimensional, while a DataFrame is two-dimensional",
+          "is_correct": true
+        },
+        {
+          "text": "A DataFrame stores only numbers",
+          "is_correct": false
+        },
+        {
+          "text": "A Series contains only text",
+          "is_correct": false
+        },
+        {
+          "text": "There is no difference",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DataFrame Performance",
+      "content": "Why are DataFrames useful in data science?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They efficiently organize, clean, and analyze structured data",
+          "is_correct": true
+        },
+        {
+          "text": "They replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid data preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "They work only with text files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Internal Data Representation",
+      "content": "How can a Pandas DataFrame be conceptually viewed?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A collection of aligned Series sharing the same index",
+          "is_correct": true
+        },
+        {
+          "text": "A single list of values",
+          "is_correct": false
+        },
+        {
+          "text": "A matrix without labels",
+          "is_correct": false
+        },
+        {
+          "text": "A random collection of arrays",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loading CSV Files",
+      "content": "Which Pandas function is commonly used to load a CSV file?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.read_csv()",
+          "is_correct": true
+        },
+        {
+          "text": "pd.load_csv()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.import_csv()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.csv_read()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loading Excel Files",
+      "content": "Which function is used to read Excel files in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.read_excel()",
+          "is_correct": true
+        },
+        {
+          "text": "pd.open_excel()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.import_excel()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.excel_data()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loading JSON Data",
+      "content": "Which Pandas function is used to load JSON data?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.read_json()",
+          "is_correct": true
+        },
+        {
+          "text": "pd.load_json()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.import_json()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.json_read()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Missing Values Meaning",
+      "content": "What are missing values in a dataset?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data entries that are empty or unavailable",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate records only",
+          "is_correct": false
+        },
+        {
+          "text": "Values greater than zero",
+          "is_correct": false
+        },
+        {
+          "text": "Incorrect column names",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Detecting Missing Values",
+      "content": "Which Pandas function helps identify missing values?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "isnull()",
+          "is_correct": true
+        },
+        {
+          "text": "findmissing()",
+          "is_correct": false
+        },
+        {
+          "text": "checknull()",
+          "is_correct": false
+        },
+        {
+          "text": "empty()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Removing Duplicates",
+      "content": "Which Pandas function is used to remove duplicate rows?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "drop_duplicates()",
+          "is_correct": true
+        },
+        {
+          "text": "remove_duplicates()",
+          "is_correct": false
+        },
+        {
+          "text": "delete_repeat()",
+          "is_correct": false
+        },
+        {
+          "text": "drop_rows()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Type Conversion Purpose",
+      "content": "Why is type conversion used in data cleaning?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To convert data into a required format",
+          "is_correct": true
+        },
+        {
+          "text": "To delete all rows",
+          "is_correct": false
+        },
+        {
+          "text": "To rename datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To create graphs only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Changing Data Types",
+      "content": "Which Pandas method is used to convert a column to another datatype?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "astype()",
+          "is_correct": true
+        },
+        {
+          "text": "convertType()",
+          "is_correct": false
+        },
+        {
+          "text": "datatype()",
+          "is_correct": false
+        },
+        {
+          "text": "change()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Handling Missing Data",
+      "content": "Which function can replace missing values with custom values?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "fillna()",
+          "is_correct": true
+        },
+        {
+          "text": "replaceNull()",
+          "is_correct": false
+        },
+        {
+          "text": "clean()",
+          "is_correct": false
+        },
+        {
+          "text": "updateMissing()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Duplicate Detection",
+      "content": "Which function identifies duplicate rows in a DataFrame?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "duplicated()",
+          "is_correct": true
+        },
+        {
+          "text": "repeat()",
+          "is_correct": false
+        },
+        {
+          "text": "duplicates()",
+          "is_correct": false
+        },
+        {
+          "text": "findcopy()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance of Cleaning",
+      "content": "Why is data cleaning important before analysis?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To improve data quality and analysis accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "To increase file size",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid storing data",
+          "is_correct": false
+        },
+        {
+          "text": "To remove all columns",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Missing Value Strategy",
+      "content": "What is a common risk of dropping all rows with missing values?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Loss of important information and reduced dataset size",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic model improvement",
+          "is_correct": false
+        },
+        {
+          "text": "Creation of duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "Conversion of values into strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Type Conversion",
+      "content": "Why is incorrect datatype handling problematic in data science?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can lead to incorrect analysis and computational errors",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically improves predictions",
+          "is_correct": false
+        },
+        {
+          "text": "It creates additional datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It speeds up all algorithms regardless of data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Filtering Data",
+      "content": "What is filtering in Pandas used for?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Selecting rows that meet specific conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting all rows",
+          "is_correct": false
+        },
+        {
+          "text": "Converting columns into charts",
+          "is_correct": false
+        },
+        {
+          "text": "Changing column names",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sorting Function",
+      "content": "Which Pandas method is used to sort DataFrame values?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "sort_values()",
+          "is_correct": true
+        },
+        {
+          "text": "arrange()",
+          "is_correct": false
+        },
+        {
+          "text": "sort_data()",
+          "is_correct": false
+        },
+        {
+          "text": "reorder()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Purpose",
+      "content": "Why is GroupBy used in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To group data and perform aggregate operations",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently remove columns",
+          "is_correct": false
+        },
+        {
+          "text": "To convert DataFrames into lists",
+          "is_correct": false
+        },
+        {
+          "text": "To create random values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Merge Purpose",
+      "content": "What is the purpose of merge() in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combining DataFrames based on common columns",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "Creating charts automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Converting data into JSON",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sorting Order",
+      "content": "What is the default sorting order of sort_values()?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ascending order",
+          "is_correct": true
+        },
+        {
+          "text": "Descending order",
+          "is_correct": false
+        },
+        {
+          "text": "Random order",
+          "is_correct": false
+        },
+        {
+          "text": "Alphabetical reverse only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Filtering Syntax",
+      "content": "Which syntax correctly filters rows where Age > 30?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "df[df['Age'] > 30]",
+          "is_correct": true
+        },
+        {
+          "text": "df(Age > 30)",
+          "is_correct": false
+        },
+        {
+          "text": "df.filter(Age > 30)",
+          "is_correct": false
+        },
+        {
+          "text": "df['Age' = 30]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Aggregation",
+      "content": "Which method is commonly used after groupby() for summary statistics?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "sum()",
+          "is_correct": true
+        },
+        {
+          "text": "reshape()",
+          "is_correct": false
+        },
+        {
+          "text": "append()",
+          "is_correct": false
+        },
+        {
+          "text": "rename()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Join vs Merge",
+      "content": "What is a common purpose of joins in data manipulation?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combining related data from multiple datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting columns alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "Creating random samples",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Efficiency",
+      "content": "Why is GroupBy considered powerful in data analysis?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It enables split-apply-combine operations efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently changes the original dataset structure",
+          "is_correct": false
+        },
+        {
+          "text": "It converts data into machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all duplicate values automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Merge Complexity",
+      "content": "What can happen if DataFrames are merged on incorrect keys?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Incorrect or duplicated data combinations may occur",
+          "is_correct": true
+        },
+        {
+          "text": "The DataFrame becomes read-only",
+          "is_correct": false
+        },
+        {
+          "text": "All columns are deleted automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Data types are converted to strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Datetime Purpose",
+      "content": "Why is datetime handling important in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To work with date and time data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "To create machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "To delete duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "To generate random numbers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Datetime Conversion",
+      "content": "Which Pandas function converts data into datetime format?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pd.to_datetime()",
+          "is_correct": true
+        },
+        {
+          "text": "pd.convert_date()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.datetime()",
+          "is_correct": false
+        },
+        {
+          "text": "pd.change_time()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Resampling Meaning",
+      "content": "What does resampling in Pandas allow you to do?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Change the frequency of time-series data",
+          "is_correct": true
+        },
+        {
+          "text": "Delete rows permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Convert data into JSON",
+          "is_correct": false
+        },
+        {
+          "text": "Create random samples only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Datetime Components",
+      "content": "Which of the following can be extracted from datetime values?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Year, month, and day",
+          "is_correct": true
+        },
+        {
+          "text": "Only year",
+          "is_correct": false
+        },
+        {
+          "text": "Only month",
+          "is_correct": false
+        },
+        {
+          "text": "Only hours",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Time Series Data",
+      "content": "What is time series data?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collected over time intervals",
+          "is_correct": true
+        },
+        {
+          "text": "Data stored only in arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Data without timestamps",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate data entries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monthly Resampling",
+      "content": "What does resample('M') generally represent in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Monthly frequency",
+          "is_correct": true
+        },
+        {
+          "text": "Minute frequency",
+          "is_correct": false
+        },
+        {
+          "text": "Millisecond frequency",
+          "is_correct": false
+        },
+        {
+          "text": "Manual sorting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Datetime Index Requirement",
+      "content": "Why is a DatetimeIndex often used before resampling?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Resampling works efficiently on time-based indexes",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically removes duplicates",
+          "is_correct": false
+        },
+        {
+          "text": "It changes values into strings",
+          "is_correct": false
+        },
+        {
+          "text": "It sorts columns alphabetically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Upsampling vs Downsampling",
+      "content": "Which operation reduces time-series frequency, such as daily to monthly data?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Downsampling",
+          "is_correct": true
+        },
+        {
+          "text": "Upsampling",
+          "is_correct": false
+        },
+        {
+          "text": "Filtering",
+          "is_correct": false
+        },
+        {
+          "text": "Broadcasting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Time-Based Analysis",
+      "content": "Why is datetime conversion crucial before analyzing time-series datasets?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It enables accurate time operations and analysis",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently stores the dataset in memory",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically creates visualizations",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all missing values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Resampling Logic",
+      "content": "What commonly happens during downsampling of time-series data?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data is grouped and aggregated into larger intervals",
+          "is_correct": true
+        },
+        {
+          "text": "Rows are duplicated automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Time information is removed",
+          "is_correct": false
+        },
+        {
+          "text": "Columns are converted to indexes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Pandas Series",
+      "content": "Which of the following statements about a Pandas Series are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A Series is a one-dimensional labeled array",
+          "is_correct": true
+        },
+        {
+          "text": "A Series can store different types of data",
+          "is_correct": true
+        },
+        {
+          "text": "A Series always contains multiple columns",
+          "is_correct": false
+        },
+        {
+          "text": "Series objects have indexes associated with values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to DataFrames",
+      "content": "Which statements about Pandas DataFrames are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A DataFrame is a two-dimensional data structure",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames organize data into rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames can store only numeric values",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames are widely used in Data Science",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Series and Data Handling",
+      "content": "Which of the following statements about Series are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Series can be created from lists or arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Series support indexing operations",
+          "is_correct": true
+        },
+        {
+          "text": "Series cannot contain missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Series are useful for storing one-dimensional data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "DataFrame Features",
+      "content": "Which statements about DataFrame features are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DataFrames can contain multiple Series objects",
+          "is_correct": true
+        },
+        {
+          "text": "Each DataFrame column may contain different data types",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames cannot be used for tabular data",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames support labeled axes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Applications of Pandas Structures",
+      "content": "Which of the following are common uses of Series and DataFrames?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Manual paper printing only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Series vs DataFrame Comparison",
+      "content": "Which statements correctly compare Series and DataFrames?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Series are one-dimensional whereas DataFrames are two-dimensional",
+          "is_correct": true
+        },
+        {
+          "text": "A DataFrame can contain multiple Series",
+          "is_correct": true
+        },
+        {
+          "text": "Series and DataFrames are unrelated structures",
+          "is_correct": false
+        },
+        {
+          "text": "Both support indexing and data manipulation operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with DataFrames",
+      "content": "Which of the following statements about DataFrame usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DataFrames can be created from dictionaries",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames support row and column selection",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames cannot handle missing values",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames simplify structured data analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Pandas Concepts",
+      "content": "Which statements correctly describe advanced concepts of Series and DataFrames?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Series and DataFrames form the foundation of many Pandas operations",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames enable efficient manipulation of large structured datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas structures are unsuitable for Data Science workflows",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas integrates well with NumPy and machine learning libraries",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Structure Usage",
+      "content": "Which of the following statements about advanced use of Pandas data structures are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Introduction to Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Efficient use of DataFrames improves large-scale data processing",
+          "is_correct": true
+        },
+        {
+          "text": "Series can be used as building blocks of DataFrames",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas data structures are limited to very small datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding Series and DataFrames is important for machine learning pipelines",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loading CSV Files",
+      "content": "Which of the following statements about loading CSV files in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSV stands for Comma-Separated Values",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas provides functions to load CSV files",
+          "is_correct": true
+        },
+        {
+          "text": "CSV files cannot store tabular data",
+          "is_correct": false
+        },
+        {
+          "text": "CSV files are commonly used for datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Excel Files",
+      "content": "Which statements about Excel files in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas can load Excel spreadsheets",
+          "is_correct": true
+        },
+        {
+          "text": "Excel files may contain multiple sheets",
+          "is_correct": true
+        },
+        {
+          "text": "Excel files cannot contain rows and columns",
+          "is_correct": false
+        },
+        {
+          "text": "Excel is often used for storing structured data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding JSON Data",
+      "content": "Which of the following statements about JSON are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "JSON stands for JavaScript Object Notation",
+          "is_correct": true
+        },
+        {
+          "text": "JSON is commonly used for storing and exchanging data",
+          "is_correct": true
+        },
+        {
+          "text": "JSON cannot represent nested structures",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas supports reading JSON files",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Loading with Pandas",
+      "content": "Which statements correctly describe data loading in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas can load data from multiple file formats",
+          "is_correct": true
+        },
+        {
+          "text": "CSV, Excel, and JSON are commonly used data formats",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas only supports CSV files",
+          "is_correct": false
+        },
+        {
+          "text": "Loading data is an important step in data analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Practical Uses of Data Loading",
+      "content": "Which of the following are benefits of loading data into Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Loading",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data can be cleaned and analyzed efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "Loaded data can be prepared for machine learning",
+          "is_correct": true
+        },
+        {
+          "text": "Data loading is useful for preprocessing workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Loading data has no purpose in Data Science",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Missing Values",
+      "content": "Which of the following statements about missing values in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Missing values represent unavailable or unknown data",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values can affect analysis results",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values should always be ignored",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas provides tools to detect missing values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Handling Duplicate Data",
+      "content": "Which statements about duplicate records are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Duplicate rows may appear multiple times in a dataset",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicates can impact analysis quality",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate values always improve dataset accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas supports finding duplicate records",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of Type Conversion",
+      "content": "Which of the following statements about type conversion are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Type conversion changes data from one type to another",
+          "is_correct": true
+        },
+        {
+          "text": "Converting data types can improve analysis accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Strings can never be converted into numbers",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas provides methods for type conversion",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Cleaning Importance",
+      "content": "Which statements correctly describe the importance of data cleaning?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clean data improves model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning is a key step in Data Science workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning is unnecessary before analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Removing inconsistencies improves data quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Dataset Quality",
+      "content": "Which of the following statements about dataset quality are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poor-quality data can lead to incorrect conclusions",
+          "is_correct": true
+        },
+        {
+          "text": "Missing and duplicate values reduce data quality",
+          "is_correct": true
+        },
+        {
+          "text": "Data quality has no impact on machine learning systems",
+          "is_correct": false
+        },
+        {
+          "text": "Data cleaning improves reliability of analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Missing Value Handling",
+      "content": "Which statements correctly describe handling missing values in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Missing values can be removed or replaced",
+          "is_correct": true
+        },
+        {
+          "text": "Replacing missing values is called imputation",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values never affect machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "Choosing a handling strategy depends on the dataset",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Duplicate Handling Techniques",
+      "content": "Which of the following statements about duplicate handling are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Duplicate rows can create bias in analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Removing duplicates can improve dataset quality",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicates are always meaningful and should never be removed",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas includes built-in methods to identify duplicates",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Type Conversion in Practice",
+      "content": "Which statements correctly describe practical type conversion scenarios?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Converting data to the correct type improves computations",
+          "is_correct": true
+        },
+        {
+          "text": "Date values may require conversion before analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect data types never cause processing issues",
+          "is_correct": false
+        },
+        {
+          "text": "Type conversion helps standardize datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Cleaning Concepts",
+      "content": "Which of the following statements about advanced data cleaning concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing quality directly affects model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning often consumes a large portion of a Data Science project",
+          "is_correct": true
+        },
+        {
+          "text": "Raw data is always ready for immediate machine learning use",
+          "is_correct": false
+        },
+        {
+          "text": "Combining multiple cleaning techniques improves dataset reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Quality and Machine Learning",
+      "content": "Which statements correctly describe advanced data quality concepts in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Incomplete or incorrect data may reduce prediction accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "High-quality datasets improve analytical outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning has no role in predictive modeling",
+          "is_correct": false
+        },
+        {
+          "text": "Effective preprocessing supports better machine learning performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Data Filtering",
+      "content": "Which of the following statements about filtering in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Filtering is used to select specific rows or data",
+          "is_correct": true
+        },
+        {
+          "text": "Filtering helps extract meaningful subsets of data",
+          "is_correct": true
+        },
+        {
+          "text": "Filtering permanently deletes rows from a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Conditions can be used while filtering data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Sorting Data Basics",
+      "content": "Which statements about sorting data in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sorting arranges data in a specific order",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting can be done in ascending or descending order",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting is unrelated to data analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting helps organize large datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to GroupBy",
+      "content": "Which of the following statements about GroupBy are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GroupBy groups rows based on shared values",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy is useful for summarizing data",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy can never be combined with aggregation functions",
+          "is_correct": false
+        },
+        {
+          "text": "Grouping helps identify patterns in datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Merge and Join Basics",
+      "content": "Which statements about merge and join operations are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Merge combines data from multiple datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Join operations help connect related information",
+          "is_correct": true
+        },
+        {
+          "text": "Datasets can never be combined in Pandas",
+          "is_correct": false
+        },
+        {
+          "text": "Merging is useful when datasets share common columns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Manipulation Applications",
+      "content": "Which of the following are common uses of data manipulation techniques?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Preparing datasets for machine learning",
+          "is_correct": true
+        },
+        {
+          "text": "Exploring and analyzing data",
+          "is_correct": true
+        },
+        {
+          "text": "Combining information from multiple sources",
+          "is_correct": true
+        },
+        {
+          "text": "Data manipulation has no practical use",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Filtering and Sorting",
+      "content": "Which statements correctly describe filtering and sorting operations?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple conditions can be used during filtering",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting can be applied to one or more columns",
+          "is_correct": true
+        },
+        {
+          "text": "Filtering always changes the original dataset permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Combining filtering and sorting improves analysis efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with GroupBy Operations",
+      "content": "Which of the following statements about GroupBy operations are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GroupBy is commonly used with aggregation functions like sum and mean",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping data helps generate summaries",
+          "is_correct": true
+        },
+        {
+          "text": "Grouped data cannot be analyzed further",
+          "is_correct": false
+        },
+        {
+          "text": "GroupBy can simplify large dataset analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Merge and Join Relationships",
+      "content": "Which statements correctly describe merge and join behavior?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Merging often uses common keys between datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Join operations help integrate related data",
+          "is_correct": true
+        },
+        {
+          "text": "Datasets can only be merged if they have identical columns",
+          "is_correct": false
+        },
+        {
+          "text": "Combining datasets is common in real-world analysis tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Analysis Workflows",
+      "content": "Which of the following statements about advanced data manipulation workflows are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Filtering, grouping, and merging are core preprocessing techniques",
+          "is_correct": true
+        },
+        {
+          "text": "Combining manipulation techniques improves analytical flexibility",
+          "is_correct": true
+        },
+        {
+          "text": "Large datasets require no organization before analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Data manipulation helps uncover patterns and insights",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Data Preparation",
+      "content": "Which statements correctly describe complex data preparation tasks?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Data Manipulation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Real-world datasets often require filtering and joining from multiple sources",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping and aggregation support business insights generation",
+          "is_correct": true
+        },
+        {
+          "text": "Data preparation is unnecessary before predictive modeling",
+          "is_correct": false
+        },
+        {
+          "text": "Effective data manipulation improves machine learning workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Datetime Handling",
+      "content": "Which of the following statements about datetime handling in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Datetime handling helps work with date and time data",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas provides tools for processing date values",
+          "is_correct": true
+        },
+        {
+          "text": "Dates cannot be converted into datetime format",
+          "is_correct": false
+        },
+        {
+          "text": "Datetime data is commonly used in time series analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Datetime Components",
+      "content": "Which statements about datetime components are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Datetime values can contain year, month, and day information",
+          "is_correct": true
+        },
+        {
+          "text": "Datetime values may also include hours and minutes",
+          "is_correct": true
+        },
+        {
+          "text": "Datetime data only stores years",
+          "is_correct": false
+        },
+        {
+          "text": "Time information is useful in many analytical tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Resampling",
+      "content": "Which of the following statements about resampling are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Resampling changes the frequency of time series data",
+          "is_correct": true
+        },
+        {
+          "text": "Resampling can summarize data into larger time intervals",
+          "is_correct": true
+        },
+        {
+          "text": "Resampling is unrelated to time-based datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Resampling helps analyze trends over time",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Time Series Applications",
+      "content": "Which statements correctly describe applications of time series data?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Time series data is used in stock market analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Weather forecasting uses time-based data",
+          "is_correct": true
+        },
+        {
+          "text": "Time series analysis has no real-world use",
+          "is_correct": false
+        },
+        {
+          "text": "Business trend analysis often uses datetime information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Dates in Pandas",
+      "content": "Which of the following statements about date handling in Pandas are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas can convert strings into datetime values",
+          "is_correct": true
+        },
+        {
+          "text": "Date operations help analyze temporal patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Dates cannot be sorted or manipulated",
+          "is_correct": false
+        },
+        {
+          "text": "Datetime handling supports trend analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Resampling Concepts",
+      "content": "Which statements correctly describe resampling behavior in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Resampling can aggregate daily data into monthly summaries",
+          "is_correct": true
+        },
+        {
+          "text": "Time frequency can be increased or decreased through resampling",
+          "is_correct": true
+        },
+        {
+          "text": "Resampling only works on non-time data",
+          "is_correct": false
+        },
+        {
+          "text": "Resampling helps identify long-term trends",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Datetime Analysis Techniques",
+      "content": "Which of the following statements about datetime analysis are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Datetime data can be filtered by specific periods",
+          "is_correct": true
+        },
+        {
+          "text": "Time-based indexing simplifies analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Datetime information has no impact on forecasting tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Temporal analysis is important in business and finance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Time-Based Data Processing",
+      "content": "Which statements correctly describe time-based processing techniques?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Datetime handling supports efficient time-series workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Time-based grouping can reveal patterns in data",
+          "is_correct": true
+        },
+        {
+          "text": "Time series datasets cannot be analyzed using Pandas",
+          "is_correct": false
+        },
+        {
+          "text": "Temporal data often requires preprocessing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Time Series Concepts",
+      "content": "Which of the following statements about advanced time-series concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Datetime preprocessing is important before forecasting tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Resampling helps transform raw time-series data into meaningful summaries",
+          "is_correct": true
+        },
+        {
+          "text": "Time-based datasets never require preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding temporal structure improves analytical insights",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Time Series Workflow Optimization",
+      "content": "Which statements correctly describe advanced time-series workflows?",
+      "level": "subtopic",
+      "unit_name": "Pandas",
+      "subunit_name": "Time Series Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Time series preprocessing improves prediction quality",
+          "is_correct": true
+        },
+        {
+          "text": "Resampling and datetime handling are important for trend analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Time series techniques are irrelevant in machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "Time-based feature engineering can enhance model performance",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

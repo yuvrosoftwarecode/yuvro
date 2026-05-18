@@ -1,0 +1,482 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, Briefcase, Globe, Check, Search } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { 
+  Company, 
+  Role, 
+  Topic,
+  fetchCompanies, 
+  createCompany, 
+  updateCompany, 
+  deleteCompany,
+  createRole,
+  updateRole,
+  deleteRole,
+  fetchRoles,
+  fetchTopics,
+  createTopic
+} from '@/services/plannerService';
+
+const PlannerCompaniesTab = () => {
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [availableTopics, setAvailableTopics] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCompanies, setExpandedCompanies] = useState<string[]>([]);
+  
+  // Company Modal State
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [companyForm, setCompanyForm] = useState<{name: string, description: string, company_type: Company['company_type']}>({ 
+    name: '', 
+    description: '', 
+    company_type: 'Product Based' 
+  });
+
+  // Role Modal State
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [targetCompanyId, setTargetCompanyId] = useState<string | null>(null);
+  const [newTopicName, setNewTopicName] = useState('');
+  const [topicSearch, setTopicSearch] = useState('');
+  const [roleForm, setRoleForm] = useState<{title: string, difficulty: 'Medium' | 'Easy' | 'Hard', required_skills: string[]}>({ 
+    title: '', 
+    difficulty: 'Medium', 
+    required_skills: [] 
+  });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [compData, topicData] = await Promise.all([
+        fetchCompanies(),
+        fetchTopics()
+      ]);
+      setAvailableTopics(topicData);
+      
+      // Fetch roles for each company to populate the UI
+      const companiesWithRoles = await Promise.all(compData.map(async (company) => {
+        const roles = await fetchRoles(company.id);
+        return { ...company, roles };
+      }));
+      setCompanies(companiesWithRoles);
+    } catch (error) {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedCompanies(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const handleSaveCompany = async () => {
+    if (!companyForm.name) {
+      toast.error("Company name is required");
+      return;
+    }
+
+    try {
+      if (editingCompany) {
+        const updated = await updateCompany(editingCompany.id, companyForm);
+        setCompanies(prev => prev.map(c => 
+          c.id === editingCompany.id ? { ...c, ...updated } : c
+        ));
+        toast.success("Company updated successfully");
+      } else {
+        const newCompany = await createCompany(companyForm);
+        setCompanies(prev => [...prev, { ...newCompany, roles: [] }]);
+        toast.success("Company added successfully");
+      }
+      setIsCompanyModalOpen(false);
+      setEditingCompany(null);
+      setCompanyForm({ name: '', description: '', company_type: 'Product Based' });
+    } catch (error) {
+      toast.error("Failed to save company");
+    }
+  };
+
+  const handleDeleteCompany = async (id: string) => {
+    try {
+      await deleteCompany(id);
+      setCompanies(prev => prev.filter(c => c.id !== id));
+      toast.success("Company removed");
+    } catch (error) {
+      toast.error("Failed to delete company");
+    }
+  };
+
+  const handleSaveRole = async () => {
+    if (!roleForm.title) {
+      toast.error("Role title is required");
+      return;
+    }
+
+    try {
+      if (editingRole && targetCompanyId) {
+        const updatedRole = await updateRole(editingRole.id, {
+          title: roleForm.title,
+          difficulty: roleForm.difficulty,
+          required_skills: roleForm.required_skills
+        });
+        
+        setCompanies(prev => prev.map(c => 
+          c.id === targetCompanyId 
+            ? { ...c, roles: (c.roles || []).map(r => r.id === editingRole.id ? updatedRole : r) } 
+            : c
+        ));
+        toast.success("Role updated successfully");
+      } else if (targetCompanyId) {
+        const newRole = await createRole({
+          company: targetCompanyId,
+          title: roleForm.title,
+          difficulty: roleForm.difficulty,
+          required_skills: roleForm.required_skills
+        });
+        
+        setCompanies(prev => prev.map(c => 
+          c.id === targetCompanyId ? { ...c, roles: [...(c.roles || []), newRole] } : c
+        ));
+        toast.success("Role added successfully");
+      }
+      setIsRoleModalOpen(false);
+      setEditingRole(null);
+      setTargetCompanyId(null);
+      setRoleForm({ title: '', difficulty: 'Medium', required_skills: [] });
+    } catch (error) {
+      toast.error("Failed to save role");
+    }
+  };
+
+  const handleAddTopic = async () => {
+    if (!newTopicName.trim()) return;
+    try {
+      const newTopic = await createTopic({
+        name: newTopicName,
+        category: 'Technical',
+        difficulty: 'Medium'
+      });
+      setAvailableTopics(prev => [...prev, newTopic]);
+      setRoleForm(prev => ({
+        ...prev,
+        required_skills: [...prev.required_skills, newTopic.name]
+      }));
+      setNewTopicName('');
+      toast.success(`Topic "${newTopic.name}" added`);
+    } catch (error) {
+      toast.error("Failed to create topic");
+    }
+  };
+
+  const toggleTopic = (topicName: string) => {
+    setRoleForm(prev => ({
+      ...prev,
+      required_skills: prev.required_skills.includes(topicName)
+        ? prev.required_skills.filter(s => s !== topicName)
+        : [...prev.required_skills, topicName]
+    }));
+  };
+
+  const handleDeleteRole = async (companyId: string, roleId: string) => {
+    try {
+      await deleteRole(roleId);
+      setCompanies(prev => prev.map(c => 
+        c.id === companyId ? { ...c, roles: (c.roles || []).filter(r => r.id !== roleId) } : c
+      ));
+      toast.success("Role removed");
+    } catch (error) {
+      toast.error("Failed to delete role");
+    }
+  };
+
+  const filteredTopics = availableTopics.filter(t => 
+    t.name.toLowerCase().includes(topicSearch.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Companies & Roles</h2>
+          <p className="text-muted-foreground">Define target companies and job roles for interview preparation.</p>
+        </div>
+        <Button onClick={() => { setEditingCompany(null); setCompanyForm({ name: '', description: '', company_type: 'Product Based' }); setIsCompanyModalOpen(true); }} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Company
+        </Button>
+      </div>
+
+      <div className="space-y-4">
+        {loading ? (
+          <div className="text-center py-10 text-muted-foreground italic">Syncing catalogue...</div>
+        ) : companies.length === 0 ? (
+          <Card className="border-dashed flex flex-col items-center justify-center p-12 text-center">
+            <Globe className="h-12 w-12 text-muted-foreground/30 mb-4" />
+            <h3 className="font-semibold text-lg">No Companies Defined</h3>
+            <p className="text-sm text-muted-foreground mb-6">Start by adding a target company to the catalogue.</p>
+            <Button variant="outline" onClick={() => setIsCompanyModalOpen(true)}>Add First Company</Button>
+          </Card>
+        ) : (
+          companies.map(company => (
+            <Card key={company.id} className="overflow-hidden border-border/60">
+              <div 
+                className="flex items-center justify-between p-5 hover:bg-muted/30 cursor-pointer transition-colors"
+                onClick={() => toggleExpand(company.id)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center">
+                     <Globe className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg">{company.name}</h3>
+                      <Badge variant="outline" className="text-[10px] py-0 h-4 bg-primary/5 text-primary border-primary/20">
+                        {company.company_type}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{company.description}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Badge variant="secondary" className="hidden sm:inline-flex">{(company.roles || []).length} Roles</Badge>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setEditingCompany(company); 
+                      setCompanyForm({ name: company.name, description: company.description, company_type: company.company_type }); 
+                      setIsCompanyModalOpen(true); 
+                    }}>
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); handleDeleteCompany(company.id); }}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                    {expandedCompanies.includes(company.id) ? <ChevronDown className="h-5 w-5 ml-2 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 ml-2 text-muted-foreground" />}
+                  </div>
+                </div>
+              </div>
+
+              {expandedCompanies.includes(company.id) && (
+                <CardContent className="bg-muted/10 border-t pt-5 pb-5">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Job Roles</h4>
+                    <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => { setTargetCompanyId(company.id); setEditingRole(null); setRoleForm({ title: '', difficulty: 'Medium', required_skills: [] }); setIsRoleModalOpen(true); }}>
+                      <Plus className="h-3.5 w-3.5" /> Add Role
+                    </Button>
+                  </div>
+
+                  {(!company.roles || company.roles.length === 0) ? (
+                    <div className="text-center py-6 text-sm text-muted-foreground bg-background/50 rounded-lg border border-dashed">
+                      No roles defined for {company.name} yet.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {(company.roles || []).map(role => (
+                        <Card key={role.id} className="bg-background hover:shadow-sm transition-all group">
+                          <CardContent className="p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center">
+                                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-sm">{role.title}</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  <Badge variant="outline" className={`text-[10px] py-0 h-4 border-none ${
+                                    role.difficulty === 'Hard' ? 'bg-red-100 text-red-700' : 
+                                    role.difficulty === 'Medium' ? 'bg-amber-100 text-amber-700' : 
+                                    'bg-green-100 text-green-700'
+                                  }`}>
+                                    {role.difficulty}
+                                  </Badge>
+                                  {Array.isArray(role.required_skills) ? role.required_skills.map(skill => (
+                                    <span key={skill} className="text-[10px] text-muted-foreground bg-muted px-1.5 rounded-sm">{skill}</span>
+                                  )) : (
+                                    <span className="text-[10px] text-muted-foreground bg-muted px-1.5 rounded-sm">{role.required_skills}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { 
+                                setTargetCompanyId(company.id); 
+                                setEditingRole(role); 
+                                setRoleForm({ title: role.title, difficulty: role.difficulty, required_skills: Array.isArray(role.required_skills) ? role.required_skills : [] }); 
+                                setIsRoleModalOpen(true); 
+                              }}>
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteRole(company.id, role.id)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Company Modal */}
+      <Dialog open={isCompanyModalOpen} onOpenChange={setIsCompanyModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{editingCompany ? 'Edit Company' : 'Add New Company'}</DialogTitle>
+            <DialogDescription>
+              Enter the details for the target company in the interview planner.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Company Name</Label>
+              <Input id="name" value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g. Google, Amazon" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input id="description" value={companyForm.description} onChange={(e) => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="Brief overview of the company" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="type">Company Type</Label>
+              <Select value={companyForm.company_type} onValueChange={(val: any) => setCompanyForm({ ...companyForm, company_type: val })}>
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Product Based">Product Based</SelectItem>
+                  <SelectItem value="Service Based">Service Based</SelectItem>
+                  <SelectItem value="Startup">Startup</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCompanyModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveCompany}>Save Company</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Role Modal */}
+      <Dialog open={isRoleModalOpen} onOpenChange={setIsRoleModalOpen}>
+        <DialogContent className="sm:max-w-[600px] overflow-hidden flex flex-col max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{editingRole ? 'Edit Role' : 'Add Job Role'}</DialogTitle>
+            <DialogDescription>
+              Configure the specific job role and required topics.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-6 py-4 overflow-y-auto pr-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="role-title">Job Title</Label>
+                <Input id="role-title" value={roleForm.title} onChange={(e) => setRoleForm({ ...roleForm, title: e.target.value })} placeholder="e.g. SDE-1" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="difficulty">Difficulty Level</Label>
+                <Select value={roleForm.difficulty} onValueChange={(val: any) => setRoleForm({ ...roleForm, difficulty: val })}>
+                  <SelectTrigger id="difficulty">
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Easy">Easy</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label>Required Topics</Label>
+                <Badge variant="secondary" className="font-normal">{roleForm.required_skills.length} selected</Badge>
+              </div>
+
+              {/* Topic Selection UI */}
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search topics..." 
+                      className="pl-9" 
+                      value={topicSearch}
+                      onChange={(e) => setTopicSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="border rounded-lg p-3 bg-muted/20">
+                   <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto p-1">
+                      {filteredTopics.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic py-2">No topics found matching "{topicSearch}"</p>
+                      ) : (
+                        filteredTopics.map(topic => (
+                          <Badge 
+                            key={topic.id} 
+                            variant={roleForm.required_skills.includes(topic.name) ? "default" : "outline"}
+                            className="cursor-pointer hover:opacity-80 transition-all gap-1 py-1"
+                            onClick={() => toggleTopic(topic.name)}
+                          >
+                            {topic.name}
+                            {roleForm.required_skills.includes(topic.name) && <Check className="h-3 w-3" />}
+                          </Badge>
+                        ))
+                      )}
+                   </div>
+                </div>
+              </div>
+
+              {/* Add New Topic Inline */}
+              <div className="pt-2 border-t mt-2">
+                <Label className="text-[10px] uppercase text-muted-foreground mb-2 block font-semibold">Create New Topic</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Topic name (e.g. Neo4j)" 
+                    value={newTopicName}
+                    onChange={(e) => setNewTopicName(e.target.value)}
+                    className="h-9 text-sm"
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddTopic()}
+                  />
+                  <Button size="sm" variant="secondary" onClick={handleAddTopic} disabled={!newTopicName.trim()}>
+                    <Plus className="h-4 w-4 mr-1" /> Add
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4 border-t">
+            <Button variant="outline" onClick={() => setIsRoleModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveRole}>Save Role</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default PlannerCompaniesTab;

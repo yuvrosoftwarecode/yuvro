@@ -105,6 +105,7 @@ export interface SectionSubjectFaculty {
     is_elective: boolean;
     is_lab: boolean;
     semester_number: number;
+    batch_id: string | number;
     batch_name: string;
     department_id: string | number;
     department_name: string;
@@ -218,8 +219,10 @@ export async function deleteUnit(unitId: string) {
   return true;
 }
 
-export async function fetchSubUnitsByUnit(unitId: string): Promise<SubUnit[]> {
-  return restApiAuthUtil.get('/course/subunits/', { params: { unit: unitId } });
+export async function fetchSubUnitsByUnit(unitId: string, sectionId?: string): Promise<SubUnit[]> {
+  const params: Record<string, string> = { unit: unitId };
+  if (sectionId) params.section_id = sectionId;
+  return restApiAuthUtil.get('/course/subunits/', { params });
 }
 
 export async function createSubUnit(payload: {
@@ -482,6 +485,13 @@ export async function logSubUnitAccess(subUnitId: string) {
   return restApiAuthUtil.post('/course/student-subject-progress/log_access/', { sub_unit_id: subUnitId });
 }
 
+export async function unlockSubUnit(subUnitId: string, sectionId: string, isUnlocked: boolean = true) {
+  return restApiAuthUtil.post(`/course/subunits/${subUnitId}/unlock/`, {
+    section_id: sectionId,
+    is_unlocked: isUnlocked
+  });
+}
+
 const subjectService = {
   getSubjects: fetchSubjects,
   getSubject: fetchSubjectById,
@@ -536,6 +546,7 @@ const subjectService = {
   getAssignmentDetails,
   fetchFacultyStats,
   getFacultyAssignments,
+  unlockSubUnit,
 };
 
 export default subjectService;

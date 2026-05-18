@@ -44,7 +44,8 @@ export function JobFilters({ searchQuery, onSearchChange, locationFilter, onLoca
           <SelectItem value="all">All Types</SelectItem>
           <SelectItem value="Product">Product</SelectItem>
           <SelectItem value="Service">Service</SelectItem>
-          <SelectItem value="Startup">Startup</SelectItem>
+          <SelectItem value="MNC">MNC</SelectItem>
+          <SelectItem value="IT Service & Consulting">IT Service & Consulting</SelectItem>
         </SelectContent>
       </Select>
     </div>

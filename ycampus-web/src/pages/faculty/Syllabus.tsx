@@ -7,20 +7,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { BookOpen, CheckCircle, Search, Loader2, Sparkles } from 'lucide-react';
+import { BookOpen, CheckCircle, Search, Loader2, Sparkles, ChevronDown, ChevronRight, Lock, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, fetchSubUnitsByUnit } from '@/services/subjectService';
+import subjectService, { SectionSubjectFaculty, UnitBasic, SubUnit } from '@/services/subjectService';
 
-interface Topic {
-  id: string;
-  name: string;
-  unitName?: string;
-  status: 'pending' | 'finished';
+interface UnitWithExpansion extends UnitBasic {
+  subUnits: (SubUnit & { is_unlocked?: boolean })[];
+  isExpanded: boolean;
+  isLoadingSubUnits: boolean;
 }
 
 const Syllabus = () => {
   const [loading, setLoading] = useState(true);
-  const [topicsLoading, setTopicsLoading] = useState(false);
+  const [unitsLoading, setUnitsLoading] = useState(false);
   const [allAssignments, setAllAssignments] = useState<SectionSubjectFaculty[]>([]);
   
   const [selectedBatch, setSelectedBatch] = useState<string>('');
@@ -28,9 +27,9 @@ const Syllabus = () => {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSection, setSelectedSection] = useState<string>('');
   
-  const [topics, setTopics] = useState<Topic[]>([]);
+  const [units, setUnits] = useState<UnitWithExpansion[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [topicToConfirm, setTopicToConfirm] = useState<Topic | null>(null);
+  const [subUnitToConfirm, setSubUnitToConfirm] = useState<{ subUnit: SubUnit; is_unlocked: boolean } | null>(null);
   
   const { toast } = useToast();
 
@@ -41,7 +40,7 @@ const Syllabus = () => {
   const loadAssignments = async () => {
     try {
       setLoading(true);
-      const data = await getFacultyAssignments();
+      const data = await subjectService.getFacultyAssignments();
       setAllAssignments(data);
     } catch (error) {
       toast({
@@ -65,7 +64,7 @@ const Syllabus = () => {
     return Array.from(batches).sort();
   }, [allAssignments]);
 
-  // 2. Department filter (Integrated with Batch)
+  // 2. Department filter
   const uniqueDepartments = useMemo(() => {
     if (!selectedBatch) return [];
     const depts = new Map<string, string>();
@@ -79,7 +78,7 @@ const Syllabus = () => {
     return Array.from(depts.entries()).map(([id, name]) => ({ id, name }));
   }, [allAssignments, selectedBatch]);
 
-  // 3. Subject filter (Integrated with Batch + Department)
+  // 3. Subject filter
   const uniqueSubjects = useMemo(() => {
     if (!selectedBatch || !selectedDepartment) return [];
     const subs = new Map<string, { name: string; code?: string }>();
@@ -100,7 +99,7 @@ const Syllabus = () => {
     return Array.from(subs.entries()).map(([id, info]) => ({ id, ...info }));
   }, [allAssignments, selectedBatch, selectedDepartment]);
 
-  // 4. Section filter (Integrated with Batch + Department + Subject)
+  // 4. Section filter
   const uniqueSections = useMemo(() => {
     if (!selectedBatch || !selectedDepartment || !selectedSubject) return [];
     return allAssignments
@@ -118,72 +117,129 @@ const Syllabus = () => {
 
   useEffect(() => {
     if (selectedSubject) {
-      loadSyllabus(selectedSubject);
+      loadUnits(selectedSubject);
     } else {
-      setTopics([]);
+      setUnits([]);
     }
-  }, [selectedSubject]);
+  }, [selectedSubject, selectedSection]);
 
-  const loadSyllabus = async (subjectId: string) => {
+  const loadUnits = async (subjectId: string) => {
     try {
-      setTopicsLoading(true);
-      const units = await fetchUnitsBySubject(subjectId);
-      let allTopics: Topic[] = [];
+      setUnitsLoading(true);
+      const unitsData = await subjectService.getUnits(subjectId);
+      // Sort units by order_index
+      const sortedUnits = [...unitsData].sort((a, b) => a.order_index - b.order_index);
       
-      for (const unit of units) {
-        const subUnits = await fetchSubUnitsByUnit(unit.id);
-        const unitTopics: Topic[] = subUnits.map((su) => ({
-          id: su.id,
-          name: su.name,
-          unitName: unit.name,
-          status: 'pending' as const, // Default to pending
-        }));
-        allTopics = [...allTopics, ...unitTopics];
-      }
-      setTopics(allTopics);
+      setUnits(sortedUnits.map(u => ({
+        ...u,
+        subUnits: [],
+        isExpanded: false,
+        isLoadingSubUnits: false
+      })));
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load syllabus content",
+        description: "Failed to load units",
         variant: "destructive",
       });
     } finally {
-      setTopicsLoading(false);
+      setUnitsLoading(false);
     }
   };
 
-  const handleFinishTopic = (topicId: string) => {
-    // MOCK: Update local state only as requested
-    setTopics(prev => prev.map(t => 
-      t.id === topicId ? { ...t, status: t.status === 'finished' ? 'pending' : 'finished' } : t
-    ));
+  const toggleUnit = async (unitId: string) => {
+    const unitIndex = units.findIndex(u => u.id === unitId);
+    if (unitIndex === -1) return;
+
+    const unit = units[unitIndex];
     
-    const topic = topics.find(t => t.id === topicId);
-    const wasFinished = topic?.status === 'finished';
-    
-    toast({
-      title: wasFinished ? "Topic Reverted" : "Topic Completed",
-      description: `Successfully updated status for "${topic?.name}"`,
-    });
-    setTopicToConfirm(null);
+    // Toggle collapse
+    if (unit.isExpanded) {
+      setUnits(prev => prev.map(u => u.id === unitId ? { ...u, isExpanded: false } : u));
+      return;
+    }
+
+    // Expand and load sub-units if needed
+    if (unit.subUnits.length === 0) {
+      try {
+        setUnits(prev => prev.map(u => u.id === unitId ? { ...u, isLoadingSubUnits: true, isExpanded: true } : u));
+        
+        // Find the actual section ID from the selection
+        const sectionAssignment = uniqueSections.find(s => s.id === selectedSection);
+        const sectionId = sectionAssignment?.sectionId;
+
+        const subUnitsData = await subjectService.getSubUnits(unitId, sectionId);
+
+        // Sort sub-units by order_index
+        const sortedSubUnits = [...subUnitsData].sort((a, b) => a.order_index - b.order_index);
+
+        setUnits(prev => prev.map(u => u.id === unitId ? { 
+          ...u, 
+          subUnits: sortedSubUnits, 
+          isLoadingSubUnits: false 
+        } : u));
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load sub-units",
+          variant: "destructive",
+        });
+        setUnits(prev => prev.map(u => u.id === unitId ? { ...u, isLoadingSubUnits: false, isExpanded: false } : u));
+      }
+    } else {
+      setUnits(prev => prev.map(u => u.id === unitId ? { ...u, isExpanded: true } : u));
+    }
   };
 
-  const filteredTopics = topics.filter(topic =>
-    topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    topic.unitName?.toLowerCase().includes(searchQuery.toLowerCase())
+  const handleToggleUnlock = async () => {
+    if (!subUnitToConfirm || !selectedSection) return;
+
+    const sectionAssignment = uniqueSections.find(s => s.id === selectedSection);
+    const sectionId = sectionAssignment?.sectionId;
+
+    if (!sectionId) return;
+
+    try {
+      const { subUnit, is_unlocked } = subUnitToConfirm;
+      const targetStatus = !is_unlocked;
+
+      await subjectService.unlockSubUnit(subUnit.id, sectionId, targetStatus);
+
+      // Update local state
+      setUnits(prev => prev.map(u => ({
+        ...u,
+        subUnits: u.subUnits.map(su => su.id === subUnit.id ? { ...su, is_unlocked: targetStatus } : su)
+      })));
+
+      toast({
+        title: targetStatus ? "Sub-unit Unlocked" : "Sub-unit Locked",
+        description: `Successfully ${targetStatus ? 'unlocked' : 'locked'} "${subUnit.name}" for section ${sectionAssignment.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update sub-unit status",
+        variant: "destructive",
+      });
+    } finally {
+      setSubUnitToConfirm(null);
+    }
+  };
+
+  const filteredUnits = units.filter(unit =>
+    unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    unit.subUnits.some(su => su.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
     <FacultyLayout>
       <div className="space-y-6">
-        {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              
               <h1 className="text-2xl font-bold tracking-tight">Syllabus Management</h1>
             </div>
-            <p className="">Manage and track course coverage for your assigned sections.</p>
+            <p className="text-muted-foreground">Manage and track unit/sub-unit coverage for your assigned sections.</p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-medium animate-pulse">
             <Sparkles className="w-3 h-3" />
@@ -196,7 +252,7 @@ const Syllabus = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold  tracking-wider ">Batch</Label>
+                <Label className="text-xs font-semibold tracking-wider">Batch</Label>
                 <Select value={selectedBatch} onValueChange={(val) => {
                   setSelectedBatch(val);
                   setSelectedDepartment('');
@@ -215,7 +271,7 @@ const Syllabus = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold  tracking-wider ">Department</Label>
+                <Label className="text-xs font-semibold tracking-wider">Department</Label>
                 <Select 
                   value={selectedDepartment} 
                   onValueChange={(val) => {
@@ -237,7 +293,7 @@ const Syllabus = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold  tracking-wider ">Subject</Label>
+                <Label className="text-xs font-semibold tracking-wider">Subject</Label>
                 <Select 
                   value={selectedSubject} 
                   onValueChange={(val) => {
@@ -260,7 +316,7 @@ const Syllabus = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold  tracking-wider ">Section</Label>
+                <Label className="text-xs font-semibold tracking-wider">Section</Label>
                 <Select 
                   value={selectedSection} 
                   onValueChange={setSelectedSection}
@@ -282,87 +338,32 @@ const Syllabus = () => {
 
         {/* Syllabus Content */}
         <div className="space-y-4">
-          {topicsLoading ? (
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              Course Structure
+              {selectedSubject && (
+                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100 text-[10px]">
+                  {uniqueSubjects.find(s => s.id === selectedSubject)?.name}
+                </Badge>
+              )}
+            </h3>
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search units or sub-units..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 bg-white border-gray-200 shadow-none"
+              />
+            </div>
+          </div>
+
+          {unitsLoading ? (
             <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-200">
               <Loader2 className="w-10 h-10 text-primary/40 animate-spin mb-4" />
-              <p className=" font-medium">Extracting syllabus structure...</p>
+              <p className="text-muted-foreground font-medium">Loading units...</p>
             </div>
-          ) : selectedSection ? (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  Sub Units Coverage
-                  <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100  text-[10px]">
-                    {uniqueSubjects.find(s => s.id === selectedSubject)?.name}
-                  </Badge>
-                </h3>
-                <div className="relative w-full max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 " />
-                  <Input
-                    placeholder="Quick search topics..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9 bg-white border-gray-200 shadow-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {filteredTopics.length > 0 ? (
-                  filteredTopics.map((topic) => (
-                    <Card key={topic.id} className={`group border-none shadow-sm transition-all duration-300 hover:shadow-md ${topic.status === 'finished' ? 'bg-emerald-50/30' : 'bg-white'}`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4 min-w-0">
-                            <div className={`flex-shrink-0 w-1.5 h-10 rounded-full transition-colors duration-300 ${topic.status === 'finished' ? 'bg-emerald-500' : 'bg-gray-200 group-hover:bg-primary/40'}`} />
-                            <div className="min-w-0">
-                              <p className={`font-semibold text-sm sm:text-base truncate transition-colors duration-300 ${topic.status === 'finished' ? 'text-emerald-900' : 'text-gray-900'}`}>
-                                {topic.name}
-                              </p>
-                              {topic.unitName && (
-                                <p className="text-xs /80 font-medium">Unit: {topic.unitName}</p>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-3">
-                            <Badge 
-                              variant={topic.status === 'finished' ? 'default' : 'outline'}
-                              className={`rounded-full px-3 py-0.5 text-[10px] font-bold  tracking-wider transition-all duration-300 ${
-                                topic.status === 'finished' 
-                                  ? 'bg-emerald-500 hover:bg-emerald-600 border-none shadow-sm shadow-emerald-200' 
-                                  : 'text-gray-400 border-gray-200'
-                              }`}
-                            >
-                              {topic.status === 'finished' ? 'Completed' : 'Pending'}
-                            </Badge>
-                            
-                            <Button
-                              onClick={() => setTopicToConfirm(topic)}
-                              variant={topic.status === 'finished' ? 'outline' : 'default'}
-                              size="sm"
-                              className={`h-9 px-4 rounded-lg font-bold transition-all duration-300 ${
-                                topic.status === 'finished'
-                                  ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
-                                  : 'bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20'
-                              }`}
-                            >
-                              <CheckCircle className={`w-4 h-4 mr-1.5 ${topic.status === 'finished' ? 'text-emerald-500' : 'text-white'}`} />
-                              {topic.status === 'finished' ? 'Revert' : 'Finish'}
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-200">
-                    <p className=" font-medium">No topics found matching your query.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
+          ) : !selectedSection ? (
             <div className="flex flex-col items-center justify-center py-32 bg-white rounded-2xl border border-dashed border-gray-200 group transition-all duration-500 hover:border-primary/30 hover:bg-primary/5">
               <div className="relative mb-6">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
@@ -371,26 +372,107 @@ const Syllabus = () => {
                 </div>
               </div>
               <p className="text-xl font-bold text-gray-900 mb-2">Selection Required</p>
-              <p className=" max-w-sm text-center">
-                Use the filters above to select highly specific Batch, Department, Subject, and Section to load the syllabus topics.
+              <p className="text-muted-foreground max-w-sm text-center">
+                Select a Batch, Department, Subject, and Section to manage the syllabus.
               </p>
+            </div>
+          ) : (
+            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              {filteredUnits.length > 0 ? (
+                filteredUnits.map((unit) => (
+                  <div key={unit.id} className="space-y-2">
+                    {/* Unit Row */}
+                    <Card 
+                      className={`cursor-pointer transition-all border-l-4 ${unit.isExpanded ? 'border-l-primary shadow-sm' : 'border-l-gray-200 hover:border-l-primary/50'}`}
+                      onClick={() => toggleUnit(unit.id)}
+                    >
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {unit.isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                          <div>
+                            <p className="font-bold text-foreground">Unit {unit.order_index + 1}: {unit.name}</p>
+                            <p className="text-xs text-muted-foreground">{unit.subUnits.length || '...'} Sub-units</p>
+                          </div>
+                        </div>
+                        {unit.isLoadingSubUnits && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                      </CardContent>
+                    </Card>
+
+                    {/* Sub-units Accordion Content */}
+                    {unit.isExpanded && !unit.isLoadingSubUnits && (
+                      <div className="ml-8 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                        {unit.subUnits.map((su) => (
+                          <Card key={su.id} className={`group border-none shadow-sm transition-all duration-300 ${su.is_unlocked ? 'bg-emerald-50/30' : 'bg-white'}`}>
+                            <CardContent className="p-3">
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {su.is_unlocked ? <Unlock className="w-4 h-4 text-emerald-500" /> : <Lock className="w-4 h-4 text-gray-300" />}
+                                  <p className={`font-semibold text-sm truncate ${su.is_unlocked ? 'text-emerald-900' : 'text-gray-900'}`}>
+                                    {su.name}
+                                  </p>
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                  <Badge 
+                                    variant={su.is_unlocked ? 'default' : 'outline'}
+                                    className={`rounded-full px-3 py-0.5 text-[10px] font-bold tracking-wider transition-all duration-300 ${
+                                      su.is_unlocked 
+                                        ? 'bg-emerald-500 hover:bg-emerald-600 border-none' 
+                                        : 'text-gray-400 border-gray-200'
+                                    }`}
+                                  >
+                                    {su.is_unlocked ? 'Unlocked' : 'Locked'}
+                                  </Badge>
+                                  
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSubUnitToConfirm({ subUnit: su, is_unlocked: !!su.is_unlocked });
+                                    }}
+                                    variant={su.is_unlocked ? 'outline' : 'default'}
+                                    size="sm"
+                                    className={`h-8 px-4 rounded-lg font-bold transition-all duration-300 ${
+                                      su.is_unlocked
+                                        ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                                        : 'bg-primary hover:bg-primary/90'
+                                    }`}
+                                  >
+                                    <CheckCircle className={`w-3.5 h-3.5 mr-1.5 ${su.is_unlocked ? 'text-emerald-500' : 'text-white'}`} />
+                                    {su.is_unlocked ? 'Revert' : 'Finish'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-200">
+                  <p className="text-muted-foreground font-medium">No units found matching your query.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Confirmation Dialog */}
-        <AlertDialog open={!!topicToConfirm} onOpenChange={(open) => !open && setTopicToConfirm(null)}>
+        <AlertDialog open={!!subUnitToConfirm} onOpenChange={(open) => !open && setSubUnitToConfirm(null)}>
           <AlertDialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-6 bg-white">
             <AlertDialogHeader className="space-y-3">
               <AlertDialogTitle className="text-xl font-bold text-gray-900">
                 Confirm Status Change
               </AlertDialogTitle>
               <AlertDialogDescription className="text-sm font-medium text-gray-500 leading-relaxed">
-                Are you sure you want to mark "{topicToConfirm?.name}" as {' '}
+                Are you sure you want to mark "{subUnitToConfirm?.subUnit.name}" as {' '}
                 <span className="font-bold text-primary italic">
-                  {topicToConfirm?.status === 'finished' ? 'pending' : 'completed'}
+                  {subUnitToConfirm?.is_unlocked ? 'locked' : 'unlocked/completed'}
                 </span>?
-                This status tracking is used for internal coverage reports.
+                {subUnitToConfirm?.is_unlocked 
+                  ? " This will hide the sub-unit from students." 
+                  : " This will make the sub-unit visible to students of the selected section."}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex justify-end gap-3 mt-8">
@@ -398,7 +480,7 @@ const Syllabus = () => {
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction 
-                onClick={() => topicToConfirm && handleFinishTopic(topicToConfirm.id)}
+                onClick={handleToggleUnlock}
                 className="bg-primary hover:bg-primary/90 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
               >
                 Confirm
@@ -411,4 +493,4 @@ const Syllabus = () => {
   );
 };
 
-export default Syllabus;
+export default Syllabus;

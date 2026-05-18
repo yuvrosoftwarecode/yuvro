@@ -18,11 +18,11 @@ export function ImageCarousel({ images, className }: ImageCarouselProps) {
 
   if (images.length === 1) {
     return (
-      <div className={cn('rounded-lg overflow-hidden', className)}>
+      <div className={cn('rounded-lg overflow-hidden bg-muted/10 flex justify-center', className)}>
         <img
           src={images[0]}
           alt="Post image"
-          className="w-full h-auto max-h-96 object-cover"
+          className="max-w-full h-auto max-h-[600px] object-contain"
         />
       </div>
     );
@@ -33,11 +33,11 @@ export function ImageCarousel({ images, className }: ImageCarouselProps) {
       <CarouselContent>
         {images.map((image, index) => (
           <CarouselItem key={index}>
-            <div className="rounded-lg overflow-hidden">
+            <div className="rounded-lg overflow-hidden bg-muted/10 h-[400px] sm:h-[500px] flex items-center justify-center">
               <img
                 src={image}
                 alt={`Post image ${index + 1}`}
-                className="w-full h-auto max-h-96 object-cover"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
           </CarouselItem>

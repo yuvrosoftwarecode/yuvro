@@ -196,6 +196,7 @@ export const QUESTION_CATEGORIES = [
   { value: 'skill_test', label: 'Skill Test' },
   { value: 'contest', label: 'Contest' },
   { value: 'task', label: 'Task' },
+  { value: 'assessment', label: 'Assessment' },
 ] as const;
 
 // Validation helpers

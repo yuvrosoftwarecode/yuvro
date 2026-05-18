@@ -103,8 +103,8 @@ export const taskService = {
         return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, { status });
     },
 
-    clearSubmissionChat: async (id: string): Promise<TaskSubmission> => {
-        return await restApiAuthUtil.post<TaskSubmission>(`/core/task-submissions/${id}/clear_chat/`);
+    getStudentSubmissions: async (studentId: string): Promise<TaskSubmission[]> => {
+        return await restApiAuthUtil.get<TaskSubmission[]>('/core/task-submissions/', { params: { student: studentId } });
     }
 };
 

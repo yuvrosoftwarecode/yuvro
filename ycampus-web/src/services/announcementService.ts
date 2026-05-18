@@ -8,7 +8,9 @@ export interface Announcement {
   college_name: string;
   department: string | null;
   department_name: string | null;
-  level: 'college' | 'department';
+  batch: string | null;
+  batch_name: string | null;
+  level: 'college' | 'department' | 'batch';
   created_by: string;
   created_by_name: string;
   priority: 'normal' | 'important' | 'urgent';
@@ -24,6 +26,7 @@ export interface AnnouncementFilters {
   college?: string;
   department?: string;
   level?: string;
+  batch?: string;
   priority?: string;
   ordering?: string;
   is_active?: boolean;

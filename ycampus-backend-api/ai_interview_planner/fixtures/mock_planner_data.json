@@ -1,0 +1,120 @@
+{
+  "companies": [
+    {
+      "name": "Amazon",
+      "description": "Global e-commerce and cloud computing leader.",
+      "website": "https://www.amazon.jobs"
+    },
+    {
+      "name": "Google",
+      "description": "Specializes in Internet-related services and products.",
+      "website": "https://www.google.com/about/careers"
+    },
+    {
+      "name": "Microsoft",
+      "description": "Develops, manufactures, licenses, supports, and sells computer software.",
+      "website": "https://careers.microsoft.com"
+    },
+    {
+      "name": "Meta",
+      "description": "Builds technologies that help people connect, find communities, and grow businesses.",
+      "website": "https://www.metacareers.com"
+    },
+    {
+      "name": "Netflix",
+      "description": "Streaming entertainment service with millions of paid memberships.",
+      "website": "https://jobs.netflix.com"
+    },
+    {
+      "name": "TCS",
+      "description": "Leading global IT services, consulting and business solutions organization.",
+      "website": "https://www.tcs.com/careers"
+    },
+    {
+      "name": "Infosys",
+      "description": "Global leader in next-generation digital services and consulting.",
+      "website": "https://www.infosys.com/careers"
+    },
+    {
+      "name": "Accenture",
+      "description": "Professional services company providing services in strategy, consulting, digital, technology and operations.",
+      "website": "https://www.accenture.com/careers"
+    }
+  ],
+  "roles": [
+    {
+      "title": "SDE-I (Entry Level)",
+      "difficulty": "Medium",
+      "required_skills": ["Java/C++", "Data Structures", "Algorithms"]
+    },
+    {
+      "title": "SDE-II (Software Engineer)",
+      "difficulty": "Hard",
+      "required_skills": ["System Design", "Microservices", "Scalability"]
+    },
+    {
+      "title": "Frontend Engineer",
+      "difficulty": "Medium",
+      "required_skills": ["React/Vue", "JavaScript", "CSS", "Performance"]
+    },
+    {
+      "title": "Backend Engineer",
+      "difficulty": "Hard",
+      "required_skills": ["Node.js/Python/Go", "Databases", "API Design"]
+    },
+    {
+      "title": "Data Scientist",
+      "difficulty": "Hard",
+      "required_skills": ["Python/R", "Statistics", "Machine Learning", "SQL"]
+    },
+    {
+      "title": "DevOps Engineer",
+      "difficulty": "Medium",
+      "required_skills": ["Docker", "Kubernetes", "CI/CD", "AWS/Azure"]
+    }
+  ],
+  "topics": [
+    {
+      "name": "Arrays & Hashing",
+      "category": "Technical",
+      "difficulty": "Easy",
+      "question_count": 50
+    },
+    {
+      "name": "Dynamic Programming",
+      "category": "Technical",
+      "difficulty": "Hard",
+      "question_count": 40
+    },
+    {
+      "name": "Trees & Graphs",
+      "category": "Technical",
+      "difficulty": "Hard",
+      "question_count": 60
+    },
+    {
+      "name": "System Design",
+      "category": "Technical",
+      "difficulty": "Hard",
+      "question_count": 30
+    },
+    {
+      "name": "Operating Systems",
+      "category": "Core",
+      "difficulty": "Medium",
+      "question_count": 25
+    },
+    {
+      "name": "Database Management Systems",
+      "category": "Core",
+      "difficulty": "Medium",
+      "question_count": 35
+    },
+    {
+      "name": "HR & Cultural Fit",
+      "category": "Behavioral",
+      "difficulty": "Easy",
+      "question_count": 20
+    }
+  ]
+}
