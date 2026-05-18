@@ -307,24 +307,23 @@ for svcdir in ycode-backend-api ycampus-backend-api ycode-web ycampus-web yuvro-
   [ ! -f "\$svcdir/.env.dev" ] && cp "\$svcdir/.env.example" "\$svcdir/.env.dev"
 done
 
-# Patch vite configs for subdomain + HMR support (Vite 7)
+# Patch vite configs: disable HMR (not needed on dev server), allow all hosts
 python3 -c "
 import re
 fixes = {
-    'ycode-web/vite.config.ts': {'host': 'code-dev.yuvro.ai', 'clientPort': 80},
-    'ycampus-web/vite.config.ts': {'host': 'campus-dev.yuvro.ai', 'clientPort': 80},
+    'ycode-web/vite.config.ts': {},
+    'ycampus-web/vite.config.ts': {},
 }
 for filepath, cfg in fixes.items():
     try:
         content = open(filepath).read()
-        # allowedHosts: true (Vite 7 boolean)
+        # allowedHosts: true (Vite 7)
         if 'allowedHosts' not in content:
             content = content.replace('host: \"0.0.0.0\"', 'host: \"0.0.0.0\",\n    allowedHosts: true')
         else:
             content = re.sub(r'allowedHosts:\s*[^\n,]+', 'allowedHosts: true', content)
-        # Fix HMR to use subdomain so WebSocket works through Nginx
-        new_hmr = 'hmr: {{\n      protocol: \"ws\",\n      host: \"{host}\",\n      clientPort: {clientPort},\n      overlay: true\n    }}'.format(**cfg)
-        content = re.sub(r'hmr:\s*\{{[^}}]+\}}', new_hmr, content)
+        # Disable HMR entirely - avoids WebSocket port issues behind Nginx
+        content = re.sub(r'hmr:\s*\{[^}]+\}', 'hmr: false', content)
         open(filepath, 'w').write(content)
         print(f'Patched {filepath}')
     except Exception as e:
@@ -344,6 +343,39 @@ for svcdir in ycode-backend-api ycampus-backend-api; do
     echo 'DEBUG=True' >> "\$svcdir/.env.dev"
   fi
 done
+
+# Set CORS origins for dev subdomains
+if grep -q '^CORS_ALLOWED_ORIGINS=' ycode-backend-api/.env.dev 2>/dev/null; then
+  sed -i 's|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=http://code-dev.yuvro.ai,http://localhost:3000|' ycode-backend-api/.env.dev
+else
+  echo 'CORS_ALLOWED_ORIGINS=http://code-dev.yuvro.ai,http://localhost:3000' >> ycode-backend-api/.env.dev
+fi
+if grep -q '^CORS_ALLOWED_ORIGINS=' ycampus-backend-api/.env.dev 2>/dev/null; then
+  sed -i 's|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=http://campus-dev.yuvro.ai,http://localhost:3002|' ycampus-backend-api/.env.dev
+else
+  echo 'CORS_ALLOWED_ORIGINS=http://campus-dev.yuvro.ai,http://localhost:3002' >> ycampus-backend-api/.env.dev
+fi
+
+# Set correct API base URLs in frontend .env.dev so they point to subdomains
+# ycode frontend -> backend-code-dev.yuvro.ai (port 80 via Nginx)
+for key in VITE_BACKEND_API_BASE_URL; do
+  if grep -q "^\$key=" ycode-web/.env.dev 2>/dev/null; then
+    sed -i "s|^\$key=.*|\$key=http://backend-code-dev.yuvro.ai/api|" ycode-web/.env.dev
+  else
+    echo "\$key=http://backend-code-dev.yuvro.ai/api" >> ycode-web/.env.dev
+  fi
+done
+
+# ycampus frontend -> backend-campus-dev.yuvro.ai (port 80 via Nginx)
+for key in VITE_BACKEND_API_BASE_URL; do
+  if grep -q "^\$key=" ycampus-web/.env.dev 2>/dev/null; then
+    sed -i "s|^\$key=.*|\$key=http://backend-campus-dev.yuvro.ai/api|" ycampus-web/.env.dev
+  else
+    echo "\$key=http://backend-campus-dev.yuvro.ai/api" >> ycampus-web/.env.dev
+  fi
+done
+
+echo "✓ Frontend API URLs configured"
 
 echo "📦 Building services (this takes a few minutes on t3.medium)..."
 docker compose \
@@ -368,6 +400,15 @@ docker compose \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
   ps
+
+echo "⏳ Waiting for backends to be healthy..."
+sleep 20
+
+echo "📦 Loading sample data for YCode..."
+docker exec yuvro-code-ycode-backend-1 python manage.py setup_local_testing 2>&1 | tail -5 || echo "⚠ YCode sample data already loaded or failed"
+
+echo "📦 Loading sample data for YCampus..."
+docker exec yuvro-code-ycampus-backend-1 python manage.py setup_local_testing 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
 DEPLOY_EOF
 
     print_success "Applications deployed"
