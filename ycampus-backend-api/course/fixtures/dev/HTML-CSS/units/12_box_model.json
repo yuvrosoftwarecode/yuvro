@@ -1,0 +1,1500 @@
+{
+  "name": "Box Model",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 12,
+  "sub_units": [
+    {
+      "name": "Box Model Basics",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Box Model Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Model+Basics+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Box Model Basics in HTML/CSS."
+        },
+        {
+          "title": "Advanced Box Model Basics Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Model+Basics+html+css",
+          "ai_context": "In-depth explanation and practical examples for Box Model Basics."
+        }
+      ]
+    },
+    {
+      "name": "Box Sizing",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Box Sizing",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Sizing+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Box Sizing in HTML/CSS."
+        },
+        {
+          "title": "Advanced Box Sizing Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Box+Sizing+html+css",
+          "ai_context": "In-depth explanation and practical examples for Box Sizing."
+        }
+      ]
+    },
+    {
+      "name": "Spacing",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Spacing",
+          "video_link": "https://www.youtube.com/results?search_query=Spacing+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Spacing in HTML/CSS."
+        },
+        {
+          "title": "Advanced Spacing Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Spacing+html+css",
+          "ai_context": "In-depth explanation and practical examples for Spacing."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Box Model Components",
+      "content": "Which of the following is part of the CSS box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content, padding, border, margin",
+          "is_correct": true
+        },
+        {
+          "text": "Header, footer, sidebar, nav",
+          "is_correct": false
+        },
+        {
+          "text": "HTML, CSS, JS, API",
+          "is_correct": false
+        },
+        {
+          "text": "Font, color, image, video",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Content Area",
+      "content": "What is the content area in the box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The area where text and images appear",
+          "is_correct": true
+        },
+        {
+          "text": "The outermost space of an element",
+          "is_correct": false
+        },
+        {
+          "text": "The space outside the border",
+          "is_correct": false
+        },
+        {
+          "text": "The background color only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Padding Purpose",
+      "content": "What does padding control in CSS box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space between content and border",
+          "is_correct": true
+        },
+        {
+          "text": "Space outside the element",
+          "is_correct": false
+        },
+        {
+          "text": "Element position on page",
+          "is_correct": false
+        },
+        {
+          "text": "Font size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border in Box Model",
+      "content": "What does the border represent in the CSS box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The line surrounding padding and content",
+          "is_correct": true
+        },
+        {
+          "text": "Space outside the element",
+          "is_correct": false
+        },
+        {
+          "text": "Inner text styling",
+          "is_correct": false
+        },
+        {
+          "text": "Background image area",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Margin Role",
+      "content": "What does margin control in CSS?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space outside the element",
+          "is_correct": true
+        },
+        {
+          "text": "Space inside the element",
+          "is_correct": false
+        },
+        {
+          "text": "Text alignment",
+          "is_correct": false
+        },
+        {
+          "text": "Border thickness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Padding vs Margin",
+      "content": "What is the main difference between padding and margin?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding is inside the element, margin is outside",
+          "is_correct": true
+        },
+        {
+          "text": "Both are outside the element",
+          "is_correct": false
+        },
+        {
+          "text": "Both are inside the content only",
+          "is_correct": false
+        },
+        {
+          "text": "Margin affects font size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border Position",
+      "content": "Where is the border located in the box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Between padding and margin",
+          "is_correct": true
+        },
+        {
+          "text": "Inside content only",
+          "is_correct": false
+        },
+        {
+          "text": "Outside margin",
+          "is_correct": false
+        },
+        {
+          "text": "Inside text only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Box Model Layout Impact",
+      "content": "How does margin affect layout?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It creates space between elements",
+          "is_correct": true
+        },
+        {
+          "text": "It changes text color",
+          "is_correct": false
+        },
+        {
+          "text": "It modifies font size",
+          "is_correct": false
+        },
+        {
+          "text": "It removes borders",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Total Box Size Calculation",
+      "content": "Which components are included in total element size in the default box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content + padding + border + margin",
+          "is_correct": true
+        },
+        {
+          "text": "Only content",
+          "is_correct": false
+        },
+        {
+          "text": "Only padding and content",
+          "is_correct": false
+        },
+        {
+          "text": "Only margin",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Box Model Behavior",
+      "content": "What happens when padding is increased?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element size increases unless box-sizing is changed",
+          "is_correct": true
+        },
+        {
+          "text": "Margin decreases automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Border disappears",
+          "is_correct": false
+        },
+        {
+          "text": "Font size reduces",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Box Sizing Property",
+      "content": "Which CSS property controls how the total width and height of an element is calculated?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "box-sizing",
+          "is_correct": true
+        },
+        {
+          "text": "size-box",
+          "is_correct": false
+        },
+        {
+          "text": "box-style",
+          "is_correct": false
+        },
+        {
+          "text": "layout-sizing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Content-box Default",
+      "content": "What is the default value of box-sizing in CSS?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "content-box",
+          "is_correct": true
+        },
+        {
+          "text": "border-box",
+          "is_correct": false
+        },
+        {
+          "text": "padding-box",
+          "is_correct": false
+        },
+        {
+          "text": "margin-box",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border-box Behavior",
+      "content": "What happens when box-sizing is set to border-box?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding and border are included in width and height",
+          "is_correct": true
+        },
+        {
+          "text": "Only content is included in size",
+          "is_correct": false
+        },
+        {
+          "text": "Margin is included in size",
+          "is_correct": false
+        },
+        {
+          "text": "Element becomes invisible",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Content-box Behavior",
+      "content": "In content-box, how is the element size calculated?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Only content size is included, padding and border are added separately",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is included in width",
+          "is_correct": false
+        },
+        {
+          "text": "Border is included in width",
+          "is_correct": false
+        },
+        {
+          "text": "Margin is included in width",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Border-box Advantage",
+      "content": "Why is border-box often preferred in modern CSS layouts?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It makes sizing elements easier and more predictable",
+          "is_correct": true
+        },
+        {
+          "text": "It removes padding completely",
+          "is_correct": false
+        },
+        {
+          "text": "It disables borders",
+          "is_correct": false
+        },
+        {
+          "text": "It increases font size automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Box-sizing Impact",
+      "content": "What problem does border-box help solve in layouts?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Unexpected element size due to padding and border addition",
+          "is_correct": true
+        },
+        {
+          "text": "Text alignment issues",
+          "is_correct": false
+        },
+        {
+          "text": "Color rendering issues",
+          "is_correct": false
+        },
+        {
+          "text": "Image loading problems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Content-box vs Border-box Difference",
+      "content": "What is the key difference between content-box and border-box?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content-box adds padding/border outside size, border-box includes them inside",
+          "is_correct": true
+        },
+        {
+          "text": "Both behave exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "Border-box ignores width",
+          "is_correct": false
+        },
+        {
+          "text": "Content-box removes margins",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Margin Purpose",
+      "content": "What does margin control in CSS?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space outside an element",
+          "is_correct": true
+        },
+        {
+          "text": "Space inside content",
+          "is_correct": false
+        },
+        {
+          "text": "Font size adjustment",
+          "is_correct": false
+        },
+        {
+          "text": "Border color",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Padding Purpose",
+      "content": "What does padding control in the box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Space between content and border",
+          "is_correct": true
+        },
+        {
+          "text": "Space outside element",
+          "is_correct": false
+        },
+        {
+          "text": "Distance between two elements",
+          "is_correct": false
+        },
+        {
+          "text": "Font spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Margin Usage",
+      "content": "Which property is used to create space outside an element?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "margin",
+          "is_correct": true
+        },
+        {
+          "text": "padding",
+          "is_correct": false
+        },
+        {
+          "text": "border",
+          "is_correct": false
+        },
+        {
+          "text": "spacing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Padding vs Margin",
+      "content": "What is the correct difference between padding and margin?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding is inside, margin is outside",
+          "is_correct": true
+        },
+        {
+          "text": "Margin is inside, padding is outside",
+          "is_correct": false
+        },
+        {
+          "text": "Both are inside content",
+          "is_correct": false
+        },
+        {
+          "text": "Both are outside border only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "When to Use Padding",
+      "content": "When should padding be used?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To create space inside an element around content",
+          "is_correct": true
+        },
+        {
+          "text": "To separate two elements",
+          "is_correct": false
+        },
+        {
+          "text": "To change font style",
+          "is_correct": false
+        },
+        {
+          "text": "To set border thickness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Margin Collapse Behavior",
+      "content": "What is margin collapse in CSS?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vertical margins of adjacent elements combine into one margin",
+          "is_correct": true
+        },
+        {
+          "text": "Margins turn into padding automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Margins disappear completely",
+          "is_correct": false
+        },
+        {
+          "text": "Margins become borders",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Spacing Decision",
+      "content": "When should margin be preferred over padding?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When spacing between elements is needed",
+          "is_correct": true
+        },
+        {
+          "text": "When changing text color",
+          "is_correct": false
+        },
+        {
+          "text": "When styling fonts",
+          "is_correct": false
+        },
+        {
+          "text": "When changing background images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Basics",
+      "content": "Which of the following are parts of the CSS box model?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content is the innermost part of the box",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is the space inside the border",
+          "is_correct": true
+        },
+        {
+          "text": "Margin is inside the content area",
+          "is_correct": false
+        },
+        {
+          "text": "Border surrounds the padding and content",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Structure",
+      "content": "Which of the following statements about the CSS box model are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content is where text and images appear",
+          "is_correct": true
+        },
+        {
+          "text": "Padding creates space inside the element",
+          "is_correct": true
+        },
+        {
+          "text": "Border is only used for colors, not structure",
+          "is_correct": false
+        },
+        {
+          "text": "Margin creates space outside the element",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Components",
+      "content": "Which of the following statements about box model components are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content is the core area of an element",
+          "is_correct": true
+        },
+        {
+          "text": "Padding adds space between content and border",
+          "is_correct": true
+        },
+        {
+          "text": "Margin is part of the content area",
+          "is_correct": false
+        },
+        {
+          "text": "Border surrounds the padding area",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Understanding",
+      "content": "Which of the following statements about box model understanding are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding affects the inner spacing of content",
+          "is_correct": true
+        },
+        {
+          "text": "Margin affects spacing between elements",
+          "is_correct": true
+        },
+        {
+          "text": "Border is always invisible by default",
+          "is_correct": false
+        },
+        {
+          "text": "Content is the central part of the box model",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Layout Behavior",
+      "content": "Which of the following statements about box model layout behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Margin controls spacing outside the element",
+          "is_correct": true
+        },
+        {
+          "text": "Padding increases space inside the element",
+          "is_correct": true
+        },
+        {
+          "text": "Content includes margin space",
+          "is_correct": false
+        },
+        {
+          "text": "Border separates padding from margin",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Box Model Concepts",
+      "content": "Which of the following statements about advanced box model concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Box model includes content, padding, border, and margin",
+          "is_correct": true
+        },
+        {
+          "text": "Padding increases the clickable area of elements",
+          "is_correct": true
+        },
+        {
+          "text": "Margin affects internal content size",
+          "is_correct": false
+        },
+        {
+          "text": "Border can affect total element size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Model Calculation",
+      "content": "Which of the following statements about box model calculation are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Model Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Total width includes content, padding, and border",
+          "is_correct": true
+        },
+        {
+          "text": "Margin is not included in element size calculation",
+          "is_correct": true
+        },
+        {
+          "text": "Content includes padding and border by default",
+          "is_correct": false
+        },
+        {
+          "text": "Box model affects layout structure in CSS",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Basics",
+      "content": "Which of the following statements about box-sizing are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "content-box is the default box-sizing in CSS",
+          "is_correct": true
+        },
+        {
+          "text": "border-box includes padding and border in total size",
+          "is_correct": true
+        },
+        {
+          "text": "border-box ignores padding and border",
+          "is_correct": false
+        },
+        {
+          "text": "content-box adds padding outside the content size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Concept",
+      "content": "Which of the following statements about content-box and border-box are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "content-box calculates size using only content area",
+          "is_correct": true
+        },
+        {
+          "text": "border-box includes padding in total width and height",
+          "is_correct": true
+        },
+        {
+          "text": "border-box removes content area completely",
+          "is_correct": false
+        },
+        {
+          "text": "content-box is default behavior in CSS",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Comparison",
+      "content": "Which of the following statements about box-sizing comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "content-box increases size when padding is added",
+          "is_correct": true
+        },
+        {
+          "text": "border-box keeps total size consistent",
+          "is_correct": true
+        },
+        {
+          "text": "border-box ignores border size",
+          "is_correct": false
+        },
+        {
+          "text": "content-box calculates only content dimensions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Behavior",
+      "content": "Which of the following statements about box-sizing behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border-box includes padding and border in element size",
+          "is_correct": true
+        },
+        {
+          "text": "content-box expands size when padding is added",
+          "is_correct": true
+        },
+        {
+          "text": "border-box excludes content size completely",
+          "is_correct": false
+        },
+        {
+          "text": "box-sizing affects layout calculation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Usage",
+      "content": "Which of the following statements about box-sizing usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border-box helps maintain consistent element sizing",
+          "is_correct": true
+        },
+        {
+          "text": "content-box requires manual size adjustment with padding",
+          "is_correct": true
+        },
+        {
+          "text": "border-box is never used in real projects",
+          "is_correct": false
+        },
+        {
+          "text": "box-sizing affects width and height calculations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Box Sizing Concepts",
+      "content": "Which of the following statements about advanced box-sizing concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border-box simplifies responsive layout design",
+          "is_correct": true
+        },
+        {
+          "text": "content-box requires adjusting width when padding is added",
+          "is_correct": true
+        },
+        {
+          "text": "border-box removes padding from rendering",
+          "is_correct": false
+        },
+        {
+          "text": "box-sizing impacts total element dimension calculation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Box Sizing Best Practices",
+      "content": "Which of the following statements about box-sizing best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Box Sizing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "border-box is commonly used for consistent layouts",
+          "is_correct": true
+        },
+        {
+          "text": "content-box may require extra calculations in layouts",
+          "is_correct": true
+        },
+        {
+          "text": "box-sizing does not affect layout at all",
+          "is_correct": false
+        },
+        {
+          "text": "border-box helps avoid unexpected overflow issues",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Spacing Basics in CSS",
+      "content": "Which of the following statements about margin and padding are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Margin creates space outside an element",
+          "is_correct": true
+        },
+        {
+          "text": "Padding creates space inside an element",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is used to change text color",
+          "is_correct": false
+        },
+        {
+          "text": "Margin controls space between elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Margin and Padding Basics",
+      "content": "Which of the following statements about margin and padding are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding increases space inside the border",
+          "is_correct": true
+        },
+        {
+          "text": "Margin adds space outside the border",
+          "is_correct": true
+        },
+        {
+          "text": "Margin changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Padding affects content spacing inside the box",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Spacing Concept Basics",
+      "content": "Which of the following statements about spacing in CSS are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Margin is used to create outer spacing",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is used for inner spacing",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is used to align text only",
+          "is_correct": false
+        },
+        {
+          "text": "Margin separates elements from each other",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Margin Collapse Concept",
+      "content": "Which of the following statements about margin collapse are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Margin collapse happens between vertical margins",
+          "is_correct": true
+        },
+        {
+          "text": "Only the larger margin is applied in collapse",
+          "is_correct": true
+        },
+        {
+          "text": "Padding causes margin collapse",
+          "is_correct": false
+        },
+        {
+          "text": "Margin collapse affects layout spacing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Padding vs Margin Usage",
+      "content": "Which of the following statements about padding and margin usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding increases clickable area inside an element",
+          "is_correct": true
+        },
+        {
+          "text": "Margin is used to separate elements",
+          "is_correct": true
+        },
+        {
+          "text": "Padding is used for spacing between elements",
+          "is_correct": false
+        },
+        {
+          "text": "Margin does not affect element size",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Margin Collapse",
+      "content": "Which of the following statements about margin collapse behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Margin collapse occurs only vertically",
+          "is_correct": true
+        },
+        {
+          "text": "Adjacent vertical margins can collapse into one",
+          "is_correct": true
+        },
+        {
+          "text": "Horizontal margins also collapse in CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Margin collapse affects layout spacing behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Spacing Concepts",
+      "content": "Which of the following statements about padding and margin differences are correct?",
+      "level": "subtopic",
+      "unit_name": "Box Model",
+      "subunit_name": "Spacing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Padding increases element's clickable area",
+          "is_correct": true
+        },
+        {
+          "text": "Margin affects spacing between elements only",
+          "is_correct": true
+        },
+        {
+          "text": "Padding creates space outside the element",
+          "is_correct": false
+        },
+        {
+          "text": "Margin does not change content size",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

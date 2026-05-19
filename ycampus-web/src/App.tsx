@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import DashboardRedirect from "./components/DashboardRedirect";
@@ -67,6 +67,8 @@ import StudentJobs from "./pages/student/Jobs";
 import CodePractice from "./pages/student/CodePractice";
 import StudentProfile from "./pages/student/Profile";
 import PlacementDashboard from "./pages/placement/PlacementDashboard";
+import PlacementDashboardAssessment from "./pages/placement/Dashboard";
+import PlacementStudentReports from "./pages/placement/StudentReports";
 import JobApprovals from "./pages/placement/JobApprovals";
 import LiveJobs from "./pages/placement/LiveJobs";
 import StudentsTracking from "./pages/placement/StudentsTracking";
@@ -101,6 +103,22 @@ import PlannerCompaniesTab from './components/admin/planner/PlannerCompaniesTab'
 import PlannerTopicsTab from './components/admin/planner/PlannerTopicsTab';
 import PlannerRoadmapsTab from './components/admin/planner/PlannerRoadmapsTab';
 import PlannerAnalyticsTab from './components/admin/planner/PlannerAnalyticsTab';
+
+const PlacementDashboardAssessmentWrapper = () => {
+  const { user } = useAuth();
+  if (user?.college_product_type === 'assessments') {
+    return <PlacementDashboardAssessment />;
+  }
+  return <Navigate to="/placement/dashboard" replace />;
+};
+
+const PlacementStudentReportsWrapper = () => {
+  const { user } = useAuth();
+  if (user?.college_product_type === 'assessments') {
+    return <PlacementStudentReports />;
+  }
+  return <Navigate to="/placement/dashboard" replace />;
+};
 
 const queryClient = new QueryClient();
 
@@ -296,6 +314,8 @@ const App = () => (
                   <ProtectedRoute allowedRoles={["placement_officer"]}>
                     <Routes>
                       <Route path="dashboard" element={<PlacementDashboard />} />
+                      <Route path="placement-dashboard" element={<PlacementDashboardAssessmentWrapper />} />
+                      <Route path="student-reports" element={<PlacementStudentReportsWrapper />} />
                       <Route path="job-approvals" element={<JobApprovals />} />
                       <Route path="live-jobs" element={<LiveJobs />} />
                       <Route path="students" element={<StudentsTracking />} />

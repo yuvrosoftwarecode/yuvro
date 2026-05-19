@@ -1,0 +1,3238 @@
+{
+    "name": "Control Flow",
+    "subject_short_code": "PY101",
+    "order_index": 1,
+    "sub_units": [
+        {
+            "name": "Conditional Statements",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Conditional Statements",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Conditional Statements in Python."
+                },
+                {
+                    "title": "Advanced Conditional Statements Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Conditional Statements."
+                }
+            ]
+        },
+        {
+            "name": "Loops",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to Loops",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Loops in Python."
+                },
+                {
+                    "title": "Advanced Loops Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Loops."
+                }
+            ]
+        },
+        {
+            "name": "Loops Control",
+            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Introduction to Loops Control",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Loops Control in Python."
+                },
+                {
+                    "title": "Advanced Loops Control Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Loops Control."
+                }
+            ]
+        },
+        {
+            "name": "Pattern Problems",
+            "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+            "order_index": 3,
+            "videos": [
+                {
+                    "title": "Introduction to Pattern Problems",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Pattern Problems in Python."
+                },
+                {
+                    "title": "Advanced Pattern Problems Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Pattern Problems."
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Basic if Statement",
+            "content": "What will be the output?\n\nx = 5\nif x > 3:\n    print(\"Yes\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yes",
+                    "is_correct": true
+                },
+                {
+                    "text": "No",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                },
+                {
+                    "text": "Nothing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "if-else Condition",
+            "content": "What will be the output?\n\nx = 2\nif x > 5:\n    print(\"A\")\nelse:\n    print(\"B\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "B",
+                    "is_correct": true
+                },
+                {
+                    "text": "A",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                },
+                {
+                    "text": "Nothing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "elif Usage",
+            "content": "Which keyword is used to check multiple conditions in Python?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "elif",
+                    "is_correct": true
+                },
+                {
+                    "text": "else if",
+                    "is_correct": false
+                },
+                {
+                    "text": "elseif",
+                    "is_correct": false
+                },
+                {
+                    "text": "ifelse",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Conditions Flow",
+            "content": "What will be the output?\n\nx = 10\nif x < 5:\n    print(\"A\")\nelif x < 15:\n    print(\"B\")\nelse:\n    print(\"C\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "B",
+                    "is_correct": true
+                },
+                {
+                    "text": "A",
+                    "is_correct": false
+                },
+                {
+                    "text": "C",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Condition Output",
+            "content": "What will be the output?\n\nx = 7\nif x > 5:\n    if x < 10:\n        print(\"A\")\n    else:\n        print(\"B\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A",
+                    "is_correct": true
+                },
+                {
+                    "text": "B",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                },
+                {
+                    "text": "Nothing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested else Binding",
+            "content": "What will be the output?\n\nx = 3\nif x > 0:\n    if x > 5:\n        print(\"A\")\n    else:\n        print(\"B\")\nelse:\n    print(\"C\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "B",
+                    "is_correct": true
+                },
+                {
+                    "text": "A",
+                    "is_correct": false
+                },
+                {
+                    "text": "C",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "elif Chain Evaluation",
+            "content": "What will be the output?\n\nx = 5\nif x > 10:\n    print(\"A\")\nelif x > 3:\n    print(\"B\")\nelif x > 1:\n    print(\"C\")\nelse:\n    print(\"D\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "B",
+                    "is_correct": true
+                },
+                {
+                    "text": "C",
+                    "is_correct": false
+                },
+                {
+                    "text": "A",
+                    "is_correct": false
+                },
+                {
+                    "text": "D",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Basic for Loop",
+            "content": "What will be the output?\n\nfor i in range(3):\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1 2",
+                    "is_correct": true
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "0 1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Basic while Loop",
+            "content": "What will be the output?\n\nx = 0\nwhile x < 3:\n    print(x)\n    x += 1",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1 2",
+                    "is_correct": true
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "0 1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "Infinite loop",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Loop Iteration Count",
+            "content": "How many times will this loop run?\n\nfor i in range(5):\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "5",
+                    "is_correct": true
+                },
+                {
+                    "text": "4",
+                    "is_correct": false
+                },
+                {
+                    "text": "6",
+                    "is_correct": false
+                },
+                {
+                    "text": "0",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "while Loop Condition",
+            "content": "What will be the output?\n\nx = 3\nwhile x > 0:\n    print(x)\n    x -= 1",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "3 2 1",
+                    "is_correct": true
+                },
+                {
+                    "text": "3 2 1 0",
+                    "is_correct": false
+                },
+                {
+                    "text": "2 1 0",
+                    "is_correct": false
+                },
+                {
+                    "text": "Infinite loop",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "for Loop with Step",
+            "content": "What will be the output?\n\nfor i in range(0, 6, 2):\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 2 4",
+                    "is_correct": true
+                },
+                {
+                    "text": "2 4 6",
+                    "is_correct": false
+                },
+                {
+                    "text": "0 1 2 3 4 5",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 3 5",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Infinite while Loop",
+            "content": "What will happen?\n\nwhile True:\n    print(\"Hello\")",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Runs infinitely",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prints once",
+                    "is_correct": false
+                },
+                {
+                    "text": "Throws error",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Loop Variable Scope",
+            "content": "What will be the output?\n\nfor i in range(2):\n    pass\nprint(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "1",
+                    "is_correct": true
+                },
+                {
+                    "text": "0",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                },
+                {
+                    "text": "None",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Break Statement",
+            "content": "What does the 'break' statement do in a loop?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Exits the loop immediately",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skips current iteration",
+                    "is_correct": false
+                },
+                {
+                    "text": "Does nothing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Restarts the loop",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Continue Statement",
+            "content": "What does the 'continue' statement do?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Skips current iteration and moves to next",
+                    "is_correct": true
+                },
+                {
+                    "text": "Exits the loop",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops program execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Repeats the same iteration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pass Statement",
+            "content": "What does the 'pass' statement do in Python?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Does nothing (placeholder)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Breaks the loop",
+                    "is_correct": false
+                },
+                {
+                    "text": "Skips iteration",
+                    "is_correct": false
+                },
+                {
+                    "text": "Raises error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Break in Loop",
+            "content": "What will be the output?\n\nfor i in range(5):\n    if i == 3:\n        break\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1 2",
+                    "is_correct": true
+                },
+                {
+                    "text": "0 1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "0 1 2 3 4",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Continue in Loop",
+            "content": "What will be the output?\n\nfor i in range(4):\n    if i == 2:\n        continue\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1 3",
+                    "is_correct": true
+                },
+                {
+                    "text": "0 1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "0 2 3",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Break with while Loop",
+            "content": "What will be the output?\n\nx = 0\nwhile True:\n    if x == 2:\n        break\n    print(x)\n    x += 1",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1",
+                    "is_correct": true
+                },
+                {
+                    "text": "0 1 2",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2",
+                    "is_correct": false
+                },
+                {
+                    "text": "Infinite loop",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pass in Conditional",
+            "content": "What will happen?\n\nfor i in range(3):\n    if i == 1:\n        pass\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0 1 2",
+                    "is_correct": true
+                },
+                {
+                    "text": "0 2",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Basic Number Pattern",
+            "content": "What will be the output?\n\nfor i in range(1, 4):\n    print(i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "1 2 3",
+                    "is_correct": true
+                },
+                {
+                    "text": "0 1 2",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2 3 4",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Increasing Pattern",
+            "content": "What will be the output?\n\nfor i in range(1, 4):\n    for j in range(i):\n        print(i, end=\" \")\n    print()",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "1\n2 2\n3 3 3",
+                    "is_correct": true
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "1\n1 2\n1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Simple Pattern Logic",
+            "content": "How many rows will this code print?\n\nfor i in range(5):\n    print('*' * i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "5",
+                    "is_correct": true
+                },
+                {
+                    "text": "4",
+                    "is_correct": false
+                },
+                {
+                    "text": "6",
+                    "is_correct": false
+                },
+                {
+                    "text": "0",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reverse Pattern",
+            "content": "What will be the output?\n\nfor i in range(3, 0, -1):\n    print('*' * i)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "***\n**\n*",
+                    "is_correct": true
+                },
+                {
+                    "text": "*\n**\n***",
+                    "is_correct": false
+                },
+                {
+                    "text": "***\n***\n***",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Number Triangle",
+            "content": "What will be the output?\n\nfor i in range(1, 4):\n    for j in range(1, i+1):\n        print(j, end=\" \")\n    print()",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "1\n1 2\n1 2 3",
+                    "is_correct": true
+                },
+                {
+                    "text": "1\n2 3\n3 4 5",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 2 3",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Complex Pattern Count",
+            "content": "How many '*' will be printed in total?\n\nfor i in range(1, 4):\n    for j in range(i):\n        print('*', end='')\n    print()",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "6",
+                    "is_correct": true
+                },
+                {
+                    "text": "3",
+                    "is_correct": false
+                },
+                {
+                    "text": "9",
+                    "is_correct": false
+                },
+                {
+                    "text": "12",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Loop Execution",
+            "content": "How many times will the inner print run?\n\nfor i in range(2):\n    for j in range(3):\n        print(i, j)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "6",
+                    "is_correct": true
+                },
+                {
+                    "text": "5",
+                    "is_correct": false
+                },
+                {
+                    "text": "3",
+                    "is_correct": false
+                },
+                {
+                    "text": "2",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basic if Statement",
+            "content": "Which of the following statements about the if statement in Python are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "if is used to check a condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "if must always be followed by else",
+                    "is_correct": false
+                },
+                {
+                    "text": "Condition inside if must evaluate to True or False",
+                    "is_correct": true
+                },
+                {
+                    "text": "if uses indentation to define blocks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "if-elif-else Usage",
+            "content": "Which of the following statements about if-elif-else are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "elif allows checking multiple conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "else block is optional",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple else blocks can be used",
+                    "is_correct": false
+                },
+                {
+                    "text": "elif can be used without if",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Execution Flow",
+            "content": "Which of the following statements about execution of conditional statements are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only one block of if-elif-else executes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Conditions are checked from top to bottom",
+                    "is_correct": true
+                },
+                {
+                    "text": "All conditions are always evaluated",
+                    "is_correct": false
+                },
+                {
+                    "text": "First True condition block gets executed",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Nested Conditions Basics",
+            "content": "Which of the following statements about nested conditions are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "An if statement can be placed inside another if",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested conditions require proper indentation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested conditions are not allowed in Python",
+                    "is_correct": false
+                },
+                {
+                    "text": "They help in checking multiple dependent conditions",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Logical Conditions in if",
+            "content": "Which of the following are valid uses of logical operators in conditional statements?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "if x > 5 and x < 10",
+                    "is_correct": true
+                },
+                {
+                    "text": "if x == 5 or y == 10",
+                    "is_correct": true
+                },
+                {
+                    "text": "if not x",
+                    "is_correct": true
+                },
+                {
+                    "text": "if x && y",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Complex Nested Conditions",
+            "content": "Which of the following statements about complex nested conditions are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Deep nesting can reduce code readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested conditions can be replaced with logical operators in some cases",
+                    "is_correct": true
+                },
+                {
+                    "text": "Python limits nesting to 2 levels only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indentation errors in nested conditions can cause syntax errors",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases in Conditional Statements",
+            "content": "Which of the following are correct regarding edge cases in conditional statements?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Non-boolean values can be used in conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Empty list evaluates to False",
+                    "is_correct": true
+                },
+                {
+                    "text": "Zero evaluates to True",
+                    "is_correct": false
+                },
+                {
+                    "text": "None evaluates to False",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basics of for Loop",
+            "content": "Which of the following statements about the for loop in Python are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "for loop is used to iterate over a sequence",
+                    "is_correct": true
+                },
+                {
+                    "text": "for loop requires a condition like while loop",
+                    "is_correct": false
+                },
+                {
+                    "text": "range() is commonly used with for loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "for loop cannot iterate over strings",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basics of while Loop",
+            "content": "Which of the following statements about the while loop are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "while loop runs as long as condition is True",
+                    "is_correct": true
+                },
+                {
+                    "text": "while loop always runs at least once",
+                    "is_correct": false
+                },
+                {
+                    "text": "Condition is checked before each iteration",
+                    "is_correct": true
+                },
+                {
+                    "text": "while loop cannot be infinite",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Loop Execution Flow",
+            "content": "Which of the following statements about loop execution are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loops can execute a block of code multiple times",
+                    "is_correct": true
+                },
+                {
+                    "text": "for loop and while loop both support iteration",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loops always run exactly 10 times",
+                    "is_correct": false
+                },
+                {
+                    "text": "Loops use indentation to define blocks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "for vs while Loop",
+            "content": "Which of the following statements correctly compare for and while loops?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "for loop is generally used when number of iterations is known",
+                    "is_correct": true
+                },
+                {
+                    "text": "while loop is used when condition-based iteration is needed",
+                    "is_correct": true
+                },
+                {
+                    "text": "for loop cannot be infinite",
+                    "is_correct": false
+                },
+                {
+                    "text": "while loop cannot iterate over sequences",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Infinite Loops",
+            "content": "Which of the following statements about infinite loops are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "while True creates an infinite loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "Infinite loops always cause errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Infinite loops can be stopped using break",
+                    "is_correct": true
+                },
+                {
+                    "text": "for loop can never be infinite",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Nested Loops",
+            "content": "Which of the following statements about nested loops are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A loop can exist inside another loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested loops increase time complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Python restricts nesting to only 2 levels",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inner loop runs completely for each iteration of outer loop",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Loop Edge Cases",
+            "content": "Which of the following are correct regarding loop edge cases?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Modifying loop variables incorrectly can cause infinite loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "range(0) results in zero iterations",
+                    "is_correct": true
+                },
+                {
+                    "text": "while condition never becomes False leads to infinite loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loops automatically stop after 100 iterations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "break Statement Basics",
+            "content": "Which of the following statements about the break statement are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "break is used to exit a loop immediately",
+                    "is_correct": true
+                },
+                {
+                    "text": "break can be used outside loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "break works with both for and while loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "break skips only the current iteration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "continue Statement Basics",
+            "content": "Which of the following statements about the continue statement are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "continue skips the current iteration",
+                    "is_correct": true
+                },
+                {
+                    "text": "continue stops the loop completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "continue moves control to the next iteration",
+                    "is_correct": true
+                },
+                {
+                    "text": "continue can only be used in for loops",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "pass Statement Basics",
+            "content": "Which of the following statements about the pass statement are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "pass does nothing when executed",
+                    "is_correct": true
+                },
+                {
+                    "text": "pass is used as a placeholder",
+                    "is_correct": true
+                },
+                {
+                    "text": "pass terminates the loop",
+                    "is_correct": false
+                },
+                {
+                    "text": "pass avoids syntax errors in empty blocks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "break vs continue",
+            "content": "Which of the following correctly describe the difference between break and continue?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "break exits the loop completely",
+                    "is_correct": true
+                },
+                {
+                    "text": "continue skips to next iteration",
+                    "is_correct": true
+                },
+                {
+                    "text": "break and continue behave the same way",
+                    "is_correct": false
+                },
+                {
+                    "text": "continue can be used to avoid executing remaining code in a loop iteration",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Using pass in Code",
+            "content": "Which of the following are valid use cases of pass?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Creating empty functions or loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "Acting as a placeholder during development",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skipping loop iterations",
+                    "is_correct": false
+                },
+                {
+                    "text": "Replacing break statement",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Nested Loop Control",
+            "content": "Which of the following statements about break and continue in nested loops are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "break only exits the innermost loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "continue affects only the current loop level",
+                    "is_correct": true
+                },
+                {
+                    "text": "break exits all nested loops at once",
+                    "is_correct": false
+                },
+                {
+                    "text": "continue skips execution of inner loop entirely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases of Loop Control",
+            "content": "Which of the following are correct regarding edge cases of break, continue, and pass?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using break incorrectly may lead to incomplete execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "continue can cause infinite loops if condition never changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "pass affects program flow significantly",
+                    "is_correct": false
+                },
+                {
+                    "text": "All three can be used outside loops without error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Number Pattern Basics",
+            "content": "Which of the following concepts are commonly used to print number patterns in Python?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Nested loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "print() function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Conditional statements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Recursion only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Simple Pattern Logic",
+            "content": "Which of the following statements about simple number patterns are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Outer loop controls number of rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inner loop controls number of columns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Patterns cannot be created using loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Range function is commonly used",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Incremental Patterns",
+            "content": "Which of the following are true for increasing number patterns?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Numbers often increase with each row",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inner loop range may depend on outer loop variable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Patterns cannot use variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Loop nesting is important",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Logic Building in Patterns",
+            "content": "Which of the following help in building logic for pattern problems?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Analyzing row and column relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Breaking problem into smaller parts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memorizing patterns without understanding",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using dry run techniques",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Variations",
+            "content": "Which of the following are common variations in pattern problems?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Right-angled triangle patterns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Pyramid patterns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Patterns using only recursion",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inverted patterns",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Complex Pattern Logic",
+            "content": "Which of the following statements about complex pattern problems are correct?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They often require combining loops and conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tracking variables across iterations is important",
+                    "is_correct": true
+                },
+                {
+                    "text": "They cannot be solved using basic loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Visualization helps in solving patterns",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases in Pattern Problems",
+            "content": "Which of the following are important considerations in pattern problems?",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handling zero or negative input",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ensuring correct spacing and alignment",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ignoring loop boundaries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Testing with different input sizes",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Check Positive, Negative or Zero",
+            "content": "Write a Python program to check whether a number is positive, negative, or zero.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "Positive"
+                },
+                {
+                    "input": "-3",
+                    "expected_output": "Negative"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "0",
+                    "expected_output": "Zero"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Positive",
+                    "explanation": "5 > 0"
+                }
+            ],
+            "inputFormat": "Single integer.",
+            "outputFormat": "Print Positive, Negative, or Zero.",
+            "solutions": [
+                {
+                    "title": "Basic If-Else",
+                    "language": "python",
+                    "code": "n = int(input())\nif n > 0:\n    print(\"Positive\")\nelif n < 0:\n    print(\"Negative\")\nelse:\n    print(\"Zero\")",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use if-elif-else.",
+                "Check >0, <0, else case."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Find Maximum of Two Numbers",
+            "content": "Write a program to find the maximum of two numbers.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5 3",
+                    "expected_output": "5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "7 7",
+                    "expected_output": "7"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5 3",
+                    "expected_output": "5",
+                    "explanation": "5 is greater than 3"
+                }
+            ],
+            "inputFormat": "Two integers.",
+            "outputFormat": "Print maximum number.",
+            "solutions": [
+                {
+                    "title": "Simple Comparison",
+                    "language": "python",
+                    "code": "a, b = map(int, input().split())\nif a > b:\n    print(a)\nelse:\n    print(b)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Compare two numbers.",
+                "Use if-else."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Check Even or Odd",
+            "content": "Write a program to check whether a number is even or odd.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "4",
+                    "expected_output": "Even"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "7",
+                    "expected_output": "Odd"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "4",
+                    "expected_output": "Even",
+                    "explanation": "4 % 2 == 0"
+                }
+            ],
+            "inputFormat": "Single integer.",
+            "outputFormat": "Print Even or Odd.",
+            "solutions": [
+                {
+                    "title": "Modulo Check",
+                    "language": "python",
+                    "code": "n = int(input())\nif n % 2 == 0:\n    print(\"Even\")\nelse:\n    print(\"Odd\")",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use modulus operator.",
+                "n % 2 == 0 means even."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Grade Calculator",
+            "content": "Write a program to assign grades based on marks:\n90+ : A\n75-89 : B\n50-74 : C\nBelow 50 : Fail",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "85",
+                    "expected_output": "B"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "45",
+                    "expected_output": "Fail"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "85",
+                    "expected_output": "B",
+                    "explanation": "Falls in 75-89"
+                }
+            ],
+            "inputFormat": "Single integer marks.",
+            "outputFormat": "Print grade.",
+            "solutions": [
+                {
+                    "title": "If-Elif Ladder",
+                    "language": "python",
+                    "code": "m = int(input())\nif m >= 90:\n    print(\"A\")\nelif m >= 75:\n    print(\"B\")\nelif m >= 50:\n    print(\"C\")\nelse:\n    print(\"Fail\")",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use if-elif ladder.",
+                "Check highest condition first."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Find Largest of Three Numbers",
+            "content": "Write a program to find the largest among three numbers using nested conditions.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3 7 5",
+                    "expected_output": "7"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10 10 5",
+                    "expected_output": "10"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3 7 5",
+                    "expected_output": "7",
+                    "explanation": "7 is largest"
+                }
+            ],
+            "inputFormat": "Three integers.",
+            "outputFormat": "Print largest number.",
+            "solutions": [
+                {
+                    "title": "Nested If",
+                    "language": "python",
+                    "code": "a, b, c = map(int, input().split())\nif a >= b:\n    if a >= c:\n        print(a)\n    else:\n        print(c)\nelse:\n    if b >= c:\n        print(b)\n    else:\n        print(c)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Compare step by step.",
+                "Use nested if."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Leap Year Checker",
+            "content": "Write a program to check whether a given year is a leap year.\nConditions:\n- Divisible by 4\n- Not divisible by 100 unless also divisible by 400",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2020",
+                    "expected_output": "Leap Year"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "1900",
+                    "expected_output": "Not Leap Year"
+                },
+                {
+                    "input": "2000",
+                    "expected_output": "Leap Year"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "2020",
+                    "expected_output": "Leap Year",
+                    "explanation": "Divisible by 4"
+                }
+            ],
+            "inputFormat": "Single integer year.",
+            "outputFormat": "Print Leap Year or Not Leap Year.",
+            "solutions": [
+                {
+                    "title": "Nested Conditions",
+                    "language": "python",
+                    "code": "y = int(input())\nif y % 4 == 0:\n    if y % 100 == 0:\n        if y % 400 == 0:\n            print(\"Leap Year\")\n        else:\n            print(\"Not Leap Year\")\n    else:\n        print(\"Leap Year\")\nelse:\n    print(\"Not Leap Year\")",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Check divisibility rules carefully.",
+                "Use nested conditions."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Triangle Type Checker",
+            "content": "Write a program to determine the type of triangle based on three sides:\n- Equilateral\n- Isosceles\n- Scalene\n- Invalid (if triangle not possible)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Conditional Statements",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3 3 3",
+                    "expected_output": "Equilateral"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3 4 5",
+                    "expected_output": "Scalene"
+                },
+                {
+                    "input": "1 2 3",
+                    "expected_output": "Invalid"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3 3 3",
+                    "expected_output": "Equilateral",
+                    "explanation": "All sides equal"
+                }
+            ],
+            "inputFormat": "Three integers representing sides.",
+            "outputFormat": "Print triangle type.",
+            "solutions": [
+                {
+                    "title": "Triangle Logic",
+                    "language": "python",
+                    "code": "a, b, c = map(int, input().split())\nif a + b <= c or a + c <= b or b + c <= a:\n    print(\"Invalid\")\nelif a == b == c:\n    print(\"Equilateral\")\nelif a == b or b == c or a == c:\n    print(\"Isosceles\")\nelse:\n    print(\"Scalene\")",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Check triangle validity first.",
+                "Then classify based on equality."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Print Numbers from 1 to N",
+            "content": "Write a Python program to print numbers from 1 to N using a for loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "1\n2\n3\n4\n5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n2\n3"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "1\n2\n3\n4\n5",
+                    "explanation": "Print numbers from 1 to N."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print numbers from 1 to N each on new line.",
+            "solutions": [
+                {
+                    "title": "For Loop",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use range(1, n+1).",
+                "Loop through numbers."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Sum of First N Numbers",
+            "content": "Write a program to calculate the sum of first N natural numbers using a while loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "15"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3",
+                    "expected_output": "6"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "15",
+                    "explanation": "1+2+3+4+5 = 15"
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print sum.",
+            "solutions": [
+                {
+                    "title": "While Loop Sum",
+                    "language": "python",
+                    "code": "n = int(input())\ni = 1\ns = 0\nwhile i <= n:\n    s += i\n    i += 1\nprint(s)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Initialize counter.",
+                "Use while loop."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Print Even Numbers",
+            "content": "Write a program to print all even numbers from 1 to N using a for loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "6",
+                    "expected_output": "2\n4\n6"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "2\n4"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "6",
+                    "expected_output": "2\n4\n6",
+                    "explanation": "Even numbers only."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print even numbers.",
+            "solutions": [
+                {
+                    "title": "Even Check",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    if i % 2 == 0:\n        print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use % operator.",
+                "Check i % 2 == 0."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Factorial of a Number",
+            "content": "Write a program to calculate factorial of a number using a loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "120"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3",
+                    "expected_output": "6"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "120",
+                    "explanation": "5! = 120"
+                }
+            ],
+            "inputFormat": "Single integer.",
+            "outputFormat": "Print factorial.",
+            "solutions": [
+                {
+                    "title": "Loop Factorial",
+                    "language": "python",
+                    "code": "n = int(input())\nf = 1\nfor i in range(1, n+1):\n    f *= i\nprint(f)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Multiply numbers.",
+                "Use loop."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Reverse a Number",
+            "content": "Write a program to reverse a given integer using a while loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "123",
+                    "expected_output": "321"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "100",
+                    "expected_output": "1"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "123",
+                    "expected_output": "321",
+                    "explanation": "Reverse digits."
+                }
+            ],
+            "inputFormat": "Single integer.",
+            "outputFormat": "Print reversed number.",
+            "solutions": [
+                {
+                    "title": "While Reverse",
+                    "language": "python",
+                    "code": "n = int(input())\nrev = 0\nwhile n > 0:\n    rev = rev * 10 + n % 10\n    n //= 10\nprint(rev)",
+                    "complexity_analysis": "Time: O(log N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Use % 10 to get digit.",
+                "Use // 10 to remove digit."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Check Prime Number",
+            "content": "Write a program to check whether a number is prime using a loop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "7",
+                    "expected_output": "Prime"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "9",
+                    "expected_output": "Not Prime"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "7",
+                    "expected_output": "Prime",
+                    "explanation": "Only divisible by 1 and itself."
+                }
+            ],
+            "inputFormat": "Single integer.",
+            "outputFormat": "Print Prime or Not Prime.",
+            "solutions": [
+                {
+                    "title": "Prime Check",
+                    "language": "python",
+                    "code": "n = int(input())\nif n <= 1:\n    print(\"Not Prime\")\nelse:\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0:\n            print(\"Not Prime\")\n            break\n    else:\n        print(\"Prime\")",
+                    "complexity_analysis": "Time: O(sqrt(N)), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Check up to sqrt(n).",
+                "Use break."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Fibonacci Series",
+            "content": "Write a program to print first N terms of Fibonacci series using loops.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "0 1 1 2 3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "7",
+                    "expected_output": "0 1 1 2 3 5 8"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "0 1 1 2 3",
+                    "explanation": "Each number is sum of previous two."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print series in one line separated by space.",
+            "solutions": [
+                {
+                    "title": "Fibonacci Loop",
+                    "language": "python",
+                    "code": "n = int(input())\na, b = 0, 1\nfor i in range(n):\n    print(a, end=\" \")\n    a, b = b, a + b",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Use two variables.",
+                "Update in each iteration."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Stop at First Multiple of 5",
+            "content": "Write a program to print numbers from 1 to N but stop when a number divisible by 5 is encountered.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "10",
+                    "expected_output": "1\n2\n3\n4"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "7",
+                    "expected_output": "1\n2\n3\n4"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "1\n2\n3\n4",
+                    "explanation": "Loop stops before 5."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print numbers until condition is met.",
+            "solutions": [
+                {
+                    "title": "Using break",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    if i % 5 == 0:\n        break\n    print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use break statement.",
+                "Check divisibility."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Skip Multiples of 3",
+            "content": "Write a program to print numbers from 1 to N but skip multiples of 3.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "6",
+                    "expected_output": "1\n2\n4\n5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "1\n2\n4\n5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "6",
+                    "expected_output": "1\n2\n4\n5",
+                    "explanation": "Skip 3 and 6."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print numbers except multiples of 3.",
+            "solutions": [
+                {
+                    "title": "Using continue",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    if i % 3 == 0:\n        continue\n    print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use continue.",
+                "Skip unwanted values."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Pass Statement Demo",
+            "content": "Write a program that loops from 1 to N and uses pass when number is even, otherwise prints the number.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5",
+                    "expected_output": "1\n3\n5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "4",
+                    "expected_output": "1\n3"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "1\n3\n5",
+                    "explanation": "Even numbers ignored using pass."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print odd numbers only.",
+            "solutions": [
+                {
+                    "title": "Using pass",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    if i % 2 == 0:\n        pass\n    else:\n        print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "pass does nothing.",
+                "Use else block."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Find First Negative Number",
+            "content": "Write a program to read numbers until a negative number is entered, then print that number and stop.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "1 2 3 -1 5",
+                    "expected_output": "-1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10 20 -5",
+                    "expected_output": "-5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 -1",
+                    "expected_output": "-1",
+                    "explanation": "Stop when negative appears."
+                }
+            ],
+            "inputFormat": "Sequence of integers (space separated).",
+            "outputFormat": "Print first negative number.",
+            "solutions": [
+                {
+                    "title": "Break on Condition",
+                    "language": "python",
+                    "code": "arr = list(map(int, input().split()))\nfor x in arr:\n    if x < 0:\n        print(x)\n        break",
+                    "complexity_analysis": "Time: O(N), Space: O(N)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Use break.",
+                "Check condition inside loop."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Count Non-Multiples of 5",
+            "content": "Write a program to count numbers from 1 to N that are not divisible by 5 using continue.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "10",
+                    "expected_output": "8"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "4"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "8",
+                    "explanation": "Skip 5 and 10."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print count.",
+            "solutions": [
+                {
+                    "title": "Continue Count",
+                    "language": "python",
+                    "code": "n = int(input())\nc = 0\nfor i in range(1, n+1):\n    if i % 5 == 0:\n        continue\n    c += 1\nprint(c)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Skip multiples of 5.",
+                "Count others."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Prime Numbers Until Limit",
+            "content": "Write a program to print prime numbers from 2 to N, but stop entirely if a number divisible by 10 is found.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "15",
+                    "expected_output": "2\n3\n5\n7"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "12",
+                    "expected_output": "2\n3\n5\n7"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "15",
+                    "expected_output": "2\n3\n5\n7",
+                    "explanation": "Stops at 10."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print prime numbers.",
+            "solutions": [
+                {
+                    "title": "Break + Prime Logic",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(2, n+1):\n    if i % 10 == 0:\n        break\n    for j in range(2, int(i**0.5)+1):\n        if i % j == 0:\n            break\n    else:\n        print(i)",
+                    "complexity_analysis": "Time: O(N*sqrt(N)), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Use nested loops.",
+                "Use break carefully."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Special Number Finder",
+            "content": "Write a program to print numbers from 1 to N. Skip numbers divisible by 2, stop when number divisible by 7 is found, and print others.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Loops Control",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "15",
+                    "expected_output": "1\n3\n5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10",
+                    "expected_output": "1\n3\n5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "15",
+                    "expected_output": "1\n3\n5",
+                    "explanation": "Skip evens, stop at 7."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print numbers as per rules.",
+            "solutions": [
+                {
+                    "title": "Combined Control",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    if i % 7 == 0:\n        break\n    if i % 2 == 0:\n        continue\n    print(i)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Order matters.",
+                "Check break before continue."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Print Increasing Number Triangle",
+            "content": "Write a program to print the following pattern:\n1\n1 2\n1 2 3\n...\n(up to N rows)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n1 2\n1 2 3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "4",
+                    "expected_output": "1\n1 2\n1 2 3\n1 2 3 4"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n1 2\n1 2 3",
+                    "explanation": "Each row prints numbers from 1 to i."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print pattern.",
+            "solutions": [
+                {
+                    "title": "Nested Loop",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    for j in range(1, i+1):\n        print(j, end=\" \")\n    print()",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use nested loops.",
+                "Inner loop runs till i."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Print Right-Angled Star Pattern",
+            "content": "Write a program to print the following pattern:\n*\n**\n***\n(up to N rows)",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "*\n**\n***"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "4",
+                    "expected_output": "*\n**\n***\n****"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "*\n**\n***",
+                    "explanation": "Print '*' i times."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print star pattern.",
+            "solutions": [
+                {
+                    "title": "Star Loop",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    print('*' * i)",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use string multiplication.",
+                "Loop from 1 to N."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Print Reverse Number Triangle",
+            "content": "Write a program to print:\n1 2 3\n1 2\n1",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "1 2 3\n1 2\n1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "4",
+                    "expected_output": "1 2 3 4\n1 2 3\n1 2\n1"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "1 2 3\n1 2\n1",
+                    "explanation": "Decrease row size."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print pattern.",
+            "solutions": [
+                {
+                    "title": "Reverse Pattern",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(n, 0, -1):\n    for j in range(1, i+1):\n        print(j, end=\" \")\n    print()",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Loop backwards.",
+                "Inner loop from 1 to i."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Pyramid Number Pattern",
+            "content": "Write a program to print a centered pyramid:\n  1\n 1 2 1\n1 2 3 2 1",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "  1\n 1 2 1\n1 2 3 2 1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "2",
+                    "expected_output": " 1\n1 2 1"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "  1\n 1 2 1\n1 2 3 2 1",
+                    "explanation": "Spaces + increasing + decreasing numbers."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print pyramid pattern.",
+            "solutions": [
+                {
+                    "title": "Pyramid Logic",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    print(' '*(n-i), end='')\n    for j in range(1, i+1): print(j, end=' ')\n    for j in range(i-1, 0, -1): print(j, end=' ')\n    print()",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Handle spaces first.",
+                "Then increasing and decreasing numbers."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Floyd\u2019s Triangle",
+            "content": "Write a program to print Floyd\u2019s Triangle:\n1\n2 3\n4 5 6\n...",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n2 3\n4 5 6"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "4",
+                    "expected_output": "1\n2 3\n4 5 6\n7 8 9 10"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n2 3\n4 5 6",
+                    "explanation": "Continuous numbers."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print pattern.",
+            "solutions": [
+                {
+                    "title": "Floyd Logic",
+                    "language": "python",
+                    "code": "n = int(input())\nnum = 1\nfor i in range(1, n+1):\n    for j in range(i):\n        print(num, end=' ')\n        num += 1\n    print()",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use counter variable.",
+                "Increase after print."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Diamond Pattern",
+            "content": "Write a program to print a diamond star pattern.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "  *\n ***\n*****\n ***\n  *"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "2",
+                    "expected_output": " *\n***\n *"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "  *\n ***\n*****\n ***\n  *",
+                    "explanation": "Combine pyramid + inverted pyramid."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print diamond.",
+            "solutions": [
+                {
+                    "title": "Diamond Logic",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(1, n+1):\n    print(' '*(n-i) + '*'*(2*i-1))\nfor i in range(n-1, 0, -1):\n    print(' '*(n-i) + '*'*(2*i-1))",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Two parts: upper + lower.",
+                "Use symmetry."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Pascal\u2019s Triangle",
+            "content": "Write a program to print Pascal\u2019s Triangle up to N rows.",
+            "level": "subtopic",
+            "unit_name": "Control Flow",
+            "subunit_name": "Pattern Problems",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "4",
+                    "expected_output": "1\n1 1\n1 2 1\n1 3 3 1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3",
+                    "expected_output": "1\n1 1\n1 2 1"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "4",
+                    "expected_output": "1\n1 1\n1 2 1\n1 3 3 1",
+                    "explanation": "Each element is sum of two above."
+                }
+            ],
+            "inputFormat": "Single integer N.",
+            "outputFormat": "Print Pascal's Triangle.",
+            "solutions": [
+                {
+                    "title": "Pascal Logic",
+                    "language": "python",
+                    "code": "n = int(input())\nfor i in range(n):\n    num = 1\n    for j in range(i+1):\n        print(num, end=' ')\n        num = num * (i - j) // (j + 1)\n    print()",
+                    "complexity_analysis": "Time: O(N^2), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Use formula for binomial coefficient.",
+                "Avoid factorial."
+            ]
+        }
+    ]
+}

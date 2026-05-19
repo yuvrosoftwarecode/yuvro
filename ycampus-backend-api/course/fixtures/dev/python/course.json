@@ -1,0 +1,10 @@
+{
+    "subjects": [
+        {
+            "short_code": "PY101",
+            "subject_name": "Python",
+            "category": "Tracks",
+            "product_type": "assessments"
+        }
+    ]
+}

@@ -1,0 +1,4531 @@
+{
+    "name": "Forms & UI",
+    "subject_short_code": "RJS100",
+    "order_index": 3,
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Controlled Form",
+            "content": "What is a controlled form in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Form data handled by React state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Form data handled by DOM only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Form without inputs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Form using backend only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Uncontrolled Form",
+            "content": "What is an uncontrolled form?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Form data handled by DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Form controlled by state",
+                    "is_correct": false
+                },
+                {
+                    "text": "Form without inputs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Form using Redux only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Form Control",
+            "content": "Which hook is commonly used in controlled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useState",
+                    "is_correct": true
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "useMemo",
+                    "is_correct": false
+                },
+                {
+                    "text": "useRef only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Form Data Source",
+            "content": "Where is form data stored in controlled components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React state",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend only",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML attributes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Controlled Input Behavior",
+            "content": "What happens in controlled input?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React controls input value",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM controls input only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Input has no value",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend controls input",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Uncontrolled Input Access",
+            "content": "How do we access uncontrolled form values?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using refs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using Redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using props only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Use Case",
+            "content": "When are controlled forms preferred?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When validation is needed",
+                    "is_correct": true
+                },
+                {
+                    "text": "For static pages only",
+                    "is_correct": false
+                },
+                {
+                    "text": "For CSS design",
+                    "is_correct": false
+                },
+                {
+                    "text": "For backend logic only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Difference",
+            "content": "What is a drawback of controlled components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "More re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "No validation",
+                    "is_correct": false
+                },
+                {
+                    "text": "No state usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "No inputs allowed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Ref Usage",
+            "content": "Why are refs used in uncontrolled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To access DOM directly",
+                    "is_correct": true
+                },
+                {
+                    "text": "To manage state",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To handle routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Concept",
+            "content": "Which is true about controlled vs uncontrolled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Controlled uses state, uncontrolled uses DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are identical",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only uncontrolled uses React",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only controlled uses HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Form Types",
+            "content": "Which are types of forms in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Controlled forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uncontrolled forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hybrid forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS forms",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Controlled Features",
+            "content": "What are features of controlled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State-driven",
+                    "is_correct": true
+                },
+                {
+                    "text": "Real-time validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Easy control over input",
+                    "is_correct": true
+                },
+                {
+                    "text": "No state usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Uncontrolled Features",
+            "content": "What are features of uncontrolled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Uses DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses refs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always uses state",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Form Handling",
+            "content": "What is used in form handling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useState",
+                    "is_correct": true
+                },
+                {
+                    "text": "onChange event",
+                    "is_correct": true
+                },
+                {
+                    "text": "refs",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Grid",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Controlled Advantages",
+            "content": "What are advantages of controlled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Better validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Real-time updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better control",
+                    "is_correct": true
+                },
+                {
+                    "text": "No state usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Uncontrolled Advantages",
+            "content": "What are advantages of uncontrolled forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Less re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simple implementation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better performance in large forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Requires Redux",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where are controlled forms used?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Login forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Search inputs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validation-heavy forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static HTML pages only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Comparison",
+            "content": "What are differences between controlled and uncontrolled?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State vs DOM control",
+                    "is_correct": true
+                },
+                {
+                    "text": "Re-render behavior difference",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validation handling difference",
+                    "is_correct": true
+                },
+                {
+                    "text": "No difference at all",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Considerations",
+            "content": "What affects performance in forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State updates frequency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Re-render count",
+                    "is_correct": true
+                },
+                {
+                    "text": "Input size",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for forms?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Controlled/Uncontrolled Forms",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use controlled for validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use uncontrolled for large forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Balance performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid React state always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Form Validation Meaning",
+            "content": "What is form validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Checking if input data is correct",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling forms with CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sending data to server only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating UI layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Required Field",
+            "content": "Which attribute makes a field mandatory?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "required",
+                    "is_correct": true
+                },
+                {
+                    "text": "checked",
+                    "is_correct": false
+                },
+                {
+                    "text": "readonly",
+                    "is_correct": false
+                },
+                {
+                    "text": "disabled",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Email Validation",
+            "content": "Which input type is used for email validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "email",
+                    "is_correct": true
+                },
+                {
+                    "text": "text",
+                    "is_correct": false
+                },
+                {
+                    "text": "string",
+                    "is_correct": false
+                },
+                {
+                    "text": "mailbox",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Validation Trigger",
+            "content": "When does validation usually occur?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "On submit or input change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only on page load",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on CSS change",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Client-side Validation",
+            "content": "What is client-side validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Validation done in browser",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validation done on server only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Validation in database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Validation in CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Handling",
+            "content": "What is used to show validation errors?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Error messages in UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Console logs only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database alerts",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Validation Libraries",
+            "content": "Which is commonly used for form validation in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Axios",
+                    "is_correct": false
+                },
+                {
+                    "text": "Redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "React Router",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Validation Strategy",
+            "content": "What is real-time validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Validation while typing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validation after submit only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Validation in backend only",
+                    "is_correct": false
+                },
+                {
+                    "text": "No validation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Schema Validation",
+            "content": "What does schema validation define?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rules for input structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Component layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Validation",
+            "content": "What is asynchronous validation used for?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Checking server-side rules like username availability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling UI components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rendering JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Validation Basics",
+            "content": "What are basic form validation rules?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Required fields",
+                    "is_correct": true
+                },
+                {
+                    "text": "Email format check",
+                    "is_correct": true
+                },
+                {
+                    "text": "Password rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling rules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Validation Types",
+            "content": "What are types of validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Client-side",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server-side",
+                    "is_correct": true
+                },
+                {
+                    "text": "Real-time",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI-only validation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTML Validation",
+            "content": "Which HTML features help validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "required",
+                    "is_correct": true
+                },
+                {
+                    "text": "minLength",
+                    "is_correct": true
+                },
+                {
+                    "text": "pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "div",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Validation Usage",
+            "content": "Where is validation used?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Login forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Registration forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Checkout forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static images",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Validation Tools",
+            "content": "Which tools are used for validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Formik",
+                    "is_correct": true
+                },
+                {
+                    "text": "React Hook Form",
+                    "is_correct": true
+                },
+                {
+                    "text": "Axios",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling",
+            "content": "What are error handling methods?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inline error messages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Toast notifications",
+                    "is_correct": true
+                },
+                {
+                    "text": "Field highlighting",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS only fixes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Validation Flow",
+            "content": "What happens in validation flow?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Input check",
+                    "is_correct": true
+                },
+                {
+                    "text": "Error detection",
+                    "is_correct": true
+                },
+                {
+                    "text": "User feedback",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Validation",
+            "content": "What are advanced validation concepts?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Async validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Schema validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom validation rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS validation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Concerns",
+            "content": "What can affect validation performance?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Too many validations on input",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frequent re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices in validation?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Form Validation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Validate early",
+                    "is_correct": true
+                },
+                {
+                    "text": "Show user-friendly errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid unnecessary validation calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skip error handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CSS in React",
+            "content": "How can CSS be used in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "By importing CSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only inline HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only JavaScript logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inline Styling",
+            "content": "How is inline CSS written in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using style={{}}",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using className only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS file only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using SQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "className Usage",
+            "content": "What replaces class in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "className",
+                    "is_correct": true
+                },
+                {
+                    "text": "class",
+                    "is_correct": false
+                },
+                {
+                    "text": "styleClass",
+                    "is_correct": false
+                },
+                {
+                    "text": "cssName",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CSS Import",
+            "content": "How do you import a CSS file in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "import './style.css'",
+                    "is_correct": true
+                },
+                {
+                    "text": "require css()",
+                    "is_correct": false
+                },
+                {
+                    "text": "link css in JS",
+                    "is_correct": false
+                },
+                {
+                    "text": "use SQL import",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CSS Modules",
+            "content": "What are CSS Modules used for?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Scoped CSS styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "API styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Styled Components",
+            "content": "What is styled-components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CSS-in-JS library",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database tool",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend framework",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing library",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dynamic Styling",
+            "content": "How can styles be dynamic in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using state-based conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only static CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CSS Specificity in React",
+            "content": "What is a challenge in React CSS?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Style conflicts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "API failures",
+                    "is_correct": false
+                },
+                {
+                    "text": "JS syntax errors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inline CSS Limitation",
+            "content": "What is a drawback of inline styles?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hard to maintain large styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Better performance always",
+                    "is_correct": false
+                },
+                {
+                    "text": "No CSS support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Styling Approach",
+            "content": "Which is most scalable CSS approach in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CSS Modules or Styled Components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only inline styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only HTML styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "No styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CSS Usage in React",
+            "content": "How can CSS be applied in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "External CSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "className Usage",
+            "content": "What is true about className?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Used instead of class",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in JSX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Supports CSS styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only for backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Inline Styles",
+            "content": "What are features of inline styles?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Written in JS objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used inside style={{}}",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic styling possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses external files only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CSS Import",
+            "content": "What can be imported in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "SCSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styled components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CSS Modules Benefits",
+            "content": "What are benefits of CSS Modules?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Scoped styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "No naming conflicts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only backend usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Styled Components",
+            "content": "What are features of styled-components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CSS-in-JS approach",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic styling support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component-based styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database integration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Styling Approaches",
+            "content": "Which are styling approaches in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "CSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Styling",
+            "content": "What are advanced styling techniques?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Styled-components",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic theming",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What can cause CSS performance issues?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inline styles everywhere",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large CSS files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unoptimized selectors",
+                    "is_correct": true
+                },
+                {
+                    "text": "JSX rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices in React CSS?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "CSS in React",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use modular CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid global conflicts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use reusable styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid all CSS usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tailwind CSS",
+            "content": "What is Tailwind CSS?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Utility-first CSS framework",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend framework",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database tool",
+                    "is_correct": false
+                },
+                {
+                    "text": "React state manager",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bootstrap Purpose",
+            "content": "What is Bootstrap used for?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "UI components and styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database management",
+                    "is_correct": false
+                },
+                {
+                    "text": "API development",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing in React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tailwind Usage",
+            "content": "How is Tailwind used in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using utility classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using backend code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only JavaScript",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bootstrap Grid",
+            "content": "Bootstrap uses which system for layout?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Grid system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexbox only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Canvas system",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database grid",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tailwind Advantage",
+            "content": "What is a key advantage of Tailwind?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Highly customizable design",
+                    "is_correct": true
+                },
+                {
+                    "text": "No CSS required at all",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database integration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bootstrap Components",
+            "content": "What does Bootstrap provide?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Pre-built UI components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "API endpoints",
+                    "is_correct": false
+                },
+                {
+                    "text": "React hooks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tailwind Styling",
+            "content": "How does Tailwind style elements?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using utility classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using inline CSS only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using backend scripts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using SQL styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tailwind vs Bootstrap",
+            "content": "What is a key difference between Tailwind and Bootstrap?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Tailwind is utility-first, Bootstrap is component-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are backend frameworks",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Impact",
+            "content": "What can improve performance in Tailwind?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Purge unused CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Adding more CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using inline SQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increasing bundle size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Customization Level",
+            "content": "Which framework is more customizable?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Tailwind CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bootstrap only",
+                    "is_correct": false
+                },
+                {
+                    "text": "React Router",
+                    "is_correct": false
+                },
+                {
+                    "text": "Redux",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tailwind Features",
+            "content": "What are features of Tailwind CSS?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Utility-first classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Responsive design support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Highly customizable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend framework",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Bootstrap Features",
+            "content": "What does Bootstrap provide?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prebuilt components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Grid system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Responsive utilities",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database tools",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Usage in React",
+            "content": "How can Tailwind/Bootstrap be used in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Via className",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via CDN import",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via npm packages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Via SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Styling Approaches",
+            "content": "What styling approaches are used?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Utility classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prebuilt components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tailwind Benefits",
+            "content": "What are benefits of Tailwind?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Faster development",
+                    "is_correct": true
+                },
+                {
+                    "text": "No need to write custom CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Highly reusable design system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Requires backend setup",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Bootstrap Benefits",
+            "content": "What are benefits of Bootstrap?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ready-made UI components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Responsive grid system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Easy prototyping",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Comparison",
+            "content": "What is true about Tailwind vs Bootstrap?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Tailwind is utility-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bootstrap is component-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are CSS frameworks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are backend tools",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization",
+            "content": "What improves Tailwind performance?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Purge unused CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Minification",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tree shaking",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increasing CSS size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Usage",
+            "content": "What are advanced usage areas?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Theming systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dark mode support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom plugins",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database integration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for UI frameworks?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Tailwind / Bootstrap",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Consistent design system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid style duplication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid all CSS usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dynamic Styling Meaning",
+            "content": "What is dynamic styling in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Changing styles based on state or props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Writing only static CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend styling only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Style Binding",
+            "content": "How is dynamic style applied in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using style={{ }} with JS expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using backend APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only class",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Conditional Styling",
+            "content": "What enables conditional styling in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JavaScript conditions (if/ternary)",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML attributes only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database logic",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS comments",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Toggle",
+            "content": "What is commonly used for dynamic class changes?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "className with condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL switch",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Based Styling",
+            "content": "How does state affect styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Styles change when state changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styles never change",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS becomes static",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend modifies UI directly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Ternary Operator Usage",
+            "content": "Why is ternary operator used in styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To apply conditional styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "To write SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "To replace JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dynamic Class Libraries",
+            "content": "Which library helps manage dynamic classes?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "classnames",
+                    "is_correct": true
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "express",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Impact",
+            "content": "What can hurt performance in dynamic styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Frequent re-rendering of styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using static pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inline Style Issue",
+            "content": "What is a drawback of inline dynamic styles?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Harder to manage large apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster performance always",
+                    "is_correct": false
+                },
+                {
+                    "text": "No rendering required",
+                    "is_correct": false
+                },
+                {
+                    "text": "Works only in backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Styling Logic",
+            "content": "What improves dynamic styling scalability?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable style functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hardcoded CSS everywhere",
+                    "is_correct": false
+                },
+                {
+                    "text": "No state usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only HTML styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dynamic Styling Features",
+            "content": "What are features of dynamic styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Based on state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Based on props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses JavaScript logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only static CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Conditional Styling",
+            "content": "What can be used for conditional styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ternary operator",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical && operator",
+                    "is_correct": true
+                },
+                {
+                    "text": "if conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Styling Methods",
+            "content": "Which methods are used for styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inline styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dynamic Class Usage",
+            "content": "What can be used with className dynamically?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Boolean conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "State variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Driven UI",
+            "content": "What happens in state-driven styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "UI updates automatically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styles change dynamically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Components re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "No updates happen",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class Management",
+            "content": "What helps manage dynamic classes?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "classnames library",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": true
+                },
+                {
+                    "text": "styled-components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL engine",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Styling Logic",
+            "content": "What logic is used in dynamic styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Conditional rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "State checks",
+                    "is_correct": true
+                },
+                {
+                    "text": "JS expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Optimization",
+            "content": "What improves dynamic styling performance?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoized styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid unnecessary re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable style logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline heavy computation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Scalability Issues",
+            "content": "What are scalability challenges?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Too many inline styles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex condition logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hard to maintain UI consistency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for dynamic styling?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Dynamic Styling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use reusable style logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid inline complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use helper libraries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid state usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Responsive UI Meaning",
+            "content": "What is responsive UI?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "UI that adapts to screen size",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI only for desktop",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend layout system",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Media Query Purpose",
+            "content": "What are media queries used for?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To apply styles based on screen size",
+                    "is_correct": true
+                },
+                {
+                    "text": "To connect APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage state",
+                    "is_correct": false
+                },
+                {
+                    "text": "To handle routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Mobile First",
+            "content": "What is mobile-first design?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Designing for mobile first then scaling up",
+                    "is_correct": true
+                },
+                {
+                    "text": "Designing only for desktop",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend mobile development",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Flexbox Use",
+            "content": "Why is Flexbox used in responsive design?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To create flexible layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "To manage database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To handle API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create backend logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Breakpoint Concept",
+            "content": "What is a breakpoint in responsive design?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Screen width where layout changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "API endpoint",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database field",
+                    "is_correct": false
+                },
+                {
+                    "text": "React hook",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Grid System",
+            "content": "What is CSS Grid used for?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Two-dimensional layout system",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "API routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "State management",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Responsive Units",
+            "content": "Which unit is responsive?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "% (percentage)",
+                    "is_correct": true
+                },
+                {
+                    "text": "px only",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL unit",
+                    "is_correct": false
+                },
+                {
+                    "text": "JSON unit",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Responsiveness",
+            "content": "What improves advanced responsive UI?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fluid grids and flexible layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed pixel layouts only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend rendering only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Static images only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Viewport Meta Tag",
+            "content": "Why is viewport meta tag important?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Controls layout on mobile devices",
+                    "is_correct": true
+                },
+                {
+                    "text": "Manages database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handles API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates backend logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Mobile Optimization",
+            "content": "What is key for mobile optimization?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Touch-friendly UI elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large fixed layouts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Heavy images only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend-only rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Responsive Design Features",
+            "content": "What are features of responsive UI?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Adapts to screen size",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexible layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mobile friendly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed layout only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Responsive Tools",
+            "content": "Which tools help responsiveness?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Media queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexbox",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Grid",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Units in Responsive Design",
+            "content": "Which units are responsive?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "%",
+                    "is_correct": true
+                },
+                {
+                    "text": "em",
+                    "is_correct": true
+                },
+                {
+                    "text": "rem",
+                    "is_correct": true
+                },
+                {
+                    "text": "px only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Mobile Support",
+            "content": "What improves mobile experience?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Responsive layout",
+                    "is_correct": true
+                },
+                {
+                    "text": "Touch-friendly buttons",
+                    "is_correct": true
+                },
+                {
+                    "text": "Readable text scaling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed desktop layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Breakpoint Usage",
+            "content": "What happens at breakpoints?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Layout changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rules update",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI adapts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend changes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Layout Systems",
+            "content": "Which layout systems are responsive?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Flexbox",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS Grid",
+                    "is_correct": true
+                },
+                {
+                    "text": "Media queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Design Principles",
+            "content": "What are responsive design principles?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fluid layouts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mobile-first approach",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexible images",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed pixel layouts only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Techniques",
+            "content": "What are advanced responsive techniques?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Container queries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fluid typography",
+                    "is_correct": true
+                },
+                {
+                    "text": "Adaptive grids",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static layouts",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Factors",
+            "content": "What affects responsive performance?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Image optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Layout complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend logic only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices in responsive UI?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Responsive UI",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mobile-first design",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use flexible units",
+                    "is_correct": true
+                },
+                {
+                    "text": "Test across devices",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed layouts only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reusable Components Meaning",
+            "content": "What is a reusable component in React?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A component used multiple times with different data",
+                    "is_correct": true
+                },
+                {
+                    "text": "A component used only once",
+                    "is_correct": false
+                },
+                {
+                    "text": "A backend function",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Benefit",
+            "content": "Why do we use reusable components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To avoid code duplication",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase backend load",
+                    "is_correct": false
+                },
+                {
+                    "text": "To write SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "To reduce HTML usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Usage",
+            "content": "How do reusable components receive data?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Through props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Through SQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "Through backend only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Through CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Reuse",
+            "content": "What is a reusable button example?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<Button /> used in multiple places",
+                    "is_correct": true
+                },
+                {
+                    "text": "One-time HTML button",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database button",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend API button",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Design",
+            "content": "What makes a component reusable?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Generic and configurable via props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hardcoded values only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend dependent",
+                    "is_correct": false
+                },
+                {
+                    "text": "Fixed UI only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DRY Principle",
+            "content": "What does DRY mean in components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Don't Repeat Yourself",
+                    "is_correct": true
+                },
+                {
+                    "text": "Design React YAML",
+                    "is_correct": false
+                },
+                {
+                    "text": "Data Rendering Yield",
+                    "is_correct": false
+                },
+                {
+                    "text": "Dynamic React Yield",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Composition",
+            "content": "What is component composition?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Combining small components into larger ones",
+                    "is_correct": true
+                },
+                {
+                    "text": "Writing SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend merging",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Advanced Reusability",
+            "content": "What improves reusability in large apps?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher-order components (HOC)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hardcoded UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inline duplication",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend rendering only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Isolation",
+            "content": "Why should components be isolated?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To improve maintainability and reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase code duplication",
+                    "is_correct": false
+                },
+                {
+                    "text": "To reduce performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid props usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Scalable Design",
+            "content": "What supports scalable component design?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Modular architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "Single giant components",
+                    "is_correct": false
+                },
+                {
+                    "text": "No component reuse",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend-only logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Reusable Component Benefits",
+            "content": "What are benefits of reusable components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better maintainability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster development",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increases duplication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Usage",
+            "content": "What can props pass to components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Configuration",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Reusable UI Elements",
+            "content": "Which are reusable UI components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Buttons",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inputs",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Structure",
+            "content": "What makes components reusable?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Small size",
+                    "is_correct": true
+                },
+                {
+                    "text": "Single responsibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props-based design",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hardcoding logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Patterns",
+            "content": "Which patterns improve reusability?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher-order components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Design Principles",
+            "content": "What are good design principles?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DRY principle",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Modularity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code duplication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Communication",
+            "content": "How do reusable components communicate?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Callbacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Scalability",
+            "content": "What improves scalability of reusable components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component abstraction",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loose coupling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Monolithic components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Patterns",
+            "content": "Which are advanced React patterns?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HOC (Higher Order Components)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compound Components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline duplication",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for reusable components?",
+            "level": "subunit",
+            "unit_name": "Forms & UI",
+            "subunit_name": "Reusable Components",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep components small",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use props effectively",
+                    "is_correct": true
+                },
+                {
+                    "text": "Follow DRY principle",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hardcode UI logic",
+                    "is_correct": false
+                }
+            ]
+        }
+    ],
+    "sub_units": [
+        {
+            "name": "Controlled/Uncontrolled Forms",
+            "content": "Controlled components are form elements whose value is handled by React state. Uncontrolled components maintain their own internal state and are accessed using refs. Controlled components are the recommended approach for most scenarios in React.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Form Validation",
+            "content": "Form validation ensures that user input meets specific criteria before being submitted. In React, this is often handled by checking state values during change events or upon form submission, and displaying error messages accordingly.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "CSS in React",
+            "content": "There are several ways to style React components, including traditional CSS files, CSS Modules for local scoping, and CSS-in-JS libraries. Each approach has its own benefits for organizing and maintaining styles.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Tailwind / Bootstrap",
+            "content": "Tailwind CSS and Bootstrap are popular frameworks that can be integrated into React projects to speed up UI development. Tailwind uses utility-first classes, while Bootstrap provides a set of pre-designed components.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Dynamic Styling",
+            "content": "Dynamic styling allows you to change the appearance of components based on state or props. This can be achieved by conditionally applying class names or using inline style objects that depend on component data.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Responsive UI",
+            "content": "Building a responsive UI involves using techniques like media queries and flexible layouts (Flexbox/Grid) to ensure the application looks good on all devices, from mobile phones to desktop monitors.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Reusable Components",
+            "content": "One of the core strengths of React is the ability to create reusable UI components. By passing props, you can create modular components like Buttons, Inputs, and Cards that can be used throughout the application with different configurations.",
+            "order_index": 6,
+            "videos": []
+        }
+    ]
+}

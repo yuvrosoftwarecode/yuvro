@@ -234,7 +234,7 @@ const TestSubjectDetail = () => {
       try {
         const tests = await fetchSkillTests({
           subject: subjectName,
-          test_type: isSkillTest ? 'assessment' : 'practice',
+          test_type: 'practice',
           publish_status: 'active'
         });
         setAllTests(tests);

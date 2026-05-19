@@ -1,0 +1,11 @@
+{
+    "subjects": [
+        {
+            "short_code": "BEE101",
+            "subject_name": "Basic Electrical Engineering",
+            "category": "engineering",
+            "instructor_email": "admin@yuvro.com",
+            "product_type": "campus"
+        }
+    ]
+}

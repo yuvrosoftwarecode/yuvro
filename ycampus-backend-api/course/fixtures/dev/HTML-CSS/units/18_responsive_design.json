@@ -1,0 +1,1340 @@
+{
+  "name": "Responsive Design",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 18,
+  "sub_units": [
+    {
+      "name": "Media Queries",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Media Queries",
+          "video_link": "https://www.youtube.com/results?search_query=Media+Queries+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Media Queries in HTML/CSS."
+        },
+        {
+          "title": "Advanced Media Queries Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Media+Queries+html+css",
+          "ai_context": "In-depth explanation and practical examples for Media Queries."
+        }
+      ]
+    },
+    {
+      "name": "Responsive Units",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Responsive Units",
+          "video_link": "https://www.youtube.com/results?search_query=Responsive+Units+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Responsive Units in HTML/CSS."
+        },
+        {
+          "title": "Advanced Responsive Units Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Responsive+Units+html+css",
+          "ai_context": "In-depth explanation and practical examples for Responsive Units."
+        }
+      ]
+    },
+    {
+      "name": "Responsive Images & Layouts",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Responsive Images & Layouts",
+          "video_link": "https://www.youtube.com/results?search_query=Responsive+Images+%26+Layouts+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Responsive Images & Layouts in HTML/CSS."
+        },
+        {
+          "title": "Advanced Responsive Images & Layouts Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Responsive+Images+%26+Layouts+html+css",
+          "ai_context": "In-depth explanation and practical examples for Responsive Images & Layouts."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Media Query Purpose",
+      "content": "What are media queries mainly used for in CSS?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating responsive designs for different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "Adding animations only",
+          "is_correct": false
+        },
+        {
+          "text": "Changing HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "Connecting databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Breakpoint Meaning",
+      "content": "What is a breakpoint in responsive design?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A screen width where layout changes occur",
+          "is_correct": true
+        },
+        {
+          "text": "A CSS error",
+          "is_correct": false
+        },
+        {
+          "text": "A type of animation",
+          "is_correct": false
+        },
+        {
+          "text": "A browser extension",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Mobile First Concept",
+      "content": "What does the mobile-first approach mean?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Designing for small screens before larger screens",
+          "is_correct": true
+        },
+        {
+          "text": "Designing only for mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "Ignoring desktop layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Using only mobile browsers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Media Query Syntax",
+      "content": "Which keyword is used to create a media query in CSS?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "@media",
+          "is_correct": true
+        },
+        {
+          "text": "@responsive",
+          "is_correct": false
+        },
+        {
+          "text": "@screen",
+          "is_correct": false
+        },
+        {
+          "text": "@query",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Design Benefit",
+      "content": "Why is responsive design important?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves usability across different devices",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for CSS",
+          "is_correct": false
+        },
+        {
+          "text": "It only works on desktops",
+          "is_correct": false
+        },
+        {
+          "text": "It disables layouts on tablets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Min Width Usage",
+      "content": "Which media query condition is commonly used in a mobile-first approach?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "min-width",
+          "is_correct": true
+        },
+        {
+          "text": "max-height",
+          "is_correct": false
+        },
+        {
+          "text": "device-color",
+          "is_correct": false
+        },
+        {
+          "text": "screen-mode",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Breakpoint Selection",
+      "content": "How should breakpoints ideally be chosen?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Based on content and layout needs",
+          "is_correct": true
+        },
+        {
+          "text": "Randomly",
+          "is_correct": false
+        },
+        {
+          "text": "Only using desktop sizes",
+          "is_correct": false
+        },
+        {
+          "text": "Only using mobile sizes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Mobile First Advantage",
+      "content": "What is a major benefit of the mobile-first approach?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It encourages optimized layouts and performance for smaller devices",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents desktop support",
+          "is_correct": false
+        },
+        {
+          "text": "It disables responsiveness",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for media queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Overusing Breakpoints",
+      "content": "What can happen if too many breakpoints are used in a project?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS can become difficult to maintain",
+          "is_correct": true
+        },
+        {
+          "text": "The website stops loading",
+          "is_correct": false
+        },
+        {
+          "text": "HTML becomes invalid",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript stops working",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Media Query Strategy",
+      "content": "Why is mobile-first considered a best practice in modern development?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Most users access websites on mobile devices, so optimization starts there",
+          "is_correct": true
+        },
+        {
+          "text": "Desktop devices are no longer supported",
+          "is_correct": false
+        },
+        {
+          "text": "Media queries only work on phones",
+          "is_correct": false
+        },
+        {
+          "text": "CSS Grid requires mobile-first layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Percentage Unit",
+      "content": "What does the % unit represent in CSS?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A value relative to its parent element",
+          "is_correct": true
+        },
+        {
+          "text": "A fixed pixel size",
+          "is_correct": false
+        },
+        {
+          "text": "Viewport height only",
+          "is_correct": false
+        },
+        {
+          "text": "Font size of the browser",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "REM Unit Meaning",
+      "content": "What is rem based on in CSS?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The root element's font size",
+          "is_correct": true
+        },
+        {
+          "text": "The parent element's width",
+          "is_correct": false
+        },
+        {
+          "text": "Viewport height",
+          "is_correct": false
+        },
+        {
+          "text": "Device resolution",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Width Unit",
+      "content": "What does 1vw represent?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "1% of the viewport width",
+          "is_correct": true
+        },
+        {
+          "text": "1% of the viewport height",
+          "is_correct": false
+        },
+        {
+          "text": "1 pixel",
+          "is_correct": false
+        },
+        {
+          "text": "1% of parent width",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Height Unit",
+      "content": "What does vh stand for in CSS?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Viewport height",
+          "is_correct": true
+        },
+        {
+          "text": "Vertical header",
+          "is_correct": false
+        },
+        {
+          "text": "Visual height",
+          "is_correct": false
+        },
+        {
+          "text": "Variable height",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Unit Benefit",
+      "content": "Why are responsive units commonly used in web design?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help layouts adapt to different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "They remove CSS styling",
+          "is_correct": false
+        },
+        {
+          "text": "They only work on mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "They disable scaling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "REM vs Percentage",
+      "content": "What is a key advantage of using rem over % for font sizing?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "rem provides more consistent scaling based on the root font size",
+          "is_correct": true
+        },
+        {
+          "text": "% always creates fixed font sizes",
+          "is_correct": false
+        },
+        {
+          "text": "rem only works for margins",
+          "is_correct": false
+        },
+        {
+          "text": "% cannot be used in responsive design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Based Layouts",
+      "content": "Which units are directly based on the browser viewport?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "vw and vh",
+          "is_correct": true
+        },
+        {
+          "text": "px and em",
+          "is_correct": false
+        },
+        {
+          "text": "rem and cm",
+          "is_correct": false
+        },
+        {
+          "text": "pt and %",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Using VH",
+      "content": "What is a common use case for vh units?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating full-screen sections",
+          "is_correct": true
+        },
+        {
+          "text": "Styling table borders",
+          "is_correct": false
+        },
+        {
+          "text": "Adding animations",
+          "is_correct": false
+        },
+        {
+          "text": "Creating database layouts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Unit Challenge",
+      "content": "What is a common issue with using vh units on mobile devices?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Browser UI changes can affect viewport height calculations",
+          "is_correct": true
+        },
+        {
+          "text": "vh only works on desktop browsers",
+          "is_correct": false
+        },
+        {
+          "text": "vh cannot be combined with CSS Grid",
+          "is_correct": false
+        },
+        {
+          "text": "vh disables scrolling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Typography Strategy",
+      "content": "Why is rem preferred for accessible typography?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Units",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It respects user-defined browser font settings",
+          "is_correct": true
+        },
+        {
+          "text": "It creates fixed text sizes",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with headings",
+          "is_correct": false
+        },
+        {
+          "text": "It ignores root font size changes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fluid Layout Meaning",
+      "content": "What is a fluid layout in web design?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A layout that adjusts based on screen size",
+          "is_correct": true
+        },
+        {
+          "text": "A layout with fixed pixel widths",
+          "is_correct": false
+        },
+        {
+          "text": "A layout without CSS",
+          "is_correct": false
+        },
+        {
+          "text": "A layout only for mobile apps",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Typography Purpose",
+      "content": "Why is responsive typography important?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To make text readable on different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "To replace HTML headings",
+          "is_correct": false
+        },
+        {
+          "text": "To disable scaling",
+          "is_correct": false
+        },
+        {
+          "text": "To create animations only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Flexible Widths",
+      "content": "Which unit is commonly used for fluid layouts?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "%",
+          "is_correct": true
+        },
+        {
+          "text": "px only",
+          "is_correct": false
+        },
+        {
+          "text": "cm",
+          "is_correct": false
+        },
+        {
+          "text": "pt",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Viewport Typography",
+      "content": "Which CSS units are often used for responsive typography?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "rem and vw",
+          "is_correct": true
+        },
+        {
+          "text": "cm and mm",
+          "is_correct": false
+        },
+        {
+          "text": "deg and rad",
+          "is_correct": false
+        },
+        {
+          "text": "px only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Image Behavior",
+      "content": "What should responsive images do?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Resize properly for different screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "Always stay fixed width",
+          "is_correct": false
+        },
+        {
+          "text": "Disable scaling",
+          "is_correct": false
+        },
+        {
+          "text": "Only work on desktops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Max Width Usage",
+      "content": "Why is max-width: 100% commonly used for images?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It prevents images from overflowing their container",
+          "is_correct": true
+        },
+        {
+          "text": "It fixes image height",
+          "is_correct": false
+        },
+        {
+          "text": "It removes image quality",
+          "is_correct": false
+        },
+        {
+          "text": "It disables responsiveness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fluid Layout Advantage",
+      "content": "What is a major benefit of fluid layouts?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Better adaptability across devices and screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "They remove the need for CSS",
+          "is_correct": false
+        },
+        {
+          "text": "They only work on tablets",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent scrolling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Typography Scaling",
+      "content": "What happens when responsive typography is implemented correctly?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Text scales appropriately across devices",
+          "is_correct": true
+        },
+        {
+          "text": "Text becomes fixed size",
+          "is_correct": false
+        },
+        {
+          "text": "Text disappears on mobile",
+          "is_correct": false
+        },
+        {
+          "text": "Text ignores user settings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fluid Layout Challenge",
+      "content": "What is a common challenge with fluid layouts?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Content can become too stretched on very large screens",
+          "is_correct": true
+        },
+        {
+          "text": "They only work with Flexbox",
+          "is_correct": false
+        },
+        {
+          "text": "They disable media queries",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent image loading",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Responsive Design Strategy",
+      "content": "Why are fluid layouts and responsive typography often used together?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Responsive Images & Layouts",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To create a consistent and adaptable user experience",
+          "is_correct": true
+        },
+        {
+          "text": "To remove the need for HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "To disable browser zoom",
+          "is_correct": false
+        },
+        {
+          "text": "To make layouts fixed width",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Media Queries Basics",
+      "content": "Which of the following statements about media queries are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Media queries help create responsive websites",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints define when layouts change",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries change HTML structure directly",
+          "is_correct": false
+        },
+        {
+          "text": "Mobile-first design starts with small screens",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsive Design Introduction",
+      "content": "Which of the following statements about responsive design are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Media queries apply styles based on screen conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints are commonly based on screen width",
+          "is_correct": true
+        },
+        {
+          "text": "Mobile-first design begins with desktop layouts",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive websites adapt to multiple devices",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Breakpoints Basics",
+      "content": "Which of the following statements about breakpoints are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Breakpoints help optimize layouts for different screens",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries are commonly used with breakpoints",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints only work on desktop devices",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive layouts improve user experience",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Mobile-first Basics",
+      "content": "Which of the following statements about mobile-first approach are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mobile-first design focuses on smaller screens initially",
+          "is_correct": true
+        },
+        {
+          "text": "Additional styles are added for larger screens",
+          "is_correct": true
+        },
+        {
+          "text": "Mobile-first ignores desktop layouts completely",
+          "is_correct": false
+        },
+        {
+          "text": "Mobile-first can improve performance on mobile devices",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Media Query Concepts",
+      "content": "Which of the following statements about media query concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Media queries detect device characteristics",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints allow layouts to adapt dynamically",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries only affect colors",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive design supports tablets, phones, and desktops",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Breakpoint Behavior",
+      "content": "Which of the following statements about breakpoint behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Breakpoints are commonly defined using min-width or max-width",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries can apply different layouts at different widths",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints automatically change HTML content",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive layouts can improve accessibility",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Mobile-first Design Strategy",
+      "content": "Which of the following statements about mobile-first strategy are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mobile-first starts with core styles for small devices",
+          "is_correct": true
+        },
+        {
+          "text": "Larger screen styles are progressively enhanced",
+          "is_correct": true
+        },
+        {
+          "text": "Mobile-first requires separate HTML files",
+          "is_correct": false
+        },
+        {
+          "text": "Mobile-first often uses min-width media queries",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsive Layout Techniques",
+      "content": "Which of the following statements about responsive layout techniques are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Media queries help adapt layouts for various devices",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints should be chosen based on content needs",
+          "is_correct": true
+        },
+        {
+          "text": "Responsive design eliminates the need for CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Mobile-first design supports progressive enhancement",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Media Query Concepts",
+      "content": "Which of the following statements about advanced media query concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mobile-first design commonly uses min-width queries",
+          "is_correct": true
+        },
+        {
+          "text": "Breakpoints should adapt to content rather than specific devices",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries only support width-based conditions",
+          "is_correct": false
+        },
+        {
+          "text": "Responsive design improves maintainability across devices",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Responsive Design Patterns",
+      "content": "Which of the following statements about advanced responsive design patterns are correct?",
+      "level": "subtopic",
+      "unit_name": "Responsive Design",
+      "subunit_name": "Media Queries",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Responsive design creates flexible experiences across screen sizes",
+          "is_correct": true
+        },
+        {
+          "text": "Media queries allow conditional styling rules",
+          "is_correct": true
+        },
+        {
+          "text": "Mobile-first design is limited to mobile applications",
+          "is_correct": false
+        },
+        {
+          "text": "Well-planned breakpoints improve scalability of layouts",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

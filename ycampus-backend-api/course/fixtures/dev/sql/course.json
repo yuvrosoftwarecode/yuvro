@@ -1,0 +1,10 @@
+{
+    "subjects": [
+        {
+            "short_code": "SQL100",
+            "subject_name": "Structured Query Language(SQL)",
+            "category": "Foundation",
+            "product_type": "assessments"
+        }
+    ]
+}

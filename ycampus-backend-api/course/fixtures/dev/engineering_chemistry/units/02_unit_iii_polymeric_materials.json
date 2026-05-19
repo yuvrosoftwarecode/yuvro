@@ -1,0 +1,92 @@
+{
+    "name": "UNIT - III: Polymeric materials",
+    "subject_short_code": "EC101",
+    "order_index": 2,
+    "sub_units": [
+        {
+            "name": "Definition - Classification of polymers with examples - Types of polymerization - addition (free radical addition) and condensation polymerization with examples - Nylon 6:6, Terylene",
+            "content": "Definition - Classification of polymers with examples - Types of polymerization - addition (free radical addition) and condensation polymerization with examples - Nylon 6:6, Terylene",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Definition - Classification of polymers with examples - Types of polymerization - addition (free radical addition) and condensation polymerization with examples - Nylon 6:6, Terylene",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Definition - Classification of polymers with examples - Types of polymerization - addition (free radical addition) and condensation polymerization with examples - Nylon 6:6, Terylene unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Plastics: Definition and characteristics- thermoplastic and thermosetting plastics",
+            "content": "Plastics: Definition and characteristics- thermoplastic and thermosetting plastics",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Plastics: Definition and characteristics- thermoplastic and thermosetting plastics",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Plastics: Definition and characteristics- thermoplastic and thermosetting plastics unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Preparation, Properties and engineering applications of PVC and Bakelite, Teflon, Fiber reinforced plastics (FRP)",
+            "content": "Preparation, Properties and engineering applications of PVC and Bakelite, Teflon, Fiber reinforced plastics (FRP)",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Preparation, Properties and engineering applications of PVC and Bakelite, Teflon, Fiber reinforced plastics (FRP)",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Preparation, Properties and engineering applications of PVC and Bakelite, Teflon, Fiber reinforced plastics (FRP) unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Rubbers: Natural rubber and its vulcanization",
+            "content": "Rubbers: Natural rubber and its vulcanization",
+            "order_index": 3,
+            "videos": [
+                {
+                    "title": "Intro to Rubbers: Natural rubber and its vulcanization",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Rubbers: Natural rubber and its vulcanization unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Elastomers: Characteristics -preparation - properties and applications of Buna-S, Butyl and Thiokol rubber",
+            "content": "Elastomers: Characteristics -preparation - properties and applications of Buna-S, Butyl and Thiokol rubber",
+            "order_index": 4,
+            "videos": [
+                {
+                    "title": "Intro to Elastomers: Characteristics -preparation - properties and applications of Buna-S, Butyl and Thiokol rubber",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Elastomers: Characteristics -preparation - properties and applications of Buna-S, Butyl and Thiokol rubber unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Conducting polymers: Characteristics and Classification with examples-mechanism of conduction in trans-polyacetylene and applications of conducting polymers",
+            "content": "Conducting polymers: Characteristics and Classification with examples-mechanism of conduction in trans-polyacetylene and applications of conducting polymers",
+            "order_index": 5,
+            "videos": [
+                {
+                    "title": "Intro to Conducting polymers: Characteristics and Classification with examples-mechanism of conduction in trans-polyacetylene and applications of conducting polymers",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Conducting polymers: Characteristics and Classification with examples-mechanism of conduction in trans-polyacetylene and applications of conducting polymers unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Biodegradable polymers: Concept and advantages - Polylactic acid and poly vinyl alcohol and their applications",
+            "content": "Biodegradable polymers: Concept and advantages - Polylactic acid and poly vinyl alcohol and their applications",
+            "order_index": 6,
+            "videos": [
+                {
+                    "title": "Intro to Biodegradable polymers: Concept and advantages - Polylactic acid and poly vinyl alcohol and their applications",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Biodegradable polymers: Concept and advantages - Polylactic acid and poly vinyl alcohol and their applications unit of Engineering Chemistry"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}
