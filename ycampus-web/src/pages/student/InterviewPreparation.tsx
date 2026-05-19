@@ -169,7 +169,8 @@ const InterviewPreparation = () => {
         // Find DSA subject
         const dsa = fetchedSubjects.find((s: any) => {
           const name = (s.subject_name || s.name || s.title || "").toLowerCase();
-          return name.includes("data structures") || name.includes("dsa");
+          const code = (s.short_code || "").toLowerCase();
+          return name.includes("data structures") || name.includes("dsa") || code.includes("dsa");
         });
         
         if (dsa) {
@@ -333,6 +334,8 @@ const InterviewPreparation = () => {
                     onClick={async () => {
                       if (mod.cta === 'Start Mock Interview') {
                         navigate('/student/mock-interview');
+                      } else if (mod.cta === 'Take Test') {
+                        navigate('/student/test');
                       } else if (mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') {
                         // Use existing ID if available to avoid redundant fetch
                         let targetId = dsaSubjectId;

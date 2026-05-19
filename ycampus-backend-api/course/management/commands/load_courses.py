@@ -167,18 +167,94 @@ class Command(BaseCommand):
                         f"Instructor {instructor_email} not found"
                     ))
 
+            category = subject_data.get("category")
+            
             subject, created = Subject.objects.get_or_create(
                 short_code=subject_data["short_code"],
-                defaults={"subject_name": name},
+                defaults={
+                    "subject_name": name,
+                    "product_type": subject_data.get("product_type", "campus"),
+                    "category": category,
+                },
             )
             if created:
                 self.stdout.write(f"  ✓ Created subject: {subject.subject_name}")
             else:
-                # Update name if it changed
+                # Update name, product_type or category if it changed
+                needs_save = False
                 if subject.subject_name != name:
                     subject.subject_name = name
+                    needs_save = True
+                
+                ptype = subject_data.get("product_type")
+                if ptype and subject.product_type != ptype:
+                    subject.product_type = ptype
+                    needs_save = True
+
+                if subject.category != category:
+                    subject.category = category
+                    needs_save = True
+                
+                if needs_save:
                     subject.save()
                 self.stdout.write(f"  → Subject exists: {subject.subject_name}")
+
+            if not instructor:
+                instructor = User.objects.filter(role="admin").first() or User.objects.filter(is_superuser=True).first() or User.objects.first()
+
+            # Auto-generate 3 subject-level Assessments (1 Easy, 1 Medium, 1 Hard)
+            assessments_config = [
+                {
+                    "title": f"{subject.subject_name} - Easy Subject Assessment",
+                    "difficulty": "easy",
+                    "duration": 30,
+                    "total_marks": 20,
+                    "passing_marks": 8,
+                    "enable_proctoring": True,
+                    "questions_random_config": { "mcq_single": 10, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+                },
+                {
+                    "title": f"{subject.subject_name} - Medium Subject Assessment",
+                    "difficulty": "medium",
+                    "duration": 45,
+                    "total_marks": 30,
+                    "passing_marks": 12,
+                    "enable_proctoring": True,
+                    "questions_random_config": { "mcq_single": 15, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+                },
+                {
+                    "title": f"{subject.subject_name} - Hard Subject Assessment",
+                    "difficulty": "hard",
+                    "duration": 60,
+                    "total_marks": 50,
+                    "passing_marks": 20,
+                    "enable_proctoring": True,
+                    "questions_random_config": { "mcq_single": 15, "mcq_multiple": 10, "coding": 0, "descriptive": 0 }
+                }
+            ]
+
+            for conf in assessments_config:
+                st, st_created = SkillTest.objects.get_or_create(
+                    subject=subject,
+                    unit=None,
+                    title=conf["title"],
+                    defaults={
+                        "test_type": "assessment",
+                        "description": f"Automated subject-level assessment for {subject.subject_name}.",
+                        "instructions": "Please answer all questions within the given duration. Proctoring and tab monitoring may be active.",
+                        "difficulty": conf["difficulty"],
+                        "duration": conf["duration"],
+                        "total_marks": conf["total_marks"],
+                        "passing_marks": conf["passing_marks"],
+                        "enable_proctoring": conf["enable_proctoring"],
+                        "publish_status": "active",
+                        "created_by": instructor,
+                        "questions_config": { "mcq_single": [], "mcq_multiple": [], "coding": [], "descriptive": [] },
+                        "questions_random_config": conf["questions_random_config"]
+                    }
+                )
+                if st_created:
+                    self.stdout.write(f"    ✓ Auto-generated subject assessment: {st.title}")
 
             unit_map = {}
             subunit_map = {}
@@ -196,6 +272,69 @@ class Command(BaseCommand):
 
                 if unit_created:
                     self.stdout.write(f"    ✓ Created unit: {unit.name}")
+
+                # Auto-generate 4 standard MCQ-only Skill Tests for each unit
+                tests_config = [
+                    {
+                        "title": f"{unit.name} - Easy Skill Test 1",
+                        "difficulty": "easy",
+                        "duration": 20,
+                        "total_marks": 15,
+                        "passing_marks": 6,
+                        "enable_proctoring": True,
+                        "questions_random_config": { "mcq_single": 10, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+                    },
+                    {
+                        "title": f"{unit.name} - Easy Skill Test 2",
+                        "difficulty": "easy",
+                        "duration": 20,
+                        "total_marks": 15,
+                        "passing_marks": 6,
+                        "enable_proctoring": True,
+                        "questions_random_config": { "mcq_single": 10, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+                    },
+                    {
+                        "title": f"{unit.name} - Medium Skill Test",
+                        "difficulty": "medium",
+                        "duration": 30,
+                        "total_marks": 20,
+                        "passing_marks": 8,
+                        "enable_proctoring": True,
+                        "questions_random_config": { "mcq_single": 15, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+                    },
+                    {
+                        "title": f"{unit.name} - Hard Skill Test",
+                        "difficulty": "hard",
+                        "duration": 45,
+                        "total_marks": 25,
+                        "passing_marks": 10,
+                        "enable_proctoring": True,
+                        "questions_random_config": { "mcq_single": 15, "mcq_multiple": 10, "coding": 0, "descriptive": 0 }
+                    }
+                ]
+
+                for conf in tests_config:
+                    st, st_created = SkillTest.objects.get_or_create(
+                        unit=unit,
+                        title=conf["title"],
+                        defaults={
+                            "subject": subject,
+                            "test_type": "assessment",
+                            "description": f"Automated MCQ skill assessment for unit {unit.name} in {subject.subject_name}.",
+                            "instructions": "Please answer all questions within the given duration. Proctoring and tab monitoring may be active.",
+                            "difficulty": conf["difficulty"],
+                            "duration": conf["duration"],
+                            "total_marks": conf["total_marks"],
+                            "passing_marks": conf["passing_marks"],
+                            "enable_proctoring": conf["enable_proctoring"],
+                            "publish_status": "active",
+                            "created_by": instructor,
+                            "questions_config": { "mcq_single": [], "mcq_multiple": [], "coding": [], "descriptive": [] },
+                            "questions_random_config": conf["questions_random_config"]
+                        }
+                    )
+                    if st_created:
+                        self.stdout.write(f"      ✓ Auto-generated skill test: {st.title}")
 
                 # Support both old "subtopics" and new "sub_units" keys
                 subunits_data = unit_data.get("sub_units", unit_data.get("subtopics", []))

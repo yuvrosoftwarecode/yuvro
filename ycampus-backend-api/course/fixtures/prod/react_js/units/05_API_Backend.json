@@ -2,50 +2,6 @@
     "name": "API & Backend",
     "subject_short_code": "RJS100",
     "order_index": 5,
-    "subunits": [
-        {
-            "name": "Fetch / Axios",
-            "content": "The Fetch API is a built-in browser interface for making network requests. Axios is a popular third-party library that provides a simpler API, automatic JSON transformation, and better error handling for HTTP requests in React apps.",
-            "order_index": 0,
-            "videos": []
-        },
-        {
-            "name": "REST APIs",
-            "content": "REST (Representational State Transfer) is an architectural style for designing networked applications. In React, you typically interact with REST APIs using HTTP methods like GET, POST, PUT, and DELETE to manage data.",
-            "order_index": 1,
-            "videos": []
-        },
-        {
-            "name": "CRUD Operations",
-            "content": "CRUD stands for Create, Read, Update, and Delete. These are the four basic functions of persistent storage. Implementing CRUD in React involves making appropriate API calls and updating the UI state based on the server response.",
-            "order_index": 2,
-            "videos": []
-        },
-        {
-            "name": "Loading/Error Handling",
-            "content": "When fetching data, it's important to provide visual feedback to the user. This involves managing loading states to show spinners and error states to display helpful messages if a request fails.",
-            "order_index": 3,
-            "videos": []
-        },
-        {
-            "name": "Authentication Basics",
-            "content": "Authentication is the process of verifying who a user is. In React, this typically involves sending credentials to a server, receiving a token, and storing it (e.g., in local storage) to keep the user logged in.",
-            "order_index": 4,
-            "videos": []
-        },
-        {
-            "name": "JWT",
-            "content": "JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. In modern web apps, JWTs are commonly used for stateless authentication and authorization.",
-            "order_index": 5,
-            "videos": []
-        },
-        {
-            "name": "Env Variables",
-            "content": "Environment variables allow you to configure your application differently for development, staging, and production environments. In React (e.g., via Vite or Create React App), these are often used to store API base URLs.",
-            "order_index": 6,
-            "videos": []
-        }
-    ],
     "questions": [
         {
             "type": "mcq_single",
@@ -4526,6 +4482,50 @@
                     "is_correct": false
                 }
             ]
+        }
+    ],
+    "sub_units": [
+        {
+            "name": "Fetch / Axios",
+            "content": "The Fetch API is a built-in browser interface for making network requests. Axios is a popular third-party library that provides a simpler API, automatic JSON transformation, and better error handling for HTTP requests in React apps.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "REST APIs",
+            "content": "REST (Representational State Transfer) is an architectural style for designing networked applications. In React, you typically interact with REST APIs using HTTP methods like GET, POST, PUT, and DELETE to manage data.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "CRUD Operations",
+            "content": "CRUD stands for Create, Read, Update, and Delete. These are the four basic functions of persistent storage. Implementing CRUD in React involves making appropriate API calls and updating the UI state based on the server response.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Loading/Error Handling",
+            "content": "When fetching data, it's important to provide visual feedback to the user. This involves managing loading states to show spinners and error states to display helpful messages if a request fails.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Authentication Basics",
+            "content": "Authentication is the process of verifying who a user is. In React, this typically involves sending credentials to a server, receiving a token, and storing it (e.g., in local storage) to keep the user logged in.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "JWT",
+            "content": "JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. In modern web apps, JWTs are commonly used for stateless authentication and authorization.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Env Variables",
+            "content": "Environment variables allow you to configure your application differently for development, staging, and production environments. In React (e.g., via Vite or Create React App), these are often used to store API base URLs.",
+            "order_index": 6,
+            "videos": []
         }
     ]
 }

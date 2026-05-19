@@ -18,10 +18,14 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("No subjects found. Ensure sample_courses_data.json is loaded first."))
             return
 
-        # 2. Assign to ALL Colleges (Generic catalog assignment)
+        # 2. Assign to Colleges matching their product type
         colleges = College.objects.all()
         for college in colleges:
             for subject in subjects:
+                # IMPORTANT: Only assign subjects that match the college's product_type
+                if getattr(subject, 'product_type', 'campus') != getattr(college, 'product_type', 'campus'):
+                    continue
+                    
                 CollegeSubject.objects.get_or_create(
                     college=college,
                     subject=subject,
@@ -52,10 +56,14 @@ class Command(BaseCommand):
             
             random.shuffle(faculties)
             
-            # For each of the 3 subjects
+            # For each of the campus subjects
             # We shuffle subjects too for extra variety across semesters
-            shuffled_subjects = subjects[:]
+            campus_subjects = [s for s in subjects if getattr(s, 'product_type', 'campus') == getattr(college, 'product_type', 'campus')]
+            shuffled_subjects = campus_subjects[:]
             random.shuffle(shuffled_subjects)
+            
+            if not shuffled_subjects:
+                continue
 
             for s_idx, subject in enumerate(shuffled_subjects):
                 # Ensure SemesterSubject exists

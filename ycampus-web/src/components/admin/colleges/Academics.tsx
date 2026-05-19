@@ -70,10 +70,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const [hierarchyData, setHierarchyData] = useState<any[]>([]);
     const [manageLoading, setManageLoading] = useState(false);
     const [selectedBatchName, setSelectedBatchName] = useState<string | null>(null);
-    
+
     // Search State
     const [searchQuery, setSearchQuery] = useState("");
-    
+
     // Dialog & Form State
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newItemName, setNewItemName] = useState("");
@@ -81,7 +81,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const [startYear, setStartYear] = useState("");
     const [endYear, setEndYear] = useState("");
     const [isAdding, setIsAdding] = useState(false);
-    
+
     // Multi-select for departments
     const [selectedPresets, setSelectedPresets] = useState<{ name: string, short_form: string }[]>([]);
     const [addMode, setAddMode] = useState<'manual' | 'preset'>('preset');
@@ -149,10 +149,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         try {
             const batches = await batchService.getBatches(deptId);
             const targetBatch = batches.find(b => b.name === selectedBatchName);
-            
+
             let deptName = "Department";
             const dept = hierarchyData.find(d => d.id === deptId);
-            if(dept) deptName = dept.name;
+            if (dept) deptName = dept.name;
 
             if (!targetBatch) {
                 setHierarchyData([]);
@@ -185,8 +185,8 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         try {
             const data = await sectionService.getSections(semId);
             let semName = "Semester";
-             const sem = hierarchyData.find(s => s.id === semId);
-             if(sem) semName = `Semester ${sem.number}`;
+            const sem = hierarchyData.find(s => s.id === semId);
+            if (sem) semName = `Semester ${sem.number}`;
 
             setHierarchyData(data);
             setManageView('sections');
@@ -205,7 +205,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const handleDeleteHierarchyItem = async (id: string | number) => {
         if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
         try {
-             if (manageView === 'batches') {
+            if (manageView === 'batches') {
                 toast.error("Cannot delete batch from grouped view. Delete from department level.");
                 return;
             } else if (manageView === 'departments') {
@@ -226,17 +226,17 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
     const handleAutoGenerateSemesters = async () => {
         if (!activeParent || manageView !== 'semesters') return;
-        
+
         const currentPath = hierarchyPath[hierarchyPath.length - 1] as any;
         let batchId = currentPath.batchId;
 
         if (!batchId) {
             setManageLoading(true);
             try {
-                const batch = await batchService.createBatch({ 
+                const batch = await batchService.createBatch({
                     department: activeParent.id,
                     college: college.id,
-                    name: selectedBatchName! 
+                    name: selectedBatchName!
                 });
                 batchId = batch.id;
             } catch (err) {
@@ -249,10 +249,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         setManageLoading(true);
         try {
             for (let i = 1; i <= 8; i++) {
-                await semesterService.createSemester({ 
-                    batch: batchId, 
+                await semesterService.createSemester({
+                    batch: batchId,
                     number: i,
-                    is_current: i === 1 
+                    is_current: i === 1
                 });
             }
             toast.success("8 Semesters initialized");
@@ -266,7 +266,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
     const handleBulkInitializeSemesters = async () => {
         if (manageView !== 'departments' || !selectedBatchName) return;
-        
+
         const confirmBulk = confirm(`Are you sure you want to initialize 8 semesters for all empty departments in Batch ${selectedBatchName}?`);
         if (!confirmBulk) return;
 
@@ -280,7 +280,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 toast.info("No empty departments found to initialize.");
             }
         } catch (err: any) {
-             toast.error(err.response?.data?.error || "Failed during bulk initialization");
+            toast.error(err.response?.data?.error || "Failed during bulk initialization");
         } finally {
             setManageLoading(false);
         }
@@ -294,7 +294,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             const sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
             const targetSections = sections.slice(0, selectedSectionLimit);
             const sectionsToDelete = sections.slice(selectedSectionLimit);
-            
+
             let initializedCount = 0;
             let deletedCount = 0;
 
@@ -336,21 +336,21 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         }
 
         if (!nameToAdd && manageView !== 'batches' && (manageView !== 'departments' || addMode === 'manual')) {
-             toast.error("Name is required");
-             return;
+            toast.error("Name is required");
+            return;
         }
 
         setIsAdding(true);
         try {
             if (manageView === 'batches') {
-                await batchService.createBatch({ 
-                    college: college.id, 
-                    name: nameToAdd 
+                await batchService.createBatch({
+                    college: college.id,
+                    name: nameToAdd
                 });
                 loadUniqueBatches(false);
             } else if (manageView === 'departments') {
                 const departmentsToCreate = addMode === 'preset' ? selectedPresets : [{ name: nameToAdd, short_form: newItemShortForm }];
-                
+
                 if (departmentsToCreate.length === 0) {
                     toast.error("Please select at least one department");
                     setIsAdding(false);
@@ -361,30 +361,30 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
                 for (const deptData of departmentsToCreate) {
                     let dept = existingDepts.find(d => d.name.toLowerCase() === deptData.name.toLowerCase());
-                    
+
                     if (!dept) {
-                        dept = await departmentService.createDepartment({ 
-                            college: college.id, 
+                        dept = await departmentService.createDepartment({
+                            college: college.id,
                             name: deptData.name,
                             short_form: deptData.short_form
                         });
                     }
-                    await batchService.createBatch({ 
-                        college: college.id, 
+                    await batchService.createBatch({
+                        college: college.id,
                         department: dept.id,
-                        name: selectedBatchName! 
+                        name: selectedBatchName!
                     });
                 }
-                
+
                 loadDepartmentsForBatch(selectedBatchName!, false);
             } else if (manageView === 'semesters') {
                 const currentPath = hierarchyPath[hierarchyPath.length - 1] as any;
                 let batchId = currentPath.batchId;
                 if (!batchId) {
-                    const batch = await batchService.createBatch({ 
-                        department: activeParent!.id, 
+                    const batch = await batchService.createBatch({
+                        department: activeParent!.id,
                         college: college.id,
-                        name: selectedBatchName! 
+                        name: selectedBatchName!
                     });
                     batchId = batch.id;
                 }
@@ -396,7 +396,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 await sectionService.createSection({ semester: activeParent!.id, name: nameToAdd });
                 loadSectionsForManage(activeParent!.id, false);
             }
-            
+
             setNewItemName("");
             setNewItemShortForm("");
             setSelectedPresets([]);
@@ -422,7 +422,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     };
 
     const getDialogTitle = () => {
-        switch(manageView) {
+        switch (manageView) {
             case 'batches': return "Add New Batch Period";
             case 'departments': return "Add New Department";
             case 'semesters': return "Add New Semester";
@@ -444,7 +444,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 </div>
                 {hierarchyPath.map((crumb, idx) => (
                     <React.Fragment key={idx}>
-                         {idx > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground mx-1 shrink-0" />}
+                        {idx > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground mx-1 shrink-0" />}
                         <button
                             onClick={() => {
                                 if (idx === hierarchyPath.length - 1) return;
@@ -453,9 +453,8 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                 else if (crumb.view === 'semesters') loadSemestersForManager(crumb.id, false);
                                 setHierarchyPath(hierarchyPath.slice(0, idx + 1));
                             }}
-                            className={`text-[10px] whitespace-nowrap font-bold tracking-widest uppercase transition-colors cursor-pointer ${
-                                idx === hierarchyPath.length - 1 ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-                            }`}
+                            className={`text-[10px] whitespace-nowrap font-bold tracking-widest   transition-colors cursor-pointer ${idx === hierarchyPath.length - 1 ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+                                }`}
                         >
                             {crumb.name}
                         </button>
@@ -493,7 +492,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             <Button
                                 onClick={handleBulkInitializeSemesters}
                                 variant="outline"
-                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap shrink-0"
+                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm   tracking-wide whitespace-nowrap shrink-0"
                             >
                                 <Zap className="h-4 w-4 fill-primary/20" />
                                 BULK INITIALIZE SEMESTERS
@@ -504,7 +503,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             <Button
                                 onClick={() => setIsBulkSectionsDialogOpen(true)}
                                 variant="outline"
-                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap shrink-0"
+                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm   tracking-wide whitespace-nowrap shrink-0"
                             >
                                 <Zap className="h-4 w-4 fill-primary/20" />
                                 BULK INITIALIZE SECTIONS
@@ -513,7 +512,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
                         <Button
                             onClick={() => setIsAddDialogOpen(true)}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg uppercase tracking-wide whitespace-nowrap shrink-0"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg   tracking-wide whitespace-nowrap shrink-0"
                         >
                             <Plus className="h-4 w-4" />
                             ADD {manageView.slice(0, -1)}
@@ -546,7 +545,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                 manageView === 'semesters' ? <Clock className="h-6 w-6" /> :
                                                     <Hash className="h-6 w-6" />}
                                     </div>
-                                    <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors uppercase truncate">
+                                    <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors   truncate">
                                         {manageView === 'batches' ? `BATCH ${item.name}` :
                                             manageView === 'semesters' ? `SEMESTER ${item.number}` : item.name}
                                     </h4>
@@ -582,7 +581,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                 )}
                                             </div>
                                         )}
-                                        
+
                                         {manageView === 'sections' && (
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs font-bold text-foreground">
@@ -591,20 +590,20 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     <div className="flex items-center justify-end mt-4">
                                         <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (manageView === 'batches') loadDepartmentsForBatch(item.name);
-                                                    else if (manageView === 'departments') loadSemestersForManager(item.id);
-                                                    else if (manageView === 'semesters') loadSectionsForManage(item.id);
-                                                }}
-                                                className="text-xs font-bold text-primary hover:underline uppercase tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
-                                            >
-                                                MANAGE
-                                                <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
-                                            </button>
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (manageView === 'batches') loadDepartmentsForBatch(item.name);
+                                                else if (manageView === 'departments') loadSemestersForManager(item.id);
+                                                else if (manageView === 'semesters') loadSectionsForManage(item.id);
+                                            }}
+                                            className="text-xs font-bold text-primary hover:underline   tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
+                                        >
+                                            MANAGE
+                                            <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
+                                        </button>
                                     </div>
 
                                     {/* Absolute buttons for Edit/Delete that appear on hover */}
@@ -630,7 +629,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                 <div className="w-16 h-16 bg-muted flex items-center justify-center rounded-2xl mb-4">
                                     <Search className="h-8 w-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                                <h3 className="text-sm font-bold text-muted-foreground   tracking-widest">
                                     {searchQuery ? `No results for "${searchQuery}"` : "No Items Initialized"}
                                 </h3>
                                 {!searchQuery && manageView === 'semesters' && (
@@ -648,29 +647,29 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             </div>
 
             {/* Add Item Dialog */}
-             <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-                  setIsAddDialogOpen(open);
-                  if (!open) {
-                      setSelectedPresets([]);
-                      setNewItemName("");
-                      setNewItemShortForm("");
-                  }
-              }}>
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+                setIsAddDialogOpen(open);
+                if (!open) {
+                    setSelectedPresets([]);
+                    setNewItemName("");
+                    setNewItemShortForm("");
+                }
+            }}>
                 <DialogContent className={manageView === 'departments' && addMode === 'preset' ? "sm:max-w-2xl max-h-[90vh] overflow-y-auto" : "sm:max-w-md"}>
                     <DialogHeader>
                         <DialogTitle>{getDialogTitle()}</DialogTitle>
                         <DialogDescription>
-                            {manageView === 'departments' 
+                            {manageView === 'departments'
                                 ? "Select existing departments or create a new one to link with this batch."
                                 : `Enter the details below to add a new ${manageView.slice(0, -1)}.`}
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4 py-4">
                         {manageView === 'batches' ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Start Year</label>
+                                    <label className="text-xs font-semibold   tracking-wider text-muted-foreground">Start Year</label>
                                     <Input
                                         placeholder="YYYY"
                                         value={startYear}
@@ -679,7 +678,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">End Year</label>
+                                    <label className="text-xs font-semibold   tracking-wider text-muted-foreground">End Year</label>
                                     <Input
                                         placeholder="YYYY"
                                         value={endYear}
@@ -691,22 +690,22 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                         ) : manageView === 'departments' ? (
                             <Tabs value={addMode} onValueChange={(v: any) => setAddMode(v)} className="w-full">
                                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                                    <TabsTrigger value="preset" className="text-xs font-bold uppercase">Standard List</TabsTrigger>
-                                    <TabsTrigger value="manual" className="text-xs font-bold uppercase">Manual Entry</TabsTrigger>
+                                    <TabsTrigger value="preset" className="text-xs font-bold  ">Standard List</TabsTrigger>
+                                    <TabsTrigger value="manual" className="text-xs font-bold  ">Manual Entry</TabsTrigger>
                                 </TabsList>
-                                
+
                                 <TabsContent value="preset" className="space-y-6">
                                     {DEPARTMENT_CATEGORIES.map((cat, catIdx) => (
                                         <div key={catIdx} className="space-y-3">
                                             <div className="flex items-center gap-2 border-b border-border pb-2">
                                                 <span className="text-lg">{cat.icon}</span>
-                                                <h4 className="text-sm font-bold text-foreground uppercase tracking-tight">{cat.name}</h4>
+                                                <h4 className="text-sm font-bold text-foreground   tracking-tight">{cat.name}</h4>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {cat.departments.map((dept, deptIdx) => {
                                                     const isSelected = selectedPresets.some(p => p.name === dept.name);
                                                     return (
-                                                        <div 
+                                                        <div
                                                             key={deptIdx}
                                                             onClick={() => {
                                                                 if (isSelected) {
@@ -715,15 +714,13 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                                     setSelectedPresets(prev => [...prev, dept]);
                                                                 }
                                                             }}
-                                                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
-                                                                isSelected 
-                                                                    ? "bg-primary/5 border-primary shadow-sm" 
+                                                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${isSelected
+                                                                    ? "bg-primary/5 border-primary shadow-sm"
                                                                     : "bg-card border-border hover:border-primary/50"
-                                                            }`}
+                                                                }`}
                                                         >
-                                                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
-                                                                isSelected ? "bg-primary border-primary" : "bg-card border-border"
-                                                            }`}>
+                                                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${isSelected ? "bg-primary border-primary" : "bg-card border-border"
+                                                                }`}>
                                                                 {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                                                             </div>
                                                             <div className="flex flex-col">
@@ -739,10 +736,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                         </div>
                                     ))}
                                 </TabsContent>
-                                
+
                                 <TabsContent value="manual" className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Department Name</label>
+                                        <label className="text-xs font-semibold   tracking-wider text-muted-foreground">Department Name</label>
                                         <Input
                                             placeholder="Enter department name"
                                             value={newItemName}
@@ -751,29 +748,29 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Short Form / Shortcut</label>
+                                        <label className="text-xs font-semibold   tracking-wider text-muted-foreground">Short Form / Shortcut</label>
                                         <Input
                                             placeholder="e.g. CSE"
                                             value={newItemShortForm}
                                             onChange={(e) => setNewItemShortForm(e.target.value)}
-                                            className="font-bold border-border uppercase"
+                                            className="font-bold border-border  "
                                         />
                                     </div>
                                 </TabsContent>
                             </Tabs>
                         ) : (
                             <div className="space-y-2">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{manageView.slice(0, -1)} Name/Number</label>
+                                <label className="text-xs font-semibold   tracking-wider text-muted-foreground">{manageView.slice(0, -1)} Name/Number</label>
                                 <Input
                                     placeholder={manageView === 'semesters' ? "e.g. 1" : `Enter ${manageView.slice(0, -1)} name`}
                                     value={newItemName}
                                     onChange={(e) => setNewItemName(e.target.value)}
-                                    className="font-bold border-border uppercase"
+                                    className="font-bold border-border  "
                                 />
                             </div>
                         )}
                     </div>
-                    
+
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
                         <Button onClick={handleAddItem} disabled={isAdding}>
@@ -784,29 +781,28 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 </DialogContent>
             </Dialog>
 
-             {/* Bulk Sections Dialog */}
-             <Dialog open={isBulkSectionsDialogOpen} onOpenChange={setIsBulkSectionsDialogOpen}>
+            {/* Bulk Sections Dialog */}
+            <Dialog open={isBulkSectionsDialogOpen} onOpenChange={setIsBulkSectionsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Synchronize Sections (A-J)</DialogTitle>
                         <DialogDescription>
-                            This will create the specified number of sections across <strong>all semesters</strong> in this department. 
+                            This will create the specified number of sections across <strong>all semesters</strong> in this department.
                             It will automatically delete any extra sections beyond your selection.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-5 gap-3 py-6">
-                        {[1,2,3,4,5,6,7,8,9,10].map((num) => {
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
                             const sectionLetter = String.fromCharCode(64 + num); // A, B, C...
                             const isSelected = selectedSectionLimit === num;
                             return (
                                 <button
                                     key={num}
                                     onClick={() => setSelectedSectionLimit(num)}
-                                    className={`h-12 rounded-lg font-bold border transition-all ${
-                                        isSelected 
-                                            ? "bg-primary border-primary text-primary-foreground shadow-sm" 
+                                    className={`h-12 rounded-lg font-bold border transition-all ${isSelected
+                                            ? "bg-primary border-primary text-primary-foreground shadow-sm"
                                             : "bg-card border-border text-muted-foreground hover:border-primary/50"
-                                    }`}
+                                        }`}
                                 >
                                     To {sectionLetter}
                                 </button>
@@ -820,7 +816,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                 <p className="font-semibold text-primary">Applying up to Section {String.fromCharCode(64 + selectedSectionLimit)}</p>
                                 <p className="text-primary/70 mt-1">
                                     All semesters will be synced to have sections {
-                                        Array.from({length: selectedSectionLimit}, (_, i) => String.fromCharCode(65 + i)).join(', ')
+                                        Array.from({ length: selectedSectionLimit }, (_, i) => String.fromCharCode(65 + i)).join(', ')
                                     }. Existing sections beyond this limit will be permanently deleted.
                                 </p>
                             </div>

@@ -247,7 +247,7 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # Code Executor Service Configuration
 CODE_EXECUTOR_SERVICE_URL = os.getenv(
-    "CODE_EXECUTOR_SERVICE_URL", "http://code-executor:8002"
+    "CODE_EXECUTOR_SERVICE_URL", "http://yuvro-code-executor:8002"
 )
 
 # API Documentation Settings

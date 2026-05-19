@@ -46,10 +46,12 @@ const AddSubjectToSemesterDialog: React.FC<AddSubjectToSemesterDialogProps> = ({
         try {
             const collegeSubjects = await subjectService.fetchCollegeSubjects(collegeId.toString());
             
-            // Filter out subjects that are already in the semester
+            // Filter out subjects that are already in the semester, and ignore 'assessments' products
             const filtered = collegeSubjects.filter(cs => {
                 const subjectId = cs.subject;
-                return !existingSubjectIds.includes(subjectId) && 
+                const isAssessments = cs.subject_details?.product_type === 'assessments';
+                return !isAssessments &&
+                       !existingSubjectIds.includes(subjectId) && 
                        (!cs.subject_details?.id || !existingSubjectIds.includes(cs.subject_details.id));
             });
             

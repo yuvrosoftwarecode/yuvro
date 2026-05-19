@@ -2,50 +2,6 @@
     "name": "React Basics",
     "subject_short_code": "RJS100",
     "order_index": 1,
-    "subunits": [
-        {
-            "name": "JSX",
-            "content": "JSX stands for JavaScript XML. It allows us to write HTML in React by converting it into React elements that can be rendered to the DOM. JSX makes it easier to write and add HTML in React.",
-            "order_index": 0,
-            "videos": []
-        },
-        {
-            "name": "Components (Functional/Class)",
-            "content": "Components are the building blocks of any React application. Functional components are simple JavaScript functions that return JSX, while Class components are ES6 classes that extend React.Component. Modern React development primarily uses functional components with hooks.",
-            "order_index": 1,
-            "videos": []
-        },
-        {
-            "name": "Props",
-            "content": "Props (short for properties) are used to pass data from one component to another (primarily from parent to child). They are read-only and help make components reusable and dynamic.",
-            "order_index": 2,
-            "videos": []
-        },
-        {
-            "name": "State",
-            "content": "State is an object that holds information about the component that might change over time. Unlike props, state is managed within the component and can be updated using the useState hook or setState in class components.",
-            "order_index": 3,
-            "videos": []
-        },
-        {
-            "name": "Event Handling",
-            "content": "React events are named using camelCase, such as onClick instead of onclick. Event handlers are passed as functions rather than strings. Understanding how to handle user interactions is fundamental to building interactive UIs.",
-            "order_index": 4,
-            "videos": []
-        },
-        {
-            "name": "Conditional Rendering",
-            "content": "Conditional rendering in React works the same way conditions work in JavaScript. You can use JavaScript operators like if or the ternary operator to create elements representing the current state.",
-            "order_index": 5,
-            "videos": []
-        },
-        {
-            "name": "Lists & Keys",
-            "content": "In React, you can render lists of data using the map() function. Keys help React identify which items have changed, are added, or are removed, giving the elements a stable identity and improving performance.",
-            "order_index": 6,
-            "videos": []
-        }
-    ],
     "questions": [
         {
             "type": "mcq_single",
@@ -3248,684 +3204,1328 @@
             ]
         },
         {
-      "type": "mcq_single",
-      "title": "What is Conditional Rendering",
-      "content": "What is conditional rendering in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Rendering UI based on conditions", "is_correct": true },
-        { "text": "Database rendering", "is_correct": false },
-        { "text": "CSS rendering only", "is_correct": false },
-        { "text": "Backend rendering", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "If Statement",
-      "content": "Which is commonly used for conditional rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "if condition", "is_correct": true },
-        { "text": "SQL query", "is_correct": false },
-        { "text": "CSS rule", "is_correct": false },
-        { "text": "HTML tag only", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Ternary Operator",
-      "content": "Which operator is used for conditional rendering in JSX?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "?:", "is_correct": true },
-        { "text": "&&&", "is_correct": false },
-        { "text": "##", "is_correct": false },
-        { "text": "$$", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Logical AND",
-      "content": "Which operator is used for simple conditional rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "&&", "is_correct": true },
-        { "text": "||=", "is_correct": false },
-        { "text": "===", "is_correct": false },
-        { "text": "%%", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "JSX Condition",
-      "content": "How is condition written inside JSX?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Using {} with expressions", "is_correct": true },
-        { "text": "Using <if> tag", "is_correct": false },
-        { "text": "Using SQL syntax", "is_correct": false },
-        { "text": "Using CSS only", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Conditional Rendering Use",
-      "content": "Where is conditional rendering used most?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Login/logout UI", "is_correct": true },
-        { "text": "Database schema", "is_correct": false },
-        { "text": "Server setup", "is_correct": false },
-        { "text": "CSS file creation", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Multiple Conditions",
-      "content": "How do we handle multiple conditions in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "if-else or switch", "is_correct": true },
-        { "text": "SQL joins", "is_correct": false },
-        { "text": "CSS selectors", "is_correct": false },
-        { "text": "HTML only", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Short Circuit Rendering",
-      "content": "What is short-circuit rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Using && for conditional UI", "is_correct": true },
-        { "text": "Using SQL queries", "is_correct": false },
-        { "text": "Using CSS animations", "is_correct": false },
-        { "text": "Using backend logic only", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Null Rendering",
-      "content": "What happens if condition is false in && rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Nothing is rendered", "is_correct": true },
-        { "text": "Error occurs", "is_correct": false },
-        { "text": "Page reloads", "is_correct": false },
-        { "text": "CSS breaks", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Best Practice",
-      "content": "What is best practice for complex conditions?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Use helper functions", "is_correct": true },
-        { "text": "Write everything in JSX", "is_correct": false },
-        { "text": "Use SQL logic", "is_correct": false },
-        { "text": "Avoid conditions", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Conditional Rendering Methods",
-      "content": "Which are ways of conditional rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "if-else", "is_correct": true },
-        { "text": "ternary operator", "is_correct": true },
-        { "text": "logical &&", "is_correct": true },
-        { "text": "SQL conditions", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Use Cases",
-      "content": "Where is conditional rendering used?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Login pages", "is_correct": true },
-        { "text": "Forms validation", "is_correct": true },
-        { "text": "UI toggles", "is_correct": true },
-        { "text": "Database schema", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "JSX Conditions",
-      "content": "Which are valid JSX conditions?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "{condition && <Component />}", "is_correct": true },
-        { "text": "{condition ? A : B}", "is_correct": true },
-        { "text": "if(condition) JSX", "is_correct": false },
-        { "text": "<if></if>", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Rendering Behavior",
-      "content": "What affects rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Boolean values", "is_correct": true },
-        { "text": "Expressions", "is_correct": true },
-        { "text": "Conditions", "is_correct": true },
-        { "text": "SQL queries", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Ternary Operator",
-      "content": "What are features of ternary operator?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Inline condition", "is_correct": true },
-        { "text": "Returns two outcomes", "is_correct": true },
-        { "text": "Used in JSX", "is_correct": true },
-        { "text": "Used in SQL joins", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Logical Rendering",
-      "content": "What does && operator do in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Renders component if true", "is_correct": true },
-        { "text": "Skips rendering if false", "is_correct": true },
-        { "text": "Short-circuit behavior", "is_correct": true },
-        { "text": "Executes SQL query", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Complex Conditions",
-      "content": "Which are used for complex conditions?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "switch case", "is_correct": true },
-        { "text": "helper functions", "is_correct": true },
-        { "text": "multiple if-else", "is_correct": true },
-        { "text": "CSS rules", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Rendering",
-      "content": "What are advanced conditional rendering techniques?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Higher-order components", "is_correct": true },
-        { "text": "Render functions", "is_correct": true },
-        { "text": "Conditional hooks usage", "is_correct": true },
-        { "text": "SQL rendering logic", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Performance",
-      "content": "Which improve conditional rendering performance?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Avoid unnecessary renders", "is_correct": true },
-        { "text": "Memoization", "is_correct": true },
-        { "text": "Clean conditions", "is_correct": true },
-        { "text": "Heavy SQL calls", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Rendering Issues",
-      "content": "What can cause rendering issues?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Conditional Rendering",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Incorrect conditions", "is_correct": true },
-        { "text": "Undefined values", "is_correct": true },
-        { "text": "Logical errors", "is_correct": true },
-        { "text": "Proper JSX usage", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "What are Lists in React",
-      "content": "What are lists used for in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Rendering multiple elements", "is_correct": true },
-        { "text": "Database storage", "is_correct": false },
-        { "text": "CSS styling", "is_correct": false },
-        { "text": "Backend APIs", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "What is Key",
-      "content": "What is the purpose of a key in React lists?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "To uniquely identify elements", "is_correct": true },
-        { "text": "To style elements", "is_correct": false },
-        { "text": "To store database ID", "is_correct": false },
-        { "text": "To fetch API data", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "List Method",
-      "content": "Which JS method is used to render lists in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "map()", "is_correct": true },
-        { "text": "filter()", "is_correct": false },
-        { "text": "reduce()", "is_correct": false },
-        { "text": "sort()", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Key Requirement",
-      "content": "Is key required in list rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Yes, for performance and tracking", "is_correct": true },
-        { "text": "No, never required", "is_correct": false },
-        { "text": "Only for CSS", "is_correct": false },
-        { "text": "Only for backend", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Key Importance",
-      "content": "Why are keys important in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Efficient re-rendering", "is_correct": true },
-        { "text": "Database indexing", "is_correct": false },
-        { "text": "CSS optimization", "is_correct": false },
-        { "text": "API routing", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Key Value",
-      "content": "What should a key ideally be?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Unique and stable", "is_correct": true },
-        { "text": "Random number", "is_correct": false },
-        { "text": "CSS class", "is_correct": false },
-        { "text": "HTML tag", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Index as Key",
-      "content": "Is using index as key recommended?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Not recommended in dynamic lists", "is_correct": true },
-        { "text": "Always recommended", "is_correct": false },
-        { "text": "Only for CSS", "is_correct": false },
-        { "text": "Only for backend", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Key Reconciliation",
-      "content": "What does React use keys for internally?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Efficient DOM reconciliation", "is_correct": true },
-        { "text": "Database sync", "is_correct": false },
-        { "text": "CSS rendering", "is_correct": false },
-        { "text": "API calls", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Key Issues",
-      "content": "What happens if keys are not unique?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Rendering bugs may occur", "is_correct": true },
-        { "text": "CSS breaks", "is_correct": false },
-        { "text": "API fails", "is_correct": false },
-        { "text": "Database crashes", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Stable Keys",
-      "content": "Why should keys be stable?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "To maintain component identity", "is_correct": true },
-        { "text": "To improve CSS speed", "is_correct": false },
-        { "text": "To change UI design", "is_correct": false },
-        { "text": "To run SQL faster", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "List Usage",
-      "content": "Where are lists used in React?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Displaying items", "is_correct": true },
-        { "text": "Rendering arrays", "is_correct": true },
-        { "text": "UI repetition", "is_correct": true },
-        { "text": "Database storage", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Keys Purpose",
-      "content": "What are purposes of keys?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Unique identification", "is_correct": true },
-        { "text": "Efficient updates", "is_correct": true },
-        { "text": "DOM optimization", "is_correct": true },
-        { "text": "CSS styling", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "List Rendering",
-      "content": "Which methods are used in list rendering?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "map()", "is_correct": true },
-        { "text": "filter()", "is_correct": true },
-        { "text": "reduce()", "is_correct": true },
-        { "text": "SQL query", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Key Usage",
-      "content": "Where are keys used?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "List items", "is_correct": true },
-        { "text": "Dynamic rendering", "is_correct": true },
-        { "text": "Component updates", "is_correct": true },
-        { "text": "Database tables", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Key Benefits",
-      "content": "What are benefits of keys?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Better performance", "is_correct": true },
-        { "text": "Efficient diffing", "is_correct": true },
-        { "text": "Stable identity", "is_correct": true },
-        { "text": "SQL indexing", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Key Rules",
-      "content": "What are rules for keys?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Must be unique", "is_correct": true },
-        { "text": "Should be stable", "is_correct": true },
-        { "text": "Avoid index keys", "is_correct": true },
-        { "text": "Can be random every render", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Rendering Behavior",
-      "content": "What improves rendering with keys?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Reconciliation speed", "is_correct": true },
-        { "text": "DOM reuse", "is_correct": true },
-        { "text": "Efficient updates", "is_correct": true },
-        { "text": "CSS rendering", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Key Problems",
-      "content": "What happens if keys are wrong?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "UI bugs", "is_correct": true },
-        { "text": "Wrong element updates", "is_correct": true },
-        { "text": "Performance issues", "is_correct": true },
-        { "text": "Faster rendering always", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Key Internals",
-      "content": "What does React use keys for internally?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Diff algorithm", "is_correct": true },
-        { "text": "DOM reconciliation", "is_correct": true },
-        { "text": "Efficient updates", "is_correct": true },
-        { "text": "Database indexing", "is_correct": false }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices",
-      "content": "Which are best practices for keys?",
-      "level": "subunit",
-      "unit_name": "React Basics",
-      "subunit_name": "Lists & Keys",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": ["learn", "skill_test"],
-      "mcq_options": [
-        { "text": "Use unique IDs", "is_correct": true },
-        { "text": "Avoid index keys", "is_correct": true },
-        { "text": "Keep keys stable", "is_correct": true },
-        { "text": "Change keys every render", "is_correct": false }
-      ]
-    }
+            "type": "mcq_single",
+            "title": "What is Conditional Rendering",
+            "content": "What is conditional rendering in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rendering UI based on conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS rendering only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "If Statement",
+            "content": "Which is commonly used for conditional rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "if condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS rule",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tag only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Ternary Operator",
+            "content": "Which operator is used for conditional rendering in JSX?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "?:",
+                    "is_correct": true
+                },
+                {
+                    "text": "&&&",
+                    "is_correct": false
+                },
+                {
+                    "text": "##",
+                    "is_correct": false
+                },
+                {
+                    "text": "$$",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Logical AND",
+            "content": "Which operator is used for simple conditional rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "&&",
+                    "is_correct": true
+                },
+                {
+                    "text": "||=",
+                    "is_correct": false
+                },
+                {
+                    "text": "===",
+                    "is_correct": false
+                },
+                {
+                    "text": "%%",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Condition",
+            "content": "How is condition written inside JSX?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using {} with expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using <if> tag",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using SQL syntax",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Conditional Rendering Use",
+            "content": "Where is conditional rendering used most?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Login/logout UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server setup",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Conditions",
+            "content": "How do we handle multiple conditions in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "if-else or switch",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS selectors",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Short Circuit Rendering",
+            "content": "What is short-circuit rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using && for conditional UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS animations",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using backend logic only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Null Rendering",
+            "content": "What happens if condition is false in && rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Nothing is rendered",
+                    "is_correct": true
+                },
+                {
+                    "text": "Error occurs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Page reloads",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS breaks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Practice",
+            "content": "What is best practice for complex conditions?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use helper functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Write everything in JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use SQL logic",
+                    "is_correct": false
+                },
+                {
+                    "text": "Avoid conditions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Conditional Rendering Methods",
+            "content": "Which are ways of conditional rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "if-else",
+                    "is_correct": true
+                },
+                {
+                    "text": "ternary operator",
+                    "is_correct": true
+                },
+                {
+                    "text": "logical &&",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL conditions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is conditional rendering used?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Login pages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Forms validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI toggles",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Conditions",
+            "content": "Which are valid JSX conditions?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "{condition && <Component />}",
+                    "is_correct": true
+                },
+                {
+                    "text": "{condition ? A : B}",
+                    "is_correct": true
+                },
+                {
+                    "text": "if(condition) JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "<if></if>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rendering Behavior",
+            "content": "What affects rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Boolean values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Ternary Operator",
+            "content": "What are features of ternary operator?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inline condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Returns two outcomes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in JSX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Logical Rendering",
+            "content": "What does && operator do in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Renders component if true",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skips rendering if false",
+                    "is_correct": true
+                },
+                {
+                    "text": "Short-circuit behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Executes SQL query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Complex Conditions",
+            "content": "Which are used for complex conditions?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "switch case",
+                    "is_correct": true
+                },
+                {
+                    "text": "helper functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "multiple if-else",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Rendering",
+            "content": "What are advanced conditional rendering techniques?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher-order components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Conditional hooks usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL rendering logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance",
+            "content": "Which improve conditional rendering performance?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoid unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Clean conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Heavy SQL calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rendering Issues",
+            "content": "What can cause rendering issues?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Conditional Rendering",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Incorrect conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Undefined values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper JSX usage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What are Lists in React",
+            "content": "What are lists used for in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rendering multiple elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is Key",
+            "content": "What is the purpose of a key in React lists?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To uniquely identify elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "To store database ID",
+                    "is_correct": false
+                },
+                {
+                    "text": "To fetch API data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "List Method",
+            "content": "Which JS method is used to render lists in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": false
+                },
+                {
+                    "text": "reduce()",
+                    "is_correct": false
+                },
+                {
+                    "text": "sort()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Key Requirement",
+            "content": "Is key required in list rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yes, for performance and tracking",
+                    "is_correct": true
+                },
+                {
+                    "text": "No, never required",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only for CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only for backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Key Importance",
+            "content": "Why are keys important in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Efficient re-rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS optimization",
+                    "is_correct": false
+                },
+                {
+                    "text": "API routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Key Value",
+            "content": "What should a key ideally be?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unique and stable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Random number",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS class",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tag",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Index as Key",
+            "content": "Is using index as key recommended?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Not recommended in dynamic lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always recommended",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only for CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only for backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Key Reconciliation",
+            "content": "What does React use keys for internally?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Efficient DOM reconciliation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database sync",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Key Issues",
+            "content": "What happens if keys are not unique?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rendering bugs may occur",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS breaks",
+                    "is_correct": false
+                },
+                {
+                    "text": "API fails",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database crashes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Stable Keys",
+            "content": "Why should keys be stable?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To maintain component identity",
+                    "is_correct": true
+                },
+                {
+                    "text": "To improve CSS speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "To change UI design",
+                    "is_correct": false
+                },
+                {
+                    "text": "To run SQL faster",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "List Usage",
+            "content": "Where are lists used in React?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Displaying items",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rendering arrays",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI repetition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Keys Purpose",
+            "content": "What are purposes of keys?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unique identification",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "List Rendering",
+            "content": "Which methods are used in list rendering?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": true
+                },
+                {
+                    "text": "reduce()",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Usage",
+            "content": "Where are keys used?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "List items",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Benefits",
+            "content": "What are benefits of keys?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Better performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient diffing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stable identity",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Rules",
+            "content": "What are rules for keys?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must be unique",
+                    "is_correct": true
+                },
+                {
+                    "text": "Should be stable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid index keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can be random every render",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rendering Behavior",
+            "content": "What improves rendering with keys?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reconciliation speed",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Problems",
+            "content": "What happens if keys are wrong?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "UI bugs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wrong element updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Internals",
+            "content": "What does React use keys for internally?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Diff algorithm",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM reconciliation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "Which are best practices for keys?",
+            "level": "subunit",
+            "unit_name": "React Basics",
+            "subunit_name": "Lists & Keys",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use unique IDs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid index keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Keep keys stable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Change keys every render",
+                    "is_correct": false
+                }
+            ]
+        }
+    ],
+    "sub_units": [
+        {
+            "name": "JSX",
+            "content": "JSX stands for JavaScript XML. It allows us to write HTML in React by converting it into React elements that can be rendered to the DOM. JSX makes it easier to write and add HTML in React.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Components (Functional/Class)",
+            "content": "Components are the building blocks of any React application. Functional components are simple JavaScript functions that return JSX, while Class components are ES6 classes that extend React.Component. Modern React development primarily uses functional components with hooks.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "Props",
+            "content": "Props (short for properties) are used to pass data from one component to another (primarily from parent to child). They are read-only and help make components reusable and dynamic.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "State",
+            "content": "State is an object that holds information about the component that might change over time. Unlike props, state is managed within the component and can be updated using the useState hook or setState in class components.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Event Handling",
+            "content": "React events are named using camelCase, such as onClick instead of onclick. Event handlers are passed as functions rather than strings. Understanding how to handle user interactions is fundamental to building interactive UIs.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Conditional Rendering",
+            "content": "Conditional rendering in React works the same way conditions work in JavaScript. You can use JavaScript operators like if or the ternary operator to create elements representing the current state.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Lists & Keys",
+            "content": "In React, you can render lists of data using the map() function. Keys help React identify which items have changed, are added, or are removed, giving the elements a stable identity and improving performance.",
+            "order_index": 6,
+            "videos": []
+        }
     ]
 }

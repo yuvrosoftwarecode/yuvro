@@ -1,12 +1,10 @@
-import React from 'react';
 import { NotesProgress } from './NotesProgress';
 import { TestPerformance } from './TestPerformance';
 import { TasksSummary } from './TasksSummary';
 import { AssessmentsOverview } from './AssessmentsOverview';
-import { ContestPerformance } from './ContestPerformance';
+import { AssessmentsPerformance } from './AssessmentsPerformance';
 import { AttendanceOverview } from './AttendanceOverview';
 import { AnnouncementsWidget } from './AnnouncementsWidget';
-import { StreaksAndBadges } from './StreaksAndBadges';
 import { PerformanceMetrics } from './PerformanceMetrics';
 import PageHeader from '@/components/common/PageHeader';
 
@@ -25,10 +23,10 @@ export function ComprehensiveDashboard() {
         <TasksSummary />
       </div>
 
-      {/* Middle Row: Assessments and Contest */}
+      {/* Middle Row: Assessments and Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AssessmentsOverview />
-        <ContestPerformance />
+        <AssessmentsPerformance />
       </div>
 
       {/* Third Row: Attendance and Announcements */}
@@ -37,9 +35,8 @@ export function ComprehensiveDashboard() {
         <AnnouncementsWidget />
       </div>
 
-      {/* Bottom Row: Streaks and Performance Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StreaksAndBadges />
+      {/* Bottom Row: Performance Metrics */}
+      <div className="grid grid-cols-1 gap-6">
         <PerformanceMetrics />
       </div>
     </div>

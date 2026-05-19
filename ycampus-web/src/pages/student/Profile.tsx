@@ -245,8 +245,8 @@ const StudentProfile = () => {
   });
 
   const { data: testPerf } = useQuery({
-    queryKey: ['testPerformance'],
-    queryFn: () => studentDashboardService.getTestPerformance(),
+    queryKey: ['testPerformance', user?.college_product_type],
+    queryFn: () => studentDashboardService.getTestPerformance(user?.college_product_type),
   });
 
   const { toast } = useToast();
@@ -261,8 +261,8 @@ const StudentProfile = () => {
   });
 
   const { data: assessmentsStats } = useQuery({
-    queryKey: ['assessments'],
-    queryFn: () => studentDashboardService.getAssessments(),
+    queryKey: ['assessments', user?.college_product_type],
+    queryFn: () => studentDashboardService.getAssessments(user?.college_product_type),
   });
 
   const { data: studentDetail } = useQuery({
@@ -961,11 +961,13 @@ const StudentProfile = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex gap-3 flex-wrap">
-                <ScoreCard label="PI" score={mockScores.pi.score} status={mockScores.pi.status} />
-                <ScoreCard label="PS" score={mockScores.ps.score} status={mockScores.ps.status} />
-                <ScoreCard label="PRI" score={mockScores.pri.score} status={mockScores.pri.status} />
-              </div>
+              {user?.college_product_type !== 'assessments' && (
+                <div className="flex gap-3 flex-wrap">
+                  <ScoreCard label="PI" score={mockScores.pi.score} status={mockScores.pi.status} />
+                  <ScoreCard label="PS" score={mockScores.ps.score} status={mockScores.ps.status} />
+                  <ScoreCard label="PRI" score={mockScores.pri.score} status={mockScores.pri.status} />
+                </div>
+              )}
             </div>
             <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border/50">
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground"><Mail className="h-3.5 w-3.5" /> {profileDetail?.links?.email || user?.email || mockProfile.email}</div>

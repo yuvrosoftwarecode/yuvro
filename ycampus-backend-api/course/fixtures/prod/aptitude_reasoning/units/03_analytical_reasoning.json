@@ -66,9 +66,9 @@
     ],
     "questions": [
         {
-            "type": "mcq_single",
+            "type": "mcq_multiple",
             "title": "Employee Salary Check",
-            "content": "Question: Is Rahul's salary greater than ₹50,000?\nStatement I: Rahul received a 20% increment on his previous salary of ₹45,000.\nStatement II: Rahul's current salary is ₹54,000.",
+            "content": "Question: Is Rahul's salary greater than \u20b950,000?\nStatement I: Rahul received a 20% increment on his previous salary of \u20b945,000.\nStatement II: Rahul's current salary is \u20b954,000.",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Data Sufficiency",
@@ -164,7 +164,7 @@
         {
             "type": "mcq_single",
             "title": "Laptop Purchase Decision",
-            "content": "Question: Is the laptop price above ₹70,000?\nStatement I: After a 10% discount, the laptop costs ₹72,000.\nStatement II: The original price was reduced by ₹8,000.",
+            "content": "Question: Is the laptop price above \u20b970,000?\nStatement I: After a 10% discount, the laptop costs \u20b972,000.\nStatement II: The original price was reduced by \u20b98,000.",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Data Sufficiency",
@@ -292,7 +292,7 @@
         {
             "type": "mcq_single",
             "title": "Advanced Investment Puzzle",
-            "content": "Question: Did the investor gain more than 12% annual return?\nStatement I: ₹5 lakh investment became ₹5.7 lakh in one year.\nStatement II: Inflation during the year was 6%.",
+            "content": "Question: Did the investor gain more than 12% annual return?\nStatement I: \u20b95 lakh investment became \u20b95.7 lakh in one year.\nStatement II: Inflation during the year was 6%.",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Data Sufficiency",
@@ -4068,7 +4068,7 @@
         {
             "type": "mcq_single",
             "title": "Sales Team Ranking",
-            "content": "In a sales team ranking, Riya is 9 ranks above Mohan. Mohan is ranked 27th from the top. What is Riya’s rank from the top?",
+            "content": "In a sales team ranking, Riya is 9 ranks above Mohan. Mohan is ranked 27th from the top. What is Riya\u2019s rank from the top?",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Ranking Problems",
@@ -5200,19 +5200,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "90°",
+                    "text": "90\u00b0",
                     "is_correct": true
                 },
                 {
-                    "text": "60°",
+                    "text": "60\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "120°",
+                    "text": "120\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "180°",
+                    "text": "180\u00b0",
                     "is_correct": false
                 }
             ]
@@ -5220,7 +5220,7 @@
         {
             "type": "mcq_single",
             "title": "Office Meeting Time",
-            "content": "At what time between 4 and 5 o’clock will the hands of a clock coincide?",
+            "content": "At what time between 4 and 5 o\u2019clock will the hands of a clock coincide?",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Clock Problems",
@@ -5264,19 +5264,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "180°",
+                    "text": "180\u00b0",
                     "is_correct": true
                 },
                 {
-                    "text": "90°",
+                    "text": "90\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "150°",
+                    "text": "150\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "120°",
+                    "text": "120\u00b0",
                     "is_correct": false
                 }
             ]
@@ -5316,7 +5316,7 @@
         {
             "type": "mcq_single",
             "title": "Production Monitoring System",
-            "content": "At what time between 7 and 8 o’clock will the hands of a clock be at right angles for the first time?",
+            "content": "At what time between 7 and 8 o\u2019clock will the hands of a clock be at right angles for the first time?",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Clock Problems",
@@ -5360,19 +5360,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "130°",
+                    "text": "130\u00b0",
                     "is_correct": true
                 },
                 {
-                    "text": "120°",
+                    "text": "120\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "140°",
+                    "text": "140\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "150°",
+                    "text": "150\u00b0",
                     "is_correct": false
                 }
             ]
@@ -5412,7 +5412,7 @@
         {
             "type": "mcq_single",
             "title": "Advanced Clock Logic",
-            "content": "At what time between 9 and 10 o’clock will the hands of a clock be exactly opposite?",
+            "content": "At what time between 9 and 10 o\u2019clock will the hands of a clock be exactly opposite?",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Clock Problems",
@@ -5456,19 +5456,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "80°",
+                    "text": "80\u00b0",
                     "is_correct": true
                 },
                 {
-                    "text": "70°",
+                    "text": "70\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "90°",
+                    "text": "90\u00b0",
                     "is_correct": false
                 },
                 {
-                    "text": "100°",
+                    "text": "100\u00b0",
                     "is_correct": false
                 }
             ]
@@ -5476,7 +5476,7 @@
         {
             "type": "mcq_single",
             "title": "AI Scheduler Timing",
-            "content": "At what time between 1 and 2 o’clock will the hands of a clock form a straight line for the first time?",
+            "content": "At what time between 1 and 2 o\u2019clock will the hands of a clock form a straight line for the first time?",
             "level": "subtopic",
             "unit_name": "Analytical Reasoning",
             "subunit_name": "Clock Problems",

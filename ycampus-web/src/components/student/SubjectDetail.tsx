@@ -46,7 +46,7 @@ const SubjectDetail: React.FC = () => {
   const [contentData, setContentData] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'quizzes'>('videos');
+  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'quizzes'>('materials');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedTopicTitle, setSelectedTopicTitle] = useState('');
 
@@ -265,7 +265,7 @@ const SubjectDetail: React.FC = () => {
   };
 
   const tabItems = [
-    { key: 'videos', label: 'Videos', icon: <PlayCircle className="w-4 h-4" /> },
+    // { key: 'videos', label: 'Videos', icon: <PlayCircle className="w-4 h-4" /> },
     { key: 'materials', label: 'Materials', icon: <BookOpen className="w-4 h-4" /> },
     { key: 'my-notes', label: 'My Notes', icon: <StickyNote className="w-4 h-4" /> },
     { key: 'quizzes', label: 'Quiz', icon: <HelpCircle className="w-4 h-4" /> },

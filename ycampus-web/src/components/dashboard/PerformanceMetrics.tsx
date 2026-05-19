@@ -1,11 +1,13 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { BarChart3, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { studentDashboardService } from '@/services/studentDashboardService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function PerformanceMetrics() {
+  const { user } = useAuth();
+
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: () => studentDashboardService.getGamificationStats()
@@ -22,13 +24,13 @@ export function PerformanceMetrics() {
   });
 
   const { data: tests, isLoading: testsLoading } = useQuery({
-    queryKey: ['testPerformance'],
-    queryFn: () => studentDashboardService.getTestPerformance()
+    queryKey: ['testPerformance', user?.college_product_type],
+    queryFn: () => studentDashboardService.getTestPerformance(user?.college_product_type)
   });
 
   const { data: assessments, isLoading: assessmentsLoading } = useQuery({
-    queryKey: ['assessments'],
-    queryFn: () => studentDashboardService.getAssessments()
+    queryKey: ['assessments', user?.college_product_type],
+    queryFn: () => studentDashboardService.getAssessments(user?.college_product_type)
   });
 
   const { data: contests, isLoading: contestsLoading } = useQuery({

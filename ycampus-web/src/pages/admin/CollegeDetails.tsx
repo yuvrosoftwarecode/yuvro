@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Routes, Route, Navigate } from "react-router-dom";
 import { collegeService, College } from "@/services/collegeService";
 import { toast } from "sonner";
-import { ArrowLeft, GraduationCap, Settings } from "lucide-react";
+import { ArrowLeft, GraduationCap, Settings, Sliders } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import PageHeader from "@/components/common/PageHeader";
 import Management from "@/components/admin/colleges/Management";
 import Academics from "@/components/admin/colleges/Academics";
+import SidebarConfig from "@/components/admin/colleges/SidebarConfig";
 
 const CollegeDetails: React.FC = () => {
     const { collegeId } = useParams<{ collegeId: string }>();
@@ -17,7 +18,10 @@ const CollegeDetails: React.FC = () => {
     
     // Determine active tab based on URL
     const isAcademics = location.pathname.endsWith("/academic");
-    const [activeTab, setActiveTab] = useState<"management" | "academics">(isAcademics ? "academics" : "management");
+    const isSidebarConfig = location.pathname.endsWith("/sidebar-config");
+    const [activeTab, setActiveTab] = useState<"management" | "academics" | "sidebar-config">(
+        isAcademics ? "academics" : isSidebarConfig ? "sidebar-config" : "management"
+    );
 
     const [college, setCollege] = useState<College | null>(null);
     const [loading, setLoading] = useState(true);
@@ -27,6 +31,8 @@ const CollegeDetails: React.FC = () => {
         
         if (location.pathname.endsWith("/academic")) {
             setActiveTab("academics");
+        } else if (location.pathname.endsWith("/sidebar-config")) {
+            setActiveTab("sidebar-config");
         } else if (location.pathname.endsWith("/management")) {
             setActiveTab("management");
         } else if (location.pathname.endsWith(`/${collegeId}`) || location.pathname.endsWith(`/${collegeId}/`)) {
@@ -53,10 +59,12 @@ const CollegeDetails: React.FC = () => {
         loadCollege();
     }, [collegeId, navigate]);
 
-    const handleTabChange = (tab: "management" | "academics") => {
+    const handleTabChange = (tab: "management" | "academics" | "sidebar-config") => {
         setActiveTab(tab);
         if (tab === "academics") {
             navigate(`/admin/college/${collegeId}/academic`);
+        } else if (tab === "sidebar-config") {
+            navigate(`/admin/college/${collegeId}/sidebar-config`);
         } else {
             navigate(`/admin/college/${collegeId}/management`);
         }
@@ -126,6 +134,19 @@ const CollegeDetails: React.FC = () => {
                                 <GraduationCap className="h-4 w-4" />
                                 ACADEMICS
                             </button>
+                            <button
+                                onClick={() => handleTabChange("sidebar-config")}
+                                className={`
+                                    flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300
+                                    ${activeTab === "sidebar-config"
+                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }
+                                `}
+                            >
+                                <Sliders className="h-4 w-4" />
+                                SIDEBAR CONFIG
+                            </button>
                         </div>
 
                         {/* Content Sub-Route Mapping */}
@@ -134,6 +155,7 @@ const CollegeDetails: React.FC = () => {
                                 <Route path="/" element={<Navigate to="management" replace />} />
                                 <Route path="management" element={<Management college={college} />} />
                                 <Route path="academic" element={<Academics college={college} />} />
+                                <Route path="sidebar-config" element={<SidebarConfig college={college} />} />
                             </Routes>
                         </div>
                     </main>

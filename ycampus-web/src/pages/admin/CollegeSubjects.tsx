@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil, Building2, Loader2, ChevronRight, Settings } from "lucide-react";
+import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil, Building2, Loader2, ChevronRight, Settings, Sparkles } from "lucide-react";
 import {
     fetchCollegeSubjects,
     fetchSubjects,
@@ -15,6 +15,7 @@ import {
     CollegeSubject,
     Subject,
 } from "@/services/subjectService";
+import { collegeService, College } from "@/services/collegeService";
 import {
     Dialog,
     DialogContent,
@@ -35,6 +36,7 @@ const CollegeSubjects: React.FC = () => {
     const navigate = useNavigate();
 
     const [assignments, setAssignments] = useState<CollegeSubject[]>([]);
+    const [collegeDetail, setCollegeDetail] = useState<College | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -43,6 +45,8 @@ const CollegeSubjects: React.FC = () => {
     const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
     const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
     const [subjectCode, setSubjectCode] = useState("");
+    const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
+    const [bulkAssigning, setBulkAssigning] = useState(false);
     const [saving, setSaving] = useState(false);
 
     // Delete Confirmation
@@ -57,9 +61,20 @@ const CollegeSubjects: React.FC = () => {
 
     useEffect(() => {
         if (collegeId) {
+            loadCollegeDetails();
             loadAssignments();
         }
     }, [collegeId]);
+
+    const loadCollegeDetails = async () => {
+        if (!collegeId) return;
+        try {
+            const data = await collegeService.getCollege(collegeId);
+            setCollegeDetail(data);
+        } catch (err) {
+            console.error("Failed to load college details", err);
+        }
+    };
 
     const loadAssignments = async () => {
         if (!collegeId) return;
@@ -79,7 +94,13 @@ const CollegeSubjects: React.FC = () => {
     const loadAllSubjects = async () => {
         try {
             const data = await fetchSubjects();
-            setAllSubjects(data as Subject[]);
+            // Filter by product type
+            const filteredData = data.filter(s => {
+                const subjectProductType = s.product_type || 'campus';
+                const requiredProductType = collegeDetail?.product_type || 'campus';
+                return subjectProductType === requiredProductType;
+            });
+            setAllSubjects(filteredData as Subject[]);
         } catch (err) {
             console.error("Failed to load subjects", err);
             toast.error("Failed to load subjects");
@@ -92,7 +113,7 @@ const CollegeSubjects: React.FC = () => {
             return;
         }
 
-        const alreadyAssigned = assignments.some((a) => a.subject === selectedSubjectId);
+        const alreadyAssigned = assignments.some((a) => String(a.subject) === String(selectedSubjectId));
         if (alreadyAssigned) {
             toast.error("This subject is already assigned to this college");
             return;
@@ -115,6 +136,49 @@ const CollegeSubjects: React.FC = () => {
             toast.error(err.message || "Failed to assign subject");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleAssignAllAvailable = async () => {
+        if (!collegeId) return;
+
+        try {
+            setBulkAssigning(true);
+            const data = await fetchSubjects();
+            const filteredSubjects = data.filter(s => {
+                const subjectProductType = s.product_type || 'campus';
+                const requiredProductType = collegeDetail?.product_type || 'campus';
+                return subjectProductType === requiredProductType;
+            });
+
+            const subjectsToAssign = filteredSubjects.filter(
+                s => !assignments.some(a => String(a.subject) === String(s.id))
+            );
+
+            if (subjectsToAssign.length === 0) {
+                toast.info("All available subjects are already assigned to this college.");
+                setIsBulkConfirmOpen(false);
+                return;
+            }
+
+            let assignedCount = 0;
+            for (const sub of subjectsToAssign) {
+                await assignSubjectToCollege({
+                    college: collegeId,
+                    subject: String(sub.id),
+                    subject_code: sub.short_code || "",
+                });
+                assignedCount++;
+            }
+            
+            toast.success(`Successfully assigned all ${assignedCount} available subjects!`);
+            setIsBulkConfirmOpen(false);
+            loadAssignments();
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err.message || "Failed to assign all available subjects");
+        } finally {
+            setBulkAssigning(false);
         }
     };
 
@@ -174,6 +238,8 @@ const CollegeSubjects: React.FC = () => {
         );
     });
 
+    const selectedSubject = allSubjects.find(s => String(s.id) === String(selectedSubjectId));
+
     return (
         <SidebarProvider>
             <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
@@ -181,7 +247,7 @@ const CollegeSubjects: React.FC = () => {
                 <div className="flex-1 overflow-y-auto">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
                         {/* Header Container */}
-                        <PageHeader 
+                        <PageHeader
                             title="College Allocation"
                             actions={
                                 <div className="flex items-center gap-3">
@@ -196,12 +262,22 @@ const CollegeSubjects: React.FC = () => {
                                     <Button
                                         onClick={() => {
                                             loadAllSubjects();
+                                            setSelectedSubjectId("");
+                                            setSubjectCode("");
                                             setIsAddOpen(true);
                                         }}
                                         className="font-semibold shadow-sm rounded-lg"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Assign Subject Flow
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsBulkConfirmOpen(true)}
+                                        variant="outline"
+                                        className="font-semibold shadow-sm rounded-lg border-primary/20 text-primary hover:bg-primary/5"
+                                    >
+                                        <Sparkles className="h-4 w-4 mr-2" />
+                                        Assign All Available
                                     </Button>
                                 </div>
                             }
@@ -249,7 +325,7 @@ const CollegeSubjects: React.FC = () => {
                                                     <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10">
                                                         <BookOpen className="h-24 w-24" />
                                                     </div>
-                                                    <div className="flex items-center gap-2 mb-2 text-primary-foreground text-[10px] uppercase font-bold tracking-widest relative z-10 opacity-80">
+                                                    <div className="flex items-center gap-2 mb-2 text-primary-foreground text-[10px]   font-bold tracking-widest relative z-10 opacity-80">
                                                         <BookOpen className="h-3.5 w-3.5" />
                                                         {subject?.yuvro_id?.split('-')[0] || "SUBJECT"}
                                                     </div>
@@ -270,7 +346,7 @@ const CollegeSubjects: React.FC = () => {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-xs font-semibold text-primary/80 group-hover:text-primary flex items-center px-0 hover:bg-transparent uppercase tracking-tight"
+                                                        className="text-xs font-semibold text-primary/80 group-hover:text-primary flex items-center px-0 hover:bg-transparent   tracking-tight"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             subject && navigate(`/admin/subjects/${subject.id}/manage`);
@@ -342,7 +418,7 @@ const CollegeSubjects: React.FC = () => {
                                     placeholder="CS101"
                                     value={subjectCode}
                                     onChange={(e) => setSubjectCode(e.target.value)}
-                                    className="h-11 font-mono uppercase"
+                                    className="h-11 font-mono  "
                                 />
                                 <p className="text-xs text-muted-foreground">
                                     An alias recognized inside this domain natively.
@@ -354,6 +430,31 @@ const CollegeSubjects: React.FC = () => {
                             <Button onClick={handleAddSubject} disabled={saving}>
                                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
                                 Authorize Assignment
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={isBulkConfirmOpen} onOpenChange={setIsBulkConfirmOpen}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                Bulk Assign Subjects
+                            </DialogTitle>
+                            <DialogDescription>
+                                This will automatically assign all available subjects (matching product type) that are not yet assigned, using their default short codes as local codes.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                            <Button variant="outline" onClick={() => setIsBulkConfirmOpen(false)}>Cancel</Button>
+                            <Button onClick={handleAssignAllAvailable} disabled={bulkAssigning}>
+                                {bulkAssigning ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Sparkles className="h-4 w-4 mr-2" />
+                                )}
+                                Confirm Assignment
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -379,7 +480,7 @@ const CollegeSubjects: React.FC = () => {
                                     placeholder="CS101"
                                     value={editSubjectCode}
                                     onChange={(e) => setEditSubjectCode(e.target.value)}
-                                    className="h-11 uppercase font-mono"
+                                    className="h-11   font-mono"
                                 />
                             </div>
                         </div>

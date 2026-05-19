@@ -14,10 +14,20 @@ class Subject(models.Model):
     Subject model representing a complete learning subject.
     """
 
+    PRODUCT_CHOICES = [
+        ("campus", "Campus"),
+        ("assessments", "Assessments"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     yuvro_id = models.CharField(max_length=20, unique=True, editable=False, null=True, blank=True)
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     subject_name = models.TextField()
+    product_type = models.CharField(max_length=20, choices=PRODUCT_CHOICES, default="campus")
+    category = models.CharField(max_length=50, null=True, blank=True)
+    university = models.ForeignKey(
+        "core.University", on_delete=models.SET_NULL, null=True, blank=True, related_name="subjects"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

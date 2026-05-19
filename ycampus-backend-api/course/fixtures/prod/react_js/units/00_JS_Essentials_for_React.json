@@ -2,7 +2,7 @@
     "name": "JS Essentials for React",
     "subject_short_code": "RJS100",
     "order_index": 0,
-    "subunits": [
+    "sub_units": [
         {
             "name": "ES6+ Basics",
             "content": "Modern JavaScript features like let/const, template literals, and enhanced object literals that form the foundation of React development.",

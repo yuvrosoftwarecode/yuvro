@@ -48,6 +48,12 @@ const CodePractice = () => {
       let subject: any = selectedSubject;
       if (!selectedSubject || selectedSubject.id !== subjectId) {
         subject = await fetchSubjectById(subjectId);
+        if (subject.short_code !== 'DSA100') {
+          toast.error("Unauthorized access.");
+          navigate('/student/code-practice');
+          setIsHydrating(false);
+          return;
+        }
         const transformedSubject: Subject = {
           id: subject.id.toString(),
           name: subject.subject_name || subject.name || subject.title || 'Untitled Subject',

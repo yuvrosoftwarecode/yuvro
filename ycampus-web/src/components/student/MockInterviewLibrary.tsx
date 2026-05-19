@@ -89,22 +89,22 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
       </div>
 
       {/* Filters — matches Task page filter card */}
-      <Card>
+      <Card className="rounded-2xl border-slate-200 bg-white shadow-sm overflow-hidden">
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground mb-2 block">
                 Search
               </label>
-              {/* <div className="relative">   */}
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
                   placeholder="Search by topic or keyword..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="bg-white hover:bg-slate-50 transition-colors"
+                  className="pl-10 h-12 rounded-xl bg-white hover:bg-slate-50 transition-colors border-slate-200"
                 />
-              {/* </div> */}
+              </div>
             </div>
 
             <div className="flex-1">
@@ -112,7 +112,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
                 Category
               </label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors">
+                <SelectTrigger className="h-12 rounded-xl bg-white hover:bg-slate-50 transition-colors border-slate-200">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>

@@ -1,6 +1,6 @@
 # YCampus Platform Makefile
 
-.PHONY: setup dev dev-detached stop restart logs clean reload-data
+.PHONY: setup dev dev-detached stop restart logs clean reload-data load-courses
 .PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
 .PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
 .PHONY: frontend-shell frontend-test frontend-test-watch frontend-format frontend-format-fix frontend-lint frontend-install
@@ -68,6 +68,16 @@ reload-data:
 	@echo "🔄 Reloading YCampus test data..."
 	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_local_testing --clear
 	@echo "✅ Test data reloaded!"
+
+load-courses:
+	@echo "📚 Loading all production courses..."
+	@for folder in $$(ls ycampus-backend-api/course/fixtures/prod); do \
+		if [ -d "ycampus-backend-api/course/fixtures/prod/$$folder" ]; then \
+			echo "Loading $$folder..."; \
+			docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py load_courses --deploy_env prod --file "$$folder"; \
+		fi \
+	done
+	@echo "✅ All courses loaded!"
 
 # ============================================================================
 # Database

@@ -8,6 +8,7 @@ import { ApplyDialog } from '@/components/student/jobs/ApplyDialog';
 import { Briefcase, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePlacementJobs, useStudentApplications, useApplyToJob, PlacementJob } from '@/hooks/usePlacement';
+import PageHeader from '@/components/common/PageHeader';
 
 export interface StudentJob {
   id: string;

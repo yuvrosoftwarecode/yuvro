@@ -513,7 +513,10 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             q &= Q(subject=subject_param)
 
         if unit_param:
-            q &= Q(unit=unit_param)
+            if unit_param.lower() in ['null', 'none']:
+                q &= Q(unit__isnull=True)
+            else:
+                q &= Q(unit=unit_param)
 
         if difficulty_param:
             q &= Q(difficulty=difficulty_param)

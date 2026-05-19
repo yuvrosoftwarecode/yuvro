@@ -4082,7 +4082,6 @@
       "difficulty": "hard",
       "marks": 15,
       "categories": [
-        "project",
         "skill_test"
       ],
       "test_cases_basic": [
@@ -4601,7 +4600,6 @@
       "difficulty": "medium",
       "marks": 10,
       "categories": [
-        "project",
         "practice"
       ],
       "test_cases_basic": [
@@ -4696,7 +4694,6 @@
       "difficulty": "hard",
       "marks": 15,
       "categories": [
-        "project",
         "skill_test"
       ],
       "test_cases_basic": [
@@ -4745,7 +4742,6 @@
       "difficulty": "hard",
       "marks": 15,
       "categories": [
-        "project",
         "skill_test"
       ],
       "test_cases_basic": [

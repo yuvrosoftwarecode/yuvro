@@ -1,40 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  SquareFunction, Atom, Code, Database, Globe, Cpu, Layers,
-  FlaskConical, BookMarked, PenLine, Sigma,
-  Pencil, Binary, BrainCircuit, BookOpen, ClipboardCheck, Zap
-} from 'lucide-react';
+import { BookMarked, Brain, Code2, Compass, FolderOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import { fetchSkillTests } from '@/services/skillTestService';
 import { toast } from 'sonner';
 import PageHeader from '@/components/common/PageHeader';
-
-// ─── Icon mapping ─────────────────────────────────────────────────────────────
-
-function getSubjectIcon(name: string) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('calculus') || n.includes('matrices') || n.includes('math')) return Sigma;
-  if (n.includes('python') || n.includes('java') || n.includes('programming') || n.includes('problem solving')) return Code;
-  if (n.includes('data') || n.includes('sql') || n.includes('database')) return Database;
-  if (n.includes('physics')) return Atom;
-  if (n.includes('chemistry')) return FlaskConical;
-  if (n.includes('network') || n.includes('web') || n.includes('internet')) return Globe;
-  if (n.includes('os') || n.includes('operating') || n.includes('computer') || n.includes('engineering')) return Cpu;
-  if (n.includes('structure') || n.includes('algorithm') || n.includes('dsa')) return Layers;
-  if (n.includes('english') || n.includes('communication')) return PenLine;
-  if (n.includes('drawing') || n.includes('cad') || n.includes('design') || n.includes('graphics')) return Pencil;
-  if (n.includes('digital') || n.includes('logic') || n.includes('circuit') || n.includes('electrical')) return Zap;
-  if (n.includes('ai') || n.includes('machine') || n.includes('deep')) return BrainCircuit;
-  if (n.includes('algebra') || n.includes('linear') || n.includes('discrete')) return SquareFunction;
-  return BookOpen;
-}
-
-
+import { getSubjectIconComponent } from '@/utils/subjectIcon';
 
 // ─── Skeleton card ────────────────────────────────────────────────────────────
 
@@ -53,11 +29,48 @@ const SubjectCardSkeleton = () => (
   </Card>
 );
 
+// ─── Category Meta configuration (Minimalist Dashboard Style) ────────────────
+
+const categoryMeta: Record<string, {
+  label: string;
+  icon: React.ComponentType<any>;
+  desc: string;
+}> = {
+  'Foundation': {
+    label: 'Foundation',
+    icon: Brain,
+    desc: 'Aptitude & Reasoning, Data Structures, and SQL'
+  },
+  'Web dev': {
+    label: 'Web Dev',
+    icon: Code2,
+    desc: 'HTML, CSS, JavaScript, and React'
+  },
+  'Tracks': {
+    label: 'Tracks',
+    icon: Compass,
+    desc: 'Python, Data Science, and AI'
+  },
+  'General': {
+    label: 'General',
+    icon: FolderOpen,
+    desc: 'Other assigned subjects'
+  }
+};
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 const StudentTest = () => {
   const navigate = useNavigate();
+
+  const location = useLocation();
   const { user } = useAuth();
+
+  const isSkillTest = location.pathname.includes('skill-test');
+  const pageTitle = isSkillTest ? "Skill Test" : "Practice Test";
+  const pageSubtitle = isSkillTest ? "Master your skills with these comprehensive tests." : "Select a subject to start your practice tests.";
+  const baseUrl = isSkillTest ? "/student/skill-test" : "/student/test";
+
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,9 +80,17 @@ const StudentTest = () => {
   // Load subjects
   useEffect(() => {
     const loadSubjects = async () => {
-      if (!user?.college_id) { setLoading(false); return; }
+      if (!user?.college_id) {
+        setLoading(false);
+        return;
+      }
       try {
-        const data = await fetchSubjectsByCollege(user.college_id);
+        let data = await fetchSubjectsByCollege(user.college_id);
+        if (user.college_product_type) {
+            data = data.filter(s => s.product_type === user.college_product_type);
+        }
+        // Sort subjects alphabetically
+        data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);
       } catch {
         toast.error('Failed to load subjects');
@@ -86,7 +107,10 @@ const StudentTest = () => {
 
     const fetchCounts = async () => {
       try {
-        const allTests = await fetchSkillTests({ test_type: 'practice', publish_status: 'active' });
+        const allTests = await fetchSkillTests({ 
+          test_type: isSkillTest ? 'assessment' : 'practice', 
+          publish_status: 'active' 
+        });
         // Initialize all subjects with 0 first
         const counts: Record<string, number> = {};
         subjects.forEach(s => { counts[String(s.id)] = 0; });
@@ -103,22 +127,44 @@ const StudentTest = () => {
       }
     };
     fetchCounts();
-  }, [subjects]);
+  }, [subjects, isSkillTest]);
 
   const handleCardClick = (subjectId: string | number, subjectDisplayName: string) => {
-    navigate(`/student/test/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`);
+    navigate(`${baseUrl}/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`);
   };
+
+  // Group subjects by category
+  const groupedSubjects: Record<string, Subject[]> = {
+    'Foundation': [],
+    'Web dev': [],
+    'Tracks': [],
+  };
+  const uncategorizedSubjects: Subject[] = [];
+
+  subjects.forEach(subject => {
+    const cat = subject.category;
+    if (cat === 'Foundation') {
+      groupedSubjects['Foundation'].push(subject);
+    } else if (cat === 'Web dev') {
+      groupedSubjects['Web dev'].push(subject);
+    } else if (cat === 'Tracks') {
+      groupedSubjects['Tracks'].push(subject);
+    } else {
+      uncategorizedSubjects.push(subject);
+    }
+  });
 
   return (
     <StudentLayout>
       <div className="space-y-6">
         {/* Header */}
         <PageHeader 
-          title="Practice Test" 
-          subtitle="Select a subject to start your practice tests." 
+          title={pageTitle} 
+          subtitle={pageSubtitle} 
         />
 
-        {/* Subject grid */}
+
+        {/* Subject grid grouped by categories */}
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => <SubjectCardSkeleton key={i} />)}
@@ -134,45 +180,143 @@ const StudentTest = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {subjects.map((subject, index) => {
-              const Icon = getSubjectIcon(subject.subject_name);
-              const count = testCounts[String(subject.id)];
-              const hasTests = typeof count === 'number' && count > 0;
+          <div className="space-y-10">
+            {/* Render defined categories */}
+            {Object.entries(groupedSubjects).map(([categoryKey, categorySubjects]) => {
+              if (categorySubjects.length === 0) return null;
+              const meta = categoryMeta[categoryKey];
+              const CategoryIcon = meta.icon;
 
               return (
-                <div
-                  key={subject.id}
-                  className="group cursor-pointer border-0 rounded-2xl p-6 transition-all duration-200 hover:shadow-md flex items-center gap-5 h-auto min-h-[7rem]"
-                  style={{ backgroundColor: 'hsl(var(--notes-card-bg))' }}
-                  onClick={() => handleCardClick(subject.id, subject.subject_name)}
-                >
-                  {/* Icon */}
-                  <Icon className="h-7 w-7 shrink-0 text-slate-700" />
-
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <h3 
-                      className="font-semibold text-lg leading-tight transition-colors"
-                      style={{ color: 'hsl(var(--notes-card-fg))' }}
-                    >
-                      {subject.subject_name}
-                    </h3>
-                    <div className="mt-1">
-                      {hasTests ? (
-                        <p className="text-sm font-medium text-slate-500/80">
-                          {count} {count === 1 ? 'test' : 'tests'} available
-                        </p>
-                      ) : typeof count === 'number' ? (
-                        <p className="text-sm text-slate-400">No tests</p>
-                      ) : (
-                        <div className="h-3 w-16 bg-slate-200/50 animate-pulse rounded mt-1" />
-                      )}
+                <div key={categoryKey} className="space-y-4">
+                  {/* Category Header */}
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                    <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                      <CategoryIcon className="h-5 w-5 text-slate-650 dark:text-slate-400" />
+                      <div className="flex items-baseline gap-2">
+                        <h2 className="text-lg font-bold tracking-tight">
+                          {meta.label}
+                        </h2>
+                        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                          ({meta.desc})
+                        </span>
+                      </div>
                     </div>
+                    
+                    <span className="text-xs font-semibold text-slate-550 dark:text-slate-400 bg-slate-100 dark:bg-slate-850 px-2.5 py-0.5 rounded-full">
+                      {categorySubjects.length} {categorySubjects.length === 1 ? 'subject' : 'subjects'}
+                    </span>
+                  </div>
+
+                  {/* Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {categorySubjects.map((subject) => {
+                      const Icon = getSubjectIconComponent(subject.subject_name);
+                      const count = testCounts[String(subject.id)];
+                      const hasTests = typeof count === 'number' && count > 0;
+
+                      return (
+                        <div
+                          key={subject.id}
+                          className="group cursor-pointer border border-slate-100/80 dark:border-slate-800/30 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-5 h-auto min-h-[7rem]"
+                          style={{ backgroundColor: 'hsl(var(--notes-card-bg))' }}
+                          onClick={() => handleCardClick(subject.id, subject.subject_name)}
+                        >
+                          {/* Icon Container with smooth hover transition */}
+                          <div className="p-3 rounded-xl bg-slate-100/40 dark:bg-slate-800/40 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors duration-200">
+                            <Icon className="h-6 w-6 shrink-0 text-slate-700 dark:text-slate-300" />
+                          </div>
+
+                          {/* Text Content */}
+                          <div className="flex-1 min-w-0">
+                            <h3 
+                              className="font-semibold text-lg leading-tight transition-colors text-slate-800 dark:text-slate-100"
+                            >
+                              {subject.subject_name}
+                            </h3>
+                            <div className="mt-1">
+                              {hasTests ? (
+                                <p className="text-sm font-medium text-slate-500/80 dark:text-slate-400">
+                                  {count} {count === 1 ? 'test' : 'tests'} available
+                                </p>
+                              ) : typeof count === 'number' ? (
+                                <p className="text-sm text-slate-400 dark:text-slate-500">No tests available</p>
+                              ) : (
+                                <div className="h-3 w-16 bg-slate-200/50 dark:bg-slate-850 animate-pulse rounded mt-1" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
             })}
+
+            {/* Render Uncategorized Subjects if any */}
+            {uncategorizedSubjects.length > 0 && (
+              <div className="space-y-4">
+                {/* Category Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                    <FolderOpen className="h-5 w-5 text-slate-500 dark:text-slate-450" />
+                    <div className="flex items-baseline gap-2">
+                      <h2 className="text-lg font-bold tracking-tight">
+                        {categoryMeta['General'].label}
+                      </h2>
+                      <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                        ({categoryMeta['General'].desc})
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-550 dark:text-slate-400 bg-slate-100 dark:bg-slate-850 px-2.5 py-0.5 rounded-full">
+                    {uncategorizedSubjects.length} {uncategorizedSubjects.length === 1 ? 'subject' : 'subjects'}
+                  </span>
+                </div>
+
+                {/* Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {uncategorizedSubjects.map((subject) => {
+                    const Icon = getSubjectIconComponent(subject.subject_name);
+                    const count = testCounts[String(subject.id)];
+                    const hasTests = typeof count === 'number' && count > 0;
+
+                    return (
+                      <div
+                        key={subject.id}
+                        className="group cursor-pointer border border-slate-100/80 dark:border-slate-800/30 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-5 h-auto min-h-[7rem]"
+                        style={{ backgroundColor: 'hsl(var(--notes-card-bg))' }}
+                        onClick={() => handleCardClick(subject.id, subject.subject_name)}
+                      >
+                        <div className="p-3 rounded-xl bg-slate-100/40 dark:bg-slate-800/40 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors duration-200">
+                          <Icon className="h-6 w-6 shrink-0 text-slate-700 dark:text-slate-300" />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h3 
+                            className="font-semibold text-lg leading-tight text-slate-800 dark:text-slate-100"
+                          >
+                            {subject.subject_name}
+                          </h3>
+                          <div className="mt-1">
+                            {hasTests ? (
+                              <p className="text-sm font-medium text-slate-500/80 dark:text-slate-400">
+                                {count} {count === 1 ? 'test' : 'tests'} available
+                              </p>
+                            ) : typeof count === 'number' ? (
+                              <p className="text-sm text-slate-400 dark:text-slate-500">No tests available</p>
+                            ) : (
+                              <div className="h-3 w-16 bg-slate-200/50 dark:bg-slate-850 animate-pulse rounded mt-1" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

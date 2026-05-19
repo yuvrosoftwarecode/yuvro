@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -49,7 +49,7 @@ import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 import studentService, { Student } from '@/services/studentService';
 
-const studentMenuItems = [
+const campusMenuItems = [
   { title: 'Dashboard', url: '/student/dashboard', icon: Home },
   { title: 'Learning', url: '/student/notes', icon: StickyNote },
   { title: 'Practice Test', url: '/student/test', icon: ClipboardCheck },
@@ -61,8 +61,26 @@ const studentMenuItems = [
   { title: 'Announcements', url: '/student/announcements', icon: Megaphone },
   { title: 'Community', url: '/student/community', icon: Users },
   { title: 'Contest', url: '/student/contest', icon: Trophy },
-
 ];
+
+const assessmentMenuItems = [
+  { title: 'Dashboard', url: '/student/dashboard', icon: Home },
+  { title: 'Learning', url: '/student/notes', icon: StickyNote },
+  { title: 'Code Practice', url: '/student/code-practice', icon: ClipboardCheck },
+  { title: 'Skill Test', url: '/student/skill-test', icon: BookOpen },
+  { title: 'Assessments', url: '/student/assessments', icon: ClipboardCheck },
+  { title: 'Aptitude & Reasoning', url: '/student/aptitude-reasoning', icon: BrainCircuit },
+  { title: 'Mock Interviews', url: '/student/mock-interview', icon: Mic },
+  { title: 'AI Interview Planner', url: '/student/ai-interview-planner', icon: MessageSquare },
+  { title: 'Jobs', url: '/student/jobs', icon: Briefcase },
+  { title: 'Announcements', url: '/student/announcements', icon: Megaphone },
+  { title: 'Contest', url: '/student/contest', icon: Trophy },
+  { title: 'Leaderboard', url: '/student/leaderboard', icon: Users },
+];
+
+const getConfigKey = (title: string) => {
+  return title.toLowerCase().replace(/[&\s-]+/g, '_');
+};
 
 export function StudentSidebar() {
   const { state, toggleSidebar } = useSidebar();
@@ -73,6 +91,20 @@ export function StudentSidebar() {
   const collapsed = state === "collapsed";
   const [profileOpen, setProfileOpen] = useState(false);
   const [studentProfile, setStudentProfile] = useState<Student | null>(null);
+
+  useEffect(() => {
+    if (user?.role === 'student' && user?.id) {
+      studentService.getStudents({ user: user.id })
+        .then(res => {
+          if (res.results && res.results.length > 0) {
+            setStudentProfile(res.results[0]);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch student profile:', err);
+        });
+    }
+  }, [user]);
 
   const getBranchShortForm = (name: string) => {
     if (!name) return "...";
@@ -93,6 +125,7 @@ export function StudentSidebar() {
       .map(w => w.charAt(0))
       .join("")
       .toUpperCase();
+
   };
 
   const toRoman = (num: number) => {
@@ -103,21 +136,8 @@ export function StudentSidebar() {
   const formatSection = (name: string) => {
     if (!name) return "";
     return name.replace(/section/gi, "").trim().toUpperCase();
-  };
 
-  useEffect(() => {
-    if (user?.role === 'student' && user?.id) {
-      studentService.getStudents({ user: user.id })
-        .then(res => {
-          if (res.results && res.results.length > 0) {
-            setStudentProfile(res.results[0]);
-          }
-        })
-        .catch(err => {
-          console.error('Failed to fetch student profile:', err);
-        });
-    }
-  }, [user]);
+  };
 
   const isActive = (path: string) => {
     if (path === '/student/dashboard') {
@@ -127,14 +147,23 @@ export function StudentSidebar() {
   };
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-l-4 border-primary' 
+    isActive
+      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-l-4 border-primary'
       : 'hover:bg-sidebar-accent/50 transition-all duration-200';
 
   const firstName = user?.first_name || user?.username || 'User';
   const initials = firstName.charAt(0).toUpperCase();
 
+
   const profileImage = getMediaUrl(user?.profile?.avatar);
+
+  const isAssessments = user?.college_product_type === 'assessments';
+  const rawMenuItems = isAssessments ? assessmentMenuItems : campusMenuItems;
+  const sidebarConfig = (user as any)?.college_sidebar_config || {};
+  const menuItemsToDisplay = rawMenuItems.filter(item => {
+    const key = getConfigKey(item.title);
+    return sidebarConfig[key] !== false;
+  });
 
   return (
     <Sidebar
@@ -187,12 +216,12 @@ export function StudentSidebar() {
 
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {studentMenuItems.map((item) => {
+              {menuItemsToDisplay.map((item) => {
                 const navIsActive = isActive(item.url);
                 const menuButton = (
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
+                    <NavLink
+                      to={item.url}
                       end={item.url === '/student/dashboard'}
                       className={`
                         flex items-center rounded-lg p-3 text-sm font-medium transition-all duration-200
@@ -267,30 +296,31 @@ export function StudentSidebar() {
           </button>
 
           {/* College Logo Section */}
-          <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
-            <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-tight">
-                  JNTU Hyderabad
-                </p>
-                <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
-                  University Campus
-                </p>
-              </div>
-            )}
-          </div>
+          {!isAssessments && (
+            <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
+              <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-foreground truncate   tracking-tight">
+                    JNTU Hyderabad
+                  </p>
+                  <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
+                    University Campus
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Inline expandable options */}
           <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              profileOpen && !collapsed ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-            }`}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${profileOpen && !collapsed ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+              }`}
           >
             <div className="px-2 pb-2 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground px-2 pb-1 truncate">{user?.email}</p>
-              <NavLink 
-                to="/student/profile" 
+              <NavLink
+                to="/student/profile"
                 className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors"
                 onClick={() => setProfileOpen(false)}
               >
