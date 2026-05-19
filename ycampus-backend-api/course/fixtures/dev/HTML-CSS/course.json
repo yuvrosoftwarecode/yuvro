@@ -1,0 +1,10 @@
+{
+    "subjects": [
+        {
+            "short_code": "HTMLCSS100",
+            "subject_name": "HTML & CSS",
+            "category": "Web dev",
+            "product_type": "assessments"
+        }
+    ]
+}

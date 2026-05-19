@@ -1,0 +1,2412 @@
+{
+  "name": "Strings & Numbers",
+  "subject_short_code": "JS100",
+  "order_index": 6,
+  "sub_units": [
+    {
+      "name": "String Methods",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to String Methods",
+          "video_link": "https://www.youtube.com/results?search_query=String+Methods+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of String Methods in JavaScript."
+        },
+        {
+          "title": "Advanced String Methods Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=String+Methods+javascript",
+          "ai_context": "In-depth explanation and practical examples for String Methods."
+        }
+      ]
+    },
+    {
+      "name": "Template Literals",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Template Literals",
+          "video_link": "https://www.youtube.com/results?search_query=Template+Literals+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Template Literals in JavaScript."
+        },
+        {
+          "title": "Advanced Template Literals Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Template+Literals+javascript",
+          "ai_context": "In-depth explanation and practical examples for Template Literals."
+        }
+      ]
+    },
+    {
+      "name": "Numbers & Math",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Numbers & Math",
+          "video_link": "https://www.youtube.com/results?search_query=Numbers+%26+Math+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Numbers & Math in JavaScript."
+        },
+        {
+          "title": "Advanced Numbers & Math Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Numbers+%26+Math+javascript",
+          "ai_context": "In-depth explanation and practical examples for Numbers & Math."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "slice Method Purpose",
+      "content": "What does the slice() method do in JavaScript strings?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Extracts part of a string",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes the entire string",
+          "is_correct": false
+        },
+        {
+          "text": "Adds text to a string",
+          "is_correct": false
+        },
+        {
+          "text": "Converts a string into a number",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "replace Method Usage",
+      "content": "What does the replace() method do?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Replaces part of a string with another value",
+          "is_correct": true
+        },
+        {
+          "text": "Splits a string into characters",
+          "is_correct": false
+        },
+        {
+          "text": "Joins two arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Removes spaces only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "split Method Output",
+      "content": "What does the split() method return?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An array",
+          "is_correct": true
+        },
+        {
+          "text": "A number",
+          "is_correct": false
+        },
+        {
+          "text": "A boolean",
+          "is_correct": false
+        },
+        {
+          "text": "An object",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "substring Result",
+      "content": "What will this code return? let str = 'JavaScript'; str.substring(0, 4);",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Java",
+          "is_correct": true
+        },
+        {
+          "text": "Script",
+          "is_correct": false
+        },
+        {
+          "text": "Jav",
+          "is_correct": false
+        },
+        {
+          "text": "undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "replace Example",
+      "content": "What will this code return? 'Hello World'.replace('World', 'JS');",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hello JS",
+          "is_correct": true
+        },
+        {
+          "text": "World JS",
+          "is_correct": false
+        },
+        {
+          "text": "Hello World JS",
+          "is_correct": false
+        },
+        {
+          "text": "JS Hello",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "split with Separator",
+      "content": "What will this code return? 'a,b,c'.split(',');",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "[\"a\", \"b\", \"c\"]",
+          "is_correct": true
+        },
+        {
+          "text": "\"a,b,c\"",
+          "is_correct": false
+        },
+        {
+          "text": "[\"a,b,c\"]",
+          "is_correct": false
+        },
+        {
+          "text": "[a, b, c]",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "slice Negative Index",
+      "content": "What will this code return? let str = 'JavaScript'; str.slice(-6);",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Script",
+          "is_correct": true
+        },
+        {
+          "text": "Java",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "ipt",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Template Literal Syntax",
+      "content": "Which symbol is used to create template literals in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Backticks (` `)",
+          "is_correct": true
+        },
+        {
+          "text": "Single quotes (' ')",
+          "is_correct": false
+        },
+        {
+          "text": "Double quotes (\" \")",
+          "is_correct": false
+        },
+        {
+          "text": "Parentheses ( )",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dynamic Value Insertion",
+      "content": "Which syntax is used to insert variables into template literals?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "${variable}",
+          "is_correct": true
+        },
+        {
+          "text": "#{variable}",
+          "is_correct": false
+        },
+        {
+          "text": "@{variable}",
+          "is_correct": false
+        },
+        {
+          "text": "(variable)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-line Strings",
+      "content": "Why are template literals useful for multi-line strings?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They allow line breaks without special characters",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically remove spaces",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with arrays",
+          "is_correct": false
+        },
+        {
+          "text": "They convert strings into numbers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dynamic String Example",
+      "content": "What will this code return? let name = 'Sam'; `Hello ${name}`;",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hello Sam",
+          "is_correct": true
+        },
+        {
+          "text": "Hello ${name}",
+          "is_correct": false
+        },
+        {
+          "text": "Sam Hello",
+          "is_correct": false
+        },
+        {
+          "text": "undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Expression Evaluation",
+      "content": "What will this template literal return? `Sum: ${2 + 3}`;",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sum: 5",
+          "is_correct": true
+        },
+        {
+          "text": "Sum: 2 + 3",
+          "is_correct": false
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "undefined",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-line Output",
+      "content": "What is the advantage of using template literals for multi-line text?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They preserve line breaks directly in the string",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically compress text into one line",
+          "is_correct": false
+        },
+        {
+          "text": "They remove all spaces from the string",
+          "is_correct": false
+        },
+        {
+          "text": "They convert strings into arrays",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Expressions",
+      "content": "What will this code return? let a = 5; let b = 10; `${a} + ${b} = ${a + b}`;",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "5 + 10 = 15",
+          "is_correct": true
+        },
+        {
+          "text": "a + b = 15",
+          "is_correct": false
+        },
+        {
+          "text": "5 + 10 = a + b",
+          "is_correct": false
+        },
+        {
+          "text": "15",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Math Object Purpose",
+      "content": "What is the Math object used for in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performing mathematical operations",
+          "is_correct": true
+        },
+        {
+          "text": "Creating HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "Managing arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Styling web pages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Number Method",
+      "content": "Which method generates a random number in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.random()",
+          "is_correct": true
+        },
+        {
+          "text": "Math.round()",
+          "is_correct": false
+        },
+        {
+          "text": "Math.floor()",
+          "is_correct": false
+        },
+        {
+          "text": "Math.max()",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rounding Numbers",
+      "content": "What does Math.round() do?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rounds a number to the nearest integer",
+          "is_correct": true
+        },
+        {
+          "text": "Always rounds down",
+          "is_correct": false
+        },
+        {
+          "text": "Always rounds up",
+          "is_correct": false
+        },
+        {
+          "text": "Converts numbers into strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Math.floor Result",
+      "content": "What will Math.floor(4.9) return?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "4",
+          "is_correct": true
+        },
+        {
+          "text": "5",
+          "is_correct": false
+        },
+        {
+          "text": "4.9",
+          "is_correct": false
+        },
+        {
+          "text": "0",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Number Range",
+      "content": "What is the range of values returned by Math.random()?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "From 0 (inclusive) to 1 (exclusive)",
+          "is_correct": true
+        },
+        {
+          "text": "From 1 to 100",
+          "is_correct": false
+        },
+        {
+          "text": "From -1 to 1",
+          "is_correct": false
+        },
+        {
+          "text": "Only whole numbers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Math.ceil Behavior",
+      "content": "What will Math.ceil(2.1) return?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "3",
+          "is_correct": true
+        },
+        {
+          "text": "2",
+          "is_correct": false
+        },
+        {
+          "text": "2.1",
+          "is_correct": false
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Generating Whole Random Numbers",
+      "content": "Which expression generates a random whole number from 0 to 9?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.floor(Math.random() * 10)",
+          "is_correct": true
+        },
+        {
+          "text": "Math.random(10)",
+          "is_correct": false
+        },
+        {
+          "text": "Math.ceil(Math.random())",
+          "is_correct": false
+        },
+        {
+          "text": "Math.round(10)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding slice() Method",
+      "content": "Which of the following statements about the slice() string method are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "slice() extracts part of a string",
+          "is_correct": true
+        },
+        {
+          "text": "slice() returns a new string",
+          "is_correct": true
+        },
+        {
+          "text": "slice() modifies the original string",
+          "is_correct": false
+        },
+        {
+          "text": "slice() uses start and end indexes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basics of substring()",
+      "content": "Which statements about substring() are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "substring() extracts characters between two indexes",
+          "is_correct": true
+        },
+        {
+          "text": "substring() returns a new string",
+          "is_correct": true
+        },
+        {
+          "text": "substring() permanently changes the original string",
+          "is_correct": false
+        },
+        {
+          "text": "substring() can work with a start index only",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with replace() and split()",
+      "content": "Which of the following statements about replace() and split() are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "replace() returns a new string with replaced content",
+          "is_correct": true
+        },
+        {
+          "text": "split() converts a string into an array",
+          "is_correct": true
+        },
+        {
+          "text": "split() always separates characters using spaces automatically",
+          "is_correct": false
+        },
+        {
+          "text": "replace() does not modify the original string",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing slice() and substring()",
+      "content": "Which statements correctly compare slice() and substring()?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Both methods return portions of strings",
+          "is_correct": true
+        },
+        {
+          "text": "Both methods return new strings instead of modifying originals",
+          "is_correct": true
+        },
+        {
+          "text": "substring() supports negative indexes exactly like slice()",
+          "is_correct": false
+        },
+        {
+          "text": "Both methods can take start and end positions as arguments",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Behavior of replace() and split()",
+      "content": "Which of the following statements about replace() and split() behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "replace() can replace text using strings or regular expressions",
+          "is_correct": true
+        },
+        {
+          "text": "split() can separate strings using custom delimiters",
+          "is_correct": true
+        },
+        {
+          "text": "replace() always changes every matching occurrence automatically",
+          "is_correct": false
+        },
+        {
+          "text": "split() may return an array with a single element if no separator is found",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced String Method Concepts",
+      "content": "Which advanced concepts related to string methods are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Strings in JavaScript are immutable",
+          "is_correct": true
+        },
+        {
+          "text": "Methods like slice() and replace() return new strings instead of mutating existing ones",
+          "is_correct": true
+        },
+        {
+          "text": "split() returns a string after processing",
+          "is_correct": false
+        },
+        {
+          "text": "replace() can be combined with regular expressions for advanced text processing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex String Manipulation",
+      "content": "Which of the following statements about complex string manipulation are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "split() combined with array methods can transform text efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "slice() supports negative indexes for extracting from the end of a string",
+          "is_correct": true
+        },
+        {
+          "text": "substring() throws errors when indexes are out of range",
+          "is_correct": false
+        },
+        {
+          "text": "String methods are commonly chained together for text processing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Template Literals",
+      "content": "Which of the following statements about template literals are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals use backticks (`) instead of quotes",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals support string interpolation",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals cannot contain variables",
+          "is_correct": false
+        },
+        {
+          "text": "Template literals improve readability for dynamic strings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Dynamic Strings",
+      "content": "Which statements about dynamic strings in template literals are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Expressions can be embedded using ${}",
+          "is_correct": true
+        },
+        {
+          "text": "Variables can be inserted directly into template literals",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals only support plain text",
+          "is_correct": false
+        },
+        {
+          "text": "Mathematical expressions can be evaluated inside ${}",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using Multi-line Strings",
+      "content": "Which of the following statements about multi-line strings with template literals are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals allow multi-line strings without escape characters",
+          "is_correct": true
+        },
+        {
+          "text": "Line breaks inside template literals are preserved",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-line strings can only be created using \\n characters",
+          "is_correct": false
+        },
+        {
+          "text": "Template literals simplify writing formatted text",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Behavior of Template Literals",
+      "content": "Which statements about template literal behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals can combine static text with dynamic values",
+          "is_correct": true
+        },
+        {
+          "text": "Functions can be called inside ${} expressions",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals automatically convert all values into arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Complex expressions can be evaluated inside template literals",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Template Literals and Readability",
+      "content": "Which of the following statements about template literals and readability are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals reduce the need for string concatenation",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-line formatting becomes easier with template literals",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals only work with variables of type string",
+          "is_correct": false
+        },
+        {
+          "text": "Template literals improve maintainability of formatted strings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Template Literal Concepts",
+      "content": "Which advanced concepts related to template literals are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals support nested expressions",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript automatically converts expression results into strings inside template literals",
+          "is_correct": true
+        },
+        {
+          "text": "Template literals permanently modify variables used inside them",
+          "is_correct": false
+        },
+        {
+          "text": "Tagged templates are an advanced feature built on template literals",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Template Literal Usage",
+      "content": "Which of the following statements about complex template literal usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Template literals are commonly used for generating dynamic HTML strings",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional expressions can be used inside ${}",
+          "is_correct": true
+        },
+        {
+          "text": "Backticks cannot contain quotation marks inside them",
+          "is_correct": false
+        },
+        {
+          "text": "Template literals make complex string formatting more manageable",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Math Object",
+      "content": "Which of the following statements about the Math object in JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math is a built-in object in JavaScript",
+          "is_correct": true
+        },
+        {
+          "text": "Math contains properties and methods for mathematical operations",
+          "is_correct": true
+        },
+        {
+          "text": "Math is used to create strings in JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Math helps perform advanced calculations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Generating Random Numbers",
+      "content": "Which statements about random numbers in JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.random() generates a number between 0 and 1",
+          "is_correct": true
+        },
+        {
+          "text": "Random numbers are commonly used in games",
+          "is_correct": true
+        },
+        {
+          "text": "Math.random() always returns integers only",
+          "is_correct": false
+        },
+        {
+          "text": "Random values can be scaled to different ranges",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rounding Numbers Basics",
+      "content": "Which of the following statements about rounding methods are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.round() rounds to the nearest integer",
+          "is_correct": true
+        },
+        {
+          "text": "Math.floor() rounds down to the nearest integer",
+          "is_correct": true
+        },
+        {
+          "text": "Math.ceil() always rounds down",
+          "is_correct": false
+        },
+        {
+          "text": "Rounding methods are part of the Math object",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Working with Math Methods",
+      "content": "Which statements correctly describe Math methods in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math methods do not require creating a Math object instance",
+          "is_correct": true
+        },
+        {
+          "text": "Math.max() returns the largest number from given values",
+          "is_correct": true
+        },
+        {
+          "text": "Math methods can only be used with integers",
+          "is_correct": false
+        },
+        {
+          "text": "Math.min() returns the smallest number from given values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Random Number Usage",
+      "content": "Which of the following statements about random number usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.random() can be used to simulate randomness in applications",
+          "is_correct": true
+        },
+        {
+          "text": "Multiplying Math.random() helps generate numbers in a range",
+          "is_correct": true
+        },
+        {
+          "text": "Math.random() returns only whole numbers",
+          "is_correct": false
+        },
+        {
+          "text": "Random numbers are useful in testing and simulations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Math Object Concepts",
+      "content": "Which advanced concepts related to the Math object are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math methods are static and do not require instantiation",
+          "is_correct": true
+        },
+        {
+          "text": "Math object is optimized for performance in calculations",
+          "is_correct": true
+        },
+        {
+          "text": "Math object can be extended with custom properties in all environments",
+          "is_correct": false
+        },
+        {
+          "text": "Math functions are widely used in algorithms and data processing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Rounding and Random Logic",
+      "content": "Which of the following statements about advanced rounding and random logic are correct?",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Math.floor() and Math.ceil() are commonly used in range calculations",
+          "is_correct": true
+        },
+        {
+          "text": "Combining Math.random() with Math.floor() can generate random integers",
+          "is_correct": true
+        },
+        {
+          "text": "Math.round() always rounds numbers down",
+          "is_correct": false
+        },
+        {
+          "text": "Random number generation is deterministic in JavaScript",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Extract Substring Using slice()",
+      "content": "Write a JavaScript program to extract the first 5 characters from a string using slice().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"HelloWorld\"",
+          "expected_output": "Hello"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"JavaScript\"",
+          "expected_output": "JavaS"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"Programming\"",
+          "expected_output": "Progr",
+          "explanation": "slice() extracts part of a string based on index."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Print extracted substring.",
+      "solutions": [
+        {
+          "title": "slice() Example",
+          "language": "javascript",
+          "code": "const str = 'HelloWorld';\nconsole.log(str.slice(0, 5));",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use slice(start, end).",
+        "Index starts from 0."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Extract Part of String Using substring()",
+      "content": "Write a JavaScript program to extract characters from index 2 to 6 using substring().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"HelloWorld\"",
+          "expected_output": "lloW"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"JavaScript\"",
+          "expected_output": "vaSc"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"Programming\"",
+          "expected_output": "ogra",
+          "explanation": "substring() extracts characters between given indexes."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Print extracted substring.",
+      "solutions": [
+        {
+          "title": "substring() Example",
+          "language": "javascript",
+          "code": "const str = 'HelloWorld';\nconsole.log(str.substring(2, 6));",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use substring(start, end).",
+        "End index is not included."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Replace Word in String",
+      "content": "Write a JavaScript program to replace the word 'Java' with 'JavaScript' using replace().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"I love Java\"",
+          "expected_output": "I love JavaScript"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"Java is powerful\"",
+          "expected_output": "JavaScript is powerful"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"Learn Java\"",
+          "expected_output": "Learn JavaScript",
+          "explanation": "replace() replaces part of a string."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Print modified string.",
+      "solutions": [
+        {
+          "title": "replace() Example",
+          "language": "javascript",
+          "code": "const str = 'I love Java';\nconsole.log(str.replace('Java', 'JavaScript'));",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use replace(old, new).",
+        "It replaces only first match by default."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Split String into Array",
+      "content": "Write a JavaScript program to split a sentence into words using split().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"I love coding\"",
+          "expected_output": "['I','love','coding']"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"JavaScript is fun\"",
+          "expected_output": "['JavaScript','is','fun']"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"Hello World\"",
+          "expected_output": "['Hello','World']",
+          "explanation": "split() divides string into array based on separator."
+        }
+      ],
+      "inputFormat": "A sentence string.",
+      "outputFormat": "Print array of words.",
+      "solutions": [
+        {
+          "title": "split() Example",
+          "language": "javascript",
+          "code": "const str = 'I love coding';\nconsole.log(str.split(' '));",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use split(' ') for words.",
+        "Separator determines splitting point."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Reverse String Using split, reverse and join",
+      "content": "Write a JavaScript program to reverse a string using split(), reverse() and join() methods.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"hello\"",
+          "expected_output": "olleh"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"javascript\"",
+          "expected_output": "tpircsavaj"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"code\"",
+          "expected_output": "edoc",
+          "explanation": "String is converted to array, reversed and joined."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Print reversed string.",
+      "solutions": [
+        {
+          "title": "String Reverse",
+          "language": "javascript",
+          "code": "const str = 'hello';\nconst reversed = str.split('').reverse().join('');\nconsole.log(reversed);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use split('') to convert string to array.",
+        "Use reverse() and join('')."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Remove Vowels Using replace()",
+      "content": "Write a JavaScript program to remove all vowels from a string using replace() and regex.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"hello world\"",
+          "expected_output": "hll wrld"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"javascript\"",
+          "expected_output": "jvscrpt"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"education\"",
+          "expected_output": "dctn",
+          "explanation": "replace() with regex removes vowels."
+        }
+      ],
+      "inputFormat": "A string.",
+      "outputFormat": "Print string without vowels.",
+      "solutions": [
+        {
+          "title": "Remove Vowels",
+          "language": "javascript",
+          "code": "const str = 'hello world';\nconst result = str.replace(/[aeiou]/gi, '');\nconsole.log(result);",
+          "complexity_analysis": "Time: O(n), Space: O(n)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use regex with replace().",
+        "Use /[aeiou]/gi pattern."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Extract Domain from Email",
+      "content": "Write a JavaScript program to extract domain name from an email using split() and substring methods.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "String Methods",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "\"user@gmail.com\"",
+          "expected_output": "gmail.com"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "\"test@yahoo.com\"",
+          "expected_output": "yahoo.com"
+        }
+      ],
+      "examples": [
+        {
+          "input": "\"abc@outlook.com\"",
+          "expected_output": "outlook.com",
+          "explanation": "split() helps separate username and domain."
+        }
+      ],
+      "inputFormat": "An email string.",
+      "outputFormat": "Print domain part.",
+      "solutions": [
+        {
+          "title": "Extract Domain",
+          "language": "javascript",
+          "code": "const email = 'user@gmail.com';\nconst domain = email.split('@')[1];\nconsole.log(domain);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use split('@').",
+        "Take second part of array."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Dynamic String Using Template Literals",
+      "content": "Write a JavaScript program to create a dynamic string using template literals that includes a name and age.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John 25",
+          "expected_output": "My name is John and I am 25 years old."
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice 30",
+          "expected_output": "My name is Alice and I am 30 years old."
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam 18",
+          "expected_output": "My name is Sam and I am 18 years old.",
+          "explanation": "Template literals allow embedding variables inside strings."
+        }
+      ],
+      "inputFormat": "Name and age.",
+      "outputFormat": "Print formatted string.",
+      "solutions": [
+        {
+          "title": "Template Literal Example",
+          "language": "javascript",
+          "code": "const name = 'John';\nconst age = 25;\n\nconsole.log(`My name is ${name} and I am ${age} years old.`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use backticks ``.",
+        "Use ${} for variables."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Concatenate Strings Dynamically",
+      "content": "Write a JavaScript program to dynamically concatenate first name and last name using template literals.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John Doe",
+          "expected_output": "Full Name: John Doe"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice Smith",
+          "expected_output": "Full Name: Alice Smith"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam Wilson",
+          "expected_output": "Full Name: Sam Wilson",
+          "explanation": "Template literals simplify string concatenation."
+        }
+      ],
+      "inputFormat": "First name and last name.",
+      "outputFormat": "Print full name string.",
+      "solutions": [
+        {
+          "title": "String Concatenation",
+          "language": "javascript",
+          "code": "const firstName = 'John';\nconst lastName = 'Doe';\n\nconsole.log(`Full Name: ${firstName} ${lastName}`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use ${} inside backticks.",
+        "Combine variables directly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Embed Expression in String",
+      "content": "Write a JavaScript program to calculate sum of two numbers inside a template literal.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5 10",
+          "expected_output": "Sum is 15"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "20 30",
+          "expected_output": "Sum is 50"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3 7",
+          "expected_output": "Sum is 10",
+          "explanation": "Expressions can be evaluated inside template literals."
+        }
+      ],
+      "inputFormat": "Two numbers.",
+      "outputFormat": "Print sum string.",
+      "solutions": [
+        {
+          "title": "Expression in Template Literal",
+          "language": "javascript",
+          "code": "const a = 5;\nconst b = 10;\n\nconsole.log(`Sum is ${a + b}`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use ${a + b} inside backticks.",
+        "You can evaluate expressions directly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Multi-line Message",
+      "content": "Write a JavaScript program to print a multi-line message using template literals.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hello\nWelcome to JavaScript"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hi\nThis is a test message"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Line1\nLine2",
+          "explanation": "Template literals support multi-line strings."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Print multi-line string.",
+      "solutions": [
+        {
+          "title": "Multi-line String Example",
+          "language": "javascript",
+          "code": "console.log(`Hello\nWelcome to JavaScript`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use backticks for multi-line strings.",
+        "Use \\n for line breaks."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Generate Dynamic HTML String",
+      "content": "Write a JavaScript program to generate a dynamic HTML string using template literals with variables.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John",
+          "expected_output": "<h1>Hello John</h1>"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice",
+          "expected_output": "<h1>Hello Alice</h1>"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam",
+          "expected_output": "<h1>Hello Sam</h1>",
+          "explanation": "Template literals are useful for dynamic HTML."
+        }
+      ],
+      "inputFormat": "A string (name).",
+      "outputFormat": "Print HTML string.",
+      "solutions": [
+        {
+          "title": "Dynamic HTML",
+          "language": "javascript",
+          "code": "const name = 'John';\nconsole.log(`<h1>Hello ${name}</h1>`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use backticks for HTML generation.",
+        "Embed variables using ${}."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Format User Profile Card",
+      "content": "Write a JavaScript program to create a multi-line user profile card using template literals.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "John 25 Delhi",
+          "expected_output": "Name: John\nAge: 25\nCity: Delhi"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "Alice 30 Mumbai",
+          "expected_output": "Name: Alice\nAge: 30\nCity: Mumbai"
+        }
+      ],
+      "examples": [
+        {
+          "input": "Sam 22 Pune",
+          "expected_output": "Name: Sam\nAge: 22\nCity: Pune",
+          "explanation": "Template literals help build structured multi-line outputs."
+        }
+      ],
+      "inputFormat": "Name, age, city.",
+      "outputFormat": "Print formatted profile card.",
+      "solutions": [
+        {
+          "title": "Profile Card Using Template Literals",
+          "language": "javascript",
+          "code": "const name = 'John';\nconst age = 25;\nconst city = 'Delhi';\n\nconsole.log(`Name: ${name}\nAge: ${age}\nCity: ${city}`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use \\n for new lines.",
+        "Use multiple variables inside template literals."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Invoice String Dynamically",
+      "content": "Write a JavaScript program to generate an invoice message using template literals with calculations.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Template Literals",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2 50",
+          "expected_output": "Total Bill: 100"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3 40",
+          "expected_output": "Total Bill: 120"
+        }
+      ],
+      "examples": [
+        {
+          "input": "4 25",
+          "expected_output": "Total Bill: 100",
+          "explanation": "Expressions can be directly evaluated inside template literals."
+        }
+      ],
+      "inputFormat": "Quantity and price.",
+      "outputFormat": "Print total bill.",
+      "solutions": [
+        {
+          "title": "Invoice Using Template Literals",
+          "language": "javascript",
+          "code": "const qty = 2;\nconst price = 50;\n\nconsole.log(`Total Bill: ${qty * price}`);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use multiplication inside ${}.",
+        "Template literals support calculations."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Use Math Object to Find Maximum",
+      "content": "Write a JavaScript program to find the maximum of three numbers using Math.max().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 20 30",
+          "expected_output": "30"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5 15 8",
+          "expected_output": "15"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3 9 7",
+          "expected_output": "9",
+          "explanation": "Math.max() returns the largest number."
+        }
+      ],
+      "inputFormat": "Three numbers.",
+      "outputFormat": "Print maximum number.",
+      "solutions": [
+        {
+          "title": "Math.max Example",
+          "language": "javascript",
+          "code": "const a = 10;\nconst b = 20;\nconst c = 30;\n\nconsole.log(Math.max(a, b, c));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use Math.max() function.",
+        "Pass all numbers as arguments."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Minimum Using Math Object",
+      "content": "Write a JavaScript program to find the minimum of three numbers using Math.min().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 20 30",
+          "expected_output": "10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5 15 2",
+          "expected_output": "2"
+        }
+      ],
+      "examples": [
+        {
+          "input": "8 3 6",
+          "expected_output": "3",
+          "explanation": "Math.min() returns the smallest number."
+        }
+      ],
+      "inputFormat": "Three numbers.",
+      "outputFormat": "Print minimum number.",
+      "solutions": [
+        {
+          "title": "Math.min Example",
+          "language": "javascript",
+          "code": "console.log(Math.min(10, 20, 30));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use Math.min() function.",
+        "Pass numbers directly."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Calculate Power Using Math Object",
+      "content": "Write a JavaScript program to calculate power of a number using Math.pow().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2 3",
+          "expected_output": "8"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5 2",
+          "expected_output": "25"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3 4",
+          "expected_output": "81",
+          "explanation": "Math.pow(base, exponent) calculates power."
+        }
+      ],
+      "inputFormat": "Base and exponent.",
+      "outputFormat": "Print power result.",
+      "solutions": [
+        {
+          "title": "Math.pow Example",
+          "language": "javascript",
+          "code": "console.log(Math.pow(2, 3));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use Math.pow(base, exponent).",
+        "It returns base^exponent."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Generate Random Number in Range",
+      "content": "Write a JavaScript program to generate a random number between 1 and 100 using Math.random().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Number between 1 and 100"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Number between 1 and 100"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "45",
+          "explanation": "Math.random() generates a value between 0 and 1."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Print random number.",
+      "solutions": [
+        {
+          "title": "Random Number Generator",
+          "language": "javascript",
+          "code": "const randomNum = Math.floor(Math.random() * 100) + 1;\nconsole.log(randomNum);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use Math.random().",
+        "Multiply and use Math.floor()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Simulate Dice Roll",
+      "content": "Write a JavaScript program to simulate rolling a dice (1 to 6) using Math.random().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Number between 1 and 6"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Number between 1 and 6"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "4",
+          "explanation": "Random numbers simulate dice rolls."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Print dice value.",
+      "solutions": [
+        {
+          "title": "Dice Roll Simulation",
+          "language": "javascript",
+          "code": "const dice = Math.floor(Math.random() * 6) + 1;\nconsole.log(dice);",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Range is 1 to 6.",
+        "Use Math.floor() with Math.random()."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Round Numbers Using Math Methods",
+      "content": "Write a JavaScript program to demonstrate Math.round(), Math.ceil(), and Math.floor() on a decimal number.",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "4.6",
+          "expected_output": "5\n5\n4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "3.2",
+          "expected_output": "3\n4\n3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "2.8",
+          "expected_output": "3\n3\n2",
+          "explanation": "Different rounding methods behave differently."
+        }
+      ],
+      "inputFormat": "A decimal number.",
+      "outputFormat": "Print rounded values.",
+      "solutions": [
+        {
+          "title": "Rounding Methods",
+          "language": "javascript",
+          "code": "const num = 4.6;\n\nconsole.log(Math.round(num));\nconsole.log(Math.ceil(num));\nconsole.log(Math.floor(num));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Math.round(), Math.ceil(), Math.floor().",
+        "Each function behaves differently."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Distance Between Two Random Points",
+      "content": "Write a JavaScript program to generate two random numbers and find their absolute difference using Math.abs().",
+      "level": "subtopic",
+      "unit_name": "Strings & Numbers",
+      "subunit_name": "Numbers & Math",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 5",
+          "expected_output": "5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "20 35",
+          "expected_output": "15"
+        }
+      ],
+      "examples": [
+        {
+          "input": "8 3",
+          "expected_output": "5",
+          "explanation": "Math.abs() returns absolute difference."
+        }
+      ],
+      "inputFormat": "Two numbers.",
+      "outputFormat": "Print absolute difference.",
+      "solutions": [
+        {
+          "title": "Absolute Difference",
+          "language": "javascript",
+          "code": "const a = 10;\nconst b = 5;\n\nconsole.log(Math.abs(a - b));",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Math.abs().",
+        "Subtract numbers first."
+      ]
+    }
+  ]
+}

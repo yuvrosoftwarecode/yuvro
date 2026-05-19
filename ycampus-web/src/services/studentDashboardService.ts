@@ -98,15 +98,8 @@ class StudentDashboardService {
   async getTestPerformance(productType?: string): Promise<TestPerformanceData> {
     try {
       // 1. Fetch practice tests
-      let practiceTests: any[] = [];
-      if (productType === 'assessments') {
-        const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
-        const allTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
-        practiceTests = allTests.filter((t: any) => t.unit !== null);
-      } else {
-        const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
-        practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
-      }
+      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+      const practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
 
       // 2. Fetch all submissions and filter by practice tests
       const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');

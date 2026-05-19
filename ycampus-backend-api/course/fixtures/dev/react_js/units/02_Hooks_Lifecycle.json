@@ -1,0 +1,5177 @@
+{
+    "name": "Hooks & Lifecycle",
+    "subject_short_code": "RJS100",
+    "order_index": 2,
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "What is useState",
+            "content": "What is useState used for in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To manage state in functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "To connect database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useState Import",
+            "content": "From where is useState imported?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "react",
+                    "is_correct": true
+                },
+                {
+                    "text": "react-router",
+                    "is_correct": false
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useState Return",
+            "content": "What does useState return?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State value and setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only state value",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only function",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML element",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useState Usage",
+            "content": "Where is useState used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend servers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Update Rule",
+            "content": "How should state be updated using useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct mutation",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL update",
+                    "is_correct": false
+                },
+                {
+                    "text": "DOM manipulation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Initial Value",
+            "content": "What is passed to useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Initial state value",
+                    "is_correct": true
+                },
+                {
+                    "text": "API endpoint",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS class",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tag",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Re-render Behavior",
+            "content": "What happens when useState value changes?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Page reloads",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server restarts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async State Update",
+            "content": "Why are state updates asynchronous?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To optimize performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "To slow rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "To update CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "To connect DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple State Calls",
+            "content": "What happens when multiple setState calls occur?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They may be batched",
+                    "is_correct": true
+                },
+                {
+                    "text": "They execute instantly one by one",
+                    "is_correct": false
+                },
+                {
+                    "text": "They break React",
+                    "is_correct": false
+                },
+                {
+                    "text": "They update DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Functional Update",
+            "content": "When is functional update used in useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When new state depends on previous state",
+                    "is_correct": true
+                },
+                {
+                    "text": "For CSS updates",
+                    "is_correct": false
+                },
+                {
+                    "text": "For API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "For routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useState Basics",
+            "content": "What are features of useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Manages state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Works in functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Triggers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM manipulation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useState Return Values",
+            "content": "What does useState return?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State value",
+                    "is_correct": true
+                },
+                {
+                    "text": "Setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Initial state handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useState Usage",
+            "content": "Where is useState used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Counters",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Characteristics",
+            "content": "What are characteristics of useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reactive updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component scoped",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mutable via setter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Global DB storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Update Behavior",
+            "content": "What happens when state updates?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Re-render component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Update virtual DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Update UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Restart server",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Setter Function",
+            "content": "What is true about setter function?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Updates state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Triggers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Accepts new value",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM edit",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Initial State",
+            "content": "What can be initial state?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "String",
+                    "is_correct": true
+                },
+                {
+                    "text": "Number",
+                    "is_correct": true
+                },
+                {
+                    "text": "Object",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced useState",
+            "content": "What are advanced useState concepts?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State batching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lazy initialization",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL state sync",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance",
+            "content": "Which improve useState performance?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Batch updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lazy initialization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frequent re-renders",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Mistakes",
+            "content": "What are common mistakes in useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useState",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Direct mutation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Not using setter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incorrect dependency logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper functional updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is useEffect",
+            "content": "What is useEffect used for in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handling side effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database creation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Purpose",
+            "content": "When does useEffect run by default?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "After every render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Before component loads only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on click",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on server start",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Import",
+            "content": "From where is useEffect imported?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "react",
+                    "is_correct": true
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                },
+                {
+                    "text": "express",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Usage",
+            "content": "Where is useEffect used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dependency Array",
+            "content": "What does dependency array control in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When effect runs",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database sync",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Cleanup Function",
+            "content": "What is cleanup function used for in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To clean subscriptions or timers",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create API routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Trigger",
+            "content": "When does useEffect run with empty dependency array?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only once after mount",
+                    "is_correct": true
+                },
+                {
+                    "text": "Every render",
+                    "is_correct": false
+                },
+                {
+                    "text": "On click",
+                    "is_correct": false
+                },
+                {
+                    "text": "Never runs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Infinite Loop",
+            "content": "What causes infinite loop in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Updating state without dependency control",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using props",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Timing",
+            "content": "When does useEffect execute in lifecycle?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "After render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Before render",
+                    "is_correct": false
+                },
+                {
+                    "text": "During compile time",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on server",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Effects",
+            "content": "What happens if multiple useEffect hooks exist?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They run independently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only first runs",
+                    "is_correct": false
+                },
+                {
+                    "text": "They break app",
+                    "is_correct": false
+                },
+                {
+                    "text": "They merge automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useEffect Features",
+            "content": "What are features of useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handles side effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runs after render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Manages database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Use Cases",
+            "content": "Where is useEffect used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event listeners",
+                    "is_correct": true
+                },
+                {
+                    "text": "Timers",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Effect Execution",
+            "content": "When does useEffect run?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "After render",
+                    "is_correct": true
+                },
+                {
+                    "text": "On dependency change",
+                    "is_correct": true
+                },
+                {
+                    "text": "On mount",
+                    "is_correct": true
+                },
+                {
+                    "text": "On SQL execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Effect Types",
+            "content": "What can useEffect handle?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data fetching",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Subscriptions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dependency Array",
+            "content": "What does dependency array control?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When effect runs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimization behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Re-render control",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Cleanup Function",
+            "content": "What does cleanup function do?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Clears timers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Removes listeners",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevents memory leaks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Effect Behavior",
+            "content": "What happens when dependencies change?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Effect re-runs",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State sync happens",
+                    "is_correct": true
+                },
+                {
+                    "text": "App crashes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced useEffect",
+            "content": "What are advanced useEffect concepts?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleanup functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dependency optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple effects handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL lifecycle hooks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What can cause performance issues in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Infinite loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unoptimized effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper cleanup",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Mapping",
+            "content": "What lifecycle phases does useEffect replace?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useEffect",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "componentDidMount",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentDidUpdate",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentWillUnmount",
+                    "is_correct": true
+                },
+                {
+                    "text": "render()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is useRef",
+            "content": "What is useRef used for in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To access DOM elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "To create API calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Import",
+            "content": "From where is useRef imported?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "react",
+                    "is_correct": true
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                },
+                {
+                    "text": "express",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Value",
+            "content": "What does useRef store?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mutable reference value",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Usage",
+            "content": "Where is useRef commonly used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Form inputs and DOM access",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server setup",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef vs useState",
+            "content": "What is a key difference between useRef and useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useRef does not trigger re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "useRef triggers re-render always",
+                    "is_correct": false
+                },
+                {
+                    "text": "useRef is for CSS only",
+                    "is_correct": false
+                },
+                {
+                    "text": "useState is for DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Access",
+            "content": "How do you access useRef value?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": ".current property",
+                    "is_correct": true
+                },
+                {
+                    "text": ".value property",
+                    "is_correct": false
+                },
+                {
+                    "text": ".state property",
+                    "is_correct": false
+                },
+                {
+                    "text": ".data property",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DOM Reference",
+            "content": "What does useRef help in DOM?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Direct DOM manipulation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database update",
+                    "is_correct": false
+                },
+                {
+                    "text": "API routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Re-render",
+            "content": "Does updating useRef cause re-render?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No, it does not cause re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Yes always re-renders",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Persistent Value",
+            "content": "Why is useRef useful?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It persists value across renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "It resets every render",
+                    "is_correct": false
+                },
+                {
+                    "text": "It changes CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "It updates database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useRef Advanced Use",
+            "content": "What is an advanced use of useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Storing previous state values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS generation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useRef Features",
+            "content": "What are features of useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stores mutable values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Access DOM elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Persists across renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Manages database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Use Cases",
+            "content": "Where is useRef used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Input focus",
+                    "is_correct": true
+                },
+                {
+                    "text": "Timer storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM reference",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useRef Behavior",
+            "content": "What is true about useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Does not trigger re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Has .current property",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mutable container",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always updates UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "DOM Access",
+            "content": "What can useRef access?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Input elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Buttons",
+                    "is_correct": true
+                },
+                {
+                    "text": "Div elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useRef vs State",
+            "content": "What differences exist between useRef and useState?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useRef does not re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState triggers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "useRef stores mutable value",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState is for DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useRef Applications",
+            "content": "What are useRef applications?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Focus input field",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store timers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Track previous state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database indexing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useRef Properties",
+            "content": "What are properties of useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": ".current property",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mutable object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Persistent value",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS handler",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced useRef",
+            "content": "What are advanced uses of useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Storing previous values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoiding re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM manipulation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Benefits",
+            "content": "What performance benefits does useRef provide?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoid unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient DOM access",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lightweight storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Mistakes",
+            "content": "What are common mistakes with useRef?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useRef",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Expecting re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Misusing as state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM misuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper usage of .current",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is useMemo",
+            "content": "What is useMemo used for in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoizing computed values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handling routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Managing forms",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Purpose",
+            "content": "Why is useMemo used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To optimize performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "To change DOM",
+                    "is_correct": false
+                },
+                {
+                    "text": "To fetch APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Import",
+            "content": "From where is useMemo imported?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "react",
+                    "is_correct": true
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "express",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Output",
+            "content": "What does useMemo return?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoized value",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM element",
+                    "is_correct": false
+                },
+                {
+                    "text": "API response",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS class",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Dependency",
+            "content": "What controls recalculation in useMemo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dependency array",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server config",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Use Case",
+            "content": "When should useMemo be used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Expensive calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simple UI rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo vs useEffect",
+            "content": "What is difference between useMemo and useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useMemo returns value, useEffect runs side effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both do same thing",
+                    "is_correct": false
+                },
+                {
+                    "text": "useEffect returns value",
+                    "is_correct": false
+                },
+                {
+                    "text": "useMemo is for DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Optimization",
+            "content": "What problem does useMemo solve?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary recalculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database sync",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "API routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Recompute Condition",
+            "content": "When does useMemo recompute value?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When dependencies change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Every render always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on click",
+                    "is_correct": false
+                },
+                {
+                    "text": "Never recomputes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useMemo Performance",
+            "content": "Why is useMemo important in large apps?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduces expensive recalculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increases rendering time",
+                    "is_correct": false
+                },
+                {
+                    "text": "Changes backend logic",
+                    "is_correct": false
+                },
+                {
+                    "text": "Modifies database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useMemo Basics",
+            "content": "What are features of useMemo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoizes values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoids recalculation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is useMemo used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Expensive calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Filtering lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Derived state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Behavior",
+            "content": "What does useMemo do?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Caches computed value",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoids unnecessary recalculation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves rendering speed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updates database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dependencies",
+            "content": "What affects useMemo output?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dependency array",
+                    "is_correct": true
+                },
+                {
+                    "text": "Input props",
+                    "is_correct": true
+                },
+                {
+                    "text": "State values",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Benefits",
+            "content": "What performance benefits does useMemo provide?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoids expensive recalculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizes rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves database speed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Difference",
+            "content": "What is true about useMemo vs normal function?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useMemo caches result",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normal function recalculates every render",
+                    "is_correct": true
+                },
+                {
+                    "text": "useMemo improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are same always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "When to Use",
+            "content": "When should useMemo be used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Heavy computations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large datasets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Derived calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simple strings",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Optimization Scenarios",
+            "content": "What scenarios benefit from useMemo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filtering large lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting heavy data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Expensive calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Re-render Control",
+            "content": "How does useMemo help rendering?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents unnecessary recalculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces re-renders indirectly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Triggers database updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Mistakes",
+            "content": "What are mistakes using useMemo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useMemo",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using for everything",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unnecessary memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is useCallback",
+            "content": "What is useCallback used for in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To memoize functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To fetch APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Purpose",
+            "content": "Why is useCallback used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To prevent function recreation",
+                    "is_correct": true
+                },
+                {
+                    "text": "To change DOM",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "To handle routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Import",
+            "content": "From where is useCallback imported?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "react",
+                    "is_correct": true
+                },
+                {
+                    "text": "redux",
+                    "is_correct": false
+                },
+                {
+                    "text": "express",
+                    "is_correct": false
+                },
+                {
+                    "text": "axios",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Output",
+            "content": "What does useCallback return?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoized function",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM element",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS class",
+                    "is_correct": false
+                },
+                {
+                    "text": "API response",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Dependency",
+            "content": "What controls re-creation of function in useCallback?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dependency array",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server config",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback Use Case",
+            "content": "When is useCallback mainly used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevent unnecessary child re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database creation",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useCallback vs useMemo",
+            "content": "What is difference between useCallback and useMemo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useCallback memoizes function, useMemo memoizes value",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are same",
+                    "is_correct": false
+                },
+                {
+                    "text": "useMemo returns function",
+                    "is_correct": false
+                },
+                {
+                    "text": "useCallback is for CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Re-render Optimization",
+            "content": "What problem does useCallback solve?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary function recreation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database sync",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "API routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Child Component Optimization",
+            "content": "Why is useCallback important with React.memo?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents unnecessary re-renders of child components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Breaks memoization",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increases rendering time",
+                    "is_correct": false
+                },
+                {
+                    "text": "Updates database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Issue",
+            "content": "What happens if useCallback is not used properly?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functions get recreated every render",
+                    "is_correct": true
+                },
+                {
+                    "text": "App crashes",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS breaks",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend fails",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useCallback Basics",
+            "content": "What are features of useCallback?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Memoizes functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevents re-creation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where is useCallback used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing functions to child components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizing renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoiding unnecessary updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Behavior",
+            "content": "What does useCallback do?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Returns memoized function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoids function recreation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changes DOM directly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dependencies",
+            "content": "What affects useCallback behavior?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dependency array",
+                    "is_correct": true
+                },
+                {
+                    "text": "State variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Benefits",
+            "content": "What performance benefits does useCallback provide?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents unnecessary function recreation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizes child renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves database speed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useCallback vs normal function",
+            "content": "What is true about useCallback compared to normal function?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useCallback memoizes function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normal function recreates every render",
+                    "is_correct": true
+                },
+                {
+                    "text": "useCallback improves optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are identical always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "When to Use",
+            "content": "When should useCallback be used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing callbacks to memoized components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Preventing unnecessary renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizing performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simple static UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Optimization",
+            "content": "What advanced optimizations does useCallback support?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Preventing child re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Working with React.memo",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reducing function recreation cost",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What problems arise without useCallback?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unnecessary function creation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance degradation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child re-render issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend crash",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for useCallback?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "useCallback",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use only when needed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid over-memoization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use with React.memo",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use for all functions always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What are Custom Hooks",
+            "content": "What are custom hooks in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable functions using hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Built-in React components",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database models",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Custom Hook Naming",
+            "content": "How should custom hooks be named?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Start with use",
+                    "is_correct": true
+                },
+                {
+                    "text": "Start with get",
+                    "is_correct": false
+                },
+                {
+                    "text": "Start with render",
+                    "is_correct": false
+                },
+                {
+                    "text": "Start with hook_",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose",
+            "content": "Why are custom hooks used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reuse logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To build HTML pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Custom Hook Usage",
+            "content": "Where can custom hooks be used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server files only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Logic Sharing",
+            "content": "What is main advantage of custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sharing logic between components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating APIs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Managing database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Hook Composition",
+            "content": "What can custom hooks use internally?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Built-in hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Reusability",
+            "content": "What do custom hooks improve most?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reusability",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Custom Hook Rules",
+            "content": "What rule must custom hooks follow?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must follow hook rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must be class based",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must use CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must use Redux",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Custom Hook Behavior",
+            "content": "What is true about custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They can use multiple hooks inside",
+                    "is_correct": true
+                },
+                {
+                    "text": "They only return JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Practice",
+            "content": "What is best practice for custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep logic reusable and clean",
+                    "is_correct": true
+                },
+                {
+                    "text": "Write everything inside one file",
+                    "is_correct": false
+                },
+                {
+                    "text": "Avoid returning values",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use only for UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Custom Hook Basics",
+            "content": "What are features of custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses built-in hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Start with 'use'",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only for styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Use Cases",
+            "content": "Where are custom hooks used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Form handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "State logic reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hook Composition",
+            "content": "What can custom hooks include?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useState",
+                    "is_correct": true
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": true
+                },
+                {
+                    "text": "useMemo",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Naming Rules",
+            "content": "What rules apply to custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Start with use",
+                    "is_correct": true
+                },
+                {
+                    "text": "Follow hook rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must be reusable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must be class-based",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advantages",
+            "content": "What are advantages of custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reuse",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleaner components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Internal Hooks",
+            "content": "What can custom hooks use internally?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useState",
+                    "is_correct": true
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": true
+                },
+                {
+                    "text": "useRef",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS engine",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Design Principles",
+            "content": "What are good design practices?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Single responsibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline everything",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Concepts",
+            "content": "What advanced concepts relate to custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hook composition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logic abstraction",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable state logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep hooks small",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid duplication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Make reusable logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mix UI and logic heavily",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Mistakes",
+            "content": "What are mistakes in custom hooks?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Custom Hooks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Overcomplicating hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Not reusing logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Breaking hook rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper abstraction",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is Lifecycle",
+            "content": "What does component lifecycle mean in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stages of a component from creation to removal",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering process",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "API creation flow",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lifecycle Phases",
+            "content": "How many main lifecycle phases are there?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "3 phases",
+                    "is_correct": true
+                },
+                {
+                    "text": "1 phase",
+                    "is_correct": false
+                },
+                {
+                    "text": "5 phases",
+                    "is_correct": false
+                },
+                {
+                    "text": "10 phases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Mounting Phase",
+            "content": "What happens in mounting phase?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component is created and inserted into DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component is deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS is applied",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database is reset",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Unmounting Phase",
+            "content": "What happens in unmounting phase?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component is removed from DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component is created",
+                    "is_correct": false
+                },
+                {
+                    "text": "State is initialized",
+                    "is_correct": false
+                },
+                {
+                    "text": "API is called",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Updating Phase",
+            "content": "When does updating phase occur?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When props or state changes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only on mount",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on unmount",
+                    "is_correct": false
+                },
+                {
+                    "text": "Before installation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Lifecycle Purpose",
+            "content": "Why is lifecycle important?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To control component behavior over time",
+                    "is_correct": true
+                },
+                {
+                    "text": "To design UI only",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To write CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Lifecycle Methods",
+            "content": "Which is a lifecycle method in class components?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "componentDidMount",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "renderHook",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lifecycle Order",
+            "content": "What is correct lifecycle order?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mount \u2192 Update \u2192 Unmount",
+                    "is_correct": true
+                },
+                {
+                    "text": "Update \u2192 Mount \u2192 Unmount",
+                    "is_correct": false
+                },
+                {
+                    "text": "Unmount \u2192 Mount \u2192 Update",
+                    "is_correct": false
+                },
+                {
+                    "text": "Mount \u2192 Unmount \u2192 Update",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lifecycle Control",
+            "content": "What controls lifecycle behavior in functional components?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hooks like useEffect",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Re-render Trigger",
+            "content": "What triggers lifecycle update phase?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State or props change",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS change",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML reload",
+                    "is_correct": false
+                },
+                {
+                    "text": "Server restart",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Basics",
+            "content": "What are lifecycle phases in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mounting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updating",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmounting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compiling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Mount Phase",
+            "content": "What happens during mounting?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component created",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inserted into DOM",
+                    "is_correct": true
+                },
+                {
+                    "text": "Initial render happens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Update Phase",
+            "content": "What triggers update phase?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS change",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Unmount Phase",
+            "content": "What happens during unmounting?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component removed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleanup happens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Memory freed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component created",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Methods",
+            "content": "Which are lifecycle methods in class components?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "componentDidMount",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentDidUpdate",
+                    "is_correct": true
+                },
+                {
+                    "text": "componentWillUnmount",
+                    "is_correct": true
+                },
+                {
+                    "text": "useMemo",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Update Behavior",
+            "content": "What happens in update phase?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Re-render occurs",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State changes reflected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Importance",
+            "content": "Why is lifecycle important?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Controls component behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Manages updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles cleanup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Lifecycle",
+            "content": "What are lifecycle control mechanisms in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hooks like useEffect",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class lifecycle methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "State updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lifecycle Flow",
+            "content": "What is correct lifecycle flow?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mounting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updating",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unmounting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Key Concepts",
+            "content": "What are key lifecycle concepts?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Lifecycle Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Re-rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What are Side Effects",
+            "content": "What are side effects in React?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Operations that affect outside React scope",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Component props",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Purpose",
+            "content": "Which hook handles side effects?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useEffect",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState",
+                    "is_correct": false
+                },
+                {
+                    "text": "useMemo",
+                    "is_correct": false
+                },
+                {
+                    "text": "useRef",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Side Effect Example",
+            "content": "Which is a side effect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching API data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rendering JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "Declaring variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Writing HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "useEffect Runs",
+            "content": "When does useEffect run by default?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "After render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Before render",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on click",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on server",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dependency Array",
+            "content": "What does dependency array control?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When useEffect runs",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Cleanup Function",
+            "content": "What is useEffect cleanup used for?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevent memory leaks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handle routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Effect Trigger",
+            "content": "What triggers useEffect again?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dependency change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Page reload",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS change",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML update",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Infinite Loop Issue",
+            "content": "What causes infinite loop in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Updating state without dependency control",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using props only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Effect Execution",
+            "content": "When does cleanup function run?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Before next effect or unmount",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only on mount",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only on render",
+                    "is_correct": false
+                },
+                {
+                    "text": "Never runs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Best Practice",
+            "content": "What is best practice for useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep dependencies accurate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid dependency array",
+                    "is_correct": false
+                },
+                {
+                    "text": "Always skip cleanup",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use only in class components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Side Effects Basics",
+            "content": "What are examples of side effects?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM manipulation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Timers (setTimeout)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Pure JSX rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useEffect Usage",
+            "content": "Where is useEffect used?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data fetching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Subscriptions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logging",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Effect Behavior",
+            "content": "What happens when useEffect runs?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Executes side effect logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runs after render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can update state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only changes HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Cleanup",
+            "content": "What does cleanup function do?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Clears timers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Removes subscriptions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevents memory leaks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updates CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dependency Array Role",
+            "content": "What does dependency array control?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Effect execution timing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Re-render behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML structure",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Patterns",
+            "content": "What are common useEffect patterns?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API fetching on mount",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event listeners",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleanup logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database schema design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Effect Rules",
+            "content": "What rules apply to useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Runs after render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must declare dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can include cleanup",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runs before render always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Effects",
+            "content": "What advanced useEffect behaviors exist?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Conditional effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cleanup chaining",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dependency optimization",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS preprocessing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Issues",
+            "content": "What can cause performance issues in useEffect?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Infinite loops",
+                    "is_correct": true
+                },
+                {
+                    "text": "Heavy computations inside effect",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using JSX",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for side effects?",
+            "level": "subunit",
+            "unit_name": "Hooks & Lifecycle",
+            "subunit_name": "Side Effects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Keep effects minimal",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always clean up",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use correct dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid useEffect entirely",
+                    "is_correct": false
+                }
+            ]
+        }
+    ],
+    "sub_units": [
+        {
+            "name": "useState",
+            "content": "The useState hook allows you to add state to functional components. It returns an array with the current state value and a function to update it. It is the most commonly used hook for managing local component state.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "useEffect",
+            "content": "The useEffect hook lets you perform side effects in functional components. It serves the same purpose as componentDidMount, componentDidUpdate, and componentWillUnmount in React classes, but unified into a single API.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "useRef",
+            "content": "The useRef hook returns a mutable ref object whose .current property is initialized to the passed argument. The returned object will persist for the full lifetime of the component. It is commonly used to access DOM elements directly.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "useMemo",
+            "content": "The useMemo hook returns a memoized value. It only recomputes the memoized value when one of the dependencies has changed. This optimization helps to avoid expensive calculations on every render.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "useCallback",
+            "content": "The useCallback hook returns a memoized version of the callback that only changes if one of the dependencies has changed. This is useful when passing callbacks to optimized child components that rely on reference equality to prevent unnecessary renders.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Custom Hooks",
+            "content": "Custom hooks allow you to extract component logic into reusable functions. A custom hook is a JavaScript function whose name starts with 'use' and that may call other hooks. This helps in sharing logic between multiple components.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Lifecycle Basics",
+            "content": "Every React component goes through a lifecycle of events: Mounting (being put into the DOM), Updating (when props or state change), and Unmounting (being removed from the DOM). Hooks provide a way to hook into these events in functional components.",
+            "order_index": 6,
+            "videos": []
+        },
+        {
+            "name": "Side Effects",
+            "content": "Side effects include data fetching, setting up a subscription, and manually changing the DOM in React components. These should be handled within the useEffect hook to ensure the UI stays consistent and performance is maintained.",
+            "order_index": 7,
+            "videos": []
+        }
+    ]
+}

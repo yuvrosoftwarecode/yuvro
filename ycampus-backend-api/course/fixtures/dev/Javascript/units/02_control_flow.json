@@ -1,0 +1,4338 @@
+{
+  "name": "Control Flow",
+  "subject_short_code": "JS100",
+  "order_index": 2,
+  "sub_units": [
+    {
+      "name": "Conditional Statements",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Conditional Statements",
+          "video_link": "https://www.youtube.com/results?search_query=Conditional+Statements+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Conditional Statements in JavaScript."
+        },
+        {
+          "title": "Advanced Conditional Statements Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Conditional+Statements+javascript",
+          "ai_context": "In-depth explanation and practical examples for Conditional Statements."
+        }
+      ]
+    },
+    {
+      "name": "Loops",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Loops",
+          "video_link": "https://www.youtube.com/results?search_query=Loops+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Loops in JavaScript."
+        },
+        {
+          "title": "Advanced Loops Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Loops+javascript",
+          "ai_context": "In-depth explanation and practical examples for Loops."
+        }
+      ]
+    },
+    {
+      "name": "Loop Control",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Loop Control",
+          "video_link": "https://www.youtube.com/results?search_query=Loop+Control+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Loop Control in JavaScript."
+        },
+        {
+          "title": "Advanced Loop Control Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Loop+Control+javascript",
+          "ai_context": "In-depth explanation and practical examples for Loop Control."
+        }
+      ]
+    },
+    {
+      "name": "Pattern & Logic Building",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Pattern & Logic Building",
+          "video_link": "https://www.youtube.com/results?search_query=Pattern+%26+Logic+Building+javascript",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Pattern & Logic Building in JavaScript."
+        },
+        {
+          "title": "Advanced Pattern & Logic Building Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Pattern+%26+Logic+Building+javascript",
+          "ai_context": "In-depth explanation and practical examples for Pattern & Logic Building."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "If Statement Purpose",
+      "content": "What is the purpose of an if statement in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To execute code based on a condition",
+          "is_correct": true
+        },
+        {
+          "text": "To repeat code forever",
+          "is_correct": false
+        },
+        {
+          "text": "To style webpages",
+          "is_correct": false
+        },
+        {
+          "text": "To create variables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Else Block Usage",
+      "content": "When does the else block execute?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When the if condition is false",
+          "is_correct": true
+        },
+        {
+          "text": "When the if condition is true",
+          "is_correct": false
+        },
+        {
+          "text": "Always",
+          "is_correct": false
+        },
+        {
+          "text": "Only in loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Else If Purpose",
+      "content": "Why is else if used in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To check multiple conditions",
+          "is_correct": true
+        },
+        {
+          "text": "To declare variables",
+          "is_correct": false
+        },
+        {
+          "text": "To stop code execution",
+          "is_correct": false
+        },
+        {
+          "text": "To create arrays",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Switch Statement",
+      "content": "What is the switch statement mainly used for?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling multiple possible values of an expression",
+          "is_correct": true
+        },
+        {
+          "text": "Creating functions",
+          "is_correct": false
+        },
+        {
+          "text": "Styling HTML",
+          "is_correct": false
+        },
+        {
+          "text": "Declaring constants",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Default Case",
+      "content": "What is the role of the default case in a switch statement?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It executes when no case matches",
+          "is_correct": true
+        },
+        {
+          "text": "It always runs first",
+          "is_correct": false
+        },
+        {
+          "text": "It creates a loop",
+          "is_correct": false
+        },
+        {
+          "text": "It ends the program",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Break Statement",
+      "content": "Why is the break statement commonly used in switch cases?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To stop execution from continuing into the next case",
+          "is_correct": true
+        },
+        {
+          "text": "To restart the switch statement",
+          "is_correct": false
+        },
+        {
+          "text": "To create variables",
+          "is_correct": false
+        },
+        {
+          "text": "To compare values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Condition Evaluation",
+      "content": "Which value is treated as false in a JavaScript if condition?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0",
+          "is_correct": true
+        },
+        {
+          "text": "\"hello\"",
+          "is_correct": false
+        },
+        {
+          "text": "[]",
+          "is_correct": false
+        },
+        {
+          "text": "{}",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Switch Comparison",
+      "content": "How does a switch statement compare case values?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using strict equality (===)",
+          "is_correct": true
+        },
+        {
+          "text": "Using loose equality (==) only",
+          "is_correct": false
+        },
+        {
+          "text": "Using greater-than comparison",
+          "is_correct": false
+        },
+        {
+          "text": "Using logical OR",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Fall-Through Behavior",
+      "content": "What happens if a switch case does not contain a break statement?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Execution continues into the next case",
+          "is_correct": true
+        },
+        {
+          "text": "The switch statement stops immediately",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript throws an error",
+          "is_correct": false
+        },
+        {
+          "text": "The default case is skipped",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Conditions",
+      "content": "What is a potential drawback of deeply nested if statements?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Code becomes harder to read and maintain",
+          "is_correct": true
+        },
+        {
+          "text": "Variables stop working",
+          "is_correct": false
+        },
+        {
+          "text": "Switch statements become invalid",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript execution becomes impossible",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Loops",
+      "content": "What is the main purpose of loops in JavaScript?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To repeat a block of code multiple times",
+          "is_correct": true
+        },
+        {
+          "text": "To create HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "To style webpages",
+          "is_correct": false
+        },
+        {
+          "text": "To declare variables only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "For Loop Structure",
+      "content": "Which loop is commonly used when the number of iterations is known?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "for loop",
+          "is_correct": true
+        },
+        {
+          "text": "switch statement",
+          "is_correct": false
+        },
+        {
+          "text": "if statement",
+          "is_correct": false
+        },
+        {
+          "text": "try block",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "While Loop Execution",
+      "content": "When does a while loop continue executing?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "As long as the condition is true",
+          "is_correct": true
+        },
+        {
+          "text": "Only once",
+          "is_correct": false
+        },
+        {
+          "text": "When the condition is false",
+          "is_correct": false
+        },
+        {
+          "text": "Only in browsers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Do While Loop",
+      "content": "What is special about a do while loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It executes the code block at least once",
+          "is_correct": true
+        },
+        {
+          "text": "It never checks conditions",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with arrays",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Counter",
+      "content": "What is commonly used in a for loop to track iterations?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A counter variable",
+          "is_correct": true
+        },
+        {
+          "text": "A CSS selector",
+          "is_correct": false
+        },
+        {
+          "text": "An HTML tag",
+          "is_correct": false
+        },
+        {
+          "text": "A database query",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Infinite Loops",
+      "content": "What can cause an infinite loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A condition that never becomes false",
+          "is_correct": true
+        },
+        {
+          "text": "Using console.log()",
+          "is_correct": false
+        },
+        {
+          "text": "Declaring variables with let",
+          "is_correct": false
+        },
+        {
+          "text": "Using HTML tags",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Comparison",
+      "content": "Which loop checks its condition after executing the code block?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "do while loop",
+          "is_correct": true
+        },
+        {
+          "text": "for loop",
+          "is_correct": false
+        },
+        {
+          "text": "while loop",
+          "is_correct": false
+        },
+        {
+          "text": "if statement",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "For Loop Components",
+      "content": "Which part of a for loop usually updates the counter variable?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Increment/decrement expression",
+          "is_correct": true
+        },
+        {
+          "text": "Condition only",
+          "is_correct": false
+        },
+        {
+          "text": "Variable declaration only",
+          "is_correct": false
+        },
+        {
+          "text": "Switch case",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Scope",
+      "content": "Why is let commonly preferred over var in loop counters?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "let provides block scope for each iteration",
+          "is_correct": true
+        },
+        {
+          "text": "var executes faster in all cases",
+          "is_correct": false
+        },
+        {
+          "text": "let creates HTML automatically",
+          "is_correct": false
+        },
+        {
+          "text": "var cannot be used in loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Performance",
+      "content": "Which loop type is generally best when the exact number of iterations is already known?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "for loop",
+          "is_correct": true
+        },
+        {
+          "text": "while loop",
+          "is_correct": false
+        },
+        {
+          "text": "do while loop",
+          "is_correct": false
+        },
+        {
+          "text": "switch statement",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Break Statement Purpose",
+      "content": "What does the break statement do in a loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stops the loop immediately",
+          "is_correct": true
+        },
+        {
+          "text": "Repeats the loop forever",
+          "is_correct": false
+        },
+        {
+          "text": "Skips only the current iteration",
+          "is_correct": false
+        },
+        {
+          "text": "Creates a new loop",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Continue Statement Purpose",
+      "content": "What does the continue statement do in a loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Skips the current iteration and moves to the next one",
+          "is_correct": true
+        },
+        {
+          "text": "Ends the loop completely",
+          "is_correct": false
+        },
+        {
+          "text": "Restarts the program",
+          "is_correct": false
+        },
+        {
+          "text": "Declares a variable",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Break in Switch",
+      "content": "Why is break commonly used inside switch statements?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To prevent execution from continuing into the next case",
+          "is_correct": true
+        },
+        {
+          "text": "To repeat the switch statement",
+          "is_correct": false
+        },
+        {
+          "text": "To declare variables",
+          "is_correct": false
+        },
+        {
+          "text": "To create conditions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Continue Usage",
+      "content": "Which statement is useful when you want to skip processing certain loop values?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "continue",
+          "is_correct": true
+        },
+        {
+          "text": "break",
+          "is_correct": false
+        },
+        {
+          "text": "return",
+          "is_correct": false
+        },
+        {
+          "text": "switch",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Exit",
+      "content": "Which statement completely exits a loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break",
+          "is_correct": true
+        },
+        {
+          "text": "continue",
+          "is_correct": false
+        },
+        {
+          "text": "skip",
+          "is_correct": false
+        },
+        {
+          "text": "next",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Break vs Continue",
+      "content": "What is the main difference between break and continue?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break exits the loop, while continue skips the current iteration",
+          "is_correct": true
+        },
+        {
+          "text": "Both completely stop the loop",
+          "is_correct": false
+        },
+        {
+          "text": "continue exits the loop, while break skips iterations",
+          "is_correct": false
+        },
+        {
+          "text": "Both restart the loop",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Continue Execution",
+      "content": "What happens after a continue statement runs inside a loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The next iteration begins immediately",
+          "is_correct": true
+        },
+        {
+          "text": "The loop ends permanently",
+          "is_correct": false
+        },
+        {
+          "text": "The program crashes",
+          "is_correct": false
+        },
+        {
+          "text": "The condition becomes false automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Loops",
+      "content": "In nested loops, what does a break statement affect by default?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Only the innermost loop",
+          "is_correct": true
+        },
+        {
+          "text": "All loops simultaneously",
+          "is_correct": false
+        },
+        {
+          "text": "Only the outermost loop",
+          "is_correct": false
+        },
+        {
+          "text": "The entire program",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Unreachable Code",
+      "content": "What can happen if code is written immediately after a break statement in the same block?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "That code may become unreachable",
+          "is_correct": true
+        },
+        {
+          "text": "The loop automatically repeats",
+          "is_correct": false
+        },
+        {
+          "text": "continue gets executed",
+          "is_correct": false
+        },
+        {
+          "text": "The program converts it into comments",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Infinite Loop Prevention",
+      "content": "How can break help prevent infinite loops?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides a way to exit the loop when a condition is met",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically changes false conditions to true",
+          "is_correct": false
+        },
+        {
+          "text": "It removes loop counters",
+          "is_correct": false
+        },
+        {
+          "text": "It disables while loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Loop Purpose",
+      "content": "What is a nested loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A loop placed inside another loop",
+          "is_correct": true
+        },
+        {
+          "text": "A loop without conditions",
+          "is_correct": false
+        },
+        {
+          "text": "A loop used only for arrays",
+          "is_correct": false
+        },
+        {
+          "text": "A loop that never ends",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pattern Printing",
+      "content": "Which concept is most commonly used to print number patterns?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Nested loops",
+          "is_correct": true
+        },
+        {
+          "text": "Switch statements",
+          "is_correct": false
+        },
+        {
+          "text": "CSS selectors",
+          "is_correct": false
+        },
+        {
+          "text": "Functions only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Outer Loop Role",
+      "content": "In pattern programs, what does the outer loop usually control?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of rows",
+          "is_correct": true
+        },
+        {
+          "text": "The color of text",
+          "is_correct": false
+        },
+        {
+          "text": "The browser type",
+          "is_correct": false
+        },
+        {
+          "text": "The HTML structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inner Loop Role",
+      "content": "In nested loops for patterns, what does the inner loop usually control?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of columns or elements per row",
+          "is_correct": true
+        },
+        {
+          "text": "The webpage title",
+          "is_correct": false
+        },
+        {
+          "text": "Variable declarations",
+          "is_correct": false
+        },
+        {
+          "text": "The loop condition only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loop Iterations",
+      "content": "How many times does the inner loop execute for each iteration of the outer loop?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "According to its own condition",
+          "is_correct": true
+        },
+        {
+          "text": "Only once always",
+          "is_correct": false
+        },
+        {
+          "text": "Zero times always",
+          "is_correct": false
+        },
+        {
+          "text": "Only when using while loops",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pattern Logic",
+      "content": "What is important for building number patterns correctly?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Understanding row and column relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Using only switch statements",
+          "is_correct": false
+        },
+        {
+          "text": "Avoiding conditions completely",
+          "is_correct": false
+        },
+        {
+          "text": "Using CSS animations",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Increment Patterns",
+      "content": "Which operator is commonly used to increase counters in pattern programs?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "++",
+          "is_correct": true
+        },
+        {
+          "text": "&&",
+          "is_correct": false
+        },
+        {
+          "text": "==",
+          "is_correct": false
+        },
+        {
+          "text": "=>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Nested Loop Complexity",
+      "content": "Why can nested loops become computationally expensive?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Because the inner loop runs multiple times for each outer loop iteration",
+          "is_correct": true
+        },
+        {
+          "text": "Because they remove variables",
+          "is_correct": false
+        },
+        {
+          "text": "Because JavaScript cannot handle loops",
+          "is_correct": false
+        },
+        {
+          "text": "Because they disable conditions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pattern Debugging",
+      "content": "What is a common cause of incorrect number pattern output?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Incorrect loop conditions or counter updates",
+          "is_correct": true
+        },
+        {
+          "text": "Using console.log()",
+          "is_correct": false
+        },
+        {
+          "text": "Declaring variables with let",
+          "is_correct": false
+        },
+        {
+          "text": "Using arithmetic operators",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Triangular Patterns",
+      "content": "In a triangular number pattern, how does the inner loop commonly behave as rows increase?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of iterations often increases with each row",
+          "is_correct": true
+        },
+        {
+          "text": "The number of iterations always stays constant",
+          "is_correct": false
+        },
+        {
+          "text": "The outer loop stops working",
+          "is_correct": false
+        },
+        {
+          "text": "The loop becomes infinite automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "if Statement Basics",
+      "content": "Which of the following statements about the if statement in JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The if statement executes code when a condition is true",
+          "is_correct": true
+        },
+        {
+          "text": "if statements are used for decision making",
+          "is_correct": true
+        },
+        {
+          "text": "The if keyword can only be used once in a program",
+          "is_correct": false
+        },
+        {
+          "text": "Conditions inside if statements evaluate to true or false",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "else and else if Basics",
+      "content": "Which of the following statements about else and else if are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "else executes when the if condition is false",
+          "is_correct": true
+        },
+        {
+          "text": "else if allows checking multiple conditions",
+          "is_correct": true
+        },
+        {
+          "text": "else if must always be written after else",
+          "is_correct": false
+        },
+        {
+          "text": "An if statement can include multiple else if blocks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Switch Statement Basics",
+      "content": "Which of the following statements about the switch statement are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "switch is used to compare a value against multiple cases",
+          "is_correct": true
+        },
+        {
+          "text": "case labels are used inside switch statements",
+          "is_correct": true
+        },
+        {
+          "text": "switch statements cannot contain default blocks",
+          "is_correct": false
+        },
+        {
+          "text": "break is commonly used inside switch cases",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Conditional Flow Concepts",
+      "content": "Which of the following statements about conditional flow are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conditional statements control program execution flow",
+          "is_correct": true
+        },
+        {
+          "text": "if statements can contain nested conditions",
+          "is_correct": true
+        },
+        {
+          "text": "switch statements only work with numbers",
+          "is_correct": false
+        },
+        {
+          "text": "Decision-making logic is an important part of programming",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using switch and if",
+      "content": "Which of the following statements about using switch and if statements are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "switch statements can improve readability for multiple fixed conditions",
+          "is_correct": true
+        },
+        {
+          "text": "if-else structures are flexible for complex conditions",
+          "is_correct": true
+        },
+        {
+          "text": "else blocks are mandatory in all if statements",
+          "is_correct": false
+        },
+        {
+          "text": "Conditional statements help programs respond dynamically",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced if-else Logic",
+      "content": "Which of the following statements about advanced if-else logic are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Conditions are evaluated from top to bottom in if-else chains",
+          "is_correct": true
+        },
+        {
+          "text": "Only the first matching if or else if block executes",
+          "is_correct": true
+        },
+        {
+          "text": "All else if blocks execute together when conditions are true",
+          "is_correct": false
+        },
+        {
+          "text": "Nested conditionals allow more detailed program logic",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Switch Statement Behavior",
+      "content": "Which of the following statements about switch statement behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Without break, execution may continue into the next case",
+          "is_correct": true
+        },
+        {
+          "text": "default executes when no matching case is found",
+          "is_correct": true
+        },
+        {
+          "text": "switch statements cannot use string values",
+          "is_correct": false
+        },
+        {
+          "text": "switch statements can simplify repetitive comparisons",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Conditional Statements Best Practices",
+      "content": "Which of the following statements about conditional statement best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Readable conditions improve code maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "switch is often preferred for many exact value checks",
+          "is_correct": true
+        },
+        {
+          "text": "Complex nested conditions should always be avoided completely",
+          "is_correct": false
+        },
+        {
+          "text": "Conditional logic is essential in real-world applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Conditional Flow",
+      "content": "Which of the following statements about advanced conditional flow are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improper break usage in switch can lead to fall-through behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional statements are evaluated during runtime execution",
+          "is_correct": true
+        },
+        {
+          "text": "switch statements automatically stop after every case without break",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient conditional structures improve program clarity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Decision Making",
+      "content": "Which of the following statements about complex decision making in JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Nested if statements allow multi-level decision making",
+          "is_correct": true
+        },
+        {
+          "text": "switch statements are useful when comparing a single expression against many values",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional statements can never be combined with logical operators",
+          "is_correct": false
+        },
+        {
+          "text": "Well-structured conditionals reduce logical errors in applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "for Loop Basics",
+      "content": "Which of the following statements about the for loop in JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A for loop is commonly used for repeated execution",
+          "is_correct": true
+        },
+        {
+          "text": "A for loop can include initialization, condition, and increment expressions",
+          "is_correct": true
+        },
+        {
+          "text": "A for loop executes only once",
+          "is_correct": false
+        },
+        {
+          "text": "for loops are useful when the number of iterations is known",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "while Loop Basics",
+      "content": "Which of the following statements about the while loop are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A while loop executes as long as its condition is true",
+          "is_correct": true
+        },
+        {
+          "text": "The condition is checked before execution in a while loop",
+          "is_correct": true
+        },
+        {
+          "text": "while loops cannot be used for repeated tasks",
+          "is_correct": false
+        },
+        {
+          "text": "A while loop may execute zero times if the condition is false initially",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "do while Loop Basics",
+      "content": "Which of the following statements about the do while loop are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A do while loop executes the code block at least once",
+          "is_correct": true
+        },
+        {
+          "text": "The condition in a do while loop is checked after execution",
+          "is_correct": true
+        },
+        {
+          "text": "do while loops never repeat execution",
+          "is_correct": false
+        },
+        {
+          "text": "do while is useful when at least one execution is required",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loop Usage Concepts",
+      "content": "Which of the following statements about loops are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Loops help automate repetitive tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Loops can reduce duplicate code",
+          "is_correct": true
+        },
+        {
+          "text": "Loops are only used with arrays",
+          "is_correct": false
+        },
+        {
+          "text": "Conditions control loop execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Loop Types",
+      "content": "Which of the following statements comparing loop types are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "for loops are commonly used when iteration counts are known",
+          "is_correct": true
+        },
+        {
+          "text": "while loops are useful when the number of iterations is uncertain",
+          "is_correct": true
+        },
+        {
+          "text": "do while loops check conditions before execution",
+          "is_correct": false
+        },
+        {
+          "text": "Different loop types are suited for different scenarios",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loop Execution Flow",
+      "content": "Which of the following statements about loop execution flow are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Infinite loops can occur if loop conditions never become false",
+          "is_correct": true
+        },
+        {
+          "text": "Loop conditions are evaluated repeatedly during execution",
+          "is_correct": true
+        },
+        {
+          "text": "A for loop cannot contain conditional logic",
+          "is_correct": false
+        },
+        {
+          "text": "Proper loop control is important for program performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Nested and Conditional Loops",
+      "content": "Which of the following statements about nested and conditional loops are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Loops can contain other loops inside them",
+          "is_correct": true
+        },
+        {
+          "text": "Conditional statements can be used inside loops",
+          "is_correct": true
+        },
+        {
+          "text": "Nested loops are impossible in JavaScript",
+          "is_correct": false
+        },
+        {
+          "text": "Nested loops are often used for multi-level iteration tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loop Best Practices",
+      "content": "Which of the following statements about loop best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clear loop conditions improve code readability",
+          "is_correct": true
+        },
+        {
+          "text": "Efficient loops can improve application performance",
+          "is_correct": true
+        },
+        {
+          "text": "All loops must run a fixed number of times",
+          "is_correct": false
+        },
+        {
+          "text": "Choosing the right loop type simplifies development",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Loop Concepts",
+      "content": "Which of the following statements about advanced loop concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A do while loop guarantees at least one execution",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect loop updates may create infinite loops",
+          "is_correct": true
+        },
+        {
+          "text": "Loop conditions are ignored in JavaScript loops",
+          "is_correct": false
+        },
+        {
+          "text": "Loop structures are fundamental for algorithm design",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Loop Behavior",
+      "content": "Which of the following statements about complex loop behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Nested loops increase the total number of iterations performed",
+          "is_correct": true
+        },
+        {
+          "text": "Loop execution depends on runtime condition evaluation",
+          "is_correct": true
+        },
+        {
+          "text": "while loops always execute at least once",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding loop behavior helps optimize program logic",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "break Statement Basics",
+      "content": "Which of the following statements about the break statement are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break is used to terminate a loop early",
+          "is_correct": true
+        },
+        {
+          "text": "break can be used inside switch statements",
+          "is_correct": true
+        },
+        {
+          "text": "break skips the current iteration and continues the loop",
+          "is_correct": false
+        },
+        {
+          "text": "break stops further loop execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "continue Statement Basics",
+      "content": "Which of the following statements about the continue statement are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "continue skips the current iteration of a loop",
+          "is_correct": true
+        },
+        {
+          "text": "continue moves execution to the next iteration",
+          "is_correct": true
+        },
+        {
+          "text": "continue completely stops loop execution",
+          "is_correct": false
+        },
+        {
+          "text": "continue is commonly used with conditions inside loops",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loop Control Concepts",
+      "content": "Which of the following statements about loop control statements are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break and continue modify normal loop execution flow",
+          "is_correct": true
+        },
+        {
+          "text": "Loop control statements improve flexibility in loops",
+          "is_correct": true
+        },
+        {
+          "text": "break and continue can only be used outside loops",
+          "is_correct": false
+        },
+        {
+          "text": "Loop control statements help handle special conditions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using break in Loops",
+      "content": "Which of the following statements about using break in loops are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break can prevent unnecessary loop iterations",
+          "is_correct": true
+        },
+        {
+          "text": "break is useful when a target condition is reached",
+          "is_correct": true
+        },
+        {
+          "text": "break always restarts the loop from the beginning",
+          "is_correct": false
+        },
+        {
+          "text": "Using break can improve loop efficiency in some cases",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Using continue in Loops",
+      "content": "Which of the following statements about using continue in loops are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "continue skips remaining code in the current iteration",
+          "is_correct": true
+        },
+        {
+          "text": "continue allows loops to proceed without stopping entirely",
+          "is_correct": true
+        },
+        {
+          "text": "continue exits the program completely",
+          "is_correct": false
+        },
+        {
+          "text": "continue is useful for filtering unwanted iterations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Loop Control Behavior",
+      "content": "Which of the following statements about advanced loop control behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break immediately exits the nearest loop or switch statement",
+          "is_correct": true
+        },
+        {
+          "text": "continue skips directly to the next condition check or iteration update",
+          "is_correct": true
+        },
+        {
+          "text": "continue can be used to terminate loops permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Loop control statements can simplify complex iteration logic",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Conditional Loop Control",
+      "content": "Which of the following statements about conditional loop control are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "break is often triggered using conditional statements",
+          "is_correct": true
+        },
+        {
+          "text": "continue helps skip unwanted data during iteration",
+          "is_correct": true
+        },
+        {
+          "text": "break and continue can only be used in for loops",
+          "is_correct": false
+        },
+        {
+          "text": "Loop control improves handling of runtime conditions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loop Efficiency and Control",
+      "content": "Which of the following statements about loop efficiency and control are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Proper use of break can reduce unnecessary processing",
+          "is_correct": true
+        },
+        {
+          "text": "continue can improve readability when skipping specific cases",
+          "is_correct": true
+        },
+        {
+          "text": "Using break always causes program errors",
+          "is_correct": false
+        },
+        {
+          "text": "Loop control statements help optimize execution flow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced break and continue Concepts",
+      "content": "Which of the following statements about advanced break and continue concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improper use of break may prematurely terminate important loop operations",
+          "is_correct": true
+        },
+        {
+          "text": "continue affects only the current iteration, not the entire loop",
+          "is_correct": true
+        },
+        {
+          "text": "break and continue permanently modify variable scopes",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding loop control is important for writing efficient algorithms",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Loop Flow Control",
+      "content": "Which of the following statements about complex loop flow control are correct?",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Nested loops can also use break and continue statements",
+          "is_correct": true
+        },
+        {
+          "text": "Loop control statements influence runtime execution paths",
+          "is_correct": true
+        },
+        {
+          "text": "continue always exits nested loops completely",
+          "is_correct": false
+        },
+        {
+          "text": "Careful loop control design improves maintainability and debugging",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check If Number is Positive",
+      "content": "Write a JavaScript program using if statement to check whether a number is positive.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "Positive"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "-3",
+          "expected_output": "Not Positive"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10",
+          "expected_output": "Positive",
+          "explanation": "if condition checks whether number > 0."
+        }
+      ],
+      "inputFormat": "A single integer.",
+      "outputFormat": "Positive or Not Positive.",
+      "solutions": [
+        {
+          "title": "If Condition Example",
+          "language": "javascript",
+          "code": "let num = 5;\nif (num > 0) {\n    console.log('Positive');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use if condition with > operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Even or Odd Using if-else",
+      "content": "Write a JavaScript program that checks whether a number is even or odd using if-else statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "4",
+          "expected_output": "Even"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "7",
+          "expected_output": "Odd"
+        }
+      ],
+      "examples": [
+        {
+          "input": "6",
+          "expected_output": "Even",
+          "explanation": "Even numbers are divisible by 2."
+        }
+      ],
+      "inputFormat": "A single integer.",
+      "outputFormat": "Even or Odd.",
+      "solutions": [
+        {
+          "title": "Even Odd Check",
+          "language": "javascript",
+          "code": "let num = 7;\nif (num % 2 === 0) {\n    console.log('Even');\n} else {\n    console.log('Odd');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use % operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Voting Eligibility Using if-else",
+      "content": "Write a JavaScript program to check whether a person is eligible to vote.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "20",
+          "expected_output": "Eligible"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "16",
+          "expected_output": "Not Eligible"
+        }
+      ],
+      "examples": [
+        {
+          "input": "18",
+          "expected_output": "Eligible",
+          "explanation": "Age >= 18 is required."
+        }
+      ],
+      "inputFormat": "Age as integer.",
+      "outputFormat": "Eligible or Not Eligible.",
+      "solutions": [
+        {
+          "title": "Voting Check",
+          "language": "javascript",
+          "code": "let age = 20;\nif (age >= 18) {\n    console.log('Eligible');\n} else {\n    console.log('Not Eligible');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use >= comparison."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Grade System Using else-if Ladder",
+      "content": "Write a JavaScript program that assigns grades based on marks using else-if ladder.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "85",
+          "expected_output": "A"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "45",
+          "expected_output": "D"
+        }
+      ],
+      "examples": [
+        {
+          "input": "70",
+          "expected_output": "B",
+          "explanation": "Multiple conditions checked sequentially."
+        }
+      ],
+      "inputFormat": "Marks as integer.",
+      "outputFormat": "Grade (A/B/C/D/F).",
+      "solutions": [
+        {
+          "title": "Grade System",
+          "language": "javascript",
+          "code": "let marks = 85;\nif (marks >= 90) {\n    console.log('A');\n} else if (marks >= 75) {\n    console.log('B');\n} else if (marks >= 60) {\n    console.log('C');\n} else {\n    console.log('F');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use multiple else-if conditions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Number Sign Using if-else-if",
+      "content": "Write a JavaScript program to check whether a number is positive, negative, or zero.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "0",
+          "expected_output": "Zero"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "-5",
+          "expected_output": "Negative"
+        }
+      ],
+      "examples": [
+        {
+          "input": "10",
+          "expected_output": "Positive",
+          "explanation": "Checks multiple conditions."
+        }
+      ],
+      "inputFormat": "A single integer.",
+      "outputFormat": "Positive/Negative/Zero.",
+      "solutions": [
+        {
+          "title": "Number Sign Check",
+          "language": "javascript",
+          "code": "let num = -5;\nif (num > 0) {\n    console.log('Positive');\n} else if (num < 0) {\n    console.log('Negative');\n} else {\n    console.log('Zero');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Check >, < and == conditions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Check Day of Week Using switch",
+      "content": "Write a JavaScript program that prints the day of the week using switch statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "1",
+          "expected_output": "Monday"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5",
+          "expected_output": "Friday"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3",
+          "expected_output": "Wednesday",
+          "explanation": "switch matches exact value."
+        }
+      ],
+      "inputFormat": "Number (1-7).",
+      "outputFormat": "Day name.",
+      "solutions": [
+        {
+          "title": "Switch Example",
+          "language": "javascript",
+          "code": "let day = 1;\n\nswitch(day) {\n    case 1:\n        console.log('Monday');\n        break;\n    case 2:\n        console.log('Tuesday');\n        break;\n    default:\n        console.log('Invalid');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use switch-case structure."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Largest of Three Numbers",
+      "content": "Write a JavaScript program using if-else to find the largest of three numbers.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 20 30",
+          "expected_output": "30"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "50 20 40",
+          "expected_output": "50"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5 9 2",
+          "expected_output": "9",
+          "explanation": "Compares multiple values."
+        }
+      ],
+      "inputFormat": "Three integers.",
+      "outputFormat": "Largest number.",
+      "solutions": [
+        {
+          "title": "Largest Number",
+          "language": "javascript",
+          "code": "let a = 10, b = 20, c = 30;\nif (a > b && a > c) {\n    console.log(a);\n} else if (b > a && b > c) {\n    console.log(b);\n} else {\n    console.log(c);\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use && to compare multiple values."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Simple Calculator Using switch",
+      "content": "Write a JavaScript program that performs arithmetic operations using switch statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "10 + 5",
+          "expected_output": "15"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "20 * 3",
+          "expected_output": "60"
+        }
+      ],
+      "examples": [
+        {
+          "input": "8 - 2",
+          "expected_output": "6",
+          "explanation": "switch handles operator cases."
+        }
+      ],
+      "inputFormat": "Two numbers and an operator.",
+      "outputFormat": "Result.",
+      "solutions": [
+        {
+          "title": "Switch Calculator",
+          "language": "javascript",
+          "code": "let a = 10, b = 5, op = '+';\n\nswitch(op) {\n    case '+':\n        console.log(a + b);\n        break;\n    case '-':\n        console.log(a - b);\n        break;\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use switch for operator selection."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Login System Using Nested Conditions",
+      "content": "Write a JavaScript program that validates username and password using nested if-else.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Login Successful"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Access Denied"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Login Successful",
+          "explanation": "Nested conditions validate multiple checks."
+        }
+      ],
+      "inputFormat": "Username and password.",
+      "outputFormat": "Login result.",
+      "solutions": [
+        {
+          "title": "Nested Login Check",
+          "language": "javascript",
+          "code": "let user = 'admin';\nlet pass = '1234';\n\nif (user === 'admin') {\n    if (pass === '1234') {\n        console.log('Login Successful');\n    } else {\n        console.log('Wrong Password');\n    }\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use nested if conditions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Traffic Light System Using switch",
+      "content": "Write a JavaScript program that displays actions based on traffic light color using switch statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "red",
+          "expected_output": "Stop"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "green",
+          "expected_output": "Go"
+        }
+      ],
+      "examples": [
+        {
+          "input": "yellow",
+          "expected_output": "Slow Down",
+          "explanation": "switch handles multiple cases."
+        }
+      ],
+      "inputFormat": "Color string.",
+      "outputFormat": "Action.",
+      "solutions": [
+        {
+          "title": "Traffic Switch",
+          "language": "javascript",
+          "code": "let light = 'red';\n\nswitch(light) {\n    case 'red':\n        console.log('Stop');\n        break;\n    case 'green':\n        console.log('Go');\n        break;\n    default:\n        console.log('Invalid');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Match exact string values."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "ATM Withdrawal System",
+      "content": "Write a JavaScript program that simulates an ATM withdrawal using nested if-else conditions.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Transaction Successful"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Insufficient Balance"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Transaction Successful",
+          "explanation": "Multiple conditions checked step-by-step."
+        }
+      ],
+      "inputFormat": "Balance and withdrawal amount.",
+      "outputFormat": "Transaction result.",
+      "solutions": [
+        {
+          "title": "ATM System",
+          "language": "javascript",
+          "code": "let balance = 5000;\nlet withdraw = 2000;\n\nif (withdraw <= balance) {\n    if (withdraw % 100 === 0) {\n        console.log('Transaction Successful');\n    } else {\n        console.log('Invalid Amount');\n    }\n} else {\n    console.log('Insufficient Balance');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Check balance first, then conditions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build Grade System with switch and if Combination",
+      "content": "Write a JavaScript program that uses both switch and if-else to calculate and display student grades.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Conditional Statements",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "85",
+          "expected_output": "A"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "55",
+          "expected_output": "C"
+        }
+      ],
+      "examples": [
+        {
+          "input": "90",
+          "expected_output": "A",
+          "explanation": "Combines multiple control flow techniques."
+        }
+      ],
+      "inputFormat": "Marks as integer.",
+      "outputFormat": "Grade.",
+      "solutions": [
+        {
+          "title": "Hybrid Control Flow",
+          "language": "javascript",
+          "code": "let marks = 85;\nlet grade;\n\nif (marks >= 90) grade = 'A';\nelse if (marks >= 75) grade = 'B';\nelse grade = 'C';\n\nswitch(grade) {\n    case 'A':\n        console.log('Excellent');\n        break;\n    case 'B':\n        console.log('Good');\n        break;\n    default:\n        console.log('Average');\n}",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine if-else and switch logic."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Numbers Using for Loop",
+      "content": "Write a JavaScript program to print numbers from 1 to 5 using a for loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Numbers from 1 to 5 printed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "for loop iterates fixed number of times."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers from 1 to 5.",
+      "solutions": [
+        {
+          "title": "For Loop Example",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 5; i++) {\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use for loop with increment."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Numbers Using while Loop",
+      "content": "Write a JavaScript program to print numbers from 1 to 5 using a while loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Loop runs until condition fails"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "while loop checks condition before execution."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers from 1 to 5.",
+      "solutions": [
+        {
+          "title": "While Loop Example",
+          "language": "javascript",
+          "code": "let i = 1;\nwhile (i <= 5) {\n    console.log(i);\n    i++;\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Initialize variable before loop."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Numbers Using do-while Loop",
+      "content": "Write a JavaScript program to print numbers from 1 to 5 using a do-while loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Executes at least once"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "do-while runs at least once."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers from 1 to 5.",
+      "solutions": [
+        {
+          "title": "Do-While Example",
+          "language": "javascript",
+          "code": "let i = 1;\ndo {\n    console.log(i);\n    i++;\n} while (i <= 5);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Loop runs at least once."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Even Numbers Using for Loop",
+      "content": "Write a JavaScript program to print even numbers between 1 and 10 using a for loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "2 4 6 8 10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Even numbers only"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "2 4 6 8 10",
+          "explanation": "Condition filters even numbers."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Even numbers from 1 to 10.",
+      "solutions": [
+        {
+          "title": "Even Numbers Loop",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i % 2 === 0) {\n        console.log(i);\n    }\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use % operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Sum of First 5 Numbers",
+      "content": "Write a JavaScript program using loop to calculate sum of numbers from 1 to 5.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "15"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Sum calculated using loop"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "15",
+          "explanation": "1+2+3+4+5 = 15"
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Sum of numbers.",
+      "solutions": [
+        {
+          "title": "Sum Loop",
+          "language": "javascript",
+          "code": "let sum = 0;\nfor (let i = 1; i <= 5; i++) {\n    sum += i;\n}\nconsole.log(sum);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use accumulator variable."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Multiplication Table Using for Loop",
+      "content": "Write a JavaScript program to print multiplication table of a number using for loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "2",
+          "expected_output": "2 4 6 8 10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "5",
+          "expected_output": "5 10 15 20 25"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3",
+          "expected_output": "3 6 9 12 15",
+          "explanation": "Multiplication table logic."
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Multiplication table.",
+      "solutions": [
+        {
+          "title": "Table Using Loop",
+          "language": "javascript",
+          "code": "let n = 2;\nfor (let i = 1; i <= 5; i++) {\n    console.log(n * i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Multiply number with loop index."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Reverse a Number Using while Loop",
+      "content": "Write a JavaScript program to reverse a number using while loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "123",
+          "expected_output": "321"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "450",
+          "expected_output": "054"
+        }
+      ],
+      "examples": [
+        {
+          "input": "987",
+          "expected_output": "789",
+          "explanation": "Digits reversed using loop."
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Reversed number.",
+      "solutions": [
+        {
+          "title": "Reverse Number",
+          "language": "javascript",
+          "code": "let num = 123;\nlet rev = 0;\nwhile (num > 0) {\n    rev = rev * 10 + (num % 10);\n    num = Math.floor(num / 10);\n}\nconsole.log(rev);",
+          "complexity_analysis": "Time: O(log n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use % and / operators."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find Factorial Using Loop",
+      "content": "Write a JavaScript program to calculate factorial of a number using loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "120"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "4",
+          "expected_output": "24"
+        }
+      ],
+      "examples": [
+        {
+          "input": "3",
+          "expected_output": "6",
+          "explanation": "3! = 3*2*1"
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Factorial result.",
+      "solutions": [
+        {
+          "title": "Factorial Loop",
+          "language": "javascript",
+          "code": "let n = 5;\nlet fact = 1;\nfor (let i = 1; i <= n; i++) {\n    fact *= i;\n}\nconsole.log(fact);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Multiply numbers sequentially."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Fibonacci Series Using Loop",
+      "content": "Write a JavaScript program to print Fibonacci series using loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "5",
+          "expected_output": "0 1 1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "7",
+          "expected_output": "0 1 1 2 3 5 8"
+        }
+      ],
+      "examples": [
+        {
+          "input": "4",
+          "expected_output": "0 1 1 2",
+          "explanation": "Each number is sum of previous two."
+        }
+      ],
+      "inputFormat": "Number of terms.",
+      "outputFormat": "Fibonacci series.",
+      "solutions": [
+        {
+          "title": "Fibonacci Loop",
+          "language": "javascript",
+          "code": "let n = 5;\nlet a = 0, b = 1;\nfor (let i = 0; i < n; i++) {\n    console.log(a);\n    let temp = a + b;\n    a = b;\n    b = temp;\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use two variables."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Sum of Digits Using do-while Loop",
+      "content": "Write a JavaScript program to find sum of digits of a number using do-while loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "123",
+          "expected_output": "6"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "999",
+          "expected_output": "27"
+        }
+      ],
+      "examples": [
+        {
+          "input": "456",
+          "expected_output": "15",
+          "explanation": "4+5+6 = 15"
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Sum of digits.",
+      "solutions": [
+        {
+          "title": "Digit Sum",
+          "language": "javascript",
+          "code": "let num = 123;\nlet sum = 0;\ndo {\n    sum += num % 10;\n    num = Math.floor(num / 10);\n} while (num > 0);\nconsole.log(sum);",
+          "complexity_analysis": "Time: O(log n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Extract digits using % 10."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Prime Number Check Using Loop",
+      "content": "Write a JavaScript program to check whether a number is prime using loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loops",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "7",
+          "expected_output": "Prime"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "10",
+          "expected_output": "Not Prime"
+        }
+      ],
+      "examples": [
+        {
+          "input": "5",
+          "expected_output": "Prime",
+          "explanation": "Only divisible by 1 and itself."
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Prime or Not Prime.",
+      "solutions": [
+        {
+          "title": "Prime Check",
+          "language": "javascript",
+          "code": "let n = 7;\nlet isPrime = true;\nfor (let i = 2; i < n; i++) {\n    if (n % i === 0) {\n        isPrime = false;\n        break;\n    }\n}\nconsole.log(isPrime ? 'Prime' : 'Not Prime');",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Check divisibility from 2 to n-1."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Stop Loop Using break",
+      "content": "Write a JavaScript program that prints numbers from 1 to 10 but stops the loop when the number reaches 5 using break statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Loop stops at 5"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "break exits loop when condition is met."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers until 5.",
+      "solutions": [
+        {
+          "title": "Break Example",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i === 6) break;\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use break inside if condition."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Skip Number Using continue",
+      "content": "Write a JavaScript program to print numbers from 1 to 5 but skip number 3 using continue statement.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "3 is skipped"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 4 5",
+          "explanation": "continue skips current iteration."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers except 3.",
+      "solutions": [
+        {
+          "title": "Continue Example",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 5; i++) {\n    if (i === 3) continue;\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use continue to skip iteration."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Even Numbers Using continue",
+      "content": "Write a JavaScript program that prints only even numbers from 1 to 10 using continue.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "2 4 6 8 10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Odd numbers skipped"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "2 4 6 8 10",
+          "explanation": "Odd numbers are skipped."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Even numbers only.",
+      "solutions": [
+        {
+          "title": "Even Numbers",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i % 2 !== 0) continue;\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use % operator with continue."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Break When Number is Found",
+      "content": "Write a JavaScript program that searches for number 7 in a loop and stops when found using break.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Found 7"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Loop stops at 7"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Found 7",
+          "explanation": "Loop exits early when condition matches."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Search result.",
+      "solutions": [
+        {
+          "title": "Search with Break",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i === 7) {\n        console.log('Found 7');\n        break;\n    }\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use break when match is found."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Skip Multiples of 3 Using continue",
+      "content": "Write a JavaScript program that prints numbers from 1 to 10 but skips multiples of 3 using continue.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 4 5 7 8 10"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Multiples of 3 skipped"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 4 5 7 8 10",
+          "explanation": "Multiples of 3 are ignored."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Filtered numbers.",
+      "solutions": [
+        {
+          "title": "Skip Multiples",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i % 3 === 0) continue;\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use modulo operator."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Find First Even Number Using break",
+      "content": "Write a JavaScript program that finds the first even number between 1 and 10 using break.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "2"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Stops at first even number"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "2",
+          "explanation": "Loop breaks when condition is met."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "First even number.",
+      "solutions": [
+        {
+          "title": "First Even Finder",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i % 2 === 0) {\n        console.log(i);\n        break;\n    }\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Break after first match."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Odd Numbers Using continue",
+      "content": "Write a JavaScript program that prints only odd numbers from 1 to 10 using continue.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 3 5 7 9"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Even numbers skipped"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 3 5 7 9",
+          "explanation": "continue skips even numbers."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Odd numbers only.",
+      "solutions": [
+        {
+          "title": "Odd Numbers",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 10; i++) {\n    if (i % 2 === 0) continue;\n    console.log(i);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Skip even numbers using continue."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Stop Loop When Sum Exceeds Limit",
+      "content": "Write a JavaScript program that adds numbers from 1 to 10 but stops when sum exceeds 15 using break.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Sum limit reached"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Loop stops early"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Sum exceeds 15",
+          "explanation": "Break used based on condition."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Final sum status.",
+      "solutions": [
+        {
+          "title": "Sum with Break",
+          "language": "javascript",
+          "code": "let sum = 0;\nfor (let i = 1; i <= 10; i++) {\n    sum += i;\n    if (sum > 15) break;\n}\nconsole.log(sum);",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Check condition inside loop."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Skip Negative Numbers Using continue",
+      "content": "Write a JavaScript program that prints only positive numbers from an array using continue.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "[-1,2,-3,4]",
+          "expected_output": "2 4"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "[1,-2,3,-4]",
+          "expected_output": "1 3"
+        }
+      ],
+      "examples": [
+        {
+          "input": "[-5,6,-7,8]",
+          "expected_output": "6 8",
+          "explanation": "Negative numbers are skipped."
+        }
+      ],
+      "inputFormat": "Array of integers.",
+      "outputFormat": "Positive numbers only.",
+      "solutions": [
+        {
+          "title": "Skip Negatives",
+          "language": "javascript",
+          "code": "let arr = [-1,2,-3,4];\nfor (let i = 0; i < arr.length; i++) {\n    if (arr[i] < 0) continue;\n    console.log(arr[i]);\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Check value before printing."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Prime Numbers with Break Optimization",
+      "content": "Write a JavaScript program to check if a number is prime using break for optimization.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Loop Control",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "11",
+          "expected_output": "Prime"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "12",
+          "expected_output": "Not Prime"
+        }
+      ],
+      "examples": [
+        {
+          "input": "7",
+          "expected_output": "Prime",
+          "explanation": "Break reduces unnecessary iterations."
+        }
+      ],
+      "inputFormat": "A number.",
+      "outputFormat": "Prime or Not Prime.",
+      "solutions": [
+        {
+          "title": "Optimized Prime Check",
+          "language": "javascript",
+          "code": "let n = 11;\nlet isPrime = true;\nfor (let i = 2; i <= Math.sqrt(n); i++) {\n    if (n % i === 0) {\n        isPrime = false;\n        break;\n    }\n}\nconsole.log(isPrime ? 'Prime' : 'Not Prime');",
+          "complexity_analysis": "Time: O(sqrt(n)), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use Math.sqrt optimization."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Simple Number Pattern",
+      "content": "Write a JavaScript program to print the pattern: 1 2 3 4 5 in a single row using a loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Sequential numbers printed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3 4 5",
+          "explanation": "Simple loop-based pattern."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Numbers in a row.",
+      "solutions": [
+        {
+          "title": "Simple Loop Pattern",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 5; i++) {\n    process.stdout.write(i + ' ');\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use a loop and print in same line."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Square Pattern of Numbers",
+      "content": "Write a JavaScript program to print a 3x3 square pattern of numbers.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 1 1\n1 1 1\n1 1 1"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Square pattern printed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 1 1\n1 1 1\n1 1 1",
+          "explanation": "Nested loop prints rows and columns."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "3x3 pattern.",
+      "solutions": [
+        {
+          "title": "Square Pattern",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 3; i++) {\n    let row = '';\n    for (let j = 1; j <= 3; j++) {\n        row += '1 ';\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use nested loops."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Increasing Star Pattern",
+      "content": "Write a JavaScript program to print: * \\n * * \\n * * * using loops.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "*\n* *\n* * *"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Triangle pattern"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "*\n* *\n* * *",
+          "explanation": "Nested loops create triangle."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Star pattern.",
+      "solutions": [
+        {
+          "title": "Star Pattern",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 3; i++) {\n    let row = '';\n    for (let j = 1; j <= i; j++) {\n        row += '* ';\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Inner loop depends on outer loop."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Reverse Number Pattern",
+      "content": "Write a JavaScript program to print 5 4 3 2 1 using a loop.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "5 4 3 2 1"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Reverse order"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "5 4 3 2 1",
+          "explanation": "Loop runs backward."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Descending numbers.",
+      "solutions": [
+        {
+          "title": "Reverse Loop",
+          "language": "javascript",
+          "code": "for (let i = 5; i >= 1; i--) {\n    process.stdout.write(i + ' ');\n}",
+          "complexity_analysis": "Time: O(n), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use decrementing loop."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Triangle of Numbers",
+      "content": "Write a JavaScript program to print a triangle pattern using numbers.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1\n1 2\n1 2 3"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Number triangle"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1\n1 2\n1 2 3",
+          "explanation": "Nested loop builds triangle."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Triangle pattern.",
+      "solutions": [
+        {
+          "title": "Number Triangle",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 3; i++) {\n    let row = '';\n    for (let j = 1; j <= i; j++) {\n        row += j + ' ';\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use nested loops."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Multiplication Table Pattern",
+      "content": "Write a JavaScript program to print multiplication table pattern for numbers 1 to 3.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "1 2 3\n2 4 6\n3 6 9"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Table pattern"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "1 2 3\n2 4 6\n3 6 9",
+          "explanation": "Nested loops generate table."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Multiplication pattern.",
+      "solutions": [
+        {
+          "title": "Table Pattern",
+          "language": "javascript",
+          "code": "for (let i = 1; i <= 3; i++) {\n    let row = '';\n    for (let j = 1; j <= 3; j++) {\n        row += (i * j) + ' ';\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Multiply row and column indices."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Pyramid Pattern Using Nested Loops",
+      "content": "Write a JavaScript program to print a pyramid pattern of stars.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "  *\n ***\n*****"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Centered pyramid"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "  *\n ***\n*****",
+          "explanation": "Spaces + stars form pyramid."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Pyramid pattern.",
+      "solutions": [
+        {
+          "title": "Pyramid Pattern",
+          "language": "javascript",
+          "code": "let n = 3;\nfor (let i = 1; i <= n; i++) {\n    let row = '';\n    for (let j = 1; j <= n - i; j++) row += ' ';\n    for (let k = 1; k <= 2 * i - 1; k++) row += '*';\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use spaces and stars together."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Pattern Using Nested Loop with Condition",
+      "content": "Write a JavaScript program to print only even numbers in a grid pattern using nested loops.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "2 4\n6 8"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Filtered grid"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "2 4\n6 8",
+          "explanation": "Condition filters values."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Even number grid.",
+      "solutions": [
+        {
+          "title": "Conditional Grid",
+          "language": "javascript",
+          "code": "let num = 1;\nfor (let i = 1; i <= 2; i++) {\n    let row = '';\n    for (let j = 1; j <= 2; j++) {\n        if (num % 2 === 0) row += num + ' ';\n        num++;\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Check condition inside inner loop."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Diamond Pattern",
+      "content": "Write a JavaScript program to print a diamond pattern using nested loops.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "  *\n ***\n*****\n ***\n  *"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Diamond shape"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "  *\n ***\n*****\n ***\n  *",
+          "explanation": "Combination of pyramid and reverse pyramid."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Diamond pattern.",
+      "solutions": [
+        {
+          "title": "Diamond Pattern",
+          "language": "javascript",
+          "code": "let n = 3;\nfor (let i = 1; i <= n; i++) {\n    let row = '';\n    for (let j = 1; j <= n - i; j++) row += ' ';\n    for (let k = 1; k <= 2 * i - 1; k++) row += '*';\n    console.log(row);\n}\nfor (let i = n - 1; i >= 1; i--) {\n    let row = '';\n    for (let j = 1; j <= n - i; j++) row += ' ';\n    for (let k = 1; k <= 2 * i - 1; k++) row += '*';\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine two pyramids."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Print Hollow Square Pattern",
+      "content": "Write a JavaScript program to print a hollow square using nested loops.",
+      "level": "subtopic",
+      "unit_name": "Control Flow",
+      "subunit_name": "Pattern & Logic Building",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "*****\n*   *\n*   *\n*   *\n*****"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hollow square pattern"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "*****\n*   *\n*   *\n*   *\n*****",
+          "explanation": "Borders filled, inside empty."
+        }
+      ],
+      "inputFormat": "No input required.",
+      "outputFormat": "Hollow square.",
+      "solutions": [
+        {
+          "title": "Hollow Square",
+          "language": "javascript",
+          "code": "let n = 5;\nfor (let i = 1; i <= n; i++) {\n    let row = '';\n    for (let j = 1; j <= n; j++) {\n        if (i === 1 || i === n || j === 1 || j === n) row += '*';\n        else row += ' ';\n    }\n    console.log(row);\n}",
+          "complexity_analysis": "Time: O(n\u00b2), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Check border conditions."
+      ]
+    }
+  ]
+}

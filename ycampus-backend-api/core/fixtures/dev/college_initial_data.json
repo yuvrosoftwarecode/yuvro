@@ -8355,53 +8355,21 @@
             "is_ugc_approved": true,
             "created_at": "2026-03-25T05:05:11.899656Z",
             "updated_at": "2026-03-25T05:05:11.899656Z",
-            "product_type": "assessments"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "b4a7736d-22ec-4a1b-84fe-91d9d500d282",
-        "fields": {
-            "email": "admin@ou.edu",
-            "username": "admin@ou.edu",
-            "role": "college_admin",
-            "first_name": "College",
-            "last_name": "Admin",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.collegeadminprofile",
-        "pk": "d16b098d-ea9f-42be-a471-9fb14e8f3000",
-        "fields": {
-            "user": "b4a7736d-22ec-4a1b-84fe-91d9d500d282",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "c94eaa8f-9363-4ae5-846f-8ce835f0cf38",
-        "fields": {
-            "email": "principal@ou.edu",
-            "username": "principal@ou.edu",
-            "role": "principal",
-            "first_name": "Principal",
-            "last_name": "Office",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.principalprofile",
-        "pk": "46b7ead3-b418-4723-b0ad-e588892e8dd9",
-        "fields": {
-            "user": "c94eaa8f-9363-4ae5-846f-8ce835f0cf38",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
+            "product_type": "assessments",
+            "sidebar_config": {
+                "dashboard": true,
+                "learning": true,
+                "code_practice": true,
+                "skill_test": true,
+                "assessments": true,
+                "aptitude_reasoning": false,
+                "mock_interviews": true,
+                "ai_interview_planner": true,
+                "jobs": true,
+                "announcements": false,
+                "contest": false,
+                "leaderboard": false
+            }
         }
     },
     {
@@ -8410,7 +8378,7 @@
         "fields": {
             "email": "tpo@ou.edu",
             "username": "tpo@ou.edu",
-            "role": "tpo",
+            "role": "placement_officer",
             "first_name": "Training",
             "last_name": "Placement",
             "is_active": true,
@@ -8423,126 +8391,6 @@
         "fields": {
             "user": "57dc8dda-04c9-48bf-8d13-5829dd1e4d43",
             "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "b15b75ba-fd24-4432-b0fa-628323e6eb64",
-        "fields": {
-            "email": "faculty1@ou.edu",
-            "username": "faculty1@ou.edu",
-            "role": "faculty",
-            "first_name": "Faculty",
-            "last_name": "1",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.facultyprofile",
-        "pk": "6a23d7df-5f26-4f0b-b7e1-c10093ee1136",
-        "fields": {
-            "user": "b15b75ba-fd24-4432-b0fa-628323e6eb64",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "designation": "Assistant Professor",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "90929c53-d809-4e74-8140-8f4114a1741c",
-        "fields": {
-            "email": "faculty2@ou.edu",
-            "username": "faculty2@ou.edu",
-            "role": "faculty",
-            "first_name": "Faculty",
-            "last_name": "2",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.facultyprofile",
-        "pk": "72ba5de7-437a-4e84-9159-139d98001c7e",
-        "fields": {
-            "user": "90929c53-d809-4e74-8140-8f4114a1741c",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "designation": "Assistant Professor",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "0c7c9883-1385-4cd7-850a-063e7f01ddd5",
-        "fields": {
-            "email": "faculty3@ou.edu",
-            "username": "faculty3@ou.edu",
-            "role": "faculty",
-            "first_name": "Faculty",
-            "last_name": "3",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.facultyprofile",
-        "pk": "afcd72d2-9abb-4b5a-8298-7dc3e0e796fb",
-        "fields": {
-            "user": "0c7c9883-1385-4cd7-850a-063e7f01ddd5",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "designation": "Assistant Professor",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "8d99a6e0-4939-49d7-b6a6-e82ddf794500",
-        "fields": {
-            "email": "faculty4@ou.edu",
-            "username": "faculty4@ou.edu",
-            "role": "faculty",
-            "first_name": "Faculty",
-            "last_name": "4",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.facultyprofile",
-        "pk": "96fcb7cf-19a4-4055-ae5c-3f0dc100cca3",
-        "fields": {
-            "user": "8d99a6e0-4939-49d7-b6a6-e82ddf794500",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "designation": "Assistant Professor",
-            "created_at": "2026-03-25T05:05:11.899656Z",
-            "updated_at": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "authentication.user",
-        "pk": "3ddc12ec-5d45-4c19-b4a7-76062407f594",
-        "fields": {
-            "email": "faculty5@ou.edu",
-            "username": "faculty5@ou.edu",
-            "role": "faculty",
-            "first_name": "Faculty",
-            "last_name": "5",
-            "is_active": true,
-            "date_joined": "2026-03-25T05:05:11.899656Z"
-        }
-    },
-    {
-        "model": "core.facultyprofile",
-        "pk": "0595959e-8377-4be3-b859-8dafbf04b4b8",
-        "fields": {
-            "user": "3ddc12ec-5d45-4c19-b4a7-76062407f594",
-            "college": "94f969f0-1030-464f-82c4-258c43fe4119",
-            "designation": "Assistant Professor",
             "created_at": "2026-03-25T05:05:11.899656Z",
             "updated_at": "2026-03-25T05:05:11.899656Z"
         }

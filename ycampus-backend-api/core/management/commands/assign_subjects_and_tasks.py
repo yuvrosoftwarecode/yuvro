@@ -12,10 +12,10 @@ class Command(BaseCommand):
         self.stdout.write("📚 Shuffling subjects and faculty assignments...")
 
         # 1. Get Target Subjects
-        subjects = list(Subject.objects.all())
+        subjects = list(Subject.objects.filter(product_type__in=["campus", "assessments"]))
         
         if not subjects:
-            self.stdout.write(self.style.WARNING("No subjects found. Ensure sample_courses_data.json is loaded first."))
+            self.stdout.write(self.style.WARNING("No subjects found. Ensure courses are loaded first."))
             return
 
         # 2. Assign to Colleges matching their product type
