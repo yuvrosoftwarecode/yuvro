@@ -35,19 +35,7 @@ const jobMgmtSubItems = [
   { title: 'Jobs',    url: '/placement/job-approvals', icon: Briefcase },
 ];
 
-const assessmentPlacementMenuItems = [
-  { title: 'Dashboard', url: '/placement/dashboard', icon: LayoutDashboard },
-  { title: 'Learning', url: '/placement/notes', icon: FileText },
-  { title: 'Code Practice', url: '/placement/code-practice', icon: ClipboardCheck },
-  { title: 'Skill Test', url: '/placement/skill-test', icon: ClipboardCheck },
-  { title: 'Aptitude & Reasoning', url: '/placement/aptitude-reasoning', icon: BarChart3 },
-  { title: 'Mock Interviews', url: '/placement/interview-preparation', icon: Users },
-  { title: 'AI Interview Planner', url: '/placement/ai-interview-planner', icon: CalendarDays },
-  { title: 'Jobs', url: '/placement/jobs', icon: Briefcase },
-  { title: 'Announcements', url: '/placement/announcements', icon: Bell },
-  { title: 'Contest', url: '/placement/contest', icon: Trophy },
-  { title: 'Leaderboard', url: '/placement/leaderboard', icon: Users },
-];
+
 
 const PlacementSidebar = () => {
   const navigate = useNavigate();
@@ -66,7 +54,7 @@ const PlacementSidebar = () => {
   const initials = firstName.charAt(0).toUpperCase();
 
   const isAssessments = user?.college_product_type === 'assessments';
-  const menuItems = isAssessments ? assessmentPlacementMenuItems : campusPlacementMenuItems;
+  const menuItems = campusPlacementMenuItems;
 
   return (
     <Sidebar className="border-r border-border/60" collapsible="icon">
@@ -116,24 +104,73 @@ const PlacementSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {isAssessments ? (
-                menuItems.map((item) => {
-                  const isActive = location.pathname === item.url;
-                  return (
+                <>
+                  {/* Placement Dashboard */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate('/placement/placement-dashboard')}
+                      isActive={location.pathname === '/placement/placement-dashboard'}
+                      className={location.pathname === '/placement/placement-dashboard' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span className="flex-1">Placement Dashboard</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Student Reports */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate('/placement/student-reports')}
+                      isActive={location.pathname === '/placement/student-reports'}
+                      className={location.pathname === '/placement/student-reports' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span className="flex-1">Student Reports</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Offer Tracking */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate('/placement/students')}
+                      isActive={location.pathname === '/placement/students'}
+                      className={location.pathname === '/placement/students' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span className="flex-1">Offer Tracking</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Job Management Dropdown */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => setJobMgmtOpen(!jobMgmtOpen)}
+                      isActive={isJobMgmtActive}
+                      className={`justify-between ${isJobMgmtActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <ClipboardCheck className="h-4 w-4" />
+                        <span className="flex-1">Job Management</span>
+                      </span>
+                      {!isCollapsed && (
+                        <ChevronDown className={`h-4 w-4 transition-transform ${jobMgmtOpen ? 'rotate-180' : ''}`} />
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {jobMgmtOpen && !isCollapsed && jobMgmtSubItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         onClick={() => navigate(item.url)}
-                        isActive={isActive}
-                        className={isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                        isActive={location.pathname === item.url}
+                        className={`pl-8 ${location.pathname === item.url ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                       >
                         <item.icon className="h-4 w-4" />
-                        <span className="flex-1">{item.title}</span>
-                        {item.title === 'Announcements' && unreadCount > 0 && (
-                          <BadgeUI className="h-5 min-w-5 text-[10px] bg-destructive text-destructive-foreground px-1.5">{unreadCount}</BadgeUI>
-                        )}
+                        <span className="text-sm">{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  );
-                })
+                  ))}
+                </>
               ) : (
                 <>
                   {/* Top items: Dashboard + PRI Report */}
