@@ -344,20 +344,18 @@ export function usePlacementStats() {
     queryFn: async () => {
       const [jobsData, appsData] = await Promise.all([
         jobService.getAllJobs(),
-        // applicationService.getMyApplications(), // This might not be right for admin/placement officer
         // In backend, there might be a view all applications endpoint
         [] as any[] 
       ]);
       
-      const jobsRaw = await jobService.getAllJobs();
-      const jobs = jobsRaw.map(j => ({ 
+      const jobs = jobsData.map(j => ({ 
         ...j, 
         status: (j.status === 'active' ? 'approved' : j.status === 'draft' ? 'pending' : j.status) as any,
-        total_applications: 0, 
+        total_applications: j.applications_count || 0, 
         shortlisted_count: 0, 
         selected_count: 0 
       }));
-      const apps = (appsRes.data || []) as any[];
+      const apps = (appsData || []) as any[];
       
       const pendingCount = jobs.filter(j => j.status === 'pending').length;
       const liveCount = jobs.filter(j => (j.status as string) === 'approved').length;
@@ -374,15 +372,15 @@ export function usePlacementStats() {
       return {
         pendingCount, 
         liveCount, 
-        selectedThisMonth: 0,
-        avgCTC: 0, 
-        highestCTC: 0, 
-        placementPct: 0, 
-        totalApps: 0, 
-        totalShortlisted: 0, 
-        totalSelected: 0,
-        jobs: placementJobs, 
-        apps: [],
+        selectedThisMonth: selectedApps.length,
+        avgCTC, 
+        highestCTC, 
+        placementPct, 
+        totalApps, 
+        totalShortlisted, 
+        totalSelected,
+        jobs, 
+        apps,
       };
     },
   });
