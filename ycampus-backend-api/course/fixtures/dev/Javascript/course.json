@@ -1,0 +1,10 @@
+{
+    "subjects": [
+        {
+            "short_code": "JS100",
+            "subject_name": "Javascript",
+            "category": "Web dev",
+            "product_type": "assessments"
+        }
+    ]
+}

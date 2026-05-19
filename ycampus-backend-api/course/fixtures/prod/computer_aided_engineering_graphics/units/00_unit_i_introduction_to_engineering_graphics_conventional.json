@@ -1,0 +1,44 @@
+{
+    "name": "UNIT \u2013 I: Introduction to Engineering Graphics (Conventional)",
+    "subject_short_code": "CAEG101",
+    "order_index": 0,
+    "sub_units": [
+        {
+            "name": "Principles of Engineering Graphics and their Significance, Geometrical Constructions, Scales, Plain, Diagonal and Vernier",
+            "content": "Principles of Engineering Graphics and their Significance, Geometrical Constructions, Scales, Plain, Diagonal and Vernier",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Principles of Engineering Graphics and their Significance, Geometrical Constructions, Scales, Plain, Diagonal and Vernier",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Principles of Engineering Graphics and their Significance, Geometrical Constructions, Scales, Plain, Diagonal and Vernier unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        },
+        {
+            "name": "Conic Sections including the Rectangular Hyperbola, General method only",
+            "content": "Conic Sections including the Rectangular Hyperbola, General method only",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Conic Sections including the Rectangular Hyperbola, General method only",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Conic Sections including the Rectangular Hyperbola, General method only unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        },
+        {
+            "name": "Cycloid, Epicycloid, Hypocycloid and Involute",
+            "content": "Cycloid, Epicycloid, Hypocycloid and Involute",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Cycloid, Epicycloid, Hypocycloid and Involute",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Cycloid, Epicycloid, Hypocycloid and Involute unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

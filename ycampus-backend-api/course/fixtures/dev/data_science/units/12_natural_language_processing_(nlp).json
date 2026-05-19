@@ -1,0 +1,2268 @@
+{
+  "name": "Natural Language Processing (NLP)",
+  "subject_short_code": "DS100",
+  "order_index": 12,
+  "sub_units": [
+    {
+      "name": "Text Preprocessing",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Text Preprocessing",
+          "video_link": "https://www.youtube.com/results?search_query=Text%20Preprocessing",
+          "ai_context": "Detailed overview and key concepts of Text Preprocessing"
+        },
+        {
+          "title": "Text Preprocessing",
+          "video_link": "https://www.youtube.com/results?search_query=Text%20Preprocessing",
+          "ai_context": "Detailed overview and key concepts of Text Preprocessing"
+        }
+      ]
+    },
+    {
+      "name": "Vectorization",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Vectorization",
+          "video_link": "https://www.youtube.com/results?search_query=Vectorization",
+          "ai_context": "Detailed overview and key concepts of Vectorization"
+        },
+        {
+          "title": "Vectorization",
+          "video_link": "https://www.youtube.com/results?search_query=Vectorization",
+          "ai_context": "Detailed overview and key concepts of Vectorization"
+        }
+      ]
+    },
+    {
+      "name": "NLP Models",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "NLP Models",
+          "video_link": "https://www.youtube.com/results?search_query=NLP%20Models",
+          "ai_context": "Detailed overview and key concepts of NLP Models"
+        },
+        {
+          "title": "NLP Models",
+          "video_link": "https://www.youtube.com/results?search_query=NLP%20Models",
+          "ai_context": "Detailed overview and key concepts of NLP Models"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "What is Tokenization",
+      "content": "What is tokenization in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Breaking text into smaller units like words or sentences",
+          "is_correct": true
+        },
+        {
+          "text": "Translating text into images",
+          "is_correct": false
+        },
+        {
+          "text": "Removing all words from text",
+          "is_correct": false
+        },
+        {
+          "text": "Converting images into text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Word vs Sentence Tokenization",
+      "content": "Word tokenization refers to:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Splitting text into individual words",
+          "is_correct": true
+        },
+        {
+          "text": "Splitting text into paragraphs",
+          "is_correct": false
+        },
+        {
+          "text": "Removing punctuation",
+          "is_correct": false
+        },
+        {
+          "text": "Translating text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stopwords Meaning",
+      "content": "What are stopwords in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Common words like 'is', 'the', 'and' that are often removed",
+          "is_correct": true
+        },
+        {
+          "text": "Rare technical words only",
+          "is_correct": false
+        },
+        {
+          "text": "Encrypted words in text",
+          "is_correct": false
+        },
+        {
+          "text": "Numbers in text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Why Remove Stopwords",
+      "content": "Why are stopwords removed during text preprocessing?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They usually do not add meaningful information",
+          "is_correct": true
+        },
+        {
+          "text": "They increase model accuracy always",
+          "is_correct": false
+        },
+        {
+          "text": "They are always errors",
+          "is_correct": false
+        },
+        {
+          "text": "They convert text into images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stemming vs Lemmatization",
+      "content": "What is the key difference between stemming and lemmatization?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stemming cuts words; lemmatization returns dictionary form",
+          "is_correct": true
+        },
+        {
+          "text": "Both are exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "Stemming increases word length",
+          "is_correct": false
+        },
+        {
+          "text": "Lemmatization removes punctuation only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Lowercasing Text",
+      "content": "Why is lowercasing used in text preprocessing?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To make text uniform for processing",
+          "is_correct": true
+        },
+        {
+          "text": "To increase dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "To convert text into numbers only",
+          "is_correct": false
+        },
+        {
+          "text": "To remove words",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Subword Tokenization",
+      "content": "Subword tokenization is mainly useful for:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Handling rare and unknown words effectively",
+          "is_correct": true
+        },
+        {
+          "text": "Removing stopwords only",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting sentences alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "Generating images from text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Porter Stemmer",
+      "content": "What does the Porter Stemmer do?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduces words to their root form",
+          "is_correct": true
+        },
+        {
+          "text": "Translates text into sentences",
+          "is_correct": false
+        },
+        {
+          "text": "Removes emojis only",
+          "is_correct": false
+        },
+        {
+          "text": "Encrypts text data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Snowball Stemmer",
+      "content": "Snowball Stemmer is an improvement over:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Porter Stemmer",
+          "is_correct": true
+        },
+        {
+          "text": "WordNet Lemmatizer",
+          "is_correct": false
+        },
+        {
+          "text": "Stopword removal",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Lemmatization Requirement",
+      "content": "Lemmatization typically requires:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Knowledge of vocabulary or dictionary",
+          "is_correct": true
+        },
+        {
+          "text": "Only random splitting of words",
+          "is_correct": false
+        },
+        {
+          "text": "Image recognition models",
+          "is_correct": false
+        },
+        {
+          "text": "Clustering algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Effect of Removing Stopwords",
+      "content": "Removing stopwords mainly helps to:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce noise and improve model focus on meaningful words",
+          "is_correct": true
+        },
+        {
+          "text": "Increase text length",
+          "is_correct": false
+        },
+        {
+          "text": "Convert text into images",
+          "is_correct": false
+        },
+        {
+          "text": "Remove all punctuation only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stemming vs Lemmatization Accuracy",
+      "content": "Why is lemmatization generally more accurate than stemming?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It considers word meaning and context",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all words",
+          "is_correct": false
+        },
+        {
+          "text": "It uses random transformations",
+          "is_correct": false
+        },
+        {
+          "text": "It ignores vocabulary completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Cleaning Pipeline",
+      "content": "Which sequence is most appropriate for text preprocessing?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Lowercasing → Remove punctuation → Tokenization → Stopword removal",
+          "is_correct": true
+        },
+        {
+          "text": "Stopword removal → Images → Tokenization → Lowercasing",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization → Random deletion → Image generation → Stopwords",
+          "is_correct": false
+        },
+        {
+          "text": "Training model → Cleaning → Prediction → Tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "What is Bag of Words",
+      "content": "What is the Bag of Words (BoW) model in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A method that represents text as word frequency counts",
+          "is_correct": true
+        },
+        {
+          "text": "A speech recognition model",
+          "is_correct": false
+        },
+        {
+          "text": "A clustering algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "A neural network optimizer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Document-Term Matrix",
+      "content": "What does a document-term matrix represent?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frequency of words in documents",
+          "is_correct": true
+        },
+        {
+          "text": "Image pixel values",
+          "is_correct": false
+        },
+        {
+          "text": "User ratings in recommendation systems",
+          "is_correct": false
+        },
+        {
+          "text": "Database schema design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TF-IDF Meaning",
+      "content": "What does TF-IDF stand for?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Term Frequency - Inverse Document Frequency",
+          "is_correct": true
+        },
+        {
+          "text": "Text Format - Input Data Function",
+          "is_correct": false
+        },
+        {
+          "text": "Token Flow - Index Data Frequency",
+          "is_correct": false
+        },
+        {
+          "text": "Text Feature - Information Data Field",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Term Frequency",
+      "content": "What does Term Frequency (TF) measure?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How often a word appears in a document",
+          "is_correct": true
+        },
+        {
+          "text": "How many documents exist",
+          "is_correct": false
+        },
+        {
+          "text": "Length of sentences",
+          "is_correct": false
+        },
+        {
+          "text": "Number of stopwords only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inverse Document Frequency",
+      "content": "What does Inverse Document Frequency (IDF) measure?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How rare a word is across documents",
+          "is_correct": true
+        },
+        {
+          "text": "How often a word appears in one document only",
+          "is_correct": false
+        },
+        {
+          "text": "Sentence length variation",
+          "is_correct": false
+        },
+        {
+          "text": "Number of stopwords in text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "BoW Limitation",
+      "content": "What is a major limitation of Bag of Words?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It ignores word order and context",
+          "is_correct": true
+        },
+        {
+          "text": "It uses too much GPU memory",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with images",
+          "is_correct": false
+        },
+        {
+          "text": "It requires deep learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TF-IDF Advantage",
+      "content": "Why is TF-IDF better than Bag of Words?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It reduces importance of common words and highlights important ones",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all words",
+          "is_correct": false
+        },
+        {
+          "text": "It converts text into images",
+          "is_correct": false
+        },
+        {
+          "text": "It performs clustering automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Document-Term Matrix Shape",
+      "content": "A document-term matrix typically has:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows as documents and columns as terms",
+          "is_correct": true
+        },
+        {
+          "text": "Rows as images and columns as pixels",
+          "is_correct": false
+        },
+        {
+          "text": "Rows as models and columns as datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Only one column for all text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Word2Vec Concept",
+      "content": "What is Word2Vec used for?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creating dense vector representations of words",
+          "is_correct": true
+        },
+        {
+          "text": "Counting stopwords",
+          "is_correct": false
+        },
+        {
+          "text": "Removing punctuation",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting documents",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GloVe Overview",
+      "content": "GloVe is mainly used for:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Learning word embeddings from global word co-occurrence",
+          "is_correct": true
+        },
+        {
+          "text": "Tokenizing sentences",
+          "is_correct": false
+        },
+        {
+          "text": "Removing stopwords",
+          "is_correct": false
+        },
+        {
+          "text": "Image classification",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TF-IDF Intuition",
+      "content": "TF-IDF assigns high importance to words that are:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frequent in a document but rare across documents",
+          "is_correct": true
+        },
+        {
+          "text": "Common in all documents",
+          "is_correct": false
+        },
+        {
+          "text": "Randomly selected words",
+          "is_correct": false
+        },
+        {
+          "text": "Only stopwords",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Word Embeddings Advantage",
+      "content": "Word embeddings like Word2Vec are better than BoW because they:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Capture semantic meaning of words",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore all context",
+          "is_correct": false
+        },
+        {
+          "text": "Only count word frequency",
+          "is_correct": false
+        },
+        {
+          "text": "Remove all features",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Contextual Embeddings",
+      "content": "What is special about contextual embeddings like BERT?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Word meaning changes based on context",
+          "is_correct": true
+        },
+        {
+          "text": "Words always have fixed vectors",
+          "is_correct": false
+        },
+        {
+          "text": "They only count words",
+          "is_correct": false
+        },
+        {
+          "text": "They remove sentence structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "What is Sentiment Analysis",
+      "content": "What is sentiment analysis in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Determining the emotional tone of text",
+          "is_correct": true
+        },
+        {
+          "text": "Translating text into images",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting numbers in datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Compressing text files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Rule-based Sentiment Analysis",
+      "content": "Rule-based sentiment analysis relies on:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predefined rules and lexicons",
+          "is_correct": true
+        },
+        {
+          "text": "Deep neural networks only",
+          "is_correct": false
+        },
+        {
+          "text": "Image recognition models",
+          "is_correct": false
+        },
+        {
+          "text": "Reinforcement learning agents",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Classification",
+      "content": "Text classification is used to:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Assign labels to text data",
+          "is_correct": true
+        },
+        {
+          "text": "Convert images to text",
+          "is_correct": false
+        },
+        {
+          "text": "Remove punctuation",
+          "is_correct": false
+        },
+        {
+          "text": "Encrypt messages",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Spam Detection",
+      "content": "Spam detection is an example of:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Binary text classification",
+          "is_correct": true
+        },
+        {
+          "text": "Clustering algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "Regression problem",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NER Meaning",
+      "content": "What does NER stand for in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Named Entity Recognition",
+          "is_correct": true
+        },
+        {
+          "text": "Natural Encoding Rule",
+          "is_correct": false
+        },
+        {
+          "text": "Neural Error Reduction",
+          "is_correct": false
+        },
+        {
+          "text": "Network Embedding Regression",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LDA Basics",
+      "content": "LDA in topic modeling stands for:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Latent Dirichlet Allocation",
+          "is_correct": true
+        },
+        {
+          "text": "Linear Data Analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Logical Document Arrangement",
+          "is_correct": false
+        },
+        {
+          "text": "Labeled Data Algorithm",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML-based Sentiment Analysis",
+      "content": "ML-based sentiment analysis uses:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Trained machine learning models on labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Only dictionary rules",
+          "is_correct": false
+        },
+        {
+          "text": "Random word selection",
+          "is_correct": false
+        },
+        {
+          "text": "Image classification only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Classification Workflow",
+      "content": "Which step is part of a typical text classification workflow?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature extraction from text",
+          "is_correct": true
+        },
+        {
+          "text": "Image resizing",
+          "is_correct": false
+        },
+        {
+          "text": "Database indexing only",
+          "is_correct": false
+        },
+        {
+          "text": "Hardware optimization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dataset Understanding",
+      "content": "Why is understanding the dataset important in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To choose appropriate preprocessing and models",
+          "is_correct": true
+        },
+        {
+          "text": "To increase dataset size randomly",
+          "is_correct": false
+        },
+        {
+          "text": "To remove all labels",
+          "is_correct": false
+        },
+        {
+          "text": "To convert text into images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Building Step",
+      "content": "Which is a key step in building an NLP model?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Training model on vectorized text data",
+          "is_correct": true
+        },
+        {
+          "text": "Only collecting raw images",
+          "is_correct": false
+        },
+        {
+          "text": "Removing all datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Ignoring labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NER Application",
+      "content": "Named Entity Recognition (NER) is used for:",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Identifying names, places, and organizations in text",
+          "is_correct": true
+        },
+        {
+          "text": "Predicting numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "Image classification",
+          "is_correct": false
+        },
+        {
+          "text": "Data compression",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Topic Modeling Goal",
+      "content": "What is the main goal of topic modeling like LDA?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Discover hidden topics in a collection of documents",
+          "is_correct": true
+        },
+        {
+          "text": "Translate text into images",
+          "is_correct": false
+        },
+        {
+          "text": "Remove stopwords only",
+          "is_correct": false
+        },
+        {
+          "text": "Perform regression analysis",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sentiment Model Challenge",
+      "content": "Which situation is most challenging for sentiment analysis models?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sarcasm and ambiguous text",
+          "is_correct": true
+        },
+        {
+          "text": "Short numerical datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Sorted tables",
+          "is_correct": false
+        },
+        {
+          "text": "Image datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "What is Tokenization?",
+      "content": "Which statements correctly describe tokenization in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tokenization is the process of breaking text into smaller units",
+          "is_correct": true
+        },
+        {
+          "text": "Tokens can be words or sentences",
+          "is_correct": true
+        },
+        {
+          "text": "It converts text into images",
+          "is_correct": false
+        },
+        {
+          "text": "It is a basic step in NLP preprocessing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Word vs Sentence Tokenization",
+      "content": "Which statements correctly describe word and sentence tokenization?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Word tokenization splits text into individual words",
+          "is_correct": true
+        },
+        {
+          "text": "Sentence tokenization splits text into sentences",
+          "is_correct": true
+        },
+        {
+          "text": "Both always produce identical outputs",
+          "is_correct": false
+        },
+        {
+          "text": "They are used in NLP preprocessing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Stopwords in NLP",
+      "content": "Which statements correctly describe stopwords?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stopwords are common words like 'is', 'the', 'and'",
+          "is_correct": true
+        },
+        {
+          "text": "They are often removed during preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "They are the most important words in a sentence",
+          "is_correct": false
+        },
+        {
+          "text": "Removing them can reduce noise",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Stemming vs Lemmatization",
+      "content": "Which statements correctly describe stemming and lemmatization?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Stemming reduces words to root form by chopping",
+          "is_correct": true
+        },
+        {
+          "text": "Lemmatization uses dictionary-based word forms",
+          "is_correct": true
+        },
+        {
+          "text": "Both always produce identical outputs",
+          "is_correct": false
+        },
+        {
+          "text": "Both are used in text normalization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Text Cleaning",
+      "content": "Which statements correctly describe basic text cleaning steps?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Lowercasing helps standardize text",
+          "is_correct": true
+        },
+        {
+          "text": "Removing punctuation helps reduce noise",
+          "is_correct": true
+        },
+        {
+          "text": "Text cleaning makes data more inconsistent",
+          "is_correct": false
+        },
+        {
+          "text": "It improves NLP model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Subword Tokenization",
+      "content": "Which statements correctly describe subword tokenization?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It splits words into smaller meaningful parts",
+          "is_correct": true
+        },
+        {
+          "text": "It helps handle unknown words",
+          "is_correct": true
+        },
+        {
+          "text": "It only works on sentence-level text",
+          "is_correct": false
+        },
+        {
+          "text": "It is used in modern NLP models like transformers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Stopwords Removal",
+      "content": "Which statements correctly describe stopwords removal?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps reduce noise in text data",
+          "is_correct": true
+        },
+        {
+          "text": "It can improve model efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all meaningful words",
+          "is_correct": false
+        },
+        {
+          "text": "Libraries like NLTK provide stopword lists",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Stemmer Types",
+      "content": "Which statements correctly describe stemming algorithms?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Porter Stemmer is a common stemming algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "Snowball Stemmer is an improved version of Porter",
+          "is_correct": true
+        },
+        {
+          "text": "Stemming always produces valid dictionary words",
+          "is_correct": false
+        },
+        {
+          "text": "Stemming is faster than lemmatization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Choosing Between Stemming and Lemmatization",
+      "content": "Which statements correctly describe when to use stemming vs lemmatization?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Lemmatization is more accurate but slower",
+          "is_correct": true
+        },
+        {
+          "text": "Stemming is faster but less accurate",
+          "is_correct": true
+        },
+        {
+          "text": "Both always give identical results",
+          "is_correct": false
+        },
+        {
+          "text": "Choice depends on use case and accuracy needs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Text Cleaning Techniques",
+      "content": "Which statements correctly describe advanced text cleaning techniques?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Text Preprocessing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removing special characters helps standardize text",
+          "is_correct": true
+        },
+        {
+          "text": "Handling emojis may be important in sentiment analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Emojis are never useful in NLP tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Text cleaning improves downstream model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "What is Bag of Words?",
+      "content": "Which statements correctly describe Bag of Words (BoW)?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "BoW represents text as a collection of word counts",
+          "is_correct": true
+        },
+        {
+          "text": "It ignores word order in a document",
+          "is_correct": true
+        },
+        {
+          "text": "It preserves full sentence grammar structure",
+          "is_correct": false
+        },
+        {
+          "text": "It is used to convert text into numerical features",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Document-Term Matrix",
+      "content": "Which statements correctly describe a document-term matrix?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It represents frequency of words in documents",
+          "is_correct": true
+        },
+        {
+          "text": "Rows represent documents and columns represent terms",
+          "is_correct": true
+        },
+        {
+          "text": "It stores images instead of text",
+          "is_correct": false
+        },
+        {
+          "text": "It is used in text vectorization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Limitations of BoW",
+      "content": "Which statements correctly describe limitations of Bag of Words?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It ignores word order and context",
+          "is_correct": true
+        },
+        {
+          "text": "It can create high-dimensional sparse vectors",
+          "is_correct": true
+        },
+        {
+          "text": "It captures semantic meaning perfectly",
+          "is_correct": false
+        },
+        {
+          "text": "It treats each word independently",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TF-IDF Basics",
+      "content": "Which statements correctly describe TF-IDF?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TF-IDF measures importance of words in documents",
+          "is_correct": true
+        },
+        {
+          "text": "It reduces weight of common words",
+          "is_correct": true
+        },
+        {
+          "text": "It only counts raw word frequency without scaling",
+          "is_correct": false
+        },
+        {
+          "text": "It combines TF and IDF scores",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Word Embeddings Introduction",
+      "content": "Which statements correctly describe word embeddings?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They represent words in dense vector form",
+          "is_correct": true
+        },
+        {
+          "text": "They capture semantic relationships between words",
+          "is_correct": true
+        },
+        {
+          "text": "They are the same as raw text strings",
+          "is_correct": false
+        },
+        {
+          "text": "They are used in modern NLP models",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Term Frequency (TF)",
+      "content": "Which statements correctly describe Term Frequency?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TF measures how often a word appears in a document",
+          "is_correct": true
+        },
+        {
+          "text": "Higher TF means more importance in that document",
+          "is_correct": true
+        },
+        {
+          "text": "TF ignores word occurrence completely",
+          "is_correct": false
+        },
+        {
+          "text": "It is a part of TF-IDF calculation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Inverse Document Frequency (IDF)",
+      "content": "Which statements correctly describe IDF?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "IDF reduces weight of common words across documents",
+          "is_correct": true
+        },
+        {
+          "text": "It increases importance of rare words",
+          "is_correct": true
+        },
+        {
+          "text": "It is same as term frequency",
+          "is_correct": false
+        },
+        {
+          "text": "It is used in TF-IDF scoring",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Word2Vec and GloVe",
+      "content": "Which statements correctly describe Word2Vec and GloVe?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Word2Vec learns word relationships using context",
+          "is_correct": true
+        },
+        {
+          "text": "GloVe uses global word co-occurrence statistics",
+          "is_correct": true
+        },
+        {
+          "text": "They produce sparse word representations",
+          "is_correct": false
+        },
+        {
+          "text": "Both generate word embeddings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TF-IDF vs BoW",
+      "content": "Which statements correctly compare TF-IDF and Bag of Words?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TF-IDF reduces importance of frequent common words",
+          "is_correct": true
+        },
+        {
+          "text": "BoW only counts frequency without weighting",
+          "is_correct": true
+        },
+        {
+          "text": "BoW captures semantic meaning better than TF-IDF",
+          "is_correct": false
+        },
+        {
+          "text": "TF-IDF provides more informative feature representation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Contextual Embeddings (BERT Intro)",
+      "content": "Which statements correctly describe contextual embeddings like BERT?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "Vectorization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "BERT generates context-aware word representations",
+          "is_correct": true
+        },
+        {
+          "text": "Same word can have different embeddings based on context",
+          "is_correct": true
+        },
+        {
+          "text": "It produces static embeddings only",
+          "is_correct": false
+        },
+        {
+          "text": "It improves understanding of language meaning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "What is Sentiment Analysis?",
+      "content": "Which statements correctly describe sentiment analysis?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sentiment analysis determines emotional tone in text",
+          "is_correct": true
+        },
+        {
+          "text": "It classifies text as positive, negative, or neutral",
+          "is_correct": true
+        },
+        {
+          "text": "It is used to generate images from text",
+          "is_correct": false
+        },
+        {
+          "text": "It is widely used in social media analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rule-based vs ML-based Sentiment Analysis",
+      "content": "Which statements correctly describe rule-based and ML-based sentiment analysis?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rule-based systems use predefined lexicons or rules",
+          "is_correct": true
+        },
+        {
+          "text": "ML-based systems learn patterns from data",
+          "is_correct": true
+        },
+        {
+          "text": "Both methods do not require data",
+          "is_correct": false
+        },
+        {
+          "text": "ML-based methods generally perform better with large datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Text Classification Basics",
+      "content": "Which statements correctly describe text classification?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It assigns categories to text data",
+          "is_correct": true
+        },
+        {
+          "text": "Spam detection is a type of text classification",
+          "is_correct": true
+        },
+        {
+          "text": "It is used only for numerical data",
+          "is_correct": false
+        },
+        {
+          "text": "It is a supervised learning task",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "What is NER?",
+      "content": "Which statements correctly describe Named Entity Recognition (NER)?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NER identifies entities like names, places, and organizations",
+          "is_correct": true
+        },
+        {
+          "text": "It is used in information extraction",
+          "is_correct": true
+        },
+        {
+          "text": "It is unrelated to text processing",
+          "is_correct": false
+        },
+        {
+          "text": "It is part of NLP pipelines",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Topic Modeling Introduction",
+      "content": "Which statements correctly describe topic modeling?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Topic modeling finds hidden themes in text data",
+          "is_correct": true
+        },
+        {
+          "text": "LDA is a popular topic modeling technique",
+          "is_correct": true
+        },
+        {
+          "text": "It only works with images",
+          "is_correct": false
+        },
+        {
+          "text": "It helps in document clustering",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Text Classification Workflow",
+      "content": "Which statements correctly describe text classification workflow?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It includes preprocessing, vectorization, and modeling",
+          "is_correct": true
+        },
+        {
+          "text": "Feature extraction is an important step",
+          "is_correct": true
+        },
+        {
+          "text": "It does not require training data",
+          "is_correct": false
+        },
+        {
+          "text": "Model evaluation is part of workflow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dataset Understanding in NLP",
+      "content": "Which statements correctly describe dataset understanding in NLP?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Understanding labels is important in supervised learning",
+          "is_correct": true
+        },
+        {
+          "text": "Data imbalance can affect model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Datasets do not need preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "Exploratory analysis helps understand text data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Building Steps",
+      "content": "Which statements correctly describe NLP model building steps?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing is an initial step",
+          "is_correct": true
+        },
+        {
+          "text": "Model training uses labeled or structured data",
+          "is_correct": true
+        },
+        {
+          "text": "Evaluation is optional in ML models",
+          "is_correct": false
+        },
+        {
+          "text": "Feature engineering improves performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Spam Detection and Text Classification",
+      "content": "Which statements correctly describe spam detection?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Spam detection is a binary classification problem",
+          "is_correct": true
+        },
+        {
+          "text": "It is an application of text classification",
+          "is_correct": true
+        },
+        {
+          "text": "It does not use machine learning techniques",
+          "is_correct": false
+        },
+        {
+          "text": "It is widely used in email filtering",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced NLP Concepts",
+      "content": "Which statements correctly describe advanced NLP concepts like LDA and NER?",
+      "level": "subtopic",
+      "unit_name": "Natural Language Processing (NLP)",
+      "subunit_name": "NLP Models",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NER identifies named entities in text",
+          "is_correct": true
+        },
+        {
+          "text": "LDA is used for topic modeling",
+          "is_correct": true
+        },
+        {
+          "text": "NER is used for image classification",
+          "is_correct": false
+        },
+        {
+          "text": "LDA helps discover hidden topics in documents",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

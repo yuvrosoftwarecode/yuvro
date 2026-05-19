@@ -1,0 +1,44 @@
+{
+    "name": "UNIT - II: Orthographic Projections (Conventional and Computer Aided)",
+    "subject_short_code": "CAEG101",
+    "order_index": 1,
+    "sub_units": [
+        {
+            "name": "Principles of Orthographic Projections, Conventions, Projections of Points and Lines, Projections of Plane regular geometric figures",
+            "content": "Principles of Orthographic Projections, Conventions, Projections of Points and Lines, Projections of Plane regular geometric figures",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Principles of Orthographic Projections, Conventions, Projections of Points and Lines, Projections of Plane regular geometric figures",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Principles of Orthographic Projections, Conventions, Projections of Points and Lines, Projections of Plane regular geometric figures unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        },
+        {
+            "name": "Computer aided orthographic projections, points, lines and planes",
+            "content": "Computer aided orthographic projections, points, lines and planes",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Computer aided orthographic projections, points, lines and planes",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Computer aided orthographic projections, points, lines and planes unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        },
+        {
+            "name": "Introduction to Computer aided drafting, views, commands and conics",
+            "content": "Introduction to Computer aided drafting, views, commands and conics",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Introduction to Computer aided drafting, views, commands and conics",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Introduction to Computer aided drafting, views, commands and conics unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

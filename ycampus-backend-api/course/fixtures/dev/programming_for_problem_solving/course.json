@@ -1,0 +1,11 @@
+{
+    "subjects": [
+        {
+            "short_code": "PPS101",
+            "subject_name": "Programming for Problem Solving",
+            "category": "engineering",
+            "instructor_email": "admin@yuvro.com",
+            "product_type": "campus"
+        }
+    ]
+}

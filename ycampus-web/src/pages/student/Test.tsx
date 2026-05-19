@@ -108,7 +108,7 @@ const StudentTest = () => {
     const fetchCounts = async () => {
       try {
         const allTests = await fetchSkillTests({ 
-          test_type: isSkillTest ? 'assessment' : 'practice', 
+          test_type: 'practice', 
           publish_status: 'active' 
         });
         // Initialize all subjects with 0 first

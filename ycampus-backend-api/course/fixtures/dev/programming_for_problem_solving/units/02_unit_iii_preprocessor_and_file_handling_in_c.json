@@ -1,0 +1,44 @@
+{
+    "name": "UNIT - III: Preprocessor and File handling in C",
+    "subject_short_code": "PPS101",
+    "order_index": 2,
+    "sub_units": [
+        {
+            "name": "Preprocessor: Commonly used Preprocessor commands like include, define, undef, if, ifdef, ifndef",
+            "content": "Preprocessor: Commonly used Preprocessor commands like include, define, undef, if, ifdef, ifndef",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Preprocessor: Commonly used Preprocessor commands like include, define, undef, if, ifdef, ifndef",
+                    "video_link": "https://www.youtube.com/watch?v=uwtti8B-BmM&list=PLERZXVMwiajo9Wew4lopIXZgfgj6SbBzp",
+                    "ai_context": "Detailed video explanation for Preprocessor: Commonly used Preprocessor commands like include, define, undef, if, ifdef, ifndef unit of Programming for Problem Solving"
+                }
+            ]
+        },
+        {
+            "name": "Files: Text and Binary files, Creating and Reading and writing text and binary files, Appending data to existing files",
+            "content": "Files: Text and Binary files, Creating and Reading and writing text and binary files, Appending data to existing files",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Files: Text and Binary files, Creating and Reading and writing text and binary files, Appending data to existing files",
+                    "video_link": "https://www.youtube.com/watch?v=uwtti8B-BmM&list=PLERZXVMwiajo9Wew4lopIXZgfgj6SbBzp",
+                    "ai_context": "Detailed video explanation for Files: Text and Binary files, Creating and Reading and writing text and binary files, Appending data to existing files unit of Programming for Problem Solving"
+                }
+            ]
+        },
+        {
+            "name": "Writing and reading structures using binary files, Random access using fseek, ftell and rewind functions",
+            "content": "Writing and reading structures using binary files, Random access using fseek, ftell and rewind functions",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Writing and reading structures using binary files, Random access using fseek, ftell and rewind functions",
+                    "video_link": "https://www.youtube.com/watch?v=uwtti8B-BmM&list=PLERZXVMwiajo9Wew4lopIXZgfgj6SbBzp",
+                    "ai_context": "Detailed video explanation for Writing and reading structures using binary files, Random access using fseek, ftell and rewind functions unit of Programming for Problem Solving"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}
