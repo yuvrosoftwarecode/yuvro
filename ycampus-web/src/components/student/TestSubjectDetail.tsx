@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +28,8 @@ import TestInstructions from '@/components/student/TestInstructions';
 import TestResultsScreen from '@/components/student/TestResultsScreen';
 import TestThankYou from '@/components/student/TestThankYou';
 import { fetchUnitsBySubject, UnitWithSubUnits } from '@/services/subjectService';
-import { fetchSkillTests, SkillTest } from '@/services/skillTestService';
+import { fetchSkillTests, SkillTest, getUserSubmissions } from '@/services/skillTestService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Topic {
   id: string;
@@ -49,16 +51,20 @@ interface Course {
 // Subject problems data organized by unit
 // Mock data removed.
 
-const UnitSidebar = ({ 
-  units, 
-  selectedUnit, 
+const UnitSidebar = ({
+  units,
+  selectedUnit,
   onUnitSelect,
-  subjectName
-}: { 
-  units: UnitWithSubUnits[]; 
-  selectedUnit: string | null; 
+  subjectName,
+  allTests,
+  completedTests
+}: {
+  units: UnitWithSubUnits[];
+  selectedUnit: string | null;
   onUnitSelect: (unitId: string) => void;
   subjectName: string;
+  allTests: SkillTest[];
+  completedTests: Set<string>;
 }) => {
   const { open } = useSidebar();
 
@@ -78,63 +84,70 @@ const UnitSidebar = ({
             </div>
           </div>
         )}
-        
+
         <div className="px-4 py-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <h3 className="text-xs font-semibold text-muted-foreground   tracking-wider">
             {open ? 'TOPICS' : ''}
           </h3>
         </div>
-        
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {units.map((unit) => (
-                <SidebarMenuItem key={unit.id}>
-                  <TooltipProvider delayDuration={0}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton
-                          onClick={() => onUnitSelect(unit.id)}
-                          isActive={selectedUnit === unit.id}
-                          className="h-auto py-3"
-                        >
-                          <div className="flex flex-col gap-2 w-full">
-                            <div className="flex items-center justify-between w-full">
-                              <span className="font-medium text-base">
-                                {open ? unit.name : unit.shortName}
-                              </span>
-                              {open && selectedUnit === unit.id && (
-                                <ChevronRight className="h-4 w-4" />
+              {units.map((unit) => {
+                const unitTests = allTests.filter(t => String(t.unit) === String(unit.id));
+                const total = unitTests.length;
+                const completed = unitTests.filter(t => completedTests.has(t.id)).length;
+                const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                return (
+                  <SidebarMenuItem key={unit.id}>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SidebarMenuButton
+                            onClick={() => onUnitSelect(unit.id)}
+                            isActive={selectedUnit === unit.id}
+                            className="h-auto py-3"
+                          >
+                            <div className="flex flex-col gap-2 w-full">
+                              <div className="flex items-center justify-between w-full">
+                                <span className="font-medium text-base">
+                                  {open ? unit.name : unit.shortName}
+                                </span>
+                                {open && selectedUnit === unit.id && (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </div>
+                              {open && (
+                                <div className="w-full space-y-1">
+                                  <Progress value={progressPercent} className="h-2" />
+                                  <span className="text-xs text-muted-foreground">
+                                    {progressPercent}% Complete
+                                  </span>
+                                </div>
                               )}
                             </div>
-                            {open && (
-                              <div className="w-full space-y-1">
-                                <Progress value={unit.progress} className="h-2" />
-                                <span className="text-xs text-muted-foreground">
-                                  {unit.progress}% Complete
-                                </span>
-                              </div>
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <div className="space-y-2">
+                            <p className="font-semibold">{unit.name}</p>
+                            {!open && (
+                              <p className="text-xs text-muted-foreground">{progressPercent}% Complete</p>
                             )}
+                            <ul className="text-xs space-y-1">
+                              {unit.sub_units?.map((topic, idx) => (
+                                <li key={idx}>• {topic.name}</li>
+                              ))}
+                            </ul>
                           </div>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-xs">
-                        <div className="space-y-2">
-                          <p className="font-semibold">{unit.name}</p>
-                          {!open && (
-                            <p className="text-xs text-muted-foreground">{unit.progress_percentage || 0}% Complete</p>
-                          )}
-                          <ul className="text-xs space-y-1">
-                            {unit.sub_units?.map((topic, idx) => (
-                              <li key={idx}>• {topic.name}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </SidebarMenuItem>
-              ))}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -144,9 +157,15 @@ const UnitSidebar = ({
 };
 
 const TestSubjectDetail = () => {
+  const { user } = useAuth();
   const { subject, id, subjectId } = useParams<{ subject?: string; id?: string; subjectId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+
+  const isSkillTest = location.pathname.includes('skill-test');
+  const baseUrl = isSkillTest ? "/student/skill-test" : "/student/test";
+
   const [testsLoading, setTestsLoading] = useState(false);
   const [unitsLoading, setUnitsLoading] = useState(false);
   const [units, setUnits] = useState<UnitWithSubUnits[]>([]);
@@ -164,6 +183,25 @@ const TestSubjectDetail = () => {
     totalQuestions: number;
     timeSpent: number;
   } | null>(null);
+
+  React.useEffect(() => {
+    if (!user?.id) return;
+    const loadSubmissions = async () => {
+      try {
+        const subs = await getUserSubmissions(user.id);
+        const completed = new Set<string>();
+        subs.forEach(s => {
+          if (s.status === 'completed' || s.status === 'submitted') {
+            completed.add(String(s.skill_test));
+          }
+        });
+        setCompletedTests(completed);
+      } catch (err) {
+        console.error("Error fetching user submissions:", err);
+      }
+    };
+    loadSubmissions();
+  }, [user?.id]);
 
   const subjectName = subject || id || subjectId || '';
   const [searchParams] = useSearchParams();
@@ -196,7 +234,7 @@ const TestSubjectDetail = () => {
       try {
         const tests = await fetchSkillTests({
           subject: subjectName,
-          test_type: 'practice',
+          test_type: isSkillTest ? 'assessment' : 'practice',
           publish_status: 'active'
         });
         setAllTests(tests);
@@ -207,10 +245,10 @@ const TestSubjectDetail = () => {
       }
     };
     fetchTests();
-  }, [subjectName]);
+  }, [subjectName, isSkillTest]);
 
   // Filter problems by selected unit
-  const problems = selectedUnit 
+  const problems = selectedUnit
     ? allTests.filter(p => String(p.unit) === selectedUnit)
     : [];
 
@@ -219,8 +257,9 @@ const TestSubjectDetail = () => {
 
 
   const handleBackToTest = () => {
-    navigate('/student/test');
+    navigate(baseUrl);
   };
+
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);
@@ -337,6 +376,8 @@ const TestSubjectDetail = () => {
           selectedUnit={selectedUnit}
           onUnitSelect={setSelectedUnit}
           subjectName={displayName}
+          allTests={allTests}
+          completedTests={completedTests}
         />
 
         <div className="flex-1 flex flex-col">
@@ -399,74 +440,74 @@ const TestSubjectDetail = () => {
                   };
 
                   return (
-                  <Card
-                    key={problem.id}
-                    className="hover:shadow-lg transition-all duration-300 group overflow-hidden border-border bg-card"
-                  >
-                    <div className={`h-2 bg-gradient-to-r ${getTriColorGradient()}`} />
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="group-hover:text-primary transition-colors text-base leading-tight">
-                          {problem.title}
-                        </CardTitle>
-                        <Badge variant={
-                          problem.difficulty === 'easy' ? 'secondary' :
-                          problem.difficulty === 'medium' ? 'default' : 'destructive'
-                        } className="shrink-0 capitalize">
-                          {problem.difficulty}
-                        </Badge>
-                      </div>
-                      {(problem.description || problem.instructions) && (
-                        <CardDescription className="line-clamp-2">{problem.description || problem.instructions}</CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>{problem.duration} min</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <CheckCircle className="h-3.5 w-3.5" />
-                            <span>{problem.total_questions || 0} questions</span>
-                          </div>
+                    <Card
+                      key={problem.id}
+                      className="hover:shadow-lg transition-all duration-300 group overflow-hidden border-border bg-card"
+                    >
+                      <div className={`h-2 bg-gradient-to-r ${getTriColorGradient()}`} />
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="group-hover:text-primary transition-colors text-base leading-tight">
+                            {problem.title}
+                          </CardTitle>
+                          <Badge variant={
+                            problem.difficulty === 'easy' ? 'secondary' :
+                              problem.difficulty === 'medium' ? 'default' : 'destructive'
+                          } className="shrink-0 capitalize">
+                            {problem.difficulty}
+                          </Badge>
                         </div>
+                        {(problem.description || problem.instructions) && (
+                          <CardDescription className="line-clamp-2">{problem.description || problem.instructions}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" />
+                              <span>{problem.duration} min</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <CheckCircle className="h-3.5 w-3.5" />
+                              <span>{problem.total_questions || 0} questions</span>
+                            </div>
+                          </div>
 
-                        <Button
-                          className={`w-full bg-gradient-to-r ${getTriColorGradient()} hover:opacity-90 border-0 text-white font-semibold`}
-                          onClick={() => {
-                            const topicData: Topic = {
-                              id: problem.id,
-                              name: problem.title,
-                              duration: problem.duration,
-                              questions: problem.total_questions || 0,
-                              totalMarks: problem.total_marks || 0,
-                              difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
-                            };
+                          <Button
+                            className={`w-full bg-gradient-to-r ${getTriColorGradient()} hover:opacity-90 border-0 text-white font-semibold`}
+                            onClick={() => {
+                              const topicData: Topic = {
+                                id: problem.id,
+                                name: problem.title,
+                                duration: problem.duration,
+                                questions: problem.total_questions || 0,
+                                totalMarks: problem.total_marks || 0,
+                                difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
+                              };
 
-                            if (completedTests.has(problem.id)) {
-                              handleViewResults(problem);
-                            } else {
-                              handleTopicSelect(topicData);
-                            }
-                          }}
-                        >
-                          {completedTests.has(problem.id) ? (
-                            <>
-                              <BarChart3 className="mr-2 h-4 w-4" />
-                              View Results
-                            </>
-                          ) : (
-                            <>
-                              <Play className="mr-2 h-4 w-4" />
-                              Start Test
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                              if (completedTests.has(problem.id)) {
+                                handleViewResults(problem);
+                              } else {
+                                handleTopicSelect(topicData);
+                              }
+                            }}
+                          >
+                            {completedTests.has(problem.id) ? (
+                              <>
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                View Results
+                              </>
+                            ) : (
+                              <>
+                                <Play className="mr-2 h-4 w-4" />
+                                Start Test
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>
@@ -476,12 +517,12 @@ const TestSubjectDetail = () => {
                   <CheckCircle className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <p className="text-foreground font-semibold mb-1">
-                  {selectedUnit ? 'No practice tests here' : 'Select a unit'}
+                  {selectedUnit ? (isSkillTest ? 'No skill tests here' : 'No practice tests here') : 'Select a unit'}
                 </p>
                 <p className="text-muted-foreground text-sm max-w-xs">
                   {selectedUnit
-                    ? 'No practice tests have been published for this unit yet.'
-                    : 'Choose a unit from the sidebar to see available practice tests.'}
+                    ? (isSkillTest ? 'No skill tests have been published for this unit yet.' : 'No practice tests have been published for this unit yet.')
+                    : (isSkillTest ? 'Choose a unit from the sidebar to see available skill tests.' : 'Choose a unit from the sidebar to see available practice tests.')}
                 </p>
               </div>
             )}

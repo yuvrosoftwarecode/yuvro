@@ -6,7 +6,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BookOpen, Library, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Users, BrainCircuit } from 'lucide-react';
+import { BookOpen, Library, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Users, BrainCircuit, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -22,12 +22,7 @@ const adminMenuItems = [
   { title: 'AI Planner', url: '/admin/planner', icon: BrainCircuit },
   { title: 'Subjects', url: '/admin/subjects/global', icon: Library },
   { title: 'Mock Interviews', url: '/admin/mock-interview', icon: Users },
-  { title: 'Departments', url: '/admin/departments', icon: Building },
-  { title: 'Batches', url: '/admin/batches', icon: Layers },
-  { title: 'Semesters', url: '/admin/semesters', icon: Calendar },
-  { title: 'Courses', url: '/admin/courses', icon: BookOpen },
-  { title: 'Students', url: '/admin/students', icon: GraduationCap },
-  { title: 'Faculty', url: '/admin/faculty', icon: UserCheck },
+  { title: 'Skill Tests', url: '/admin/skill-tests', icon: Trophy },
   { title: 'Practice Questions', url: '/admin/practice-questions', icon: FileQuestion },
   { title: 'Test Questions', url: '/admin/test-questions', icon: ClipboardCheck },
 ];

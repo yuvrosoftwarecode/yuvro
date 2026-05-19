@@ -7,15 +7,19 @@ import TestContent from '@/components/student/TestContent';
 import TaskContent from '@/components/student/TaskContent';
 import AssessmentContent from '@/components/student/AssessmentContent';
 import { ComprehensiveDashboard } from '@/components/dashboard/ComprehensiveDashboard';
+import { AssessmentDashboard } from '@/components/dashboard/AssessmentDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, ClipboardCheck, MessageSquare, Mic, StickyNote, Calendar } from 'lucide-react';
+import studentService, { Student } from '@/services/studentService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   
   // Get active menu from URL path
   const getActiveMenuFromPath = (pathname: string) => {
@@ -71,7 +75,12 @@ const StudentDashboard = () => {
     { title: 'Overall Progress', value: '78%', icon: Calendar, change: 'On Track' },
   ];
 
-  const renderDashboardContent = () => <ComprehensiveDashboard />;
+  const renderDashboardContent = () => {
+    if (user?.college_product_type === 'assessments') {
+      return <AssessmentDashboard />;
+    }
+    return <ComprehensiveDashboard />;
+  };
 
   const renderContent = () => {
     switch (activeMenu) {

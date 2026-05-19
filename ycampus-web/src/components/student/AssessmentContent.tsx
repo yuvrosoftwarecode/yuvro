@@ -336,9 +336,14 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
                 className="hover:shadow-md transition-shadow duration-300 border border-gray-100 bg-card rounded-xl p-6"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <CardTitle className="text-xl font-bold leading-tight">
-                    {assessment.title}
-                  </CardTitle>
+                  <div className="flex flex-col gap-1">
+                    <CardTitle className="text-xl font-bold leading-tight">
+                      {assessment.title}
+                    </CardTitle>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {assessment.course}
+                    </p>
+                  </div>
                   <Badge className={cn("rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5", getStatusColor(assessment.status))}>
                     {assessment.status === 'completed' ? (
                       <><CheckCircle className="h-3.5 w-3.5" /> Completed</>

@@ -80,6 +80,11 @@ class Command(BaseCommand):
                 call_command("load_colleges", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
+            self.stdout.write("🏛️ Seeding universities...")
+            call_command("seed_universities", verbosity=1)
+            self.stdout.write("")
+
+
             self.stdout.write("🤖 Seeding AI agents...")
             call_command("seed_agents", verbosity=1)
             self.stdout.write("")

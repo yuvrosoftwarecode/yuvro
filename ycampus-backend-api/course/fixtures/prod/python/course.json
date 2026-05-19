@@ -3,8 +3,8 @@
         {
             "short_code": "PY101",
             "subject_name": "Python",
-            "category": "fundamentals",
-            "instructor_email": "[EMAIL_ADDRESS]"
+            "category": "Tracks",
+            "product_type": "assessments"
         }
     ]
 }

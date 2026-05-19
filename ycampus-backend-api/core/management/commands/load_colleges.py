@@ -44,7 +44,28 @@ class Command(BaseCommand):
         self.stdout.write(f"⏳ Loading college data from {fixture_path}...")
         
         try:
-            call_command("loaddata", fixture_path)
+            import json
+            import tempfile
+            
+            # Read and modify fixture data to remove deprecated fields
+            with open(fixture_path, 'r') as f:
+                data = json.load(f)
+            
+            for item in data:
+                if item["model"] == "core.college" and "affiliated_university" in item["fields"]:
+                    del item["fields"]["affiliated_university"]
+            
+            # Create a temporary file to load data from
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_f:
+                json.dump(data, temp_f)
+                temp_fixture_path = temp_f.name
+            
+            try:
+                call_command("loaddata", temp_fixture_path)
+            finally:
+                if os.path.exists(temp_fixture_path):
+                    os.remove(temp_fixture_path)
+
             self.stdout.write(
                 self.style.SUCCESS(f"✓ Successfully loaded college data from {fixture_file}")
             )

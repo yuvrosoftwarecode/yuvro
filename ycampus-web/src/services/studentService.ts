@@ -14,6 +14,7 @@ export interface Student {
     };
     college?: string | number;
     college_name?: string;
+    college_product_type?: 'campus' | 'assessments';
     department?: string | number;
     department_name?: string;
     batch?: string | number;

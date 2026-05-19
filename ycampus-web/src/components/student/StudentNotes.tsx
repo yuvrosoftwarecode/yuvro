@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X, Brain, Zap, Table as TableIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { createNote, deleteNote, fetchNotesBySubUnit, Note, updateNote } from '@/services/subjectService';
+import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote } from '@/services/subjectService';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +18,7 @@ const MaterialsView = ({
   isChatOpen,
   setIsChatOpen,
   showHeader = true,
+  subunit,
 }: {
   materials: Note[];
   isSplitView: boolean;
@@ -22,7 +26,19 @@ const MaterialsView = ({
   isChatOpen: boolean;
   setIsChatOpen: (value: boolean) => void;
   showHeader?: boolean;
-}) => (
+  subunit?: any;
+}) => {
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
+  const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
+  const [completed, setCompleted] = useState(false);
+
+  const themeClasses = {
+    light: 'bg-white border-gray-150 text-slate-800 shadow-sm',
+    sepia: 'bg-[#faf6ee] border-[#e8dfc7] text-[#433422] shadow-md',
+    dark: 'bg-slate-950 border-slate-900 text-slate-100 shadow-xl',
+  };
+
+  return (
   <div className="h-full flex flex-col">
     {showHeader && (
       <div className="flex items-center justify-between mb-4 shrink-0">
@@ -58,8 +74,320 @@ const MaterialsView = ({
 
     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
       <div className="mb-8 mt-2 space-y-6">
-        {/* Header Section */}
-        <div className="rounded-2xl p-8 text-black bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-sm">
+        {subunit && subunit.content ? (
+          <div className={`rounded-3xl p-8 border transition-all duration-300 ${themeClasses[theme]}`}>
+            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b ${
+              theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/45 rounded-2xl shrink-0">
+                  <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <h2 className={`text-2xl font-extrabold font-sans leading-tight ${
+                    theme === 'dark' ? 'text-white' : theme === 'sepia' ? 'text-[#302010]' : 'text-slate-900'
+                  }`}>{subunit.name}</h2>
+                  <p className={`text-xs mt-1 font-medium ${
+                    theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
+                  }`}>⏱️ 5 min read &bull; Interactive Study Guide</p>
+                </div>
+              </div>
+              
+              {/* Reading Preferences Control Panel */}
+              <div className={`flex items-center gap-4 p-2 rounded-2xl border shrink-0 ${
+                theme === 'dark' ? 'bg-slate-900/60 border-slate-800' : theme === 'sepia' ? 'bg-[#ebdcb6]/20 border-[#e8dfc7]' : 'bg-gray-50/80 border-gray-150'
+              }`}>
+                {/* Font Size Adjusters */}
+                <div className={`flex items-center border-r pr-3 gap-1 ${
+                  theme === 'dark' ? 'border-slate-800' : 'border-gray-200'
+                }`}>
+                  <button 
+                    onClick={() => setFontSize('normal')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      fontSize === 'normal' 
+                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
+                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
+                    }`}
+                  >
+                    A
+                  </button>
+                  <button 
+                    onClick={() => setFontSize('large')}
+                    className={`px-2.5 py-1 rounded-lg text-sm font-bold transition-all ${
+                      fontSize === 'large' 
+                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
+                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
+                    }`}
+                  >
+                    A+
+                  </button>
+                  <button 
+                    onClick={() => setFontSize('extra-large')}
+                    className={`px-3 py-1 rounded-lg text-md font-extrabold transition-all ${
+                      fontSize === 'extra-large' 
+                        ? (theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white shadow-sm text-indigo-600') 
+                        : (theme === 'dark' ? 'text-slate-400 hover:bg-slate-800' : 'text-gray-500 hover:bg-gray-100')
+                    }`}
+                  >
+                    A++
+                  </button>
+                </div>
+                
+                {/* Theme Selectors */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setTheme('light')}
+                    title="Light Mode"
+                    className={`w-5 h-5 rounded-full border-2 transition-all ${
+                      theme === 'light' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-gray-300 hover:scale-105'
+                    } bg-white`}
+                  />
+                  <button
+                    onClick={() => setTheme('sepia')}
+                    title="Sepia Mode"
+                    className={`w-5 h-5 rounded-full border-2 transition-all ${
+                      theme === 'sepia' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-[#ebdcb6] hover:scale-105'
+                    } bg-[#fcf8f2]`}
+                  />
+                  <button
+                    onClick={() => setTheme('dark')}
+                    title="Dark Mode"
+                    className={`w-5 h-5 rounded-full border-2 transition-all ${
+                      theme === 'dark' ? 'ring-2 ring-indigo-500 border-white scale-110' : 'border-slate-700 hover:scale-105'
+                    } bg-slate-900`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {subunit.content.split(/\n\n+/).map((block: string, idx: number) => {
+                const trimmed = block.trim();
+                if (!trimmed) return null;
+
+                // 1. Check for Uppercase Header/Title (e.g. "ARRAYS")
+                if (trimmed === trimmed.toUpperCase() && trimmed.length < 35 && !trimmed.includes('→') && !trimmed.includes('=')) {
+                  return (
+                    <div key={idx} className="mb-6 mt-4 shrink-0">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-full border border-indigo-150/30">Course Topic</span>
+                      <h1 className={`text-2xl font-black mt-2 font-sans tracking-tight ${
+                        theme === 'dark' ? 'text-white' : 'text-slate-900'
+                      }`}>{trimmed}</h1>
+                    </div>
+                  );
+                }
+
+                // Keyword badge styling helper
+                const renderTextWithHighlights = (text: string) => {
+                  const parts = text.split(/(O\(1\)|O\(n\)|O\(log n\))/g);
+                  return parts.map((part, i) => {
+                    if (part === 'O(1)') {
+                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-250/20 mx-1">O(1)</span>;
+                    }
+                    if (part === 'O(n)') {
+                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-250/20 mx-1">O(n)</span>;
+                    }
+                    if (part === 'O(log n)') {
+                      return <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-250/20 mx-1">O(log n)</span>;
+                    }
+                    
+                    return (
+                      <span key={i} dangerouslySetInnerHTML={{
+                        __html: part
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-indigo-650 dark:text-indigo-400">$1</strong>')
+                          .replace(/`(.*?)`/g, '<code class="px-1.5 py-0.5 bg-gray-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded font-mono text-[11px]">$1</code>')
+                      }} />
+                    );
+                  });
+                };
+
+                // 2. Check for Real-Life Examples / Callouts
+                if (trimmed.startsWith('Real-Life Example:') || trimmed.startsWith('Real-Life Examples:')) {
+                  const lines = trimmed.split('\n');
+                  const title = lines[0];
+                  const contentLines = lines.slice(1).join('\n');
+                  return (
+                    <div key={idx} className={`my-6 p-6 rounded-2xl border bg-gradient-to-br shadow-sm relative overflow-hidden ${
+                      theme === 'dark' 
+                        ? 'from-slate-900/60 to-indigo-950/20 border-indigo-900/40 text-slate-200' 
+                        : theme === 'sepia' 
+                          ? 'from-[#f5ebd6] to-[#ebdcb6] border-[#d8c7a7] text-[#4e3e2e]' 
+                          : 'from-indigo-50/50 to-blue-50/20 border-indigo-100 text-slate-800'
+                    }`}>
+                      <div className="flex gap-3">
+                        <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl shrink-0 h-fit">
+                          <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-xs uppercase tracking-wider mb-2 text-indigo-655 dark:text-indigo-350">{title}</h4>
+                          <p className={`leading-relaxed ${
+                            fontSize === 'normal' ? 'text-[13.5px]' : fontSize === 'large' ? 'text-[15.5px]' : 'text-[17.5px]'
+                          }`}>{renderTextWithHighlights(contentLines)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // 3. Check for Visual Array representation (e.g. ["Song A", "Song B", "Song C"] or Array = [10, 20, 30, 40])
+                const isStringArray = trimmed.startsWith('[') && trimmed.endsWith(']');
+                const isNumericArray = trimmed.startsWith('Array = [') && trimmed.endsWith(']');
+                if (isStringArray || isNumericArray) {
+                  let arrayItems: string[] = [];
+                  if (isStringArray) {
+                    try {
+                      arrayItems = JSON.parse(trimmed);
+                    } catch {
+                      arrayItems = trimmed.replace(/[\[\]"]/g, '').split(',').map(s => s.trim());
+                    }
+                  } else {
+                    arrayItems = trimmed.replace('Array = [', '').replace(']', '').split(',').map(s => s.trim());
+                  }
+
+                  return (
+                    <div key={idx} className={`my-6 p-6 rounded-2xl border ${
+                      theme === 'dark' ? 'bg-slate-900/40 border-slate-850' : theme === 'sepia' ? 'bg-[#ebdcb6]/10 border-[#ebdcb6]' : 'bg-gray-50/60 border-gray-150'
+                    }`}>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-4 block">Visual Array Memory Block</span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {arrayItems.map((item, cellIdx) => (
+                          <div key={cellIdx} className="flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-indigo-500 mb-1.5">idx {cellIdx}</span>
+                            <div className={`w-24 h-14 rounded-xl border flex items-center justify-center font-bold text-xs shadow-sm transition-all hover:scale-105 ${
+                              theme === 'dark' 
+                                ? 'bg-slate-950 border-slate-800 text-white' 
+                                : 'bg-white border-gray-255 text-slate-800'
+                            }`}>
+                              {item}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // 4. Check for Bullet Points (lines starting with •)
+                if (trimmed.includes('•')) {
+                  const lines = trimmed.split('\n');
+                  return (
+                    <div key={idx} className="space-y-3 my-4 pl-1">
+                      {lines.map((line, lIdx) => {
+                        const content = line.replace(/^[•\s\-\*]+/, '').trim();
+                        if (!content) return null;
+                        return (
+                          <div key={lIdx} className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0 animate-pulse" />
+                            <p className={`leading-relaxed font-sans ${
+                              fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
+                            } ${
+                              theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
+                            }`}>{renderTextWithHighlights(content)}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
+                // 5. Check for Math / Formulas (lines containing "=" and some variables like Base, Size, prefix)
+                const isFormula = (trimmed.includes('=') && (trimmed.includes('Base') || trimmed.includes('Size') || trimmed.includes('prefix') || trimmed.includes('Sum(') || trimmed.includes('×')));
+                if (isFormula) {
+                  return (
+                    <div key={idx} className={`my-6 p-6 rounded-2xl border-l-4 bg-gradient-to-r shadow-sm flex items-center justify-between ${
+                      theme === 'dark' 
+                        ? 'from-slate-900 to-indigo-950/40 border-indigo-500 text-white' 
+                        : theme === 'sepia' 
+                          ? 'from-[#fcf8f2] to-[#ebdcb6]/20 border-[#cbb78d] text-[#302010]' 
+                          : 'from-indigo-50/30 to-blue-50/10 border-indigo-500 text-slate-900'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold shrink-0 font-mono">
+                          f(x)
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Formula / Expression</span>
+                          <p className="font-mono text-xs sm:text-sm font-bold mt-0.5 tracking-wide">{trimmed}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // 6. Check for Numbered Headers / Steps
+                const isStepHeader = /^\d+\.\s+/.test(trimmed);
+                if (isStepHeader) {
+                  const lines = trimmed.split('\n');
+                  const header = lines[0];
+                  const subContent = lines.slice(1).join('\n');
+                  const num = header.match(/^(\d+)\./)?.[1] || '0';
+                  const title = header.replace(/^\d+\.\s+/, '');
+                  
+                  return (
+                    <div key={idx} className="my-6">
+                      <h3 className={`font-extrabold flex items-center gap-3 font-sans tracking-tight ${
+                        fontSize === 'normal' ? 'text-lg' : fontSize === 'large' ? 'text-xl' : 'text-2xl'
+                      } ${
+                        theme === 'dark' ? 'text-white' : 'text-slate-900'
+                      }`}>
+                        <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">{num}</span>
+                        {title}
+                      </h3>
+                      {subContent && (
+                        <p className={`mt-3 leading-relaxed font-sans pl-11 ${
+                          fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
+                        } ${
+                          theme === 'dark' ? 'text-slate-350' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
+                        }`}>{renderTextWithHighlights(subContent)}</p>
+                      )}
+                    </div>
+                  );
+                }
+
+                // 7. Fallback to normal paragraph
+                return (
+                  <p key={idx} className={`leading-relaxed mb-5 font-sans ${
+                    fontSize === 'normal' ? 'text-[14px]' : fontSize === 'large' ? 'text-[16px]' : 'text-[18px]'
+                  } ${
+                    theme === 'dark' ? 'text-slate-300' : theme === 'sepia' ? 'text-[#4e3e2e]' : 'text-slate-700'
+                  }`}>
+                    {renderTextWithHighlights(trimmed)}
+                  </p>
+                );
+              })}
+            </div>
+
+            {/* Mark as Completed Button */}
+            <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+              theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
+            }`}>
+              <div>
+                <h4 className={`font-bold text-sm ${
+                  theme === 'dark' ? 'text-white' : theme === 'sepia' ? 'text-[#302010]' : 'text-gray-900'
+                }`}>Finished reading?</h4>
+                <p className={`text-xs mt-0.5 ${
+                  theme === 'dark' ? 'text-slate-450' : 'text-gray-500'
+                }`}>Mark this lesson as completed to update your progress dashboard.</p>
+              </div>
+              <Button
+                onClick={() => {
+                  setCompleted(!completed);
+                  if (!completed) toast.success("Awesome job! Lesson marked as completed 🎉");
+                }}
+                className={`rounded-xl px-5 py-2.5 font-sans font-semibold transition-all duration-300 shadow-sm hover:shadow-md ${
+                  completed 
+                    ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-200 animate-bounce-short' 
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                }`}
+              >
+                {completed ? '✓ Completed' : 'Mark as Completed'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Header Section */}
+            <div className="rounded-2xl p-8 text-black bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-sm">
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="w-8 h-8 text-indigo-600" />
             <h2 className="text-3xl font-bold font-sans tracking-tight">M1 → Unit 1 → Rank of Matrix using Echelon Form</h2>
@@ -322,6 +650,8 @@ const MaterialsView = ({
               </div>
            </div>
         </div>
+      </>
+      )}
       </div>
 
       {materials.length === 0 ? (
@@ -346,7 +676,8 @@ const MaterialsView = ({
       )}
     </div>
   </div>
-);
+  );
+};
 
 const MyNotesView = ({
   myNotes,
@@ -568,22 +899,29 @@ const StudentNotes = ({
     };
   }, [isDragging]);
 
+  const [subunit, setSubunit] = useState<any>(null);
+
   useEffect(() => {
-    const loadNotes = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const response = await fetchNotesBySubUnit(subunitId);
-        setNotes(response || []);
+        const [notesRes, subunitRes] = await Promise.all([
+          fetchNotesBySubUnit(subunitId),
+          fetchSubUnitById(subunitId),
+        ]);
+        setNotes(notesRes || []);
+        setSubunit(subunitRes || null);
       } catch (error) {
-        console.error('Failed to load notes', error);
-        toast.error('Failed to load notes');
+        console.error('Failed to load notes or subunit details', error);
+        toast.error('Failed to load study materials');
         setNotes([]);
+        setSubunit(null);
       } finally {
         setLoading(false);
       }
     };
 
-    loadNotes();
+    loadData();
   }, [subunitId]);
 
   const handleCreateNote = async () => {
@@ -716,6 +1054,7 @@ const StudentNotes = ({
                   isChatOpen={isChatOpen}
                   setIsChatOpen={setIsChatOpen}
                   showHeader={false}
+                  subunit={subunit}
                 />
               </div>
             </div>
@@ -787,6 +1126,7 @@ const StudentNotes = ({
             setIsSplitView={setIsSplitView}
             isChatOpen={isChatOpen}
             setIsChatOpen={setIsChatOpen}
+            subunit={subunit}
           />
         ) : (
           <MyNotesView

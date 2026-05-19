@@ -3,8 +3,8 @@
         {
             "short_code": "RJS100",
             "subject_name": "React JS",
-            "category": "fundamentals",
-            "instructor_email": "admin@yuvro.com"
+            "category": "Web dev",
+            "product_type": "assessments"
         }
     ]
 }

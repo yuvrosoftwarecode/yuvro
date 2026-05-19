@@ -21,6 +21,7 @@ export interface User {
   };
   college_name?: string;
   college_id?: string;
+  college_product_type?: 'campus' | 'assessments';
   department_id?: string;
   department_name?: string;
 }

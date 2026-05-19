@@ -95,11 +95,18 @@ class StudentDashboardService {
    * Endpoint: GET /api/assessment/skill-tests/?test_type=practice
    * and GET /api/assessment/skill-test/submissions/
    */
-  async getTestPerformance(): Promise<TestPerformanceData> {
+  async getTestPerformance(productType?: string): Promise<TestPerformanceData> {
     try {
       // 1. Fetch practice tests
-      const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
-      const practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+      let practiceTests: any[] = [];
+      if (productType === 'assessments') {
+        const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
+        const allTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+        practiceTests = allTests.filter((t: any) => t.unit !== null);
+      } else {
+        const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+        practiceTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+      }
 
       // 2. Fetch all submissions and filter by practice tests
       const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
@@ -226,11 +233,17 @@ class StudentDashboardService {
    * Endpoint: GET /api/assessment/skill-tests/?test_type=assessment
    * and GET /api/assessment/skill-test/submissions/
    */
-  async getAssessments(): Promise<AssessmentsData> {
+  async getAssessments(productType?: string): Promise<AssessmentsData> {
     try {
       // 1. Fetch assigned assessments
+      let assessments: any[] = [];
       const testsRes = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
-      const assessments = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+      const allTests = Array.isArray(testsRes) ? testsRes : testsRes?.results || [];
+      if (productType === 'assessments') {
+        assessments = allTests.filter((t: any) => t.unit === null);
+      } else {
+        assessments = allTests;
+      }
 
       // 2. Fetch student's submissions
       const submissionsRes = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
@@ -326,7 +339,7 @@ class StudentDashboardService {
         .map((c: any) => c.score || c.marks || 0)
         .filter((s: number) => s > 0);
       
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
       const bestRank = 1; 
 
       return {

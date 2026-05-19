@@ -3,8 +3,8 @@
         {
             "short_code": "AI100",
             "subject_name": "AI Engineer",
-            "category": "fundamentals",
-            "instructor_email": "[EMAIL_ADDRESS]"
+            "category": "Tracks",
+            "product_type": "assessments"
         }
     ]
 }

@@ -25,8 +25,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
   const staticTypingSentences = [
-        `Hi Rohith Godugu! Let me see......`,
-
     "Alright, give me a second to think...",
 "Let me look through this...",
 "Okay, I’m checking what fits best here...",

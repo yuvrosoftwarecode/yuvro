@@ -34,6 +34,8 @@ class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_id = serializers.UUIDField(source="college.id", read_only=True)
+    college_product_type = serializers.CharField(source="college.product_type", read_only=True)
+    college_sidebar_config = serializers.JSONField(source="college.sidebar_config", read_only=True)
     department_id = serializers.SerializerMethodField()
     department_name = serializers.SerializerMethodField()
     batch_id = serializers.SerializerMethodField()
@@ -57,6 +59,8 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "college_name",
             "college_id",
+            "college_product_type",
+            "college_sidebar_config",
             "department_id",
             "department_name",
             "batch_id",
@@ -71,6 +75,8 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "college_name",
             "college_id",
+            "college_product_type",
+            "college_sidebar_config",
             "department_id",
             "department_name",
             "batch_id",

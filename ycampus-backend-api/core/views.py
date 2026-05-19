@@ -27,6 +27,7 @@ from .models import (
     TaskComment,
     Note,
     Announcement,
+    University,
 )
 from course.models import SectionSubjectFaculty
 from .serializers import (
@@ -43,11 +44,20 @@ from .serializers import (
     TaskCommentSerializer,
     NoteSerializer,
     AnnouncementSerializer,
+    UniversitySerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
-from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
-from django.shortcuts import get_object_or_404
+
+
+class UniversityViewSet(viewsets.ModelViewSet):
+    queryset = University.objects.all()
+    serializer_class = UniversitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["name", "short_form"]
+    filterset_fields = ["name"]
+
 
 User = get_user_model()
 
@@ -256,6 +266,46 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
 
             return Response(
                 {"message": f"User {user.email} created and allocated as College Admin of {college.name}"},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=["post"], url_path="create-tpo")
+    def create_placement_officer(self, request, pk=None):
+        """
+        Create a new user and allocate as Placement Officer (TPO).
+        Payload: { "email", "username", "first_name", "last_name", "password" }
+        """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
+        college = get_object_or_404(College, pk=pk)
+        data = request.data
+        
+        required_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in data for field in required_fields):
+             return Response(
+                {"error": f"Missing required fields: {', '.join(required_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # Create User
+                user = User.objects.create_user(
+                    email=data["email"],
+                    username=data["username"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    password=data["password"],
+                    role="placement_officer"
+                )
+
+                # Create Placement Officer Profile
+                PlacementOfficerProfile.objects.create(user=user, college=college)
+
+            return Response(
+                {"message": f"User {user.email} created and allocated as TPO of {college.name}"},
                 status=status.HTTP_201_CREATED
             )
         except Exception as e:

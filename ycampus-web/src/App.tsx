@@ -10,10 +10,6 @@ import Login from "./pages/Login";
 import DashboardRedirect from "./components/DashboardRedirect";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import Courses from "./pages/admin/Courses";
-import Batches from "./pages/admin/Batches";
-import Students from "./pages/admin/Students";
-import Faculty from "./pages/admin/Faculty";
 import PracticeQuestions from "./pages/admin/PracticeQuestions";
 import TestQuestions from "./pages/admin/TestQuestions";
 import AdminSubjects from "./pages/admin/Subjects";
@@ -21,9 +17,8 @@ import SubjectEdit from "./components/admin/subjects/SubjectEdit";
 import CollegeSubjects from "./pages/admin/CollegeSubjects";
 import AdminCollege from "./pages/admin/College";
 import CollegeDetails from "./pages/admin/CollegeDetails";
-import AdminDepartments from "./pages/admin/Departments";
-import AdminSemesters from "./pages/admin/Semesters";
 import AdminUsers from "./pages/admin/Users";
+import AdminSkillTests from "./pages/admin/SkillTests";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import Syllabus from "./pages/faculty/Syllabus";
 import Revise from "./pages/faculty/Revise";
@@ -86,6 +81,8 @@ import JobApplicationsPage from "./pages/placement/JobApplications";
 import PlacementCompany from "./pages/placement/Company";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
+import StudentAssessments from "./pages/student/StudentAssessments";
+import StudentAssessmentDetail from "./pages/student/StudentAssessmentDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
 import MockInterviewReport from "./pages/student/MockInterviewReport";
 
@@ -145,18 +142,13 @@ const App = () => (
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="college" element={<AdminCollege />} />
                       <Route path="college/:collegeId/*" element={<CollegeDetails />} />
-                      <Route path="departments" element={<AdminDepartments />} />
-                      <Route path="batches" element={<Batches />} />
-                      <Route path="semesters" element={<AdminSemesters />} />
                       <Route path="subjects/:tab?" element={<AdminSubjects />} />
                       <Route path="subjects/:id/manage" element={<SubjectEdit />} />
                       <Route path="subjects/colleges/:collegeId" element={<CollegeSubjects />} />
-                      <Route path="courses" element={<Courses />} />
-                      <Route path="students" element={<Students />} />
-                      <Route path="faculty" element={<Faculty />} />
                       <Route path="users" element={<AdminUsers />} />
                       <Route path="practice-questions" element={<PracticeQuestions />} />
                       <Route path="test-questions" element={<TestQuestions />} />
+                      <Route path="skill-tests" element={<AdminSkillTests />} />
 
                       {/* Mock Interviews */}
                       <Route path="mock-interview" element={<InstructorMockInterview />} />
@@ -212,7 +204,11 @@ const App = () => (
                       <Route path="notes" element={<StudentNotes />} />
                       <Route path="notes/:subjectId" element={<SubjectDetail />} />
                       <Route path="test" element={<StudentTest />} />
+                      <Route path="skill-test" element={<StudentTest />} />
+                      <Route path="assessments" element={<StudentAssessments />} />
+                      <Route path="assessments/:subjectId" element={<StudentAssessmentDetail />} />
                       <Route path="assessment" element={<StudentAssessment />} />
+
                       <Route path="jobs" element={<StudentJobs />} />
                       <Route path="announcements" element={<StudentAnnouncements />} />
                       <Route path="community" element={<StudentCommunity />} />
@@ -228,6 +224,8 @@ const App = () => (
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
                       <Route path="test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="skill-test/:subjectId" element={<TestSubjectDetail />} />
+
                       <Route path="profile" element={<StudentProfile />} />
                     </Routes>
                   </ProtectedRoute>

@@ -132,7 +132,7 @@ export default function MockInterviewPage() {
         <div className="flex-1 flex flex-col overflow-hidden">
           <main className="flex-1 p-6 bg-background overflow-y-auto">
             <div className="flex flex-col space-y-6 max-w-7xl mx-auto">
-              
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight">{getHeaderTitle()}</h1>
@@ -200,7 +200,7 @@ export default function MockInterviewPage() {
                         )}
                       </div>
                     </div>
-                    
+
                     <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-6 w-full max-w-full overflow-x-auto pb-2 scrollbar-none">
                       <TabsList className="bg-muted inline-flex w-auto min-w-full sm:min-w-0">
                         <TabsTrigger value="all" className="px-3 sm:px-4">All Interviews</TabsTrigger>
@@ -250,9 +250,9 @@ export default function MockInterviewPage() {
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-2">
-                                    <div className={cn("h-2 w-2 rounded-full", 
-                                      interview.publish_status === 'active' ? "bg-emerald-500" : 
-                                      interview.publish_status === 'draft' ? "bg-orange-400" : "bg-destructive")} 
+                                    <div className={cn("h-2 w-2 rounded-full",
+                                      interview.publish_status === 'active' ? "bg-emerald-500" :
+                                        interview.publish_status === 'draft' ? "bg-orange-400" : "bg-destructive")}
                                     />
                                     <span className="text-sm font-medium capitalize">{interview.publish_status}</span>
                                   </div>
@@ -347,7 +347,7 @@ export default function MockInterviewPage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Required Skills</p>
+                            <p className="text-xs text-slate-500 font-bold   tracking-wider mb-3">Required Skills</p>
                             <div className="flex flex-wrap gap-2">
                               {selectedInterview.required_skills.length > 0
                                 ? selectedInterview.required_skills.map((s) => <Badge key={s} variant="secondary" className="px-2.5 py-1">{s}</Badge>)
@@ -355,7 +355,7 @@ export default function MockInterviewPage() {
                             </div>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Optional Skills</p>
+                            <p className="text-xs text-slate-500 font-bold   tracking-wider mb-3">Optional Skills</p>
                             <div className="flex flex-wrap gap-2">
                               {selectedInterview.optional_skills.length > 0
                                 ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="outline" className="px-2.5 py-1">{s}</Badge>)
@@ -368,7 +368,7 @@ export default function MockInterviewPage() {
 
                     <div className="space-y-6">
                       <Card className="border shadow-sm p-6">
-                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4">Instructions</h3>
+                        <h3 className="text-sm font-bold text-slate-900   tracking-widest mb-4">Instructions</h3>
                         <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
                           {selectedInterview.instructions || 'No special instructions for participants.'}
                         </p>
