@@ -7,55 +7,109 @@
             "name": "Collections Framework",
             "content": "The Java Collections Framework (JCF) is a unified architecture for representing and manipulating collections of objects. It provides interfaces (Collection, List, Set, Queue, Map), implementations (ArrayList, HashSet, HashMap, etc.), and algorithms (sorting, searching). The framework reduces programming effort, increases performance, and promotes software reuse. Understanding the collections hierarchy and choosing the right implementation based on requirements like ordering, uniqueness, and performance is fundamental to Java development.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Collections Framework",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Collections Framework in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "List & ArrayList",
             "content": "The List interface represents an ordered collection that allows duplicate elements and provides positional access. ArrayList is the most commonly used List implementation, backed by a dynamic resizable array. It provides O(1) random access by index but O(n) for insertions and deletions in the middle. Key methods include add(), get(), set(), remove(), indexOf(), and subList(). ArrayList is ideal for scenarios requiring frequent read operations and sequential data storage.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "List & ArrayList",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering List & ArrayList in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "LinkedList & Queue",
             "content": "LinkedList is a doubly-linked list implementation of both the List and Deque interfaces. It provides O(1) insertions and deletions at both ends but O(n) random access. The Queue interface represents a collection designed for holding elements prior to processing, following FIFO (First-In-First-Out) order. Implementations include LinkedList, PriorityQueue, and ArrayDeque. Key methods include offer(), poll(), peek(), push(), and pop(). Understanding when to use LinkedList vs ArrayList and choosing the right Queue implementation is essential.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "LinkedList & Queue",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering LinkedList & Queue in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "Set & HashSet",
             "content": "The Set interface represents a collection that does not allow duplicate elements. HashSet is the most commonly used implementation, backed by a HashMap for O(1) average-time add, remove, and contains operations. LinkedHashSet maintains insertion order, while TreeSet stores elements in sorted order using a Red-Black tree. Understanding how hashCode() and equals() affect Set behavior, and choosing between HashSet, LinkedHashSet, and TreeSet based on ordering and performance needs, is critical for effective collection usage.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Set & HashSet",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Set & HashSet in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "Map, HashMap & TreeMap",
             "content": "The Map interface represents a collection of key-value pairs where each key is unique. HashMap is the most widely used implementation, providing O(1) average-time performance for get and put operations using hashing. TreeMap stores entries in sorted key order using a Red-Black tree with O(log n) operations. LinkedHashMap maintains insertion order. Key methods include put(), get(), containsKey(), keySet(), values(), and entrySet(). Understanding hash collisions, load factors, and choosing the right Map implementation is essential.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Map, HashMap & TreeMap",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Map, HashMap & TreeMap in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "EnumSet & EnumMap",
             "content": "EnumSet and EnumMap are specialized, high-performance collection implementations designed specifically for use with enum types. EnumSet is a Set implementation that uses a bit vector internally, providing extremely fast operations for enum constants. EnumMap is a Map implementation with enum keys, backed by an array for compact and efficient storage. Both are more efficient than their general-purpose counterparts (HashSet, HashMap) when working with enums and should be preferred in such scenarios.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "EnumSet & EnumMap",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering EnumSet & EnumMap in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "Concurrent Collections",
             "content": "Concurrent collections in Java are thread-safe implementations designed for multi-threaded environments without the performance overhead of synchronized wrappers. Key classes include ConcurrentHashMap (segmented locking for concurrent access), CopyOnWriteArrayList (optimized for read-heavy scenarios), ConcurrentLinkedQueue (lock-free thread-safe queue), and BlockingQueue implementations like ArrayBlockingQueue and LinkedBlockingQueue. These collections are part of the java.util.concurrent package and are essential for building scalable, thread-safe Java applications.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Concurrent Collections",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Concurrent Collections in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "Generics",
             "content": "Generics in Java enable type parameterization, allowing classes, interfaces, and methods to operate on specified types while providing compile-time type safety. Generic types eliminate the need for explicit casting and catch type errors at compile time rather than runtime. Key concepts include type parameters (T, E, K, V), bounded types (extends, super), wildcard types (?), generic methods, and type erasure. Understanding generics is essential for writing reusable, type-safe code and working effectively with the Collections Framework.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Generics",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Generics in Collections Framework & Generics."
+                }
+            ]
         },
         {
             "name": "Comparable & Comparator",
             "content": "Comparable and Comparator are interfaces used to define ordering for objects in Java. The Comparable interface defines the natural ordering of a class through the compareTo() method and is implemented by the class itself. The Comparator interface defines custom ordering through the compare() method and is implemented as a separate class or lambda expression. Collections.sort() and Arrays.sort() use these interfaces for sorting. Understanding when to use Comparable vs Comparator is key for flexible and reusable sorting strategies.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Comparable & Comparator",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Comparable & Comparator in Collections Framework & Generics."
+                }
+            ]
         }
     ],
     "questions": [
@@ -5882,6 +5936,18 @@
                 "Use ArrayList",
                 "Use loop for input",
                 "Print using enhanced for loop"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -5947,6 +6013,18 @@
             ],
             "hints": [
                 "Use Collections.max() or manual loop"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5'."
+                },
+                {
+                    "input": "3\n10 20 15",
+                    "expected_output": "20",
+                    "explanation": "For input '3\n10 20 15', the expected output is '20'."
+                }
             ]
         },
         {
@@ -5996,6 +6074,18 @@
             ],
             "hints": [
                 "Use Collections.sort()"
+            ],
+            "examples": [
+                {
+                    "input": "5\n5 4 3 2 1",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n5 4 3 2 1', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3\n9 1 3",
+                    "expected_output": "1 3 9",
+                    "explanation": "For input '3\n9 1 3', the expected output is '1 3 9'."
+                }
             ]
         },
         {
@@ -6037,6 +6127,13 @@
             ],
             "hints": [
                 "Use HashSet"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 1 2 2 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '5\n1 1 2 2 3', the expected output is '1 2 3'."
+                }
             ]
         },
         {
@@ -6119,6 +6216,18 @@
             "hints": [
                 "Use HashMap",
                 "Use getOrDefault()"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1:1 2:2 3:2",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1:1 2:2 3:2'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10:2 20:1 30:1",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10:2 20:1 30:1'."
+                }
             ]
         },
         {
@@ -6200,6 +6309,18 @@
             ],
             "hints": [
                 "Track first and second max"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "4",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '4'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "20",
+                    "explanation": "For input '3\n10 20 30', the expected output is '20'."
+                }
             ]
         },
         {
@@ -6281,6 +6402,18 @@
             ],
             "hints": [
                 "Use Collections.reverse()"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5 4 3 2 1",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5 4 3 2 1'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "30 20 10",
+                    "explanation": "For input '3\n10 20 30', the expected output is '30 20 10'."
+                }
             ]
         },
         {
@@ -6363,6 +6496,18 @@
             "hints": [
                 "Use Comparator with two conditions",
                 "First compare marks, then name"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRavi 80\nAsha 90\nKiran 80",
+                    "expected_output": "Asha 90\nKiran 80\nRavi 80",
+                    "explanation": "For input '3\nRavi 80\nAsha 90\nKiran 80', the expected output is 'Asha 90\nKiran 80\nRavi 80'."
+                },
+                {
+                    "input": "2\nJohn 50\nAlice 50",
+                    "expected_output": "Alice 50\nJohn 50",
+                    "explanation": "For input '2\nJohn 50\nAlice 50', the expected output is 'Alice 50\nJohn 50'."
+                }
             ]
         },
         {
@@ -6445,6 +6590,18 @@
             "hints": [
                 "Use Comparator with multiple conditions",
                 "Sort salary first, then experience"
+            ],
+            "examples": [
+                {
+                    "input": "3\nA 50000 5\nB 60000 3\nC 60000 7",
+                    "expected_output": "C 60000 7\nB 60000 3\nA 50000 5",
+                    "explanation": "For input '3\nA 50000 5\nB 60000 3\nC 60000 7', the expected output is 'C 60000 7\nB 60000 3\nA 50000 5'."
+                },
+                {
+                    "input": "2\nX 30000 2\nY 30000 5",
+                    "expected_output": "Y 30000 5\nX 30000 2",
+                    "explanation": "For input '2\nX 30000 2\nY 30000 5', the expected output is 'Y 30000 5\nX 30000 2'."
+                }
             ]
         },
         {
@@ -6527,6 +6684,18 @@
             "hints": [
                 "Use HashMap for frequency",
                 "Sort based on frequency"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 1 2 2 2",
+                    "expected_output": "2 2 2 1 1",
+                    "explanation": "For input '5\n1 1 2 2 2', the expected output is '2 2 2 1 1'."
+                },
+                {
+                    "input": "4\n3 3 3 1",
+                    "expected_output": "3 3 3 1",
+                    "explanation": "For input '4\n3 3 3 1', the expected output is '3 3 3 1'."
+                }
             ]
         },
         {
@@ -6594,6 +6763,18 @@
                 "Use ArrayList<Integer>",
                 "Use loop for input",
                 "Use enhanced for loop for output"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -6660,6 +6841,18 @@
             "hints": [
                 "Use a variable to store sum",
                 "Iterate through ArrayList"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "15",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '15'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "60",
+                    "explanation": "For input '3\n10 20 30', the expected output is '60'."
+                }
             ]
         },
         {
@@ -6726,6 +6919,18 @@
             "hints": [
                 "Initialize max with Integer.MIN_VALUE",
                 "Compare each element"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5'."
+                },
+                {
+                    "input": "3\n10 20 15",
+                    "expected_output": "20",
+                    "explanation": "For input '3\n10 20 15', the expected output is '20'."
+                }
             ]
         },
         {
@@ -6792,6 +6997,18 @@
             "hints": [
                 "Use modulus operator %",
                 "Increment counter for even numbers"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "2",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '2'."
+                },
+                {
+                    "input": "4\n2 4 6 8",
+                    "expected_output": "4",
+                    "explanation": "For input '4\n2 4 6 8', the expected output is '4'."
+                }
             ]
         },
         {
@@ -6874,6 +7091,18 @@
             "hints": [
                 "Use LinkedHashSet to preserve order",
                 "Set automatically removes duplicates"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -6956,6 +7185,18 @@
             "hints": [
                 "Use Collections.rotate()",
                 "Take mod of K with size"
+            ],
+            "examples": [
+                {
+                    "input": "5 2\n1 2 3 4 5",
+                    "expected_output": "4 5 1 2 3",
+                    "explanation": "For input '5 2\n1 2 3 4 5', the expected output is '4 5 1 2 3'."
+                },
+                {
+                    "input": "4 1\n10 20 30 40",
+                    "expected_output": "40 10 20 30",
+                    "explanation": "For input '4 1\n10 20 30 40', the expected output is '40 10 20 30'."
+                }
             ]
         },
         {
@@ -7038,6 +7279,18 @@
             "hints": [
                 "Use HashSet for complement checking",
                 "Check target - element exists"
+            ],
+            "examples": [
+                {
+                    "input": "5 9\n1 2 3 4 5",
+                    "expected_output": "YES",
+                    "explanation": "For input '5 9\n1 2 3 4 5', the expected output is 'YES'."
+                },
+                {
+                    "input": "4 10\n2 3 5 7",
+                    "expected_output": "NO",
+                    "explanation": "For input '4 10\n2 3 5 7', the expected output is 'NO'."
+                }
             ]
         },
         {
@@ -7120,6 +7373,18 @@
             "hints": [
                 "Use addAll() or add elements manually",
                 "Use Collections.sort()"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 3 5\n3\n2 4 6",
+                    "expected_output": "1 2 3 4 5 6",
+                    "explanation": "For input '3\n1 3 5\n3\n2 4 6', the expected output is '1 2 3 4 5 6'."
+                },
+                {
+                    "input": "2\n10 20\n2\n5 15",
+                    "expected_output": "5 10 15 20",
+                    "explanation": "For input '2\n10 20\n2\n5 15', the expected output is '5 10 15 20'."
+                }
             ]
         },
         {
@@ -7202,6 +7467,18 @@
             "hints": [
                 "Use HashSet for fast lookup",
                 "Use LinkedHashSet to avoid duplicates"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3\n3\n2 3 4",
+                    "expected_output": "2 3",
+                    "explanation": "For input '3\n1 2 3\n3\n2 3 4', the expected output is '2 3'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n3\n20 40 50",
+                    "expected_output": "20 40",
+                    "explanation": "For input '4\n10 20 30 40\n3\n20 40 50', the expected output is '20 40'."
+                }
             ]
         },
         {
@@ -7285,6 +7562,18 @@
                 "Create Student class",
                 "Store objects in ArrayList",
                 "Filter students using condition"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRavi 80\nAsha 60\nKiran 90",
+                    "expected_output": "Ravi 80\nKiran 90",
+                    "explanation": "For input '3\nRavi 80\nAsha 60\nKiran 90', the expected output is 'Ravi 80\nKiran 90'."
+                },
+                {
+                    "input": "2\nJohn 70\nAlice 85",
+                    "expected_output": "Alice 85",
+                    "explanation": "For input '2\nJohn 70\nAlice 85', the expected output is 'Alice 85'."
+                }
             ]
         },
         {
@@ -7352,6 +7641,18 @@
                 "Use LinkedList<Integer>",
                 "Use add() method",
                 "Iterate using enhanced for loop"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -7419,6 +7720,18 @@
                 "Use Queue interface",
                 "Use offer() to insert",
                 "Use poll() to remove"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -7485,6 +7798,18 @@
             "hints": [
                 "Use getFirst()",
                 "Use getLast()"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "1 5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '1 5'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 30'."
+                }
             ]
         },
         {
@@ -7551,6 +7876,18 @@
             "hints": [
                 "Use Stack for reversing",
                 "Push queue elements into stack"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5 4 3 2 1",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5 4 3 2 1'."
+                },
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "30 20 10",
+                    "explanation": "For input '3\n10 20 30', the expected output is '30 20 10'."
+                }
             ]
         },
         {
@@ -7633,6 +7970,18 @@
             "hints": [
                 "Use LinkedHashSet to preserve order",
                 "Convert LinkedList into Set"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -7715,6 +8064,18 @@
             "hints": [
                 "Use poll() and offer()",
                 "Rotate queue K times"
+            ],
+            "examples": [
+                {
+                    "input": "5 2\n1 2 3 4 5",
+                    "expected_output": "3 4 5 1 2",
+                    "explanation": "For input '5 2\n1 2 3 4 5', the expected output is '3 4 5 1 2'."
+                },
+                {
+                    "input": "4 1\n10 20 30 40",
+                    "expected_output": "20 30 40 10",
+                    "explanation": "For input '4 1\n10 20 30 40', the expected output is '20 30 40 10'."
+                }
             ]
         },
         {
@@ -7798,6 +8159,18 @@
                 "Queue gives FIFO order",
                 "Stack gives reverse order",
                 "Compare both sequences"
+            ],
+            "examples": [
+                {
+                    "input": "madam",
+                    "expected_output": "Palindrome",
+                    "explanation": "For input 'madam', the expected output is 'Palindrome'."
+                },
+                {
+                    "input": "racecar",
+                    "expected_output": "Palindrome",
+                    "explanation": "For input 'racecar', the expected output is 'Palindrome'."
+                }
             ]
         },
         {
@@ -7880,6 +8253,18 @@
             "hints": [
                 "Recently used element moves to end",
                 "Remove oldest element if capacity exceeded"
+            ],
+            "examples": [
+                {
+                    "input": "3\n5\n1 2 3 1 4",
+                    "expected_output": "3 1 4",
+                    "explanation": "For input '3\n5\n1 2 3 1 4', the expected output is '3 1 4'."
+                },
+                {
+                    "input": "2\n4\n1 2 3 2",
+                    "expected_output": "3 2",
+                    "explanation": "For input '2\n4\n1 2 3 2', the expected output is '3 2'."
+                }
             ]
         },
         {
@@ -7962,6 +8347,18 @@
             "hints": [
                 "Use reverseOrder() comparator",
                 "PriorityQueue gives highest priority first"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 5 3 2 4",
+                    "expected_output": "5 4 3 2 1",
+                    "explanation": "For input '5\n1 5 3 2 4', the expected output is '5 4 3 2 1'."
+                },
+                {
+                    "input": "3\n10 30 20",
+                    "expected_output": "30 20 10",
+                    "explanation": "For input '3\n10 30 20', the expected output is '30 20 10'."
+                }
             ]
         },
         {
@@ -8045,6 +8442,18 @@
                 "Rotate queue K-1 times",
                 "Remove K-th person",
                 "Repeat until one remains"
+            ],
+            "examples": [
+                {
+                    "input": "5 2",
+                    "expected_output": "3",
+                    "explanation": "For input '5 2', the expected output is '3'."
+                },
+                {
+                    "input": "7 3",
+                    "expected_output": "4",
+                    "explanation": "For input '7 3', the expected output is '4'."
+                }
             ]
         },
         {
@@ -8111,6 +8520,18 @@
             "hints": [
                 "HashSet automatically removes duplicates",
                 "Use add() method"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "4\n10 20 10 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '4\n10 20 10 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -8177,6 +8598,18 @@
             "hints": [
                 "Use size() method",
                 "Duplicates are automatically removed"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "3",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '3'."
+                },
+                {
+                    "input": "4\n10 20 10 30",
+                    "expected_output": "3",
+                    "explanation": "For input '4\n10 20 10 30', the expected output is '3'."
+                }
             ]
         },
         {
@@ -8243,6 +8676,18 @@
             "hints": [
                 "Use contains() method",
                 "HashSet provides fast searching"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5\n3",
+                    "expected_output": "Found",
+                    "explanation": "For input '5\n1 2 3 4 5\n3', the expected output is 'Found'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n25",
+                    "expected_output": "Not Found",
+                    "explanation": "For input '4\n10 20 30 40\n25', the expected output is 'Not Found'."
+                }
             ]
         },
         {
@@ -8309,6 +8754,18 @@
             "hints": [
                 "Use add() for both sets",
                 "HashSet stores only unique elements"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3\n3\n3 4 5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '3\n1 2 3\n3\n3 4 5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "2\n10 20\n2\n20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '2\n10 20\n2\n20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -8391,6 +8848,18 @@
             "hints": [
                 "Use contains() method",
                 "Store common elements in another set"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3\n3\n2 3 4",
+                    "expected_output": "2 3",
+                    "explanation": "For input '3\n1 2 3\n3\n2 3 4', the expected output is '2 3'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n3\n20 40 50",
+                    "expected_output": "20 40",
+                    "explanation": "For input '4\n10 20 30 40\n3\n20 40 50', the expected output is '20 40'."
+                }
             ]
         },
         {
@@ -8473,6 +8942,18 @@
             "hints": [
                 "Use containsAll() method",
                 "Store both collections as HashSet"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5\n3\n1 2 3",
+                    "expected_output": "Subset",
+                    "explanation": "For input '5\n1 2 3 4 5\n3\n1 2 3', the expected output is 'Subset'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n2\n20 50",
+                    "expected_output": "Not Subset",
+                    "explanation": "For input '4\n10 20 30 40\n2\n20 50', the expected output is 'Not Subset'."
+                }
             ]
         },
         {
@@ -8555,6 +9036,18 @@
             "hints": [
                 "Use removeAll() method",
                 "Check if set becomes empty"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5\n3\n2 3 6",
+                    "expected_output": "1 4 5",
+                    "explanation": "For input '5\n1 2 3 4 5\n3\n2 3 6', the expected output is '1 4 5'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n2\n20 40",
+                    "expected_output": "10 30",
+                    "explanation": "For input '4\n10 20 30 40\n2\n20 40', the expected output is '10 30'."
+                }
             ]
         },
         {
@@ -8637,6 +9130,18 @@
             "hints": [
                 "Use HashSet for fast lookup",
                 "Start counting only if previous element doesn't exist"
+            ],
+            "examples": [
+                {
+                    "input": "6\n100 4 200 1 3 2",
+                    "expected_output": "4",
+                    "explanation": "For input '6\n100 4 200 1 3 2', the expected output is '4'."
+                },
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5'."
+                }
             ]
         },
         {
@@ -8719,6 +9224,18 @@
             "hints": [
                 "Use one set for visited words",
                 "Use another set for duplicates"
+            ],
+            "examples": [
+                {
+                    "input": "java is easy java is powerful",
+                    "expected_output": "java is",
+                    "explanation": "For input 'java is easy java is powerful', the expected output is 'java is'."
+                },
+                {
+                    "input": "hello world hello",
+                    "expected_output": "hello",
+                    "explanation": "For input 'hello world hello', the expected output is 'hello'."
+                }
             ]
         },
         {
@@ -8801,6 +9318,18 @@
             "hints": [
                 "Elements common in both sets should be removed",
                 "Use add() and remove() carefully"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3\n3\n3 4 5",
+                    "expected_output": "1 2 4 5",
+                    "explanation": "For input '3\n1 2 3\n3\n3 4 5', the expected output is '1 2 4 5'."
+                },
+                {
+                    "input": "2\n10 20\n2\n20 30",
+                    "expected_output": "10 30",
+                    "explanation": "For input '2\n10 20\n2\n20 30', the expected output is '10 30'."
+                }
             ]
         },
         {
@@ -8867,6 +9396,18 @@
             "hints": [
                 "Use put() method",
                 "Traverse map using entrySet()"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRam 90\nSita 85\nHari 88",
+                    "expected_output": "Ram=90 Sita=85 Hari=88",
+                    "explanation": "For input '3\nRam 90\nSita 85\nHari 88', the expected output is 'Ram=90 Sita=85 Hari=88'."
+                },
+                {
+                    "input": "2\nAsha 70\nRavi 75",
+                    "expected_output": "Asha=70 Ravi=75",
+                    "explanation": "For input '2\nAsha 70\nRavi 75', the expected output is 'Asha=70 Ravi=75'."
+                }
             ]
         },
         {
@@ -8933,6 +9474,18 @@
             "hints": [
                 "Use getOrDefault()",
                 "Increase count for repeated numbers"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1=1 2=2 3=2",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1=1 2=2 3=2'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10=2 20=1 30=1",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10=2 20=1 30=1'."
+                }
             ]
         },
         {
@@ -8999,6 +9552,18 @@
             "hints": [
                 "Use containsKey()",
                 "TreeMap stores sorted keys"
+            ],
+            "examples": [
+                {
+                    "input": "3\nA 1\nB 2\nC 3\nB",
+                    "expected_output": "Found",
+                    "explanation": "For input '3\nA 1\nB 2\nC 3\nB', the expected output is 'Found'."
+                },
+                {
+                    "input": "2\nX 10\nY 20\nZ",
+                    "expected_output": "Not Found",
+                    "explanation": "For input '2\nX 10\nY 20\nZ', the expected output is 'Not Found'."
+                }
             ]
         },
         {
@@ -9065,6 +9630,18 @@
             "hints": [
                 "TreeMap automatically sorts keys",
                 "Use entrySet() for traversal"
+            ],
+            "examples": [
+                {
+                    "input": "3\nC 3\nA 1\nB 2",
+                    "expected_output": "A=1 B=2 C=3",
+                    "explanation": "For input '3\nC 3\nA 1\nB 2', the expected output is 'A=1 B=2 C=3'."
+                },
+                {
+                    "input": "2\nY 20\nX 10",
+                    "expected_output": "X=10 Y=20",
+                    "explanation": "For input '2\nY 20\nX 10', the expected output is 'X=10 Y=20'."
+                }
             ]
         },
         {
@@ -9147,6 +9724,18 @@
             "hints": [
                 "LinkedHashMap preserves insertion order",
                 "Store frequency of characters"
+            ],
+            "examples": [
+                {
+                    "input": "stress",
+                    "expected_output": "t",
+                    "explanation": "For input 'stress', the expected output is 't'."
+                },
+                {
+                    "input": "aabbcde",
+                    "expected_output": "c",
+                    "explanation": "For input 'aabbcde', the expected output is 'c'."
+                }
             ]
         },
         {
@@ -9229,6 +9818,18 @@
             "hints": [
                 "TreeMap automatically sorts keys",
                 "Use marks as keys"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRam 90\nSita 85\nHari 95",
+                    "expected_output": "85=Sita 90=Ram 95=Hari",
+                    "explanation": "For input '3\nRam 90\nSita 85\nHari 95', the expected output is '85=Sita 90=Ram 95=Hari'."
+                },
+                {
+                    "input": "2\nAsha 70\nRavi 80",
+                    "expected_output": "70=Asha 80=Ravi",
+                    "explanation": "For input '2\nAsha 70\nRavi 80', the expected output is '70=Asha 80=Ravi'."
+                }
             ]
         },
         {
@@ -9311,6 +9912,18 @@
             "hints": [
                 "Use word length as key",
                 "Store words in ArrayList"
+            ],
+            "examples": [
+                {
+                    "input": "4\njava code ai ml",
+                    "expected_output": "2=[ai, ml] 4=[java, code]",
+                    "explanation": "For input '4\njava code ai ml', the expected output is '2=[ai, ml] 4=[java, code]'."
+                },
+                {
+                    "input": "3\ncat dog elephant",
+                    "expected_output": "3=[cat, dog] 8=[elephant]",
+                    "explanation": "For input '3\ncat dog elephant', the expected output is '3=[cat, dog] 8=[elephant]'."
+                }
             ]
         },
         {
@@ -9393,6 +10006,18 @@
             "hints": [
                 "Use LinkedHashMap with access order",
                 "Remove oldest entry when size exceeds limit"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3\n2",
+                    "expected_output": "2 3",
+                    "explanation": "For input '3\n1 2 3\n2', the expected output is '2 3'."
+                },
+                {
+                    "input": "4\n10 20 30 40\n3",
+                    "expected_output": "20 30 40",
+                    "explanation": "For input '4\n10 20 30 40\n3', the expected output is '20 30 40'."
+                }
             ]
         },
         {
@@ -9475,6 +10100,18 @@
             "hints": [
                 "Use split() for extracting words",
                 "TreeMap sorts keys automatically"
+            ],
+            "examples": [
+                {
+                    "input": "java is easy java is powerful",
+                    "expected_output": "easy=1 is=2 java=2 powerful=1",
+                    "explanation": "For input 'java is easy java is powerful', the expected output is 'easy=1 is=2 java=2 powerful=1'."
+                },
+                {
+                    "input": "hello world hello",
+                    "expected_output": "hello=2 world=1",
+                    "explanation": "For input 'hello world hello', the expected output is 'hello=2 world=1'."
+                }
             ]
         },
         {
@@ -9557,6 +10194,18 @@
             "hints": [
                 "Use HashMap inside another HashMap",
                 "Store employee details as nested values"
+            ],
+            "examples": [
+                {
+                    "input": "2\n101 Ram 50000\n102 Sita 60000",
+                    "expected_output": "101={Ram=50000} 102={Sita=60000}",
+                    "explanation": "For input '2\n101 Ram 50000\n102 Sita 60000', the expected output is '101={Ram=50000} 102={Sita=60000}'."
+                },
+                {
+                    "input": "1\n201 John 70000",
+                    "expected_output": "201={John=70000}",
+                    "explanation": "For input '1\n201 John 70000', the expected output is '201={John=70000}'."
+                }
             ]
         },
         {
@@ -9623,6 +10272,18 @@
             "hints": [
                 "Use EnumSet.noneOf()",
                 "Use valueOf() to convert string to enum"
+            ],
+            "examples": [
+                {
+                    "input": "MONDAY TUESDAY",
+                    "expected_output": "MONDAY TUESDAY",
+                    "explanation": "For input 'MONDAY TUESDAY', the expected output is 'MONDAY TUESDAY'."
+                },
+                {
+                    "input": "WEDNESDAY THURSDAY",
+                    "expected_output": "WEDNESDAY THURSDAY",
+                    "explanation": "For input 'WEDNESDAY THURSDAY', the expected output is 'WEDNESDAY THURSDAY'."
+                }
             ]
         },
         {
@@ -9689,6 +10350,18 @@
             "hints": [
                 "Use EnumMap for enum keys",
                 "Insert values using put()"
+            ],
+            "examples": [
+                {
+                    "input": "MANAGER 50000",
+                    "expected_output": "MANAGER=50000",
+                    "explanation": "For input 'MANAGER 50000', the expected output is 'MANAGER=50000'."
+                },
+                {
+                    "input": "DEVELOPER 45000",
+                    "expected_output": "DEVELOPER=45000",
+                    "explanation": "For input 'DEVELOPER 45000', the expected output is 'DEVELOPER=45000'."
+                }
             ]
         },
         {
@@ -9755,6 +10428,18 @@
             "hints": [
                 "Use contains() method",
                 "Handle invalid enum values carefully"
+            ],
+            "examples": [
+                {
+                    "input": "RED",
+                    "expected_output": "Present",
+                    "explanation": "For input 'RED', the expected output is 'Present'."
+                },
+                {
+                    "input": "BLUE",
+                    "expected_output": "Present",
+                    "explanation": "For input 'BLUE', the expected output is 'Present'."
+                }
             ]
         },
         {
@@ -9821,6 +10506,18 @@
             "hints": [
                 "Use EnumMap with enum keys",
                 "Traverse using entrySet()"
+            ],
+            "examples": [
+                {
+                    "input": "A Excellent",
+                    "expected_output": "A=Excellent",
+                    "explanation": "For input 'A Excellent', the expected output is 'A=Excellent'."
+                },
+                {
+                    "input": "B Good",
+                    "expected_output": "B=Good",
+                    "explanation": "For input 'B Good', the expected output is 'B=Good'."
+                }
             ]
         },
         {
@@ -9903,6 +10600,18 @@
             "hints": [
                 "Use EnumSet.noneOf()",
                 "Add enum constants dynamically"
+            ],
+            "examples": [
+                {
+                    "input": "3\nMONDAY WEDNESDAY FRIDAY",
+                    "expected_output": "MONDAY WEDNESDAY FRIDAY",
+                    "explanation": "For input '3\nMONDAY WEDNESDAY FRIDAY', the expected output is 'MONDAY WEDNESDAY FRIDAY'."
+                },
+                {
+                    "input": "2\nTUESDAY THURSDAY",
+                    "expected_output": "TUESDAY THURSDAY",
+                    "explanation": "For input '2\nTUESDAY THURSDAY', the expected output is 'TUESDAY THURSDAY'."
+                }
             ]
         },
         {
@@ -9985,6 +10694,18 @@
             "hints": [
                 "EnumMap is optimized for enum keys",
                 "Store department as key"
+            ],
+            "examples": [
+                {
+                    "input": "IT 500000",
+                    "expected_output": "IT=500000",
+                    "explanation": "For input 'IT 500000', the expected output is 'IT=500000'."
+                },
+                {
+                    "input": "HR 300000",
+                    "expected_output": "HR=300000",
+                    "explanation": "For input 'HR 300000', the expected output is 'HR=300000'."
+                }
             ]
         },
         {
@@ -10067,6 +10788,18 @@
             "hints": [
                 "Use EnumSet.range()",
                 "Range includes start and end values"
+            ],
+            "examples": [
+                {
+                    "input": "LOW HIGH",
+                    "expected_output": "LOW MEDIUM HIGH",
+                    "explanation": "For input 'LOW HIGH', the expected output is 'LOW MEDIUM HIGH'."
+                },
+                {
+                    "input": "SMALL LARGE",
+                    "expected_output": "SMALL MEDIUM LARGE",
+                    "explanation": "For input 'SMALL LARGE', the expected output is 'SMALL MEDIUM LARGE'."
+                }
             ]
         },
         {
@@ -10149,6 +10882,18 @@
             "hints": [
                 "Use EnumSet for storing permissions",
                 "contains() helps verify permission existence"
+            ],
+            "examples": [
+                {
+                    "input": "3\nREAD WRITE EXECUTE\nWRITE",
+                    "expected_output": "Permission Granted",
+                    "explanation": "For input '3\nREAD WRITE EXECUTE\nWRITE', the expected output is 'Permission Granted'."
+                },
+                {
+                    "input": "2\nREAD EXECUTE\nWRITE",
+                    "expected_output": "Permission Denied",
+                    "explanation": "For input '2\nREAD EXECUTE\nWRITE', the expected output is 'Permission Denied'."
+                }
             ]
         },
         {
@@ -10231,6 +10976,18 @@
             "hints": [
                 "Store scores in EnumMap",
                 "Find maximum value while traversing map"
+            ],
+            "examples": [
+                {
+                    "input": "GOOD 80\nEXCELLENT 95\nAVERAGE 60",
+                    "expected_output": "EXCELLENT",
+                    "explanation": "For input 'GOOD 80\nEXCELLENT 95\nAVERAGE 60', the expected output is 'EXCELLENT'."
+                },
+                {
+                    "input": "AVERAGE 50\nGOOD 75\nEXCELLENT 90",
+                    "expected_output": "EXCELLENT",
+                    "explanation": "For input 'AVERAGE 50\nGOOD 75\nEXCELLENT 90', the expected output is 'EXCELLENT'."
+                }
             ]
         },
         {
@@ -10313,6 +11070,18 @@
             "hints": [
                 "Use EnumMap for timings",
                 "Use EnumSet for active signals"
+            ],
+            "examples": [
+                {
+                    "input": "RED 30",
+                    "expected_output": "RED=30",
+                    "explanation": "For input 'RED 30', the expected output is 'RED=30'."
+                },
+                {
+                    "input": "GREEN 45",
+                    "expected_output": "GREEN=45",
+                    "explanation": "For input 'GREEN 45', the expected output is 'GREEN=45'."
+                }
             ]
         },
         {
@@ -10379,6 +11148,18 @@
             "hints": [
                 "Use CopyOnWriteArrayList from concurrent package",
                 "Add elements using add()"
+            ],
+            "examples": [
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                },
+                {
+                    "input": "2\n5 15",
+                    "expected_output": "5 15",
+                    "explanation": "For input '2\n5 15', the expected output is '5 15'."
+                }
             ]
         },
         {
@@ -10445,6 +11226,18 @@
             "hints": [
                 "Use ConcurrentHashMap for thread-safe storage",
                 "Traverse using entrySet()"
+            ],
+            "examples": [
+                {
+                    "input": "Ram 90",
+                    "expected_output": "Ram=90",
+                    "explanation": "For input 'Ram 90', the expected output is 'Ram=90'."
+                },
+                {
+                    "input": "Sita 85",
+                    "expected_output": "Sita=85",
+                    "explanation": "For input 'Sita 85', the expected output is 'Sita=85'."
+                }
             ]
         },
         {
@@ -10511,6 +11304,18 @@
             "hints": [
                 "Use add() to insert elements",
                 "ConcurrentLinkedQueue is thread-safe"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '3\n1 2 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "2\n10 20",
+                    "expected_output": "10 20",
+                    "explanation": "For input '2\n10 20', the expected output is '10 20'."
+                }
             ]
         },
         {
@@ -10577,6 +11382,18 @@
             "hints": [
                 "PriorityBlockingQueue maintains natural ordering",
                 "Use poll() to retrieve smallest element"
+            ],
+            "examples": [
+                {
+                    "input": "3\n30 10 20",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n30 10 20', the expected output is '10 20 30'."
+                },
+                {
+                    "input": "2\n5 1",
+                    "expected_output": "1 5",
+                    "explanation": "For input '2\n5 1', the expected output is '1 5'."
+                }
             ]
         },
         {
@@ -10659,6 +11476,18 @@
             "hints": [
                 "Set automatically removes duplicates",
                 "Use CopyOnWriteArraySet from concurrent package"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10 20 30'."
+                }
             ]
         },
         {
@@ -10741,6 +11570,18 @@
             "hints": [
                 "Use LinkedBlockingQueue",
                 "put() inserts and take() removes elements"
+            ],
+            "examples": [
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                },
+                {
+                    "input": "2\n5 15",
+                    "expected_output": "5 15",
+                    "explanation": "For input '2\n5 15', the expected output is '5 15'."
+                }
             ]
         },
         {
@@ -10823,6 +11664,18 @@
             "hints": [
                 "Use getOrDefault() for counting",
                 "TreeMap helps display sorted output"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 2 3 3",
+                    "expected_output": "1=1 2=2 3=2",
+                    "explanation": "For input '5\n1 2 2 3 3', the expected output is '1=1 2=2 3=2'."
+                },
+                {
+                    "input": "4\n10 10 20 30",
+                    "expected_output": "10=2 20=1 30=1",
+                    "explanation": "For input '4\n10 10 20 30', the expected output is '10=2 20=1 30=1'."
+                }
             ]
         },
         {
@@ -10905,6 +11758,18 @@
             "hints": [
                 "ConcurrentHashMap provides thread safety",
                 "Use TreeMap for sorted output"
+            ],
+            "examples": [
+                {
+                    "input": "2\n101 5000\n102 7000",
+                    "expected_output": "101=5000 102=7000",
+                    "explanation": "For input '2\n101 5000\n102 7000', the expected output is '101=5000 102=7000'."
+                },
+                {
+                    "input": "1\n201 10000",
+                    "expected_output": "201=10000",
+                    "explanation": "For input '1\n201 10000', the expected output is '201=10000'."
+                }
             ]
         },
         {
@@ -10987,6 +11852,18 @@
             "hints": [
                 "PriorityBlockingQueue maintains sorted order",
                 "poll() retrieves highest priority task"
+            ],
+            "examples": [
+                {
+                    "input": "3\n30 10 20",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n30 10 20', the expected output is '10 20 30'."
+                },
+                {
+                    "input": "2\n5 1",
+                    "expected_output": "1 5",
+                    "explanation": "For input '2\n5 1', the expected output is '1 5'."
+                }
             ]
         },
         {
@@ -11069,6 +11946,18 @@
             "hints": [
                 "LinkedBlockingDeque supports insertion/removal from both ends",
                 "Use takeFirst() for processing messages"
+            ],
+            "examples": [
+                {
+                    "input": "3\nHello Hi Bye",
+                    "expected_output": "Hello Hi Bye",
+                    "explanation": "For input '3\nHello Hi Bye', the expected output is 'Hello Hi Bye'."
+                },
+                {
+                    "input": "2\nJava Python",
+                    "expected_output": "Java Python",
+                    "explanation": "For input '2\nJava Python', the expected output is 'Java Python'."
+                }
             ]
         },
         {
@@ -11135,6 +12024,18 @@
             "hints": [
                 "Create a generic class using <T>",
                 "Store and print integer value"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "10",
+                    "explanation": "For input '10', the expected output is '10'."
+                },
+                {
+                    "input": "25",
+                    "expected_output": "25",
+                    "explanation": "For input '25', the expected output is '25'."
+                }
             ]
         },
         {
@@ -11201,6 +12102,18 @@
             "hints": [
                 "Use generic type parameter",
                 "Store String in generic object"
+            ],
+            "examples": [
+                {
+                    "input": "Java",
+                    "expected_output": "Java",
+                    "explanation": "For input 'Java', the expected output is 'Java'."
+                },
+                {
+                    "input": "Hello",
+                    "expected_output": "Hello",
+                    "explanation": "For input 'Hello', the expected output is 'Hello'."
+                }
             ]
         },
         {
@@ -11267,6 +12180,18 @@
             "hints": [
                 "Use generic method syntax",
                 "Extend Number class"
+            ],
+            "examples": [
+                {
+                    "input": "2 3",
+                    "expected_output": "5",
+                    "explanation": "For input '2 3', the expected output is '5'."
+                },
+                {
+                    "input": "10 20",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20', the expected output is '30'."
+                }
             ]
         },
         {
@@ -11333,6 +12258,18 @@
             "hints": [
                 "Create a generic method",
                 "Traverse array using enhanced for loop"
+            ],
+            "examples": [
+                {
+                    "input": "3\n1 2 3",
+                    "expected_output": "1 2 3",
+                    "explanation": "For input '3\n1 2 3', the expected output is '1 2 3'."
+                },
+                {
+                    "input": "2\n10 20",
+                    "expected_output": "10 20",
+                    "explanation": "For input '2\n10 20', the expected output is '10 20'."
+                }
             ]
         },
         {
@@ -11415,6 +12352,18 @@
             "hints": [
                 "Use Stack class internally",
                 "Generic class can work with any datatype"
+            ],
+            "examples": [
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "30 20 10",
+                    "explanation": "For input '3\n10 20 30', the expected output is '30 20 10'."
+                },
+                {
+                    "input": "2\n5 15",
+                    "expected_output": "15 5",
+                    "explanation": "For input '2\n5 15', the expected output is '15 5'."
+                }
             ]
         },
         {
@@ -11497,6 +12446,18 @@
             "hints": [
                 "Use two generic type parameters",
                 "Store different datatype values together"
+            ],
+            "examples": [
+                {
+                    "input": "Java 100",
+                    "expected_output": "Java 100",
+                    "explanation": "For input 'Java 100', the expected output is 'Java 100'."
+                },
+                {
+                    "input": "Python 90",
+                    "expected_output": "Python 90",
+                    "explanation": "For input 'Python 90', the expected output is 'Python 90'."
+                }
             ]
         },
         {
@@ -11579,6 +12540,18 @@
             "hints": [
                 "Use Comparable interface",
                 "compareTo() helps compare generic values"
+            ],
+            "examples": [
+                {
+                    "input": "10 20 30",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20 30', the expected output is '30'."
+                },
+                {
+                    "input": "5 15 10",
+                    "expected_output": "15",
+                    "explanation": "For input '5 15 10', the expected output is '15'."
+                }
             ]
         },
         {
@@ -11661,6 +12634,18 @@
             "hints": [
                 "Use Arrays.sort()",
                 "Generic type should extend Comparable"
+            ],
+            "examples": [
+                {
+                    "input": "5\n5 4 3 2 1",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n5 4 3 2 1', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "4\n10 20 5 15",
+                    "expected_output": "5 10 15 20",
+                    "explanation": "For input '4\n10 20 5 15', the expected output is '5 10 15 20'."
+                }
             ]
         },
         {
@@ -11743,6 +12728,18 @@
             "hints": [
                 "Use LinkedList internally as Queue",
                 "Generic queue works for all datatypes"
+            ],
+            "examples": [
+                {
+                    "input": "3\n10 20 30",
+                    "expected_output": "10 20 30",
+                    "explanation": "For input '3\n10 20 30', the expected output is '10 20 30'."
+                },
+                {
+                    "input": "2\n5 15",
+                    "expected_output": "5 15",
+                    "explanation": "For input '2\n5 15', the expected output is '5 15'."
+                }
             ]
         },
         {
@@ -11825,6 +12822,18 @@
             "hints": [
                 "Use two generic parameters",
                 "Store ID and name in generic class"
+            ],
+            "examples": [
+                {
+                    "input": "101 Ram",
+                    "expected_output": "101 Ram",
+                    "explanation": "For input '101 Ram', the expected output is '101 Ram'."
+                },
+                {
+                    "input": "102 Sita",
+                    "expected_output": "102 Sita",
+                    "explanation": "For input '102 Sita', the expected output is '102 Sita'."
+                }
             ]
         },
         {
@@ -11891,6 +12900,18 @@
             "hints": [
                 "Collections.sort() uses Comparable internally",
                 "Integers already implement Comparable"
+            ],
+            "examples": [
+                {
+                    "input": "5\n5 4 3 2 1",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5\n5 4 3 2 1', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "4\n10 20 5 15",
+                    "expected_output": "5 10 15 20",
+                    "explanation": "For input '4\n10 20 5 15', the expected output is '5 10 15 20'."
+                }
             ]
         },
         {
@@ -11957,6 +12978,18 @@
             "hints": [
                 "Use Comparator.naturalOrder()",
                 "Collections.sort() accepts Comparator"
+            ],
+            "examples": [
+                {
+                    "input": "3\nBanana Apple Mango",
+                    "expected_output": "Apple Banana Mango",
+                    "explanation": "For input '3\nBanana Apple Mango', the expected output is 'Apple Banana Mango'."
+                },
+                {
+                    "input": "2\nDog Cat",
+                    "expected_output": "Cat Dog",
+                    "explanation": "For input '2\nDog Cat', the expected output is 'Cat Dog'."
+                }
             ]
         },
         {
@@ -12023,6 +13056,18 @@
             "hints": [
                 "Comparable provides natural ordering",
                 "Collections.sort() sorts ascending"
+            ],
+            "examples": [
+                {
+                    "input": "3\n70 90 80",
+                    "expected_output": "70 80 90",
+                    "explanation": "For input '3\n70 90 80', the expected output is '70 80 90'."
+                },
+                {
+                    "input": "2\n50 40",
+                    "expected_output": "40 50",
+                    "explanation": "For input '2\n50 40', the expected output is '40 50'."
+                }
             ]
         },
         {
@@ -12089,6 +13134,18 @@
             "hints": [
                 "Use Comparator.reverseOrder()",
                 "Collections.sort() accepts Comparator"
+            ],
+            "examples": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5 4 3 2 1",
+                    "explanation": "For input '5\n1 2 3 4 5', the expected output is '5 4 3 2 1'."
+                },
+                {
+                    "input": "4\n10 20 5 15",
+                    "expected_output": "20 15 10 5",
+                    "explanation": "For input '4\n10 20 5 15', the expected output is '20 15 10 5'."
+                }
             ]
         },
         {
@@ -12171,6 +13228,18 @@
             "hints": [
                 "Use Comparator.naturalOrder()",
                 "ArrayList.sort() accepts Comparator"
+            ],
+            "examples": [
+                {
+                    "input": "3\n50000 30000 40000",
+                    "expected_output": "30000 40000 50000",
+                    "explanation": "For input '3\n50000 30000 40000', the expected output is '30000 40000 50000'."
+                },
+                {
+                    "input": "2\n70000 60000",
+                    "expected_output": "60000 70000",
+                    "explanation": "For input '2\n70000 60000', the expected output is '60000 70000'."
+                }
             ]
         },
         {
@@ -12253,6 +13322,18 @@
             "hints": [
                 "Implement Comparable interface",
                 "Override compareTo() method"
+            ],
+            "examples": [
+                {
+                    "input": "3\n70 90 80",
+                    "expected_output": "70 80 90",
+                    "explanation": "For input '3\n70 90 80', the expected output is '70 80 90'."
+                },
+                {
+                    "input": "2\n50 40",
+                    "expected_output": "40 50",
+                    "explanation": "For input '2\n50 40', the expected output is '40 50'."
+                }
             ]
         },
         {
@@ -12335,6 +13416,18 @@
             "hints": [
                 "Use lambda expression with Comparator",
                 "Compare string lengths"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRam Krishna Hari",
+                    "expected_output": "Ram Hari Krishna",
+                    "explanation": "For input '3\nRam Krishna Hari', the expected output is 'Ram Hari Krishna'."
+                },
+                {
+                    "input": "2\nDog Elephant",
+                    "expected_output": "Dog Elephant",
+                    "explanation": "For input '2\nDog Elephant', the expected output is 'Dog Elephant'."
+                }
             ]
         },
         {
@@ -12417,6 +13510,18 @@
             "hints": [
                 "Use Comparator with multiple conditions",
                 "Sort marks descending and names ascending"
+            ],
+            "examples": [
+                {
+                    "input": "3\nRam 90\nHari 80\nKrishna 90",
+                    "expected_output": "Krishna 90\nRam 90\nHari 80",
+                    "explanation": "For input '3\nRam 90\nHari 80\nKrishna 90', the expected output is 'Krishna 90\nRam 90\nHari 80'."
+                },
+                {
+                    "input": "2\nJohn 70\nAlex 85",
+                    "expected_output": "Alex 85\nJohn 70",
+                    "explanation": "For input '2\nJohn 70\nAlex 85', the expected output is 'Alex 85\nJohn 70'."
+                }
             ]
         },
         {
@@ -12499,6 +13604,18 @@
             "hints": [
                 "Implement Comparable in Product class",
                 "Override compareTo() method"
+            ],
+            "examples": [
+                {
+                    "input": "3\n500 300 400",
+                    "expected_output": "300 400 500",
+                    "explanation": "For input '3\n500 300 400', the expected output is '300 400 500'."
+                },
+                {
+                    "input": "2\n700 600",
+                    "expected_output": "600 700",
+                    "explanation": "For input '2\n700 600', the expected output is '600 700'."
+                }
             ]
         },
         {
@@ -12581,6 +13698,18 @@
             "hints": [
                 "Check parity before comparing",
                 "Use custom Comparator logic"
+            ],
+            "examples": [
+                {
+                    "input": "5\n5 2 8 1 4",
+                    "expected_output": "2 4 8 1 5",
+                    "explanation": "For input '5\n5 2 8 1 4', the expected output is '2 4 8 1 5'."
+                },
+                {
+                    "input": "4\n7 6 5 2",
+                    "expected_output": "2 6 5 7",
+                    "explanation": "For input '4\n7 6 5 2', the expected output is '2 6 5 7'."
+                }
             ]
         }
     ]

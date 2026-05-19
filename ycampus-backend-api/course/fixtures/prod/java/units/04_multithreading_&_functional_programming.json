@@ -7,55 +7,109 @@
             "name": "Threads & Runnable Interface",
             "content": "Threads in Java allow concurrent execution of two or more parts of a program. A thread can be created by extending the Thread class or implementing the Runnable interface. The Runnable interface is preferred as it allows the class to extend other classes. Key methods include start(), run(), sleep(), join(), and interrupt(). Understanding thread creation, execution, and the difference between extending Thread and implementing Runnable is fundamental to concurrent programming in Java.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Threads & Runnable Interface",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Threads & Runnable Interface in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Thread Lifecycle",
             "content": "A Java thread goes through several states during its lifecycle: New (created but not started), Runnable (ready to run or running), Blocked (waiting for a monitor lock), Waiting (waiting indefinitely for another thread), Timed Waiting (waiting for a specified time), and Terminated (completed execution). Understanding thread states, transitions between them, and how methods like start(), sleep(), wait(), notify(), and join() affect the lifecycle is essential for writing correct multi-threaded applications.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Thread Lifecycle",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Thread Lifecycle in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Synchronization",
             "content": "Synchronization in Java is a mechanism to control access to shared resources by multiple threads to prevent data inconsistency and race conditions. Java provides synchronized methods, synchronized blocks, and the volatile keyword for thread safety. The intrinsic lock (monitor) ensures that only one thread can execute a synchronized block at a time. Understanding deadlocks, starvation, the happens-before relationship, and using synchronization effectively is critical for building reliable concurrent applications.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Synchronization",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Synchronization in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Executor Framework",
             "content": "The Executor Framework in java.util.concurrent provides a higher-level abstraction for managing threads and thread pools. Key components include Executor, ExecutorService, and ScheduledExecutorService interfaces, along with the Executors factory class for creating thread pools (fixed, cached, single, scheduled). The framework also introduces Callable (returning results), Future (representing async computation results), and CompletableFuture (for composable async programming). The Executor Framework simplifies concurrent programming and improves resource management over manual thread creation.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Executor Framework",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Executor Framework in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Lambda Expressions",
             "content": "Lambda expressions, introduced in Java 8, provide a concise way to represent anonymous functions (functional interface implementations). The syntax is (parameters) -> expression or (parameters) -> { statements }. Lambdas enable functional programming in Java, reduce boilerplate code, and are widely used with the Collections API, Streams API, and event handling. They can access final or effectively final local variables from the enclosing scope. Understanding lambda syntax, type inference, and variable capture is essential for modern Java development.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Lambda Expressions",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Lambda Expressions in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Functional Interfaces",
             "content": "A functional interface in Java is an interface with exactly one abstract method, annotated with @FunctionalInterface. Java 8 introduced several built-in functional interfaces in the java.util.function package: Predicate (boolean test), Function (transformation), Consumer (action without return), Supplier (value provider), UnaryOperator, and BinaryOperator. Functional interfaces serve as the target type for lambda expressions and method references, forming the foundation of functional programming in Java.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Functional Interfaces",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Functional Interfaces in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Streams API",
             "content": "The Streams API, introduced in Java 8, provides a declarative way to process collections of data using functional-style operations. A stream represents a sequence of elements supporting sequential and parallel aggregate operations. Key operations include intermediate operations (filter, map, sorted, distinct, flatMap) and terminal operations (collect, forEach, reduce, count, findFirst). Streams are lazy (intermediate operations are not executed until a terminal operation is invoked) and do not modify the underlying data source.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Streams API",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Streams API in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Method References",
             "content": "Method references in Java provide a shorthand notation for calling existing methods using lambda expressions. There are four types: static method references (ClassName::staticMethod), instance method references on a particular object (object::instanceMethod), instance method references on an arbitrary object (ClassName::instanceMethod), and constructor references (ClassName::new). Method references improve code readability and are commonly used with the Streams API and functional interfaces.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Method References",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Method References in Multithreading & Functional Programming."
+                }
+            ]
         },
         {
             "name": "Optional Class",
             "content": "The Optional class, introduced in Java 8, is a container object used to represent the presence or absence of a value, providing a better alternative to null references. Key methods include of(), ofNullable(), isPresent(), isEmpty(), get(), orElse(), orElseGet(), orElseThrow(), map(), flatMap(), and filter(). Optional encourages explicit handling of missing values, reduces NullPointerExceptions, and promotes more readable and maintainable code when used appropriately in return types and stream operations.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Optional Class",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Optional Class in Multithreading & Functional Programming."
+                }
+            ]
         }
     ],
     "questions": [
@@ -5883,6 +5937,18 @@
             "hints": [
                 "Extend the Thread class",
                 "Override the run() method"
+            ],
+            "examples": [
+                {
+                    "input": "start",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'start', the expected output is 'Thread Running'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'run', the expected output is 'Thread Running'."
+                }
             ]
         },
         {
@@ -5949,6 +6015,18 @@
             "hints": [
                 "Implement Runnable interface",
                 "Pass object to Thread class"
+            ],
+            "examples": [
+                {
+                    "input": "task",
+                    "expected_output": "Runnable Executed",
+                    "explanation": "For input 'task', the expected output is 'Runnable Executed'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "Runnable Executed",
+                    "explanation": "For input 'thread', the expected output is 'Runnable Executed'."
+                }
             ]
         },
         {
@@ -6015,6 +6093,18 @@
             "hints": [
                 "Use a loop inside run() method",
                 "Call start() to execute thread"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "1",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '1', the expected output is '1 2 3 4 5'."
+                }
             ]
         },
         {
@@ -6081,6 +6171,18 @@
             "hints": [
                 "Create two thread classes",
                 "Start both threads"
+            ],
+            "examples": [
+                {
+                    "input": "test",
+                    "expected_output": "Hello World",
+                    "explanation": "For input 'test', the expected output is 'Hello World'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Hello World",
+                    "explanation": "For input 'java', the expected output is 'Hello World'."
+                }
             ]
         },
         {
@@ -6147,6 +6249,18 @@
             "hints": [
                 "Create separate thread classes",
                 "Use loops for odd and even numbers"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Odd: 1 3 5 7 9 Even: 2 4 6 8 10",
+                    "explanation": "For input '10', the expected output is 'Odd: 1 3 5 7 9 Even: 2 4 6 8 10'."
+                },
+                {
+                    "input": "6",
+                    "expected_output": "Odd: 1 3 5 Even: 2 4 6",
+                    "explanation": "For input '6', the expected output is 'Odd: 1 3 5 Even: 2 4 6'."
+                }
             ]
         },
         {
@@ -6213,6 +6327,18 @@
             "hints": [
                 "Use Thread.sleep(milliseconds)",
                 "Handle InterruptedException"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '3', the expected output is '1 2 3 4 5'."
+                }
             ]
         },
         {
@@ -6279,6 +6405,18 @@
             "hints": [
                 "Use lambda expression for Runnable",
                 "Pass Runnable object to Thread"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '5', the expected output is '1 2 3 4 5'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "1 2 3 4 5",
+                    "explanation": "For input '3', the expected output is '1 2 3 4 5'."
+                }
             ]
         },
         {
@@ -6345,6 +6483,18 @@
             "hints": [
                 "Use synchronized methods",
                 "Use wait() and notify()"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Produced and Consumed items",
+                    "explanation": "For input '5', the expected output is 'Produced and Consumed items'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "Produced and Consumed items",
+                    "explanation": "For input '3', the expected output is 'Produced and Consumed items'."
+                }
             ]
         },
         {
@@ -6411,6 +6561,18 @@
             "hints": [
                 "Use synchronized keyword",
                 "Use join() to wait for threads"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Final Counter: 5000",
+                    "explanation": "For input '5', the expected output is 'Final Counter: 5000'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Final Counter: 2000",
+                    "explanation": "For input '2', the expected output is 'Final Counter: 2000'."
+                }
             ]
         },
         {
@@ -6477,6 +6639,18 @@
             "hints": [
                 "Split array into parts",
                 "Use multiple threads for processing"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5",
+                    "expected_output": "Total Sum: 15",
+                    "explanation": "For input '1 2 3 4 5', the expected output is 'Total Sum: 15'."
+                },
+                {
+                    "input": "10 20 30",
+                    "expected_output": "Total Sum: 60",
+                    "explanation": "For input '10 20 30', the expected output is 'Total Sum: 60'."
+                }
             ]
         },
         {
@@ -6543,6 +6717,18 @@
             "hints": [
                 "Use getState() method",
                 "Start the thread using start()"
+            ],
+            "examples": [
+                {
+                    "input": "start",
+                    "expected_output": "NEW RUNNABLE",
+                    "explanation": "For input 'start', the expected output is 'NEW RUNNABLE'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "NEW RUNNABLE",
+                    "explanation": "For input 'run', the expected output is 'NEW RUNNABLE'."
+                }
             ]
         },
         {
@@ -6609,6 +6795,18 @@
             "hints": [
                 "Use Thread.sleep()",
                 "Check state while thread is sleeping"
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "TIMED_WAITING",
+                    "explanation": "For input '2', the expected output is 'TIMED_WAITING'."
+                },
+                {
+                    "input": "1",
+                    "expected_output": "TIMED_WAITING",
+                    "explanation": "For input '1', the expected output is 'TIMED_WAITING'."
+                }
             ]
         },
         {
@@ -6675,6 +6873,18 @@
             "hints": [
                 "Use join() method",
                 "Check state after completion"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "TERMINATED",
+                    "explanation": "For input 'run', the expected output is 'TERMINATED'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "TERMINATED",
+                    "explanation": "For input 'thread', the expected output is 'TERMINATED'."
+                }
             ]
         },
         {
@@ -6741,6 +6951,18 @@
             "hints": [
                 "Use getState() method",
                 "Use start() and join() methods"
+            ],
+            "examples": [
+                {
+                    "input": "thread",
+                    "expected_output": "NEW RUNNABLE TERMINATED",
+                    "explanation": "For input 'thread', the expected output is 'NEW RUNNABLE TERMINATED'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "NEW RUNNABLE TERMINATED",
+                    "explanation": "For input 'run', the expected output is 'NEW RUNNABLE TERMINATED'."
+                }
             ]
         },
         {
@@ -6807,6 +7029,18 @@
             "hints": [
                 "Use join() method",
                 "Check thread state while waiting"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "WAITING",
+                    "explanation": "For input '5', the expected output is 'WAITING'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "WAITING",
+                    "explanation": "For input '2', the expected output is 'WAITING'."
+                }
             ]
         },
         {
@@ -6873,6 +7107,18 @@
             "hints": [
                 "Use synchronized method",
                 "Start one thread before another"
+            ],
+            "examples": [
+                {
+                    "input": "sync",
+                    "expected_output": "BLOCKED",
+                    "explanation": "For input 'sync', the expected output is 'BLOCKED'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "BLOCKED",
+                    "explanation": "For input 'thread', the expected output is 'BLOCKED'."
+                }
             ]
         },
         {
@@ -6939,6 +7185,18 @@
             "hints": [
                 "Use isAlive() method",
                 "Monitor states repeatedly"
+            ],
+            "examples": [
+                {
+                    "input": "track",
+                    "expected_output": "NEW RUNNABLE TIMED_WAITING TERMINATED",
+                    "explanation": "For input 'track', the expected output is 'NEW RUNNABLE TIMED_WAITING TERMINATED'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "NEW RUNNABLE TIMED_WAITING TERMINATED",
+                    "explanation": "For input 'java', the expected output is 'NEW RUNNABLE TIMED_WAITING TERMINATED'."
+                }
             ]
         },
         {
@@ -7005,6 +7263,18 @@
             "hints": [
                 "Use getState() repeatedly",
                 "Monitor all threads using loops"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "NEW RUNNABLE TIMED_WAITING TERMINATED",
+                    "explanation": "For input '3', the expected output is 'NEW RUNNABLE TIMED_WAITING TERMINATED'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Lifecycle states monitored",
+                    "explanation": "For input '2', the expected output is 'Lifecycle states monitored'."
+                }
             ]
         },
         {
@@ -7071,6 +7341,18 @@
             "hints": [
                 "Use two shared locks",
                 "Lock resources in opposite order"
+            ],
+            "examples": [
+                {
+                    "input": "deadlock",
+                    "expected_output": "BLOCKED BLOCKED",
+                    "explanation": "For input 'deadlock', the expected output is 'BLOCKED BLOCKED'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "BLOCKED BLOCKED",
+                    "explanation": "For input 'thread', the expected output is 'BLOCKED BLOCKED'."
+                }
             ]
         },
         {
@@ -7137,6 +7419,18 @@
             "hints": [
                 "Combine sleep(), join(), and synchronized",
                 "Monitor states at different execution points"
+            ],
+            "examples": [
+                {
+                    "input": "lifecycle",
+                    "expected_output": "NEW RUNNABLE WAITING TIMED_WAITING BLOCKED TERMINATED",
+                    "explanation": "For input 'lifecycle', the expected output is 'NEW RUNNABLE WAITING TIMED_WAITING BLOCKED TERMINATED'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "Lifecycle states displayed",
+                    "explanation": "For input 'thread', the expected output is 'Lifecycle states displayed'."
+                }
             ]
         },
         {
@@ -7203,6 +7497,18 @@
             "hints": [
                 "Use synchronized keyword",
                 "Create multiple threads"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Thread Executed",
+                    "explanation": "For input 'Hello', the expected output is 'Thread Executed'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Thread Executed",
+                    "explanation": "For input 'Java', the expected output is 'Thread Executed'."
+                }
             ]
         },
         {
@@ -7269,6 +7575,18 @@
             "hints": [
                 "Use shared object",
                 "Synchronize increment method"
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "2000",
+                    "explanation": "For input '2', the expected output is '2000'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "3000",
+                    "explanation": "For input '3', the expected output is '3000'."
+                }
             ]
         },
         {
@@ -7335,6 +7653,18 @@
             "hints": [
                 "Use synchronized(this)",
                 "Synchronize only critical section"
+            ],
+            "examples": [
+                {
+                    "input": "sync",
+                    "expected_output": "Inside Synchronized Block",
+                    "explanation": "For input 'sync', the expected output is 'Inside Synchronized Block'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Inside Synchronized Block",
+                    "explanation": "For input 'java', the expected output is 'Inside Synchronized Block'."
+                }
             ]
         },
         {
@@ -7401,6 +7731,18 @@
             "hints": [
                 "Use synchronized withdrawal method",
                 "Protect shared balance variable"
+            ],
+            "examples": [
+                {
+                    "input": "500",
+                    "expected_output": "Withdrawal Successful",
+                    "explanation": "For input '500', the expected output is 'Withdrawal Successful'."
+                },
+                {
+                    "input": "100",
+                    "expected_output": "Withdrawal Successful",
+                    "explanation": "For input '100', the expected output is 'Withdrawal Successful'."
+                }
             ]
         },
         {
@@ -7467,6 +7809,18 @@
             "hints": [
                 "Use wait() and notify()",
                 "Synchronize shared resource methods"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Produced and Consumed Successfully",
+                    "explanation": "For input '5', the expected output is 'Produced and Consumed Successfully'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "Produced and Consumed Successfully",
+                    "explanation": "For input '3', the expected output is 'Produced and Consumed Successfully'."
+                }
             ]
         },
         {
@@ -7533,6 +7887,18 @@
             "hints": [
                 "Protect shared ticket count",
                 "Use synchronized booking method"
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "Ticket Booked",
+                    "explanation": "For input '2', the expected output is 'Ticket Booked'."
+                },
+                {
+                    "input": "1",
+                    "expected_output": "Ticket Booked",
+                    "explanation": "For input '1', the expected output is 'Ticket Booked'."
+                }
             ]
         },
         {
@@ -7599,6 +7965,18 @@
             "hints": [
                 "Use synchronized method",
                 "Write to file using FileWriter"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Written Successfully",
+                    "explanation": "For input 'Hello', the expected output is 'Written Successfully'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Written Successfully",
+                    "explanation": "For input 'Java', the expected output is 'Written Successfully'."
+                }
             ]
         },
         {
@@ -7665,6 +8043,18 @@
             "hints": [
                 "Use synchronized blocks for forks",
                 "Avoid simultaneous access"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Philosophers are eating safely",
+                    "explanation": "For input '5', the expected output is 'Philosophers are eating safely'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "Philosophers are eating safely",
+                    "explanation": "For input '3', the expected output is 'Philosophers are eating safely'."
+                }
             ]
         },
         {
@@ -7731,6 +8121,18 @@
             "hints": [
                 "Synchronize stock update method",
                 "Use multiple worker threads"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Stock Updated Successfully",
+                    "explanation": "For input '10', the expected output is 'Stock Updated Successfully'."
+                },
+                {
+                    "input": "5",
+                    "expected_output": "Stock Updated Successfully",
+                    "explanation": "For input '5', the expected output is 'Stock Updated Successfully'."
+                }
             ]
         },
         {
@@ -7797,6 +8199,18 @@
             "hints": [
                 "Use synchronized methods",
                 "Separate reader and writer operations"
+            ],
+            "examples": [
+                {
+                    "input": "read",
+                    "expected_output": "Reading and Writing completed",
+                    "explanation": "For input 'read', the expected output is 'Reading and Writing completed'."
+                },
+                {
+                    "input": "write",
+                    "expected_output": "Reading and Writing completed",
+                    "explanation": "For input 'write', the expected output is 'Reading and Writing completed'."
+                }
             ]
         },
         {
@@ -7863,6 +8277,18 @@
             "hints": [
                 "Use Executors.newSingleThreadExecutor()",
                 "Shutdown executor after task completion"
+            ],
+            "examples": [
+                {
+                    "input": "task",
+                    "expected_output": "Task Executed",
+                    "explanation": "For input 'task', the expected output is 'Task Executed'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Task Executed",
+                    "explanation": "For input 'java', the expected output is 'Task Executed'."
+                }
             ]
         },
         {
@@ -7929,6 +8355,18 @@
             "hints": [
                 "Use newFixedThreadPool()",
                 "Submit multiple tasks"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "Tasks Executed",
+                    "explanation": "For input '3', the expected output is 'Tasks Executed'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Tasks Executed",
+                    "explanation": "For input '2', the expected output is 'Tasks Executed'."
+                }
             ]
         },
         {
@@ -7995,6 +8433,18 @@
             "hints": [
                 "Create Runnable object",
                 "Use submit() method"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Runnable Task Running",
+                    "explanation": "For input 'run', the expected output is 'Runnable Task Running'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "Runnable Task Running",
+                    "explanation": "For input 'thread', the expected output is 'Runnable Task Running'."
+                }
             ]
         },
         {
@@ -8061,6 +8511,18 @@
             "hints": [
                 "Use shutdown() method",
                 "Check executor status using isShutdown()"
+            ],
+            "examples": [
+                {
+                    "input": "shutdown",
+                    "expected_output": "Executor Shutdown",
+                    "explanation": "For input 'shutdown', the expected output is 'Executor Shutdown'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Executor Shutdown",
+                    "explanation": "For input 'java', the expected output is 'Executor Shutdown'."
+                }
             ]
         },
         {
@@ -8127,6 +8589,18 @@
             "hints": [
                 "Use Callable instead of Runnable",
                 "Retrieve result using Future.get()"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "25",
+                    "explanation": "For input '5', the expected output is '25'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "4",
+                    "explanation": "For input '2', the expected output is '4'."
+                }
             ]
         },
         {
@@ -8193,6 +8667,18 @@
             "hints": [
                 "Use ScheduledExecutorService",
                 "Use scheduleAtFixedRate() method"
+            ],
+            "examples": [
+                {
+                    "input": "schedule",
+                    "expected_output": "Task Scheduled",
+                    "explanation": "For input 'schedule', the expected output is 'Task Scheduled'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "Task Scheduled",
+                    "explanation": "For input 'thread', the expected output is 'Task Scheduled'."
+                }
             ]
         },
         {
@@ -8259,6 +8745,18 @@
             "hints": [
                 "Use fixed thread pool",
                 "Submit tasks in loop"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "Tasks Processed",
+                    "explanation": "For input '3', the expected output is 'Tasks Processed'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Tasks Processed",
+                    "explanation": "For input '2', the expected output is 'Tasks Processed'."
+                }
             ]
         },
         {
@@ -8325,6 +8823,18 @@
             "hints": [
                 "Use Callable tasks",
                 "Use invokeAll() for batch execution"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "Files Processed Successfully",
+                    "explanation": "For input '3', the expected output is 'Files Processed Successfully'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Files Processed Successfully",
+                    "explanation": "For input '2', the expected output is 'Files Processed Successfully'."
+                }
             ]
         },
         {
@@ -8391,6 +8901,18 @@
             "hints": [
                 "Use ThreadPoolExecutor class",
                 "Configure core and maximum pool size"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Tasks Managed Successfully",
+                    "explanation": "For input '5', the expected output is 'Tasks Managed Successfully'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "Tasks Managed Successfully",
+                    "explanation": "For input '3', the expected output is 'Tasks Managed Successfully'."
+                }
             ]
         },
         {
@@ -8457,6 +8979,18 @@
             "hints": [
                 "Store Future objects in list",
                 "Retrieve results using get()"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "Final Result Generated",
+                    "explanation": "For input '3', the expected output is 'Final Result Generated'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Final Result Generated",
+                    "explanation": "For input '2', the expected output is 'Final Result Generated'."
+                }
             ]
         },
         {
@@ -8523,6 +9057,18 @@
             "hints": [
                 "Use functional interface",
                 "Implement method using lambda"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Lambda Executed",
+                    "explanation": "For input 'Hello', the expected output is 'Lambda Executed'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Lambda Executed",
+                    "explanation": "For input 'Java', the expected output is 'Lambda Executed'."
+                }
             ]
         },
         {
@@ -8589,6 +9135,18 @@
             "hints": [
                 "Pass parameters in lambda",
                 "Return addition result"
+            ],
+            "examples": [
+                {
+                    "input": "2 3",
+                    "expected_output": "5",
+                    "explanation": "For input '2 3', the expected output is '5'."
+                },
+                {
+                    "input": "10 20",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20', the expected output is '30'."
+                }
             ]
         },
         {
@@ -8655,6 +9213,18 @@
             "hints": [
                 "Use forEach() method",
                 "Pass lambda expression"
+            ],
+            "examples": [
+                {
+                    "input": "Java Python C",
+                    "expected_output": "Java Python C",
+                    "explanation": "For input 'Java Python C', the expected output is 'Java Python C'."
+                },
+                {
+                    "input": "Apple Mango",
+                    "expected_output": "Apple Mango",
+                    "explanation": "For input 'Apple Mango', the expected output is 'Apple Mango'."
+                }
             ]
         },
         {
@@ -8721,6 +9291,18 @@
             "hints": [
                 "Use Runnable interface",
                 "Implement run() using lambda"
+            ],
+            "examples": [
+                {
+                    "input": "thread",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'thread', the expected output is 'Thread Running'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'java', the expected output is 'Thread Running'."
+                }
             ]
         },
         {
@@ -8787,6 +9369,18 @@
             "hints": [
                 "Use sort() method",
                 "Pass Comparator lambda expression"
+            ],
+            "examples": [
+                {
+                    "input": "5 2 8 1",
+                    "expected_output": "8 5 2 1",
+                    "explanation": "For input '5 2 8 1', the expected output is '8 5 2 1'."
+                },
+                {
+                    "input": "10 30 20",
+                    "expected_output": "30 20 10",
+                    "explanation": "For input '10 30 20', the expected output is '30 20 10'."
+                }
             ]
         },
         {
@@ -8853,6 +9447,18 @@
             "hints": [
                 "Use stream() method",
                 "Use filter() with lambda"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5",
+                    "expected_output": "2 4",
+                    "explanation": "For input '1 2 3 4 5', the expected output is '2 4'."
+                },
+                {
+                    "input": "10 15 20",
+                    "expected_output": "10 20",
+                    "explanation": "For input '10 15 20', the expected output is '10 20'."
+                }
             ]
         },
         {
@@ -8919,6 +9525,18 @@
             "hints": [
                 "Use ExecutorService",
                 "Submit lambda tasks to thread pool"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "Tasks Executed",
+                    "explanation": "For input '3', the expected output is 'Tasks Executed'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "Tasks Executed",
+                    "explanation": "For input '2', the expected output is 'Tasks Executed'."
+                }
             ]
         },
         {
@@ -8985,6 +9603,18 @@
             "hints": [
                 "Use parallelStream()",
                 "Use map() and reduce() operations"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4",
+                    "expected_output": "30",
+                    "explanation": "For input '1 2 3 4', the expected output is '30'."
+                },
+                {
+                    "input": "2 2 2",
+                    "expected_output": "12",
+                    "explanation": "For input '2 2 2', the expected output is '12'."
+                }
             ]
         },
         {
@@ -9051,6 +9681,18 @@
             "hints": [
                 "Chain stream operations",
                 "Use filter(), map(), and sorted()"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5",
+                    "expected_output": "4 8",
+                    "explanation": "For input '1 2 3 4 5', the expected output is '4 8'."
+                },
+                {
+                    "input": "2 4 6",
+                    "expected_output": "4 8 12",
+                    "explanation": "For input '2 4 6', the expected output is '4 8 12'."
+                }
             ]
         },
         {
@@ -9117,6 +9759,18 @@
             "hints": [
                 "Use CompletableFuture.supplyAsync()",
                 "Combine futures using thenCombine()"
+            ],
+            "examples": [
+                {
+                    "input": "2 3",
+                    "expected_output": "5",
+                    "explanation": "For input '2 3', the expected output is '5'."
+                },
+                {
+                    "input": "10 20",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20', the expected output is '30'."
+                }
             ]
         },
         {
@@ -9183,6 +9837,18 @@
             "hints": [
                 "Use Consumer<T>",
                 "Use accept() method"
+            ],
+            "examples": [
+                {
+                    "input": "java",
+                    "expected_output": "JAVA",
+                    "explanation": "For input 'java', the expected output is 'JAVA'."
+                },
+                {
+                    "input": "code",
+                    "expected_output": "CODE",
+                    "explanation": "For input 'code', the expected output is 'CODE'."
+                }
             ]
         },
         {
@@ -9249,6 +9915,18 @@
             "hints": [
                 "Use Predicate<T>",
                 "Use test() method"
+            ],
+            "examples": [
+                {
+                    "input": "4",
+                    "expected_output": "true",
+                    "explanation": "For input '4', the expected output is 'true'."
+                },
+                {
+                    "input": "5",
+                    "expected_output": "false",
+                    "explanation": "For input '5', the expected output is 'false'."
+                }
             ]
         },
         {
@@ -9315,6 +9993,18 @@
             "hints": [
                 "Use Function<T,R>",
                 "Use apply() method"
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "4",
+                    "explanation": "For input '2', the expected output is '4'."
+                },
+                {
+                    "input": "5",
+                    "expected_output": "25",
+                    "explanation": "For input '5', the expected output is '25'."
+                }
             ]
         },
         {
@@ -9381,6 +10071,18 @@
             "hints": [
                 "Use Supplier<T>",
                 "Use get() method"
+            ],
+            "examples": [
+                {
+                    "input": "test",
+                    "expected_output": "Hello World",
+                    "explanation": "For input 'test', the expected output is 'Hello World'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Hello World",
+                    "explanation": "For input 'java', the expected output is 'Hello World'."
+                }
             ]
         },
         {
@@ -9447,6 +10149,18 @@
             "hints": [
                 "Use Predicate with filter()",
                 "Apply stream operations"
+            ],
+            "examples": [
+                {
+                    "input": "Java Python C",
+                    "expected_output": "Python",
+                    "explanation": "For input 'Java Python C', the expected output is 'Python'."
+                },
+                {
+                    "input": "Code Learn",
+                    "expected_output": "Learn",
+                    "explanation": "For input 'Code Learn', the expected output is 'Learn'."
+                }
             ]
         },
         {
@@ -9513,6 +10227,18 @@
             "hints": [
                 "Use Function with map()",
                 "Transform elements in stream"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3",
+                    "expected_output": "1 8 27",
+                    "explanation": "For input '1 2 3', the expected output is '1 8 27'."
+                },
+                {
+                    "input": "2 4",
+                    "expected_output": "8 64",
+                    "explanation": "For input '2 4', the expected output is '8 64'."
+                }
             ]
         },
         {
@@ -9579,6 +10305,18 @@
             "hints": [
                 "Use BiFunction<T,U,R>",
                 "Use apply() method"
+            ],
+            "examples": [
+                {
+                    "input": "10 5",
+                    "expected_output": "15",
+                    "explanation": "For input '10 5', the expected output is '15'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "5",
+                    "explanation": "For input '2 3', the expected output is '5'."
+                }
             ]
         },
         {
@@ -9645,6 +10383,18 @@
             "hints": [
                 "Chain Predicate, Function, Consumer",
                 "Use stream pipeline carefully"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5 6",
+                    "expected_output": "36",
+                    "explanation": "For input '1 2 3 4 5 6', the expected output is '36'."
+                },
+                {
+                    "input": "10 11 12",
+                    "expected_output": "144",
+                    "explanation": "For input '10 11 12', the expected output is '144'."
+                }
             ]
         },
         {
@@ -9711,6 +10461,18 @@
             "hints": [
                 "Use BiFunction composition",
                 "Chain operations step by step"
+            ],
+            "examples": [
+                {
+                    "input": "10 5",
+                    "expected_output": "75",
+                    "explanation": "For input '10 5', the expected output is '75'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "10",
+                    "explanation": "For input '2 3', the expected output is '10'."
+                }
             ]
         },
         {
@@ -9777,6 +10539,18 @@
             "hints": [
                 "Use Predicate for validation",
                 "Use Function for transformation"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "100",
+                    "explanation": "For input '10', the expected output is '100'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "Rejected",
+                    "explanation": "For input '3', the expected output is 'Rejected'."
+                }
             ]
         },
         {
@@ -9843,6 +10617,18 @@
             "hints": [
                 "Use stream() method",
                 "Use forEach() terminal operation"
+            ],
+            "examples": [
+                {
+                    "input": "Java Python C",
+                    "expected_output": "Java Python C",
+                    "explanation": "For input 'Java Python C', the expected output is 'Java Python C'."
+                },
+                {
+                    "input": "Apple Banana",
+                    "expected_output": "Apple Banana",
+                    "explanation": "For input 'Apple Banana', the expected output is 'Apple Banana'."
+                }
             ]
         },
         {
@@ -9909,6 +10695,18 @@
             "hints": [
                 "Use filter() method",
                 "Use lambda inside stream"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5",
+                    "expected_output": "2 4",
+                    "explanation": "For input '1 2 3 4 5', the expected output is '2 4'."
+                },
+                {
+                    "input": "10 15 20",
+                    "expected_output": "10 20",
+                    "explanation": "For input '10 15 20', the expected output is '10 20'."
+                }
             ]
         },
         {
@@ -9975,6 +10773,18 @@
             "hints": [
                 "Use map() function",
                 "Use String::toUpperCase"
+            ],
+            "examples": [
+                {
+                    "input": "java python c",
+                    "expected_output": "JAVA PYTHON C",
+                    "explanation": "For input 'java python c', the expected output is 'JAVA PYTHON C'."
+                },
+                {
+                    "input": "apple banana",
+                    "expected_output": "APPLE BANANA",
+                    "explanation": "For input 'apple banana', the expected output is 'APPLE BANANA'."
+                }
             ]
         },
         {
@@ -10041,6 +10851,18 @@
             "hints": [
                 "Use count() terminal operation",
                 "No need of mapping or filtering"
+            ],
+            "examples": [
+                {
+                    "input": "a b c d",
+                    "expected_output": "4",
+                    "explanation": "For input 'a b c d', the expected output is '4'."
+                },
+                {
+                    "input": "java python",
+                    "expected_output": "2",
+                    "explanation": "For input 'java python', the expected output is '2'."
+                }
             ]
         },
         {
@@ -10107,6 +10929,18 @@
             "hints": [
                 "Use filter() for even numbers",
                 "Use mapToInt() and sum()"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5 6",
+                    "expected_output": "12",
+                    "explanation": "For input '1 2 3 4 5 6', the expected output is '12'."
+                },
+                {
+                    "input": "10 15 20",
+                    "expected_output": "30",
+                    "explanation": "For input '10 15 20', the expected output is '30'."
+                }
             ]
         },
         {
@@ -10173,6 +11007,18 @@
             "hints": [
                 "Use max() terminal operation",
                 "Use Comparator or Integer::compareTo"
+            ],
+            "examples": [
+                {
+                    "input": "1 5 3 9 2",
+                    "expected_output": "9",
+                    "explanation": "For input '1 5 3 9 2', the expected output is '9'."
+                },
+                {
+                    "input": "10 20 30",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20 30', the expected output is '30'."
+                }
             ]
         },
         {
@@ -10239,6 +11085,18 @@
             "hints": [
                 "Use Collectors.groupingBy()",
                 "Key should be string length"
+            ],
+            "examples": [
+                {
+                    "input": "a bb ccc dd e",
+                    "expected_output": "1:[a, e] 2:[bb, dd] 3:[ccc]",
+                    "explanation": "For input 'a bb ccc dd e', the expected output is '1:[a, e] 2:[bb, dd] 3:[ccc]'."
+                },
+                {
+                    "input": "java c cpp go",
+                    "expected_output": "4:[java] 1:[c] 3:[cpp] 2:[go]",
+                    "explanation": "For input 'java c cpp go', the expected output is '4:[java] 1:[c] 3:[cpp] 2:[go]'."
+                }
             ]
         },
         {
@@ -10305,6 +11163,18 @@
             "hints": [
                 "Use Collectors.partitioningBy()",
                 "Predicate should check even condition"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5 6",
+                    "expected_output": "even:[2, 4, 6] odd:[1, 3, 5]",
+                    "explanation": "For input '1 2 3 4 5 6', the expected output is 'even:[2, 4, 6] odd:[1, 3, 5]'."
+                },
+                {
+                    "input": "10 11 12",
+                    "expected_output": "even:[10, 12] odd:[11]",
+                    "explanation": "For input '10 11 12', the expected output is 'even:[10, 12] odd:[11]'."
+                }
             ]
         },
         {
@@ -10371,6 +11241,18 @@
             "hints": [
                 "Use distinct() to remove duplicates",
                 "Sort in reverse order and skip first"
+            ],
+            "examples": [
+                {
+                    "input": "10 20 30 40",
+                    "expected_output": "30",
+                    "explanation": "For input '10 20 30 40', the expected output is '30'."
+                },
+                {
+                    "input": "5 5 5 10",
+                    "expected_output": "5",
+                    "explanation": "For input '5 5 5 10', the expected output is '5'."
+                }
             ]
         },
         {
@@ -10437,6 +11319,18 @@
             "hints": [
                 "Use groupingBy + counting",
                 "Sort map entries by frequency"
+            ],
+            "examples": [
+                {
+                    "input": "1 1 1 2 2 3",
+                    "expected_output": "1 2",
+                    "explanation": "For input '1 1 1 2 2 3', the expected output is '1 2'."
+                },
+                {
+                    "input": "4 4 4 5 5 6",
+                    "expected_output": "4 5",
+                    "explanation": "For input '4 4 4 5 5 6', the expected output is '4 5'."
+                }
             ]
         },
         {
@@ -10503,6 +11397,18 @@
             "hints": [
                 "Use forEach() with method reference",
                 "System.out::print is a method reference"
+            ],
+            "examples": [
+                {
+                    "input": "Java Python C",
+                    "expected_output": "Java Python C",
+                    "explanation": "For input 'Java Python C', the expected output is 'Java Python C'."
+                },
+                {
+                    "input": "Apple Banana",
+                    "expected_output": "Apple Banana",
+                    "explanation": "For input 'Apple Banana', the expected output is 'Apple Banana'."
+                }
             ]
         },
         {
@@ -10569,6 +11475,18 @@
             "hints": [
                 "Use String::toUpperCase",
                 "Use map() with method reference"
+            ],
+            "examples": [
+                {
+                    "input": "java python c",
+                    "expected_output": "JAVA PYTHON C",
+                    "explanation": "For input 'java python c', the expected output is 'JAVA PYTHON C'."
+                },
+                {
+                    "input": "hello world",
+                    "expected_output": "HELLO WORLD",
+                    "explanation": "For input 'hello world', the expected output is 'HELLO WORLD'."
+                }
             ]
         },
         {
@@ -10635,6 +11553,18 @@
             "hints": [
                 "Use Integer::compareTo",
                 "Use sort() with method reference"
+            ],
+            "examples": [
+                {
+                    "input": "5 2 8 1",
+                    "expected_output": "1 2 5 8",
+                    "explanation": "For input '5 2 8 1', the expected output is '1 2 5 8'."
+                },
+                {
+                    "input": "10 3 7",
+                    "expected_output": "3 7 10",
+                    "explanation": "For input '10 3 7', the expected output is '3 7 10'."
+                }
             ]
         },
         {
@@ -10701,6 +11631,18 @@
             "hints": [
                 "Use static method reference",
                 "Assign method to Runnable"
+            ],
+            "examples": [
+                {
+                    "input": "thread",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'thread', the expected output is 'Thread Running'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'java', the expected output is 'Thread Running'."
+                }
             ]
         },
         {
@@ -10767,6 +11709,18 @@
             "hints": [
                 "Use Comparator.comparing",
                 "Use String::length method reference"
+            ],
+            "examples": [
+                {
+                    "input": "java python c",
+                    "expected_output": "c java python",
+                    "explanation": "For input 'java python c', the expected output is 'c java python'."
+                },
+                {
+                    "input": "apple bat elephant",
+                    "expected_output": "bat apple elephant",
+                    "explanation": "For input 'apple bat elephant', the expected output is 'bat apple elephant'."
+                }
             ]
         },
         {
@@ -10833,6 +11787,18 @@
             "hints": [
                 "Use String::toUpperCase",
                 "Use map() with method reference"
+            ],
+            "examples": [
+                {
+                    "input": "java python c",
+                    "expected_output": "JAVA PYTHON C",
+                    "explanation": "For input 'java python c', the expected output is 'JAVA PYTHON C'."
+                },
+                {
+                    "input": "hello world",
+                    "expected_output": "HELLO WORLD",
+                    "explanation": "For input 'hello world', the expected output is 'HELLO WORLD'."
+                }
             ]
         },
         {
@@ -10899,6 +11865,18 @@
             "hints": [
                 "Use Comparator.comparingInt",
                 "Sort custom objects using method reference style"
+            ],
+            "examples": [
+                {
+                    "input": "Alice 80 Bob 70 Charlie 90",
+                    "expected_output": "Bob 70 Alice 80 Charlie 90",
+                    "explanation": "For input 'Alice 80 Bob 70 Charlie 90', the expected output is 'Bob 70 Alice 80 Charlie 90'."
+                },
+                {
+                    "input": "A 50 B 40 C 60",
+                    "expected_output": "B 40 A 50 C 60",
+                    "explanation": "For input 'A 50 B 40 C 60', the expected output is 'B 40 A 50 C 60'."
+                }
             ]
         },
         {
@@ -10965,6 +11943,18 @@
             "hints": [
                 "Use Comparator.comparing + thenComparingInt",
                 "Chain multiple sorting levels"
+            ],
+            "examples": [
+                {
+                    "input": "HR 50000 IT 60000 HR 40000",
+                    "expected_output": "HR 40000 HR 50000 IT 60000",
+                    "explanation": "For input 'HR 50000 IT 60000 HR 40000', the expected output is 'HR 40000 HR 50000 IT 60000'."
+                },
+                {
+                    "input": "Sales 30000 Sales 20000 IT 50000",
+                    "expected_output": "IT 50000 Sales 20000 Sales 30000",
+                    "explanation": "For input 'Sales 30000 Sales 20000 IT 50000', the expected output is 'IT 50000 Sales 20000 Sales 30000'."
+                }
             ]
         },
         {
@@ -11031,6 +12021,18 @@
             "hints": [
                 "Use Collectors.groupingBy + counting",
                 "Sort map entries by value descending"
+            ],
+            "examples": [
+                {
+                    "input": "apple apple banana orange orange orange",
+                    "expected_output": "orange apple",
+                    "explanation": "For input 'apple apple banana orange orange orange', the expected output is 'orange apple'."
+                },
+                {
+                    "input": "a b b c c c",
+                    "expected_output": "c b",
+                    "explanation": "For input 'a b b c c c', the expected output is 'c b'."
+                }
             ]
         },
         {
@@ -11097,6 +12099,18 @@
             "hints": [
                 "Use parallelStream()",
                 "Combine filter, map and method reference"
+            ],
+            "examples": [
+                {
+                    "input": "1 2 3 4 5 6",
+                    "expected_output": "4 16 36",
+                    "explanation": "For input '1 2 3 4 5 6', the expected output is '4 16 36'."
+                },
+                {
+                    "input": "10 11 12",
+                    "expected_output": "100 144",
+                    "explanation": "For input '10 11 12', the expected output is '100 144'."
+                }
             ]
         },
         {
@@ -11145,6 +12159,18 @@
             "hints": [
                 "Use Optional.ofNullable()",
                 "Use orElse() method"
+            ],
+            "examples": [
+                {
+                    "input": "Java",
+                    "expected_output": "Java",
+                    "explanation": "For input 'Java', the expected output is 'Java'."
+                },
+                {
+                    "input": "null",
+                    "expected_output": "Default",
+                    "explanation": "For input 'null', the expected output is 'Default'."
+                }
             ]
         },
         {
@@ -11193,6 +12219,18 @@
             "hints": [
                 "Use isPresent() method",
                 "Wrap value using Optional.ofNullable()"
+            ],
+            "examples": [
+                {
+                    "input": "Java",
+                    "expected_output": "true",
+                    "explanation": "For input 'Java', the expected output is 'true'."
+                },
+                {
+                    "input": "null",
+                    "expected_output": "false",
+                    "explanation": "For input 'null', the expected output is 'false'."
+                }
             ]
         },
         {
@@ -11241,6 +12279,18 @@
             "hints": [
                 "Use map() with Optional",
                 "Use String::toUpperCase"
+            ],
+            "examples": [
+                {
+                    "input": "java",
+                    "expected_output": "JAVA",
+                    "explanation": "For input 'java', the expected output is 'JAVA'."
+                },
+                {
+                    "input": "code",
+                    "expected_output": "CODE",
+                    "explanation": "For input 'code', the expected output is 'CODE'."
+                }
             ]
         },
         {
@@ -11289,6 +12339,18 @@
             "hints": [
                 "Use map() for transformation",
                 "Return default using orElse()"
+            ],
+            "examples": [
+                {
+                    "input": "java",
+                    "expected_output": "4",
+                    "explanation": "For input 'java', the expected output is '4'."
+                },
+                {
+                    "input": "hello",
+                    "expected_output": "5",
+                    "explanation": "For input 'hello', the expected output is '5'."
+                }
             ]
         },
         {
@@ -11337,6 +12399,18 @@
             "hints": [
                 "Use filter to check zero",
                 "Chain map() with Optional"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5",
+                    "explanation": "For input '10 2', the expected output is '5'."
+                },
+                {
+                    "input": "20 0",
+                    "expected_output": "Invalid",
+                    "explanation": "For input '20 0', the expected output is 'Invalid'."
+                }
             ]
         },
         {
@@ -11385,6 +12459,18 @@
             "hints": [
                 "Use findFirst()",
                 "Filter null values first"
+            ],
+            "examples": [
+                {
+                    "input": "null null Java",
+                    "expected_output": "Java",
+                    "explanation": "For input 'null null Java', the expected output is 'Java'."
+                },
+                {
+                    "input": "null Hello World",
+                    "expected_output": "Hello",
+                    "explanation": "For input 'null Hello World', the expected output is 'Hello'."
+                }
             ]
         },
         {
@@ -11433,6 +12519,18 @@
             "hints": [
                 "Chain multiple map() calls",
                 "Use Optional.ofNullable at root"
+            ],
+            "examples": [
+                {
+                    "input": "User(Address(City=Delhi))",
+                    "expected_output": "Delhi",
+                    "explanation": "For input 'User(Address(City=Delhi))', the expected output is 'Delhi'."
+                },
+                {
+                    "input": "User(null)",
+                    "expected_output": "Unknown",
+                    "explanation": "For input 'User(null)', the expected output is 'Unknown'."
+                }
             ]
         },
         {
@@ -11499,6 +12597,18 @@
             "hints": [
                 "Use Optional.or() chaining",
                 "Use orElse as final fallback"
+            ],
+            "examples": [
+                {
+                    "input": "primary=Java secondary=null default=Code",
+                    "expected_output": "Java",
+                    "explanation": "For input 'primary=Java secondary=null default=Code', the expected output is 'Java'."
+                },
+                {
+                    "input": "primary=null secondary=Python default=Code",
+                    "expected_output": "Python",
+                    "explanation": "For input 'primary=null secondary=Python default=Code', the expected output is 'Python'."
+                }
             ]
         },
         {
@@ -11565,6 +12675,18 @@
             "hints": [
                 "Chain multiple map() calls",
                 "Return default 0 using orElse"
+            ],
+            "examples": [
+                {
+                    "input": "Salary=50000",
+                    "expected_output": "50000",
+                    "explanation": "For input 'Salary=50000', the expected output is '50000'."
+                },
+                {
+                    "input": "Salary=null",
+                    "expected_output": "0",
+                    "explanation": "For input 'Salary=null', the expected output is '0'."
+                }
             ]
         },
         {
@@ -11631,6 +12753,18 @@
             "hints": [
                 "Use filter() for validation rules",
                 "Chain multiple conditions in Optional"
+            ],
+            "examples": [
+                {
+                    "input": "Java",
+                    "expected_output": "Invalid Input",
+                    "explanation": "For input 'Java', the expected output is 'Invalid Input'."
+                },
+                {
+                    "input": "HelloWorld",
+                    "expected_output": "HelloWorld",
+                    "explanation": "For input 'HelloWorld', the expected output is 'HelloWorld'."
+                }
             ]
         }
     ]

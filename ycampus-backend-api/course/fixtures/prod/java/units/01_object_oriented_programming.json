@@ -7,61 +7,121 @@
             "name": "Classes & Objects",
             "content": "Classes are blueprints or templates that define the structure and behavior of objects in Java. An object is an instance of a class that holds actual values and can invoke methods. A class contains fields (variables) to store data and methods to define behavior. Understanding how to define classes, create objects, and access members using the dot operator is the foundation of object-oriented programming in Java.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Classes & Objects",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Classes & Objects in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Constructors",
             "content": "Constructors are special methods in Java used to initialize objects when they are created. They have the same name as the class and no return type. Java supports default constructors, parameterized constructors, and copy constructors. Constructor overloading allows creating multiple constructors with different parameter lists. Understanding constructors is essential for proper object initialization and managing object state.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Constructors",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Constructors in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "this, static & final Keyword",
             "content": "The 'this' keyword refers to the current object instance and is used to distinguish between instance variables and parameters, invoke other constructors, and pass the current object as an argument. The 'static' keyword indicates that a member belongs to the class rather than any specific instance — static variables are shared across all objects and static methods can be called without creating an object. The 'final' keyword restricts modification: a final variable becomes a constant, a final method cannot be overridden, and a final class cannot be extended.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "this, static & final Keyword",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering this, static & final Keyword in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Inheritance",
             "content": "Inheritance is an OOP mechanism where a child class (subclass) acquires the properties and behaviors of a parent class (superclass) using the 'extends' keyword. It promotes code reusability and establishes an IS-A relationship between classes. Java supports single and multilevel inheritance but does not support multiple inheritance with classes. The 'super' keyword is used to access parent class members and constructors.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Inheritance",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Inheritance in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Polymorphism",
             "content": "Polymorphism means 'many forms' and allows objects to be treated as instances of their parent class. Java supports two types: compile-time polymorphism (method overloading) and runtime polymorphism (method overriding). Runtime polymorphism is achieved through dynamic method dispatch, where the JVM determines which method to invoke at runtime based on the actual object type. Polymorphism enables flexible and extensible code design.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Polymorphism",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Polymorphism in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Abstraction & Encapsulation",
             "content": "Abstraction is the process of hiding implementation details and exposing only essential features, achieved through abstract classes and interfaces. Encapsulation is the practice of bundling data and methods within a single class while restricting direct access to internal state using private variables and public getter/setter methods. Together, abstraction and encapsulation form the core principles of object-oriented design, promoting data integrity, reduced coupling, and maintainable code.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Abstraction & Encapsulation",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Abstraction & Encapsulation in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Interfaces",
             "content": "An interface in Java is a reference type that defines a contract of abstract methods that implementing classes must fulfill. Interfaces support multiple inheritance in Java, as a class can implement multiple interfaces. From Java 8 onwards, interfaces can also contain default methods and static methods. Interfaces are fundamental for achieving loose coupling, abstraction, and designing plug-and-play architectures.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Interfaces",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Interfaces in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Method Overloading & Overriding",
             "content": "Method overloading is a compile-time polymorphism feature that allows multiple methods with the same name but different parameter lists within a class. Method overriding is a runtime polymorphism feature where a subclass provides a specific implementation of a method already defined in its superclass, using the @Override annotation. Overloading is resolved by the compiler based on arguments, while overriding is resolved by the JVM at runtime based on the actual object type. Both techniques are essential for flexible and extensible Java applications.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Method Overloading & Overriding",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Method Overloading & Overriding in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "Object Class",
             "content": "The Object class is the root class of the Java class hierarchy. Every class in Java implicitly extends the Object class, inheriting its methods such as toString(), equals(), hashCode(), clone(), getClass(), finalize(), wait(), notify(), and notifyAll(). Understanding the Object class is important because its methods are available to all Java objects and are often overridden to provide meaningful behavior specific to each class.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Object Class",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Object Class in Object Oriented Programming in Java."
+                }
+            ]
         },
         {
             "name": "equals() & hashCode()",
             "content": "The equals() method is used to compare two objects for logical equality, while hashCode() returns an integer hash code value for an object. By default, equals() checks reference equality and hashCode() returns a memory-based value. When overriding equals(), hashCode() must also be overridden to maintain the contract: equal objects must have the same hash code. These methods are critical for correct behavior in hash-based collections like HashMap and HashSet.",
             "order_index": 9,
-            "videos": []
+            "videos": [
+                {
+                    "title": "equals() & hashCode()",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering equals() & hashCode() in Object Oriented Programming in Java."
+                }
+            ]
         }
     ],
     "questions": [
@@ -6689,7 +6749,18 @@
                     "expected_output": "Nissan 130"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "BMW 120",
+                    "expected_output": "BMW 120",
+                    "explanation": "For input 'BMW 120', the expected output is 'BMW 120'."
+                },
+                {
+                    "input": "Audi 150",
+                    "expected_output": "Audi 150",
+                    "explanation": "For input 'Audi 150', the expected output is 'Audi 150'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Print details",
             "solutions": [],
@@ -6762,7 +6833,18 @@
                     "expected_output": "1000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "1500",
+                    "explanation": "For input '1000 500', the expected output is '1500'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "3000",
+                    "explanation": "For input '2000 1000', the expected output is '3000'."
+                }
+            ],
             "inputFormat": "Two integers",
             "outputFormat": "Final balance",
             "solutions": [],
@@ -6835,7 +6917,18 @@
                     "expected_output": "72000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10000",
+                    "expected_output": "120000",
+                    "explanation": "For input '10000', the expected output is '120000'."
+                },
+                {
+                    "input": "20000",
+                    "expected_output": "240000",
+                    "explanation": "For input '20000', the expected output is '240000'."
+                }
+            ],
             "inputFormat": "Monthly salary",
             "outputFormat": "Annual salary",
             "solutions": [],
@@ -6908,7 +7001,18 @@
                     "expected_output": "Available"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Java true",
+                    "expected_output": "Issued",
+                    "explanation": "For input 'Java true', the expected output is 'Issued'."
+                },
+                {
+                    "input": "Python false",
+                    "expected_output": "Available",
+                    "explanation": "For input 'Python false', the expected output is 'Available'."
+                }
+            ],
             "inputFormat": "String boolean",
             "outputFormat": "Status",
             "solutions": [],
@@ -6981,7 +7085,18 @@
                     "expected_output": "37.68"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "7",
+                    "expected_output": "43.96",
+                    "explanation": "For input '7', the expected output is '43.96'."
+                },
+                {
+                    "input": "14",
+                    "expected_output": "87.92",
+                    "explanation": "For input '14', the expected output is '87.92'."
+                }
+            ],
             "inputFormat": "Radius",
             "outputFormat": "Circumference",
             "solutions": [],
@@ -7054,7 +7169,18 @@
                     "expected_output": "F"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "95",
+                    "expected_output": "A",
+                    "explanation": "For input '95', the expected output is 'A'."
+                },
+                {
+                    "input": "85",
+                    "expected_output": "B",
+                    "explanation": "For input '85', the expected output is 'B'."
+                }
+            ],
             "inputFormat": "Marks",
             "outputFormat": "Grade",
             "solutions": [],
@@ -7127,7 +7253,18 @@
                     "expected_output": "0"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "100 20",
+                    "expected_output": "80",
+                    "explanation": "For input '100 20', the expected output is '80'."
+                },
+                {
+                    "input": "500 100",
+                    "expected_output": "400",
+                    "explanation": "For input '500 100', the expected output is '400'."
+                }
+            ],
             "inputFormat": "Stock and sold quantity",
             "outputFormat": "Remaining stock",
             "solutions": [],
@@ -7200,7 +7337,18 @@
                     "expected_output": "200"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "50",
+                    "explanation": "For input '5', the expected output is '50'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "20",
+                    "explanation": "For input '2', the expected output is '20'."
+                }
+            ],
             "inputFormat": "Late days",
             "outputFormat": "Fine",
             "solutions": [],
@@ -7440,7 +7588,18 @@
                     "expected_output": "H 0"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Aman",
+                    "expected_output": "Aman 0",
+                    "explanation": "For input 'Aman', the expected output is 'Aman 0'."
+                },
+                {
+                    "input": "Ravi",
+                    "expected_output": "Ravi 0",
+                    "explanation": "For input 'Ravi', the expected output is 'Ravi 0'."
+                }
+            ],
             "inputFormat": "String",
             "outputFormat": "Print name and roll",
             "solutions": [],
@@ -7513,7 +7672,18 @@
                     "expected_output": "1000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "1500",
+                    "explanation": "For input '1000 500', the expected output is '1500'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "3000",
+                    "explanation": "For input '2000 1000', the expected output is '3000'."
+                }
+            ],
             "inputFormat": "Two integers",
             "outputFormat": "Print balance",
             "solutions": [],
@@ -7586,7 +7756,18 @@
                     "expected_output": "H 8 India"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Aman 50000",
+                    "expected_output": "Aman 50000 India",
+                    "explanation": "For input 'Aman 50000', the expected output is 'Aman 50000 India'."
+                },
+                {
+                    "input": "Ravi 60000",
+                    "expected_output": "Ravi 60000 India",
+                    "explanation": "For input 'Ravi 60000', the expected output is 'Ravi 60000 India'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Print details",
             "solutions": [],
@@ -7659,7 +7840,18 @@
                     "expected_output": "706.5"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "7",
+                    "expected_output": "153.86",
+                    "explanation": "For input '7', the expected output is '153.86'."
+                },
+                {
+                    "input": "1",
+                    "expected_output": "3.14",
+                    "explanation": "For input '1', the expected output is '3.14'."
+                }
+            ],
             "inputFormat": "Radius",
             "outputFormat": "Area",
             "solutions": [],
@@ -7732,7 +7924,18 @@
                     "expected_output": "640"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000 10",
+                    "expected_output": "900",
+                    "explanation": "For input '1000 10', the expected output is '900'."
+                },
+                {
+                    "input": "2000 20",
+                    "expected_output": "1600",
+                    "explanation": "For input '2000 20', the expected output is '1600'."
+                }
+            ],
             "inputFormat": "Price Discount",
             "outputFormat": "Final price",
             "solutions": [],
@@ -7805,7 +8008,18 @@
                     "expected_output": "H 20 Fail"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Aman 85",
+                    "expected_output": "Aman 85 Pass",
+                    "explanation": "For input 'Aman 85', the expected output is 'Aman 85 Pass'."
+                },
+                {
+                    "input": "Ravi 40",
+                    "expected_output": "Ravi 40 Fail",
+                    "explanation": "For input 'Ravi 40', the expected output is 'Ravi 40 Fail'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Print result",
             "solutions": [],
@@ -7878,7 +8092,18 @@
                     "expected_output": "144 288 576"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "4 8 16",
+                    "explanation": "For input '2', the expected output is '4 8 16'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "9 18 36",
+                    "explanation": "For input '3', the expected output is '9 18 36'."
+                }
+            ],
             "inputFormat": "Integer",
             "outputFormat": "Print chained results",
             "solutions": [],
@@ -7951,7 +8176,18 @@
                     "expected_output": "Available"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Java true",
+                    "expected_output": "Issued",
+                    "explanation": "For input 'Java true', the expected output is 'Issued'."
+                },
+                {
+                    "input": "Python false",
+                    "expected_output": "Available",
+                    "explanation": "For input 'Python false', the expected output is 'Available'."
+                }
+            ],
             "inputFormat": "String boolean",
             "outputFormat": "Issued/Available",
             "solutions": [],
@@ -8288,7 +8524,18 @@
                     "expected_output": "2"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10 5 add",
+                    "expected_output": "15",
+                    "explanation": "For input '10 5 add', the expected output is '15'."
+                },
+                {
+                    "input": "10 5 sub",
+                    "expected_output": "5",
+                    "explanation": "For input '10 5 sub', the expected output is '5'."
+                }
+            ],
             "inputFormat": "Two integers and operation",
             "outputFormat": "Print result",
             "solutions": [
@@ -8370,7 +8617,18 @@
                     "expected_output": "H 17 India"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Aman 20",
+                    "expected_output": "Aman 20 India",
+                    "explanation": "For input 'Aman 20', the expected output is 'Aman 20 India'."
+                },
+                {
+                    "input": "Ravi 21",
+                    "expected_output": "Ravi 21 India",
+                    "explanation": "For input 'Ravi 21', the expected output is 'Ravi 21 India'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Print details",
             "solutions": [
@@ -8452,7 +8710,18 @@
                     "expected_output": "Static Block Executed"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Static Block Executed",
+                    "explanation": "For input '', the expected output is 'Static Block Executed'."
+                },
+                {
+                    "input": "",
+                    "expected_output": "Static Block Executed",
+                    "explanation": "For input '', the expected output is 'Static Block Executed'."
+                }
+            ],
             "inputFormat": "No input",
             "outputFormat": "Print message",
             "solutions": [
@@ -8534,7 +8803,18 @@
                     "expected_output": "Parent Method"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Parent Method",
+                    "explanation": "For input '', the expected output is 'Parent Method'."
+                },
+                {
+                    "input": "",
+                    "expected_output": "Parent Method",
+                    "explanation": "For input '', the expected output is 'Parent Method'."
+                }
+            ],
             "inputFormat": "No input",
             "outputFormat": "Print method output",
             "solutions": [
@@ -8616,7 +8896,18 @@
                     "expected_output": "8 L 17"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "A 20",
+                    "expected_output": "1 A 20",
+                    "explanation": "For input 'A 20', the expected output is '1 A 20'."
+                },
+                {
+                    "input": "B 21",
+                    "expected_output": "2 B 21",
+                    "explanation": "For input 'B 21', the expected output is '2 B 21'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Count + details",
             "solutions": [
@@ -8698,7 +8989,18 @@
                     "expected_output": "Final Class Accessed"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Final Class Accessed",
+                    "explanation": "For input '', the expected output is 'Final Class Accessed'."
+                },
+                {
+                    "input": "",
+                    "expected_output": "Final Class Accessed",
+                    "explanation": "For input '', the expected output is 'Final Class Accessed'."
+                }
+            ],
             "inputFormat": "No input",
             "outputFormat": "Print message",
             "solutions": [
@@ -8780,7 +9082,18 @@
                     "expected_output": "2"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10 5 add",
+                    "expected_output": "15",
+                    "explanation": "For input '10 5 add', the expected output is '15'."
+                },
+                {
+                    "input": "10 5 sub",
+                    "expected_output": "5",
+                    "explanation": "For input '10 5 sub', the expected output is '5'."
+                }
+            ],
             "inputFormat": "Two integers and operation",
             "outputFormat": "Print result",
             "solutions": [
@@ -9031,7 +9344,18 @@
                     "expected_output": "12000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10000",
+                    "expected_output": "10000",
+                    "explanation": "For input '10000', the expected output is '10000'."
+                },
+                {
+                    "input": "20000",
+                    "expected_output": "20000",
+                    "explanation": "For input '20000', the expected output is '20000'."
+                }
+            ],
             "inputFormat": "Integer salary",
             "outputFormat": "Print salary",
             "solutions": [],
@@ -9183,7 +9507,18 @@
                     "expected_output": "F"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "95",
+                    "expected_output": "A",
+                    "explanation": "For input '95', the expected output is 'A'."
+                },
+                {
+                    "input": "85",
+                    "expected_output": "B",
+                    "explanation": "For input '85', the expected output is 'B'."
+                }
+            ],
             "inputFormat": "Marks",
             "outputFormat": "Grade",
             "solutions": [],
@@ -9256,7 +9591,18 @@
                     "expected_output": "2750"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000",
+                    "expected_output": "1100",
+                    "explanation": "For input '1000', the expected output is '1100'."
+                },
+                {
+                    "input": "2000",
+                    "expected_output": "2200",
+                    "explanation": "For input '2000', the expected output is '2200'."
+                }
+            ],
             "inputFormat": "Principal amount",
             "outputFormat": "Amount after interest",
             "solutions": [],
@@ -9329,7 +9675,18 @@
                     "expected_output": "Support"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Manager",
+                    "expected_output": "Manager",
+                    "explanation": "For input 'Manager', the expected output is 'Manager'."
+                },
+                {
+                    "input": "Developer",
+                    "expected_output": "Developer",
+                    "explanation": "For input 'Developer', the expected output is 'Developer'."
+                }
+            ],
             "inputFormat": "Role name",
             "outputFormat": "Print role",
             "solutions": [],
@@ -9402,7 +9759,18 @@
                     "expected_output": "1728"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "8",
+                    "explanation": "For input '2', the expected output is '8'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "27",
+                    "explanation": "For input '3', the expected output is '27'."
+                }
+            ],
             "inputFormat": "Integer",
             "outputFormat": "Computed value",
             "solutions": [],
@@ -9475,7 +9843,18 @@
                     "expected_output": "Staff 40000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Doctor 50000",
+                    "expected_output": "Doctor 50000",
+                    "explanation": "For input 'Doctor 50000', the expected output is 'Doctor 50000'."
+                },
+                {
+                    "input": "Nurse 30000",
+                    "expected_output": "Nurse 30000",
+                    "explanation": "For input 'Nurse 30000', the expected output is 'Nurse 30000'."
+                }
+            ],
             "inputFormat": "Role salary",
             "outputFormat": "Print role salary",
             "solutions": [],
@@ -9548,7 +9927,18 @@
                     "expected_output": "2000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Regular 1000",
+                    "expected_output": "900",
+                    "explanation": "For input 'Regular 1000', the expected output is '900'."
+                },
+                {
+                    "input": "Prime 1000",
+                    "expected_output": "800",
+                    "explanation": "For input 'Prime 1000', the expected output is '800'."
+                }
+            ],
             "inputFormat": "UserType Amount",
             "outputFormat": "Final amount after discount",
             "solutions": [],
@@ -9797,7 +10187,18 @@
                     "expected_output": "78.5"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'rect 2 3', the expected output is '6'."
+                },
+                {
+                    "input": "circle 7",
+                    "expected_output": "153.86",
+                    "explanation": "For input 'circle 7', the expected output is '153.86'."
+                }
+            ],
             "inputFormat": "Shape type and dimensions",
             "outputFormat": "Print area",
             "solutions": [],
@@ -9870,7 +10271,18 @@
                     "expected_output": "7"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "SBI",
+                    "expected_output": "6",
+                    "explanation": "For input 'SBI', the expected output is '6'."
+                },
+                {
+                    "input": "ICICI",
+                    "expected_output": "7",
+                    "explanation": "For input 'ICICI', the expected output is '7'."
+                }
+            ],
             "inputFormat": "Bank name",
             "outputFormat": "Print interest rate",
             "solutions": [],
@@ -9943,7 +10355,18 @@
                     "expected_output": "20000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "fulltime",
+                    "expected_output": "50000",
+                    "explanation": "For input 'fulltime', the expected output is '50000'."
+                },
+                {
+                    "input": "parttime",
+                    "expected_output": "20000",
+                    "explanation": "For input 'parttime', the expected output is '20000'."
+                }
+            ],
             "inputFormat": "String",
             "outputFormat": "Print salary",
             "solutions": [
@@ -10025,7 +10448,18 @@
                     "expected_output": "56"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "square 4",
+                    "expected_output": "16",
+                    "explanation": "For input 'square 4', the expected output is '16'."
+                },
+                {
+                    "input": "rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'rect 2 3', the expected output is '6'."
+                }
+            ],
             "inputFormat": "Shape type and dimensions",
             "outputFormat": "Print area",
             "solutions": [],
@@ -10098,7 +10532,18 @@
                     "expected_output": "Paid via UPI"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "card",
+                    "expected_output": "Paid via Card",
+                    "explanation": "For input 'card', the expected output is 'Paid via Card'."
+                },
+                {
+                    "input": "upi",
+                    "expected_output": "Paid via UPI",
+                    "explanation": "For input 'upi', the expected output is 'Paid via UPI'."
+                }
+            ],
             "inputFormat": "Payment type",
             "outputFormat": "Print payment method",
             "solutions": [],
@@ -10171,7 +10616,18 @@
                     "expected_output": "Bike Travel Time"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "car",
+                    "expected_output": "Car Travel Time",
+                    "explanation": "For input 'car', the expected output is 'Car Travel Time'."
+                },
+                {
+                    "input": "bike",
+                    "expected_output": "Bike Travel Time",
+                    "explanation": "For input 'bike', the expected output is 'Bike Travel Time'."
+                }
+            ],
             "inputFormat": "Transport type",
             "outputFormat": "Print travel time",
             "solutions": [],
@@ -10244,7 +10700,18 @@
                     "expected_output": "125"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "area square 4",
+                    "expected_output": "16",
+                    "explanation": "For input 'area square 4', the expected output is '16'."
+                },
+                {
+                    "input": "area rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'area rect 2 3', the expected output is '6'."
+                }
+            ],
             "inputFormat": "Operation and parameters",
             "outputFormat": "Print result",
             "solutions": [],
@@ -10317,7 +10784,18 @@
                     "expected_output": "36"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "triangle 10 5",
+                    "expected_output": "25",
+                    "explanation": "For input 'triangle 10 5', the expected output is '25'."
+                },
+                {
+                    "input": "rectangle 4 5",
+                    "expected_output": "20",
+                    "explanation": "For input 'rectangle 4 5', the expected output is '20'."
+                }
+            ],
             "inputFormat": "Shape type and dimensions",
             "outputFormat": "Print area",
             "solutions": [
@@ -10487,7 +10965,18 @@
                     "expected_output": "36"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "2 3",
+                    "expected_output": "6",
+                    "explanation": "For input '2 3', the expected output is '6'."
+                },
+                {
+                    "input": "4 5",
+                    "expected_output": "20",
+                    "explanation": "For input '4 5', the expected output is '20'."
+                }
+            ],
             "inputFormat": "Two integers",
             "outputFormat": "Print area",
             "solutions": [
@@ -10569,7 +11058,18 @@
                     "expected_output": "1000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "1500",
+                    "explanation": "For input '1000 500', the expected output is '1500'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "3000",
+                    "explanation": "For input '2000 1000', the expected output is '3000'."
+                }
+            ],
             "inputFormat": "Two integers",
             "outputFormat": "Print balance",
             "solutions": [
@@ -10651,7 +11151,18 @@
                     "expected_output": "UPI Payment: 120"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "upi 500",
+                    "expected_output": "UPI Payment: 500",
+                    "explanation": "For input 'upi 500', the expected output is 'UPI Payment: 500'."
+                },
+                {
+                    "input": "upi 1000",
+                    "expected_output": "UPI Payment: 1000",
+                    "explanation": "For input 'upi 1000', the expected output is 'UPI Payment: 1000'."
+                }
+            ],
             "inputFormat": "String int",
             "outputFormat": "Print payment",
             "solutions": [
@@ -10733,7 +11244,18 @@
                     "expected_output": "200"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "500",
+                    "explanation": "For input '1000 500', the expected output is '500'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "1000",
+                    "explanation": "For input '2000 1000', the expected output is '1000'."
+                }
+            ],
             "inputFormat": "balance withdraw",
             "outputFormat": "Print balance",
             "solutions": [],
@@ -10806,7 +11328,18 @@
                     "expected_output": "5000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "fulltime 50000",
+                    "expected_output": "50000",
+                    "explanation": "For input 'fulltime 50000', the expected output is '50000'."
+                },
+                {
+                    "input": "contract 30000",
+                    "expected_output": "30000",
+                    "explanation": "For input 'contract 30000', the expected output is '30000'."
+                }
+            ],
             "inputFormat": "type salary",
             "outputFormat": "Print salary",
             "solutions": [],
@@ -10879,7 +11412,18 @@
                     "expected_output": "Fail"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "85",
+                    "expected_output": "A",
+                    "explanation": "For input '85', the expected output is 'A'."
+                },
+                {
+                    "input": "75",
+                    "expected_output": "B",
+                    "explanation": "For input '75', the expected output is 'B'."
+                }
+            ],
             "inputFormat": "marks",
             "outputFormat": "Print grade",
             "solutions": [
@@ -10961,7 +11505,18 @@
                     "expected_output": "175"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "SBI 1000",
+                    "expected_output": "60",
+                    "explanation": "For input 'SBI 1000', the expected output is '60'."
+                },
+                {
+                    "input": "ICICI 1000",
+                    "expected_output": "70",
+                    "explanation": "For input 'ICICI 1000', the expected output is '70'."
+                }
+            ],
             "inputFormat": "Bank name and amount",
             "outputFormat": "Print interest",
             "solutions": [
@@ -11043,7 +11598,18 @@
                     "expected_output": "Login Success"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "admin 1234",
+                    "expected_output": "Login Success",
+                    "explanation": "For input 'admin 1234', the expected output is 'Login Success'."
+                },
+                {
+                    "input": "user 0000",
+                    "expected_output": "Login Failed",
+                    "explanation": "For input 'user 0000', the expected output is 'Login Failed'."
+                }
+            ],
             "inputFormat": "username password",
             "outputFormat": "Login result",
             "solutions": [
@@ -11125,7 +11691,18 @@
                     "expected_output": "Bike Speed: 60"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "car 60",
+                    "expected_output": "Car Speed: 60",
+                    "explanation": "For input 'car 60', the expected output is 'Car Speed: 60'."
+                },
+                {
+                    "input": "bike 40",
+                    "expected_output": "Bike Speed: 40",
+                    "explanation": "For input 'bike 40', the expected output is 'Bike Speed: 40'."
+                }
+            ],
             "inputFormat": "vehicle type and speed",
             "outputFormat": "Print speed",
             "solutions": [
@@ -11296,7 +11873,18 @@
                     "expected_output": "UPI Payment: 120"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "500",
+                    "expected_output": "UPI Payment: 500",
+                    "explanation": "For input '500', the expected output is 'UPI Payment: 500'."
+                },
+                {
+                    "input": "1000",
+                    "expected_output": "UPI Payment: 1000",
+                    "explanation": "For input '1000', the expected output is 'UPI Payment: 1000'."
+                }
+            ],
             "inputFormat": "Integer amount",
             "outputFormat": "Print payment",
             "solutions": [
@@ -11378,7 +11966,18 @@
                     "expected_output": "Car Started"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "car",
+                    "expected_output": "Car Started",
+                    "explanation": "For input 'car', the expected output is 'Car Started'."
+                },
+                {
+                    "input": "car",
+                    "expected_output": "Car Started",
+                    "explanation": "For input 'car', the expected output is 'Car Started'."
+                }
+            ],
             "inputFormat": "String",
             "outputFormat": "Print status",
             "solutions": [
@@ -11460,7 +12059,18 @@
                     "expected_output": "Print Show: h"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "Print Show: hello",
+                    "explanation": "For input 'hello', the expected output is 'Print Show: hello'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Print Show: java",
+                    "explanation": "For input 'java', the expected output is 'Print Show: java'."
+                }
+            ],
             "inputFormat": "String",
             "outputFormat": "Print message",
             "solutions": [
@@ -11542,7 +12152,18 @@
                     "expected_output": "210"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "SBI 1000",
+                    "expected_output": "60",
+                    "explanation": "For input 'SBI 1000', the expected output is '60'."
+                },
+                {
+                    "input": "ICICI 1000",
+                    "expected_output": "70",
+                    "explanation": "For input 'ICICI 1000', the expected output is '70'."
+                }
+            ],
             "inputFormat": "Bank name and amount",
             "outputFormat": "Print interest",
             "solutions": [
@@ -11624,7 +12245,18 @@
                     "expected_output": "78.5"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'rect 2 3', the expected output is '6'."
+                },
+                {
+                    "input": "circle 7",
+                    "expected_output": "153.86",
+                    "explanation": "For input 'circle 7', the expected output is '153.86'."
+                }
+            ],
             "inputFormat": "Shape type and values",
             "outputFormat": "Print area",
             "solutions": [
@@ -11706,7 +12338,18 @@
                     "expected_output": "Testing"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "dev",
+                    "expected_output": "Coding",
+                    "explanation": "For input 'dev', the expected output is 'Coding'."
+                },
+                {
+                    "input": "test",
+                    "expected_output": "Testing",
+                    "explanation": "For input 'test', the expected output is 'Testing'."
+                }
+            ],
             "inputFormat": "role type",
             "outputFormat": "Print work",
             "solutions": [
@@ -11788,7 +12431,18 @@
                     "expected_output": "All Features Enabled"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "camera gps music",
+                    "expected_output": "All Features Enabled",
+                    "explanation": "For input 'camera gps music', the expected output is 'All Features Enabled'."
+                },
+                {
+                    "input": "camera gps",
+                    "expected_output": "Camera GPS Enabled",
+                    "explanation": "For input 'camera gps', the expected output is 'Camera GPS Enabled'."
+                }
+            ],
             "inputFormat": "features list",
             "outputFormat": "Print enabled features",
             "solutions": [
@@ -11870,7 +12524,18 @@
                     "expected_output": "SMS Sent"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "email",
+                    "expected_output": "Email Sent",
+                    "explanation": "For input 'email', the expected output is 'Email Sent'."
+                },
+                {
+                    "input": "sms",
+                    "expected_output": "SMS Sent",
+                    "explanation": "For input 'sms', the expected output is 'SMS Sent'."
+                }
+            ],
             "inputFormat": "notification type",
             "outputFormat": "Print status",
             "solutions": [
@@ -11952,7 +12617,18 @@
                     "expected_output": "Card Paid 120"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "upi 500",
+                    "expected_output": "UPI Paid 500",
+                    "explanation": "For input 'upi 500', the expected output is 'UPI Paid 500'."
+                },
+                {
+                    "input": "card 1000",
+                    "expected_output": "Card Paid 1000",
+                    "explanation": "For input 'card 1000', the expected output is 'Card Paid 1000'."
+                }
+            ],
             "inputFormat": "payment type and amount",
             "outputFormat": "Print payment status",
             "solutions": [
@@ -12122,7 +12798,18 @@
                     "expected_output": "Meow"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "dog",
+                    "expected_output": "Bark",
+                    "explanation": "For input 'dog', the expected output is 'Bark'."
+                },
+                {
+                    "input": "cat",
+                    "expected_output": "Meow",
+                    "explanation": "For input 'cat', the expected output is 'Meow'."
+                }
+            ],
             "inputFormat": "animal type",
             "outputFormat": "Print sound",
             "solutions": [
@@ -12204,7 +12891,18 @@
                     "expected_output": "16"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "square 4",
+                    "expected_output": "16",
+                    "explanation": "For input 'square 4', the expected output is '16'."
+                },
+                {
+                    "input": "rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'rect 2 3', the expected output is '6'."
+                }
+            ],
             "inputFormat": "type and values",
             "outputFormat": "Print area",
             "solutions": [
@@ -12286,7 +12984,18 @@
                     "expected_output": "Developer Salary: 40000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "manager",
+                    "expected_output": "Manager Salary: 50000",
+                    "explanation": "For input 'manager', the expected output is 'Manager Salary: 50000'."
+                },
+                {
+                    "input": "developer",
+                    "expected_output": "Developer Salary: 40000",
+                    "explanation": "For input 'developer', the expected output is 'Developer Salary: 40000'."
+                }
+            ],
             "inputFormat": "role",
             "outputFormat": "Print salary",
             "solutions": [
@@ -12368,7 +13077,18 @@
                     "expected_output": "78.5"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "rect 2 3",
+                    "expected_output": "6",
+                    "explanation": "For input 'rect 2 3', the expected output is '6'."
+                },
+                {
+                    "input": "circle 7",
+                    "expected_output": "153.86",
+                    "explanation": "For input 'circle 7', the expected output is '153.86'."
+                }
+            ],
             "inputFormat": "shape type",
             "outputFormat": "Print area",
             "solutions": [
@@ -12450,7 +13170,18 @@
                     "expected_output": "64"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "2 3",
+                    "expected_output": "6",
+                    "explanation": "For input '2 3', the expected output is '6'."
+                },
+                {
+                    "input": "2 3 4",
+                    "expected_output": "24",
+                    "explanation": "For input '2 3 4', the expected output is '24'."
+                }
+            ],
             "inputFormat": "integers",
             "outputFormat": "print product",
             "solutions": [
@@ -12532,7 +13263,18 @@
                     "expected_output": "Bonus 5000"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "manager",
+                    "expected_output": "Bonus 10000",
+                    "explanation": "For input 'manager', the expected output is 'Bonus 10000'."
+                },
+                {
+                    "input": "developer",
+                    "expected_output": "Bonus 5000",
+                    "explanation": "For input 'developer', the expected output is 'Bonus 5000'."
+                }
+            ],
             "inputFormat": "role",
             "outputFormat": "print bonus",
             "solutions": [
@@ -12614,7 +13356,18 @@
                     "expected_output": "Card Paid 120"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "upi 500",
+                    "expected_output": "UPI Paid 500",
+                    "explanation": "For input 'upi 500', the expected output is 'UPI Paid 500'."
+                },
+                {
+                    "input": "card 1000",
+                    "expected_output": "Card Paid 1000",
+                    "explanation": "For input 'card 1000', the expected output is 'Card Paid 1000'."
+                }
+            ],
             "inputFormat": "type and amount",
             "outputFormat": "print payment",
             "solutions": [
@@ -12696,7 +13449,18 @@
                     "expected_output": "Child Calc 100"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "base 2 3",
+                    "expected_output": "Base Calc 5",
+                    "explanation": "For input 'base 2 3', the expected output is 'Base Calc 5'."
+                },
+                {
+                    "input": "child 2 3",
+                    "expected_output": "Child Calc 6",
+                    "explanation": "For input 'child 2 3', the expected output is 'Child Calc 6'."
+                }
+            ],
             "inputFormat": "type and numbers",
             "outputFormat": "print result",
             "solutions": [
@@ -12778,7 +13542,18 @@
                     "expected_output": "SMS Sent"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "email",
+                    "expected_output": "Email Sent",
+                    "explanation": "For input 'email', the expected output is 'Email Sent'."
+                },
+                {
+                    "input": "sms",
+                    "expected_output": "SMS Sent",
+                    "explanation": "For input 'sms', the expected output is 'SMS Sent'."
+                }
+            ],
             "inputFormat": "notification type",
             "outputFormat": "print status",
             "solutions": [
@@ -12948,7 +13723,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "two product ids",
             "outputFormat": "print true/false",
             "solutions": [
@@ -13030,7 +13816,18 @@
                     "expected_output": "8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "10",
+                    "explanation": "For input '10', the expected output is '10'."
+                },
+                {
+                    "input": "20",
+                    "expected_output": "20",
+                    "explanation": "For input '20', the expected output is '20'."
+                }
+            ],
             "inputFormat": "user id",
             "outputFormat": "print hashcode",
             "solutions": [
@@ -13112,7 +13909,18 @@
                     "expected_output": "H-8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "John 20",
+                    "expected_output": "John-20",
+                    "explanation": "For input 'John 20', the expected output is 'John-20'."
+                },
+                {
+                    "input": "Alice 21",
+                    "expected_output": "Alice-21",
+                    "explanation": "For input 'Alice 21', the expected output is 'Alice-21'."
+                }
+            ],
             "inputFormat": "name age",
             "outputFormat": "print copied object data",
             "solutions": [
@@ -13194,7 +14002,18 @@
                     "expected_output": "true"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "two employee ids",
             "outputFormat": "print true/false",
             "solutions": [
@@ -13276,7 +14095,18 @@
                     "expected_output": "Book:R-Author:K-Price:8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Java John 500",
+                    "expected_output": "Book:Java-Author:John-Price:500",
+                    "explanation": "For input 'Java John 500', the expected output is 'Book:Java-Author:John-Price:500'."
+                },
+                {
+                    "input": "C++ Alex 300",
+                    "expected_output": "Book:C++-Author:Alex-Price:300",
+                    "explanation": "For input 'C++ Alex 300', the expected output is 'Book:C++-Author:Alex-Price:300'."
+                }
+            ],
             "inputFormat": "title author price",
             "outputFormat": "formatted book details",
             "solutions": [
@@ -13358,7 +14188,18 @@
                     "expected_output": "H-8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "John 20",
+                    "expected_output": "John-20",
+                    "explanation": "For input 'John 20', the expected output is 'John-20'."
+                },
+                {
+                    "input": "Alice 30",
+                    "expected_output": "Alice-30",
+                    "explanation": "For input 'Alice 30', the expected output is 'Alice-30'."
+                }
+            ],
             "inputFormat": "name age",
             "outputFormat": "print copied object",
             "solutions": [
@@ -13440,7 +14281,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "student id pairs",
             "outputFormat": "print equality",
             "solutions": [
@@ -13522,7 +14374,18 @@
                     "expected_output": "Book Object"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "student",
+                    "expected_output": "Student Object",
+                    "explanation": "For input 'student', the expected output is 'Student Object'."
+                },
+                {
+                    "input": "book",
+                    "expected_output": "Book Object",
+                    "explanation": "For input 'book', the expected output is 'Book Object'."
+                }
+            ],
             "inputFormat": "type",
             "outputFormat": "print object type",
             "solutions": [
@@ -13604,7 +14467,18 @@
                     "expected_output": "User[12,H]"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 John",
+                    "expected_output": "User[1,John]",
+                    "explanation": "For input '1 John', the expected output is 'User[1,John]'."
+                },
+                {
+                    "input": "2 Alice",
+                    "expected_output": "User[2,Alice]",
+                    "explanation": "For input '2 Alice', the expected output is 'User[2,Alice]'."
+                }
+            ],
             "inputFormat": "id name",
             "outputFormat": "formatted user object",
             "solutions": [
@@ -13771,7 +14645,18 @@
                     "expected_output": "8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "10",
+                    "explanation": "For input '10', the expected output is '10'."
+                },
+                {
+                    "input": "20",
+                    "expected_output": "20",
+                    "explanation": "For input '20', the expected output is '20'."
+                }
+            ],
             "inputFormat": "user id",
             "outputFormat": "print hashCode",
             "solutions": [
@@ -13850,7 +14735,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "A A",
+                    "expected_output": "true",
+                    "explanation": "For input 'A A', the expected output is 'true'."
+                },
+                {
+                    "input": "A B",
+                    "expected_output": "false",
+                    "explanation": "For input 'A B', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "product codes",
             "outputFormat": "true/false",
             "solutions": [
@@ -13929,7 +14825,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "employee ids",
             "outputFormat": "true/false",
             "solutions": [
@@ -14008,7 +14915,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "two student ids",
             "outputFormat": "true/false",
             "solutions": [
@@ -14087,7 +15005,18 @@
                     "expected_output": "8"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "John",
+                    "expected_output": "4",
+                    "explanation": "For input 'John', the expected output is '4'."
+                },
+                {
+                    "input": "Alex",
+                    "expected_output": "4",
+                    "explanation": "For input 'Alex', the expected output is '4'."
+                }
+            ],
             "inputFormat": "account name",
             "outputFormat": "hashcode",
             "solutions": [
@@ -14166,7 +15095,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "Java John Java John",
+                    "expected_output": "true",
+                    "explanation": "For input 'Java John Java John', the expected output is 'true'."
+                },
+                {
+                    "input": "Java John C++ Alex",
+                    "expected_output": "false",
+                    "explanation": "For input 'Java John C++ Alex', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "title author pairs",
             "outputFormat": "true/false",
             "solutions": [
@@ -14245,7 +15185,18 @@
                     "expected_output": "true"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 1",
+                    "expected_output": "true",
+                    "explanation": "For input '1 1', the expected output is 'true'."
+                },
+                {
+                    "input": "2 3",
+                    "expected_output": "false",
+                    "explanation": "For input '2 3', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "ids",
             "outputFormat": "true/false",
             "solutions": [
@@ -14324,7 +15275,18 @@
                     "expected_output": "Collision"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "A B",
+                    "expected_output": "Collision",
+                    "explanation": "For input 'A B', the expected output is 'Collision'."
+                },
+                {
+                    "input": "C D",
+                    "expected_output": "Collision",
+                    "explanation": "For input 'C D', the expected output is 'Collision'."
+                }
+            ],
             "inputFormat": "two strings",
             "outputFormat": "Collision",
             "solutions": [
@@ -14403,7 +15365,18 @@
                     "expected_output": "false"
                 }
             ],
-            "examples": [],
+            "examples": [
+                {
+                    "input": "1 John 1 John",
+                    "expected_output": "true",
+                    "explanation": "For input '1 John 1 John', the expected output is 'true'."
+                },
+                {
+                    "input": "2 John 3 Alex",
+                    "expected_output": "false",
+                    "explanation": "For input '2 John 3 Alex', the expected output is 'false'."
+                }
+            ],
             "inputFormat": "id name pairs",
             "outputFormat": "true/false",
             "solutions": [

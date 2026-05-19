@@ -7,55 +7,109 @@
             "name": "JDBC Basics",
             "content": "JDBC (Java Database Connectivity) is a Java API that enables Java applications to interact with relational databases. It provides a standard interface for connecting to databases, executing SQL queries, and processing results. The JDBC architecture consists of the JDBC API (java.sql and javax.sql packages) and JDBC drivers that translate Java calls into database-specific protocols. Understanding the JDBC workflow — loading the driver, establishing a connection, creating statements, executing queries, and closing resources — is fundamental to database programming in Java.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "JDBC Basics",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering JDBC Basics in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "DriverManager & Connection",
             "content": "The DriverManager class manages a list of database drivers and establishes connections to databases using the getConnection() method with a JDBC URL, username, and password. The Connection interface represents a session with a specific database and provides methods for creating statements, managing transactions, and retrieving metadata. JDBC URLs follow the format jdbc:subprotocol:subname. Understanding driver registration, connection string formats for different databases (MySQL, PostgreSQL, Oracle), and proper connection management with try-with-resources is essential for reliable database connectivity.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "DriverManager & Connection",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering DriverManager & Connection in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "PreparedStatement",
             "content": "PreparedStatement is a precompiled SQL statement interface that extends Statement, offering improved performance and security. It uses parameterized queries with placeholders (?) to prevent SQL injection attacks. Parameters are set using typed setter methods like setInt(), setString(), and setDate(). PreparedStatement is more efficient than Statement for repeated executions because the SQL is compiled once and reused. It supports batch operations via addBatch() and executeBatch() for executing multiple statements efficiently.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "PreparedStatement",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering PreparedStatement in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "ResultSet",
             "content": "The ResultSet interface represents the result of a SQL query and provides methods to iterate over and retrieve data from the result rows. It uses a cursor that initially points before the first row, and the next() method advances it row by row. Data is retrieved using typed getter methods like getInt(), getString(), and getDate() by column name or index. ResultSet types include TYPE_FORWARD_ONLY, TYPE_SCROLL_INSENSITIVE, and TYPE_SCROLL_SENSITIVE, with concurrency modes for read-only or updatable results.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "ResultSet",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering ResultSet in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "Transaction Management",
             "content": "Transaction management in JDBC ensures data integrity by grouping multiple SQL operations into a single atomic unit of work. By default, JDBC operates in auto-commit mode where each statement is committed individually. Disabling auto-commit with setAutoCommit(false) allows explicit transaction control using commit() to save changes and rollback() to undo them on failure. Savepoints provide partial rollback capability within a transaction. Understanding ACID properties (Atomicity, Consistency, Isolation, Durability) and isolation levels is critical for building reliable data applications.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Transaction Management",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Transaction Management in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "Connection Pooling",
             "content": "Connection pooling is a technique that maintains a cache of reusable database connections to improve application performance and scalability. Creating database connections is expensive, so pools pre-create and manage a set of connections that are borrowed and returned by application threads. Popular connection pool libraries include HikariCP, Apache DBCP, and C3P0. Key configuration parameters include minimum/maximum pool size, connection timeout, and idle timeout. Understanding connection pooling is essential for building high-performance Java applications that interact with databases.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Connection Pooling",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Connection Pooling in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "Annotations",
             "content": "Annotations in Java are metadata markers that provide information about code to the compiler, runtime, or development tools without directly affecting program logic. Built-in annotations include @Override, @Deprecated, @SuppressWarnings, and @FunctionalInterface. Java supports custom annotations defined with @interface and meta-annotations (@Target, @Retention, @Inherited, @Documented) to control their behavior. Annotations are widely used in frameworks like Spring, Hibernate, and JUnit for configuration, dependency injection, and testing.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Annotations",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Annotations in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "Enums & Inner Classes",
             "content": "Enums in Java are special data types that define a fixed set of named constants, providing type safety and readability. Enums can have fields, constructors, and methods, and are implicitly final and extend java.lang.Enum. Inner classes are classes defined within another class, including member inner classes, static nested classes, local inner classes, and anonymous inner classes. Inner classes can access the enclosing class's members and are useful for logically grouping related classes, implementing callbacks, and creating concise event handlers.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Enums & Inner Classes",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Enums & Inner Classes in JDBC & Advanced Java Concepts."
+                }
+            ]
         },
         {
             "name": "Garbage Collection",
             "content": "Garbage collection in Java is an automatic memory management process that identifies and reclaims memory occupied by objects that are no longer reachable by the program. The JVM's garbage collector runs in the background, freeing developers from manual memory deallocation. Key concepts include the heap memory structure (Young Generation, Old Generation, Metaspace), garbage collection algorithms (Serial, Parallel, CMS, G1, ZGC), and object eligibility for garbage collection. The finalize() method and System.gc() provide limited control over garbage collection behavior.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Garbage Collection",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Garbage Collection in JDBC & Advanced Java Concepts."
+                }
+            ]
         }
     ],
     "questions": [
@@ -5883,6 +5937,18 @@
             "hints": [
                 "Use DriverManager.getConnection()",
                 "Provide correct URL, username, and password"
+            ],
+            "examples": [
+                {
+                    "input": "connect",
+                    "expected_output": "Connected Successfully",
+                    "explanation": "For input 'connect', the expected output is 'Connected Successfully'."
+                },
+                {
+                    "input": "db",
+                    "expected_output": "Connected Successfully",
+                    "explanation": "For input 'db', the expected output is 'Connected Successfully'."
+                }
             ]
         },
         {
@@ -5949,6 +6015,18 @@
             "hints": [
                 "Use Statement interface",
                 "Use executeQuery() method"
+            ],
+            "examples": [
+                {
+                    "input": "select",
+                    "expected_output": "Query Executed",
+                    "explanation": "For input 'select', the expected output is 'Query Executed'."
+                },
+                {
+                    "input": "statement",
+                    "expected_output": "Query Executed",
+                    "explanation": "For input 'statement', the expected output is 'Query Executed'."
+                }
             ]
         },
         {
@@ -6015,6 +6093,18 @@
             "hints": [
                 "Use Class.forName()",
                 "Load MySQL driver class"
+            ],
+            "examples": [
+                {
+                    "input": "load",
+                    "expected_output": "Driver Loaded Successfully",
+                    "explanation": "For input 'load', the expected output is 'Driver Loaded Successfully'."
+                },
+                {
+                    "input": "driver",
+                    "expected_output": "Driver Loaded Successfully",
+                    "explanation": "For input 'driver', the expected output is 'Driver Loaded Successfully'."
+                }
             ]
         },
         {
@@ -6081,6 +6171,18 @@
             "hints": [
                 "Always close ResultSet, Statement, Connection",
                 "Check for null before closing"
+            ],
+            "examples": [
+                {
+                    "input": "close",
+                    "expected_output": "Resources Closed",
+                    "explanation": "For input 'close', the expected output is 'Resources Closed'."
+                },
+                {
+                    "input": "cleanup",
+                    "expected_output": "Resources Closed",
+                    "explanation": "For input 'cleanup', the expected output is 'Resources Closed'."
+                }
             ]
         },
         {
@@ -6147,6 +6249,18 @@
             "hints": [
                 "Use addBatch() for multiple inserts",
                 "Use executeBatch() to execute all queries"
+            ],
+            "examples": [
+                {
+                    "input": "batch",
+                    "expected_output": "Batch Insert Completed",
+                    "explanation": "For input 'batch', the expected output is 'Batch Insert Completed'."
+                },
+                {
+                    "input": "insert",
+                    "expected_output": "Batch Insert Completed",
+                    "explanation": "For input 'insert', the expected output is 'Batch Insert Completed'."
+                }
             ]
         },
         {
@@ -6213,6 +6327,18 @@
             "hints": [
                 "Use setAutoCommit(false)",
                 "Use commit() and rollback()"
+            ],
+            "examples": [
+                {
+                    "input": "commit",
+                    "expected_output": "Transaction Successful",
+                    "explanation": "For input 'commit', the expected output is 'Transaction Successful'."
+                },
+                {
+                    "input": "rollback",
+                    "expected_output": "Transaction Failed",
+                    "explanation": "For input 'rollback', the expected output is 'Transaction Failed'."
+                }
             ]
         },
         {
@@ -6279,6 +6405,18 @@
             "hints": [
                 "Use TYPE_SCROLL_INSENSITIVE",
                 "Use next() and previous() methods"
+            ],
+            "examples": [
+                {
+                    "input": "next",
+                    "expected_output": "Forward Navigation",
+                    "explanation": "For input 'next', the expected output is 'Forward Navigation'."
+                },
+                {
+                    "input": "previous",
+                    "expected_output": "Backward Navigation",
+                    "explanation": "For input 'previous', the expected output is 'Backward Navigation'."
+                }
             ]
         },
         {
@@ -6345,6 +6483,18 @@
             "hints": [
                 "Maintain a counter for active connections",
                 "Reuse existing objects instead of creating new ones"
+            ],
+            "examples": [
+                {
+                    "input": "getConn1",
+                    "expected_output": "Connection Reused",
+                    "explanation": "For input 'getConn1', the expected output is 'Connection Reused'."
+                },
+                {
+                    "input": "getConn2",
+                    "expected_output": "Connection Reused",
+                    "explanation": "For input 'getConn2', the expected output is 'Connection Reused'."
+                }
             ]
         },
         {
@@ -6411,6 +6561,18 @@
             "hints": [
                 "Use addBatch() and executeBatch()",
                 "Enable transaction management using setAutoCommit(false)"
+            ],
+            "examples": [
+                {
+                    "input": "success",
+                    "expected_output": "Batch Update Successful",
+                    "explanation": "For input 'success', the expected output is 'Batch Update Successful'."
+                },
+                {
+                    "input": "fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'fail', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -6477,6 +6639,18 @@
             "hints": [
                 "Map each row of ResultSet to a Java object",
                 "Use a List to store objects"
+            ],
+            "examples": [
+                {
+                    "input": "map",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'map', the expected output is 'Objects Created'."
+                },
+                {
+                    "input": "orm",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'orm', the expected output is 'Objects Created'."
+                }
             ]
         },
         {
@@ -6543,6 +6717,18 @@
             "hints": [
                 "Use Class.forName()",
                 "Load MySQL JDBC driver class"
+            ],
+            "examples": [
+                {
+                    "input": "load",
+                    "expected_output": "Driver Loaded",
+                    "explanation": "For input 'load', the expected output is 'Driver Loaded'."
+                },
+                {
+                    "input": "jdbc",
+                    "expected_output": "Driver Loaded",
+                    "explanation": "For input 'jdbc', the expected output is 'Driver Loaded'."
+                }
             ]
         },
         {
@@ -6609,6 +6795,18 @@
             "hints": [
                 "Use DriverManager.getConnection()",
                 "Provide correct URL, username, and password"
+            ],
+            "examples": [
+                {
+                    "input": "connect",
+                    "expected_output": "Connection Established",
+                    "explanation": "For input 'connect', the expected output is 'Connection Established'."
+                },
+                {
+                    "input": "db",
+                    "expected_output": "Connection Established",
+                    "explanation": "For input 'db', the expected output is 'Connection Established'."
+                }
             ]
         },
         {
@@ -6675,6 +6873,18 @@
             "hints": [
                 "Use con.isClosed() method",
                 "Check for null before validation"
+            ],
+            "examples": [
+                {
+                    "input": "open",
+                    "expected_output": "Connection Active",
+                    "explanation": "For input 'open', the expected output is 'Connection Active'."
+                },
+                {
+                    "input": "status",
+                    "expected_output": "Connection Active",
+                    "explanation": "For input 'status', the expected output is 'Connection Active'."
+                }
             ]
         },
         {
@@ -6741,6 +6951,18 @@
             "hints": [
                 "Always check for null before closing",
                 "Use con.close() method"
+            ],
+            "examples": [
+                {
+                    "input": "close",
+                    "expected_output": "Connection Closed",
+                    "explanation": "For input 'close', the expected output is 'Connection Closed'."
+                },
+                {
+                    "input": "end",
+                    "expected_output": "Connection Closed",
+                    "explanation": "For input 'end', the expected output is 'Connection Closed'."
+                }
             ]
         },
         {
@@ -6807,6 +7029,18 @@
             "hints": [
                 "Use try-catch for SQLException",
                 "Use DriverManager.getConnection()"
+            ],
+            "examples": [
+                {
+                    "input": "connect",
+                    "expected_output": "Connection Successful",
+                    "explanation": "For input 'connect', the expected output is 'Connection Successful'."
+                },
+                {
+                    "input": "db",
+                    "expected_output": "Connection Successful",
+                    "explanation": "For input 'db', the expected output is 'Connection Successful'."
+                }
             ]
         },
         {
@@ -6873,6 +7107,18 @@
             "hints": [
                 "Create two separate Connection objects",
                 "Use different database URLs"
+            ],
+            "examples": [
+                {
+                    "input": "db1",
+                    "expected_output": "DB1 Connected",
+                    "explanation": "For input 'db1', the expected output is 'DB1 Connected'."
+                },
+                {
+                    "input": "db2",
+                    "expected_output": "DB2 Connected",
+                    "explanation": "For input 'db2', the expected output is 'DB2 Connected'."
+                }
             ]
         },
         {
@@ -6939,6 +7185,18 @@
             "hints": [
                 "Use con.isClosed()",
                 "Reconnect using DriverManager if needed"
+            ],
+            "examples": [
+                {
+                    "input": "closed",
+                    "expected_output": "Reconnected Successfully",
+                    "explanation": "For input 'closed', the expected output is 'Reconnected Successfully'."
+                },
+                {
+                    "input": "open",
+                    "expected_output": "Connection Active",
+                    "explanation": "For input 'open', the expected output is 'Connection Active'."
+                }
             ]
         },
         {
@@ -7005,6 +7263,18 @@
             "hints": [
                 "Use nested try-catch blocks",
                 "Attempt secondary DB connection if primary fails"
+            ],
+            "examples": [
+                {
+                    "input": "primary_ok",
+                    "expected_output": "Primary Connection Successful",
+                    "explanation": "For input 'primary_ok', the expected output is 'Primary Connection Successful'."
+                },
+                {
+                    "input": "primary_fail",
+                    "expected_output": "Backup Connection Successful",
+                    "explanation": "For input 'primary_fail', the expected output is 'Backup Connection Successful'."
+                }
             ]
         },
         {
@@ -7071,6 +7341,18 @@
             "hints": [
                 "Maintain a static counter for active connections",
                 "Restrict connections beyond max limit"
+            ],
+            "examples": [
+                {
+                    "input": "conn1",
+                    "expected_output": "Connection Granted",
+                    "explanation": "For input 'conn1', the expected output is 'Connection Granted'."
+                },
+                {
+                    "input": "conn2",
+                    "expected_output": "Connection Granted",
+                    "explanation": "For input 'conn2', the expected output is 'Connection Granted'."
+                }
             ]
         },
         {
@@ -7137,6 +7419,18 @@
             "hints": [
                 "Use con.isClosed() and validation checks",
                 "Reconnect automatically if invalid"
+            ],
+            "examples": [
+                {
+                    "input": "valid",
+                    "expected_output": "Connection Active",
+                    "explanation": "For input 'valid', the expected output is 'Connection Active'."
+                },
+                {
+                    "input": "invalid",
+                    "expected_output": "Reconnected Successfully",
+                    "explanation": "For input 'invalid', the expected output is 'Reconnected Successfully'."
+                }
             ]
         },
         {
@@ -7203,6 +7497,18 @@
             "hints": [
                 "Use PreparedStatement instead of Statement",
                 "Use executeUpdate() for INSERT operations"
+            ],
+            "examples": [
+                {
+                    "input": "insert",
+                    "expected_output": "Record Inserted",
+                    "explanation": "For input 'insert', the expected output is 'Record Inserted'."
+                },
+                {
+                    "input": "student",
+                    "expected_output": "Record Inserted",
+                    "explanation": "For input 'student', the expected output is 'Record Inserted'."
+                }
             ]
         },
         {
@@ -7269,6 +7575,18 @@
             "hints": [
                 "Use placeholders (?) in SQL",
                 "Use executeUpdate() for UPDATE queries"
+            ],
+            "examples": [
+                {
+                    "input": "update",
+                    "expected_output": "Record Updated",
+                    "explanation": "For input 'update', the expected output is 'Record Updated'."
+                },
+                {
+                    "input": "edit",
+                    "expected_output": "Record Updated",
+                    "explanation": "For input 'edit', the expected output is 'Record Updated'."
+                }
             ]
         },
         {
@@ -7335,6 +7653,18 @@
             "hints": [
                 "Use executeUpdate() for DELETE queries",
                 "Always use parameterized queries"
+            ],
+            "examples": [
+                {
+                    "input": "delete",
+                    "expected_output": "Record Deleted",
+                    "explanation": "For input 'delete', the expected output is 'Record Deleted'."
+                },
+                {
+                    "input": "remove",
+                    "expected_output": "Record Deleted",
+                    "explanation": "For input 'remove', the expected output is 'Record Deleted'."
+                }
             ]
         },
         {
@@ -7401,6 +7731,18 @@
             "hints": [
                 "Use executeQuery() for SELECT",
                 "Use ResultSet to read data"
+            ],
+            "examples": [
+                {
+                    "input": "select",
+                    "expected_output": "Record Fetched",
+                    "explanation": "For input 'select', the expected output is 'Record Fetched'."
+                },
+                {
+                    "input": "fetch",
+                    "expected_output": "Record Fetched",
+                    "explanation": "For input 'fetch', the expected output is 'Record Fetched'."
+                }
             ]
         },
         {
@@ -7467,6 +7809,18 @@
             "hints": [
                 "Validate input before executing SQL",
                 "Use PreparedStatement for parameterized queries"
+            ],
+            "examples": [
+                {
+                    "input": "insert_valid",
+                    "expected_output": "Record Inserted Successfully",
+                    "explanation": "For input 'insert_valid', the expected output is 'Record Inserted Successfully'."
+                },
+                {
+                    "input": "age_invalid",
+                    "expected_output": "Invalid Age",
+                    "explanation": "For input 'age_invalid', the expected output is 'Invalid Age'."
+                }
             ]
         },
         {
@@ -7533,6 +7887,18 @@
             "hints": [
                 "Use multiple placeholders in SQL",
                 "Set parameters in correct order"
+            ],
+            "examples": [
+                {
+                    "input": "update",
+                    "expected_output": "Record Updated",
+                    "explanation": "For input 'update', the expected output is 'Record Updated'."
+                },
+                {
+                    "input": "edit",
+                    "expected_output": "Record Updated",
+                    "explanation": "For input 'edit', the expected output is 'Record Updated'."
+                }
             ]
         },
         {
@@ -7599,6 +7965,18 @@
             "hints": [
                 "Apply condition before executing query",
                 "Use PreparedStatement for deletion"
+            ],
+            "examples": [
+                {
+                    "input": "delete_valid",
+                    "expected_output": "Record Deleted",
+                    "explanation": "For input 'delete_valid', the expected output is 'Record Deleted'."
+                },
+                {
+                    "input": "underage",
+                    "expected_output": "Deletion Not Allowed",
+                    "explanation": "For input 'underage', the expected output is 'Deletion Not Allowed'."
+                }
             ]
         },
         {
@@ -7665,6 +8043,18 @@
             "hints": [
                 "Use addBatch() and executeBatch()",
                 "Wrap operations in transaction (commit/rollback)"
+            ],
+            "examples": [
+                {
+                    "input": "batch_success",
+                    "expected_output": "Batch Insert Successful",
+                    "explanation": "For input 'batch_success', the expected output is 'Batch Insert Successful'."
+                },
+                {
+                    "input": "batch_fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'batch_fail', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -7731,6 +8121,18 @@
             "hints": [
                 "Use StringBuilder for dynamic SQL",
                 "Only bind parameters for non-null values"
+            ],
+            "examples": [
+                {
+                    "input": "name_only",
+                    "expected_output": "Query Executed",
+                    "explanation": "For input 'name_only', the expected output is 'Query Executed'."
+                },
+                {
+                    "input": "age_only",
+                    "expected_output": "Query Executed",
+                    "explanation": "For input 'age_only', the expected output is 'Query Executed'."
+                }
             ]
         },
         {
@@ -7797,6 +8199,18 @@
             "hints": [
                 "Always use parameterized queries",
                 "Check ResultSet for authentication result"
+            ],
+            "examples": [
+                {
+                    "input": "valid_user",
+                    "expected_output": "Login Successful",
+                    "explanation": "For input 'valid_user', the expected output is 'Login Successful'."
+                },
+                {
+                    "input": "invalid_user",
+                    "expected_output": "Login Failed",
+                    "explanation": "For input 'invalid_user', the expected output is 'Login Failed'."
+                }
             ]
         },
         {
@@ -7863,6 +8277,18 @@
             "hints": [
                 "Use while(rs.next()) loop",
                 "Use getString() to fetch column values"
+            ],
+            "examples": [
+                {
+                    "input": "fetch",
+                    "expected_output": "Names Printed",
+                    "explanation": "For input 'fetch', the expected output is 'Names Printed'."
+                },
+                {
+                    "input": "students",
+                    "expected_output": "Names Printed",
+                    "explanation": "For input 'students', the expected output is 'Names Printed'."
+                }
             ]
         },
         {
@@ -7929,6 +8355,18 @@
             "hints": [
                 "Use getInt() for numeric columns",
                 "Iterate using rs.next()"
+            ],
+            "examples": [
+                {
+                    "input": "age",
+                    "expected_output": "Ages Printed",
+                    "explanation": "For input 'age', the expected output is 'Ages Printed'."
+                },
+                {
+                    "input": "fetch",
+                    "expected_output": "Ages Printed",
+                    "explanation": "For input 'fetch', the expected output is 'Ages Printed'."
+                }
             ]
         },
         {
@@ -7995,6 +8433,18 @@
             "hints": [
                 "Use rs.next() once to check emptiness",
                 "If false, ResultSet is empty"
+            ],
+            "examples": [
+                {
+                    "input": "empty",
+                    "expected_output": "No Records Found",
+                    "explanation": "For input 'empty', the expected output is 'No Records Found'."
+                },
+                {
+                    "input": "data",
+                    "expected_output": "Records Available",
+                    "explanation": "For input 'data', the expected output is 'Records Available'."
+                }
             ]
         },
         {
@@ -8061,6 +8511,18 @@
             "hints": [
                 "Use rs.next() only once",
                 "Directly access columns using getters"
+            ],
+            "examples": [
+                {
+                    "input": "first",
+                    "expected_output": "First Record Printed",
+                    "explanation": "For input 'first', the expected output is 'First Record Printed'."
+                },
+                {
+                    "input": "fetch",
+                    "expected_output": "First Record Printed",
+                    "explanation": "For input 'fetch', the expected output is 'First Record Printed'."
+                }
             ]
         },
         {
@@ -8127,6 +8589,18 @@
             "hints": [
                 "Use if condition inside while loop",
                 "Check age column using getInt()"
+            ],
+            "examples": [
+                {
+                    "input": "age_filter",
+                    "expected_output": "Filtered Records Printed",
+                    "explanation": "For input 'age_filter', the expected output is 'Filtered Records Printed'."
+                },
+                {
+                    "input": "18_plus",
+                    "expected_output": "Filtered Records Printed",
+                    "explanation": "For input '18_plus', the expected output is 'Filtered Records Printed'."
+                }
             ]
         },
         {
@@ -8193,6 +8667,18 @@
             "hints": [
                 "Initialize counter variable",
                 "Increment inside while loop"
+            ],
+            "examples": [
+                {
+                    "input": "count",
+                    "expected_output": "Total Records: X",
+                    "explanation": "For input 'count', the expected output is 'Total Records: X'."
+                },
+                {
+                    "input": "rows",
+                    "expected_output": "Total Records: X",
+                    "explanation": "For input 'rows', the expected output is 'Total Records: X'."
+                }
             ]
         },
         {
@@ -8259,6 +8745,18 @@
             "hints": [
                 "Track max value while iterating",
                 "Update name when new max is found"
+            ],
+            "examples": [
+                {
+                    "input": "max_age",
+                    "expected_output": "Oldest Student Printed",
+                    "explanation": "For input 'max_age', the expected output is 'Oldest Student Printed'."
+                },
+                {
+                    "input": "highest",
+                    "expected_output": "Oldest Student Printed",
+                    "explanation": "For input 'highest', the expected output is 'Oldest Student Printed'."
+                }
             ]
         },
         {
@@ -8325,6 +8823,18 @@
             "hints": [
                 "Use TYPE_SCROLL_INSENSITIVE ResultSet",
                 "Use rs.absolute() for jumping pages"
+            ],
+            "examples": [
+                {
+                    "input": "page1",
+                    "expected_output": "Page 1 Records Displayed",
+                    "explanation": "For input 'page1', the expected output is 'Page 1 Records Displayed'."
+                },
+                {
+                    "input": "page2",
+                    "expected_output": "Page 2 Records Displayed",
+                    "explanation": "For input 'page2', the expected output is 'Page 2 Records Displayed'."
+                }
             ]
         },
         {
@@ -8391,6 +8901,18 @@
             "hints": [
                 "Use conditional statements inside ResultSet loop",
                 "Classify based on age ranges"
+            ],
+            "examples": [
+                {
+                    "input": "group",
+                    "expected_output": "Students Categorized",
+                    "explanation": "For input 'group', the expected output is 'Students Categorized'."
+                },
+                {
+                    "input": "age",
+                    "expected_output": "Students Categorized",
+                    "explanation": "For input 'age', the expected output is 'Students Categorized'."
+                }
             ]
         },
         {
@@ -8457,6 +8979,18 @@
             "hints": [
                 "Use HashSet to track unique values",
                 "If add() returns false, duplicate exists"
+            ],
+            "examples": [
+                {
+                    "input": "duplicate",
+                    "expected_output": "Duplicates Found",
+                    "explanation": "For input 'duplicate', the expected output is 'Duplicates Found'."
+                },
+                {
+                    "input": "unique",
+                    "expected_output": "No Duplicates",
+                    "explanation": "For input 'unique', the expected output is 'No Duplicates'."
+                }
             ]
         },
         {
@@ -8523,6 +9057,18 @@
             "hints": [
                 "Use con.setAutoCommit(false)",
                 "This enables transaction control manually"
+            ],
+            "examples": [
+                {
+                    "input": "start",
+                    "expected_output": "Transaction Started",
+                    "explanation": "For input 'start', the expected output is 'Transaction Started'."
+                },
+                {
+                    "input": "commit",
+                    "expected_output": "Transaction Enabled",
+                    "explanation": "For input 'commit', the expected output is 'Transaction Enabled'."
+                }
             ]
         },
         {
@@ -8589,6 +9135,18 @@
             "hints": [
                 "Call con.commit() after operations",
                 "Auto-commit must be disabled first"
+            ],
+            "examples": [
+                {
+                    "input": "commit",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'commit', the expected output is 'Transaction Committed'."
+                },
+                {
+                    "input": "save",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'save', the expected output is 'Transaction Committed'."
+                }
             ]
         },
         {
@@ -8655,6 +9213,18 @@
             "hints": [
                 "Use con.rollback() inside catch block",
                 "Simulate failure using exception"
+            ],
+            "examples": [
+                {
+                    "input": "fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'fail', the expected output is 'Transaction Rolled Back'."
+                },
+                {
+                    "input": "error",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'error', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -8721,6 +9291,18 @@
             "hints": [
                 "Use commit for success case",
                 "Use rollback for failure case"
+            ],
+            "examples": [
+                {
+                    "input": "success",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'success', the expected output is 'Transaction Committed'."
+                },
+                {
+                    "input": "fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'fail', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -8787,6 +9369,18 @@
             "hints": [
                 "Use setAutoCommit(false)",
                 "Ensure both debit and credit succeed before commit"
+            ],
+            "examples": [
+                {
+                    "input": "transfer_success",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'transfer_success', the expected output is 'Transaction Committed'."
+                },
+                {
+                    "input": "transfer_fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'transfer_fail', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -8853,6 +9447,18 @@
             "hints": [
                 "Wrap all steps in single transaction",
                 "Rollback if any step fails"
+            ],
+            "examples": [
+                {
+                    "input": "order_success",
+                    "expected_output": "Order Placed Successfully",
+                    "explanation": "For input 'order_success', the expected output is 'Order Placed Successfully'."
+                },
+                {
+                    "input": "inventory_fail",
+                    "expected_output": "Transaction Rolled Back",
+                    "explanation": "For input 'inventory_fail', the expected output is 'Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -8919,6 +9525,18 @@
             "hints": [
                 "Use Connection.setSavepoint()",
                 "Rollback to savepoint instead of full rollback"
+            ],
+            "examples": [
+                {
+                    "input": "savepoint_success",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'savepoint_success', the expected output is 'Transaction Committed'."
+                },
+                {
+                    "input": "middle_fail",
+                    "expected_output": "Rolled Back to Savepoint",
+                    "explanation": "For input 'middle_fail', the expected output is 'Rolled Back to Savepoint'."
+                }
             ]
         },
         {
@@ -8985,6 +9603,18 @@
             "hints": [
                 "Use two separate Connection objects",
                 "Commit only when both operations succeed"
+            ],
+            "examples": [
+                {
+                    "input": "both_success",
+                    "expected_output": "Distributed Transaction Committed",
+                    "explanation": "For input 'both_success', the expected output is 'Distributed Transaction Committed'."
+                },
+                {
+                    "input": "db1_fail",
+                    "expected_output": "Distributed Transaction Rolled Back",
+                    "explanation": "For input 'db1_fail', the expected output is 'Distributed Transaction Rolled Back'."
+                }
             ]
         },
         {
@@ -9051,6 +9681,18 @@
             "hints": [
                 "Use loop for retry mechanism",
                 "Rollback inside catch block"
+            ],
+            "examples": [
+                {
+                    "input": "success_first_try",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'success_first_try', the expected output is 'Transaction Committed'."
+                },
+                {
+                    "input": "fail_then_success",
+                    "expected_output": "Transaction Committed",
+                    "explanation": "For input 'fail_then_success', the expected output is 'Transaction Committed'."
+                }
             ]
         },
         {
@@ -9117,6 +9759,18 @@
             "hints": [
                 "Always access resources in same order",
                 "Use proper transaction isolation concept"
+            ],
+            "examples": [
+                {
+                    "input": "no_deadlock",
+                    "expected_output": "Transaction Completed Safely",
+                    "explanation": "For input 'no_deadlock', the expected output is 'Transaction Completed Safely'."
+                },
+                {
+                    "input": "safe_run",
+                    "expected_output": "Transaction Completed Safely",
+                    "explanation": "For input 'safe_run', the expected output is 'Transaction Completed Safely'."
+                }
             ]
         },
         {
@@ -9183,6 +9837,18 @@
             "hints": [
                 "Use ArrayList to store connections",
                 "Create connections using DriverManager"
+            ],
+            "examples": [
+                {
+                    "input": "init",
+                    "expected_output": "Pool Created",
+                    "explanation": "For input 'init', the expected output is 'Pool Created'."
+                },
+                {
+                    "input": "3",
+                    "expected_output": "3 Connections Added",
+                    "explanation": "For input '3', the expected output is '3 Connections Added'."
+                }
             ]
         },
         {
@@ -9249,6 +9915,18 @@
             "hints": [
                 "Use remove() to simulate borrowing",
                 "Pool can be List of connections"
+            ],
+            "examples": [
+                {
+                    "input": "borrow",
+                    "expected_output": "Connection Borrowed",
+                    "explanation": "For input 'borrow', the expected output is 'Connection Borrowed'."
+                },
+                {
+                    "input": "get",
+                    "expected_output": "Connection Taken",
+                    "explanation": "For input 'get', the expected output is 'Connection Taken'."
+                }
             ]
         },
         {
@@ -9315,6 +9993,18 @@
             "hints": [
                 "Use add() to return connection",
                 "Simulate pool behavior using list"
+            ],
+            "examples": [
+                {
+                    "input": "return",
+                    "expected_output": "Connection Returned",
+                    "explanation": "For input 'return', the expected output is 'Connection Returned'."
+                },
+                {
+                    "input": "release",
+                    "expected_output": "Connection Added Back",
+                    "explanation": "For input 'release', the expected output is 'Connection Added Back'."
+                }
             ]
         },
         {
@@ -9381,6 +10071,18 @@
             "hints": [
                 "Use size() method of List",
                 "Simulate pool using collection"
+            ],
+            "examples": [
+                {
+                    "input": "count",
+                    "expected_output": "Available Connections: X",
+                    "explanation": "For input 'count', the expected output is 'Available Connections: X'."
+                },
+                {
+                    "input": "size",
+                    "expected_output": "Pool Size: X",
+                    "explanation": "For input 'size', the expected output is 'Pool Size: X'."
+                }
             ]
         },
         {
@@ -9447,6 +10149,18 @@
             "hints": [
                 "Use synchronized keyword",
                 "Protect shared pool resource"
+            ],
+            "examples": [
+                {
+                    "input": "thread1",
+                    "expected_output": "Connection Borrowed",
+                    "explanation": "For input 'thread1', the expected output is 'Connection Borrowed'."
+                },
+                {
+                    "input": "thread2",
+                    "expected_output": "Connection Borrowed",
+                    "explanation": "For input 'thread2', the expected output is 'Connection Borrowed'."
+                }
             ]
         },
         {
@@ -9513,6 +10227,18 @@
             "hints": [
                 "Use wait() when pool is empty",
                 "Use notify() when releasing connection"
+            ],
+            "examples": [
+                {
+                    "input": "exhaust",
+                    "expected_output": "Waiting for Connection",
+                    "explanation": "For input 'exhaust', the expected output is 'Waiting for Connection'."
+                },
+                {
+                    "input": "full",
+                    "expected_output": "Pool Full",
+                    "explanation": "For input 'full', the expected output is 'Pool Full'."
+                }
             ]
         },
         {
@@ -9579,6 +10305,18 @@
             "hints": [
                 "Maintain max limit variable",
                 "Check size before adding connection"
+            ],
+            "examples": [
+                {
+                    "input": "create",
+                    "expected_output": "Connection Created",
+                    "explanation": "For input 'create', the expected output is 'Connection Created'."
+                },
+                {
+                    "input": "limit",
+                    "expected_output": "Max Limit Reached",
+                    "explanation": "For input 'limit', the expected output is 'Max Limit Reached'."
+                }
             ]
         },
         {
@@ -9645,6 +10383,18 @@
             "hints": [
                 "Use ArrayBlockingQueue for thread safety",
                 "take() blocks when empty, put() blocks when full"
+            ],
+            "examples": [
+                {
+                    "input": "init",
+                    "expected_output": "Pool Initialized",
+                    "explanation": "For input 'init', the expected output is 'Pool Initialized'."
+                },
+                {
+                    "input": "borrow",
+                    "expected_output": "Connection Allocated",
+                    "explanation": "For input 'borrow', the expected output is 'Connection Allocated'."
+                }
             ]
         },
         {
@@ -9711,6 +10461,18 @@
             "hints": [
                 "Use Iterator for safe removal",
                 "Periodically check connection validity"
+            ],
+            "examples": [
+                {
+                    "input": "check",
+                    "expected_output": "Health Checked",
+                    "explanation": "For input 'check', the expected output is 'Health Checked'."
+                },
+                {
+                    "input": "remove",
+                    "expected_output": "Unhealthy Removed",
+                    "explanation": "For input 'remove', the expected output is 'Unhealthy Removed'."
+                }
             ]
         },
         {
@@ -9777,6 +10539,18 @@
             "hints": [
                 "Use index modulo pool size",
                 "Maintain circular allocation order"
+            ],
+            "examples": [
+                {
+                    "input": "request1",
+                    "expected_output": "CONN1 Assigned",
+                    "explanation": "For input 'request1', the expected output is 'CONN1 Assigned'."
+                },
+                {
+                    "input": "request2",
+                    "expected_output": "CONN2 Assigned",
+                    "explanation": "For input 'request2', the expected output is 'CONN2 Assigned'."
+                }
             ]
         },
         {
@@ -9843,6 +10617,18 @@
             "hints": [
                 "Use @interface to create annotation",
                 "Use reflection to read annotation"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Annotation Value Printed",
+                    "explanation": "For input 'run', the expected output is 'Annotation Value Printed'."
+                },
+                {
+                    "input": "info",
+                    "expected_output": "Annotation Value Printed",
+                    "explanation": "For input 'info', the expected output is 'Annotation Value Printed'."
+                }
             ]
         },
         {
@@ -9909,6 +10695,18 @@
             "hints": [
                 "Use @Override above method",
                 "Child class should extend parent class"
+            ],
+            "examples": [
+                {
+                    "input": "override",
+                    "expected_output": "Method Overridden",
+                    "explanation": "For input 'override', the expected output is 'Method Overridden'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Child Method Called",
+                    "explanation": "For input 'run', the expected output is 'Child Method Called'."
+                }
             ]
         },
         {
@@ -9975,6 +10773,18 @@
             "hints": [
                 "Use @SuppressWarnings(\"unchecked\")",
                 "Apply on method or class"
+            ],
+            "examples": [
+                {
+                    "input": "warning",
+                    "expected_output": "Warning Suppressed",
+                    "explanation": "For input 'warning', the expected output is 'Warning Suppressed'."
+                },
+                {
+                    "input": "list",
+                    "expected_output": "List Created",
+                    "explanation": "For input 'list', the expected output is 'List Created'."
+                }
             ]
         },
         {
@@ -10041,6 +10851,18 @@
             "hints": [
                 "Marker annotation has no fields",
                 "Use isAnnotationPresent()"
+            ],
+            "examples": [
+                {
+                    "input": "marker",
+                    "expected_output": "Marker Annotation Detected",
+                    "explanation": "For input 'marker', the expected output is 'Marker Annotation Detected'."
+                },
+                {
+                    "input": "check",
+                    "expected_output": "Annotation Found",
+                    "explanation": "For input 'check', the expected output is 'Annotation Found'."
+                }
             ]
         },
         {
@@ -10107,6 +10929,18 @@
             "hints": [
                 "Define multiple fields inside annotation",
                 "Use reflection to access each field"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Employee Info Printed",
+                    "explanation": "For input 'run', the expected output is 'Employee Info Printed'."
+                },
+                {
+                    "input": "info",
+                    "expected_output": "Annotation Read",
+                    "explanation": "For input 'info', the expected output is 'Annotation Read'."
+                }
             ]
         },
         {
@@ -10173,6 +11007,18 @@
             "hints": [
                 "Use Method class from reflection",
                 "Check annotation before invoking method"
+            ],
+            "examples": [
+                {
+                    "input": "validate",
+                    "expected_output": "Method Validated",
+                    "explanation": "For input 'validate', the expected output is 'Method Validated'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Method Executed",
+                    "explanation": "For input 'run', the expected output is 'Method Executed'."
+                }
             ]
         },
         {
@@ -10239,6 +11085,18 @@
             "hints": [
                 "Use runtime retention policy",
                 "Access values via getAnnotation()"
+            ],
+            "examples": [
+                {
+                    "input": "config",
+                    "expected_output": "Config Loaded",
+                    "explanation": "For input 'config', the expected output is 'Config Loaded'."
+                },
+                {
+                    "input": "db",
+                    "expected_output": "Values Printed",
+                    "explanation": "For input 'db', the expected output is 'Values Printed'."
+                }
             ]
         },
         {
@@ -10305,6 +11163,18 @@
             "hints": [
                 "Use reflection to scan fields",
                 "Instantiate object dynamically and inject"
+            ],
+            "examples": [
+                {
+                    "input": "inject",
+                    "expected_output": "Dependency Injected",
+                    "explanation": "For input 'inject', the expected output is 'Dependency Injected'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Service Initialized",
+                    "explanation": "For input 'run', the expected output is 'Service Initialized'."
+                }
             ]
         },
         {
@@ -10371,6 +11241,18 @@
             "hints": [
                 "Use class and field level annotations",
                 "Build SQL dynamically using reflection"
+            ],
+            "examples": [
+                {
+                    "input": "entity",
+                    "expected_output": "Table Generated",
+                    "explanation": "For input 'entity', the expected output is 'Table Generated'."
+                },
+                {
+                    "input": "sql",
+                    "expected_output": "CREATE TABLE Printed",
+                    "explanation": "For input 'sql', the expected output is 'CREATE TABLE Printed'."
+                }
             ]
         },
         {
@@ -10437,6 +11319,18 @@
             "hints": [
                 "Use System.currentTimeMillis()",
                 "Check annotation before method execution"
+            ],
+            "examples": [
+                {
+                    "input": "log",
+                    "expected_output": "Execution Time Printed",
+                    "explanation": "For input 'log', the expected output is 'Execution Time Printed'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Method Executed",
+                    "explanation": "For input 'run', the expected output is 'Method Executed'."
+                }
             ]
         },
         {
@@ -10503,6 +11397,18 @@
             "hints": [
                 "Use values() method of enum",
                 "Loop through enum constants"
+            ],
+            "examples": [
+                {
+                    "input": "print",
+                    "expected_output": "All Days Printed",
+                    "explanation": "For input 'print', the expected output is 'All Days Printed'."
+                },
+                {
+                    "input": "enum",
+                    "expected_output": "Days Listed",
+                    "explanation": "For input 'enum', the expected output is 'Days Listed'."
+                }
             ]
         },
         {
@@ -10569,6 +11475,18 @@
             "hints": [
                 "Use switch with enum",
                 "Each case represents a constant"
+            ],
+            "examples": [
+                {
+                    "input": "RED",
+                    "expected_output": "STOP",
+                    "explanation": "For input 'RED', the expected output is 'STOP'."
+                },
+                {
+                    "input": "YELLOW",
+                    "expected_output": "READY",
+                    "explanation": "For input 'YELLOW', the expected output is 'READY'."
+                }
             ]
         },
         {
@@ -10635,6 +11553,18 @@
             "hints": [
                 "Inner class can access outer class members",
                 "Use Outer.Inner syntax"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Inner Class Accessed",
+                    "explanation": "For input 'run', the expected output is 'Inner Class Accessed'."
+                },
+                {
+                    "input": "outer",
+                    "expected_output": "Value Printed",
+                    "explanation": "For input 'outer', the expected output is 'Value Printed'."
+                }
             ]
         },
         {
@@ -10701,6 +11631,18 @@
             "hints": [
                 "Static inner class does not need outer object",
                 "Use Outer.Inner directly"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Static Inner Class Executed",
+                    "explanation": "For input 'run', the expected output is 'Static Inner Class Executed'."
+                },
+                {
+                    "input": "static",
+                    "expected_output": "Output Printed",
+                    "explanation": "For input 'static', the expected output is 'Output Printed'."
+                }
             ]
         },
         {
@@ -10767,6 +11709,18 @@
             "hints": [
                 "Enums can have constructors",
                 "Use instance variables inside enum"
+            ],
+            "examples": [
+                {
+                    "input": "BASIC",
+                    "expected_output": "BASIC 100",
+                    "explanation": "For input 'BASIC', the expected output is 'BASIC 100'."
+                },
+                {
+                    "input": "PREMIUM",
+                    "expected_output": "PREMIUM 500",
+                    "explanation": "For input 'PREMIUM', the expected output is 'PREMIUM 500'."
+                }
             ]
         },
         {
@@ -10833,6 +11787,18 @@
             "hints": [
                 "Inner class can access outer class variables",
                 "Use outer object to create inner object"
+            ],
+            "examples": [
+                {
+                    "input": "deposit",
+                    "expected_output": "Balance Updated",
+                    "explanation": "For input 'deposit', the expected output is 'Balance Updated'."
+                },
+                {
+                    "input": "show",
+                    "expected_output": "Balance Displayed",
+                    "explanation": "For input 'show', the expected output is 'Balance Displayed'."
+                }
             ]
         },
         {
@@ -10899,6 +11865,18 @@
             "hints": [
                 "Use new Runnable() { ... }",
                 "Override run() method inside anonymous class"
+            ],
+            "examples": [
+                {
+                    "input": "run",
+                    "expected_output": "Thread Running",
+                    "explanation": "For input 'run', the expected output is 'Thread Running'."
+                },
+                {
+                    "input": "thread",
+                    "expected_output": "Runnable Executed",
+                    "explanation": "For input 'thread', the expected output is 'Runnable Executed'."
+                }
             ]
         },
         {
@@ -10965,6 +11943,18 @@
             "hints": [
                 "Enums can have abstract methods",
                 "Each constant can override behavior"
+            ],
+            "examples": [
+                {
+                    "input": "STOP",
+                    "expected_output": "STOP Action Executed",
+                    "explanation": "For input 'STOP', the expected output is 'STOP Action Executed'."
+                },
+                {
+                    "input": "READY",
+                    "expected_output": "READY Action Executed",
+                    "explanation": "For input 'READY', the expected output is 'READY Action Executed'."
+                }
             ]
         },
         {
@@ -11031,6 +12021,18 @@
             "hints": [
                 "Use LinkedHashMap for ordering",
                 "Inner class can manage cache operations"
+            ],
+            "examples": [
+                {
+                    "input": "put",
+                    "expected_output": "Item Added",
+                    "explanation": "For input 'put', the expected output is 'Item Added'."
+                },
+                {
+                    "input": "get",
+                    "expected_output": "Value Returned",
+                    "explanation": "For input 'get', the expected output is 'Value Returned'."
+                }
             ]
         },
         {
@@ -11097,6 +12099,18 @@
             "hints": [
                 "Enum constants are fields internally",
                 "Use reflection to access annotations"
+            ],
+            "examples": [
+                {
+                    "input": "read",
+                    "expected_output": "Annotation Read",
+                    "explanation": "For input 'read', the expected output is 'Annotation Read'."
+                },
+                {
+                    "input": "enum",
+                    "expected_output": "Values Printed",
+                    "explanation": "For input 'enum', the expected output is 'Values Printed'."
+                }
             ]
         },
         {
@@ -11163,6 +12177,18 @@
             "hints": [
                 "Set references to null",
                 "Use System.gc() to request GC"
+            ],
+            "examples": [
+                {
+                    "input": "nullify",
+                    "expected_output": "Object Eligible for GC",
+                    "explanation": "For input 'nullify', the expected output is 'Object Eligible for GC'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Finalize Called",
+                    "explanation": "For input 'run', the expected output is 'Finalize Called'."
+                }
             ]
         },
         {
@@ -11229,6 +12255,18 @@
             "hints": [
                 "Create objects inside loop",
                 "Unused objects become eligible for GC"
+            ],
+            "examples": [
+                {
+                    "input": "loop",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'loop', the expected output is 'Objects Created'."
+                },
+                {
+                    "input": "run",
+                    "expected_output": "Memory Allocated",
+                    "explanation": "For input 'run', the expected output is 'Memory Allocated'."
+                }
             ]
         },
         {
@@ -11295,6 +12333,18 @@
             "hints": [
                 "Set object reference to null",
                 "Use System.gc() for request"
+            ],
+            "examples": [
+                {
+                    "input": "null",
+                    "expected_output": "Reference Removed",
+                    "explanation": "For input 'null', the expected output is 'Reference Removed'."
+                },
+                {
+                    "input": "gc",
+                    "expected_output": "GC Requested",
+                    "explanation": "For input 'gc', the expected output is 'GC Requested'."
+                }
             ]
         },
         {
@@ -11361,6 +12411,18 @@
             "hints": [
                 "Override finalize() method",
                 "Make object unreachable"
+            ],
+            "examples": [
+                {
+                    "input": "finalize",
+                    "expected_output": "Finalize Method Called",
+                    "explanation": "For input 'finalize', the expected output is 'Finalize Method Called'."
+                },
+                {
+                    "input": "gc",
+                    "expected_output": "Object Cleaned",
+                    "explanation": "For input 'gc', the expected output is 'Object Cleaned'."
+                }
             ]
         },
         {
@@ -11427,6 +12489,18 @@
             "hints": [
                 "Set unused references to null",
                 "Use System.gc() to suggest cleanup"
+            ],
+            "examples": [
+                {
+                    "input": "create",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'create', the expected output is 'Objects Created'."
+                },
+                {
+                    "input": "reuse",
+                    "expected_output": "Object Reused",
+                    "explanation": "For input 'reuse', the expected output is 'Object Reused'."
+                }
             ]
         },
         {
@@ -11493,6 +12567,18 @@
             "hints": [
                 "Use static counter in finalize()",
                 "Make objects unreachable"
+            ],
+            "examples": [
+                {
+                    "input": "create",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'create', the expected output is 'Objects Created'."
+                },
+                {
+                    "input": "gc",
+                    "expected_output": "Finalize Called",
+                    "explanation": "For input 'gc', the expected output is 'Finalize Called'."
+                }
             ]
         },
         {
@@ -11559,6 +12645,18 @@
             "hints": [
                 "Static collections can cause leaks",
                 "Clear references to allow GC"
+            ],
+            "examples": [
+                {
+                    "input": "leak",
+                    "expected_output": "Memory Leak Simulated",
+                    "explanation": "For input 'leak', the expected output is 'Memory Leak Simulated'."
+                },
+                {
+                    "input": "fix",
+                    "expected_output": "Memory Freed",
+                    "explanation": "For input 'fix', the expected output is 'Memory Freed'."
+                }
             ]
         },
         {
@@ -11625,6 +12723,18 @@
             "hints": [
                 "Track objects manually in a collection",
                 "Remove references to simulate GC eligibility"
+            ],
+            "examples": [
+                {
+                    "input": "create",
+                    "expected_output": "Objects Allocated",
+                    "explanation": "For input 'create', the expected output is 'Objects Allocated'."
+                },
+                {
+                    "input": "release",
+                    "expected_output": "References Cleared",
+                    "explanation": "For input 'release', the expected output is 'References Cleared'."
+                }
             ]
         },
         {
@@ -11691,6 +12801,18 @@
             "hints": [
                 "Use WeakReference class",
                 "GC removes weakly reachable objects automatically"
+            ],
+            "examples": [
+                {
+                    "input": "put",
+                    "expected_output": "Object Cached",
+                    "explanation": "For input 'put', the expected output is 'Object Cached'."
+                },
+                {
+                    "input": "get",
+                    "expected_output": "Object Retrieved",
+                    "explanation": "For input 'get', the expected output is 'Object Retrieved'."
+                }
             ]
         },
         {
@@ -11757,6 +12879,18 @@
             "hints": [
                 "Simulate young and old generation behavior",
                 "Use multiple collections to represent memory stages"
+            ],
+            "examples": [
+                {
+                    "input": "phase1",
+                    "expected_output": "Objects Created",
+                    "explanation": "For input 'phase1', the expected output is 'Objects Created'."
+                },
+                {
+                    "input": "gc",
+                    "expected_output": "GC Triggered",
+                    "explanation": "For input 'gc', the expected output is 'GC Triggered'."
+                }
             ]
         }
     ]

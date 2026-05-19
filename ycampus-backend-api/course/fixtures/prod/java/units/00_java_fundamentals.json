@@ -7,55 +7,109 @@
             "name": "Introduction to Java",
             "content": "Java is a high-level, object-oriented, platform-independent programming language developed by Sun Microsystems in 1995. It follows the principle of 'Write Once, Run Anywhere' (WORA), meaning compiled Java code can run on any platform that supports the Java Virtual Machine. Java is widely used in enterprise applications, Android development, web services, and large-scale systems.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Introduction to Java",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Introduction to Java in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "JDK, JRE & JVM",
             "content": "The Java Development Kit (JDK) is a software development environment that includes tools for developing, compiling, and debugging Java applications. The Java Runtime Environment (JRE) provides the libraries and JVM needed to run Java programs. The Java Virtual Machine (JVM) is responsible for converting bytecode into machine-specific code, enabling platform independence. Understanding the relationship between JDK, JRE, and JVM is fundamental to Java development.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "JDK, JRE & JVM",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering JDK, JRE & JVM in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Variables & Data Types",
             "content": "Variables in Java are containers that store data values during program execution. Java is a statically-typed language, meaning every variable must be declared with a specific data type. Java provides primitive data types (byte, short, int, long, float, double, char, boolean) and reference data types (String, arrays, objects). Understanding variable declaration, initialization, scope, and data type selection is crucial for writing efficient Java programs.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Variables & Data Types",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Variables & Data Types in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Operators & Type Casting",
             "content": "Operators in Java are special symbols used to perform operations on variables and values, including arithmetic, relational, logical, assignment, bitwise, unary, and ternary operators. Type casting is the process of converting a value from one data type to another. Widening casting (implicit) automatically converts a smaller type to a larger type, while narrowing casting (explicit) requires manual conversion. Understanding operator precedence and type conversion rules is essential for writing correct and efficient Java expressions.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Operators & Type Casting",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Operators & Type Casting in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Input Output & Scanner",
             "content": "Java provides multiple ways to handle input and output operations. The Scanner class is the most commonly used tool for reading user input from the console, supporting methods like nextInt(), nextLine(), and nextDouble(). BufferedReader offers faster input for large data. For output, System.out.println(), System.out.print(), and System.out.printf() are used to display data. Understanding formatted output, input parsing, and handling different data types during I/O is fundamental to building interactive Java applications.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Input Output & Scanner",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Input Output & Scanner in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Control Statements & Loops",
             "content": "Control statements in Java direct the flow of program execution based on conditions, including if, if-else, if-else-if ladder, nested if, and switch-case statements. Loops are used to execute a block of code repeatedly — Java supports for loops, while loops, do-while loops, and enhanced for-each loops. Loop control statements like break, continue, and labeled loops provide additional control. Together, control statements and loops form the core logic-building blocks of any Java program.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Control Statements & Loops",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Control Statements & Loops in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Arrays & Methods",
             "content": "Arrays in Java are fixed-size, indexed data structures that store multiple elements of the same data type in contiguous memory locations, supporting single-dimensional and multi-dimensional forms. Methods are reusable blocks of code defined with an access modifier, return type, name, and parameters. Java supports method overloading, static methods, instance methods, and recursive methods. Understanding arrays for data storage and methods for modular code organization is essential for building structured Java applications.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Arrays & Methods",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Arrays & Methods in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Wrapper Classes",
             "content": "Wrapper classes in Java provide a way to use primitive data types as objects. Each primitive type has a corresponding wrapper class (Integer, Double, Character, Boolean, etc.). Java supports autoboxing (automatic conversion from primitive to wrapper) and unboxing (wrapper to primitive). Wrapper classes are essential when working with collections, generics, and utility methods like parsing and converting values.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Wrapper Classes",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Wrapper Classes in Java Fundamentals."
+                }
+            ]
         },
         {
             "name": "Access Modifiers & Packages",
             "content": "Access modifiers in Java control the visibility and accessibility of classes, methods, and variables with four levels: public, protected, default (package-private), and private. Packages are used to organize related classes and interfaces into namespaces, helping avoid naming conflicts and control access. Java provides built-in packages (java.lang, java.util, java.io) and supports user-defined packages. Proper use of access modifiers and package structure enforces encapsulation and builds well-organized, scalable Java applications.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Access Modifiers & Packages",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Access Modifiers & Packages in Java Fundamentals."
+                }
+            ]
         }
     ],
     "questions": [

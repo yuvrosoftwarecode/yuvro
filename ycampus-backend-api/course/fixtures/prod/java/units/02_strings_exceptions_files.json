@@ -7,55 +7,109 @@
             "name": "String Class",
             "content": "The String class in Java represents an immutable sequence of characters. Strings are objects stored in the String pool for memory optimization. Java provides a rich set of methods for string manipulation including length(), charAt(), substring(), indexOf(), replace(), toUpperCase(), toLowerCase(), trim(), split(), and compareTo(). Understanding string immutability, the difference between == and equals() for string comparison, and the String pool concept is essential for efficient Java programming.",
             "order_index": 0,
-            "videos": []
+            "videos": [
+                {
+                    "title": "String Class",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering String Class in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "StringBuilder & StringBuffer",
             "content": "StringBuilder and StringBuffer are mutable alternatives to the String class for efficient string manipulation. Unlike String, they allow in-place modifications without creating new objects, making them ideal for scenarios involving frequent concatenation or modification. StringBuffer is thread-safe (synchronized) while StringBuilder is not, making StringBuilder faster in single-threaded environments. Key methods include append(), insert(), delete(), reverse(), and replace(). Choosing the right class depends on mutability needs and thread safety requirements.",
             "order_index": 1,
-            "videos": []
+            "videos": [
+                {
+                    "title": "StringBuilder & StringBuffer",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering StringBuilder & StringBuffer in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "Exception Handling",
             "content": "Exception handling in Java is a mechanism to handle runtime errors gracefully using try, catch, and finally blocks. Exceptions are objects that represent abnormal conditions during program execution. Java has a hierarchy of exception classes rooted at Throwable, with two main branches: checked exceptions (compile-time) and unchecked exceptions (runtime). The try block contains code that might throw an exception, catch blocks handle specific exceptions, and the finally block executes regardless of whether an exception occurred.",
             "order_index": 2,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Exception Handling",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Exception Handling in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "throw & throws",
             "content": "The 'throw' keyword is used to explicitly throw an exception from a method or block of code, while 'throws' is used in a method signature to declare that a method may throw specific checked exceptions. Using 'throw', developers can create and throw exception objects manually to signal error conditions. The 'throws' clause informs the caller that they must handle the declared exceptions. Understanding the difference between throw and throws is crucial for designing robust error-handling strategies in Java applications.",
             "order_index": 3,
-            "videos": []
+            "videos": [
+                {
+                    "title": "throw & throws",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering throw & throws in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "Custom Exceptions",
             "content": "Custom exceptions in Java are user-defined exception classes that extend Exception (for checked exceptions) or RuntimeException (for unchecked exceptions). They allow developers to create meaningful, application-specific error types that provide more context than built-in exceptions. Custom exceptions typically include constructors that accept error messages and optional cause parameters. Creating well-designed custom exceptions improves code clarity, makes error handling more specific, and enhances the debugging experience.",
             "order_index": 4,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Custom Exceptions",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Custom Exceptions in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "File Handling Basics",
             "content": "File handling in Java involves creating, reading, writing, and deleting files using classes from the java.io package. The File class represents file and directory pathnames. FileReader and FileWriter provide character-based file operations, while FileInputStream and FileOutputStream handle byte-based operations. Key operations include checking file existence, creating new files, reading file content line by line, writing data to files, and managing file permissions. Understanding file handling is essential for data persistence in Java applications.",
             "order_index": 5,
-            "videos": []
+            "videos": [
+                {
+                    "title": "File Handling Basics",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering File Handling Basics in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "BufferedReader & BufferedWriter",
             "content": "BufferedReader and BufferedWriter are wrapper classes that add buffering capability to character-based I/O streams for improved performance. BufferedReader reads text efficiently using an internal buffer and provides the readLine() method for reading lines. BufferedWriter writes text with buffering and provides newLine() for platform-independent line separation. Using buffered streams significantly reduces the number of I/O operations by reading and writing data in larger chunks instead of character by character.",
             "order_index": 6,
-            "videos": []
+            "videos": [
+                {
+                    "title": "BufferedReader & BufferedWriter",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering BufferedReader & BufferedWriter in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "Serialization & Deserialization",
             "content": "Serialization is the process of converting a Java object into a byte stream for storage or transmission, while deserialization reconstructs the object from the byte stream. A class must implement the Serializable interface to be serializable. ObjectOutputStream and ObjectInputStream are used for writing and reading serialized objects. The transient keyword excludes specific fields from serialization. The serialVersionUID ensures version compatibility between serialized and deserialized objects across different JVM instances.",
             "order_index": 7,
-            "videos": []
+            "videos": [
+                {
+                    "title": "Serialization & Deserialization",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering Serialization & Deserialization in Strings, Exception Handling & File Handling."
+                }
+            ]
         },
         {
             "name": "NIO Package",
             "content": "The Java NIO (New I/O) package, introduced in Java 1.4 and enhanced in Java 7 (NIO.2), provides an alternative to traditional I/O with improved performance and scalability. Key components include Channels (for bidirectional data transfer), Buffers (for data storage), and Selectors (for multiplexed I/O). The Path and Files classes from NIO.2 offer a modern, fluent API for file operations including reading, writing, copying, moving, and walking directory trees. NIO is especially useful for high-performance and non-blocking I/O operations.",
             "order_index": 8,
-            "videos": []
+            "videos": [
+                {
+                    "title": "NIO Package",
+                    "video_link": "https://youtu.be/eIrMbAQSU34?si=VdUrEUU3WQk9mClD",
+                    "ai_context": "Video tutorial covering NIO Package in Strings, Exception Handling & File Handling."
+                }
+            ]
         }
     ],
     "questions": [
@@ -5883,6 +5937,18 @@
             "hints": [
                 "Use length() method",
                 "Read input using Scanner"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "5",
+                    "explanation": "For input 'hello', the expected output is '5'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "4",
+                    "explanation": "For input 'java', the expected output is '4'."
+                }
             ]
         },
         {
@@ -5948,6 +6014,18 @@
             ],
             "hints": [
                 "Use toUpperCase() method"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "HELLO",
+                    "explanation": "For input 'hello', the expected output is 'HELLO'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "JAVA",
+                    "explanation": "For input 'java', the expected output is 'JAVA'."
+                }
             ]
         },
         {
@@ -6014,6 +6092,18 @@
             "hints": [
                 "Convert to lowercase",
                 "Check vowels using loop"
+            ],
+            "examples": [
+                {
+                    "input": "apple",
+                    "expected_output": "2",
+                    "explanation": "For input 'apple', the expected output is '2'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "2",
+                    "explanation": "For input 'java', the expected output is '2'."
+                }
             ]
         },
         {
@@ -6080,6 +6170,18 @@
             "hints": [
                 "Use StringBuilder reverse()",
                 "Compare original and reversed"
+            ],
+            "examples": [
+                {
+                    "input": "madam",
+                    "expected_output": "true",
+                    "explanation": "For input 'madam', the expected output is 'true'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "false",
+                    "explanation": "For input 'java', the expected output is 'false'."
+                }
             ]
         },
         {
@@ -6146,6 +6248,18 @@
             "hints": [
                 "Use StringBuilder",
                 "Check if char already exists"
+            ],
+            "examples": [
+                {
+                    "input": "aabbcc",
+                    "expected_output": "abc",
+                    "explanation": "For input 'aabbcc', the expected output is 'abc'."
+                },
+                {
+                    "input": "hello",
+                    "expected_output": "helo",
+                    "explanation": "For input 'hello', the expected output is 'helo'."
+                }
             ]
         },
         {
@@ -6212,6 +6326,18 @@
             "hints": [
                 "Use frequency array",
                 "Track max count"
+            ],
+            "examples": [
+                {
+                    "input": "aabbbcc",
+                    "expected_output": "b",
+                    "explanation": "For input 'aabbbcc', the expected output is 'b'."
+                },
+                {
+                    "input": "hello",
+                    "expected_output": "l",
+                    "explanation": "For input 'hello', the expected output is 'l'."
+                }
             ]
         },
         {
@@ -6278,6 +6404,18 @@
             "hints": [
                 "Count consecutive characters",
                 "Use StringBuilder"
+            ],
+            "examples": [
+                {
+                    "input": "aabcc",
+                    "expected_output": "a2b1c2",
+                    "explanation": "For input 'aabcc', the expected output is 'a2b1c2'."
+                },
+                {
+                    "input": "aaa",
+                    "expected_output": "a3",
+                    "explanation": "For input 'aaa', the expected output is 'a3'."
+                }
             ]
         },
         {
@@ -6344,6 +6482,18 @@
             "hints": [
                 "Try expanding from center",
                 "Check odd and even palindromes"
+            ],
+            "examples": [
+                {
+                    "input": "babad",
+                    "expected_output": "bab",
+                    "explanation": "For input 'babad', the expected output is 'bab'."
+                },
+                {
+                    "input": "cbbd",
+                    "expected_output": "bb",
+                    "explanation": "For input 'cbbd', the expected output is 'bb'."
+                }
             ]
         },
         {
@@ -6410,6 +6560,18 @@
             "hints": [
                 "Sort characters",
                 "Use HashMap grouping"
+            ],
+            "examples": [
+                {
+                    "input": "eat tea tan ate nat bat",
+                    "expected_output": "[[eat, tea, ate],[tan, nat],[bat]]",
+                    "explanation": "For input 'eat tea tan ate nat bat', the expected output is '[[eat, tea, ate],[tan, nat],[bat]]'."
+                },
+                {
+                    "input": "abc bca cab dog god",
+                    "expected_output": "[[abc, bca, cab],[dog, god]]",
+                    "explanation": "For input 'abc bca cab dog god', the expected output is '[[abc, bca, cab],[dog, god]]'."
+                }
             ]
         },
         {
@@ -6476,6 +6638,18 @@
             "hints": [
                 "Compare prefixes",
                 "Reduce string step by step"
+            ],
+            "examples": [
+                {
+                    "input": "flower flow flight",
+                    "expected_output": "fl",
+                    "explanation": "For input 'flower flow flight', the expected output is 'fl'."
+                },
+                {
+                    "input": "dog race car",
+                    "expected_output": "",
+                    "explanation": "For input 'dog race car', the expected output is ''."
+                }
             ]
         },
         {
@@ -6542,6 +6716,18 @@
             "hints": [
                 "Use append()",
                 "Avoid + operator"
+            ],
+            "examples": [
+                {
+                    "input": "hello world",
+                    "expected_output": "helloworld",
+                    "explanation": "For input 'hello world', the expected output is 'helloworld'."
+                },
+                {
+                    "input": "java code",
+                    "expected_output": "javacode",
+                    "explanation": "For input 'java code', the expected output is 'javacode'."
+                }
             ]
         },
         {
@@ -6607,6 +6793,18 @@
             ],
             "hints": [
                 "Use reverse() method"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "olleh",
+                    "explanation": "For input 'hello', the expected output is 'olleh'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "avaj",
+                    "explanation": "For input 'java', the expected output is 'avaj'."
+                }
             ]
         },
         {
@@ -6672,6 +6870,18 @@
             ],
             "hints": [
                 "Use insert() method"
+            ],
+            "examples": [
+                {
+                    "input": "hello 2 AI",
+                    "expected_output": "heAIllo",
+                    "explanation": "For input 'hello 2 AI', the expected output is 'heAIllo'."
+                },
+                {
+                    "input": "java 1 pro",
+                    "expected_output": "japrova",
+                    "explanation": "For input 'java 1 pro', the expected output is 'japrova'."
+                }
             ]
         },
         {
@@ -6737,6 +6947,18 @@
             ],
             "hints": [
                 "Default capacity is 16"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "capacity:16 length:5",
+                    "explanation": "For input 'hello', the expected output is 'capacity:16 length:5'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "capacity:16 length:4",
+                    "explanation": "For input 'java', the expected output is 'capacity:16 length:4'."
+                }
             ]
         },
         {
@@ -6803,6 +7025,18 @@
             "hints": [
                 "Both produce same result",
                 "StringBuffer is thread-safe"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "hello hello",
+                    "explanation": "For input 'hello', the expected output is 'hello hello'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "java java",
+                    "explanation": "For input 'java', the expected output is 'java java'."
+                }
             ]
         },
         {
@@ -6868,6 +7102,18 @@
             ],
             "hints": [
                 "Use delete(start,end)"
+            ],
+            "examples": [
+                {
+                    "input": "hello 1 3",
+                    "expected_output": "hlo",
+                    "explanation": "For input 'hello 1 3', the expected output is 'hlo'."
+                },
+                {
+                    "input": "java 0 2",
+                    "expected_output": "va",
+                    "explanation": "For input 'java 0 2', the expected output is 'va'."
+                }
             ]
         },
         {
@@ -6933,6 +7179,18 @@
             ],
             "hints": [
                 "Use replace(start,end,str)"
+            ],
+            "examples": [
+                {
+                    "input": "hello 0 2 hi",
+                    "expected_output": "hillo",
+                    "explanation": "For input 'hello 0 2 hi', the expected output is 'hillo'."
+                },
+                {
+                    "input": "java 1 3 xy",
+                    "expected_output": "jxya",
+                    "explanation": "For input 'java 1 3 xy', the expected output is 'jxya'."
+                }
             ]
         },
         {
@@ -6998,6 +7256,18 @@
             ],
             "hints": [
                 "Use StringBuffer for thread safety"
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "consistent_output",
+                    "explanation": "For input '3', the expected output is 'consistent_output'."
+                },
+                {
+                    "input": "2",
+                    "expected_output": "consistent_output",
+                    "explanation": "For input '2', the expected output is 'consistent_output'."
+                }
             ]
         },
         {
@@ -7064,6 +7334,18 @@
             "hints": [
                 "StringBuilder is faster in single-thread",
                 "Use nanoTime()"
+            ],
+            "examples": [
+                {
+                    "input": "1000",
+                    "expected_output": "builder_faster_or_equal",
+                    "explanation": "For input '1000', the expected output is 'builder_faster_or_equal'."
+                },
+                {
+                    "input": "500",
+                    "expected_output": "builder_faster_or_equal",
+                    "explanation": "For input '500', the expected output is 'builder_faster_or_equal'."
+                }
             ]
         },
         {
@@ -7130,6 +7412,18 @@
             "hints": [
                 "Apply reverse first",
                 "Then insert character"
+            ],
+            "examples": [
+                {
+                    "input": "abc 1 X",
+                    "expected_output": "cXba",
+                    "explanation": "For input 'abc 1 X', the expected output is 'cXba'."
+                },
+                {
+                    "input": "hello 2 Z",
+                    "expected_output": "ollZeh",
+                    "explanation": "For input 'hello 2 Z', the expected output is 'ollZeh'."
+                }
             ]
         },
         {
@@ -7195,6 +7489,18 @@
             ],
             "hints": [
                 "Use try-catch block"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5",
+                    "explanation": "For input '10 2', the expected output is '5'."
+                },
+                {
+                    "input": "20 5",
+                    "expected_output": "4",
+                    "explanation": "For input '20 5', the expected output is '4'."
+                }
             ]
         },
         {
@@ -7260,6 +7566,18 @@
             ],
             "hints": [
                 "Check null before usage"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "5",
+                    "explanation": "For input 'hello', the expected output is '5'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "4",
+                    "explanation": "For input 'java', the expected output is '4'."
+                }
             ]
         },
         {
@@ -7325,6 +7643,18 @@
             ],
             "hints": [
                 "Use try-catch around array access"
+            ],
+            "examples": [
+                {
+                    "input": "3 1",
+                    "expected_output": "2",
+                    "explanation": "For input '3 1', the expected output is '2'."
+                },
+                {
+                    "input": "5 2",
+                    "expected_output": "3",
+                    "explanation": "For input '5 2', the expected output is '3'."
+                }
             ]
         },
         {
@@ -7390,6 +7720,18 @@
             ],
             "hints": [
                 "Use generic Exception class"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5",
+                    "explanation": "For input '10 2', the expected output is '5'."
+                },
+                {
+                    "input": "8 4",
+                    "expected_output": "2",
+                    "explanation": "For input '8 4', the expected output is '2'."
+                }
             ]
         },
         {
@@ -7455,6 +7797,18 @@
             ],
             "hints": [
                 "Extend Exception class"
+            ],
+            "examples": [
+                {
+                    "input": "20",
+                    "expected_output": "Valid Age",
+                    "explanation": "For input '20', the expected output is 'Valid Age'."
+                },
+                {
+                    "input": "25",
+                    "expected_output": "Valid Age",
+                    "explanation": "For input '25', the expected output is 'Valid Age'."
+                }
             ]
         },
         {
@@ -7520,6 +7874,18 @@
             ],
             "hints": [
                 "Use throw to generate exception"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Valid Input",
+                    "explanation": "For input '5', the expected output is 'Valid Input'."
+                },
+                {
+                    "input": "10",
+                    "expected_output": "Valid Input",
+                    "explanation": "For input '10', the expected output is 'Valid Input'."
+                }
             ]
         },
         {
@@ -7585,6 +7951,18 @@
             ],
             "hints": [
                 "Finally always executes"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5 finally executed",
+                    "explanation": "For input '10 2', the expected output is '5 finally executed'."
+                },
+                {
+                    "input": "8 4",
+                    "expected_output": "2 finally executed",
+                    "explanation": "For input '8 4', the expected output is '2 finally executed'."
+                }
             ]
         },
         {
@@ -7650,6 +8028,18 @@
             ],
             "hints": [
                 "Create custom exception class"
+            ],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "Withdraw Success",
+                    "explanation": "For input '1000 500', the expected output is 'Withdraw Success'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "Withdraw Success",
+                    "explanation": "For input '2000 1000', the expected output is 'Withdraw Success'."
+                }
             ]
         },
         {
@@ -7715,6 +8105,18 @@
             ],
             "hints": [
                 "Use multiple catch blocks"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "Arithmetic OK",
+                    "explanation": "For input '10 2', the expected output is 'Arithmetic OK'."
+                },
+                {
+                    "input": "5 1",
+                    "expected_output": "Arithmetic OK",
+                    "explanation": "For input '5 1', the expected output is 'Arithmetic OK'."
+                }
             ]
         },
         {
@@ -7781,6 +8183,18 @@
             "hints": [
                 "Validate user first",
                 "Then validate password"
+            ],
+            "examples": [
+                {
+                    "input": "admin 1234",
+                    "expected_output": "Login Success",
+                    "explanation": "For input 'admin 1234', the expected output is 'Login Success'."
+                },
+                {
+                    "input": "user 1234",
+                    "expected_output": "Invalid User",
+                    "explanation": "For input 'user 1234', the expected output is 'Invalid User'."
+                }
             ]
         },
         {
@@ -7846,6 +8260,18 @@
             ],
             "hints": [
                 "Use if condition + throw"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Valid Number",
+                    "explanation": "For input '10', the expected output is 'Valid Number'."
+                },
+                {
+                    "input": "5",
+                    "expected_output": "Valid Number",
+                    "explanation": "For input '5', the expected output is 'Valid Number'."
+                }
             ]
         },
         {
@@ -7911,6 +8337,18 @@
             ],
             "hints": [
                 "Check n % 2"
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "Even Number",
+                    "explanation": "For input '2', the expected output is 'Even Number'."
+                },
+                {
+                    "input": "4",
+                    "expected_output": "Even Number",
+                    "explanation": "For input '4', the expected output is 'Even Number'."
+                }
             ]
         },
         {
@@ -7976,6 +8414,18 @@
             ],
             "hints": [
                 "Check denominator before division"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5",
+                    "explanation": "For input '10 2', the expected output is '5'."
+                },
+                {
+                    "input": "20 4",
+                    "expected_output": "5",
+                    "explanation": "For input '20 4', the expected output is '5'."
+                }
             ]
         },
         {
@@ -8041,6 +8491,18 @@
             ],
             "hints": [
                 "Use trim() + isEmpty()"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "Valid String",
+                    "explanation": "For input 'hello', the expected output is 'Valid String'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Valid String",
+                    "explanation": "For input 'java', the expected output is 'Valid String'."
+                }
             ]
         },
         {
@@ -8106,6 +8568,18 @@
             ],
             "hints": [
                 "Use method-level throws declaration"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Valid Input",
+                    "explanation": "For input '10', the expected output is 'Valid Input'."
+                },
+                {
+                    "input": "20",
+                    "expected_output": "Valid Input",
+                    "explanation": "For input '20', the expected output is 'Valid Input'."
+                }
             ]
         },
         {
@@ -8171,6 +8645,18 @@
             ],
             "hints": [
                 "Use multiple methods with throws"
+            ],
+            "examples": [
+                {
+                    "input": "10 2",
+                    "expected_output": "5",
+                    "explanation": "For input '10 2', the expected output is '5'."
+                },
+                {
+                    "input": "8 4",
+                    "expected_output": "2",
+                    "explanation": "For input '8 4', the expected output is '2'."
+                }
             ]
         },
         {
@@ -8237,6 +8723,18 @@
             "hints": [
                 "throw creates exception",
                 "throws declares it"
+            ],
+            "examples": [
+                {
+                    "input": "5",
+                    "expected_output": "Handled via throw and throws",
+                    "explanation": "For input '5', the expected output is 'Handled via throw and throws'."
+                },
+                {
+                    "input": "10",
+                    "expected_output": "Handled via throw and throws",
+                    "explanation": "For input '10', the expected output is 'Handled via throw and throws'."
+                }
             ]
         },
         {
@@ -8302,6 +8800,18 @@
             ],
             "hints": [
                 "Use custom exception + throws"
+            ],
+            "examples": [
+                {
+                    "input": "50000 600000",
+                    "expected_output": "Loan Approved",
+                    "explanation": "For input '50000 600000', the expected output is 'Loan Approved'."
+                },
+                {
+                    "input": "30000 200000",
+                    "expected_output": "Loan Approved",
+                    "explanation": "For input '30000 200000', the expected output is 'Loan Approved'."
+                }
             ]
         },
         {
@@ -8367,6 +8877,18 @@
             ],
             "hints": [
                 "Use 3-level method chain"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Processed 10",
+                    "explanation": "For input '10', the expected output is 'Processed 10'."
+                },
+                {
+                    "input": "20",
+                    "expected_output": "Processed 20",
+                    "explanation": "For input '20', the expected output is 'Processed 20'."
+                }
             ]
         },
         {
@@ -8433,6 +8955,18 @@
             "hints": [
                 "Check balance first",
                 "Use multiple throw conditions"
+            ],
+            "examples": [
+                {
+                    "input": "1000 200",
+                    "expected_output": "Transaction Successful",
+                    "explanation": "For input '1000 200', the expected output is 'Transaction Successful'."
+                },
+                {
+                    "input": "5000 1000",
+                    "expected_output": "Transaction Successful",
+                    "explanation": "For input '5000 1000', the expected output is 'Transaction Successful'."
+                }
             ]
         },
         {
@@ -8499,6 +9033,18 @@
             "hints": [
                 "Extend Exception class",
                 "Use throw keyword"
+            ],
+            "examples": [
+                {
+                    "input": "10",
+                    "expected_output": "Valid Number",
+                    "explanation": "For input '10', the expected output is 'Valid Number'."
+                },
+                {
+                    "input": "5",
+                    "expected_output": "Valid Number",
+                    "explanation": "For input '5', the expected output is 'Valid Number'."
+                }
             ]
         },
         {
@@ -8564,6 +9110,18 @@
             ],
             "hints": [
                 "Create class extending Exception"
+            ],
+            "examples": [
+                {
+                    "input": "20",
+                    "expected_output": "Valid Age",
+                    "explanation": "For input '20', the expected output is 'Valid Age'."
+                },
+                {
+                    "input": "25",
+                    "expected_output": "Valid Age",
+                    "explanation": "For input '25', the expected output is 'Valid Age'."
+                }
             ]
         },
         {
@@ -8629,6 +9187,18 @@
             ],
             "hints": [
                 "Compare balance and amount"
+            ],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "Withdraw Success",
+                    "explanation": "For input '1000 500', the expected output is 'Withdraw Success'."
+                },
+                {
+                    "input": "2000 1000",
+                    "expected_output": "Withdraw Success",
+                    "explanation": "For input '2000 1000', the expected output is 'Withdraw Success'."
+                }
             ]
         },
         {
@@ -8694,6 +9264,18 @@
             ],
             "hints": [
                 "Use trim() + isEmpty()"
+            ],
+            "examples": [
+                {
+                    "input": "hello",
+                    "expected_output": "Valid String",
+                    "explanation": "For input 'hello', the expected output is 'Valid String'."
+                },
+                {
+                    "input": "java",
+                    "expected_output": "Valid String",
+                    "explanation": "For input 'java', the expected output is 'Valid String'."
+                }
             ]
         },
         {
@@ -8759,6 +9341,18 @@
             ],
             "hints": [
                 "Check range 0-100"
+            ],
+            "examples": [
+                {
+                    "input": "85",
+                    "expected_output": "Valid Marks",
+                    "explanation": "For input '85', the expected output is 'Valid Marks'."
+                },
+                {
+                    "input": "90",
+                    "expected_output": "Valid Marks",
+                    "explanation": "For input '90', the expected output is 'Valid Marks'."
+                }
             ]
         },
         {
@@ -8824,6 +9418,18 @@
             ],
             "hints": [
                 "Validate username and password"
+            ],
+            "examples": [
+                {
+                    "input": "admin 1234",
+                    "expected_output": "Login Success",
+                    "explanation": "For input 'admin 1234', the expected output is 'Login Success'."
+                },
+                {
+                    "input": "user 1234",
+                    "expected_output": "Invalid Login",
+                    "explanation": "For input 'user 1234', the expected output is 'Invalid Login'."
+                }
             ]
         },
         {
@@ -8889,6 +9495,18 @@
             ],
             "hints": [
                 "Check min/max range"
+            ],
+            "examples": [
+                {
+                    "input": "25",
+                    "expected_output": "Valid Temperature",
+                    "explanation": "For input '25', the expected output is 'Valid Temperature'."
+                },
+                {
+                    "input": "30",
+                    "expected_output": "Valid Temperature",
+                    "explanation": "For input '30', the expected output is 'Valid Temperature'."
+                }
             ]
         },
         {
@@ -8954,6 +9572,18 @@
             ],
             "hints": [
                 "Validate name first, then age"
+            ],
+            "examples": [
+                {
+                    "input": "user1 20",
+                    "expected_output": "Registration Success",
+                    "explanation": "For input 'user1 20', the expected output is 'Registration Success'."
+                },
+                {
+                    "input": "user2 25",
+                    "expected_output": "Registration Success",
+                    "explanation": "For input 'user2 25', the expected output is 'Registration Success'."
+                }
             ]
         },
         {
@@ -9019,6 +9649,18 @@
             ],
             "hints": [
                 "Compare stock and order"
+            ],
+            "examples": [
+                {
+                    "input": "50 20",
+                    "expected_output": "Order Placed",
+                    "explanation": "For input '50 20', the expected output is 'Order Placed'."
+                },
+                {
+                    "input": "100 30",
+                    "expected_output": "Order Placed",
+                    "explanation": "For input '100 30', the expected output is 'Order Placed'."
+                }
             ]
         },
         {
@@ -9084,6 +9726,18 @@
             ],
             "hints": [
                 "Multiple validations in sequence"
+            ],
+            "examples": [
+                {
+                    "input": "A 20",
+                    "expected_output": "Valid Entry",
+                    "explanation": "For input 'A 20', the expected output is 'Valid Entry'."
+                },
+                {
+                    "input": "B 30",
+                    "expected_output": "Valid Entry",
+                    "explanation": "For input 'B 30', the expected output is 'Valid Entry'."
+                }
             ]
         },
         {
@@ -9150,6 +9804,18 @@
             "hints": [
                 "Use FileWriter",
                 "Always close file"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "File Written",
+                    "explanation": "For input 'Hello', the expected output is 'File Written'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "File Written",
+                    "explanation": "For input 'Java', the expected output is 'File Written'."
+                }
             ]
         },
         {
@@ -9215,6 +9881,18 @@
             ],
             "hints": [
                 "Use FileReader loop"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "File Read",
+                    "explanation": "For input 'file.txt', the expected output is 'File Read'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "File Read",
+                    "explanation": "For input 'data.txt', the expected output is 'File Read'."
+                }
             ]
         },
         {
@@ -9280,6 +9958,18 @@
             ],
             "hints": [
                 "Use File.exists()"
+            ],
+            "examples": [
+                {
+                    "input": "file1.txt",
+                    "expected_output": "Exists",
+                    "explanation": "For input 'file1.txt', the expected output is 'Exists'."
+                },
+                {
+                    "input": "file2.txt",
+                    "expected_output": "Exists",
+                    "explanation": "For input 'file2.txt', the expected output is 'Exists'."
+                }
             ]
         },
         {
@@ -9345,6 +10035,18 @@
             ],
             "hints": [
                 "Use File.delete()"
+            ],
+            "examples": [
+                {
+                    "input": "temp.txt",
+                    "expected_output": "Deleted",
+                    "explanation": "For input 'temp.txt', the expected output is 'Deleted'."
+                },
+                {
+                    "input": "a.txt",
+                    "expected_output": "Deleted",
+                    "explanation": "For input 'a.txt', the expected output is 'Deleted'."
+                }
             ]
         },
         {
@@ -9411,6 +10113,18 @@
             "hints": [
                 "Read char by char",
                 "Write to another file"
+            ],
+            "examples": [
+                {
+                    "input": "a.txt b.txt",
+                    "expected_output": "File Copied",
+                    "explanation": "For input 'a.txt b.txt', the expected output is 'File Copied'."
+                },
+                {
+                    "input": "x.txt y.txt",
+                    "expected_output": "File Copied",
+                    "explanation": "For input 'x.txt y.txt', the expected output is 'File Copied'."
+                }
             ]
         },
         {
@@ -9476,6 +10190,18 @@
             ],
             "hints": [
                 "Use FileWriter with append=true"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Appended",
+                    "explanation": "For input 'Hello', the expected output is 'Appended'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Appended",
+                    "explanation": "For input 'Java', the expected output is 'Appended'."
+                }
             ]
         },
         {
@@ -9541,6 +10267,18 @@
             ],
             "hints": [
                 "Use split() on spaces"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "5",
+                    "explanation": "For input 'file.txt', the expected output is '5'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "10",
+                    "explanation": "For input 'data.txt', the expected output is '10'."
+                }
             ]
         },
         {
@@ -9606,6 +10344,18 @@
             ],
             "hints": [
                 "Use contains() checks"
+            ],
+            "examples": [
+                {
+                    "input": "log1.txt",
+                    "expected_output": "INFO:2 ERROR:1 WARNING:1",
+                    "explanation": "For input 'log1.txt', the expected output is 'INFO:2 ERROR:1 WARNING:1'."
+                },
+                {
+                    "input": "log2.txt",
+                    "expected_output": "INFO:3 ERROR:2 WARNING:0",
+                    "explanation": "For input 'log2.txt', the expected output is 'INFO:3 ERROR:2 WARNING:0'."
+                }
             ]
         },
         {
@@ -9671,6 +10421,18 @@
             ],
             "hints": [
                 "Read both files line by line"
+            ],
+            "examples": [
+                {
+                    "input": "a.txt b.txt",
+                    "expected_output": "Merged",
+                    "explanation": "For input 'a.txt b.txt', the expected output is 'Merged'."
+                },
+                {
+                    "input": "x.txt y.txt",
+                    "expected_output": "Merged",
+                    "explanation": "For input 'x.txt y.txt', the expected output is 'Merged'."
+                }
             ]
         },
         {
@@ -9736,6 +10498,18 @@
             ],
             "hints": [
                 "Check exists + extension"
+            ],
+            "examples": [
+                {
+                    "input": "data.txt",
+                    "expected_output": "Valid File",
+                    "explanation": "For input 'data.txt', the expected output is 'Valid File'."
+                },
+                {
+                    "input": "input.txt",
+                    "expected_output": "Valid File",
+                    "explanation": "For input 'input.txt', the expected output is 'Valid File'."
+                }
             ]
         },
         {
@@ -9801,6 +10575,18 @@
             ],
             "hints": [
                 "Use readLine() in loop"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "File Read",
+                    "explanation": "For input 'file.txt', the expected output is 'File Read'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "File Read",
+                    "explanation": "For input 'data.txt', the expected output is 'File Read'."
+                }
             ]
         },
         {
@@ -9866,6 +10652,18 @@
             ],
             "hints": [
                 "Use BufferedWriter + FileWriter"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Written",
+                    "explanation": "For input 'Hello', the expected output is 'Written'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Written",
+                    "explanation": "For input 'Java', the expected output is 'Written'."
+                }
             ]
         },
         {
@@ -9931,6 +10729,18 @@
             ],
             "hints": [
                 "Use FileWriter append mode"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Appended",
+                    "explanation": "For input 'Hello', the expected output is 'Appended'."
+                },
+                {
+                    "input": "World",
+                    "expected_output": "Appended",
+                    "explanation": "For input 'World', the expected output is 'Appended'."
+                }
             ]
         },
         {
@@ -9996,6 +10806,18 @@
             ],
             "hints": [
                 "Use readLine + newLine"
+            ],
+            "examples": [
+                {
+                    "input": "a.txt b.txt",
+                    "expected_output": "Copied",
+                    "explanation": "For input 'a.txt b.txt', the expected output is 'Copied'."
+                },
+                {
+                    "input": "x.txt y.txt",
+                    "expected_output": "Copied",
+                    "explanation": "For input 'x.txt y.txt', the expected output is 'Copied'."
+                }
             ]
         },
         {
@@ -10061,6 +10883,18 @@
             ],
             "hints": [
                 "Use HashMap for frequency"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "java:2 code:1 ai:1",
+                    "explanation": "For input 'file.txt', the expected output is 'java:2 code:1 ai:1'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "a:1 b:2 c:1",
+                    "explanation": "For input 'data.txt', the expected output is 'a:1 b:2 c:1'."
+                }
             ]
         },
         {
@@ -10126,6 +10960,18 @@
             ],
             "hints": [
                 "Maintain counter variable"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "1:Hello 2:Java 3:AI",
+                    "explanation": "For input 'file.txt', the expected output is '1:Hello 2:Java 3:AI'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "1:A 2:B 3:C",
+                    "explanation": "For input 'data.txt', the expected output is '1:A 2:B 3:C'."
+                }
             ]
         },
         {
@@ -10191,6 +11037,18 @@
             ],
             "hints": [
                 "Use ArrayList + Collections.sort"
+            ],
+            "examples": [
+                {
+                    "input": "a.txt b.txt",
+                    "expected_output": "Copied Sorted",
+                    "explanation": "For input 'a.txt b.txt', the expected output is 'Copied Sorted'."
+                },
+                {
+                    "input": "x.txt y.txt",
+                    "expected_output": "Copied Sorted",
+                    "explanation": "For input 'x.txt y.txt', the expected output is 'Copied Sorted'."
+                }
             ]
         },
         {
@@ -10256,6 +11114,18 @@
             ],
             "hints": [
                 "Do not store file in memory"
+            ],
+            "examples": [
+                {
+                    "input": "log.txt",
+                    "expected_output": "LINES:10 WORDS:50 CHARS:200",
+                    "explanation": "For input 'log.txt', the expected output is 'LINES:10 WORDS:50 CHARS:200'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "LINES:5 WORDS:20 CHARS:100",
+                    "explanation": "For input 'data.txt', the expected output is 'LINES:5 WORDS:20 CHARS:100'."
+                }
             ]
         },
         {
@@ -10321,6 +11191,18 @@
             ],
             "hints": [
                 "Use temp file for safe update"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt old new",
+                    "expected_output": "Updated",
+                    "explanation": "For input 'file.txt old new', the expected output is 'Updated'."
+                },
+                {
+                    "input": "data.txt A B",
+                    "expected_output": "Updated",
+                    "explanation": "For input 'data.txt A B', the expected output is 'Updated'."
+                }
             ]
         },
         {
@@ -10386,6 +11268,18 @@
             ],
             "hints": [
                 "Loop through multiple files"
+            ],
+            "examples": [
+                {
+                    "input": "log1.txt log2.txt log3.txt",
+                    "expected_output": "Aggregated Report Generated",
+                    "explanation": "For input 'log1.txt log2.txt log3.txt', the expected output is 'Aggregated Report Generated'."
+                },
+                {
+                    "input": "a.txt b.txt c.txt",
+                    "expected_output": "Aggregated Report Generated",
+                    "explanation": "For input 'a.txt b.txt c.txt', the expected output is 'Aggregated Report Generated'."
+                }
             ]
         },
         {
@@ -10451,6 +11345,18 @@
             ],
             "hints": [
                 "Implement Serializable interface"
+            ],
+            "examples": [
+                {
+                    "input": "John 25",
+                    "expected_output": "Object Serialized",
+                    "explanation": "For input 'John 25', the expected output is 'Object Serialized'."
+                },
+                {
+                    "input": "Alice 30",
+                    "expected_output": "Object Serialized",
+                    "explanation": "For input 'Alice 30', the expected output is 'Object Serialized'."
+                }
             ]
         },
         {
@@ -10516,6 +11422,18 @@
             ],
             "hints": [
                 "Use ObjectInputStream"
+            ],
+            "examples": [
+                {
+                    "input": "person.txt",
+                    "expected_output": "John 25",
+                    "explanation": "For input 'person.txt', the expected output is 'John 25'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "Alice 30",
+                    "explanation": "For input 'data.txt', the expected output is 'Alice 30'."
+                }
             ]
         },
         {
@@ -10581,6 +11499,18 @@
             ],
             "hints": [
                 "Serializable is a marker interface"
+            ],
+            "examples": [
+                {
+                    "input": "Student",
+                    "expected_output": "Serializable",
+                    "explanation": "For input 'Student', the expected output is 'Serializable'."
+                },
+                {
+                    "input": "Employee",
+                    "expected_output": "Serializable",
+                    "explanation": "For input 'Employee', the expected output is 'Serializable'."
+                }
             ]
         },
         {
@@ -10646,6 +11576,18 @@
             ],
             "hints": [
                 "Arrays are serializable if objects are serializable"
+            ],
+            "examples": [
+                {
+                    "input": "2 students",
+                    "expected_output": "Array Serialized",
+                    "explanation": "For input '2 students', the expected output is 'Array Serialized'."
+                },
+                {
+                    "input": "3 students",
+                    "expected_output": "Array Serialized",
+                    "explanation": "For input '3 students', the expected output is 'Array Serialized'."
+                }
             ]
         },
         {
@@ -10711,6 +11653,18 @@
             ],
             "hints": [
                 "Use transient keyword"
+            ],
+            "examples": [
+                {
+                    "input": "John 1234",
+                    "expected_output": "Serialized without password",
+                    "explanation": "For input 'John 1234', the expected output is 'Serialized without password'."
+                },
+                {
+                    "input": "Alice 9999",
+                    "expected_output": "Serialized without password",
+                    "explanation": "For input 'Alice 9999', the expected output is 'Serialized without password'."
+                }
             ]
         },
         {
@@ -10775,6 +11729,18 @@
             ],
             "hints": [
                 "serialVersionUID prevents InvalidClassException"
+            ],
+            "examples": [
+                {
+                    "input": "v1",
+                    "expected_output": "Compatible",
+                    "explanation": "For input 'v1', the expected output is 'Compatible'."
+                },
+                {
+                    "input": "v2",
+                    "expected_output": "Compatible",
+                    "explanation": "For input 'v2', the expected output is 'Compatible'."
+                }
             ]
         },
         {
@@ -10840,6 +11806,18 @@
             ],
             "hints": [
                 "Cast object to List"
+            ],
+            "examples": [
+                {
+                    "input": "list.txt",
+                    "expected_output": "A B C",
+                    "explanation": "For input 'list.txt', the expected output is 'A B C'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "X Y Z",
+                    "explanation": "For input 'data.txt', the expected output is 'X Y Z'."
+                }
             ]
         },
         {
@@ -10905,6 +11883,18 @@
             ],
             "hints": [
                 "Use transient for sensitive data"
+            ],
+            "examples": [
+                {
+                    "input": "John 5000 1234",
+                    "expected_output": "Secure Object Stored",
+                    "explanation": "For input 'John 5000 1234', the expected output is 'Secure Object Stored'."
+                },
+                {
+                    "input": "Alice 8000 9999",
+                    "expected_output": "Secure Object Stored",
+                    "explanation": "For input 'Alice 8000 9999', the expected output is 'Secure Object Stored'."
+                }
             ]
         },
         {
@@ -10969,6 +11959,18 @@
             ],
             "hints": [
                 "Override writeObject/readObject"
+            ],
+            "examples": [
+                {
+                    "input": "A 10",
+                    "expected_output": "Custom Serialized",
+                    "explanation": "For input 'A 10', the expected output is 'Custom Serialized'."
+                },
+                {
+                    "input": "B 20",
+                    "expected_output": "Custom Serialized",
+                    "explanation": "For input 'B 20', the expected output is 'Custom Serialized'."
+                }
             ]
         },
         {
@@ -11034,6 +12036,18 @@
             ],
             "hints": [
                 "Use ByteArray streams for simulation"
+            ],
+            "examples": [
+                {
+                    "input": "Node1 Node2",
+                    "expected_output": "Object Transferred",
+                    "explanation": "For input 'Node1 Node2', the expected output is 'Object Transferred'."
+                },
+                {
+                    "input": "Server1 Server2",
+                    "expected_output": "Object Transferred",
+                    "explanation": "For input 'Server1 Server2', the expected output is 'Object Transferred'."
+                }
             ]
         },
         {
@@ -11099,6 +12113,18 @@
             ],
             "hints": [
                 "Use Files.readAllLines"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "File Content Printed",
+                    "explanation": "For input 'file.txt', the expected output is 'File Content Printed'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "File Content Printed",
+                    "explanation": "For input 'data.txt', the expected output is 'File Content Printed'."
+                }
             ]
         },
         {
@@ -11164,6 +12190,18 @@
             ],
             "hints": [
                 "Use Paths.get + Files.write"
+            ],
+            "examples": [
+                {
+                    "input": "Hello",
+                    "expected_output": "Written",
+                    "explanation": "For input 'Hello', the expected output is 'Written'."
+                },
+                {
+                    "input": "Java",
+                    "expected_output": "Written",
+                    "explanation": "For input 'Java', the expected output is 'Written'."
+                }
             ]
         },
         {
@@ -11229,6 +12267,18 @@
             ],
             "hints": [
                 "Use Files.exists()"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "Exists",
+                    "explanation": "For input 'file.txt', the expected output is 'Exists'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "Exists",
+                    "explanation": "For input 'data.txt', the expected output is 'Exists'."
+                }
             ]
         },
         {
@@ -11294,6 +12344,18 @@
             ],
             "hints": [
                 "Use Files.createDirectory"
+            ],
+            "examples": [
+                {
+                    "input": "dir1",
+                    "expected_output": "Directory Created",
+                    "explanation": "For input 'dir1', the expected output is 'Directory Created'."
+                },
+                {
+                    "input": "dir2",
+                    "expected_output": "Directory Created",
+                    "explanation": "For input 'dir2', the expected output is 'Directory Created'."
+                }
             ]
         },
         {
@@ -11359,6 +12421,18 @@
             ],
             "hints": [
                 "Use Files.copy"
+            ],
+            "examples": [
+                {
+                    "input": "a.txt b.txt",
+                    "expected_output": "Copied",
+                    "explanation": "For input 'a.txt b.txt', the expected output is 'Copied'."
+                },
+                {
+                    "input": "x.txt y.txt",
+                    "expected_output": "Copied",
+                    "explanation": "For input 'x.txt y.txt', the expected output is 'Copied'."
+                }
             ]
         },
         {
@@ -11424,6 +12498,18 @@
             ],
             "hints": [
                 "Use Files.list() + Stream"
+            ],
+            "examples": [
+                {
+                    "input": "dir1",
+                    "expected_output": "file1 file2 file3",
+                    "explanation": "For input 'dir1', the expected output is 'file1 file2 file3'."
+                },
+                {
+                    "input": "dir2",
+                    "expected_output": "a b c",
+                    "explanation": "For input 'dir2', the expected output is 'a b c'."
+                }
             ]
         },
         {
@@ -11488,6 +12574,18 @@
             ],
             "hints": [
                 "Use BasicFileAttributes"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "Size:100 Modified:true",
+                    "explanation": "For input 'file.txt', the expected output is 'Size:100 Modified:true'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "Size:200 Modified:true",
+                    "explanation": "For input 'data.txt', the expected output is 'Size:200 Modified:true'."
+                }
             ]
         },
         {
@@ -11553,6 +12651,18 @@
             ],
             "hints": [
                 "Use Files.walk()"
+            ],
+            "examples": [
+                {
+                    "input": "root",
+                    "expected_output": "file1 file2 file3",
+                    "explanation": "For input 'root', the expected output is 'file1 file2 file3'."
+                },
+                {
+                    "input": "src",
+                    "expected_output": "a b c",
+                    "explanation": "For input 'src', the expected output is 'a b c'."
+                }
             ]
         },
         {
@@ -11617,6 +12727,18 @@
             ],
             "hints": [
                 "Use WatchService API"
+            ],
+            "examples": [
+                {
+                    "input": "dir",
+                    "expected_output": "Monitoring Started",
+                    "explanation": "For input 'dir', the expected output is 'Monitoring Started'."
+                },
+                {
+                    "input": "test",
+                    "expected_output": "Monitoring Started",
+                    "explanation": "For input 'test', the expected output is 'Monitoring Started'."
+                }
             ]
         },
         {
@@ -11682,6 +12804,18 @@
             ],
             "hints": [
                 "Use Files.lines() for lazy loading"
+            ],
+            "examples": [
+                {
+                    "input": "file.txt",
+                    "expected_output": "Processed",
+                    "explanation": "For input 'file.txt', the expected output is 'Processed'."
+                },
+                {
+                    "input": "data.txt",
+                    "expected_output": "Processed",
+                    "explanation": "For input 'data.txt', the expected output is 'Processed'."
+                }
             ]
         }
     ]
