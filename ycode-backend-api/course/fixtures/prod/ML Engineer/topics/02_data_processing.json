@@ -1,0 +1,2078 @@
+{
+  "name": "Data Processing",
+  "subject_short_code": "ML100",
+  "order_index": 2,
+  "sub_units": [
+    {
+      "name": "NumPy",
+      "content": "NumPy is a fundamental library for numerical computing in Python. It provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays efficiently. NumPy enables fast array operations through vectorized computations, which are implemented in C and optimized for performance. Key features include array creation, indexing, slicing, mathematical operations, statistical functions, linear algebra, and random number generation. NumPy is widely used in scientific computing, data analysis, machine learning, and artificial intelligence.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Handling Missing Data",
+          "video_link": "https://www.youtube.com/results?search_query=Handling%20Missing%20Data",
+          "ai_context": "Detailed overview and key concepts of Handling Missing Data"
+        },
+        {
+          "title": "Handling Missing Data",
+          "video_link": "https://www.youtube.com/results?search_query=Handling%20Missing%20Data",
+          "ai_context": "Detailed overview and key concepts of Handling Missing Data"
+        }
+      ]
+    },
+    {
+      "name": "Pandas",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Encoding Categorical Variables",
+          "video_link": "https://www.youtube.com/results?search_query=Encoding%20Categorical%20Variables",
+          "ai_context": "Detailed overview and key concepts of Encoding Categorical Variables"
+        },
+        {
+          "title": "Encoding Categorical Variables",
+          "video_link": "https://www.youtube.com/results?search_query=Encoding%20Categorical%20Variables",
+          "ai_context": "Detailed overview and key concepts of Encoding Categorical Variables"
+        }
+      ]
+    },
+    {
+      "name": "Data Visualization",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Feature Scaling",
+          "video_link": "https://www.youtube.com/results?search_query=Feature%20Scaling",
+          "ai_context": "Detailed overview and key concepts of Feature Scaling"
+        },
+        {
+          "title": "Feature Scaling",
+          "video_link": "https://www.youtube.com/results?search_query=Feature%20Scaling",
+          "ai_context": "Detailed overview and key concepts of Feature Scaling"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "NumPy Array Purpose",
+      "content": "What is the primary data structure in NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ndarray",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionary",
+          "is_correct": false
+        },
+        {
+          "text": "Linked list",
+          "is_correct": false
+        },
+        {
+          "text": "Tuple",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Indexing",
+      "content": "What index accesses the first element in a NumPy array?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "0",
+          "is_correct": true
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "-2",
+          "is_correct": false
+        },
+        {
+          "text": "10",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Slicing Meaning",
+      "content": "What does slicing allow in NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Selecting subsets of array elements",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting Python installation",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases",
+          "is_correct": false
+        },
+        {
+          "text": "Removing variables permanently",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Concept",
+      "content": "What does broadcasting in NumPy enable?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Operations on arrays with different shapes under compatible rules",
+          "is_correct": true
+        },
+        {
+          "text": "Sending emails",
+          "is_correct": false
+        },
+        {
+          "text": "Creating web servers",
+          "is_correct": false
+        },
+        {
+          "text": "Compressing image files",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vectorized Operations",
+      "content": "Why are vectorized operations preferred in NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "They are faster than explicit Python loops",
+          "is_correct": true
+        },
+        {
+          "text": "They remove arrays",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid calculations",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Negative Indexing",
+      "content": "What does index -1 represent in a NumPy array?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "The last element",
+          "is_correct": true
+        },
+        {
+          "text": "The first element",
+          "is_correct": false
+        },
+        {
+          "text": "The middle element",
+          "is_correct": false
+        },
+        {
+          "text": "The array size",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Example",
+      "content": "What happens when a scalar value is added to a NumPy array?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "The scalar is applied to every array element",
+          "is_correct": true
+        },
+        {
+          "text": "The operation fails automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Only the first element changes",
+          "is_correct": false
+        },
+        {
+          "text": "The array becomes empty",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Indexing Use Case",
+      "content": "Why is indexing useful in NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It allows access to specific elements efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "It deletes all arrays",
+          "is_correct": false
+        },
+        {
+          "text": "It disables computation",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces machine learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vectorization Benefit",
+      "content": "Why do vectorized operations improve performance?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "They use optimized low-level implementations",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate mathematical operations",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid memory usage",
+          "is_correct": false
+        },
+        {
+          "text": "They only support text processing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Array Shape Compatibility",
+      "content": "What is required for NumPy broadcasting to work?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Array dimensions must follow compatibility rules",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays must have identical values",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays must contain strings",
+          "is_correct": false
+        },
+        {
+          "text": "Array sizes must always be prime numbers",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Broadcasting Challenge",
+      "content": "Why can broadcasting sometimes cause unexpected errors?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Array shapes may be incompatible for operations",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays automatically delete themselves",
+          "is_correct": false
+        },
+        {
+          "text": "Broadcasting removes indexing",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy stops supporting arithmetic",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Vectorization Understanding",
+      "content": "Why is vectorization especially important in data science workflows?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Large-scale computations need efficient execution",
+          "is_correct": true
+        },
+        {
+          "text": "Data science avoids mathematical calculations",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays cannot process numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "Python loops always outperform NumPy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Array Thinking",
+      "content": "Why are NumPy arrays more suitable than Python lists for scientific computing?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "They provide optimized memory usage and faster numerical operations",
+          "is_correct": true
+        },
+        {
+          "text": "They remove all programming logic",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid indexing operations",
+          "is_correct": false
+        },
+        {
+          "text": "They support only one data type globally",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Pandas Core Structure",
+      "content": "Which data structure in Pandas stores tabular data with rows and columns?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "DataFrame",
+          "is_correct": true
+        },
+        {
+          "text": "Set",
+          "is_correct": false
+        },
+        {
+          "text": "Tuple",
+          "is_correct": false
+        },
+        {
+          "text": "Dictionary",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Series Definition",
+      "content": "What is a Pandas Series?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "A one-dimensional labeled array",
+          "is_correct": true
+        },
+        {
+          "text": "A database management system",
+          "is_correct": false
+        },
+        {
+          "text": "A machine learning algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "A visualization library",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Cleaning Purpose",
+      "content": "Why is data cleaning important in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To improve data quality before analysis",
+          "is_correct": true
+        },
+        {
+          "text": "To remove Python code",
+          "is_correct": false
+        },
+        {
+          "text": "To increase monitor resolution",
+          "is_correct": false
+        },
+        {
+          "text": "To disable datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Purpose",
+      "content": "What does GroupBy in Pandas mainly do?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Groups data for aggregation and analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes datasets permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Creates neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Runs operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Merge Function",
+      "content": "Why is merge used in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To combine datasets based on common columns",
+          "is_correct": true
+        },
+        {
+          "text": "To create charts",
+          "is_correct": false
+        },
+        {
+          "text": "To remove rows automatically",
+          "is_correct": false
+        },
+        {
+          "text": "To optimize hardware",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Missing Data Handling",
+      "content": "Which function helps detect missing values in Pandas?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "isnull()",
+          "is_correct": true
+        },
+        {
+          "text": "append()",
+          "is_correct": false
+        },
+        {
+          "text": "sort()",
+          "is_correct": false
+        },
+        {
+          "text": "reshape()",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Example",
+      "content": "What operation is commonly performed after using GroupBy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Aggregation such as sum() or mean()",
+          "is_correct": true
+        },
+        {
+          "text": "Installing packages",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases",
+          "is_correct": false
+        },
+        {
+          "text": "Training neural networks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Merge vs Join",
+      "content": "What is a common use of merge and join operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Combining related datasets from multiple sources",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting duplicate software",
+          "is_correct": false
+        },
+        {
+          "text": "Improving CPU speed",
+          "is_correct": false
+        },
+        {
+          "text": "Removing machine learning models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cleaning Importance",
+      "content": "Why should data cleaning be done before model training?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Poor-quality data can negatively affect model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Cleaning removes algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Data cleaning disables predictions",
+          "is_correct": false
+        },
+        {
+          "text": "Models do not use datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "DataFrame Benefit",
+      "content": "Why are DataFrames useful in ML workflows?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "They efficiently organize and manipulate structured data",
+          "is_correct": true
+        },
+        {
+          "text": "They replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent data analysis",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with images",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "GroupBy Understanding",
+      "content": "Why is GroupBy considered powerful for data analysis?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It enables splitting, applying operations, and combining results efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently deletes datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents aggregation",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces indexing functionality",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Join Challenge",
+      "content": "What issue can occur during merge operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Incorrect join keys may produce missing or duplicate data",
+          "is_correct": true
+        },
+        {
+          "text": "Merging disables DataFrames",
+          "is_correct": false
+        },
+        {
+          "text": "Merge removes indexing permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Joins stop machine learning workflows",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Data Processing",
+      "content": "Why are Pandas operations such as cleaning, grouping, and merging important in ML engineering?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Real-world data often comes from multiple imperfect sources and requires preparation",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning models automatically fix all datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Data processing is unrelated to model performance",
+          "is_correct": false
+        },
+        {
+          "text": "Datasets are always clean and complete",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Matplotlib Purpose",
+      "content": "What is Matplotlib mainly used for in Python?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Creating charts and visualizations",
+          "is_correct": true
+        },
+        {
+          "text": "Building databases",
+          "is_correct": false
+        },
+        {
+          "text": "Training neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Managing operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Seaborn Library",
+      "content": "Seaborn is primarily built on top of which library?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Matplotlib",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy",
+          "is_correct": false
+        },
+        {
+          "text": "TensorFlow",
+          "is_correct": false
+        },
+        {
+          "text": "PyTorch",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Storytelling Meaning",
+      "content": "What is data storytelling?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Using visuals and narratives to communicate insights",
+          "is_correct": true
+        },
+        {
+          "text": "Writing fictional stories with code",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases manually",
+          "is_correct": false
+        },
+        {
+          "text": "Building hardware systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Common Chart Type",
+      "content": "Which visualization is commonly used to show trends over time?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Line chart",
+          "is_correct": true
+        },
+        {
+          "text": "Pie chart",
+          "is_correct": false
+        },
+        {
+          "text": "Histogram",
+          "is_correct": false
+        },
+        {
+          "text": "Heatmap",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Seaborn Advantage",
+      "content": "Why is Seaborn commonly used in data visualization?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It provides attractive statistical visualizations",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "It stores datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It creates operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Visualization Goal",
+      "content": "Why do data scientists use visualizations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To understand patterns and trends in data",
+          "is_correct": true
+        },
+        {
+          "text": "To remove datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid analysis",
+          "is_correct": false
+        },
+        {
+          "text": "To disable models",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Visualization Selection",
+      "content": "Which chart is useful for showing relationships between two variables?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Scatter plot",
+          "is_correct": true
+        },
+        {
+          "text": "Pie chart",
+          "is_correct": false
+        },
+        {
+          "text": "Bar chart",
+          "is_correct": false
+        },
+        {
+          "text": "Table",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Matplotlib Flexibility",
+      "content": "Why is Matplotlib considered flexible?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It allows extensive customization of visualizations",
+          "is_correct": true
+        },
+        {
+          "text": "It only creates one chart type",
+          "is_correct": false
+        },
+        {
+          "text": "It removes chart labels",
+          "is_correct": false
+        },
+        {
+          "text": "It only works for text data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Storytelling Importance",
+      "content": "Why is data storytelling important?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It helps communicate insights effectively to audiences",
+          "is_correct": true
+        },
+        {
+          "text": "It eliminates the need for visualizations",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "It removes datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Visualization Analysis",
+      "content": "What benefit does visualization provide during exploratory data analysis?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It helps detect trends, outliers, and patterns",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents analysis",
+          "is_correct": false
+        },
+        {
+          "text": "It disables statistical methods",
+          "is_correct": false
+        },
+        {
+          "text": "It deletes missing values automatically",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Visualization Challenge",
+      "content": "What can happen if an inappropriate chart type is selected?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "The audience may misunderstand the insights",
+          "is_correct": true
+        },
+        {
+          "text": "The dataset gets deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Machine learning models stop working",
+          "is_correct": false
+        },
+        {
+          "text": "Python automatically changes chart types",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Seaborn and Statistical Data",
+      "content": "Why is Seaborn often preferred for statistical visualization tasks?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It offers built-in support for statistical plots and patterns",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces NumPy arrays",
+          "is_correct": false
+        },
+        {
+          "text": "It automatically trains ML models",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Advanced Data Storytelling",
+      "content": "Why is combining narrative and visualization valuable in ML projects?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It helps stakeholders understand technical insights and make decisions",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all analytical requirements",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces machine learning pipelines",
+          "is_correct": false
+        },
+        {
+          "text": "It guarantees perfect predictions",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding NumPy Arrays",
+      "content": "Which statements correctly describe NumPy arrays?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays are used for numerical computations",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays can store elements in multiple dimensions",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays can only store text values",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays support efficient mathematical operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Indexing Basics",
+      "content": "Which statements correctly describe indexing in NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Indexing is used to access array elements",
+          "is_correct": true
+        },
+        {
+          "text": "Array indexing usually starts from position 0",
+          "is_correct": true
+        },
+        {
+          "text": "Indexing cannot access individual elements",
+          "is_correct": false
+        },
+        {
+          "text": "Negative indices can access elements from the end",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Slicing Concepts",
+      "content": "Which statements correctly describe slicing?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Slicing extracts portions of arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing can select a range of elements",
+          "is_correct": true
+        },
+        {
+          "text": "Slicing always returns a single value",
+          "is_correct": false
+        },
+        {
+          "text": "Slicing can work on multidimensional arrays",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Broadcasting",
+      "content": "Which statements correctly describe broadcasting?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Broadcasting allows operations on arrays with different shapes",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting can reduce explicit looping",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting only works for arrays of identical shape",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy automatically expands dimensions when possible",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Vectorized Operations Basics",
+      "content": "Which statements correctly describe vectorized operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations perform computations on entire arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorization can improve performance",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized operations always require loops",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy supports vectorized mathematical operations",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Array Manipulation Concepts",
+      "content": "Which statements correctly describe NumPy array operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Arrays can support mathematical operations element-wise",
+          "is_correct": true
+        },
+        {
+          "text": "Array dimensions influence operation behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Array operations cannot be optimized",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient computation is a key feature of NumPy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Broadcasting and Shapes",
+      "content": "Which statements correctly describe broadcasting rules?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Broadcasting compares array dimensions from right to left",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays with compatible dimensions can be broadcasted",
+          "is_correct": true
+        },
+        {
+          "text": "Any two random shapes can always be broadcast together",
+          "is_correct": false
+        },
+        {
+          "text": "Broadcasting simplifies operations across arrays",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Vectorization Advantages",
+      "content": "Which statements correctly describe vectorization benefits?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Vectorization can reduce execution time",
+          "is_correct": true
+        },
+        {
+          "text": "Operations on full arrays can improve efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorization always increases memory usage dramatically",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy is optimized for vectorized computation",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced NumPy Concepts",
+      "content": "Which statements correctly describe advanced NumPy concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Broadcasting and vectorization can improve computational efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Array shape compatibility affects operations",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting guarantees compatibility for all arrays",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy reduces dependence on explicit loops",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of NumPy Operations",
+      "content": "Which statements correctly describe advanced array processing concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "NumPy",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Efficient array operations support large-scale data processing",
+          "is_correct": true
+        },
+        {
+          "text": "Vectorized computations can improve ML workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Indexing and slicing are unrelated to data manipulation",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy tools simplify numerical programming tasks",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Series and DataFrames",
+      "content": "Which statements correctly describe Pandas Series and DataFrames?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "A Series is a one-dimensional labeled data structure",
+          "is_correct": true
+        },
+        {
+          "text": "A DataFrame stores data in rows and columns",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames can only contain numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas structures support data analysis tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Cleaning Basics",
+      "content": "Which statements correctly describe data cleaning?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data cleaning helps improve data quality",
+          "is_correct": true
+        },
+        {
+          "text": "Handling missing values can be part of cleaning",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning always reduces dataset usefulness",
+          "is_correct": false
+        },
+        {
+          "text": "Duplicate values may be removed during cleaning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "GroupBy Fundamentals",
+      "content": "Which statements correctly describe GroupBy operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "GroupBy organizes data into groups",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy is commonly used with aggregation functions",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy cannot summarize data",
+          "is_correct": false
+        },
+        {
+          "text": "Grouping can help analyze patterns in data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Merge and Join Basics",
+      "content": "Which statements correctly describe Merge and Join operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Merge combines datasets using common keys",
+          "is_correct": true
+        },
+        {
+          "text": "Join operations can combine related datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Merge and Join cannot work with DataFrames",
+          "is_correct": false
+        },
+        {
+          "text": "Combining datasets supports data analysis tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pandas Usage Basics",
+      "content": "Which statements correctly describe Pandas usage?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Pandas is widely used for data manipulation",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames support tabular data representation",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas is unrelated to machine learning workflows",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas can assist preprocessing tasks",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding DataFrame Operations",
+      "content": "Which statements correctly describe DataFrame operations?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "DataFrames can contain multiple data types",
+          "is_correct": true
+        },
+        {
+          "text": "Rows and columns support structured analysis",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames only support single-column datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Tabular organization simplifies analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Grouping and Aggregation Concepts",
+      "content": "Which statements correctly describe grouping and aggregation?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Grouped data can be aggregated using functions like mean or sum",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping can reveal trends across categories",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy permanently changes original data structure",
+          "is_correct": false
+        },
+        {
+          "text": "Aggregation helps summarize datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Combining Datasets Concepts",
+      "content": "Which statements correctly describe Merge and Join concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Datasets can be combined through shared keys",
+          "is_correct": true
+        },
+        {
+          "text": "Merge operations help integrate information",
+          "is_correct": true
+        },
+        {
+          "text": "All joins always produce identical results",
+          "is_correct": false
+        },
+        {
+          "text": "Combining data supports feature preparation",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Pandas Concepts",
+      "content": "Which statements correctly describe advanced Pandas concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data cleaning and transformation improve data usability",
+          "is_correct": true
+        },
+        {
+          "text": "GroupBy and Merge support advanced analysis workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Data preprocessing is unrelated to machine learning quality",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas supports efficient manipulation of structured datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Pandas Workflows",
+      "content": "Which statements correctly describe advanced Pandas workflow concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Pandas",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Combining cleaning and transformation supports better ML pipelines",
+          "is_correct": true
+        },
+        {
+          "text": "Data preparation often requires grouping and merging operations",
+          "is_correct": true
+        },
+        {
+          "text": "Structured data processing has no impact on model outcomes",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas tools simplify end-to-end data workflows",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Matplotlib",
+      "content": "Which statements correctly describe Matplotlib?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Matplotlib is a Python library for creating visualizations",
+          "is_correct": true
+        },
+        {
+          "text": "Matplotlib can create line charts and bar charts",
+          "is_correct": true
+        },
+        {
+          "text": "Matplotlib is only used for database management",
+          "is_correct": false
+        },
+        {
+          "text": "Visualization helps understand data patterns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Seaborn",
+      "content": "Which statements correctly describe Seaborn?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Seaborn is built on top of Matplotlib",
+          "is_correct": true
+        },
+        {
+          "text": "Seaborn provides attractive statistical visualizations",
+          "is_correct": true
+        },
+        {
+          "text": "Seaborn cannot create distribution plots",
+          "is_correct": false
+        },
+        {
+          "text": "Seaborn simplifies creating advanced visualizations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Storytelling Basics",
+      "content": "Which statements correctly describe data storytelling?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data storytelling combines data with visual communication",
+          "is_correct": true
+        },
+        {
+          "text": "Storytelling helps explain insights clearly",
+          "is_correct": true
+        },
+        {
+          "text": "Charts alone always explain the complete context",
+          "is_correct": false
+        },
+        {
+          "text": "Narratives can improve understanding of data findings",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Purpose of Data Visualization",
+      "content": "Which statements correctly describe data visualization?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Visualization can reveal trends and patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Charts help simplify complex datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Visualizations are unrelated to analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Data visuals can support decision-making",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Chart Selection Basics",
+      "content": "Which statements correctly describe chart usage?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Different chart types serve different purposes",
+          "is_correct": true
+        },
+        {
+          "text": "Line charts are often used for trends over time",
+          "is_correct": true
+        },
+        {
+          "text": "One chart type always works best for every dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Choosing the right chart improves communication",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Matplotlib and Seaborn Comparison",
+      "content": "Which statements correctly compare Matplotlib and Seaborn?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Seaborn is built on top of Matplotlib",
+          "is_correct": true
+        },
+        {
+          "text": "Matplotlib provides low-level plotting control",
+          "is_correct": true
+        },
+        {
+          "text": "Matplotlib and Seaborn are unrelated libraries",
+          "is_correct": false
+        },
+        {
+          "text": "Both libraries support visualization workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Storytelling Principles",
+      "content": "Which statements correctly describe storytelling principles?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Storytelling connects visuals with meaningful context",
+          "is_correct": true
+        },
+        {
+          "text": "Narratives can guide audience understanding",
+          "is_correct": true
+        },
+        {
+          "text": "Data storytelling ignores audience interpretation",
+          "is_correct": false
+        },
+        {
+          "text": "Communication plays a role in data analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Visualization Design Concepts",
+      "content": "Which statements correctly describe visualization design?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Effective visuals improve interpretation",
+          "is_correct": true
+        },
+        {
+          "text": "Visual clutter can reduce readability",
+          "is_correct": true
+        },
+        {
+          "text": "More chart elements always improve clarity",
+          "is_correct": false
+        },
+        {
+          "text": "Design choices affect user understanding",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Visualization Concepts",
+      "content": "Which statements correctly describe advanced visualization concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Visualization supports exploration and communication",
+          "is_correct": true
+        },
+        {
+          "text": "Storytelling can increase the impact of insights",
+          "is_correct": true
+        },
+        {
+          "text": "Visualizations eliminate the need for analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Data understanding can improve through effective visuals",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Visualization",
+      "content": "Which statements correctly describe strategic visualization concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Processing",
+      "subunit_name": "Data Visualization",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Visualization tools help transform data into insights",
+          "is_correct": true
+        },
+        {
+          "text": "Good storytelling improves data communication",
+          "is_correct": true
+        },
+        {
+          "text": "Visualization techniques are unrelated to decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "Effective communication is important in data science",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}
