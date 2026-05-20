@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
-
-const uuidv4 = () => crypto.randomUUID();
 
 export type ChatMessage = {
   id: string;

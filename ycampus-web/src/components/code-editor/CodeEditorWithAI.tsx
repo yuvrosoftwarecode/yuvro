@@ -1,6 +1,7 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -69,7 +70,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(initialSidebarCollapsed);
   const [isEditorFullscreen, setIsEditorFullscreen] = useState(initialFullscreen);
   const [showAiChat, setShowAiChat] = useState(initialAiChatOpen);
-  const [chatSessionId, setChatSessionId] = useState(() => `chat-${problem.id}-${crypto.randomUUID()}`);
+  const [chatSessionId, setChatSessionId] = useState(() => `chat-${problem.id}-${uuidv4()}`);
 
   // Lifted state to persist across view switches
   const [code, setCode] = useState(initialCode);
@@ -175,7 +176,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
 
   // Generate a unique session key every time the problem is loaded to start fresh
   useEffect(() => {
-    setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`);
+    setChatSessionId(`chat-${problem.id}-${uuidv4()}`);
   }, [problem.id]);
 
   // Auto-enable AI Mentor in fullscreen mode
@@ -715,7 +716,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   welcomeMessage={`Hi! I'm your AI Mentor. Ready to help you with "${problem.title}". Ask me anything!`}
                   persistenceKey={chatSessionId}
                   chatTitle={`${problem.title} - AI Mentor`}
-                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${uuidv4()}`)}
                   onInsertCode={(code) => {
                     if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
                       codeEditorRef.current.insertCodeAtCursor(code);
@@ -844,7 +845,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
                     persistenceKey={chatSessionId}
                     chatTitle={`${problem.title} - AI Mentor`}
-                    onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                    onNewChat={() => setChatSessionId(`chat-${problem.id}-${uuidv4()}`)}
                     onInsertCode={(code) => {
                       if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
                         codeEditorRef.current.insertCodeAtCursor(code);

@@ -1,0 +1,2381 @@
+{
+  "name": "Deep Learning Foundation",
+  "subject_short_code": "ML100",
+  "order_index": 9,
+  "sub_units": [
+    {
+      "name": "Neural Networks",
+      "content": "This module provides a detailed exploration of Neural Networks, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Neural Networks",
+          "video_link": "https://www.youtube.com/results?search_query=Neural%20Networks",
+          "ai_context": "Detailed overview and key concepts of Neural Networks"
+        },
+        {
+          "title": "Neural Networks",
+          "video_link": "https://www.youtube.com/results?search_query=Neural%20Networks",
+          "ai_context": "Detailed overview and key concepts of Neural Networks"
+        }
+      ]
+    },
+    {
+      "name": "Activation Functions",
+      "content": "This module provides a detailed exploration of Activation Functions, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Activation Functions",
+          "video_link": "https://www.youtube.com/results?search_query=Activation%20Functions",
+          "ai_context": "Detailed overview and key concepts of Activation Functions"
+        },
+        {
+          "title": "Activation Functions",
+          "video_link": "https://www.youtube.com/results?search_query=Activation%20Functions",
+          "ai_context": "Detailed overview and key concepts of Activation Functions"
+        }
+      ]
+    },
+    {
+      "name": "Training Neural Networks",
+      "content": "This module provides a detailed exploration of Training Neural Networks, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Training Neural Networks",
+          "video_link": "https://www.youtube.com/results?search_query=Training%20Neural%20Networks",
+          "ai_context": "Detailed overview and key concepts of Training Neural Networks"
+        },
+        {
+          "title": "Training Neural Networks",
+          "video_link": "https://www.youtube.com/results?search_query=Training%20Neural%20Networks",
+          "ai_context": "Detailed overview and key concepts of Training Neural Networks"
+        }
+      ]
+    },
+    {
+      "name": "Frameworks",
+      "content": "This module provides a detailed exploration of Frameworks, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Frameworks",
+          "video_link": "https://www.youtube.com/results?search_query=Frameworks",
+          "ai_context": "Detailed overview and key concepts of Frameworks"
+        },
+        {
+          "title": "Frameworks",
+          "video_link": "https://www.youtube.com/results?search_query=Frameworks",
+          "ai_context": "Detailed overview and key concepts of Frameworks"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Perceptron Definition",
+      "content": "What is a perceptron?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The simplest form of an artificial neural network",
+          "is_correct": true
+        },
+        {
+          "text": "A database management system",
+          "is_correct": false
+        },
+        {
+          "text": "A clustering algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "A feature scaling method",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Layers in Neural Networks",
+      "content": "Which layer receives the initial data in a neural network?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Input layer",
+          "is_correct": true
+        },
+        {
+          "text": "Output layer",
+          "is_correct": false
+        },
+        {
+          "text": "Hidden layer",
+          "is_correct": false
+        },
+        {
+          "text": "Activation layer",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-layer Network Structure",
+      "content": "A multi-layer neural network contains:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One or more hidden layers",
+          "is_correct": true
+        },
+        {
+          "text": "Only input and output layers",
+          "is_correct": false
+        },
+        {
+          "text": "Only one neuron",
+          "is_correct": false
+        },
+        {
+          "text": "No connections between nodes",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Perceptron Output",
+      "content": "The output of a perceptron is determined by:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Weighted inputs and an activation function",
+          "is_correct": true
+        },
+        {
+          "text": "Database queries",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Random guessing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Single-Layer Limitation",
+      "content": "Why is a single-layer perceptron limited?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can only solve linearly separable problems",
+          "is_correct": true
+        },
+        {
+          "text": "It cannot process numerical inputs",
+          "is_correct": false
+        },
+        {
+          "text": "It works only with images",
+          "is_correct": false
+        },
+        {
+          "text": "It has infinite parameters",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Role of Hidden Layers",
+      "content": "What is the main purpose of hidden layers in neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To learn complex patterns from data",
+          "is_correct": true
+        },
+        {
+          "text": "To store datasets permanently",
+          "is_correct": false
+        },
+        {
+          "text": "To remove training data",
+          "is_correct": false
+        },
+        {
+          "text": "To replace activation functions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-layer Advantage",
+      "content": "Compared to a perceptron, multi-layer neural networks are more powerful because they:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Can model non-linear relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Require no training",
+          "is_correct": false
+        },
+        {
+          "text": "Always use fewer parameters",
+          "is_correct": false
+        },
+        {
+          "text": "Do not use weights",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "XOR Problem",
+      "content": "Why is the XOR problem important in neural network history?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It showed that single-layer perceptrons cannot solve some non-linear problems",
+          "is_correct": true
+        },
+        {
+          "text": "It proved perceptrons are unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "It removed the need for hidden layers",
+          "is_correct": false
+        },
+        {
+          "text": "It replaced neural networks with regression",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deep Networks Understanding",
+      "content": "Why do deeper neural networks often outperform shallow networks in complex tasks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They can learn hierarchical and more abstract representations",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate the need for data",
+          "is_correct": false
+        },
+        {
+          "text": "They use no activation functions",
+          "is_correct": false
+        },
+        {
+          "text": "They always train instantly",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ReLU Full Form",
+      "content": "What does ReLU stand for?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rectified Linear Unit",
+          "is_correct": true
+        },
+        {
+          "text": "Random Linear Utility",
+          "is_correct": false
+        },
+        {
+          "text": "Reduced Learning Unit",
+          "is_correct": false
+        },
+        {
+          "text": "Recursive Logic Unit",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sigmoid Output Range",
+      "content": "What is the output range of the Sigmoid activation function?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0 to 1",
+          "is_correct": true
+        },
+        {
+          "text": "-1 to 1",
+          "is_correct": false
+        },
+        {
+          "text": "0 to 100",
+          "is_correct": false
+        },
+        {
+          "text": "-∞ to +∞",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Softmax Usage",
+      "content": "Softmax is commonly used in:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-class classification output layers",
+          "is_correct": true
+        },
+        {
+          "text": "Database indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Feature scaling",
+          "is_correct": false
+        },
+        {
+          "text": "Clustering algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ReLU Output Rule",
+      "content": "If input x is negative, ReLU outputs:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0",
+          "is_correct": true
+        },
+        {
+          "text": "1",
+          "is_correct": false
+        },
+        {
+          "text": "-1",
+          "is_correct": false
+        },
+        {
+          "text": "Input value itself",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Sigmoid Limitation",
+      "content": "What is a common limitation of the Sigmoid activation function?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It can cause vanishing gradient problems",
+          "is_correct": true
+        },
+        {
+          "text": "It produces values greater than 100",
+          "is_correct": false
+        },
+        {
+          "text": "It cannot process numerical inputs",
+          "is_correct": false
+        },
+        {
+          "text": "It works only with images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Softmax Function Role",
+      "content": "What does Softmax do in a neural network?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Converts outputs into probability values across classes",
+          "is_correct": true
+        },
+        {
+          "text": "Removes hidden layers",
+          "is_correct": false
+        },
+        {
+          "text": "Creates training datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Performs clustering",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ReLU Advantage",
+      "content": "Why is ReLU widely used in deep neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It is computationally efficient and reduces vanishing gradients",
+          "is_correct": true
+        },
+        {
+          "text": "It always outputs probabilities",
+          "is_correct": false
+        },
+        {
+          "text": "It only works for binary classification",
+          "is_correct": false
+        },
+        {
+          "text": "It eliminates the need for training",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Softmax vs Sigmoid",
+      "content": "When is Softmax preferred over Sigmoid?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When predicting one class among multiple categories",
+          "is_correct": true
+        },
+        {
+          "text": "When performing feature scaling",
+          "is_correct": false
+        },
+        {
+          "text": "When removing missing values",
+          "is_correct": false
+        },
+        {
+          "text": "When using clustering algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Activation Function Importance",
+      "content": "Why are activation functions essential in neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They introduce non-linearity, enabling networks to learn complex patterns",
+          "is_correct": true
+        },
+        {
+          "text": "They replace neural network layers",
+          "is_correct": false
+        },
+        {
+          "text": "They remove training data requirements",
+          "is_correct": false
+        },
+        {
+          "text": "They convert supervised learning into unsupervised learning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Forward Propagation Meaning",
+      "content": "What happens during forward propagation in a neural network?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data moves from input layer to output layer",
+          "is_correct": true
+        },
+        {
+          "text": "Weights are deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Data is clustered",
+          "is_correct": false
+        },
+        {
+          "text": "Features are normalized",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Backpropagation",
+      "content": "Why is backpropagation used?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To update weights based on prediction errors",
+          "is_correct": true
+        },
+        {
+          "text": "To create training datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To remove hidden layers",
+          "is_correct": false
+        },
+        {
+          "text": "To increase feature count",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loss Function Purpose",
+      "content": "What does a loss function measure?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Difference between predicted and actual values",
+          "is_correct": true
+        },
+        {
+          "text": "Number of neurons",
+          "is_correct": false
+        },
+        {
+          "text": "Training dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "Total features in data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Loss Function Example",
+      "content": "Which of the following is a common loss function?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean Squared Error (MSE)",
+          "is_correct": true
+        },
+        {
+          "text": "Binary Search",
+          "is_correct": false
+        },
+        {
+          "text": "Quick Sort",
+          "is_correct": false
+        },
+        {
+          "text": "Principal Component Analysis",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Backpropagation Process",
+      "content": "Backpropagation works by:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Propagating error information backward through the network",
+          "is_correct": true
+        },
+        {
+          "text": "Sending outputs directly to datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Removing neurons automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Creating new labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cross-Entropy Usage",
+      "content": "Cross-entropy loss is commonly used for:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Classification problems",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting data",
+          "is_correct": false
+        },
+        {
+          "text": "Image compression",
+          "is_correct": false
+        },
+        {
+          "text": "Feature extraction only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Training Objective",
+      "content": "What is the main goal during neural network training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Minimize the loss function",
+          "is_correct": true
+        },
+        {
+          "text": "Maximize hidden layers",
+          "is_correct": false
+        },
+        {
+          "text": "Increase feature dimensions",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce dataset size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Forward and Backward Flow",
+      "content": "What is the relationship between forward propagation and backpropagation?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forward propagation computes predictions, while backpropagation updates weights using errors",
+          "is_correct": true
+        },
+        {
+          "text": "Both processes only calculate accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Backpropagation occurs before forward propagation",
+          "is_correct": false
+        },
+        {
+          "text": "Both remove hidden layers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Importance of Loss Functions",
+      "content": "Why are loss functions essential in neural network training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They provide feedback that guides weight updates",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate the need for optimization",
+          "is_correct": false
+        },
+        {
+          "text": "They create additional neurons",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically increase accuracy",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TensorFlow Purpose",
+      "content": "What is TensorFlow mainly used for?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Building and training machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Managing databases",
+          "is_correct": false
+        },
+        {
+          "text": "Creating spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "Web browser development",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Keras Role",
+      "content": "Keras is best described as:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A high-level API for building neural networks",
+          "is_correct": true
+        },
+        {
+          "text": "A database language",
+          "is_correct": false
+        },
+        {
+          "text": "A clustering algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "A feature engineering technique",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PyTorch Feature",
+      "content": "PyTorch is popular because of its:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Flexible and dynamic computation graph",
+          "is_correct": true
+        },
+        {
+          "text": "Spreadsheet management",
+          "is_correct": false
+        },
+        {
+          "text": "Browser rendering engine",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system design",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TensorFlow Creator",
+      "content": "TensorFlow was originally developed by:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Google",
+          "is_correct": true
+        },
+        {
+          "text": "Microsoft",
+          "is_correct": false
+        },
+        {
+          "text": "Apple",
+          "is_correct": false
+        },
+        {
+          "text": "Oracle",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "TensorFlow and Keras Relationship",
+      "content": "How are TensorFlow and Keras related?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keras is integrated into TensorFlow as a high-level API",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow depends entirely on PyTorch",
+          "is_correct": false
+        },
+        {
+          "text": "Keras replaces TensorFlow completely",
+          "is_correct": false
+        },
+        {
+          "text": "They are unrelated tools",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PyTorch Usage",
+      "content": "PyTorch is widely preferred in research because:",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Its dynamic computation graph makes experimentation easier",
+          "is_correct": true
+        },
+        {
+          "text": "It avoids neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "It only supports CPU computation",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Framework Benefit",
+      "content": "Why are deep learning frameworks useful?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They simplify model creation and training",
+          "is_correct": true
+        },
+        {
+          "text": "They replace machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically generate datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Framework Selection",
+      "content": "Which factor commonly influences choosing TensorFlow or PyTorch?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Project requirements such as research flexibility or production deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Screen resolution",
+          "is_correct": false
+        },
+        {
+          "text": "Number of folders in a system",
+          "is_correct": false
+        },
+        {
+          "text": "Internet browser type",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deep Learning Workflow",
+      "content": "What is a key advantage of frameworks like TensorFlow, Keras, and PyTorch?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They provide optimized tools for building, training, and deploying models",
+          "is_correct": true
+        },
+        {
+          "text": "They remove the need for learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically guarantee perfect accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with image datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Perceptron Basics",
+      "content": "Which statements correctly describe a perceptron?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A perceptron is a basic neural network unit",
+          "is_correct": true
+        },
+        {
+          "text": "It receives inputs and produces an output",
+          "is_correct": true
+        },
+        {
+          "text": "A perceptron contains no weights",
+          "is_correct": false
+        },
+        {
+          "text": "Perceptrons are inspired by biological neurons",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Single-Layer Perceptron",
+      "content": "Which statements correctly describe a single-layer perceptron?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A single-layer perceptron has no hidden layer",
+          "is_correct": true
+        },
+        {
+          "text": "It works well for linearly separable problems",
+          "is_correct": true
+        },
+        {
+          "text": "It can solve all complex nonlinear problems",
+          "is_correct": false
+        },
+        {
+          "text": "Inputs are multiplied by weights",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multi-Layer Network Basics",
+      "content": "Which statements correctly describe multi-layer neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-layer networks contain hidden layers",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden layers help learn complex patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-layer networks always contain only one layer",
+          "is_correct": false
+        },
+        {
+          "text": "They are used in deep learning models",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Neural Network Components",
+      "content": "Which statements correctly describe neural network components?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Weights influence neuron outputs",
+          "is_correct": true
+        },
+        {
+          "text": "Bias terms shift activation values",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden layers are unnecessary in all models",
+          "is_correct": false
+        },
+        {
+          "text": "Activation functions are commonly used",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Perceptron Limitations",
+      "content": "Which statements correctly describe perceptron limitations?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Single-layer perceptrons struggle with XOR problems",
+          "is_correct": true
+        },
+        {
+          "text": "Perceptrons work mainly on linearly separable data",
+          "is_correct": true
+        },
+        {
+          "text": "Perceptrons can solve every nonlinear problem alone",
+          "is_correct": false
+        },
+        {
+          "text": "Multi-layer networks overcome some limitations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Role of Hidden Layers",
+      "content": "Which statements correctly describe hidden layers in neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hidden layers transform input information",
+          "is_correct": true
+        },
+        {
+          "text": "Additional layers help learn complex representations",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden layers never affect model capability",
+          "is_correct": false
+        },
+        {
+          "text": "Deep networks often contain multiple hidden layers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multi-Layer Network Learning",
+      "content": "Which statements correctly describe multi-layer network learning?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple layers can model nonlinear relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Deep networks can learn hierarchical features",
+          "is_correct": true
+        },
+        {
+          "text": "Increasing layers guarantees perfect performance",
+          "is_correct": false
+        },
+        {
+          "text": "Training adjusts network weights",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Neural Network Concepts",
+      "content": "Which statements correctly describe advanced neural network concepts?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-layer networks improve representational capability",
+          "is_correct": true
+        },
+        {
+          "text": "Perceptrons form building blocks of larger networks",
+          "is_correct": true
+        },
+        {
+          "text": "Adding layers always eliminates all learning problems",
+          "is_correct": false
+        },
+        {
+          "text": "Network architecture influences model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Perceptron and Deep Learning Evolution",
+      "content": "Which statements correctly describe the evolution from perceptrons to deep networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-layer networks were developed to solve limitations of perceptrons",
+          "is_correct": true
+        },
+        {
+          "text": "Deep learning relies on interconnected neural layers",
+          "is_correct": true
+        },
+        {
+          "text": "Single-layer perceptrons solve all classification problems",
+          "is_correct": false
+        },
+        {
+          "text": "Network depth affects learning capability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Activation Functions",
+      "content": "Which statements correctly describe activation functions?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Activation functions introduce non-linearity into neural networks",
+          "is_correct": true
+        },
+        {
+          "text": "They help neural networks learn complex patterns",
+          "is_correct": true
+        },
+        {
+          "text": "Activation functions are unnecessary in deep learning",
+          "is_correct": false
+        },
+        {
+          "text": "Different layers may use different activation functions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ReLU Basics",
+      "content": "Which statements correctly describe ReLU?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ReLU stands for Rectified Linear Unit",
+          "is_correct": true
+        },
+        {
+          "text": "ReLU outputs zero for negative inputs",
+          "is_correct": true
+        },
+        {
+          "text": "ReLU always outputs values between 0 and 1",
+          "is_correct": false
+        },
+        {
+          "text": "ReLU is widely used in hidden layers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Sigmoid Function Basics",
+      "content": "Which statements correctly describe Sigmoid activation?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sigmoid outputs values between 0 and 1",
+          "is_correct": true
+        },
+        {
+          "text": "Sigmoid is often used for binary classification output",
+          "is_correct": true
+        },
+        {
+          "text": "Sigmoid outputs only negative values",
+          "is_correct": false
+        },
+        {
+          "text": "Sigmoid can represent probabilities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Softmax Function Basics",
+      "content": "Which statements correctly describe Softmax?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Softmax converts outputs into probability distributions",
+          "is_correct": true
+        },
+        {
+          "text": "Softmax is commonly used in multiclass classification",
+          "is_correct": true
+        },
+        {
+          "text": "Softmax outputs probabilities that do not sum to 1",
+          "is_correct": false
+        },
+        {
+          "text": "Softmax compares multiple class scores",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Activation Functions",
+      "content": "Which statements correctly compare ReLU, Sigmoid, and Softmax?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ReLU is often used in hidden layers",
+          "is_correct": true
+        },
+        {
+          "text": "Sigmoid can be used for binary outputs",
+          "is_correct": true
+        },
+        {
+          "text": "Softmax is mainly used for regression",
+          "is_correct": false
+        },
+        {
+          "text": "Different activations serve different purposes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Activation Functions and Learning",
+      "content": "Which statements correctly describe the role of activation functions in learning?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Without activation functions, networks behave like linear models",
+          "is_correct": true
+        },
+        {
+          "text": "Activation functions help capture complex relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Activation functions reduce all outputs to zero",
+          "is_correct": false
+        },
+        {
+          "text": "Deep learning relies on non-linear transformations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Softmax and Sigmoid Applications",
+      "content": "Which statements correctly describe applications of Sigmoid and Softmax?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Sigmoid is suitable for binary classification",
+          "is_correct": true
+        },
+        {
+          "text": "Softmax is useful for multiple output classes",
+          "is_correct": true
+        },
+        {
+          "text": "Softmax and Sigmoid always produce identical outputs",
+          "is_correct": false
+        },
+        {
+          "text": "Output layer choice depends on task requirements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Activation Function Concepts",
+      "content": "Which statements correctly describe advanced activation function concepts?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Choice of activation function affects learning performance",
+          "is_correct": true
+        },
+        {
+          "text": "ReLU can help reduce vanishing gradient issues",
+          "is_correct": true
+        },
+        {
+          "text": "All activation functions perform equally in every scenario",
+          "is_correct": false
+        },
+        {
+          "text": "Activation selection depends on model architecture",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Activation Strategy in Deep Learning",
+      "content": "Which statements correctly describe activation strategy in neural networks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Activation Functions",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hidden and output layers may use different activation functions",
+          "is_correct": true
+        },
+        {
+          "text": "Activation choices influence network behavior",
+          "is_correct": true
+        },
+        {
+          "text": "A single activation function is always optimal",
+          "is_correct": false
+        },
+        {
+          "text": "Task type affects activation selection",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Forward Propagation Basics",
+      "content": "Which statements correctly describe forward propagation?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forward propagation moves information from input to output",
+          "is_correct": true
+        },
+        {
+          "text": "Inputs pass through layers using weights and activations",
+          "is_correct": true
+        },
+        {
+          "text": "Forward propagation updates gradients directly",
+          "is_correct": false
+        },
+        {
+          "text": "Predictions are generated during forward propagation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Backpropagation Introduction",
+      "content": "Which statements correctly describe backpropagation?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Backpropagation updates network parameters using errors",
+          "is_correct": true
+        },
+        {
+          "text": "It works backward through network layers",
+          "is_correct": true
+        },
+        {
+          "text": "Backpropagation only processes input values",
+          "is_correct": false
+        },
+        {
+          "text": "It helps neural networks learn",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Loss Function Basics",
+      "content": "Which statements correctly describe loss functions?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Loss functions measure prediction error",
+          "is_correct": true
+        },
+        {
+          "text": "Training aims to minimize loss",
+          "is_correct": true
+        },
+        {
+          "text": "Loss functions increase model randomness",
+          "is_correct": false
+        },
+        {
+          "text": "Loss values indicate model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Training Process Overview",
+      "content": "Which statements correctly describe neural network training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Training involves forward and backward steps",
+          "is_correct": true
+        },
+        {
+          "text": "Weights change during learning",
+          "is_correct": true
+        },
+        {
+          "text": "Training does not use optimization",
+          "is_correct": false
+        },
+        {
+          "text": "Learning reduces prediction errors over time",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Forward and Backward Learning Flow",
+      "content": "Which statements correctly describe the relationship between forward propagation and backpropagation?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forward propagation computes predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Backpropagation computes updates using errors",
+          "is_correct": true
+        },
+        {
+          "text": "Both processes are unrelated",
+          "is_correct": false
+        },
+        {
+          "text": "Training combines both operations repeatedly",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Loss Functions",
+      "content": "Which statements correctly describe loss functions and training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different tasks may require different loss functions",
+          "is_correct": true
+        },
+        {
+          "text": "Loss values guide parameter updates",
+          "is_correct": true
+        },
+        {
+          "text": "Loss functions are unnecessary during learning",
+          "is_correct": false
+        },
+        {
+          "text": "Classification and regression often use different losses",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Weight Update Process",
+      "content": "Which statements correctly describe weight updates during training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Weight updates help reduce errors",
+          "is_correct": true
+        },
+        {
+          "text": "Gradient information is used during updates",
+          "is_correct": true
+        },
+        {
+          "text": "Weights remain fixed during training",
+          "is_correct": false
+        },
+        {
+          "text": "Optimization adjusts model parameters",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Neural Network Training Concepts",
+      "content": "Which statements correctly describe advanced training concepts?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Backpropagation relies on gradients to improve learning",
+          "is_correct": true
+        },
+        {
+          "text": "Loss functions influence optimization behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Training quality is independent of error measurements",
+          "is_correct": false
+        },
+        {
+          "text": "Parameter updates improve model predictions over time",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Training Strategy and Optimization",
+      "content": "Which statements correctly describe optimization in neural network training?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Training Neural Networks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forward propagation and backpropagation work together during learning",
+          "is_correct": true
+        },
+        {
+          "text": "Optimization aims to minimize prediction loss",
+          "is_correct": true
+        },
+        {
+          "text": "Network training can succeed without learning updates",
+          "is_correct": false
+        },
+        {
+          "text": "Training quality depends on proper learning mechanisms",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TensorFlow Basics",
+      "content": "Which statements correctly describe TensorFlow?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "TensorFlow is a deep learning framework",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow supports building neural networks",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow is only used for database management",
+          "is_correct": false
+        },
+        {
+          "text": "TensorFlow supports model training and deployment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Keras Introduction",
+      "content": "Which statements correctly describe Keras?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keras provides a high-level API for deep learning",
+          "is_correct": true
+        },
+        {
+          "text": "Keras simplifies neural network development",
+          "is_correct": true
+        },
+        {
+          "text": "Keras cannot be used with TensorFlow",
+          "is_correct": false
+        },
+        {
+          "text": "Keras helps build models with less code",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PyTorch Basics",
+      "content": "Which statements correctly describe PyTorch?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PyTorch is a machine learning and deep learning framework",
+          "is_correct": true
+        },
+        {
+          "text": "PyTorch supports tensor operations",
+          "is_correct": true
+        },
+        {
+          "text": "PyTorch is used only for spreadsheet analysis",
+          "is_correct": false
+        },
+        {
+          "text": "PyTorch is popular in research communities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Deep Learning Framework Usage",
+      "content": "Which statements correctly describe deep learning frameworks?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks simplify model creation",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks provide tools for training models",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks remove the need for datasets",
+          "is_correct": false
+        },
+        {
+          "text": "They help manage deep learning workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "TensorFlow and Keras Relationship",
+      "content": "Which statements correctly describe the relationship between TensorFlow and Keras?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Keras can run on TensorFlow backend",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow provides lower-level functionality",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow and Keras are unrelated tools",
+          "is_correct": false
+        },
+        {
+          "text": "Keras often simplifies TensorFlow workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PyTorch Features",
+      "content": "Which statements correctly describe PyTorch features?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PyTorch supports dynamic computation graphs",
+          "is_correct": true
+        },
+        {
+          "text": "PyTorch is commonly used for experimentation",
+          "is_correct": true
+        },
+        {
+          "text": "PyTorch cannot train neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "PyTorch includes automatic differentiation tools",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Framework Selection Considerations",
+      "content": "Which statements correctly describe framework selection?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Framework choice may depend on project requirements",
+          "is_correct": true
+        },
+        {
+          "text": "Ease of use can influence framework selection",
+          "is_correct": true
+        },
+        {
+          "text": "Only one framework works for all situations",
+          "is_correct": false
+        },
+        {
+          "text": "Community support can be important",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Deep Learning Framework Concepts",
+      "content": "Which statements correctly describe advanced framework concepts?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks improve productivity in deep learning development",
+          "is_correct": true
+        },
+        {
+          "text": "TensorFlow and PyTorch support neural network implementation",
+          "is_correct": true
+        },
+        {
+          "text": "Framework selection has no effect on workflow",
+          "is_correct": false
+        },
+        {
+          "text": "Different frameworks provide different development experiences",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Framework Ecosystem Understanding",
+      "content": "Which statements correctly describe deep learning framework ecosystems?",
+      "level": "subtopic",
+      "unit_name": "Deep Learning Fundamentals",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks provide tools beyond model training",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment and experimentation are often supported",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks eliminate the need for understanding neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Ecosystems help manage complete model lifecycles",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}
