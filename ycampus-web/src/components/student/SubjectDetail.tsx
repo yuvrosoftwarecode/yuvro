@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -52,7 +53,7 @@ const SubjectDetail: React.FC = () => {
 
   const [videoLayout, setVideoLayout] = useState<LayoutMode>('video');
   const [sidebarCollapseSignal, setSidebarCollapseSignal] = useState<number | null>(null);
-  const [chatSessionId, setChatSessionId] = useState(`subject-chat-${subjectId}-${crypto.randomUUID()}`);
+  const [chatSessionId, setChatSessionId] = useState(`subject-chat-${subjectId}-${uuidv4()}`);
 
   const [topicQuestions, setTopicQuestions] = useState<any>(null);
   const [contentLoading, setContentLoading] = useState(false);
@@ -246,7 +247,7 @@ const SubjectDetail: React.FC = () => {
           unitName={selectedUnitTitle}
           subunitName={selectedTopicTitle || 'Sub Unit'}
           sessionId={chatSessionId}
-          onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${crypto.randomUUID()}`)}
+          onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
           layout={videoLayout}
           onLayoutChange={setVideoLayout}
         />
@@ -254,11 +255,11 @@ const SubjectDetail: React.FC = () => {
     }
 
     if (activeTab === 'materials') {
-      return <StudentNotes subunitId={selectedTopic} mode="materials" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${crypto.randomUUID()}`)} />;
+      return <StudentNotes subunitId={selectedTopic} mode="materials" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)} />;
     }
 
     if (activeTab === 'my-notes') {
-      return <StudentNotes subunitId={selectedTopic} mode="my-notes" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${crypto.randomUUID()}`)} />;
+      return <StudentNotes subunitId={selectedTopic} mode="my-notes" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)} />;
     }
 
     return <div className="p-6">{renderQuizContent()}</div>;
