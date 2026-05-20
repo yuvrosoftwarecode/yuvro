@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import FacultyLayout from '@/components/layouts/FacultyLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,7 +77,7 @@ const Revise = () => {
 
   const createNote = () => {
     const newNote: Note = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       title: 'Untitled Note',
       content: '',
       updatedAt: new Date(),
