@@ -1,0 +1,116 @@
+{
+    "name": "UNIT-II: Battery Chemistry & Corrosion",
+    "subject_short_code": "EC101",
+    "order_index": 1,
+    "sub_units": [
+        {
+            "name": "Introduction - Classification of batteries- primary, secondary and reserve batteries with examples",
+            "content": "Introduction - Classification of batteries- primary, secondary and reserve batteries with examples",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Introduction - Classification of batteries- primary, secondary and reserve batteries with examples",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Introduction - Classification of batteries- primary, secondary and reserve batteries with examples unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Basic requirements for commercial batteries",
+            "content": "Basic requirements for commercial batteries",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Basic requirements for commercial batteries",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Basic requirements for commercial batteries unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Construction, working and applications of: Zn-air and Lithium ion battery, Applications of Li-ion battery to electrical vehicles",
+            "content": "Construction, working and applications of: Zn-air and Lithium ion battery, Applications of Li-ion battery to electrical vehicles",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Construction, working and applications of: Zn-air and Lithium ion battery, Applications of Li-ion battery to electrical vehicles",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Construction, working and applications of: Zn-air and Lithium ion battery, Applications of Li-ion battery to electrical vehicles unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Fuel Cells- Differences between battery and a fuel cell, Construction and applications of Methanol Oxygen fuel cell and Solid oxide fuel cell",
+            "content": "Fuel Cells- Differences between battery and a fuel cell, Construction and applications of Methanol Oxygen fuel cell and Solid oxide fuel cell",
+            "order_index": 3,
+            "videos": [
+                {
+                    "title": "Intro to Fuel Cells- Differences between battery and a fuel cell, Construction and applications of Methanol Oxygen fuel cell and Solid oxide fuel cell",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Fuel Cells- Differences between battery and a fuel cell, Construction and applications of Methanol Oxygen fuel cell and Solid oxide fuel cell unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Solar cells - Introduction and applications of Solar cells",
+            "content": "Solar cells - Introduction and applications of Solar cells",
+            "order_index": 4,
+            "videos": [
+                {
+                    "title": "Intro to Solar cells - Introduction and applications of Solar cells",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Solar cells - Introduction and applications of Solar cells unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Corrosion: Causes and effects of corrosion theories of chemical and electrochemical corrosion mechanism of electrochemical corrosion",
+            "content": "Corrosion: Causes and effects of corrosion theories of chemical and electrochemical corrosion mechanism of electrochemical corrosion",
+            "order_index": 5,
+            "videos": [
+                {
+                    "title": "Intro to Corrosion: Causes and effects of corrosion theories of chemical and electrochemical corrosion mechanism of electrochemical corrosion",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Corrosion: Causes and effects of corrosion theories of chemical and electrochemical corrosion mechanism of electrochemical corrosion unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Types of corrosion: Galvanic, water-line and pitting corrosion",
+            "content": "Types of corrosion: Galvanic, water-line and pitting corrosion",
+            "order_index": 6,
+            "videos": [
+                {
+                    "title": "Intro to Types of corrosion: Galvanic, water-line and pitting corrosion",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Types of corrosion: Galvanic, water-line and pitting corrosion unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Factors affecting rate of corrosion",
+            "content": "Factors affecting rate of corrosion",
+            "order_index": 7,
+            "videos": [
+                {
+                    "title": "Intro to Factors affecting rate of corrosion",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Factors affecting rate of corrosion unit of Engineering Chemistry"
+                }
+            ]
+        },
+        {
+            "name": "Corrosion control methods- Cathodic protection - Sacrificial anode and impressed current methods",
+            "content": "Corrosion control methods- Cathodic protection - Sacrificial anode and impressed current methods",
+            "order_index": 8,
+            "videos": [
+                {
+                    "title": "Intro to Corrosion control methods- Cathodic protection - Sacrificial anode and impressed current methods",
+                    "video_link": "https://www.youtube.com/watch?v=49PnlHWBRDQ&list=PLjzsfHC70_Lu3Pz42fZ1pfrkIIayRLOW2",
+                    "ai_context": "Detailed video explanation for Corrosion control methods- Cathodic protection - Sacrificial anode and impressed current methods unit of Engineering Chemistry"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

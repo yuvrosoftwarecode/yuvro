@@ -1,0 +1,20 @@
+{
+    "name": "UNIT \u2013 IV: Development of Surfaces (Conventional)",
+    "subject_short_code": "CAEG101",
+    "order_index": 3,
+    "sub_units": [
+        {
+            "name": "Prism, Cylinder, Pyramid and Cone",
+            "content": "Prism, Cylinder, Pyramid and Cone",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Prism, Cylinder, Pyramid and Cone",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Prism, Cylinder, Pyramid and Cone unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

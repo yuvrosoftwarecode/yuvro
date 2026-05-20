@@ -1,0 +1,10 @@
+{
+    "subjects": [
+        {
+            "short_code": "RJS100",
+            "subject_name": "React JS",
+            "category": "Web dev",
+            "product_type": "assessments"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "subjects": [
+        {
+            "short_code": "M&C101",
+            "subject_name": "Matrices and Calculus",
+            "category": "engineering",
+            "instructor_email": "admin@yuvro.com",
+            "product_type": "campus"
+        }
+    ]
+}

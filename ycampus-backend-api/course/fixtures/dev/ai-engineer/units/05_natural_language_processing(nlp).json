@@ -1,0 +1,1788 @@
+{
+    "name": "Natural Language Processing(NLP)",
+    "subject_short_code": "AI100",
+    "order_index": 5,
+    "sub_units": [
+        {
+            "name": "Text Processing",
+            "content": "This module provides a detailed exploration of Text Processing, covering its core principles, practical applications, and best practices within the field of study.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Text Processing",
+                    "video_link": "https://www.youtube.com/results?search_query=Text%20Processing",
+                    "ai_context": "Detailed overview and key concepts of Text Processing"
+                },
+                {
+                    "title": "Text Processing",
+                    "video_link": "https://www.youtube.com/results?search_query=Text%20Processing",
+                    "ai_context": "Detailed overview and key concepts of Text Processing"
+                }
+            ]
+        },
+        {
+            "name": "Text Representation",
+            "content": "This module provides a detailed exploration of Text Representation, covering its core principles, practical applications, and best practices within the field of study.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Text Representation",
+                    "video_link": "https://www.youtube.com/results?search_query=Text%20Representation",
+                    "ai_context": "Detailed overview and key concepts of Text Representation"
+                },
+                {
+                    "title": "Text Representation",
+                    "video_link": "https://www.youtube.com/results?search_query=Text%20Representation",
+                    "ai_context": "Detailed overview and key concepts of Text Representation"
+                }
+            ]
+        },
+        {
+            "name": "NLP Tasks",
+            "content": "This module provides a detailed exploration of NLP Tasks, covering its core principles, practical applications, and best practices within the field of study.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "NLP Tasks",
+                    "video_link": "https://www.youtube.com/results?search_query=NLP%20Tasks",
+                    "ai_context": "Detailed overview and key concepts of NLP Tasks"
+                },
+                {
+                    "title": "NLP Tasks",
+                    "video_link": "https://www.youtube.com/results?search_query=NLP%20Tasks",
+                    "ai_context": "Detailed overview and key concepts of NLP Tasks"
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Tokenization Meaning",
+            "content": "What is tokenization in NLP?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Breaking text into smaller units like words or sentences",
+                    "is_correct": true
+                },
+                {
+                    "text": "Converting text into images",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encrypting data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorting text alphabetically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Stopwords Example",
+            "content": "Which of the following is commonly considered a stopword?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "the",
+                    "is_correct": true
+                },
+                {
+                    "text": "computer",
+                    "is_correct": false
+                },
+                {
+                    "text": "machine",
+                    "is_correct": false
+                },
+                {
+                    "text": "analysis",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Stopword Removal",
+            "content": "Why are stopwords often removed during text preprocessing?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To remove commonly occurring words with little meaning",
+                    "is_correct": true
+                },
+                {
+                    "text": "To create new documents",
+                    "is_correct": false
+                },
+                {
+                    "text": "To increase vocabulary size",
+                    "is_correct": false
+                },
+                {
+                    "text": "To translate text",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lemmatization Goal",
+            "content": "What does lemmatization do?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Converts words to their base or dictionary form",
+                    "is_correct": true
+                },
+                {
+                    "text": "Adds punctuation marks",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increases sentence length",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates word embeddings",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Word vs Sentence Tokenization",
+            "content": "What is the difference between word tokenization and sentence tokenization?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Word tokenization splits text into words, while sentence tokenization splits text into sentences",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both perform exactly the same task",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sentence tokenization removes stopwords",
+                    "is_correct": false
+                },
+                {
+                    "text": "Word tokenization creates embeddings",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lemmatization Example",
+            "content": "Which word is the likely lemmatized form of 'running'?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "run",
+                    "is_correct": true
+                },
+                {
+                    "text": "runner",
+                    "is_correct": false
+                },
+                {
+                    "text": "runs",
+                    "is_correct": false
+                },
+                {
+                    "text": "runned",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Impact of Stopword Removal",
+            "content": "Removing stopwords may help NLP models because it:",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduces noise and focuses on meaningful words",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates additional labels",
+                    "is_correct": false
+                },
+                {
+                    "text": "Adds hidden layers",
+                    "is_correct": false
+                },
+                {
+                    "text": "Increases punctuation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tokenization Challenge",
+            "content": "Why can tokenization become difficult in real-world NLP applications?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Languages contain punctuation, abbreviations, and ambiguous word boundaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text cannot be divided into words",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stopwords prevent tokenization",
+                    "is_correct": false
+                },
+                {
+                    "text": "Lemmatization replaces tokenization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Lemmatization vs Stemming",
+            "content": "Why is lemmatization often preferred over stemming?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It produces meaningful dictionary words using language context",
+                    "is_correct": true
+                },
+                {
+                    "text": "It removes all words from a sentence",
+                    "is_correct": false
+                },
+                {
+                    "text": "It works only for English",
+                    "is_correct": false
+                },
+                {
+                    "text": "It avoids preprocessing entirely",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bag of Words Purpose",
+            "content": "What does the Bag of Words (BoW) model represent?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Text as a collection of word frequencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Images as vectors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Audio converted into graphs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Words arranged alphabetically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "TF-IDF Meaning",
+            "content": "What does TF-IDF stand for?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Term Frequency\u2013Inverse Document Frequency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text Frequency\u2013Input Data Function",
+                    "is_correct": false
+                },
+                {
+                    "text": "Term Feature\u2013Internal Data Format",
+                    "is_correct": false
+                },
+                {
+                    "text": "Token Function\u2013Index Data Frequency",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Word Embeddings Purpose",
+            "content": "What is the goal of word embeddings?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Represent words as dense numerical vectors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Remove punctuation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Split text into tokens",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create stopword lists",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "BoW Limitation",
+            "content": "A major limitation of Bag of Words is that it:",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ignores word order and context",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cannot count words",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only works for images",
+                    "is_correct": false
+                },
+                {
+                    "text": "Removes all words",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "TF-IDF Importance",
+            "content": "Why does TF-IDF often perform better than Bag of Words?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It reduces the impact of frequently occurring but less informative words",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically removes all words",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts text into images",
+                    "is_correct": false
+                },
+                {
+                    "text": "It avoids vector representation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Word Embedding Advantage",
+            "content": "Word embeddings are useful because they:",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Capture semantic relationships between words",
+                    "is_correct": true
+                },
+                {
+                    "text": "Remove datasets",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create labels automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Replace tokenization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Document-Term Matrix",
+            "content": "Bag of Words creates which type of structure?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Document-term matrix",
+                    "is_correct": true
+                },
+                {
+                    "text": "Confusion matrix",
+                    "is_correct": false
+                },
+                {
+                    "text": "Covariance matrix",
+                    "is_correct": false
+                },
+                {
+                    "text": "Adjacency matrix",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "BoW vs Word Embeddings",
+            "content": "Why are word embeddings generally more powerful than Bag of Words?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They preserve semantic meaning and contextual relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "They avoid converting words into numbers",
+                    "is_correct": false
+                },
+                {
+                    "text": "They only work for short text",
+                    "is_correct": false
+                },
+                {
+                    "text": "They remove the need for machine learning models",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "TF-IDF Interpretation",
+            "content": "A word receives a high TF-IDF score when:",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It appears frequently in a document but rarely across all documents",
+                    "is_correct": true
+                },
+                {
+                    "text": "It appears in every document equally",
+                    "is_correct": false
+                },
+                {
+                    "text": "It is a stopword",
+                    "is_correct": false
+                },
+                {
+                    "text": "It never appears in the dataset",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of Sentiment Analysis",
+            "content": "What is the primary goal of sentiment analysis?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Determine the emotional tone of text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Translate text into another language",
+                    "is_correct": false
+                },
+                {
+                    "text": "Remove stopwords from text",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compress large text files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Text Classification Example",
+            "content": "Which of the following is a common application of text classification?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Spam email detection",
+                    "is_correct": true
+                },
+                {
+                    "text": "Image resizing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Feature scaling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "NER Purpose",
+            "content": "What does Named Entity Recognition (NER) identify?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Important entities such as names, locations, and organizations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing values in data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image boundaries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hidden layers in neural networks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Sentiment Categories",
+            "content": "Which sentiment category is commonly used in sentiment analysis?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Positive",
+                    "is_correct": true
+                },
+                {
+                    "text": "Clustered",
+                    "is_correct": false
+                },
+                {
+                    "text": "Normalized",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encoded",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Text Classification Goal",
+            "content": "What does a text classification model mainly do?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Assign predefined categories to text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Generate images from text",
+                    "is_correct": false
+                },
+                {
+                    "text": "Split text into tokens only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Remove duplicate records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "NER Example",
+            "content": "In the sentence 'John works at Google in London', which word is an organization entity?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Google",
+                    "is_correct": true
+                },
+                {
+                    "text": "John",
+                    "is_correct": false
+                },
+                {
+                    "text": "London",
+                    "is_correct": false
+                },
+                {
+                    "text": "Works",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Sentiment Analysis Data Source",
+            "content": "Sentiment analysis is commonly applied to:",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Customer reviews and social media posts",
+                    "is_correct": true
+                },
+                {
+                    "text": "Binary trees",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hardware drivers",
+                    "is_correct": false
+                },
+                {
+                    "text": "Feature scaling outputs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "NER Challenge",
+            "content": "Why can Named Entity Recognition be challenging in real-world applications?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The same word can represent different entity types depending on context",
+                    "is_correct": true
+                },
+                {
+                    "text": "Entities never appear in text",
+                    "is_correct": false
+                },
+                {
+                    "text": "NER does not use text data",
+                    "is_correct": false
+                },
+                {
+                    "text": "NER works only on images",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Relationship Between NLP Tasks",
+            "content": "How are sentiment analysis and text classification related?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sentiment analysis can be viewed as a specific type of text classification",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text classification replaces NER",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sentiment analysis only works for speech",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are completely unrelated concepts",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tokenization Basics",
+            "content": "Which statements correctly describe tokenization?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Tokenization splits text into smaller units",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tokens can be words or sentences",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tokenization always removes words",
+                    "is_correct": false
+                },
+                {
+                    "text": "Tokenization is a preprocessing step in NLP",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Stopwords Introduction",
+            "content": "Which statements correctly describe stopwords?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stopwords are common words with limited meaning contribution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Words like 'the' and 'is' are often stopwords",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stopwords are always required in NLP tasks",
+                    "is_correct": false
+                },
+                {
+                    "text": "Removing stopwords can reduce text size",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lemmatization Basics",
+            "content": "Which statements correctly describe lemmatization?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lemmatization converts words into their base form",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lemmatization considers word meaning",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lemmatization randomly removes words",
+                    "is_correct": false
+                },
+                {
+                    "text": "The lemma of 'running' can be 'run'",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Text Preprocessing Overview",
+            "content": "Which statements correctly describe text preprocessing?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Preprocessing prepares raw text for analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tokenization is often an early preprocessing step",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text preprocessing is unnecessary in NLP",
+                    "is_correct": false
+                },
+                {
+                    "text": "Cleaning text can improve model performance",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tokenization Types",
+            "content": "Which statements correctly describe tokenization methods?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Word tokenization splits text into words",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sentence tokenization splits text into sentences",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tokenization always preserves original formatting",
+                    "is_correct": false
+                },
+                {
+                    "text": "Different NLP tasks may use different tokenization strategies",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Stopwords and Processing Decisions",
+            "content": "Which statements correctly describe stopword handling?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stopword removal can reduce noise",
+                    "is_correct": true
+                },
+                {
+                    "text": "Some NLP tasks may retain stopwords",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stopwords always improve text understanding",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stopword handling depends on context",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Lemmatization vs Text Transformation",
+            "content": "Which statements correctly describe lemmatization usage?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lemmatization reduces variations of similar words",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps standardize text representation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lemmatization increases vocabulary size",
+                    "is_correct": false
+                },
+                {
+                    "text": "It can improve downstream NLP tasks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Text Processing Concepts",
+            "content": "Which statements correctly describe advanced NLP preprocessing concepts?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Preprocessing decisions can affect model performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Different NLP tasks require different preprocessing pipelines",
+                    "is_correct": true
+                },
+                {
+                    "text": "All text data requires identical preprocessing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Task goals influence text preparation choices",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Text Processing Strategy",
+            "content": "Which statements correctly describe NLP text processing strategies?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Processing",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Combining tokenization and lemmatization can improve text representation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stopword handling should depend on the application",
+                    "is_correct": true
+                },
+                {
+                    "text": "A single preprocessing method fits all datasets",
+                    "is_correct": false
+                },
+                {
+                    "text": "Effective preprocessing supports better NLP outcomes",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Bag of Words Basics",
+            "content": "Which statements correctly describe Bag of Words (BoW)?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Bag of Words converts text into numerical representations",
+                    "is_correct": true
+                },
+                {
+                    "text": "BoW counts word occurrences in documents",
+                    "is_correct": true
+                },
+                {
+                    "text": "BoW preserves word order perfectly",
+                    "is_correct": false
+                },
+                {
+                    "text": "BoW creates a document-term matrix",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "TF-IDF Introduction",
+            "content": "Which statements correctly describe TF-IDF?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "TF-IDF stands for Term Frequency\u2013Inverse Document Frequency",
+                    "is_correct": true
+                },
+                {
+                    "text": "TF-IDF gives importance scores to words",
+                    "is_correct": true
+                },
+                {
+                    "text": "TF-IDF ignores word frequency completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rare but important words may receive higher scores",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Word Embeddings Basics",
+            "content": "Which statements correctly describe word embeddings?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Word embeddings represent words as dense vectors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Embeddings can capture semantic meaning",
+                    "is_correct": true
+                },
+                {
+                    "text": "Word embeddings are based only on word counts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Similar words may have similar vector representations",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Text Representation Overview",
+            "content": "Which statements correctly describe text representation methods?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Machine learning models require numerical input",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text representation converts text into numbers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Raw text can always be used directly without processing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Different methods represent information differently",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "BoW and TF-IDF Comparison",
+            "content": "Which statements correctly compare Bag of Words and TF-IDF?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "BoW uses raw frequency counts",
+                    "is_correct": true
+                },
+                {
+                    "text": "TF-IDF adjusts word importance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both methods preserve complete context",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both convert text into vectors",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Understanding Word Embeddings",
+            "content": "Which statements correctly describe word embedding concepts?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Word embeddings capture contextual relationships",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantically related words may appear close in vector space",
+                    "is_correct": true
+                },
+                {
+                    "text": "Embeddings treat all words as independent counts only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Embeddings improve representation quality",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Choosing Text Representation Techniques",
+            "content": "Which statements correctly describe choosing representation methods?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Different NLP tasks may require different representations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex tasks may benefit from embeddings",
+                    "is_correct": true
+                },
+                {
+                    "text": "One representation method is best for every task",
+                    "is_correct": false
+                },
+                {
+                    "text": "Representation quality can affect model performance",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Text Representation Concepts",
+            "content": "Which statements correctly describe advanced text representation concepts?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Word embeddings can preserve semantic similarity better than BoW",
+                    "is_correct": true
+                },
+                {
+                    "text": "TF-IDF reduces influence of highly frequent words",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bag of Words captures complete sentence structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Representation choice affects downstream tasks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NLP Representation Strategy",
+            "content": "Which statements correctly describe NLP representation strategies?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "Text Representation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Representation methods influence learning quality",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dense embeddings can capture richer information",
+                    "is_correct": true
+                },
+                {
+                    "text": "All text representation methods perform equally",
+                    "is_correct": false
+                },
+                {
+                    "text": "Selecting suitable representations improves NLP systems",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Sentiment Analysis Basics",
+            "content": "Which statements correctly describe sentiment analysis?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sentiment analysis identifies emotions or opinions in text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sentiment analysis can classify text as positive or negative",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sentiment analysis is used only for image processing",
+                    "is_correct": false
+                },
+                {
+                    "text": "Customer review analysis is a common use case",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Text Classification Basics",
+            "content": "Which statements correctly describe text classification?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Text classification assigns categories to text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Spam detection is a text classification task",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text classification cannot use machine learning",
+                    "is_correct": false
+                },
+                {
+                    "text": "Labels are often used in supervised text classification",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Named Entity Recognition Basics",
+            "content": "Which statements correctly describe Named Entity Recognition (NER)?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NER identifies important entities in text",
+                    "is_correct": true
+                },
+                {
+                    "text": "NER can detect names of people and places",
+                    "is_correct": true
+                },
+                {
+                    "text": "NER is used only for numerical calculations",
+                    "is_correct": false
+                },
+                {
+                    "text": "Organizations can also be identified by NER",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NLP Applications Overview",
+            "content": "Which statements correctly describe NLP tasks?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NLP tasks extract useful information from text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Different NLP tasks solve different problems",
+                    "is_correct": true
+                },
+                {
+                    "text": "All NLP tasks have identical goals",
+                    "is_correct": false
+                },
+                {
+                    "text": "Business applications often use NLP systems",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Sentiment Analysis and Classification",
+            "content": "Which statements correctly describe sentiment analysis and text classification?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sentiment analysis can be treated as a classification problem",
+                    "is_correct": true
+                },
+                {
+                    "text": "Text classification can involve multiple categories",
+                    "is_correct": true
+                },
+                {
+                    "text": "Classification tasks never use labels",
+                    "is_correct": false
+                },
+                {
+                    "text": "Preprocessing can improve classification performance",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NER and Information Extraction",
+            "content": "Which statements correctly describe Named Entity Recognition applications?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NER supports information extraction systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "NER helps identify structured information from text",
+                    "is_correct": true
+                },
+                {
+                    "text": "NER ignores names and locations",
+                    "is_correct": false
+                },
+                {
+                    "text": "NER can be useful in document analysis",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NLP Task Selection",
+            "content": "Which statements correctly describe choosing NLP tasks?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Task selection depends on application goals",
+                    "is_correct": true
+                },
+                {
+                    "text": "Customer feedback analysis may use sentiment analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Every NLP problem requires NER",
+                    "is_correct": false
+                },
+                {
+                    "text": "Different tasks often use different techniques",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced NLP Task Concepts",
+            "content": "Which statements correctly describe advanced NLP task concepts?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Text preprocessing can influence NLP task performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "NLP tasks often depend on quality text representations",
+                    "is_correct": true
+                },
+                {
+                    "text": "All NLP tasks use identical workflows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Task-specific strategies improve results",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NLP Systems and Applications",
+            "content": "Which statements correctly describe NLP systems?",
+            "level": "subtopic",
+            "unit_name": "Natural Language Processing(NLP)",
+            "subunit_name": "NLP Tasks",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple NLP tasks can work together in one application",
+                    "is_correct": true
+                },
+                {
+                    "text": "NER and classification may complement each other",
+                    "is_correct": true
+                },
+                {
+                    "text": "A single NLP method solves every text problem",
+                    "is_correct": false
+                },
+                {
+                    "text": "System design influences NLP performance",
+                    "is_correct": true
+                }
+            ]
+        }
+    ]
+}

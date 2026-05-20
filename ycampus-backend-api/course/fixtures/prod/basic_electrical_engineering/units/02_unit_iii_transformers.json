@@ -1,0 +1,32 @@
+{
+    "name": "UNIT-III: Transformers",
+    "subject_short_code": "BEE101",
+    "order_index": 2,
+    "sub_units": [
+        {
+            "name": "Ideal and practical transformer, equivalent circuit, losses in transformers, regulation and efficiency",
+            "content": "Ideal and practical transformer, equivalent circuit, losses in transformers, regulation and efficiency",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Ideal and practical transformer, equivalent circuit, losses in transformers, regulation and efficiency",
+                    "video_link": "https://www.youtube.com/watch?v=LnYCmaa58dQ&list=PLruTCQ0dsWzEAMQe1wv8IvMGj4XQrEtFr",
+                    "ai_context": "Detailed video explanation for Ideal and practical transformer, equivalent circuit, losses in transformers, regulation and efficiency unit of Basic Electrical Engineering"
+                }
+            ]
+        },
+        {
+            "name": "Auto-transformer and three-phase transformer connections",
+            "content": "Auto-transformer and three-phase transformer connections",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Auto-transformer and three-phase transformer connections",
+                    "video_link": "https://www.youtube.com/watch?v=LnYCmaa58dQ&list=PLruTCQ0dsWzEAMQe1wv8IvMGj4XQrEtFr",
+                    "ai_context": "Detailed video explanation for Auto-transformer and three-phase transformer connections unit of Basic Electrical Engineering"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

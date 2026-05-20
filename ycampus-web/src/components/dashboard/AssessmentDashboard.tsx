@@ -22,14 +22,8 @@ export function AssessmentDashboard() {
     queryKey: ['practiceTests', user?.college_product_type],
     queryFn: async () => {
       try {
-        if (user?.college_product_type === 'assessments') {
-          const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=assessment');
-          const allTests = Array.isArray(res) ? res : res?.results || [];
-          return allTests.filter((t: any) => t.unit !== null);
-        } else {
-          const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
-          return Array.isArray(res) ? res : res?.results || [];
-        }
+        const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
+        return Array.isArray(res) ? res : res?.results || [];
       } catch (e) {
         return [];
       }

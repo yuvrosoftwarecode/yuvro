@@ -36,7 +36,6 @@ class Command(BaseCommand):
             JobTest.objects.all().delete()
             MockInterview.objects.all().delete()
             Contest.objects.all().delete()
-            SkillTest.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing assessment data cleared."))
 
         # Determine fixtures directory based on deploy_env

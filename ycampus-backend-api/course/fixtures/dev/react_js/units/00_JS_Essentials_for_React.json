@@ -1,0 +1,4531 @@
+{
+    "name": "JS Essentials for React",
+    "subject_short_code": "RJS100",
+    "order_index": 0,
+    "sub_units": [
+        {
+            "name": "ES6+ Basics",
+            "content": "Modern JavaScript features like let/const, template literals, and enhanced object literals that form the foundation of React development.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Functions, Arrow Functions",
+            "content": "Understanding traditional functions versus arrow functions, especially regarding lexical scope and 'this' binding which is crucial in React class and functional components.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "Arrays & Objects",
+            "content": "Mastering array methods like map, filter, and reduce for rendering lists and managing state, along with object manipulation techniques.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Destructuring, Spread/Rest",
+            "content": "Efficiently extracting values from arrays and objects using destructuring, and using the spread/rest operators for immutable state updates in React.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Modules, Promises",
+            "content": "Using ES Modules (import/export) to organize code and understanding Promises as the base for asynchronous data fetching.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Async/Await",
+            "content": "Modern syntax for handling asynchronous operations, making code more readable and easier to manage when dealing with APIs in React components.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "DOM & Events",
+            "content": "Understanding the relationship between the Virtual DOM and the real DOM, and how React handles events through its synthetic event system.",
+            "order_index": 6,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Variable Declaration in React",
+            "content": "In a React project, which keyword is preferred for declaring variables that may change later?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "let",
+                    "is_correct": true
+                },
+                {
+                    "text": "const",
+                    "is_correct": false
+                },
+                {
+                    "text": "var",
+                    "is_correct": false
+                },
+                {
+                    "text": "define",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Constant Variables",
+            "content": "What happens if you try to reassign a const variable in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It throws an error",
+                    "is_correct": true
+                },
+                {
+                    "text": "It updates silently",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts to let automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes the variable",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function Syntax",
+            "content": "Which is correct syntax of an arrow function?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "() => {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "function => {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "() -> {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "=> function()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Template Literals",
+            "content": "Which symbol is used for template literals in ES6?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "` (backticks)",
+                    "is_correct": true
+                },
+                {
+                    "text": "\"\"",
+                    "is_correct": false
+                },
+                {
+                    "text": "''",
+                    "is_correct": false
+                },
+                {
+                    "text": "{}",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Destructuring Use Case",
+            "content": "In React, why is object destructuring commonly used in props?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To extract values easily from props",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete props automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create new components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Spread Operator in React",
+            "content": "What is the main use of spread operator in React state updates?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To copy state without mutation",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete state variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "To render UI faster",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function Context",
+            "content": "Why are arrow functions preferred in React event handlers?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They preserve lexical 'this'",
+                    "is_correct": true
+                },
+                {
+                    "text": "They run faster always",
+                    "is_correct": false
+                },
+                {
+                    "text": "They avoid JSX",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace hooks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Temporal Dead Zone",
+            "content": "What happens in Temporal Dead Zone for let/const?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Variables are not accessible before initialization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Variables are deleted automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Variables become global",
+                    "is_correct": false
+                },
+                {
+                    "text": "Variables are hoisted with value",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Shallow Copy Issue",
+            "content": "Why is spread operator not always a deep copy in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It only copies first level of object",
+                    "is_correct": true
+                },
+                {
+                    "text": "It deletes nested objects",
+                    "is_correct": false
+                },
+                {
+                    "text": "It freezes state",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts to JSON automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function Limitation",
+            "content": "Which is a limitation of arrow functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They do not have their own 'this'",
+                    "is_correct": true
+                },
+                {
+                    "text": "They cannot return values",
+                    "is_correct": false
+                },
+                {
+                    "text": "They cannot take parameters",
+                    "is_correct": false
+                },
+                {
+                    "text": "They cannot be used in React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Destructuring in React Props",
+            "content": "Which are valid benefits of using destructuring in React props?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleaner and shorter code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Easier access to values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically creates components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Arrow Functions Usage",
+            "content": "Where are arrow functions commonly used in React development?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event handlers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Array methods like map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Const Behavior",
+            "content": "Which statements are true about const in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cannot be reassigned",
+                    "is_correct": true
+                },
+                {
+                    "text": "Block scoped",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must be initialized",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can be redeclared in same scope",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ES6 Improvements",
+            "content": "Which are improvements introduced in ES6?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Arrow functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Let and const",
+                    "is_correct": true
+                },
+                {
+                    "text": "Template literals",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Destructuring",
+            "content": "Which are correct about destructuring in real React apps?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Can be used in function parameters",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can extract nested values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Commonly used in props handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only works with arrays",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Spread Operator Use Cases",
+            "content": "Where is spread operator useful in React state management?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Updating nested state safely",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cloning objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Merging arrays",
+                    "is_correct": true
+                },
+                {
+                    "text": "Executing SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Arrow Function Behavior",
+            "content": "Which are true about arrow functions in ES6?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They inherit 'this' from parent scope",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are shorter syntax",
+                    "is_correct": true
+                },
+                {
+                    "text": "Often used in callbacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "They create their own 'this'",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ES6 Edge Cases",
+            "content": "Which statements are true about ES6 behavior?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "let/const are block scoped",
+                    "is_correct": true
+                },
+                {
+                    "text": "Temporal Dead Zone exists for let/const",
+                    "is_correct": true
+                },
+                {
+                    "text": "Arrow functions do not have their own this",
+                    "is_correct": true
+                },
+                {
+                    "text": "var is block scoped",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React State Risks",
+            "content": "Which issues can happen if ES6 concepts are misused in React?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State mutation bugs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unintended UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic database deletion",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Deep ES6 Understanding",
+            "content": "Which concepts require deep understanding for React mastery?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "ES6+ Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Closures (related concept)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lexical scoping",
+                    "is_correct": true
+                },
+                {
+                    "text": "Shallow vs deep copy",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML attributes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Function Declaration",
+            "content": "Which is a correct function declaration in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "function add() {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "func add() {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "create add()",
+                    "is_correct": false
+                },
+                {
+                    "text": "def add()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function Syntax",
+            "content": "Which syntax represents an arrow function?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "() => {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "() -> {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "function => {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "=> function()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Function Call",
+            "content": "How do you correctly call a function named calculate?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "calculate()",
+                    "is_correct": true
+                },
+                {
+                    "text": "call calculate",
+                    "is_correct": false
+                },
+                {
+                    "text": "calculate[]",
+                    "is_correct": false
+                },
+                {
+                    "text": "run calculate()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Return Value",
+            "content": "What does a function return if no return statement is written?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "undefined",
+                    "is_correct": true
+                },
+                {
+                    "text": "null",
+                    "is_correct": false
+                },
+                {
+                    "text": "0",
+                    "is_correct": false
+                },
+                {
+                    "text": "false",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function 'this'",
+            "content": "In arrow functions, 'this' is:",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inherited from parent scope",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always global object",
+                    "is_correct": false
+                },
+                {
+                    "text": "Always undefined",
+                    "is_correct": false
+                },
+                {
+                    "text": "Function itself",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Implicit Return",
+            "content": "When does an arrow function return implicitly?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When braces {} are not used",
+                    "is_correct": true
+                },
+                {
+                    "text": "When return keyword is used",
+                    "is_correct": false
+                },
+                {
+                    "text": "When function is async",
+                    "is_correct": false
+                },
+                {
+                    "text": "When parameters exist",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Function Expression",
+            "content": "Which is a function expression?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "const fn = function() {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "function fn() {}",
+                    "is_correct": false
+                },
+                {
+                    "text": "fn => function()",
+                    "is_correct": false
+                },
+                {
+                    "text": "define fn()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Higher Order Function",
+            "content": "What is a higher-order function?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A function that takes or returns another function",
+                    "is_correct": true
+                },
+                {
+                    "text": "A loop function",
+                    "is_correct": false
+                },
+                {
+                    "text": "A DOM function",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS function",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function Limitation",
+            "content": "Which is a limitation of arrow functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They do not have their own 'this'",
+                    "is_correct": true
+                },
+                {
+                    "text": "They cannot return values",
+                    "is_correct": false
+                },
+                {
+                    "text": "They cannot take parameters",
+                    "is_correct": false
+                },
+                {
+                    "text": "They cannot be used in React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Callback Function",
+            "content": "What is a callback function?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A function passed as an argument to another function",
+                    "is_correct": true
+                },
+                {
+                    "text": "A function that deletes data",
+                    "is_correct": false
+                },
+                {
+                    "text": "A built-in JavaScript keyword",
+                    "is_correct": false
+                },
+                {
+                    "text": "A React hook",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Function Types in JS",
+            "content": "Which are valid ways to define functions in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function declaration",
+                    "is_correct": true
+                },
+                {
+                    "text": "Function expression",
+                    "is_correct": true
+                },
+                {
+                    "text": "Arrow function",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL function",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Arrow Function Usage",
+            "content": "Where are arrow functions commonly used in React development?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event handlers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Array methods like map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Function Behavior",
+            "content": "Which statements are true about JavaScript functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functions can be passed as arguments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions can return values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions are objects in JS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions only work in React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Arrow Function Syntax",
+            "content": "Which are valid arrow function usages?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "() => 5 + 5",
+                    "is_correct": true
+                },
+                {
+                    "text": "(a,b) => a+b",
+                    "is_correct": true
+                },
+                {
+                    "text": "x => x * 2",
+                    "is_correct": true
+                },
+                {
+                    "text": "function => return x",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "This Keyword Behavior",
+            "content": "Which statements are true about 'this' in arrow functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Arrow functions do not have their own 'this'",
+                    "is_correct": true
+                },
+                {
+                    "text": "'this' is inherited from parent scope",
+                    "is_correct": true
+                },
+                {
+                    "text": "Useful in React event handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "'this' is always undefined",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Higher Order Functions",
+            "content": "Which are examples of higher-order functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": true
+                },
+                {
+                    "text": "reduce()",
+                    "is_correct": true
+                },
+                {
+                    "text": "console.log()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Function Expression vs Declaration",
+            "content": "Which statements are correct about function expressions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They can be assigned to variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are not hoisted like declarations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Often used in React components",
+                    "is_correct": true
+                },
+                {
+                    "text": "They cannot return values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Function Concepts",
+            "content": "Which concepts are important for advanced function handling in React?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Closures",
+                    "is_correct": true
+                },
+                {
+                    "text": "Currying",
+                    "is_correct": true
+                },
+                {
+                    "text": "Higher-order functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML parsing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Arrow Function Limitations",
+            "content": "Which are limitations of arrow functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No own 'this' binding",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cannot be used as constructors",
+                    "is_correct": true
+                },
+                {
+                    "text": "No arguments object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cannot be used in React",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Real-world React Functions",
+            "content": "Which function patterns are commonly used in React apps?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Functions, Arrow Functions",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event handler functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Callback functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render helper functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL trigger functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Array Basics",
+            "content": "Which of the following is a valid JavaScript array?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "[1, 2, 3]",
+                    "is_correct": true
+                },
+                {
+                    "text": "{1, 2, 3}",
+                    "is_correct": false
+                },
+                {
+                    "text": "(1, 2, 3)",
+                    "is_correct": false
+                },
+                {
+                    "text": "<1, 2, 3>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Object Basics",
+            "content": "How do you define an object in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "{ name: 'John' }",
+                    "is_correct": true
+                },
+                {
+                    "text": "[name: 'John']",
+                    "is_correct": false
+                },
+                {
+                    "text": "(name: 'John')",
+                    "is_correct": false
+                },
+                {
+                    "text": "<name: 'John'>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Array Index",
+            "content": "What is the index of the first element in an array?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "0",
+                    "is_correct": true
+                },
+                {
+                    "text": "1",
+                    "is_correct": false
+                },
+                {
+                    "text": "-1",
+                    "is_correct": false
+                },
+                {
+                    "text": "Depends on size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Access Object Property",
+            "content": "How do you access a property in an object?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "object.key",
+                    "is_correct": true
+                },
+                {
+                    "text": "object->key",
+                    "is_correct": false
+                },
+                {
+                    "text": "object::key",
+                    "is_correct": false
+                },
+                {
+                    "text": "object(key)",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Array Methods in React",
+            "content": "Which array method is commonly used in React to render lists?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": false
+                },
+                {
+                    "text": "reduce()",
+                    "is_correct": false
+                },
+                {
+                    "text": "push()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Object Mutation",
+            "content": "Why should we avoid directly modifying objects in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It breaks React state immutability",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes data automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Spread in Objects",
+            "content": "What does the spread operator do in objects?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Copies object properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes object properties",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encrypts object",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates database table",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Deep Copy Issue",
+            "content": "Why is spread operator not always a deep copy?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It only copies first level properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "It deletes nested objects",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts object to string",
+                    "is_correct": false
+                },
+                {
+                    "text": "It locks memory",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Immutability in React",
+            "content": "Why is immutability important in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps React detect changes efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "It speeds up JavaScript execution always",
+                    "is_correct": false
+                },
+                {
+                    "text": "It prevents function calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes arrays",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Object Access",
+            "content": "What is the correct way to access a nested object property?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "object.a.b",
+                    "is_correct": true
+                },
+                {
+                    "text": "object->a->b",
+                    "is_correct": false
+                },
+                {
+                    "text": "object(a)(b)",
+                    "is_correct": false
+                },
+                {
+                    "text": "object::a::b",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Array Methods Basics",
+            "content": "Which are valid JavaScript array methods?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": true
+                },
+                {
+                    "text": "reduce()",
+                    "is_correct": true
+                },
+                {
+                    "text": "select()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Object Basics",
+            "content": "Which are valid characteristics of JavaScript objects?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Key-value structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can contain nested objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only stores numbers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Array Features",
+            "content": "Which are true about JavaScript arrays?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Zero-based indexing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can store multiple data types",
+                    "is_correct": true
+                },
+                {
+                    "text": "Are ordered collections",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cannot grow dynamically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Accessing Data",
+            "content": "Which are valid ways to access object properties?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "object.key",
+                    "is_correct": true
+                },
+                {
+                    "text": "object['key']",
+                    "is_correct": true
+                },
+                {
+                    "text": "dot notation",
+                    "is_correct": true
+                },
+                {
+                    "text": "object->key",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Array Handling",
+            "content": "Which practices are commonly used in React when working with arrays?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using map() for rendering lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid direct mutation of state arrays",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using spread operator for updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Directly modifying state array",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Object Updates in React",
+            "content": "Which are correct ways to update objects in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using spread operator",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating new object copies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maintaining immutability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Modifying object directly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Array Operations",
+            "content": "Which operations are commonly used on arrays in React apps?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "map()",
+                    "is_correct": true
+                },
+                {
+                    "text": "filter()",
+                    "is_correct": true
+                },
+                {
+                    "text": "find()",
+                    "is_correct": true
+                },
+                {
+                    "text": "delete()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Immutability Concept",
+            "content": "Which statements are true about immutability in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State should not be mutated directly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Helps React detect changes efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves predictable state updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Allows direct object modification",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Deep vs Shallow Copy",
+            "content": "Which are true about shallow copy in JavaScript objects?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Copies only first level properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested objects are referenced",
+                    "is_correct": true
+                },
+                {
+                    "text": "Spread operator creates shallow copy",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates full independent clone always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React State Risks",
+            "content": "Which problems can occur due to incorrect array/object handling in React?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Arrays & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unexpected UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State mutation bugs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic API creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Object Destructuring",
+            "content": "What does object destructuring allow in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Extract values from objects into variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Delete object properties",
+                    "is_correct": false
+                },
+                {
+                    "text": "Convert object to array",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encrypt object data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Array Destructuring",
+            "content": "Which is correct array destructuring syntax?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "[a, b] = [1, 2]",
+                    "is_correct": true
+                },
+                {
+                    "text": "{a, b} = [1, 2]",
+                    "is_correct": false
+                },
+                {
+                    "text": "(a, b) = [1, 2]",
+                    "is_correct": false
+                },
+                {
+                    "text": "<a, b> = [1, 2]",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Spread Operator",
+            "content": "What does spread operator (...) do?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Expands elements of array/object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorts data automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Freezes object",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Rest Operator",
+            "content": "What does rest operator do in functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Collects remaining arguments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes arguments",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops function execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Converts to string",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Props Destructuring",
+            "content": "Why is destructuring used in React props?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Makes code cleaner and readable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increases memory usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes props automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Spread in State",
+            "content": "Why is spread operator used in React state updates?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To avoid mutating original state",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete state",
+                    "is_correct": false
+                },
+                {
+                    "text": "To freeze state",
+                    "is_correct": false
+                },
+                {
+                    "text": "To compile JSX",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Rest Parameter Use",
+            "content": "Where is rest operator used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function parameters",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Shallow Copy Issue",
+            "content": "Why is spread operator not always a deep copy?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It copies only first-level properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "It deletes nested objects",
+                    "is_correct": false
+                },
+                {
+                    "text": "It converts to string",
+                    "is_correct": false
+                },
+                {
+                    "text": "It encrypts data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Nested Destructuring",
+            "content": "What is nested destructuring used for?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Extract values from nested objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Delete nested data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encrypt nested data",
+                    "is_correct": false
+                },
+                {
+                    "text": "Convert JSON to SQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Immutability with Spread",
+            "content": "Why is spread operator important in React state?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Helps maintain immutability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes previous state",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compiles JSX",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Destructuring Basics",
+            "content": "Which are valid destructuring types?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Object destructuring",
+                    "is_correct": true
+                },
+                {
+                    "text": "Array destructuring",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested destructuring",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL destructuring",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Spread Operator Uses",
+            "content": "Where is spread operator used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Copying arrays",
+                    "is_correct": true
+                },
+                {
+                    "text": "Merging objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Updating state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rest Operator Usage",
+            "content": "Which are valid uses of rest operator?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function arguments collection",
+                    "is_correct": true
+                },
+                {
+                    "text": "Object remaining properties",
+                    "is_correct": true
+                },
+                {
+                    "text": "Array destructuring",
+                    "is_correct": true
+                },
+                {
+                    "text": "DOM rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Object Features",
+            "content": "Which are true about JavaScript objects?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Key-value pairs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested objects allowed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fixed schema only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React State Updates",
+            "content": "Why is spread operator used in React state updates?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Prevents direct mutation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates new state object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maintains immutability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically updates database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Destructuring Benefits",
+            "content": "What are benefits of destructuring?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleaner code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less repetition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Rest vs Spread",
+            "content": "Which statements are correct?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Rest collects values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Spread expands values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both use ... syntax",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both mean same always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Deep Copy Behavior",
+            "content": "Which are true about shallow copy using spread operator?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Only first level is copied",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nested objects are referenced",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can cause state mutation issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creates full deep clone always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced React Usage",
+            "content": "Where is destructuring heavily used in React?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Risks",
+            "content": "What issues can occur due to incorrect spread usage?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Destructuring, Spread/Rest",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unexpected UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "State mutation bugs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Auto API creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JavaScript Modules",
+            "content": "What is a JavaScript module mainly used for?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To split code into reusable files",
+                    "is_correct": true
+                },
+                {
+                    "text": "To design UI components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To store database data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To run SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Import Syntax",
+            "content": "Which is correct ES6 import syntax?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "import x from './file'",
+                    "is_correct": true
+                },
+                {
+                    "text": "include x from './file'",
+                    "is_correct": false
+                },
+                {
+                    "text": "require x from './file'",
+                    "is_correct": false
+                },
+                {
+                    "text": "load x './file'",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Promise Definition",
+            "content": "What is a Promise in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "An object representing future value",
+                    "is_correct": true
+                },
+                {
+                    "text": "A loop structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS feature",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database query",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Export Keyword",
+            "content": "What does export do in modules?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Makes code available to other files",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Runs server",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compiles JS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Promise States",
+            "content": "Which are valid states of a Promise?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Pending, Fulfilled, Rejected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Start, Stop, End",
+                    "is_correct": false
+                },
+                {
+                    "text": "True, False, Null",
+                    "is_correct": false
+                },
+                {
+                    "text": "Open, Close, Lock",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Handling",
+            "content": "What keyword is used with Promises for async code?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "async/await",
+                    "is_correct": true
+                },
+                {
+                    "text": "sync/wait",
+                    "is_correct": false
+                },
+                {
+                    "text": "run/hold",
+                    "is_correct": false
+                },
+                {
+                    "text": "fetch/load",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Default Export",
+            "content": "What is default export used for?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Exporting one main value per file",
+                    "is_correct": true
+                },
+                {
+                    "text": "Exporting multiple databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "Running functions automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Promise Chaining",
+            "content": "What is promise chaining used for?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handling multiple async operations sequentially",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting promises",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rendering UI components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling elements",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Error Handling",
+            "content": "How are errors handled in async/await?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using try/catch block",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using if/else only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS handlers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Module Scope",
+            "content": "What is true about module scope?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Variables are scoped to the module",
+                    "is_correct": true
+                },
+                {
+                    "text": "All variables are global",
+                    "is_correct": false
+                },
+                {
+                    "text": "Modules cannot use functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Modules only work in backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Module Benefits",
+            "content": "What are benefits of using modules?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code reusability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better organization",
+                    "is_correct": true
+                },
+                {
+                    "text": "Separation of concerns",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster internet speed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Promise Usage",
+            "content": "Where are Promises used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Async operations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data fetching",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Module Features",
+            "content": "Which are features of ES6 modules?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Import/export support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable code blocks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Promise States",
+            "content": "Which are valid Promise states?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Pending",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fulfilled",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rejected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Running",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Benefits",
+            "content": "Why are Promises useful?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Avoid callback hell",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better async handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improved readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Increase CPU speed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Import/Export Usage",
+            "content": "Which are valid module usage patterns?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Named exports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Default export",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mixed exports",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL export",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Patterns",
+            "content": "Which are async patterns in JS?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Promise chaining",
+                    "is_correct": true
+                },
+                {
+                    "text": "async/await",
+                    "is_correct": true
+                },
+                {
+                    "text": "Callbacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS transitions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Promise Handling Issues",
+            "content": "What problems can occur with improper Promise handling?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unhandled promise rejections",
+                    "is_correct": true
+                },
+                {
+                    "text": "Callback confusion",
+                    "is_correct": true
+                },
+                {
+                    "text": "Race conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic UI fixing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Async Concepts",
+            "content": "Which are advanced async concepts?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Promise.all",
+                    "is_correct": true
+                },
+                {
+                    "text": "Promise.race",
+                    "is_correct": true
+                },
+                {
+                    "text": "async/await",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS async rules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Module System Risks",
+            "content": "What issues can arise from incorrect module usage?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Modules, Promises",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Circular dependencies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code duplication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Import errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster execution always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Function",
+            "content": "What does the async keyword do in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Declares a function that returns a Promise",
+                    "is_correct": true
+                },
+                {
+                    "text": "Makes code synchronous",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes callback functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Await Keyword",
+            "content": "What does await do in async functions?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Waits for a Promise to resolve",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stops the program permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Converts JS to CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Return Type",
+            "content": "What does an async function always return?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A Promise",
+                    "is_correct": true
+                },
+                {
+                    "text": "A number",
+                    "is_correct": false
+                },
+                {
+                    "text": "A string",
+                    "is_correct": false
+                },
+                {
+                    "text": "An array",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Usage of Await",
+            "content": "Where can await be used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside async functions only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside any function",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside loops only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Error Handling",
+            "content": "How do you handle errors in async/await?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using try/catch block",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using if/else only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using setTimeout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async vs Sync",
+            "content": "What is the main difference between async and sync code?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Async does not block execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sync runs in parallel always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Async is slower always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sync uses Promises only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Await Behavior",
+            "content": "What happens when await is used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function pauses until Promise resolves",
+                    "is_correct": true
+                },
+                {
+                    "text": "Function stops permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Function becomes synchronous",
+                    "is_correct": false
+                },
+                {
+                    "text": "Function deletes itself",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Execution Flow",
+            "content": "How does async/await improve code readability?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Makes async code look synchronous",
+                    "is_correct": true
+                },
+                {
+                    "text": "Removes Promises completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "Converts JS to blocking code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Disables error handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Promise vs Async/Await",
+            "content": "What is true about async/await compared to Promises?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Async/await is syntactic sugar over Promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are completely unrelated",
+                    "is_correct": false
+                },
+                {
+                    "text": "Promises are deprecated",
+                    "is_correct": false
+                },
+                {
+                    "text": "Async/await is only for CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Blocking Behavior",
+            "content": "Does async/await block the main thread?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No, it does not block the main thread",
+                    "is_correct": true
+                },
+                {
+                    "text": "Yes, always blocks execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only blocks CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Blocks only arrays",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Basics",
+            "content": "Which statements about async functions are true?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They return Promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "They can use await",
+                    "is_correct": true
+                },
+                {
+                    "text": "They improve async readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They block execution always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Await Usage",
+            "content": "Where can await be used?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside async functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "With Promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "For API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Features",
+            "content": "Which are features of async/await?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Simplifies Promise handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduces callback nesting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Replaces JavaScript",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Promise Interaction",
+            "content": "How does async/await interact with Promises?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It works on top of Promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "It waits for Promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "It simplifies Promise syntax",
+                    "is_correct": true
+                },
+                {
+                    "text": "It removes Promises",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling",
+            "content": "Which are correct ways to handle errors in async/await?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "try/catch blocks",
+                    "is_correct": true
+                },
+                {
+                    "text": "throw statements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Promise catch fallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ignoring errors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Benefits",
+            "content": "Why is async/await preferred in React?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleaner code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sequential logic flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster CPU execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Execution Behavior",
+            "content": "Which statements about async execution are correct?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Non-blocking behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses event loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runs asynchronously",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stops UI rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Async Concepts",
+            "content": "Which are advanced async concepts in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Promise.all",
+                    "is_correct": true
+                },
+                {
+                    "text": "Promise.race",
+                    "is_correct": true
+                },
+                {
+                    "text": "async/await chaining",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS async rules",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Considerations",
+            "content": "Which are true about async/await performance?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Does not block main thread",
+                    "is_correct": true
+                },
+                {
+                    "text": "Helps manage async flows",
+                    "is_correct": true
+                },
+                {
+                    "text": "Works with event loop",
+                    "is_correct": true
+                },
+                {
+                    "text": "Always faster than Promises",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Mistakes",
+            "content": "Which are common mistakes in async/await usage?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "Async/Await",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Not using try/catch",
+                    "is_correct": true
+                },
+                {
+                    "text": "Blocking loops incorrectly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing await keyword",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using CSS incorrectly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is DOM",
+            "content": "What does DOM stand for in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Document Object Model",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data Object Model",
+                    "is_correct": false
+                },
+                {
+                    "text": "Display Object Model",
+                    "is_correct": false
+                },
+                {
+                    "text": "Document Order Model",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Listener",
+            "content": "Which method is used to attach an event in JavaScript?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "addEventListener()",
+                    "is_correct": true
+                },
+                {
+                    "text": "attachEvent()",
+                    "is_correct": false
+                },
+                {
+                    "text": "bindEvent()",
+                    "is_correct": false
+                },
+                {
+                    "text": "setEvent()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "DOM Manipulation",
+            "content": "What does DOM manipulation mean?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Changing HTML structure using JS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changing database structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Styling backend code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compiling React apps",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Example",
+            "content": "Which is an example of a DOM event?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "click",
+                    "is_correct": true
+                },
+                {
+                    "text": "compile",
+                    "is_correct": false
+                },
+                {
+                    "text": "render",
+                    "is_correct": false
+                },
+                {
+                    "text": "executeSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Object",
+            "content": "What does the event object contain?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Information about the triggered event",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database records",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "React components only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Bubbling",
+            "content": "What is event bubbling?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event propagates from child to parent",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event stops immediately",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event runs in backend",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event deletes DOM",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Prevent Default",
+            "content": "What does event.preventDefault() do?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stops default browser behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes event",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reloads page",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops JS execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Delegation",
+            "content": "What is event delegation?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handling events at parent level",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating multiple listeners for each element",
+                    "is_correct": false
+                },
+                {
+                    "text": "Removing DOM nodes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compiling JS code",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Capturing",
+            "content": "What is event capturing?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event flows from parent to child",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event only runs once",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event runs in database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event deletes elements",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Synthetic Event",
+            "content": "What is React Synthetic Event?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A cross-browser wrapper around native events",
+                    "is_correct": true
+                },
+                {
+                    "text": "A database event system",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS event handler",
+                    "is_correct": false
+                },
+                {
+                    "text": "A backend API call",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "DOM Basics",
+            "content": "Which are parts of DOM?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Attributes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Nodes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Types",
+            "content": "Which are valid DOM events?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "click",
+                    "is_correct": true
+                },
+                {
+                    "text": "keydown",
+                    "is_correct": true
+                },
+                {
+                    "text": "submit",
+                    "is_correct": true
+                },
+                {
+                    "text": "compile",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Listener Features",
+            "content": "What does addEventListener support?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple listeners",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event capturing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event bubbling",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "DOM Manipulation",
+            "content": "Which are DOM manipulation methods?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "getElementById",
+                    "is_correct": true
+                },
+                {
+                    "text": "querySelector",
+                    "is_correct": true
+                },
+                {
+                    "text": "createElement",
+                    "is_correct": true
+                },
+                {
+                    "text": "connectDB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Propagation",
+            "content": "Which are phases of event propagation?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Capturing phase",
+                    "is_correct": true
+                },
+                {
+                    "text": "Target phase",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bubbling phase",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compilation phase",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Object Properties",
+            "content": "Which are event object properties?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "target",
+                    "is_correct": true
+                },
+                {
+                    "text": "type",
+                    "is_correct": true
+                },
+                {
+                    "text": "preventDefault",
+                    "is_correct": true
+                },
+                {
+                    "text": "database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Events",
+            "content": "Which are true about React events?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are synthetic events",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are cross-browser compatible",
+                    "is_correct": true
+                },
+                {
+                    "text": "They use camelCase naming",
+                    "is_correct": true
+                },
+                {
+                    "text": "They directly access DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Delegation Benefits",
+            "content": "What are benefits of event delegation?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Better performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handles dynamic elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Slower rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Event Concepts",
+            "content": "Which are advanced event concepts?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event bubbling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event capturing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event delegation",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Event System",
+            "content": "Which are true about React event system?",
+            "level": "subunit",
+            "unit_name": "JS Essentials for React",
+            "subunit_name": "DOM & Events",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Uses synthetic events",
+                    "is_correct": true
+                },
+                {
+                    "text": "Optimizes event handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Normalizes browser behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses SQL backend",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}

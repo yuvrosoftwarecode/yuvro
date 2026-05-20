@@ -1,0 +1,1045 @@
+{
+  "name": "Display & Visibility",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 13,
+  "sub_units": [
+    {
+      "name": "Display Types",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Display Types",
+          "video_link": "https://www.youtube.com/results?search_query=Display+Types+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Display Types in HTML/CSS."
+        },
+        {
+          "title": "Advanced Display Types Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Display+Types+html+css",
+          "ai_context": "In-depth explanation and practical examples for Display Types."
+        }
+      ]
+    },
+    {
+      "name": "Visibility & Opacity",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Visibility & Opacity",
+          "video_link": "https://www.youtube.com/results?search_query=Visibility+%26+Opacity+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Visibility & Opacity in HTML/CSS."
+        },
+        {
+          "title": "Advanced Visibility & Opacity Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Visibility+%26+Opacity+html+css",
+          "ai_context": "In-depth explanation and practical examples for Visibility & Opacity."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Block Element Behavior",
+      "content": "What is true about block-level elements in CSS?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They take full width of the container",
+          "is_correct": true
+        },
+        {
+          "text": "They only take content width",
+          "is_correct": false
+        },
+        {
+          "text": "They are always hidden",
+          "is_correct": false
+        },
+        {
+          "text": "They behave like inline elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inline Elements",
+      "content": "Which of the following is an inline element behavior?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They take only required content width",
+          "is_correct": true
+        },
+        {
+          "text": "They start on a new line",
+          "is_correct": false
+        },
+        {
+          "text": "They occupy full width",
+          "is_correct": false
+        },
+        {
+          "text": "They are not visible",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Display None",
+      "content": "What does display: none do?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hides the element completely",
+          "is_correct": true
+        },
+        {
+          "text": "Makes text bold",
+          "is_correct": false
+        },
+        {
+          "text": "Changes font size",
+          "is_correct": false
+        },
+        {
+          "text": "Aligns text center",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inline vs Block",
+      "content": "What is a key difference between inline and block elements?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Block elements start on a new line, inline do not",
+          "is_correct": true
+        },
+        {
+          "text": "Inline elements take full width",
+          "is_correct": false
+        },
+        {
+          "text": "Block elements cannot have padding",
+          "is_correct": false
+        },
+        {
+          "text": "Inline elements are always hidden",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inline-block Behavior",
+      "content": "What is special about inline-block elements?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They behave like inline elements but allow width and height",
+          "is_correct": true
+        },
+        {
+          "text": "They always take full width",
+          "is_correct": false
+        },
+        {
+          "text": "They cannot have padding",
+          "is_correct": false
+        },
+        {
+          "text": "They are always hidden",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Display None Effect",
+      "content": "What happens to layout when display: none is applied?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The element is removed from document flow completely",
+          "is_correct": true
+        },
+        {
+          "text": "The element becomes transparent but takes space",
+          "is_correct": false
+        },
+        {
+          "text": "Only text is hidden but space remains",
+          "is_correct": false
+        },
+        {
+          "text": "Font size becomes zero",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Display Types Usage",
+      "content": "Which display type is best for creating navigation menus in a single line?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "inline or inline-block",
+          "is_correct": true
+        },
+        {
+          "text": "block only",
+          "is_correct": false
+        },
+        {
+          "text": "none",
+          "is_correct": false
+        },
+        {
+          "text": "hidden",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Visibility Property",
+      "content": "Which CSS property controls whether an element is visible or not?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "visibility",
+          "is_correct": true
+        },
+        {
+          "text": "display",
+          "is_correct": false
+        },
+        {
+          "text": "opacity",
+          "is_correct": false
+        },
+        {
+          "text": "hidden-mode",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Opacity Meaning",
+      "content": "What does the opacity property control in CSS?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Transparency of an element",
+          "is_correct": true
+        },
+        {
+          "text": "Font size",
+          "is_correct": false
+        },
+        {
+          "text": "Element position",
+          "is_correct": false
+        },
+        {
+          "text": "Border style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Visibility Hidden",
+      "content": "What happens when visibility is set to hidden?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Element is invisible but still takes space",
+          "is_correct": true
+        },
+        {
+          "text": "Element is removed from layout",
+          "is_correct": false
+        },
+        {
+          "text": "Element becomes clickable only",
+          "is_correct": false
+        },
+        {
+          "text": "Element changes color",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Visibility vs Display",
+      "content": "What is the key difference between visibility:hidden and display:none?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "visibility:hidden keeps space, display:none removes element from layout",
+          "is_correct": true
+        },
+        {
+          "text": "Both remove element completely",
+          "is_correct": false
+        },
+        {
+          "text": "Both only change color",
+          "is_correct": false
+        },
+        {
+          "text": "Both increase opacity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Opacity Range",
+      "content": "What is the valid range of opacity values in CSS?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "0 to 1",
+          "is_correct": true
+        },
+        {
+          "text": "0 to 100",
+          "is_correct": false
+        },
+        {
+          "text": "1 to 10",
+          "is_correct": false
+        },
+        {
+          "text": "-1 to 1",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Opacity Effect on Child Elements",
+      "content": "What happens to child elements when opacity is applied to a parent?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "All child elements inherit the opacity effect",
+          "is_correct": true
+        },
+        {
+          "text": "Only parent becomes transparent",
+          "is_correct": false
+        },
+        {
+          "text": "Child elements become hidden completely",
+          "is_correct": false
+        },
+        {
+          "text": "Opacity has no effect on children",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Opacity vs Visibility",
+      "content": "Which statement is correct about opacity and visibility?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Visibility & Opacity",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Opacity affects transparency, visibility controls element visibility state",
+          "is_correct": true
+        },
+        {
+          "text": "Both remove elements from layout",
+          "is_correct": false
+        },
+        {
+          "text": "Both only affect text color",
+          "is_correct": false
+        },
+        {
+          "text": "Both are used for font styling",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Display Basics",
+      "content": "Which of the following are valid CSS display types?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "block is a valid display type",
+          "is_correct": true
+        },
+        {
+          "text": "inline is a valid display type",
+          "is_correct": true
+        },
+        {
+          "text": "hidden is a CSS display type",
+          "is_correct": false
+        },
+        {
+          "text": "inline-block is a valid display type",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Display Property Basics",
+      "content": "Which of the following statements about CSS display types are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "block elements take full width by default",
+          "is_correct": true
+        },
+        {
+          "text": "inline elements do not start on a new line",
+          "is_correct": true
+        },
+        {
+          "text": "inline-block elements cannot have width",
+          "is_correct": false
+        },
+        {
+          "text": "none hides the element completely",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Display Type Understanding",
+      "content": "Which of the following statements about display types are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "block elements start on a new line",
+          "is_correct": true
+        },
+        {
+          "text": "inline elements flow within text",
+          "is_correct": true
+        },
+        {
+          "text": "inline-block elements are always hidden",
+          "is_correct": false
+        },
+        {
+          "text": "none removes element from layout",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Display Behavior",
+      "content": "Which of the following statements about display behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "block elements occupy full width",
+          "is_correct": true
+        },
+        {
+          "text": "inline elements ignore width and height",
+          "is_correct": true
+        },
+        {
+          "text": "inline-block elements cannot have padding",
+          "is_correct": false
+        },
+        {
+          "text": "none removes element from document flow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Display Type Comparison",
+      "content": "Which of the following statements about display types comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "inline elements do not break lines",
+          "is_correct": true
+        },
+        {
+          "text": "block elements support width and height",
+          "is_correct": true
+        },
+        {
+          "text": "inline-block elements behave exactly like block",
+          "is_correct": false
+        },
+        {
+          "text": "none hides the element completely",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Display Concepts",
+      "content": "Which of the following statements about advanced display concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "inline-block allows width and height control",
+          "is_correct": true
+        },
+        {
+          "text": "block elements always start on new line",
+          "is_correct": true
+        },
+        {
+          "text": "inline elements can set width by default",
+          "is_correct": false
+        },
+        {
+          "text": "none removes element from layout flow",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Display Layout Behavior",
+      "content": "Which of the following statements about display layout behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "inline elements flow within text content",
+          "is_correct": true
+        },
+        {
+          "text": "block elements create new line layout structure",
+          "is_correct": true
+        },
+        {
+          "text": "inline-block elements cannot be styled with padding",
+          "is_correct": false
+        },
+        {
+          "text": "none removes element completely from rendering",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Block Display Behavior",
+      "content": "Create an HTML page and use CSS to apply display:block to elements and observe how they occupy full width.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Elements displayed as block level"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Each element takes full width"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display: block;",
+          "explanation": "Block elements occupy full width."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with block elements.",
+      "solutions": [
+        {
+          "title": "Block Display Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    display: block;\n    background: lightblue;\n    margin: 5px;\n}\n</style>\n</head>\n<body>\n    <span class=\"box\">Box 1</span>\n    <span class=\"box\">Box 2</span>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Block elements take full width."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Demonstrate Inline Display Behavior",
+      "content": "Create an HTML page using inline elements and apply CSS display:inline to show how elements flow in a line.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Elements displayed inline"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Elements appear in same line"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display: inline;",
+          "explanation": "Inline elements flow horizontally."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML inline layout.",
+      "solutions": [
+        {
+          "title": "Inline Display Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.box {\n    display: inline;\n    background: yellow;\n}\n</style>\n</head>\n<body>\n    <div class=\"box\">A</div>\n    <div class=\"box\">B</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Inline elements stay in same line."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Hide Elements Using Display None",
+      "content": "Create an HTML page where some elements are hidden using display:none and explain how they are removed from layout.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Some elements hidden"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hidden elements not visible in layout"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display: none;",
+          "explanation": "Element is completely removed from layout."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML page with hidden elements.",
+      "solutions": [
+        {
+          "title": "Display None Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.hide {\n    display: none;\n}\n</style>\n</head>\n<body>\n    <p>This is visible</p>\n    <p class=\"hide\">This is hidden</p>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "display:none removes element completely."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Compare Inline and Inline-Block Elements",
+      "content": "Create an HTML page that demonstrates the difference between inline and inline-block elements using styling and spacing.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Inline and inline-block displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Width and spacing differences visible"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display: inline-block;",
+          "explanation": "Inline-block allows width/height control."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML comparison page.",
+      "solutions": [
+        {
+          "title": "Inline vs Inline-block",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.inline {\n    display: inline;\n    background: lightgreen;\n}\n.inline-block {\n    display: inline-block;\n    width: 100px;\n    background: lightblue;\n}\n</style>\n</head>\n<body>\n    <div class=\"inline\">Inline</div>\n    <div class=\"inline-block\">Inline Block</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Inline-block supports width and height."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Navigation Bar Using Inline and Inline-Block",
+      "content": "Create a navigation bar using inline and inline-block display properties with proper spacing and alignment.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Navigation bar displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper horizontal menu layout"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "nav items inline",
+          "explanation": "Navigation bars often use inline-block."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML navigation bar.",
+      "solutions": [
+        {
+          "title": "Navigation Bar",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\nul li {\n    display: inline-block;\n    margin-right: 10px;\n    background: gray;\n    padding: 5px;\n}\n</style>\n</head>\n<body>\n    <ul>\n        <li>Home</li>\n        <li>About</li>\n        <li>Contact</li>\n    </ul>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use inline-block for nav items."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Toggle Visibility System Using Display None",
+      "content": "Create a webpage where elements can be shown or hidden dynamically using display:none logic simulation.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Toggle UI displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Elements hide/show correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "display toggle behavior",
+          "explanation": "Visibility can be controlled dynamically."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML toggle page.",
+      "solutions": [
+        {
+          "title": "Toggle Visibility",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n#box {\n    display: block;\n    background: pink;\n}\n</style>\n</head>\n<body>\n    <button onclick=\"toggle()\">Toggle</button>\n    <div id=\"box\">Hello Box</div>\n\n    <script>\n        function toggle() {\n            const box = document.getElementById('box');\n            box.style.display = box.style.display === 'none' ? 'block' : 'none';\n        }\n    </script>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use JavaScript to toggle display property."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Complex Layout Using All Display Types",
+      "content": "Create a webpage demonstrating block, inline, inline-block, and none together in a single layout system.",
+      "level": "subtopic",
+      "unit_name": "Display & Visibility",
+      "subunit_name": "Display Types",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "All display types shown"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Proper layout behavior demonstrated"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Combined display properties",
+          "explanation": "Real UI uses multiple display types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML layout demo.",
+      "solutions": [
+        {
+          "title": "Display Types Demo",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n<style>\n.block { display: block; background: lightblue; }\n.inline { display: inline; background: yellow; }\n.inline-block { display: inline-block; width: 100px; background: lightgreen; }\n.none { display: none; }\n</style>\n</head>\n<body>\n    <div class=\"block\">Block</div>\n    <span class=\"inline\">Inline</span>\n    <div class=\"inline-block\">Inline Block</div>\n    <div class=\"none\">Hidden</div>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Compare all display behaviors in one page."
+      ]
+    }
+  ]
+}

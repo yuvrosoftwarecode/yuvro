@@ -1,0 +1,1180 @@
+{
+  "name": "Introduction to CSS",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 9,
+  "sub_units": [
+    {
+      "name": "What is CSS?",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to What is CSS?",
+          "video_link": "https://www.youtube.com/results?search_query=What+is+CSS?+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of What is CSS? in HTML/CSS."
+        },
+        {
+          "title": "Advanced What is CSS? Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=What+is+CSS?+html+css",
+          "ai_context": "In-depth explanation and practical examples for What is CSS?."
+        }
+      ]
+    },
+    {
+      "name": "Ways to Add CSS",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Ways to Add CSS",
+          "video_link": "https://www.youtube.com/results?search_query=Ways+to+Add+CSS+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Ways to Add CSS in HTML/CSS."
+        },
+        {
+          "title": "Advanced Ways to Add CSS Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Ways+to+Add+CSS+html+css",
+          "ai_context": "In-depth explanation and practical examples for Ways to Add CSS."
+        }
+      ]
+    },
+    {
+      "name": "CSS Syntax",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to CSS Syntax",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Syntax+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of CSS Syntax in HTML/CSS."
+        },
+        {
+          "title": "Advanced CSS Syntax Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=CSS+Syntax+html+css",
+          "ai_context": "In-depth explanation and practical examples for CSS Syntax."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "CSS Purpose",
+      "content": "What is the main purpose of CSS?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To style and design web pages",
+          "is_correct": true
+        },
+        {
+          "text": "To store data in databases",
+          "is_correct": false
+        },
+        {
+          "text": "To create server-side logic",
+          "is_correct": false
+        },
+        {
+          "text": "To define HTML structure",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS vs HTML",
+      "content": "What is the main difference between CSS and HTML?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML structures content, CSS styles it",
+          "is_correct": true
+        },
+        {
+          "text": "CSS creates content, HTML styles it",
+          "is_correct": false
+        },
+        {
+          "text": "Both are used for backend development",
+          "is_correct": false
+        },
+        {
+          "text": "HTML is optional, CSS is mandatory",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "JavaScript Role",
+      "content": "What is JavaScript mainly used for in web development?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Adding interactivity and behavior to web pages",
+          "is_correct": true
+        },
+        {
+          "text": "Styling web pages only",
+          "is_correct": false
+        },
+        {
+          "text": "Structuring HTML pages",
+          "is_correct": false
+        },
+        {
+          "text": "Creating databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Rendering",
+      "content": "How does CSS affect a web page in the browser?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It controls layout, colors, and visual presentation",
+          "is_correct": true
+        },
+        {
+          "text": "It stores user data permanently",
+          "is_correct": false
+        },
+        {
+          "text": "It compiles backend code",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces HTML elements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Browser Rendering Process",
+      "content": "What happens when a browser renders CSS?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It applies styles to HTML elements during page rendering",
+          "is_correct": true
+        },
+        {
+          "text": "It deletes HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "It converts CSS into Java code",
+          "is_correct": false
+        },
+        {
+          "text": "It blocks page loading",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Rendering Flow",
+      "content": "Which sequence correctly describes how CSS works in a browser?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML parsed \u2192 CSS applied \u2192 Rendered UI displayed",
+          "is_correct": true
+        },
+        {
+          "text": "CSS loaded \u2192 Database created \u2192 HTML deleted",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript runs \u2192 CSS ignored \u2192 HTML removed",
+          "is_correct": false
+        },
+        {
+          "text": "Server renders CSS \u2192 Browser stores HTML only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Role in Browser",
+      "content": "What role does CSS play in the browser rendering pipeline?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It defines how HTML content should be displayed visually",
+          "is_correct": true
+        },
+        {
+          "text": "It stores server-side logic",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces HTML parsing",
+          "is_correct": false
+        },
+        {
+          "text": "It manages database queries",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Inline CSS",
+      "content": "Which method is used to apply CSS directly inside an HTML element?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Internal CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Linked CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Internal CSS Location",
+      "content": "Where is internal CSS written in an HTML document?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inside the <style> tag in the <head>",
+          "is_correct": true
+        },
+        {
+          "text": "Inside the <body> tag only",
+          "is_correct": false
+        },
+        {
+          "text": "Inside a JavaScript file",
+          "is_correct": false
+        },
+        {
+          "text": "Inside an image file",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "External CSS File",
+      "content": "Which file extension is used for external CSS?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": ".css",
+          "is_correct": true
+        },
+        {
+          "text": ".html",
+          "is_correct": false
+        },
+        {
+          "text": ".js",
+          "is_correct": false
+        },
+        {
+          "text": ".style",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Best Practice CSS Usage",
+      "content": "Which CSS method is considered best practice for large projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "External CSS",
+          "is_correct": true
+        },
+        {
+          "text": "Inline CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Internal CSS only",
+          "is_correct": false
+        },
+        {
+          "text": "No CSS usage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Priority",
+      "content": "Which CSS type has the highest priority when all are applied?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Internal CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Linked CSS",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "External CSS Linking",
+      "content": "Which HTML tag is used to link an external CSS file?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<link>",
+          "is_correct": true
+        },
+        {
+          "text": "<style>",
+          "is_correct": false
+        },
+        {
+          "text": "<css>",
+          "is_correct": false
+        },
+        {
+          "text": "<script>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Maintainability",
+      "content": "Why is external CSS preferred over inline CSS in real projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves maintainability and reusability",
+          "is_correct": true
+        },
+        {
+          "text": "It increases page load time significantly",
+          "is_correct": false
+        },
+        {
+          "text": "It disables browser caching",
+          "is_correct": false
+        },
+        {
+          "text": "It only works on mobile devices",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Rule Structure",
+      "content": "What is the correct structure of a basic CSS rule?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "selector { property: value; }",
+          "is_correct": true
+        },
+        {
+          "text": "selector ( property = value )",
+          "is_correct": false
+        },
+        {
+          "text": "<selector> property: value",
+          "is_correct": false
+        },
+        {
+          "text": "property { selector: value }",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Selector Purpose",
+      "content": "What is the role of a selector in CSS?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It selects HTML elements to apply styles",
+          "is_correct": true
+        },
+        {
+          "text": "It defines database structure",
+          "is_correct": false
+        },
+        {
+          "text": "It stores images",
+          "is_correct": false
+        },
+        {
+          "text": "It executes JavaScript code",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Property Example",
+      "content": "Which of the following is a CSS property?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "color",
+          "is_correct": true
+        },
+        {
+          "text": "div",
+          "is_correct": false
+        },
+        {
+          "text": "html",
+          "is_correct": false
+        },
+        {
+          "text": "class",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Value Meaning",
+      "content": "In CSS, what does a value represent?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The setting applied to a CSS property",
+          "is_correct": true
+        },
+        {
+          "text": "The HTML tag name",
+          "is_correct": false
+        },
+        {
+          "text": "The file name",
+          "is_correct": false
+        },
+        {
+          "text": "The browser version",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Syntax Example",
+      "content": "Which option correctly represents a valid CSS rule?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "p { color: red; }",
+          "is_correct": true
+        },
+        {
+          "text": "p = color: red;",
+          "is_correct": false
+        },
+        {
+          "text": "p (color = red)",
+          "is_correct": false
+        },
+        {
+          "text": "<p> color: red </p>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple CSS Properties",
+      "content": "How are multiple CSS properties written inside a single rule?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Each property-value pair is separated by a semicolon",
+          "is_correct": true
+        },
+        {
+          "text": "They are separated by commas",
+          "is_correct": false
+        },
+        {
+          "text": "They are written in multiple selectors only",
+          "is_correct": false
+        },
+        {
+          "text": "They cannot be used together",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "CSS Syntax Error",
+      "content": "What happens if a CSS property is missing a semicolon?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "CSS Syntax",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The next property may not work correctly",
+          "is_correct": true
+        },
+        {
+          "text": "The browser crashes",
+          "is_correct": false
+        },
+        {
+          "text": "HTML stops rendering",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript is disabled",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Basics",
+      "content": "Which of the following statements about CSS are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS is used to style web pages",
+          "is_correct": true
+        },
+        {
+          "text": "CSS controls layout, colors, and fonts",
+          "is_correct": true
+        },
+        {
+          "text": "CSS is used to store database data",
+          "is_correct": false
+        },
+        {
+          "text": "CSS improves visual appearance of HTML",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Why We Use CSS",
+      "content": "Which of the following reasons explain why CSS is used?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS separates design from content",
+          "is_correct": true
+        },
+        {
+          "text": "CSS makes websites more visually appealing",
+          "is_correct": true
+        },
+        {
+          "text": "CSS is used to write backend logic",
+          "is_correct": false
+        },
+        {
+          "text": "CSS improves maintainability of web pages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS vs HTML vs JavaScript Basics",
+      "content": "Which of the following statements about CSS, HTML, and JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML provides structure of a webpage",
+          "is_correct": true
+        },
+        {
+          "text": "CSS provides styling to a webpage",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript is used only for styling",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript adds interactivity to web pages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Role in Web Pages",
+      "content": "Which of the following statements about CSS role in web development are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS defines how HTML elements are displayed",
+          "is_correct": true
+        },
+        {
+          "text": "CSS is responsible for layout and design",
+          "is_correct": true
+        },
+        {
+          "text": "CSS replaces HTML structure",
+          "is_correct": false
+        },
+        {
+          "text": "CSS works together with HTML and JavaScript",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS vs Other Technologies",
+      "content": "Which of the following statements about CSS vs HTML vs JavaScript are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML builds structure, CSS styles it",
+          "is_correct": true
+        },
+        {
+          "text": "JavaScript adds dynamic behavior",
+          "is_correct": true
+        },
+        {
+          "text": "CSS handles server-side logic",
+          "is_correct": false
+        },
+        {
+          "text": "All three work together in web development",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Rendering Basics",
+      "content": "Which of the following statements about how CSS works in browsers are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Browser renders HTML first and then applies CSS",
+          "is_correct": true
+        },
+        {
+          "text": "CSS affects how elements are displayed on screen",
+          "is_correct": true
+        },
+        {
+          "text": "CSS is executed like JavaScript code",
+          "is_correct": false
+        },
+        {
+          "text": "Rendering engine applies CSS rules to DOM elements",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced CSS Understanding",
+      "content": "Which of the following statements about advanced CSS behavior in browsers are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "What is CSS?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "CSS is applied after DOM construction",
+          "is_correct": true
+        },
+        {
+          "text": "CSS rules are processed by the browser rendering engine",
+          "is_correct": true
+        },
+        {
+          "text": "CSS directly modifies backend data",
+          "is_correct": false
+        },
+        {
+          "text": "CSS affects layout, paint, and rendering phases",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Ways to Add CSS Basics",
+      "content": "Which of the following are valid ways to add CSS to a webpage?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS is written inside an HTML element using the style attribute",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is written inside a <style> tag in the HTML file",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS is written inside JavaScript files",
+          "is_correct": false
+        },
+        {
+          "text": "External CSS is written in a separate .css file",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Types Understanding",
+      "content": "Which of the following statements about CSS types are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS is applied directly to a single element",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is defined in the head section of HTML",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS is written inside HTML body only",
+          "is_correct": false
+        },
+        {
+          "text": "External CSS helps reuse styles across multiple pages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Methods Basics",
+      "content": "Which of the following statements about CSS methods are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS has highest priority by default",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is written within <style> tag",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS cannot style HTML elements",
+          "is_correct": false
+        },
+        {
+          "text": "External CSS improves code reusability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Types Comparison",
+      "content": "Which of the following statements about CSS types comparison are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Inline CSS is harder to maintain for large projects",
+          "is_correct": true
+        },
+        {
+          "text": "External CSS is preferred for scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is always better than external CSS",
+          "is_correct": false
+        },
+        {
+          "text": "External CSS separates design from structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practice CSS Usage",
+      "content": "Which of the following statements about CSS best practices are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "External CSS is recommended for large projects",
+          "is_correct": true
+        },
+        {
+          "text": "Inline CSS should be avoided for maintainability",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is best for multi-page websites",
+          "is_correct": false
+        },
+        {
+          "text": "Separation of concerns improves code quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced CSS Integration",
+      "content": "Which of the following statements about advanced CSS integration are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "External CSS improves caching and performance",
+          "is_correct": true
+        },
+        {
+          "text": "Inline CSS overrides both internal and external CSS",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS is loaded from external files",
+          "is_correct": false
+        },
+        {
+          "text": "CSS specificity affects style application priority",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "CSS Strategy Selection",
+      "content": "Which of the following statements about choosing CSS methods are correct?",
+      "level": "subtopic",
+      "unit_name": "Introduction to CSS",
+      "subunit_name": "Ways to Add CSS",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "External CSS is best for reusable styling across pages",
+          "is_correct": true
+        },
+        {
+          "text": "Inline CSS is useful for quick testing",
+          "is_correct": true
+        },
+        {
+          "text": "Internal CSS should always replace external CSS",
+          "is_correct": false
+        },
+        {
+          "text": "Choosing CSS type depends on project size and structure",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

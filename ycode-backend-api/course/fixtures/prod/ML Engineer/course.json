@@ -1,0 +1,10 @@
+{
+    "courses": [
+        {
+            "short_code": "ML100",
+            "name": "ML Engineer",
+            "category": "fundamentals",
+            "instructor_email": "admin@yuvro.com"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "subjects": [
+        {
+            "short_code": "CAEG101",
+            "subject_name": "Computer Aided Engineering Graphics",
+            "category": "engineering",
+            "instructor_email": "admin@yuvro.com",
+            "product_type": "campus"
+        }
+    ]
+}

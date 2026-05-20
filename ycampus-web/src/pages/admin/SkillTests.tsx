@@ -318,7 +318,7 @@ const AdminSkillTests = () => {
   const loadSkillTests = async (unitId: string) => {
     try {
       setTestsLoading(true);
-      const data = await skillTestService.getSkillTestsByUnit(unitId, 'assessment');
+      const data = await skillTestService.getSkillTestsByUnit(unitId, 'practice');
       setSkillTests(data);
     } catch {
       toast({ title: 'Error', description: 'Failed to load skill tests.', variant: 'destructive' });
@@ -638,7 +638,7 @@ const AdminSkillTests = () => {
           passing_marks: conf.passing_marks,
           enable_proctoring: conf.enable_proctoring,
           publish_status: 'active',
-          test_type: 'assessment',
+          test_type: activeTab === 'skill-tests' ? 'practice' : 'assessment',
           subject: selectedSubject,
           unit: activeTab === 'skill-tests' ? selectedUnit : undefined,
           questions_config: { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] },
@@ -722,7 +722,7 @@ const AdminSkillTests = () => {
         title: formData.title, description: formData.description, instructions: formData.instructions,
         difficulty: formData.difficulty, duration: formData.duration, total_marks: formData.total_marks,
         passing_marks: formData.passing_marks, enable_proctoring: formData.enable_proctoring,
-        publish_status: formData.publish_status, test_type: 'assessment',
+        publish_status: formData.publish_status, test_type: activeTab === 'skill-tests' ? 'practice' : 'assessment',
         subject: selectedSubject,
         unit: activeTab === 'skill-tests' ? selectedUnit : undefined,
         questions_config: savedQuestionIds,

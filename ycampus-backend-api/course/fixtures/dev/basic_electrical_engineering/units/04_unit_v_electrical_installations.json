@@ -1,0 +1,44 @@
+{
+    "name": "UNIT-V: Electrical Installations",
+    "subject_short_code": "BEE101",
+    "order_index": 4,
+    "sub_units": [
+        {
+            "name": "Components of LT Switchgear: Switch Fuse Unit (SFU), MCB, ELCB, MCCB, Types of Wires and Cables, Earthing",
+            "content": "Components of LT Switchgear: Switch Fuse Unit (SFU), MCB, ELCB, MCCB, Types of Wires and Cables, Earthing",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Components of LT Switchgear: Switch Fuse Unit (SFU), MCB, ELCB, MCCB, Types of Wires and Cables, Earthing",
+                    "video_link": "https://www.youtube.com/watch?v=LnYCmaa58dQ&list=PLruTCQ0dsWzEAMQe1wv8IvMGj4XQrEtFr",
+                    "ai_context": "Detailed video explanation for Components of LT Switchgear: Switch Fuse Unit (SFU), MCB, ELCB, MCCB, Types of Wires and Cables, Earthing unit of Basic Electrical Engineering"
+                }
+            ]
+        },
+        {
+            "name": "Types of Batteries, Important Characteristics for Batteries",
+            "content": "Types of Batteries, Important Characteristics for Batteries",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Types of Batteries, Important Characteristics for Batteries",
+                    "video_link": "https://www.youtube.com/watch?v=LnYCmaa58dQ&list=PLruTCQ0dsWzEAMQe1wv8IvMGj4XQrEtFr",
+                    "ai_context": "Detailed video explanation for Types of Batteries, Important Characteristics for Batteries unit of Basic Electrical Engineering"
+                }
+            ]
+        },
+        {
+            "name": "Elementary calculations for energy consumption, power factor improvement and battery backup",
+            "content": "Elementary calculations for energy consumption, power factor improvement and battery backup",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Intro to Elementary calculations for energy consumption, power factor improvement and battery backup",
+                    "video_link": "https://www.youtube.com/watch?v=LnYCmaa58dQ&list=PLruTCQ0dsWzEAMQe1wv8IvMGj4XQrEtFr",
+                    "ai_context": "Detailed video explanation for Elementary calculations for energy consumption, power factor improvement and battery backup unit of Basic Electrical Engineering"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}

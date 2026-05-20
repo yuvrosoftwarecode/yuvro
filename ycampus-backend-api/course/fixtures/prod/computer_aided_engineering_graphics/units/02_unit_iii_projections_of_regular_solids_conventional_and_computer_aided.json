@@ -1,0 +1,32 @@
+{
+    "name": "UNIT \u2013 III: Projections of Regular Solids (Conventional and Computer Aided)",
+    "subject_short_code": "CAEG101",
+    "order_index": 2,
+    "sub_units": [
+        {
+            "name": "Sections or Sectional views of Right Regular Solids, Prism, Cylinder, Pyramid, Cone",
+            "content": "Sections or Sectional views of Right Regular Solids, Prism, Cylinder, Pyramid, Cone",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Intro to Sections or Sectional views of Right Regular Solids, Prism, Cylinder, Pyramid, Cone",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Sections or Sectional views of Right Regular Solids, Prism, Cylinder, Pyramid, Cone unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        },
+        {
+            "name": "Computer aided projections of solids, sectional views",
+            "content": "Computer aided projections of solids, sectional views",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Intro to Computer aided projections of solids, sectional views",
+                    "video_link": "https://www.youtube.com/watch?v=GrB-Og5KIe0",
+                    "ai_context": "Detailed video explanation for Computer aided projections of solids, sectional views unit of Computer Aided Engineering Graphics"
+                }
+            ]
+        }
+    ],
+    "questions": []
+}
