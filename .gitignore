@@ -31,6 +31,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Environment files - local overrides should never be committed
+**/.env.local
+**/.env.dev
+**/.env.prod
+**/.env.staging
+**/.env.observability
+
 # Docker
 *.pid
 docker-compose.override.yml

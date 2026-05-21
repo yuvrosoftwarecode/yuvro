@@ -406,6 +406,14 @@ docker compose \
   -f docker-compose.dev.yml \
   build 2>&1 | tail -20
 
+echo "📦 Stopping any existing containers to free ports..."
+docker compose \
+  -f docker-compose.yuvro.yml \
+  -f docker-compose.ycode.yml \
+  -f docker-compose.ycampus.yml \
+  -f docker-compose.dev.yml \
+  down --remove-orphans 2>/dev/null || true
+
 echo "📦 Starting services..."
 docker compose \
   -f docker-compose.yuvro.yml \

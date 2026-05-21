@@ -29,8 +29,9 @@ ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 COPY . .
 RUN npm run build
 
-# Production stage - serves pre-built static files via nginx (fast, no Node.js overhead)
-FROM nginx:alpine as production
+# Serve stage - serves pre-built static files via nginx (fast, no Node.js overhead)
+# Used for dev, staging, and production deployments
+FROM nginx:alpine as serve
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80

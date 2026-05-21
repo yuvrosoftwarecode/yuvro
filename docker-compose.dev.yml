@@ -1,5 +1,5 @@
 # Dev environment override - uses RDS instead of local DB containers
-# Frontends and backends use production build targets (pre-built static assets, gunicorn)
+# Frontends and backends use the 'serve' build target (pre-built static assets, gunicorn)
 # so the dev environment behaves like production for performance.
 # Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
 
@@ -42,12 +42,12 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use production target (pre-built static files served by nginx)
+  # Frontend: use 'serve' target (pre-built static files served by nginx)
   ycode-frontend:
     build:
       context: ./ycode-web
       dockerfile: Dockerfile
-      target: production
+      target: serve
       args:
         - VITE_BACKEND_API_BASE_URL=${YCODE_VITE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCODE_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
@@ -57,7 +57,6 @@ services:
     # nginx serves on port 80 inside container; host port 3000 maps to it
     ports:
       - "3000:80"
-    # No stdin_open/tty needed for production nginx
     stdin_open: false
     tty: false
     command: ["nginx", "-g", "daemon off;"]
@@ -80,12 +79,12 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
-  # Frontend: use production target (pre-built static files served by nginx)
+  # Frontend: use 'serve' target (pre-built static files served by nginx)
   ycampus-frontend:
     build:
       context: ./ycampus-web
       dockerfile: Dockerfile
-      target: production
+      target: serve
       args:
         - VITE_BACKEND_API_BASE_URL=${YCAMPUS_VITE_BACKEND_API_BASE_URL:-https://backend-campus-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
