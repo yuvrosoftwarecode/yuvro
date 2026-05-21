@@ -318,7 +318,6 @@ const SkillTest: React.FC = () => {
             description: selectedTest.description || "",
             marks: selectedTest.totalMarks,
           }}
-          topicName={selectedTopic.name}
           onStart={(screenStream?: MediaStream) => {
             setActiveScreenStream(screenStream || null);
             handleBeginTest(selectedTest.id);

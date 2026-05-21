@@ -11,6 +11,7 @@ export interface MockInterview {
   ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
   ai_percentage: number;
   ai_context: any;
+  ai_coding_question_count?: number;
 
   // Voice Config
   voice_type: 'junnu' | 'munnu';

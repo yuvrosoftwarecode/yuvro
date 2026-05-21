@@ -56,7 +56,7 @@ export interface Contest {
 // Payload type for create/update — reuses Contest but omits read-only server fields
 export type ContestPayload = Omit<
   Partial<Contest>,
-  'id' | 'participants_count' | 'is_registered' | 'question_ids' | 'created_by' | 'created_at' | 'updated_at'
+  'id' | 'participants_count' | 'is_registered' | 'created_by' | 'created_at' | 'updated_at'
 >;
 
 export interface Question {
