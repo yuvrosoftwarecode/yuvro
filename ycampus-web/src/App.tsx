@@ -104,6 +104,14 @@ import PlannerTopicsTab from './components/admin/planner/PlannerTopicsTab';
 import PlannerRoadmapsTab from './components/admin/planner/PlannerRoadmapsTab';
 import PlannerAnalyticsTab from './components/admin/planner/PlannerAnalyticsTab';
 
+const PlacementDashboardWrapper = () => {
+  const { user } = useAuth();
+  if (user?.college_product_type === 'assessments') {
+    return <Navigate to="/placement/placement-dashboard" replace />;
+  }
+  return <PlacementDashboard />;
+};
+
 const PlacementDashboardAssessmentWrapper = () => {
   const { user } = useAuth();
   if (user?.college_product_type === 'assessments') {
@@ -313,7 +321,7 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={["placement_officer"]}>
                     <Routes>
-                      <Route path="dashboard" element={<PlacementDashboard />} />
+                      <Route path="dashboard" element={<PlacementDashboardWrapper />} />
                       <Route path="placement-dashboard" element={<PlacementDashboardAssessmentWrapper />} />
                       <Route path="student-reports" element={<PlacementStudentReportsWrapper />} />
                       <Route path="job-approvals" element={<JobApprovals />} />

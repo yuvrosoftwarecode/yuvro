@@ -23,7 +23,11 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
       navigate('/faculty/dashboard', { replace: true });
       break;
     case 'placement_officer':
-      navigate('/placement/dashboard', { replace: true });
+      if (user.college_product_type === 'assessments') {
+        navigate('/placement/placement-dashboard', { replace: true });
+      } else {
+        navigate('/placement/dashboard', { replace: true });
+      }
       break;
     case 'recruiter':
       navigate('/recruiter/dashboard', { replace: true });

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "react-router-dom";
 import RoleSidebar from "../../components/common/RoleSidebar";
 import EdgeHoverSidebar from "../../components/common/EdgeHoverSidebar";
@@ -94,7 +95,7 @@ const CourseDetail: React.FC = () => {
             }
         }
     };
-    const [chatSessionId, setChatSessionId] = useState(`course-chat-${courseId}-${crypto.randomUUID()}`);
+    const [chatSessionId, setChatSessionId] = useState(`course-chat-${courseId}-${uuidv4()}`);
     const [rightTab, setRightTab] = useState<'videos' | 'quizzes' | 'coding' | 'materials' | 'notes'>('videos');
     const [isHelpOpen, setIsHelpOpen] = useState(false);
 
@@ -723,7 +724,7 @@ const CourseDetail: React.FC = () => {
                                         subtopicName={selectedSubtopic.name}
                                         subtopicContent={selectedSubtopic.content}
                                         sessionId={chatSessionId}
-                                        onNewSession={() => setChatSessionId(`course-chat-${courseId}-${crypto.randomUUID()}`)}
+                                        onNewSession={() => setChatSessionId(`course-chat-${courseId}-${uuidv4()}`)}
                                         layout={videoLayout}
                                         onLayoutChange={setVideoLayout}
                                     />

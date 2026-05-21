@@ -292,7 +292,10 @@ chmod 600 /home/ubuntu/.ssh/config
 echo "📦 Cloning repository..."
 cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
-    cd yuvro-code && git pull
+    cd yuvro-code
+    # Discard any local patches (vite configs, env files) before pulling
+    git checkout -- .
+    git pull
 else
     git clone -b k8s-setup-iac "$repo_url" yuvro-code
     cd yuvro-code

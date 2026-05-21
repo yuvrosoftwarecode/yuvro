@@ -29,7 +29,9 @@ const Dashboard = () => {
     case 'college_admin':
       return <Navigate to="/college-admin/dashboard" replace />;
     case 'placement_officer':
-      return <Navigate to="/placement/dashboard" replace />;
+      return user.college_product_type === 'assessments'
+        ? <Navigate to="/placement/placement-dashboard" replace />
+        : <Navigate to="/placement/dashboard" replace />;
     case 'recruiter':
       return <Navigate to="/recruiter/dashboard" replace />;
     default:
