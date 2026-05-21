@@ -302,6 +302,25 @@ if [ -d "/home/ubuntu/yuvro-code" ]; then
   cd /home/ubuntu
 fi
 
+# Hard-kill any container still holding the ports we need
+echo "🔪 Force-freeing ports 3000, 3002, 8001, 8002, 8003..."
+for port in 3000 3002 8001 8002 8003; do
+  # Find container ID bound to this host port and kill it
+  cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
+  if [ -n "\$cid" ]; then
+    echo "  Killing container \$cid holding port \$port"
+    docker kill \$cid 2>/dev/null || true
+    docker rm -f \$cid 2>/dev/null || true
+  fi
+  # Also kill any non-docker process holding the port (e.g. nginx, node)
+  pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null || true)
+  if [ -n "\$pid" ]; then
+    echo "  Killing PID \$pid holding port \$port"
+    sudo kill -9 \$pid 2>/dev/null || true
+  fi
+done
+echo "✅ Ports cleared"
+
 echo "📦 Cloning repository..."
 cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
