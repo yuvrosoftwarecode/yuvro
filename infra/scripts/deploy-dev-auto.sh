@@ -289,6 +289,19 @@ Host github.com
 SSHCONF
 chmod 600 /home/ubuntu/.ssh/config
 
+# Stop any running containers first to free ports (must happen before build)
+echo "📦 Stopping any existing containers to free ports..."
+if [ -d "/home/ubuntu/yuvro-code" ]; then
+  cd /home/ubuntu/yuvro-code
+  docker compose \
+    -f docker-compose.yuvro.yml \
+    -f docker-compose.ycode.yml \
+    -f docker-compose.ycampus.yml \
+    -f docker-compose.dev.yml \
+    down --remove-orphans 2>/dev/null || true
+  cd /home/ubuntu
+fi
+
 echo "📦 Cloning repository..."
 cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
@@ -405,14 +418,6 @@ docker compose \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
   build 2>&1 | tail -20
-
-echo "📦 Stopping any existing containers to free ports..."
-docker compose \
-  -f docker-compose.yuvro.yml \
-  -f docker-compose.ycode.yml \
-  -f docker-compose.ycampus.yml \
-  -f docker-compose.dev.yml \
-  down --remove-orphans 2>/dev/null || true
 
 echo "📦 Starting services..."
 docker compose \

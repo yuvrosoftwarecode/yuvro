@@ -47,6 +47,8 @@ export interface Test {
   maxAttempts: number;
   my_submissions?: any[];
   enable_proctoring?: boolean;
+  description?: string;
+  course?: string;
 }
 
 interface TestStats {
@@ -63,6 +65,25 @@ type View =
   | "results";
 
 // Removed manual ICONS and COLORS. Using CourseIcons utility instead.
+
+// Map SkillTest API response to local Test shape
+const mapSkillTests = (data: any[]): Test[] =>
+  data.map((t) => ({
+    id: t.id,
+    title: t.title,
+    difficulty: (t.difficulty
+      ? t.difficulty.charAt(0).toUpperCase() + t.difficulty.slice(1).toLowerCase()
+      : "Medium") as "Easy" | "Medium" | "Hard",
+    totalQuestions: t.total_questions ?? 0,
+    duration: t.duration ?? 0,
+    totalMarks: t.total_marks ?? 0,
+    topicId: t.topic ?? "",
+    maxAttempts: t.max_attempts ?? 1,
+    my_submissions: t.my_submissions,
+    enable_proctoring: t.enable_proctoring,
+    description: t.description,
+    course: t.course,
+  }));
 
 const SkillTest: React.FC = () => {
   const { courseId, testId } = useParams();
@@ -118,8 +139,8 @@ const SkillTest: React.FC = () => {
           const config = getCourseIconConfig(course.name, course.category);
           return {
             ...course,
-            icon: config.icon,
-            iconBg: config.color,
+            icon: config.Icon,
+            iconBg: config.bg,
           };
         });
         setCourses(coursesWithConfig);
@@ -145,7 +166,7 @@ const SkillTest: React.FC = () => {
               if (topics.length > 0) {
                 setSelectedTopic(topics[0]);
                 const testsData = await getSkillTestsByTopic(topics[0].id);
-                setTests(testsData);
+                setTests(mapSkillTests(testsData));
               }
             }
           }
@@ -175,7 +196,7 @@ const SkillTest: React.FC = () => {
       if (topics.length > 0) {
         setSelectedTopic(topics[0]);
         const testsData = await getSkillTestsByTopic(topics[0].id);
-        setTests(testsData);
+        setTests(mapSkillTests(testsData));
       }
       navigate(`/student/courses/${course.id}/skill-tests`);
     } catch (error) {
@@ -191,7 +212,7 @@ const SkillTest: React.FC = () => {
     setSelectedTopic(topic);
     try {
       const testsData = await getSkillTestsByTopic(topic.id);
-      setTests(testsData);
+      setTests(mapSkillTests(testsData));
       setCurrentView("tests");
       navigate(`/student/courses/${courseId}/skill-tests`);
     } catch (error) {
@@ -224,7 +245,8 @@ const SkillTest: React.FC = () => {
     }
   };
 
-  const handleTestComplete = (submissionId: string) => {
+  const handleTestComplete = (_stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
+    const submissionId = currentSubmissionId || "";
     setTestSubmissions(prev => ({
       ...prev,
       [selectedTest?.id || ""]: submissionId
@@ -289,14 +311,18 @@ const SkillTest: React.FC = () => {
           test={{
             id: selectedTest.id,
             title: selectedTest.title,
+            course: selectedCourse?.name || "",
             duration: selectedTest.duration,
             totalQuestions: selectedTest.totalQuestions,
+            difficulty: selectedTest.difficulty,
+            description: selectedTest.description || "",
             marks: selectedTest.totalMarks,
-            maxAttempts: selectedTest.maxAttempts,
-            enable_proctoring: selectedTest.enable_proctoring || false,
           }}
           topicName={selectedTopic.name}
-          onStart={handleBeginTest}
+          onStart={(screenStream?: MediaStream) => {
+            setActiveScreenStream(screenStream || null);
+            handleBeginTest(selectedTest.id);
+          }}
           onBack={handleBackToTests}
         />
       </DashboardLayout>
@@ -306,9 +332,10 @@ const SkillTest: React.FC = () => {
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
       <AssessmentInterface
-        test={{
+        assessment={{
           id: selectedTest.id,
           title: selectedTest.title,
+          course: selectedCourse?.name || "",
           duration: selectedTest.duration,
           totalQuestions: selectedTest.totalQuestions,
           topicId: selectedTopic.id,
