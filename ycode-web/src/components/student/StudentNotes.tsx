@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { fetchNotesBySubtopic, createNote, deleteNote, updateNote, Note } from "@/services/courseService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -205,7 +206,7 @@ const StudentNotes: React.FC<{ subtopicId: string, mode?: 'materials' | 'notes' 
   // AI Buddy State
   const [showAiChat, setShowAiChat] = useState(false);
   const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30); // % initial width for AI chat
-  const [chatSessionId, setChatSessionId] = useState(() => `notes-chat-${subtopicId}-${crypto.randomUUID()}`);
+  const [chatSessionId, setChatSessionId] = useState(() => `notes-chat-${subtopicId}-${uuidv4()}`);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // View Mode Logic
@@ -455,7 +456,7 @@ ${myNotesText || "No personal notes yet."}
             welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with your ${mode === 'materials' ? 'materials' : 'notes'}. Ask me anything!`}
             persistenceKey={chatSessionId}
             chatTitle={`${mode === 'materials' ? 'Materials' : 'My Notes'} - AI Buddy`}
-            onNewChat={() => setChatSessionId(`notes-chat-${subtopicId}-${crypto.randomUUID()}`)}
+            onNewChat={() => setChatSessionId(`notes-chat-${subtopicId}-${uuidv4()}`)}
             showHistory={false}
           />
         </div>
