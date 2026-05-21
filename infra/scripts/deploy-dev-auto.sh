@@ -304,21 +304,27 @@ fi
 
 # Hard-kill any container still holding the ports we need
 echo "🔪 Force-freeing ports 3000, 3002, 8001, 8002, 8003..."
+set +e  # don't abort on kill failures
 for port in 3000 3002 8001 8002 8003; do
-  # Find container ID bound to this host port and kill it
   cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
   if [ -n "\$cid" ]; then
     echo "  Killing container \$cid holding port \$port"
-    docker kill \$cid 2>/dev/null || true
-    docker rm -f \$cid 2>/dev/null || true
+    docker kill \$cid 2>/dev/null
+    docker rm -f \$cid 2>/dev/null
   fi
-  # Also kill any non-docker process holding the port (e.g. nginx, node)
-  pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null || true)
+  pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null)
   if [ -n "\$pid" ]; then
     echo "  Killing PID \$pid holding port \$port"
-    sudo kill -9 \$pid 2>/dev/null || true
+    sudo kill -9 \$pid 2>/dev/null
   fi
 done
+# Nuclear: stop and remove ALL containers on this box
+running=\$(docker ps -q 2>/dev/null)
+[ -n "\$running" ] && docker stop \$running 2>/dev/null
+all=\$(docker ps -aq 2>/dev/null)
+[ -n "\$all" ] && docker rm \$all 2>/dev/null
+set -e
+sleep 3  # give OS time to release port bindings
 echo "✅ Ports cleared"
 
 echo "📦 Cloning repository..."
@@ -439,12 +445,27 @@ docker compose \
   build 2>&1 | tail -20
 
 echo "📦 Starting services..."
+# Final port check - kill anything still holding our ports right before up
+for port in 3000 3002 8001 8002 8003; do
+  cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
+  if [ -n "\$cid" ]; then
+    echo "  ⚠ Container \$cid still on port \$port — force removing"
+    docker rm -f \$cid 2>/dev/null || true
+  fi
+done
+# Also stop ALL running containers as a nuclear option - we own this box
+running=\$(docker ps -q 2>/dev/null)
+[ -n "\$running" ] && docker stop \$running 2>/dev/null || true
+all=\$(docker ps -aq 2>/dev/null)
+[ -n "\$all" ] && docker rm \$all 2>/dev/null || true
+sleep 2
+
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.dev.yml \
-  up -d
+  up -d --force-recreate
 
 echo "✅ Applications deployed!"
 docker compose \
