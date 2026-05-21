@@ -1,4 +1,6 @@
 # Dev environment override - uses RDS instead of local DB containers
+# Frontends and backends use production build targets (pre-built static assets, gunicorn)
+# so the dev environment behaves like production for performance.
 # Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
 
 services:
@@ -28,21 +30,80 @@ services:
     env_file:
       - ./yuvro-code-executer/.env.dev
 
+  # Backend: use production target (gunicorn, not runserver)
   ycode-backend:
+    build:
+      context: ./ycode-backend-api
+      dockerfile: Dockerfile
+      target: production
     env_file:
       - ./ycode-backend-api/.env.dev
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
+  # Frontend: use production target (pre-built static files served by nginx)
   ycode-frontend:
+    build:
+      context: ./ycode-web
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_BACKEND_API_BASE_URL=${YCODE_VITE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
+        - VITE_CODE_EXECUTOR_BASE_URL=${YCODE_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
     env_file:
       - ./ycode-web/.env.dev
+    # nginx serves on port 80 inside container; host port 3000 maps to it
+    ports:
+      - "3000:80"
+    # No stdin_open/tty needed for production nginx
+    stdin_open: false
+    tty: false
+    command: ["nginx", "-g", "daemon off;"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
+  # Backend: use production target (gunicorn, not runserver)
   ycampus-backend:
+    build:
+      context: ./ycampus-backend-api
+      dockerfile: Dockerfile
+      target: production
     env_file:
       - ./ycampus-backend-api/.env.dev
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
 
+  # Frontend: use production target (pre-built static files served by nginx)
   ycampus-frontend:
+    build:
+      context: ./ycampus-web
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_BACKEND_API_BASE_URL=${YCAMPUS_VITE_BACKEND_API_BASE_URL:-https://backend-campus-dev.yuvro.ai/api}
+        - VITE_CODE_EXECUTOR_BASE_URL=${YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
     env_file:
       - ./ycampus-web/.env.dev
+    # nginx serves on port 80 inside container; host port 3002 maps to it
+    ports:
+      - "3002:80"
+    stdin_open: false
+    tty: false
+    command: ["nginx", "-g", "daemon off;"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
 # Override executor network - create it locally (not external)
 networks:

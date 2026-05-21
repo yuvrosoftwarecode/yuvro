@@ -40,4 +40,5 @@ COPY . .
 # Create static directory
 RUN mkdir -p /app/staticfiles
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
+# Use gunicorn with the correct Django project module (yc-backend-api folder)
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "yc-backend-api.wsgi:application"]
