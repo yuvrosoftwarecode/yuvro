@@ -49,8 +49,6 @@ services:
       context: ./ycode-web
       dockerfile: Dockerfile
       target: development
-    ports:
-      - "3000:3000"  # React dev server (tech.md: 3000)
     env_file:
       - ./ycode-web/.env.local
     stdin_open: true

@@ -48,8 +48,6 @@ services:
       context: ./ycampus-web
       dockerfile: Dockerfile
       target: development
-    ports:
-      - "3002:3000"  # React dev server (tech.md: 3002)
     env_file:
       - ./ycampus-web/.env.local
     stdin_open: true
