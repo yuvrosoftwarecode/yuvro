@@ -10,11 +10,12 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['jspdf'],
+    include: ['jspdf', 'lodash.merge', 'recharts'],
   },
   build: {
     commonjsOptions: {
-      include: [/jspdf/, /node_modules/]
+      include: [/jspdf/, /lodash\.merge/, /node_modules/],
+      transformMixedEsModules: true,
     },
     // Split vendor chunks for better caching and faster initial load
     rollupOptions: {

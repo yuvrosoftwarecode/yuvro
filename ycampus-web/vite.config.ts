@@ -9,7 +9,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['recharts', 'lodash.merge'],
+  },
   build: {
+    commonjsOptions: {
+      include: [/lodash\.merge/, /node_modules/],
+      transformMixedEsModules: true,
+    },
     // Split vendor chunks for better caching and faster initial load
     rollupOptions: {
       output: {
