@@ -192,6 +192,12 @@ CORS_ALLOW_HEADERS = [
     "baggage",
 ]
 
+# CSRF trusted origins — required when Django is behind a reverse proxy serving HTTPS
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://backend-campus-dev.yuvro.ai,https://backend-code-dev.yuvro.ai,http://localhost:8003",
+).split(",")
+
 # Django Allauth Settings
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
