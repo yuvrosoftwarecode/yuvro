@@ -17,6 +17,10 @@ export default defineConfig({
       include: [/lodash\.merge/, /node_modules/],
       transformMixedEsModules: true,
     },
+    // Disable modulePreload polyfill inlining — prevents data:application/octet-stream MIME errors
+    modulePreload: {
+      polyfill: false,
+    },
     // Split vendor chunks for better caching and faster initial load
     rollupOptions: {
       output: {
