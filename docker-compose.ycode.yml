@@ -1,4 +1,4 @@
-₹services:
+services:
   ycode-db:
     image: postgres:15
     env_file:
