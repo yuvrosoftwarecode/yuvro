@@ -293,7 +293,7 @@ deploy_applications() {
         "yuvro-code-executer/.env.dev-secrets"
     do
         local_path="$SECRETS_DIR/$secrets_file"
-        remote_dir="/home/ubuntu/yuvro-code/$(dirname "$secrets_file")"
+        remote_dir="/home/ubuntu/yuvro/$(dirname "$secrets_file")"
         if [ -f "$local_path" ]; then
             ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" "mkdir -p $remote_dir"
             scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
@@ -327,8 +327,8 @@ chmod 600 /home/ubuntu/.ssh/config
 
 # Stop any running containers first to free ports (must happen before build)
 echo "📦 Stopping any existing containers to free ports..."
-if [ -d "/home/ubuntu/yuvro-code" ]; then
-  cd /home/ubuntu/yuvro-code
+if [ -d "/home/ubuntu/yuvro" ]; then
+  cd /home/ubuntu/yuvro
   docker compose \
     -f docker-compose.yuvro.yml \
     -f docker-compose.ycode.yml \
@@ -357,15 +357,15 @@ echo "✅ Ports cleared"
 
 echo "📦 Cloning/updating repository..."
 cd /home/ubuntu
-if [ -d "yuvro-code" ]; then
-    cd yuvro-code
+if [ -d "yuvro" ]; then
+    cd yuvro
     git fetch origin
     git checkout -- .
     git checkout "$DEPLOY_BRANCH"
     git pull origin "$DEPLOY_BRANCH"
 else
-    git clone -b "$DEPLOY_BRANCH" "$repo_url" yuvro-code
-    cd yuvro-code
+    git clone -b "$DEPLOY_BRANCH" "$repo_url" yuvro
+    cd yuvro
 fi
 
 echo "📦 Restoring secrets files (copied before this step)..."
@@ -436,10 +436,10 @@ echo "⏳ Waiting for backends to be healthy..."
 sleep 20
 
 echo "📦 Loading sample data for YCode..."
-docker exec yuvro-code-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCode sample data already loaded or failed"
+docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCode sample data already loaded or failed"
 
 echo "📦 Loading sample data for YCampus..."
-docker exec yuvro-code-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
+docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
 
 echo "🔒 Restoring nginx HTTPS config..."
 if [ -f "/etc/nginx/yuvro-dev-https.conf" ]; then
@@ -604,7 +604,7 @@ show_summary() {
 
     print_info "View logs:"
     echo "  ssh -i $SSH_KEY_PATH ubuntu@$instance_ip"
-    echo "  cd yuvro-code"
+    echo "  cd yuvro"
     echo "  docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml logs -f"
     echo ""
 }
