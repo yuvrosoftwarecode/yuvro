@@ -2,6 +2,7 @@ import React from 'react';
 import RoleSidebar from './RoleSidebar';
 import RoleHeader from './RoleHeader';
 import Footer from './Footer';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface FooterLink {
     label: string;
@@ -33,6 +34,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     hideFooter = false,
     footerLinks
 }) => {
+    const { user } = useAuth();
+    const userRole = user?.role || 'student';
+    const isInstructorOrAdmin = userRole === 'admin' || userRole === 'instructor';
+    const shouldHideFooter = hideFooter || isInstructorOrAdmin;
+
     return (
         <div className="flex h-screen overflow-hidden bg-background relative">
             <RoleSidebar className={`flex-shrink-0 ${sidebarClassName}`} />
@@ -53,12 +59,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     )
                 )}
 
-                <main className={`flex-1 overflow-y-auto ${!hideFooter ? 'pb-12' : ''} ${contentClassName}`}>
+                <main className={`flex-1 overflow-y-auto ${!shouldHideFooter ? 'pb-12' : ''} ${contentClassName}`}>
                     {children}
                 </main>
             </div>
 
-            {!hideFooter && (
+            {!shouldHideFooter && (
                 <div className="fixed bottom-0 left-0 right-0 z-40">
                     <Footer variant="compact" compactLinks={footerLinks} />
                 </div>

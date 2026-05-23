@@ -170,7 +170,7 @@ const CodePractice = () => {
     setSelectedSubject(null);
     setSelectedUnit(null);
     setSelectedProblem(null);
-    navigate('/student/interview-preparation');
+    navigate('/student/code-practice');
   };
 
   const handleBackToUnits = () => {
