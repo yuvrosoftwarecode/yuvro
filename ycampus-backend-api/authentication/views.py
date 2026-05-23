@@ -7,6 +7,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.contrib.auth import login
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.openapi import OpenApiTypes
+import requests as http_requests
 from .models import (
     User,
     Profile,
@@ -87,6 +88,61 @@ def login_view(request):
     )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def google_login_view(request):
+    """
+    Authenticate with a Google OAuth2 access_token obtained from the frontend.
+    Fetches the user's profile from Google, creates or retrieves the local user,
+    and returns JWT tokens.
+    """
+    access_token = request.data.get("token")
+    if not access_token:
+        return Response({"error": "token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fetch user info from Google
+    google_resp = http_requests.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=10,
+    )
+    if google_resp.status_code != 200:
+        return Response({"error": "Invalid Google token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    google_data = google_resp.json()
+    email = google_data.get("email")
+    google_id = google_data.get("sub")
+    first_name = google_data.get("given_name", "")
+    last_name = google_data.get("family_name", "")
+
+    if not email:
+        return Response({"error": "Could not retrieve email from Google"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get or create user
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={
+            "username": email,
+            "first_name": first_name,
+            "last_name": last_name,
+            "is_active": True,
+        },
+    )
+
+    # Generate JWT tokens
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+
+    return Response(
+        {
+            "user": UserSerializer(user).data,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 class UserRegistrationView(generics.CreateAPIView):

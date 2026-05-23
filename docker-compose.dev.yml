@@ -29,6 +29,8 @@ services:
   yuvro-code-executor:
     env_file:
       - ./yuvro-code-executer/.env.dev
+      - path: ./yuvro-code-executer/.env.dev-secrets
+        required: false
 
   # Backend: use production target (gunicorn, not runserver)
   ycode-backend:
@@ -38,6 +40,8 @@ services:
       target: production
     env_file:
       - ./ycode-backend-api/.env.dev
+      - path: ./ycode-backend-api/.env.dev-secrets
+        required: false
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
@@ -54,6 +58,8 @@ services:
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
     env_file:
       - ./ycode-web/.env.dev
+      - path: ./ycode-web/.env.dev-secrets
+        required: false
     # nginx serves on port 80 inside container; host port 3000 maps to it
     ports:
       - "3000:80"
@@ -75,6 +81,8 @@ services:
       target: production
     env_file:
       - ./ycampus-backend-api/.env.dev
+      - path: ./ycampus-backend-api/.env.dev-secrets
+        required: false
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
@@ -91,6 +99,8 @@ services:
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
     env_file:
       - ./ycampus-web/.env.dev
+      - path: ./ycampus-web/.env.dev-secrets
+        required: false
     # nginx serves on port 80 inside container; host port 3002 maps to it
     ports:
       - "3002:80"

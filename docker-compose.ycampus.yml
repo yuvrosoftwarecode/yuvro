@@ -3,6 +3,8 @@ services:
     image: postgres:15
     env_file:
       - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
     volumes:
       - ycampus_postgres_data:/var/lib/postgresql/data
     ports:
@@ -26,6 +28,8 @@ services:
       - "9001:9001"  # Prometheus metrics
     env_file:
       - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
     depends_on:
       ycampus-db:
         condition: service_healthy
@@ -50,6 +54,8 @@ services:
       target: development
     env_file:
       - ./ycampus-web/.env.local
+      - path: ./ycampus-web/.env.local-secrets
+        required: false
     stdin_open: true
     tty: true
     depends_on:

@@ -275,6 +275,36 @@ deploy_applications() {
         "$HOME/.ssh/ycode-ec2-github" \
         "ubuntu@$instance_ip:/home/ubuntu/.ssh/github_deploy_key"
 
+    # ── Copy secrets files to EC2 ──────────────────────────────────────────
+    print_info "Copying .env.dev-secrets files to EC2..."
+    SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+    for secrets_file in \
+        "ycode-backend-api/.env.dev-secrets" \
+        "ycampus-backend-api/.env.dev-secrets" \
+        "ycode-web/.env.dev-secrets" \
+        "ycampus-web/.env.dev-secrets" \
+        "yuvro-code-executer/.env.dev-secrets"
+    do
+        local_path="$SECRETS_DIR/$secrets_file"
+        remote_dir="/home/ubuntu/yuvro-code/$(dirname "$secrets_file")"
+        if [ -f "$local_path" ]; then
+            ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" "mkdir -p $remote_dir"
+            scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
+                "$local_path" \
+                "ubuntu@$instance_ip:$remote_dir/$(basename "$secrets_file")"
+            print_success "Copied $secrets_file"
+        else
+            print_warning "Secrets file not found locally: $local_path — skipping"
+        fi
+    done
+
+    # Read VITE_GOOGLE_CLIENT_ID from local secrets for build args
+    VITE_GOOGLE_CLIENT_ID_VAL=""
+    if [ -f "$SECRETS_DIR/ycode-web/.env.dev-secrets" ]; then
+        VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ycode-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+    fi
+
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << DEPLOY_EOF
 set -e
 
@@ -304,34 +334,25 @@ fi
 
 # Hard-kill any container still holding the ports we need
 echo "🔪 Force-freeing ports 3000, 3002, 8001, 8002, 8003..."
-set +e  # don't abort on kill failures
+set +e
 for port in 3000 3002 8001 8002 8003; do
   cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
-  if [ -n "\$cid" ]; then
-    echo "  Killing container \$cid holding port \$port"
-    docker kill \$cid 2>/dev/null
-    docker rm -f \$cid 2>/dev/null
-  fi
+  [ -n "\$cid" ] && docker kill \$cid 2>/dev/null && docker rm -f \$cid 2>/dev/null
   pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null)
-  if [ -n "\$pid" ]; then
-    echo "  Killing PID \$pid holding port \$port"
-    sudo kill -9 \$pid 2>/dev/null
-  fi
+  [ -n "\$pid" ] && sudo kill -9 \$pid 2>/dev/null
 done
-# Nuclear: stop and remove ALL containers on this box
 running=\$(docker ps -q 2>/dev/null)
 [ -n "\$running" ] && docker stop \$running 2>/dev/null
 all=\$(docker ps -aq 2>/dev/null)
 [ -n "\$all" ] && docker rm \$all 2>/dev/null
 set -e
-sleep 3  # give OS time to release port bindings
+sleep 3
 echo "✅ Ports cleared"
 
-echo "📦 Cloning repository..."
+echo "📦 Cloning/updating repository..."
 cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
     cd yuvro-code
-    # Discard any local patches (vite configs, env files) before pulling
     git checkout -- .
     git pull
 else
@@ -339,102 +360,34 @@ else
     cd yuvro-code
 fi
 
-echo "📦 Configuring environment..."
-# Patch compose files to use .env.dev instead of .env.local
-sed -i 's/\.env\.local/.env.dev/g' docker-compose.yuvro.yml docker-compose.ycode.yml docker-compose.ycampus.yml 2>/dev/null || true
-
-# Create .env.dev files from .env.example if missing
-for svcdir in ycode-backend-api ycampus-backend-api ycode-web ycampus-web yuvro-code-executer; do
-  [ ! -f "\$svcdir/.env.dev" ] && cp "\$svcdir/.env.example" "\$svcdir/.env.dev"
-done
-
-# Patch vite configs: allow all hosts (needed if dev server is ever used locally)
-python3 -c "
-import re
-fixes = {
-    'ycode-web/vite.config.ts': {},
-    'ycampus-web/vite.config.ts': {},
-}
-for filepath, cfg in fixes.items():
-    try:
-        content = open(filepath).read()
-        # allowedHosts: true (Vite 7)
-        if 'allowedHosts' not in content:
-            content = content.replace('host: \"0.0.0.0\"', 'host: \"0.0.0.0\",\n    allowedHosts: true')
-        else:
-            content = re.sub(r'allowedHosts:\s*[^\n,]+', 'allowedHosts: true', content)
-        open(filepath, 'w').write(content)
-        print(f'Patched {filepath}')
-    except Exception as e:
-        print(f'Warning: could not patch {filepath}: {e}')
-" 2>/dev/null || true
-
-# Set ALLOWED_HOSTS=* and DEBUG=True in backend .env.dev
-for svcdir in ycode-backend-api ycampus-backend-api; do
-  if grep -q '^ALLOWED_HOSTS=' "\$svcdir/.env.dev" 2>/dev/null; then
-    sed -i 's/^ALLOWED_HOSTS=.*/ALLOWED_HOSTS=*/' "\$svcdir/.env.dev"
+echo "📦 Restoring secrets files (copied before this step)..."
+# Secrets were already scp'd to the correct paths before this SSH session.
+# Verify they exist; warn if missing.
+for sf in \
+    ycode-backend-api/.env.dev-secrets \
+    ycampus-backend-api/.env.dev-secrets \
+    ycode-web/.env.dev-secrets \
+    ycampus-web/.env.dev-secrets \
+    yuvro-code-executer/.env.dev-secrets
+do
+  if [ -f "\$sf" ]; then
+    echo "  ✓ \$sf"
   else
-    echo 'ALLOWED_HOSTS=*' >> "\$svcdir/.env.dev"
-  fi
-  if grep -q '^DEBUG=' "\$svcdir/.env.dev" 2>/dev/null; then
-    sed -i 's/^DEBUG=.*/DEBUG=True/' "\$svcdir/.env.dev"
-  else
-    echo 'DEBUG=True' >> "\$svcdir/.env.dev"
+    echo "  ⚠ Missing: \$sf — service may fail to start without secrets"
   fi
 done
 
-# Set CORS origins for dev subdomains (HTTPS)
-if grep -q '^CORS_ALLOWED_ORIGINS=' ycode-backend-api/.env.dev 2>/dev/null; then
-  sed -i 's|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=https://code-dev.yuvro.ai,http://code-dev.yuvro.ai,http://localhost:3000|' ycode-backend-api/.env.dev
-else
-  echo 'CORS_ALLOWED_ORIGINS=https://code-dev.yuvro.ai,http://code-dev.yuvro.ai,http://localhost:3000' >> ycode-backend-api/.env.dev
-fi
-if grep -q '^CORS_ALLOWED_ORIGINS=' ycampus-backend-api/.env.dev 2>/dev/null; then
-  sed -i 's|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=https://campus-dev.yuvro.ai,http://campus-dev.yuvro.ai,http://localhost:3002|' ycampus-backend-api/.env.dev
-else
-  echo 'CORS_ALLOWED_ORIGINS=https://campus-dev.yuvro.ai,http://campus-dev.yuvro.ai,http://localhost:3002' >> ycampus-backend-api/.env.dev
-fi
-
-# Set correct API base URLs in frontend .env.dev so they point to HTTPS subdomains
-# These are used as docker-compose build args (baked into the Vite bundle at build time)
-for key in VITE_BACKEND_API_BASE_URL; do
-  if grep -q "^\$key=" ycode-web/.env.dev 2>/dev/null; then
-    sed -i "s|^\$key=.*|\$key=https://backend-code-dev.yuvro.ai/api|" ycode-web/.env.dev
-  else
-    echo "\$key=https://backend-code-dev.yuvro.ai/api" >> ycode-web/.env.dev
-  fi
-done
-for key in VITE_CODE_EXECUTOR_BASE_URL; do
-  if grep -q "^\$key=" ycode-web/.env.dev 2>/dev/null; then
-    sed -i "s|^\$key=.*|\$key=https://code-executer-dev.yuvro.ai|" ycode-web/.env.dev
-  else
-    echo "\$key=https://code-executer-dev.yuvro.ai" >> ycode-web/.env.dev
-  fi
-done
-
-# ycampus frontend -> backend-campus-dev.yuvro.ai (HTTPS via Nginx)
-for key in VITE_BACKEND_API_BASE_URL; do
-  if grep -q "^\$key=" ycampus-web/.env.dev 2>/dev/null; then
-    sed -i "s|^\$key=.*|\$key=https://backend-campus-dev.yuvro.ai/api|" ycampus-web/.env.dev
-  else
-    echo "\$key=https://backend-campus-dev.yuvro.ai/api" >> ycampus-web/.env.dev
-  fi
-done
-for key in VITE_CODE_EXECUTOR_BASE_URL; do
-  if grep -q "^\$key=" ycampus-web/.env.dev 2>/dev/null; then
-    sed -i "s|^\$key=.*|\$key=https://code-executer-dev.yuvro.ai|" ycampus-web/.env.dev
-  else
-    echo "\$key=https://code-executer-dev.yuvro.ai" >> ycampus-web/.env.dev
-  fi
-done
-
-echo "✓ Frontend API URLs configured (HTTPS)"
-
-# Export VITE_ vars so docker-compose build args pick them up
+# Export Vite build args (URLs baked into the frontend bundle at build time)
 export YCODE_VITE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
 export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
 export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
+export VITE_GOOGLE_CLIENT_ID="${VITE_GOOGLE_CLIENT_ID_VAL}"
+
+echo "✓ Build args configured"
+echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
+echo "  YCAMPUS_VITE_BACKEND_API_BASE_URL=\$YCAMPUS_VITE_BACKEND_API_BASE_URL"
+echo "  VITE_GOOGLE_CLIENT_ID=\${VITE_GOOGLE_CLIENT_ID:0:20}..."
 
 echo "📦 Building services (this takes a few minutes on t3.medium)..."
 docker compose \
@@ -445,15 +398,11 @@ docker compose \
   build 2>&1 | tail -20
 
 echo "📦 Starting services..."
-# Final port check - kill anything still holding our ports right before up
+# Final port safety check
 for port in 3000 3002 8001 8002 8003; do
   cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
-  if [ -n "\$cid" ]; then
-    echo "  ⚠ Container \$cid still on port \$port — force removing"
-    docker rm -f \$cid 2>/dev/null || true
-  fi
+  [ -n "\$cid" ] && docker rm -f \$cid 2>/dev/null || true
 done
-# Also stop ALL running containers as a nuclear option - we own this box
 running=\$(docker ps -q 2>/dev/null)
 [ -n "\$running" ] && docker stop \$running 2>/dev/null || true
 all=\$(docker ps -aq 2>/dev/null)
@@ -494,329 +443,51 @@ setup_nginx() {
 
     print_header "Setting up Nginx Reverse Proxy with Let's Encrypt SSL"
 
-    # Write nginx HTTP-only config first (needed for certbot ACME challenge)
-    local nginx_http_conf
-    nginx_http_conf=$(cat << 'NGINX_HTTP_CONF'
-# Temporary HTTP-only config for Let's Encrypt ACME challenge
-server {
-    listen 80;
-    server_name code-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 80;
-    server_name campus-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 80;
-    server_name backend-code-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 80;
-    server_name backend-campus-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 80;
-    server_name code-executer-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-NGINX_HTTP_CONF
-)
-
-    local tmp_http_conf
-    tmp_http_conf=$(mktemp)
-    echo "$nginx_http_conf" > "$tmp_http_conf"
-    scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$tmp_http_conf" "ubuntu@$instance_ip:/tmp/yuvro-nginx-http.conf"
-    rm -f "$tmp_http_conf"
-
-    # Write the full HTTPS nginx config (used after certs are obtained)
-    local nginx_https_conf
-    nginx_https_conf=$(cat << 'NGINX_HTTPS_CONF'
-# Shared proxy settings snippet
-map $http_upgrade $connection_upgrade {
-    default upgrade;
-    ''      close;
-}
-
-# ── code-dev.yuvro.ai ──────────────────────────────────────────────────────
-server {
-    listen 80;
-    server_name code-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 443 ssl http2;
-    server_name code-dev.yuvro.ai;
-
-    ssl_certificate     /etc/letsencrypt/live/code-dev.yuvro.ai/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/code-dev.yuvro.ai/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/code-dev.yuvro.ai/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-    # Gzip
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/manifest+json image/svg+xml font/woff font/woff2;
-
-    # Cache static assets (nginx serves them from the container via proxy)
-    location ~* \.(js|css|woff|woff2|ttf|eot|ico|png|jpg|jpeg|gif|svg|webp)$ {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        access_log off;
-    }
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 60s;
-        proxy_connect_timeout 10s;
-    }
-}
-
-# ── campus-dev.yuvro.ai ────────────────────────────────────────────────────
-server {
-    listen 80;
-    server_name campus-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 443 ssl http2;
-    server_name campus-dev.yuvro.ai;
-
-    ssl_certificate     /etc/letsencrypt/live/campus-dev.yuvro.ai/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/campus-dev.yuvro.ai/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/campus-dev.yuvro.ai/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/manifest+json image/svg+xml font/woff font/woff2;
-
-    location ~* \.(js|css|woff|woff2|ttf|eot|ico|png|jpg|jpeg|gif|svg|webp)$ {
-        proxy_pass http://localhost:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        access_log off;
-    }
-
-    location / {
-        proxy_pass http://localhost:3002;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 60s;
-        proxy_connect_timeout 10s;
-    }
-}
-
-# ── backend-code-dev.yuvro.ai ──────────────────────────────────────────────
-server {
-    listen 80;
-    server_name backend-code-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 443 ssl http2;
-    server_name backend-code-dev.yuvro.ai;
-
-    ssl_certificate     /etc/letsencrypt/live/backend-code-dev.yuvro.ai/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/backend-code-dev.yuvro.ai/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/backend-code-dev.yuvro.ai/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-
-    client_max_body_size 50M;
-
-    location / {
-        proxy_pass http://localhost:8001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 120s;
-        proxy_connect_timeout 10s;
-    }
-}
-
-# ── backend-campus-dev.yuvro.ai ────────────────────────────────────────────
-server {
-    listen 80;
-    server_name backend-campus-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 443 ssl http2;
-    server_name backend-campus-dev.yuvro.ai;
-
-    ssl_certificate     /etc/letsencrypt/live/backend-campus-dev.yuvro.ai/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/backend-campus-dev.yuvro.ai/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/backend-campus-dev.yuvro.ai/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-
-    client_max_body_size 50M;
-
-    location / {
-        proxy_pass http://localhost:8003;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 120s;
-        proxy_connect_timeout 10s;
-    }
-}
-
-# ── code-executer-dev.yuvro.ai ─────────────────────────────────────────────
-server {
-    listen 80;
-    server_name code-executer-dev.yuvro.ai;
-    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-    location / { return 301 https://$host$request_uri; }
-}
-server {
-    listen 443 ssl http2;
-    server_name code-executer-dev.yuvro.ai;
-
-    ssl_certificate     /etc/letsencrypt/live/code-executer-dev.yuvro.ai/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/code-executer-dev.yuvro.ai/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/code-executer-dev.yuvro.ai/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-
-    client_max_body_size 50M;
-
-    location / {
-        proxy_pass http://localhost:8002;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 120s;
-        proxy_connect_timeout 10s;
-    }
-}
-NGINX_HTTPS_CONF
-)
-
-    local tmp_https_conf
-    tmp_https_conf=$(mktemp)
-    echo "$nginx_https_conf" > "$tmp_https_conf"
-    scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "$tmp_https_conf" "ubuntu@$instance_ip:/tmp/yuvro-nginx-https.conf"
-    rm -f "$tmp_https_conf"
-
-    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_EOF'
+    # ── Install nginx and certbot on EC2 ──────────────────────────────────
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_INSTALL_EOF'
 set -e
-
-# ── Install nginx and certbot ──────────────────────────────────────────────
 sudo apt-get update -q
 sudo apt-get install -y nginx certbot python3-certbot-nginx -q
-
-# Create webroot for ACME challenges
 sudo mkdir -p /var/www/certbot
-
-# ── Deploy HTTP-only config first (needed for ACME challenge) ──────────────
 sudo rm -f /etc/nginx/sites-enabled/default
-sudo cp /tmp/yuvro-nginx-http.conf /etc/nginx/sites-available/yuvro-dev
+echo "✅ Nginx and certbot installed"
+NGINX_INSTALL_EOF
+
+    # ── Deploy HTTP-only config first (needed for certbot ACME challenge) ──
+    # Generate HTTP-only config inline (no nginx variables, safe to heredoc)
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" 'sudo python3 -c "
+domains = [
+    (\"code-dev.yuvro.ai\",),
+    (\"campus-dev.yuvro.ai\",),
+    (\"backend-code-dev.yuvro.ai\",),
+    (\"backend-campus-dev.yuvro.ai\",),
+    (\"code-executer-dev.yuvro.ai\",),
+]
+conf = \"\"
+for (d,) in domains:
+    conf += f\"\"\"server {{
+    listen 80;
+    server_name {d};
+    location /.well-known/acme-challenge/ {{ root /var/www/certbot; }}
+    location / {{ return 301 https://\$host\$request_uri; }}
+}}
+\"\"\"
+open(\"/etc/nginx/sites-available/yuvro-dev\", \"w\").write(conf)
+print(\"HTTP config written\")
+"'
+
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_HTTP_EOF'
+set -e
 sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev
 sudo nginx -t
 sudo systemctl enable nginx
 sudo systemctl restart nginx
-echo "✅ Nginx HTTP config deployed"
+echo "✅ Nginx HTTP-only config deployed"
+NGINX_HTTP_EOF
 
-# ── Obtain Let's Encrypt certificates ─────────────────────────────────────
+    # ── Obtain Let's Encrypt certificates ─────────────────────────────────
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'CERTBOT_EOF'
+set -e
 DOMAINS=(
     "code-dev.yuvro.ai"
     "campus-dev.yuvro.ai"
@@ -824,7 +495,6 @@ DOMAINS=(
     "backend-campus-dev.yuvro.ai"
     "code-executer-dev.yuvro.ai"
 )
-
 CERT_EMAIL="rohith@yuvro.ai"
 
 for domain in "${DOMAINS[@]}"; do
@@ -838,38 +508,50 @@ for domain in "${DOMAINS[@]}"; do
             --non-interactive \
             --agree-tos \
             --email "$CERT_EMAIL" \
-            --domain "$domain" \
-            --deploy-hook "systemctl reload nginx" \
-            2>&1 || {
-                echo "⚠ certbot failed for $domain — check DNS points to this server"
-            }
+            --domain "$domain" 2>&1 \
+        && echo "✅ Got cert for $domain" \
+        || echo "⚠ certbot failed for $domain — check DNS"
     fi
 done
+CERTBOT_EOF
 
-# ── Check if all certs were obtained, then switch to HTTPS config ──────────
+    # ── Upload the committed HTTPS nginx config and activate it ───────────
+    print_info "Uploading nginx HTTPS config from infra/nginx/yuvro-dev.conf..."
+    scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
+        "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" \
+        "ubuntu@$instance_ip:/tmp/yuvro-nginx-https.conf"
+
+    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_HTTPS_EOF'
+set -e
+DOMAINS=(
+    "code-dev.yuvro.ai"
+    "campus-dev.yuvro.ai"
+    "backend-code-dev.yuvro.ai"
+    "backend-campus-dev.yuvro.ai"
+    "code-executer-dev.yuvro.ai"
+)
+
 ALL_CERTS=true
 for domain in "${DOMAINS[@]}"; do
     if [ ! -d "/etc/letsencrypt/live/$domain" ]; then
-        echo "⚠ Missing cert for $domain — staying on HTTP config"
+        echo "⚠ Missing cert for $domain"
         ALL_CERTS=false
     fi
 done
 
 if [ "$ALL_CERTS" = "true" ]; then
     sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
-    sudo nginx -t
-    sudo systemctl reload nginx
-    echo "✅ Nginx HTTPS config deployed — all sites now on HTTPS"
+    sudo nginx -t && sudo systemctl reload nginx
+    echo "✅ Nginx HTTPS config deployed — all sites on HTTPS"
 else
-    echo "⚠ Some certificates missing — running HTTP only. Fix DNS and re-run setup_nginx."
+    echo "⚠ Some certs missing — staying on HTTP. Fix DNS and redeploy."
 fi
 
-# ── Auto-renewal cron (certbot renew + nginx reload) ──────────────────────
+# Auto-renewal cron
 CRON_JOB="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
 ( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON_JOB" ) | sudo crontab -
 echo "✅ Certbot auto-renewal cron configured"
-
-NGINX_EOF
+NGINX_HTTPS_EOF
 
     print_success "Nginx reverse proxy with Let's Encrypt SSL configured"
     echo ""

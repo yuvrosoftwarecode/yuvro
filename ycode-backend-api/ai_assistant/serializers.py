@@ -213,7 +213,7 @@ class ChatRequestSerializer(serializers.Serializer):
     """
 
     message = serializers.CharField(max_length=10000)
-    ai_agent_id = serializers.UUIDField(required=False)
+    ai_agent_id = serializers.UUIDField(required=False, allow_null=True)
     chat_session_id = serializers.UUIDField(required=False, allow_null=True)
     page = serializers.CharField(max_length=255, required=False, allow_blank=True)
     context = serializers.JSONField(required=False, default=dict)

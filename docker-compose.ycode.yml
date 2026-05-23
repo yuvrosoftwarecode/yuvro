@@ -3,6 +3,8 @@ services:
     image: postgres:15
     env_file:
       - ./ycode-backend-api/.env.local
+      - path: ./ycode-backend-api/.env.local-secrets
+        required: false
     volumes:
       - ycode_postgres_data:/var/lib/postgresql/data
     ports:
@@ -26,6 +28,8 @@ services:
       - "9000:9001"  # Prometheus metrics
     env_file:
       - ./ycode-backend-api/.env.local
+      - path: ./ycode-backend-api/.env.local-secrets
+        required: false
     depends_on:
       ycode-db:
         condition: service_healthy
@@ -51,6 +55,8 @@ services:
       target: development
     env_file:
       - ./ycode-web/.env.local
+      - path: ./ycode-web/.env.local-secrets
+        required: false
     stdin_open: true
     tty: true
     depends_on:

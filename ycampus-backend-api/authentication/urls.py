@@ -1,12 +1,13 @@
 from django.urls import path
 from . import views
-from .views import admin_users
+from .views import admin_users, google_login_view
 
 app_name = "authentication"
 
 urlpatterns = [
     path("register/", views.UserRegistrationView.as_view(), name="register"),
     path("login/", views.login_view, name="login"),
+    path("google/", google_login_view, name="google_login"),
     path("logout/", views.logout_view, name="logout"),
     path(
         "token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"

@@ -43,7 +43,7 @@ type AuthAction =
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (token: string) => Promise<void>;
   register: (
     email: string,
     username: string,
@@ -206,10 +206,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
 
-  const loginWithGoogle = async (): Promise<void> => {
+  const loginWithGoogle = async (token: string): Promise<void> => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      throw new ApiError('Google OAuth not implemented yet', 501);
+      const response = await authService.loginWithGoogle(token);
+
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: response.user, token: response.access },
+      });
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
       throw error;

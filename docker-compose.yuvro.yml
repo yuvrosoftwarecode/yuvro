@@ -8,6 +8,8 @@ services:
       - "9002:9002"  # Prometheus metrics
     env_file:
       - ./yuvro-code-executer/.env.local
+      - path: ./yuvro-code-executer/.env.local-secrets
+        required: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
