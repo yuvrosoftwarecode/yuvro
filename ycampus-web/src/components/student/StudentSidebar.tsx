@@ -91,6 +91,7 @@ export function StudentSidebar() {
   const collapsed = state === "collapsed";
   const [profileOpen, setProfileOpen] = useState(false);
   const [studentProfile, setStudentProfile] = useState<Student | null>(null);
+  const [activeToggle, setActiveToggle] = useState<'campus' | 'assessments'>('campus');
 
   useEffect(() => {
     if (user?.role === 'student' && user?.id) {
@@ -158,6 +159,7 @@ export function StudentSidebar() {
   const profileImage = getMediaUrl(user?.profile?.avatar);
 
   const isAssessments = user?.college_product_type === 'assessments';
+  const isCampus = user?.college_product_type === 'campus';
   const rawMenuItems = isAssessments ? assessmentMenuItems : campusMenuItems;
   const sidebarConfig = (user as any)?.college_sidebar_config || {};
   const menuItemsToDisplay = rawMenuItems.filter(item => {
@@ -212,6 +214,36 @@ export function StudentSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="bg-card">
+        {!collapsed && isCampus && (
+          <div className="px-3 pt-4 pb-1">
+            <div className="flex bg-muted/60 p-0.5 rounded-lg border border-border/40 relative">
+              <button
+                type="button"
+                className={`flex-1 text-center py-1.5 text-xs font-semibold rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 ${
+                  activeToggle === 'campus'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveToggle('campus')}
+              >
+                <Home className="h-3.5 w-3.5" />
+                Campus
+              </button>
+              <button
+                type="button"
+                className={`flex-1 text-center py-1.5 text-xs font-semibold rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 ${
+                  activeToggle === 'assessments'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveToggle('assessments')}
+              >
+                <ClipboardCheck className="h-3.5 w-3.5" />
+                Assessments
+              </button>
+            </div>
+          </div>
+        )}
         <SidebarGroup>
 
           <SidebarGroupContent>

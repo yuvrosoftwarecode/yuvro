@@ -134,6 +134,7 @@ const UnitSelection = ({
                 showProgress={true}
                 overallProgress={subject.progress}
                 onBackToSubjects={onBack}
+                backText="Code Practice"
             />
 
             <main className="flex-1 overflow-y-auto bg-slate-50/40 custom-scrollbar">

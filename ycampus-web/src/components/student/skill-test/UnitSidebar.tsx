@@ -27,6 +27,7 @@ interface UnitSidebarProps {
     showProgress?: boolean;
     overallProgress?: number;
     onBackToSubjects?: () => void;
+    backText?: string;
 }
 
 const generateAbbreviation = (title: string): string => {
@@ -48,6 +49,7 @@ const UnitSidebar = ({
     showProgress = true,
     overallProgress,
     onBackToSubjects,
+    backText,
 }: UnitSidebarProps) => {
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -73,7 +75,7 @@ const UnitSidebar = ({
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 transition-colors text-xs font-medium text-slate-600"
                     >
                         <ArrowLeft className="h-4 w-4" />
-                        {isOpen && <p>Interview Preparation</p>}
+                        {isOpen && <p>{backText || "Interview Preparation"}</p>}
                     </button>
                 </div>
 

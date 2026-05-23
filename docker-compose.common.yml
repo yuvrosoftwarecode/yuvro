@@ -20,4 +20,4 @@ services:
 
 networks:
   executor:
-    driver: bridge
+    external: true
