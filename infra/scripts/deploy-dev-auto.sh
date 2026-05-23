@@ -356,7 +356,7 @@ if [ -d "yuvro-code" ]; then
     git checkout -- .
     git pull
 else
-    git clone -b k8s-setup-iac "$repo_url" yuvro-code
+    git clone -b main "$repo_url" yuvro-code
     cd yuvro-code
 fi
 
