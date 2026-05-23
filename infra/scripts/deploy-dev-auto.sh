@@ -2,7 +2,12 @@
 
 # YCode Dev Environment - Fully Automated Deployment
 # This script deploys infrastructure and applications to AWS EC2 with no manual steps
-# Usage: bash infra/scripts/deploy-dev-auto.sh
+# Usage: bash infra/scripts/deploy-dev-auto.sh [branch]
+#   branch  Git branch to deploy (default: main)
+#
+# Examples:
+#   bash infra/scripts/deploy-dev-auto.sh              # deploys main
+#   bash infra/scripts/deploy-dev-auto.sh my-feature   # deploys my-feature branch
 
 set -e
 
@@ -24,6 +29,7 @@ SSH_KEY_PATH="$HOME/.ssh/ycode-dev.pem"
 KEY_PAIR_NAME="ycode-dev"
 MAX_RETRIES=60
 RETRY_DELAY=10
+DEPLOY_BRANCH="${1:-main}"
 
 # Functions
 print_header() {
@@ -353,10 +359,12 @@ echo "📦 Cloning/updating repository..."
 cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
     cd yuvro-code
+    git fetch origin
     git checkout -- .
-    git pull
+    git checkout "$DEPLOY_BRANCH"
+    git pull origin "$DEPLOY_BRANCH"
 else
-    git clone -b main "$repo_url" yuvro-code
+    git clone -b "$DEPLOY_BRANCH" "$repo_url" yuvro-code
     cd yuvro-code
 fi
 
@@ -620,6 +628,7 @@ main() {
         exit 1
     fi
     print_success "Repo URL: $REPO_URL"
+    print_success "Deploy branch: $DEPLOY_BRANCH"
 
     check_prerequisites
     check_aws_setup

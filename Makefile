@@ -24,6 +24,7 @@
 # ============================================================================
 
 DEPLOY_ENV  ?= local
+DEPLOY_BRANCH ?= main
 # DEPLOY_TYPE mapping:
 # - local: docker (local Docker Compose) - default
 # - dev: docker (AWS EC2 with Docker) - default, can override with k8s
@@ -151,6 +152,7 @@ help:
 	@echo ""
 	@echo "Environment:"
 	@echo "  DEPLOY_ENV    local (default) | dev | staging | prod"
+	@echo "  DEPLOY_BRANCH main (default) | any git branch (dev only)"
 	@echo ""
 	@echo "Deployment Type (auto-selected based on DEPLOY_ENV):"
 	@echo "  local  → docker (Local Docker Compose)"
@@ -224,7 +226,7 @@ install: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh; \
+		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -258,7 +260,7 @@ run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh; \
+		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
