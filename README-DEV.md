@@ -26,7 +26,48 @@ Yuvro consists of two main platforms running in parallel:
 - **Prometheus**: http://localhost:9090
 - **Loki**: http://localhost:3100
 
-## Quick Start
+## Dev Environment (AWS EC2)
+
+### SSH into the instance
+```bash
+ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136
+```
+
+### Application URLs (HTTPS)
+- **YCode Frontend**: https://code-dev.yuvro.ai
+- **YCampus Frontend**: https://campus-dev.yuvro.ai
+- **YCode Backend**: https://backend-code-dev.yuvro.ai
+- **YCampus Backend**: https://backend-campus-dev.yuvro.ai
+- **Code Executor**: https://code-executer-dev.yuvro.ai
+
+### Deploy to dev
+```bash
+DEPLOY_ENV=dev make install
+```
+
+### View logs on dev
+```bash
+# SSH in first, then:
+cd yuvro-code
+docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml logs -f
+```
+
+### Seed AI agents on dev
+```bash
+# SSH in first, then:
+docker exec yuvro-code-ycode-backend-1 python manage.py seed_agents
+docker exec yuvro-code-ycampus-backend-1 python manage.py seed_agents
+```
+
+### Reload all test data on dev
+```bash
+docker exec yuvro-code-ycode-backend-1 python manage.py setup_local_testing
+docker exec yuvro-code-ycampus-backend-1 python manage.py setup_local_testing
+```
+
+---
+
+
 
 ### Prerequisites
 - Docker & Docker Compose (for Docker deployments)
