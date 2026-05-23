@@ -5,7 +5,7 @@ Simple test script for the Code Executor FastAPI service
 import requests
 import json
 
-BASE_URL = "http://localhost:8002"
+BASE_URL = "http://localhost:8009"
 
 def test_health():
     """Test health endpoint"""
@@ -153,6 +153,6 @@ if __name__ == "__main__":
         print()
         
     except requests.exceptions.ConnectionError:
-        print("Error: Could not connect to the service. Make sure it's running on port 8002")
+        print("Error: Could not connect to the service. Make sure it's running on port 8009")
     except Exception as e:
         print(f"Error: {e}")

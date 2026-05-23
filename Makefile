@@ -9,9 +9,10 @@
 .PHONY: help install run stop clean logs status port-forward
 .PHONY: install-ycode install-ycampus run-ycode run-ycampus
 .PHONY: stop-ycode stop-ycampus clean-ycode clean-ycampus
-.PHONY: logs-ycode logs-ycampus load-fixtures-ycode load-fixtures-ycampus
+.PHONY: logs-ycode logs-ycampus load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
+.PHONY: db-reset
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
 .PHONY: secrets-load secrets-validate secrets-rotate secrets-audit
@@ -195,8 +196,9 @@ help:
 	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo "  make logs-ycode         View YCode logs"
 	@echo "  make logs-ycampus       View YCampus logs"
-	@echo "  make load-fixtures-ycode    Load YCode test data"
-	@echo "  make load-fixtures-ycampus  Load YCampus test data"
+	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus"
+	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data"
+	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -224,10 +226,10 @@ install: _validate-deploy
 		echo ""; \
 		bash infra/scripts/deploy-dev-auto.sh; \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🔨 Building all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
-		docker compose $(COMPOSE_FILES) build; \
-		echo "🚀 Starting all services..."; \
-		docker compose $(COMPOSE_FILES) up; \
+		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
+		docker compose $(COMPOSE_FILES) up --build; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
@@ -259,7 +261,24 @@ run: _validate-deploy
 		bash infra/scripts/deploy-dev-auto.sh; \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
-		docker compose $(COMPOSE_FILES) up; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose $(COMPOSE_FILES) up -d --wait || { \
+			echo "❌ One or more services failed to become healthy. Showing logs:"; \
+			docker compose $(COMPOSE_FILES) ps; \
+			docker compose $(COMPOSE_FILES) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ All services are up and healthy!"; \
+		echo ""; \
+		docker compose $(COMPOSE_FILES) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YCode Frontend:    http://localhost:3000"; \
+		echo "   YCode Backend:     http://localhost:8000"; \
+		echo "   YCampus Frontend:  http://localhost:3001"; \
+		echo "   YCampus Backend:   http://localhost:8001"; \
+		echo "   Code Executor:     http://localhost:8009"; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
@@ -280,8 +299,10 @@ run: _validate-deploy
 			--namespace yuvro \
 			--create-namespace \
 			--values helm/values-$(DEPLOY_ENV).yaml \
-			|| true; \
-		echo "✅ Deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+			--wait \
+			--timeout 5m \
+			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
+		echo "✅ Deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
 stop: _validate-deploy
@@ -397,14 +418,14 @@ port-forward: _validate-deploy
 		echo "   YCode Backend: http://localhost:8001"; \
 		echo "   YCampus Frontend: http://localhost:3002"; \
 		echo "   YCampus Backend: http://localhost:8003"; \
-		echo "   Code Executor: http://localhost:8002"; \
+		echo "   Code Executor: http://localhost:8009"; \
 		echo ""; \
 		echo "Press Ctrl+C to stop port forwards"; \
 		kubectl port-forward -n ycode svc/yuvro-ycode-frontend 3000:3000 2>/dev/null & \
 		kubectl port-forward -n ycode svc/yuvro-ycode-backend 8001:8000 2>/dev/null & \
 		kubectl port-forward -n ycampus svc/yuvro-ycampus-frontend 3002:3002 2>/dev/null & \
 		kubectl port-forward -n ycampus svc/yuvro-ycampus-backend 8003:8000 2>/dev/null & \
-		kubectl port-forward -n yuvro svc/yuvro-code-executor 8002:8002 2>/dev/null & \
+		kubectl port-forward -n yuvro svc/yuvro-code-executor 8009:8009 2>/dev/null & \
 		wait; \
 	else \
 		echo "❌ port-forward is only available for DEPLOY_TYPE=k8s"; \
@@ -475,7 +496,22 @@ install-ycampus: _validate-deploy
 run-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
-		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
+			echo "❌ One or more YCode services failed to become healthy. Showing logs:"; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ YCode services are up and healthy!"; \
+		echo ""; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YCode Frontend:  http://localhost:3000"; \
+		echo "   YCode Backend:   http://localhost:8000"; \
+		echo "   Code Executor:   http://localhost:8009"; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying YCode to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
@@ -495,14 +531,31 @@ run-ycode: _validate-deploy
 			--set code-executor.enabled=true \
 			--set postgresql-ycode.enabled=true \
 			--set postgresql-ycampus.enabled=false \
-			|| true; \
-		echo "✅ YCode deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+			--wait \
+			--timeout 5m \
+			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
+		echo "✅ YCode deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
 run-ycampus: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
-		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+		docker network create executor 2>/dev/null || true; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
+			echo "❌ One or more YCampus services failed to become healthy. Showing logs:"; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+			docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ YCampus services are up and healthy!"; \
+		echo ""; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YCampus Frontend:  http://localhost:3001"; \
+		echo "   YCampus Backend:   http://localhost:8001"; \
+		echo "   Code Executor:     http://localhost:8009"; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying YCampus to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
@@ -522,8 +575,10 @@ run-ycampus: _validate-deploy
 			--set code-executor.enabled=true \
 			--set postgresql-ycode.enabled=false \
 			--set postgresql-ycampus.enabled=true \
-			|| true; \
-		echo "✅ YCampus deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+			--wait \
+			--timeout 5m \
+			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
+		echo "✅ YCampus deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
 stop-ycode: _validate-deploy
@@ -590,6 +645,16 @@ load-fixtures-ycode:
 load-fixtures-ycampus:
 	@$(MAKE) -f Makefile.ycampus load-courses
 
+setup-fixtures-data:
+	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+setup-fixtures-data-ycode:
+	@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+setup-fixtures-data-ycampus:
+	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
 # ============================================================================
 # Database Commands
 # ============================================================================
@@ -602,6 +667,22 @@ makemigrations-ycode:
 
 makemigrations-ycampus:
 	@$(MAKE) -f Makefile.ycampus db-makemigrations
+
+clear-migrations:
+	@echo "🔎 Showing migration files (dry-run). Use '-y' to delete."
+	@sh infra/scripts/clear_migrations.sh
+
+# Reset databases: bring down, remove volumes, start DBs and run migrations
+db-reset: _validate-deploy
+	@echo "🧹 Resetting databases (bringing down, removing volumes, starting DBs)..."
+	@docker network create executor 2>/dev/null || true
+	@docker compose $(COMPOSE_FILES) down -v --remove-orphans || true
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db || true
+	@echo "⏳ Waiting for databases to become healthy..."
+	@sleep 5
+	@docker compose $(COMPOSE_FILES) exec -T ycode-backend python manage.py migrate || true
+	@docker compose $(COMPOSE_FILES) exec -T ycampus-backend python manage.py migrate || true
+	@echo "✅ DB reset complete (migrations applied)."
 
 # ============================================================================
 # Code Executor Commands

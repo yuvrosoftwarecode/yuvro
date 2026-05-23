@@ -49,7 +49,7 @@ if (isOtelEnabled) {
           enabled: true,
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
-            /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8009\/.*$/,
             /^http:\/\/localhost:8003\/.*$/,
           ],
         },
@@ -57,7 +57,7 @@ if (isOtelEnabled) {
           enabled: true,
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
-            /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8009\/.*$/,
             /^http:\/\/localhost:8003\/.*$/,
           ],
         },

@@ -3274,7 +3274,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 response_data = result["response_data"]
 
                 service_url = os.environ.get(
-                    "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8002"
+                    "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009"
                 )
                 (
                     plagiarism_score,

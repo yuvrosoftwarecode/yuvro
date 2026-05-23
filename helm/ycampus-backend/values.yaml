@@ -27,7 +27,7 @@ jwt:
 
 codeExecutor:
   service:
-    port: 8002
+    port: 8009
 
 debug: "False"
 allowedHosts: "*"

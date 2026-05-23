@@ -35,7 +35,7 @@ spec:
             - name: VITE_API_URL
               value: {{ .Values.apiUrl | default "http://localhost:8001" | quote }}
             - name: VITE_CODE_EXECUTOR_URL
-              value: {{ .Values.codeExecutorUrl | default "http://localhost:8002" | quote }}
+              value: {{ .Values.codeExecutorUrl | default "http://localhost:8009" | quote }}
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}

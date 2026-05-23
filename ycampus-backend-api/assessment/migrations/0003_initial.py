@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("assessment", "0002_initial"),
         ("course", "0001_initial"),
-        ("ai_assistant", "0002_initial"),
+        ("ai_assistant", "0001_initial"),
     ]
 
     operations = [

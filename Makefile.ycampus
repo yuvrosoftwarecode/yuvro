@@ -30,7 +30,7 @@ setup:
 	docker compose -f docker-compose.ycampus.yml up -d --build --wait
 
 	@echo "Loading test data..."
-	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_local_testing --clear
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
 	
 	@echo "✅ YCampus setup complete!"
 	@echo "🌐 Frontend: http://localhost:3001"
@@ -66,8 +66,13 @@ clean:
 
 reload-data:
 	@echo "🔄 Reloading YCampus test data..."
-	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_local_testing --clear
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
 	@echo "✅ Test data reloaded!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YCampus fixture data..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
+	@echo "✅ YCampus fixture data loaded!"
 
 load-courses:
 	@echo "📚 Loading all production courses..."

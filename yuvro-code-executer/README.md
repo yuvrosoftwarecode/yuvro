@@ -174,7 +174,7 @@ brew install python3 node openjdk gcc
 python run_server.py
 ```
 
-The service will be available at `http://localhost:8002`
+The service will be available at `http://localhost:8009`
 
 ### Docker Deployment
 
@@ -185,7 +185,7 @@ docker build -t yuvro-code-executer .
 
 2. **Run the Container**
 ```bash
-docker run -p 8002:8002 yuvro-code-executer
+docker run -p 8009:8009 yuvro-code-executer
 ```
 
 ### Docker Compose
@@ -216,7 +216,7 @@ This will test:
 
 ### Environment Variables
 
-- `SERVICE_PORT` - Port to run the service (default: 8002)
+- `SERVICE_PORT` - Port to run the service (default: 8009)
 - `DEBUG` - Enable debug mode (default: false)
 - `DEFAULT_TIMEOUT` - Default execution timeout in seconds (default: 10)
 - `MAX_TIMEOUT` - Maximum allowed timeout (default: 30)
@@ -234,7 +234,7 @@ This will test:
 The service integrates seamlessly with the React frontend:
 
 ```typescript
-const response = await fetch('http://localhost:8002/execute-with-tests', {
+const response = await fetch('http://localhost:8009/execute-with-tests', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

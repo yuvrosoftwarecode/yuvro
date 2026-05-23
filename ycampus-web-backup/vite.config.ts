@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
       },
       '/code-executor-api': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8009',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/code-executor-api/, '')
       }

@@ -333,9 +333,9 @@ if [ -d "/home/ubuntu/yuvro-code" ]; then
 fi
 
 # Hard-kill any container still holding the ports we need
-echo "🔪 Force-freeing ports 3000, 3002, 8001, 8002, 8003..."
+echo "🔪 Force-freeing ports 3000, 3002, 8001, 8009, 8003..."
 set +e
-for port in 3000 3002 8001 8002 8003; do
+for port in 3000 3002 8001 8009 8003; do
   cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
   [ -n "\$cid" ] && docker kill \$cid 2>/dev/null && docker rm -f \$cid 2>/dev/null
   pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null)
@@ -356,7 +356,7 @@ if [ -d "yuvro-code" ]; then
     git checkout -- .
     git pull
 else
-    git clone -b k8s-setup-iac "$repo_url" yuvro-code
+    git clone -b main "$repo_url" yuvro-code
     cd yuvro-code
 fi
 
@@ -399,7 +399,7 @@ docker compose \
 
 echo "📦 Starting services..."
 # Final port safety check
-for port in 3000 3002 8001 8002 8003; do
+for port in 3000 3002 8001 8009 8003; do
   cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
   [ -n "\$cid" ] && docker rm -f \$cid 2>/dev/null || true
 done
@@ -428,10 +428,10 @@ echo "⏳ Waiting for backends to be healthy..."
 sleep 20
 
 echo "📦 Loading sample data for YCode..."
-docker exec yuvro-code-ycode-backend-1 python manage.py setup_local_testing 2>&1 | tail -5 || echo "⚠ YCode sample data already loaded or failed"
+docker exec yuvro-code-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCode sample data already loaded or failed"
 
 echo "📦 Loading sample data for YCampus..."
-docker exec yuvro-code-ycampus-backend-1 python manage.py setup_local_testing 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
+docker exec yuvro-code-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
 
 echo "🔒 Restoring nginx HTTPS config..."
 if [ -f "/etc/nginx/yuvro-dev-https.conf" ]; then

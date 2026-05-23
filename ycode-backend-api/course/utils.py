@@ -54,7 +54,7 @@ class CodeExecutionUtil:
         if not test_cases_custom:
             test_cases_custom = []
 
-        service_url = os.environ.get("CODE_EXECUTOR_URL", "http://yuvro-code-executor:8002")
+        service_url = os.environ.get("CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009")
 
         payload = {
             "code": code,

@@ -23,6 +23,7 @@
     "@opentelemetry/exporter-otlp-http": "^0.26.0",
     "@opentelemetry/instrumentation": "^0.55.0",
     "@opentelemetry/resources": "^2.2.0",
+    "@react-oauth/google": "^0.12.1",
     "@opentelemetry/sdk-trace-web": "^2.2.0",
     "@opentelemetry/semantic-conventions": "^1.27.0",
     "@radix-ui/react-accordion": "^1.2.11",
