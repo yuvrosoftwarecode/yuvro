@@ -14,7 +14,7 @@ imagePullSecrets: []
 
 service:
   type: ClusterIP
-  port: 8002
+  port: 8009
 
 debug: "False"
 maxExecutionTime: "30"

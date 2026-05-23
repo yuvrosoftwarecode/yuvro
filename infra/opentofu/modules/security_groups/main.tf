@@ -38,7 +38,7 @@ resource "aws_vpc_security_group_ingress_rule" "app_https" {
   tags = { Name = "https" }
 }
 
-# App ports: ycode-frontend(3000), ycode-backend(8001), executor(8002), ycampus-backend(8003), ycampus-frontend(3002)
+# App ports: ycode-frontend(3000), ycode-backend(8001), executor(8009), ycampus-backend(8003), ycampus-frontend(3002)
 resource "aws_vpc_security_group_ingress_rule" "app_ports" {
   security_group_id = aws_security_group.app.id
   description       = "Application ports"

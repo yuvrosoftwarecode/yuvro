@@ -128,7 +128,7 @@ code-executor:
   image: code-executor
   imageTag: staging
   service:
-    port: 8002
+    port: 8009
   resources:
     requests:
       cpu: 250m

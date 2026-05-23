@@ -1,6 +1,56 @@
 # Yuvro Code - Comprehensive Learning & Recruitment Platform
 
-A full-stack learning management system (LMS) and coding education platform designed for technical education and recruitment. The platform runs two parallel instances: **YCode** (main learning platform) and **YCampus** (campus management system).
+# Setup
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd yuvro
+
+# Builds and run services (first time or when new libraries are added)
+make install
+make install-ycode
+make install-ycampus
+
+# Only Run ( no build)
+make run
+make run-ycode
+make run-ycampus
+
+# Setup initial fixtures data like users, courses etc
+make setup-fixtures-data
+make setup-fixtures-data-ycampus
+make setup-fixtures-data-ycode 
+
+
+# Stop services
+make stop
+make stop-ycode 
+make stop-ycampus
+
+
+# Only delete db volumes
+make db-reset
+
+# Deletes all data
+make clean
+
+```
+
+# urls
+
+
+YCode frontend: http://localhost:3000/
+YCampus frontend: http://localhost:3001/
+YCode backend health: http://localhost:8000/api/health/
+YCampus backend health: http://localhost:8001/api/health/
+Code executor: http://localhost:8009/
+
+YCode Frontend:    https://code-dev.yuvro.ai
+YCampus Frontend:  https://campus-dev.yuvro.ai
+YCode Backend:     https://backend-code-dev.yuvro.ai
+YCampus Backend:   https://backend-campus-dev.yuvro.ai
+Code Executor:     https://code-executer-dev.yuvro.ai
 
 ## 🎯 Core Features
 
@@ -29,7 +79,7 @@ Two separate instances run in parallel with isolated databases and networks:
 |----------|----------|---------|----------|---------|
 | **YCode** | http://localhost:3000 | http://localhost:8000 | ycode_backend_db | Main learning & job platform |
 | **YCampus** | http://localhost:3001 | http://localhost:8001 | ycampus_backend_db | Campus management system |
-| **Executor** | - | http://localhost:8002 | - | Shared code execution service |
+| **Executor** | - | http://localhost:8009 | - | Shared code execution service |
 
 ### Technology Stack
 
@@ -67,246 +117,6 @@ Two separate instances run in parallel with isolated databases and networks:
 - Make (for command shortcuts)
 - Git
 
-### Setup All Platforms
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd yuvro
-
-# Setup all platforms (YCode, YCampus, and Code Executor)
-make setup
-
-# This will:
-# 1. Create executor network
-# 2. Setup YCode (frontend, backend, database)
-# 3. Setup YCampus (frontend, backend, database)
-# 4. Load test data for both platforms
-```
-
-### Setup Individual Platforms
-
-```bash
-# Setup YCode only
-make setup-ycode
-
-# Setup YCampus only
-make setup-ycampus
-
-# Setup Code Executor only
-make setup-common
-```
-
-## 📋 Available Commands
-
-### Development
-
-```bash
-# Start all services
-make dev
-
-# Start specific platform
-make dev-ycode
-make dev-ycampus
-
-# Stop all services
-make stop
-
-# View logs
-make logs
-make logs-ycode
-make logs-ycampus
-
-# Clean up containers and volumes
-make clean
-make clean-ycode
-make clean-ycampus
-```
-
-### Database Operations
-
-```bash
-# YCode database commands
-make -f Makefile.ycode db-shell              # Access database shell
-make -f Makefile.ycode db-migrate            # Run migrations
-make -f Makefile.ycode db-makemigrations     # Create migrations
-make -f Makefile.ycode db-reset              # Reset database
-
-# YCampus database commands
-make -f Makefile.ycampus db-shell
-make -f Makefile.ycampus db-migrate
-make -f Makefile.ycampus db-makemigrations
-make -f Makefile.ycampus db-reset
-```
-
-### Backend Operations
-
-```bash
-# YCode backend
-make -f Makefile.ycode backend-shell         # Django shell
-make -f Makefile.ycode backend-test          # Run tests
-make -f Makefile.ycode backend-format-fix    # Format with Black
-make -f Makefile.ycode backend-lint          # Lint with Flake8
-make -f Makefile.ycode backend-install PKG=<name>  # Install package
-
-# YCampus backend
-make -f Makefile.ycampus backend-shell
-make -f Makefile.ycampus backend-test
-make -f Makefile.ycampus backend-format-fix
-make -f Makefile.ycampus backend-lint
-make -f Makefile.ycampus backend-install PKG=<name>
-```
-
-### Frontend Operations
-
-```bash
-# YCode frontend
-make -f Makefile.ycode frontend-shell        # Node.js shell
-make -f Makefile.ycode frontend-test         # Run tests
-make -f Makefile.ycode frontend-format-fix   # Format with Prettier
-make -f Makefile.ycode frontend-lint         # Lint with ESLint
-make -f Makefile.ycode frontend-install PKG=<name>  # Install package
-
-# YCampus frontend
-make -f Makefile.ycampus frontend-shell
-make -f Makefile.ycampus frontend-test
-make -f Makefile.ycampus frontend-format-fix
-make -f Makefile.ycampus frontend-lint
-make -f Makefile.ycampus frontend-install PKG=<name>
-```
-
-### Code Executor
-
-```bash
-make executor-shell                          # Access executor shell
-make executor-test                           # Test code executor
-make executor-logs                           # View executor logs
-```
-
-### Combined Operations
-
-```bash
-make test-all                                # Run all tests
-make format-all                              # Format all code
-make lint-all                                # Lint all code
-make check-all                               # Run all checks
-```
-
-## 🔐 Test Credentials
-
-After setup, test accounts are automatically created:
-
-### YCode Platform
-
-**Admin**
-- Email: `admin@yuvro.com`
-- Password: (check setup output)
-
-**Instructors**
-- `instructor_ds@yuvro.com` (Data Structures)
-- `instructor_python@yuvro.com` (Python)
-- `instructor_java@yuvro.com` (Java)
-- `instructor_mysql@yuvro.com` (MySQL)
-- `instructor_mongodb@yuvro.com` (MongoDB)
-- `instructor_ai@yuvro.com` (AI/ML)
-
-**Recruiters**
-- `recruiter_admin@yuvro.com`
-- `recruiter@yuvro.com`
-
-**Students**
-- `shilpa@gmail.com`
-- `devendra@gmail.com`
-- `rohith@gmail.com`
-- `manikanta@gmail.com`
-- `harsha@gmail.com`
-- `vinod@gmail.com`
-
-### YCampus Platform
-
-**Admin**
-- Email: `admin@yuvro.com`
-
-**College Admins**
-- `college_admin1@yuvro.com`
-- `college_admin2@yuvro.com`
-- `college_admin3@yuvro.com`
-
-**Principals**
-- `principal1@yuvro.com`
-- `principal2@yuvro.com`
-- `principal3@yuvro.com`
-
-**HODs**
-- `hod1@yuvro.com`
-- `hod2@yuvro.com`
-- `hod3@yuvro.com`
-
-**Faculty**
-- `faculty1@yuvro.com`
-- `faculty2@yuvro.com`
-- `faculty3@yuvro.com`
-
-**Students** (Same as YCode)
-
-
-### Port Allocation
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| YCode Frontend | 3000 | React development server |
-| YCampus Frontend | 3001 | React development server |
-| YCode Backend | 8000 | Django REST API |
-| YCampus Backend | 8001 | Django REST API |
-| Code Executor | 8002 | FastAPI service |
-| YCode Database | 5432 | PostgreSQL |
-| YCampus Database | 5433 | PostgreSQL |
-| Grafana | 3001 | Monitoring dashboards |
-| Prometheus | 9090 | Metrics collection |
-| Jaeger | 16686 | Distributed tracing |
-| Loki | 3100 | Log aggregation |
-
-
-## 🧪 Testing
-
-### Run All Tests
-
-```bash
-make test-all
-```
-
-### Platform-Specific Tests
-
-```bash
-# YCode tests
-make -f Makefile.ycode backend-test
-make -f Makefile.ycode frontend-test
-
-# YCampus tests
-make -f Makefile.ycampus backend-test
-make -f Makefile.ycampus frontend-test
-
-# Code Executor tests
-make executor-test
-```
-
-## 📊 Observability (Optional)
-
-To enable monitoring with Grafana, Prometheus, Jaeger, and Loki:
-
-```bash
-# Start with observability stack
-make observability-dev
-
-# View dashboards
-make observability-dashboards
-
-# Stop observability
-make observability-stop
-
-# Clean observability data
-make observability-clean
-```
 
 **Dashboard URLs:**
 - Grafana: http://localhost:3001 (admin/admin)
@@ -314,55 +124,6 @@ make observability-clean
 - Prometheus: http://localhost:9090
 - Loki: http://localhost:3100
 
-## 🐛 Troubleshooting
-
-### Services Not Starting
-
-```bash
-# Check service status
-docker compose ps
-docker compose -f docker-compose.ycampus.yml ps
-
-# View logs
-make logs
-make logs-ycode
-make logs-ycampus
-
-# Restart services
-make stop
-make dev
-```
-
-### Database Connection Issues
-
-```bash
-# Reset database
-make -f Makefile.ycode db-reset
-make -f Makefile.ycampus db-reset
-
-# Check database status
-docker compose exec db psql -U postgres -d ycode_backend_db
-docker compose -f docker-compose.ycampus.yml exec db psql -U postgres -d ycampus_backend_db
-```
-
-### Port Already in Use
-
-If ports are already in use, modify the port mappings in:
-- `docker-compose.yml` (YCode)
-- `docker-compose.ycampus.yml` (YCampus)
-- `docker-compose.common.yml` (Executor)
-
-### Migrations Not Applied
-
-```bash
-# Regenerate migrations
-make -f Makefile.ycode db-makemigrations
-make -f Makefile.ycampus db-makemigrations
-
-# Apply migrations
-make -f Makefile.ycode db-migrate
-make -f Makefile.ycampus db-migrate
-```
 
 ## 📚 API Documentation
 
@@ -811,6 +572,7 @@ For issues and questions:
 - [Docker Documentation](https://docs.docker.com/)
 
 ---
+
 
 **Last Updated**: March 2026
 **Version**: 1.0.0

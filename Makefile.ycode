@@ -30,7 +30,7 @@ setup:
 	docker compose -f docker-compose.ycode.yml up -d --build --wait
 
 	@echo "Loading test data..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_local_testing --clear
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
 	
 	@echo "✅ YCode setup complete!"
 	@echo "🌐 Frontend: http://localhost:3000"
@@ -66,8 +66,13 @@ clean:
 
 reload-data:
 	@echo "🔄 Reloading YCode test data..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_local_testing --clear
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
 	@echo "✅ Test data reloaded!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YCode fixture data..."
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
+	@echo "✅ YCode fixture data loaded!"
 
 load-courses:
 	@echo "📚 Loading production courses into YCode backend..."

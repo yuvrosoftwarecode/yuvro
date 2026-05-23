@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (use npm install to handle missing lock file)
-RUN npm install && npm cache clean --force
+RUN apk add --no-cache curl && npm install && npm cache clean --force
 
 # Development stage
 FROM base as development

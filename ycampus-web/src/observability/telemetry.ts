@@ -49,14 +49,14 @@ if (isOtelEnabled) {
           enabled: true,
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
-            /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8009\/.*$/,
           ],
         },
         '@opentelemetry/instrumentation-xml-http-request': {
           enabled: true,
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
-            /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8009\/.*$/,
           ],
         },
       }),

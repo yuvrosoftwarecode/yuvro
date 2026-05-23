@@ -47,7 +47,7 @@ export default defineConfig({
       }
     },
     hmr: {
-      clientPort: 3002,
+      clientPort: 3001,
       overlay: true
     },
     watch: {

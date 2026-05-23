@@ -78,7 +78,7 @@ code-executor:
   image: yc-code-executor
   imageTag: latest
   service:
-    port: 8002
+    port: 8009
   resources:
     requests:
       cpu: 100m

@@ -24,7 +24,7 @@ services:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
     ports:
-      - "8003:8000"  # Django API (tech.md: 8003)
+      - "8001:8000"  # Django API (host: 8001)
       - "9001:9001"  # Prometheus metrics
     env_file:
       - ./ycampus-backend-api/.env.local
@@ -60,7 +60,7 @@ services:
     tty: true
     depends_on:
       ycampus-backend:
-        condition: service_healthy
+        condition: service_started
     command: npm run dev -- --host 0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]

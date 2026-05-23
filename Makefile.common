@@ -15,7 +15,7 @@ setup:
 	@echo "Starting code executor..."
 	docker compose -f docker-compose.common.yml up -d --build
 	@echo "✅ Common services setup complete!"
-	@echo "⚙️  Code Executor: http://localhost:8002"
+	@echo "⚙️  Code Executor: http://localhost:8009"
 
 # ============================================================================
 # Development

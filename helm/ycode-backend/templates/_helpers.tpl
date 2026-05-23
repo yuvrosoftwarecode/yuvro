@@ -66,8 +66,8 @@ Code executor URL
 */}}
 {{- define "ycode-backend.codeExecutorUrl" -}}
 {{- if eq .Values.global.deployEnv "local" }}
-http://localhost:8002
+http://localhost:8009
 {{- else }}
-http://{{ .Release.Name }}-code-executor:{{ .Values.codeExecutor.service.port | default 8002 }}
+http://{{ .Release.Name }}-code-executor:{{ .Values.codeExecutor.service.port | default 8009 }}
 {{- end }}
 {{- end }}

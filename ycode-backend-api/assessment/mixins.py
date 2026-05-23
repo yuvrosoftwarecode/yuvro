@@ -458,7 +458,7 @@ class ProctoringMixin:
 
             # 3. Call Plagiarism Service
             service_url = os.environ.get(
-                "CODE_EXECUTOR_URL", "http://code-executor:8002"
+                "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009"
             )
             payload = {
                 "target_code": code,

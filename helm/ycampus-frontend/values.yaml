@@ -17,7 +17,7 @@ service:
   port: 3002
 
 apiUrl: "http://localhost:8003"
-codeExecutorUrl: "http://localhost:8002"
+codeExecutorUrl: "http://localhost:8009"
 
 resources:
   requests:
