@@ -71,6 +71,7 @@ export interface SkillTestFilters {
   search?: string;
   test_type?: string;
   publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
+  batch?: string;
 }
 
 

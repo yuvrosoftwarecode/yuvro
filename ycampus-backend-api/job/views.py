@@ -982,3 +982,67 @@ class CandidateSearchViewSet(viewsets.ViewSet):
 
         serializer = JobProfileSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class OfferRecordViewSet(viewsets.ModelViewSet):
+    from .models import OfferRecord
+    from .serializers import OfferRecordSerializer
+    
+    serializer_class = OfferRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        from .models import OfferRecord
+        queryset = OfferRecord.objects.all().order_by('-created_at')
+        college = getattr(self.request.user, 'college', None)
+        if college:
+            queryset = queryset.filter(college=college)
+        return queryset
+
+    @action(detail=False, methods=['post'], url_path='bulk-upload')
+    def bulk_upload(self, request):
+        from .models import OfferRecord
+        records_data = request.data
+        if not isinstance(records_data, list):
+            return Response({"error": "Expected a list of records"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        college = getattr(request.user, 'college', None)
+        created_records = []
+        for data in records_data:
+            record = OfferRecord(
+                college=college,
+                roll_number=data.get('rollNo', ''),
+                student_name=data.get('studentName', ''),
+                branch=data.get('branch', ''),
+                batch=data.get('batch', ''),
+                cgpa=data.get('cgpa', ''),
+                company=data.get('company', ''),
+                role=data.get('role', ''),
+                ctc=str(data.get('ctc', '')),
+                offer_status=data.get('offer', ''),
+                joining_date=data.get('joining', '')
+            )
+            created_records.append(record)
+        
+        OfferRecord.objects.bulk_create(created_records)
+        return Response({"message": f"{len(created_records)} records imported successfully."})
+
+    @action(detail=False, methods=['post'], url_path='bulk-delete')
+    def bulk_delete(self, request):
+        from .models import OfferRecord
+        ids = request.data.get('ids', [])
+        if not isinstance(ids, list):
+            return Response({"error": "Expected a list of ids"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        deleted, _ = OfferRecord.objects.filter(id__in=ids).delete()
+        return Response({"message": f"{deleted} records deleted successfully."})
+
+    @action(detail=False, methods=['get'], url_path='stats')
+    def stats(self, request):
+        from .models import OfferRecord
+        college = getattr(request.user, 'college', None)
+        queryset = OfferRecord.objects.filter(offer_status__icontains='Accepted')
+        if college:
+            queryset = queryset.filter(college=college)
+        selected_count = queryset.values('roll_number').distinct().count()
+        return Response({"selected_count": selected_count})

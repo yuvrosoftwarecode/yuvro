@@ -136,6 +136,10 @@ export const jobService = {
         return fetchJobs();
     },
 
+    async getAllApplications(): Promise<any[]> {
+        return restApiAuthUtil.get('/jobs/applications/');
+    },
+
     async getJob(jobId: string): Promise<Job> {
         return restApiAuthUtil.get(`/jobs/${jobId}/`);
     },

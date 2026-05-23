@@ -430,3 +430,24 @@ class CandidateSearchLog(models.Model):
 
     def __str__(self):
         return f"Search by {self.recruiter.email} - {self.results_count} results"
+
+
+class OfferRecord(BaseTimestampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    college = models.ForeignKey('core.College', on_delete=models.CASCADE, null=True, blank=True, related_name='offer_records')
+    roll_number = models.CharField(max_length=100)
+    student_name = models.CharField(max_length=255)
+    branch = models.CharField(max_length=100, blank=True, null=True)
+    batch = models.CharField(max_length=100, blank=True, null=True)
+    cgpa = models.CharField(max_length=50, blank=True, null=True)
+    company = models.CharField(max_length=255)
+    role = models.CharField(max_length=255)
+    ctc = models.CharField(max_length=100, blank=True, null=True)
+    offer_status = models.CharField(max_length=50)
+    joining_date = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = "offer_record"
+
+    def __str__(self):
+        return f"{self.roll_number} - {self.company} ({self.offer_status})"

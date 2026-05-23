@@ -42,15 +42,12 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
       
       // Stop the stream since we only needed it for permission check
       stream.getTracks().forEach(track => track.stop());
+
+      // Auto-confirm/proceed immediately without waiting for Continue click
+      onConfirm();
     } catch (error) {
       console.error('Permission denied:', error);
       setPermissionState('denied');
-    }
-  };
-
-  const handleProceed = () => {
-    if (cameraGranted && microphoneGranted) {
-      onConfirm();
     }
   };
 
@@ -66,7 +63,7 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
             {permissionState === 'requesting' && (
               <>
                 <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                Requesting Permissions
+                Checking Permissions
               </>
             )}
             {permissionState === 'granted' && (
@@ -85,38 +82,37 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
         </DialogHeader>
         
         <div className="space-y-4">
+          <div className="flex gap-3 p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 rounded-xl text-amber-800 dark:text-amber-200">
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Proctored Session Active</p>
+              <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+                Your <strong>microphone</strong> and camera are currently in use. Since this session is proctored, please <strong>close any other tabs or applications using your microphone</strong> (like Zoom, Teams, or Google Meet) to avoid issues, then continue.
+              </p>
+            </div>
+          </div>
+
           {permissionState === 'requesting' && (
-            <p className="text-muted-foreground">
-              Please allow access to your camera and microphone to continue with the test.
-            </p>
+            <div className="flex flex-col items-center justify-center py-4 space-y-2">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <p className="text-sm text-muted-foreground text-center">
+                Checking camera and microphone access...
+              </p>
+            </div>
           )}
 
           {permissionState === 'granted' && (
-            <>
-              <p className="text-muted-foreground">
-                Great! We have successfully accessed your camera and microphone.
+            <div className="flex flex-col items-center justify-center py-4 space-y-2">
+              <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+              <p className="text-sm text-muted-foreground text-center">
+                Permissions granted! Starting interview...
               </p>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <Camera className="h-4 w-4 text-green-600" />
-                  <span className="text-sm">Camera access granted</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <Mic className="h-4 w-4 text-green-600" />
-                  <span className="text-sm">Microphone access granted</span>
-                </div>
-              </div>
-              
-              <p className="text-sm text-muted-foreground">
-                You're all set to begin your test. Click "Next" to continue.
-              </p>
-            </>
+            </div>
           )}
 
           {permissionState === 'denied' && (
             <>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Camera and microphone access are required for this test. Please enable permissions and try again.
               </p>
               
@@ -130,27 +126,16 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
                   <span className="text-sm">Microphone access required</span>
                 </div>
               </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={onCancel} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={requestPermissions} className="flex-1">
+                  Try Again
+                </Button>
+              </div>
             </>
-          )}
-        </div>
-        
-        <div className="flex gap-3 pt-4">
-          <Button variant="outline" onClick={onCancel} className="flex-1">
-            Cancel
-          </Button>
-          {permissionState === 'granted' ? (
-            <Button onClick={handleProceed} className="flex-1">
-              Next
-            </Button>
-          ) : permissionState === 'denied' ? (
-            <Button onClick={requestPermissions} className="flex-1">
-              Try Again
-            </Button>
-          ) : (
-            <Button disabled className="flex-1">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Requesting...
-            </Button>
           )}
         </div>
       </DialogContent>

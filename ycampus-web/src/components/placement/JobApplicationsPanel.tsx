@@ -14,6 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { useAuth } from '@/contexts/AuthContext';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
@@ -51,6 +52,9 @@ const getPriLabel = (pri: number) => {
 
 const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelProps) => {
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const isAssessments = user?.college_product_type === 'assessments';
+
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deptFilter, setDeptFilter] = useState('all');
@@ -139,19 +143,24 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
   };
 
   const downloadExcel = () => {
-    const rows = filtered.map((a: any) => ({
-      'Student Name': a.student_name,
-      'Student ID': a.student_id,
-      'Department': a.branch || 'N/A',
-      'CGPA': a.cgpa || 'N/A',
-      'PI': a.pi,
-      'PS': a.ps,
-      'PRI': a.pri,
-      'Attendance %': a.attendance,
-      'Task Completion %': a.taskCompletion,
-      'CTC Offered': a.ctc_offered || 'N/A',
-      'Status': a.status,
-    }));
+    const rows = filtered.map((a: any) => {
+      const row: any = {
+        'Student Name': a.student_name,
+        'Student ID': a.student_id,
+        'Department': a.branch || 'N/A',
+        'CGPA': a.cgpa || 'N/A',
+      };
+      if (!isAssessments) {
+        row['PI'] = a.pi;
+        row['PS'] = a.ps;
+      }
+      row['PRI'] = a.pri;
+      row['Attendance %'] = a.attendance;
+      row['Task Completion %'] = a.taskCompletion;
+      row['CTC Offered'] = a.ctc_offered || 'N/A';
+      row['Status'] = a.status;
+      return row;
+    });
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Applications');
@@ -278,8 +287,8 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
                     <TableHead className="text-xs font-semibold">Student</TableHead>
                     <TableHead className="text-xs font-semibold">Dept</TableHead>
                     <TableHead className="text-xs font-semibold text-center">CGPA</TableHead>
-                    <TableHead className="text-xs font-semibold text-center">PI</TableHead>
-                    <TableHead className="text-xs font-semibold text-center">PS</TableHead>
+                    {!isAssessments && <TableHead className="text-xs font-semibold text-center">PI</TableHead>}
+                    {!isAssessments && <TableHead className="text-xs font-semibold text-center">PS</TableHead>}
                     <TableHead className="text-xs font-semibold text-center">PRI</TableHead>
                     <TableHead className="text-xs font-semibold text-center">Status</TableHead>
                     <TableHead className="text-xs font-semibold text-right">Actions</TableHead>
@@ -297,8 +306,8 @@ const JobApplicationsPanel = ({ job, open, onOpenChange }: JobApplicationsPanelP
                       </TableCell>
                       <TableCell className="text-xs">{app.branch || 'N/A'}</TableCell>
                       <TableCell className="text-xs text-center font-medium">{app.cgpa || 'N/A'}</TableCell>
-                      <TableCell className="text-xs text-center">{app.pi}</TableCell>
-                      <TableCell className="text-xs text-center">{app.ps}</TableCell>
+                      {!isAssessments && <TableCell className="text-xs text-center">{app.pi}</TableCell>}
+                      {!isAssessments && <TableCell className="text-xs text-center">{app.ps}</TableCell>}
                       <TableCell className="text-center">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${getPriColor(app.pri)}15`, color: getPriColor(app.pri) }}>
                           {app.pri}
