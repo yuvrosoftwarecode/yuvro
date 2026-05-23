@@ -441,15 +441,21 @@ docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | ta
 echo "📦 Loading sample data for YCampus..."
 docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
 
-echo "🔒 Restoring nginx HTTPS config..."
-if [ -f "/etc/nginx/yuvro-dev-https.conf" ]; then
+echo "🔒 Restoring nginx HTTPS config from repo..."
+if [ -f "infra/nginx/yuvro-dev.conf" ]; then
+  sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
+  sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
+  sudo nginx -t && sudo systemctl reload nginx \
+    && echo "✅ Nginx HTTPS config restored from repo" \
+    || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
+elif [ -f "/etc/nginx/yuvro-dev-https.conf" ]; then
+  echo "⚠ Repo nginx config not found, falling back to saved copy"
   sudo cp /etc/nginx/yuvro-dev-https.conf /etc/nginx/sites-available/yuvro-dev
   sudo nginx -t && sudo systemctl reload nginx \
-    && echo "✅ Nginx HTTPS config restored" \
-    || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
+    && echo "✅ Nginx HTTPS config restored from saved copy" \
+    || echo "⚠ Nginx config test failed"
 else
-  echo "⚠ No saved HTTPS config found at /etc/nginx/yuvro-dev-https.conf"
-  echo "  Run a full deploy (make clean && DEPLOY_ENV=dev make install) to set up nginx"
+  echo "⚠ No nginx HTTPS config found — run a full deploy to set up nginx"
 fi
 DEPLOY_EOF
 
