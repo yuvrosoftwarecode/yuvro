@@ -29,17 +29,22 @@ app.add_middleware(
     allow_origins=[
         # Local development
         "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "http://localhost:3001",
         "http://127.0.0.1:3001",
-        # Dev environment (AWS)
+        "http://127.0.0.1:5173",
+        # Dev environment (AWS) - all subdomains
         "https://code-dev.yuvro.ai",
         "https://campus-dev.yuvro.ai",
+        "https://backend-code-dev.yuvro.ai",
+        "https://backend-campus-dev.yuvro.ai",
+        "https://code-executer-dev.yuvro.ai",
         "http://code-dev.yuvro.ai",
         "http://campus-dev.yuvro.ai",
-        # Staging / production (add as needed)
+        "http://backend-code-dev.yuvro.ai",
+        "http://backend-campus-dev.yuvro.ai",
+        # Staging / production
         "https://yuvro.ai",
         "https://www.yuvro.ai",
     ],
