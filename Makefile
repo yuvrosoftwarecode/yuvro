@@ -415,16 +415,16 @@ port-forward: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🔌 Setting up port forwards..."; \
 		echo "   YCode Frontend: http://localhost:3000"; \
-		echo "   YCode Backend: http://localhost:8001"; \
-		echo "   YCampus Frontend: http://localhost:3002"; \
-		echo "   YCampus Backend: http://localhost:8003"; \
+		echo "   YCode Backend: http://localhost:8000"; \
+		echo "   YCampus Frontend: http://localhost:3001"; \
+		echo "   YCampus Backend: http://localhost:8001"; \
 		echo "   Code Executor: http://localhost:8009"; \
 		echo ""; \
 		echo "Press Ctrl+C to stop port forwards"; \
 		kubectl port-forward -n ycode svc/yuvro-ycode-frontend 3000:3000 2>/dev/null & \
-		kubectl port-forward -n ycode svc/yuvro-ycode-backend 8001:8000 2>/dev/null & \
-		kubectl port-forward -n ycampus svc/yuvro-ycampus-frontend 3002:3002 2>/dev/null & \
-		kubectl port-forward -n ycampus svc/yuvro-ycampus-backend 8003:8000 2>/dev/null & \
+		kubectl port-forward -n ycode svc/yuvro-ycode-backend 8000:8000 2>/dev/null & \
+		kubectl port-forward -n ycampus svc/yuvro-ycampus-frontend 3001:3001 2>/dev/null & \
+		kubectl port-forward -n ycampus svc/yuvro-ycampus-backend 8001:8000 2>/dev/null & \
 		kubectl port-forward -n yuvro svc/yuvro-code-executor 8009:8009 2>/dev/null & \
 		wait; \
 	else \
@@ -777,7 +777,7 @@ observability-clean: _validate-deploy
 
 observability-dashboards:
 	@echo "🌐 Observability Dashboards:"
-	@echo "   Grafana: http://localhost:3001 (admin/admin)"
+	@echo "   Grafana: http://localhost:3003 (admin/admin)"
 	@echo "   Jaeger: http://localhost:16686"
 	@echo "   Prometheus: http://localhost:9090"
 	@echo "   Loki: http://localhost:3100"
