@@ -36,7 +36,7 @@ const PlacementDashboard = () => {
   const statCards = [
     { title: 'Pending Approvals', value: stats?.pendingCount || 0, icon: ClipboardCheck, color: WARNING, bg: 'hsl(38,100%,95%)' },
     { title: 'Live Jobs', value: stats?.liveCount || 0, icon: Briefcase, color: VIOLET, bg: VIOLET_LIGHT },
-    { title: 'Students Selected', value: stats?.selectedThisMonth || 0, icon: Users, color: TEAL, bg: 'hsl(165,64%,94%)' },
+    { title: 'Students Selected', value: stats?.totalSelected || 0, icon: Users, color: TEAL, bg: 'hsl(165,64%,94%)' },
     { title: 'Avg CTC', value: `₹${((stats?.avgCTC || 0) / 100000).toFixed(1)}L`, icon: IndianRupee, color: TEAL, bg: 'hsl(165,64%,94%)' },
     { title: 'Highest CTC', value: `₹${((stats?.highestCTC || 0) / 100000).toFixed(1)}L`, icon: Award, color: VIOLET, bg: VIOLET_LIGHT },
     { title: 'Placement %', value: `${stats?.placementPct || 0}%`, icon: TrendingUp, color: TEAL, bg: 'hsl(165,64%,94%)' },

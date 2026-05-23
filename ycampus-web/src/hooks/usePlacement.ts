@@ -4,6 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import companyService from '@/services/companyService';
 import jobService, { applicationService } from '@/services/jobService';
 import type { Company as CompanyRecord, CompanyStatus } from '@/services/companyService';
+import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 // ── Company hooks ───────────────────────────────────────────────────────────
 
@@ -344,8 +345,7 @@ export function usePlacementStats() {
     queryFn: async () => {
       const [jobsData, appsData] = await Promise.all([
         jobService.getAllJobs(),
-        // In backend, there might be a view all applications endpoint
-        [] as any[] 
+        jobService.getAllApplications() 
       ]);
       
       const jobs = jobsData.map(j => ({ 
@@ -357,6 +357,9 @@ export function usePlacementStats() {
       }));
       const apps = (appsData || []) as any[];
       
+      const statsResponse = await restApiAuthUtil.get<any>('/jobs/offer-records/stats/');
+      const backendSelectedCount = statsResponse.selected_count || 0;
+
       const pendingCount = jobs.filter(j => j.status === 'pending').length;
       const liveCount = jobs.filter(j => (j.status as string) === 'approved').length;
       const selectedApps = apps.filter(a => ['selected', 'offer_accepted'].includes(a.status));
@@ -367,12 +370,12 @@ export function usePlacementStats() {
       const placementPct = totalStudents > 0 ? Math.round((selectedApps.length / totalStudents) * 100) : 0;
       const totalApps = jobs.reduce((s, j: any) => s + (j.total_applications || 0), 0);
       const totalShortlisted = jobs.reduce((s, j: any) => s + (j.shortlisted_count || 0), 0);
-      const totalSelected = jobs.reduce((s, j: any) => s + (j.selected_count || 0), 0);
+      const totalSelected = backendSelectedCount; // Use actual backend data
       
       return {
         pendingCount, 
         liveCount, 
-        selectedThisMonth: selectedApps.length,
+        totalSelected: backendSelectedCount,
         avgCTC, 
         highestCTC, 
         placementPct, 
@@ -525,5 +528,78 @@ export function useRecruiters() {
         updated_at: c.updated_at,
       })) as Recruiter[];
     },
+  });
+}
+
+// ── Offer Tracking hooks ──────────────────────────────────────────────────
+
+export interface OfferRecord {
+  id: string;
+  roll_number: string;
+  student_name: string;
+  branch: string;
+  batch: string;
+  cgpa: string;
+  company: string;
+  role: string;
+  ctc: string;
+  offer_status: string;
+  joining_date: string;
+}
+
+export function useOfferRecords() {
+  return useQuery<OfferRecord[]>({
+    queryKey: ['offer-records'],
+    queryFn: async () => {
+      return restApiAuthUtil.get<OfferRecord[]>('/jobs/offer-records/');
+    },
+  });
+}
+
+export function useBulkUploadOffers() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (records: any[]) => {
+      return restApiAuthUtil.post('/jobs/offer-records/bulk-upload/', records);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['offer-records'] });
+      qc.invalidateQueries({ queryKey: ['placement-stats'] });
+      toast({ title: 'Offers imported successfully' });
+    },
+    onError: (e: any) =>
+      toast({ title: 'Import failed', description: e.message, variant: 'destructive' }),
+  });
+}
+
+export function useDeleteOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return restApiAuthUtil.delete(`/jobs/offer-records/${id}/`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['offer-records'] });
+      qc.invalidateQueries({ queryKey: ['placement-stats'] });
+      toast({ title: 'Record deleted' });
+    },
+    onError: (e: any) =>
+      toast({ title: 'Deletion failed', description: e.message, variant: 'destructive' }),
+  });
+}
+
+export function useBulkDeleteOffers() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      return restApiAuthUtil.post('/jobs/offer-records/bulk-delete/', { ids });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['offer-records'] });
+      qc.invalidateQueries({ queryKey: ['placement-stats'] });
+      toast({ title: 'Records deleted' });
+    },
+    onError: (e: any) =>
+      toast({ title: 'Deletion failed', description: e.message, variant: 'destructive' }),
   });
 }

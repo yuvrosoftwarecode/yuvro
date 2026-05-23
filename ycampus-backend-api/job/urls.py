@@ -15,6 +15,7 @@ from .views import (
     CertificationCreateView,
     CertificationUpdateDeleteView,
     CandidateSearchViewSet,
+    OfferRecordViewSet,
 )
 
 urlpatterns = [
@@ -182,5 +183,30 @@ urlpatterns = [
         "candidates/job-profiles/",
         CandidateSearchViewSet.as_view({"get": "list"}),
         name="candidate-list",
+    ),
+    path(
+        "offer-records/",
+        OfferRecordViewSet.as_view({"get": "list"}),
+        name="offer-records-list",
+    ),
+    path(
+        "offer-records/bulk-upload/",
+        OfferRecordViewSet.as_view({"post": "bulk_upload"}),
+        name="offer-records-bulk-upload",
+    ),
+    path(
+        "offer-records/bulk-delete/",
+        OfferRecordViewSet.as_view({"post": "bulk_delete"}),
+        name="offer-records-bulk-delete",
+    ),
+    path(
+        "offer-records/stats/",
+        OfferRecordViewSet.as_view({"get": "stats"}),
+        name="offer-records-stats",
+    ),
+    path(
+        "offer-records/<uuid:pk>/",
+        OfferRecordViewSet.as_view({"delete": "destroy"}),
+        name="offer-records-detail",
     ),
 ]

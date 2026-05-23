@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useBatchIds } from '@/hooks/useBatchIds';
+import { usePlacementKPIs } from '@/hooks/usePlacementKPIs';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import PlacementSidebar from '@/components/placement/PlacementSidebar';
 import { Button } from '@/components/ui/button';
@@ -82,40 +84,11 @@ const assessmentCompare = [
 const mockMetrics = [
   { label: 'Avg Interview Score', value: 71.8 },
   { label: 'Communication', value: 79.2 },
-  { label: 'Confidence', value: 64.5 },
   { label: 'Technical Clarity', value: 73.4 },
-  { label: 'HR Readiness', value: 81.0 },
   { label: 'Completion Rate', value: 68.0 },
 ];
 
-const students = [
-  { id: 1, name: 'Aarav Sharma', pri: 88, assessment: 90, skill: 86, mock: 84, progress: 92, status: 'Ready' },
-  { id: 2, name: 'Priya Mehta', pri: 82, assessment: 85, skill: 80, mock: 78, progress: 85, status: 'Ready' },
-  { id: 3, name: 'Rohan Gupta', pri: 74, assessment: 76, skill: 72, mock: 70, progress: 71, status: 'Almost' },
-  { id: 4, name: 'Sneha Reddy', pri: 91, assessment: 93, skill: 89, mock: 90, progress: 95, status: 'Ready' },
-  { id: 5, name: 'Vikram Patel', pri: 58, assessment: 62, skill: 55, mock: 52, progress: 48, status: 'Improve' },
-  { id: 6, name: 'Ananya Iyer', pri: 77, assessment: 80, skill: 74, mock: 72, progress: 76, status: 'Almost' },
-  { id: 7, name: 'Karthik Nair', pri: 69, assessment: 72, skill: 66, mock: 64, progress: 62, status: 'Improve' },
-  { id: 8, name: 'Divya Joshi', pri: 85, assessment: 87, skill: 84, mock: 82, progress: 88, status: 'Ready' },
-];
-
-const aiInsights = [
-  { title: 'Students improving rapidly', value: '184', sub: '+22% MoM', tone: 'green', icon: TrendingUp },
-  { title: 'Students needing attention', value: '76', sub: 'Low engagement', tone: 'red', icon: AlertTriangle },
-  { title: 'Most improved skill', value: 'DSA', sub: '+11.2 points', tone: 'green', icon: Sparkles },
-  { title: 'Weakest skill category', value: 'SQL', sub: '−1.2 trend', tone: 'orange', icon: TrendingDown },
-  { title: 'Assessment engagement', value: '+18%', sub: 'Last 30 days', tone: 'green', icon: Activity },
-  { title: 'Mock interview completion', value: '68%', sub: '512 of 754', tone: 'orange', icon: Mic },
-];
-
-const recommendations = [
-  { title: 'Increase SQL practice assessments', desc: 'SQL scores are trending down. Add 2 weekly practice sets.', icon: Code2 },
-  { title: 'Encourage more mock interviews', desc: 'Only 68% completion. Schedule peer interview drives.', icon: Mic },
-  { title: 'Focus on communication practice', desc: '142 students show low clarity in spoken responses.', icon: MessageSquare },
-  { title: 'Improve coding consistency', desc: '38% of learners practice <2 days/week. Push streak goals.', icon: Zap },
-  { title: 'Schedule advanced DSA tests', desc: 'Top 200 students plateauing. Introduce hard-tier problems.', icon: Brain },
-  { title: 'AI mentor sessions for confidence', desc: 'Confidence score at 64.5 — lowest in mock category.', icon: Lightbulb },
-];
+// Mock data removed in favor of real backend data
 
 // ---------- Helpers ----------
 const statusBadge = (s: string) => {
@@ -144,11 +117,28 @@ const Sparkline = ({ data, positive }: { data: number[]; positive: boolean }) =>
 // ---------- Page ----------
 const PlacementStudentReports = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [year, setYear] = useState('2025-26');
-  const [assessmentType, setAssessmentType] = useState('all');
-  const [skillCategory, setSkillCategory] = useState('all');
-  const [dateRange, setDateRange] = useState('30d');
-  const [readinessStatus, setReadinessStatus] = useState('all');
+  const [year, setYear] = useState('');
+  const [skillCategory, setSkillCategory] = useState('');
+  const [readinessStatus, setReadinessStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { batchIds: batches } = useBatchIds();
+  const { data: kpiData } = usePlacementKPIs(year, 'all', skillCategory, readinessStatus);
+
+  // Keep a stable skills list — only update when real API data arrives.
+  // This prevents the dropdown from flickering to static placeholder data
+  // or showing blank while a refetch is in-flight.
+  const stableSkillsRef = useRef(kpiData?.skills || skills);
+  useEffect(() => {
+    if (kpiData?.skills && kpiData.skills.length > 0) {
+      stableSkillsRef.current = kpiData.skills;
+    }
+  }, [kpiData?.skills]);
+  const currentSkills = stableSkillsRef.current;
+  const currentStudents = kpiData?.students || [];
+
+  const totalPages = Math.ceil(currentStudents.length / pageSize) || 1;
+  const paginatedStudents = currentStudents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <SidebarProvider>
@@ -165,10 +155,10 @@ const PlacementStudentReports = () => {
                     <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#6C63FF] to-[#8B86FF] flex items-center justify-center shadow-sm">
                       <Sparkles className="h-4 w-4 text-white" />
                     </div>
-                    <h1 className="text-2xl font-semibold tracking-tight">PRI Report</h1>
+                    <h1 className="text-2xl font-semibold tracking-tight">Student Reports</h1>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1.5 ml-11">
-                    AI-powered placement readiness intelligence and progress analytics
+                    Yuvro — AI-Powered Placement Intelligence & Student Success Platform
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -186,44 +176,37 @@ const PlacementStudentReports = () => {
 
               {/* Filters */}
               <Card className="border-border/60 shadow-sm rounded-2xl">
-                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  <Select value={year} onValueChange={setYear}>
-                    <SelectTrigger className="rounded-lg"><SelectValue placeholder="Academic Year" /></SelectTrigger>
+                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <Select value={year} onValueChange={(val) => { setYear(val); setSkillCategory(''); setReadinessStatus(''); setCurrentPage(1); }}>
+                    <SelectTrigger className="rounded-lg">
+                      <SelectValue placeholder="Select Batch" />
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2025-26">Academic Year 2025-26</SelectItem>
-                      <SelectItem value="2024-25">Academic Year 2024-25</SelectItem>
-                      <SelectItem value="2023-24">Academic Year 2023-24</SelectItem>
+                      <SelectItem value="all">All Batches</SelectItem>
+                      {batches?.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i).map(batch => (
+                        <SelectItem key={batch.id} value={batch.id}>
+                          {batch.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select value={assessmentType} onValueChange={setAssessmentType}>
-                    <SelectTrigger className="rounded-lg"><SelectValue placeholder="Assessment Type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Assessments</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="final">Final</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={skillCategory} onValueChange={setSkillCategory}>
-                    <SelectTrigger className="rounded-lg"><SelectValue placeholder="Skill Category" /></SelectTrigger>
+                  <Select value={skillCategory} onValueChange={(val) => { setSkillCategory(val); setReadinessStatus(''); setCurrentPage(1); }} disabled={!year}>
+                    <SelectTrigger className="rounded-lg">
+                      <SelectValue placeholder="Select Skill" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Skills</SelectItem>
-                      <SelectItem value="aptitude">Aptitude</SelectItem>
-                      <SelectItem value="dsa">DSA</SelectItem>
-                      <SelectItem value="sql">SQL</SelectItem>
-                      <SelectItem value="communication">Communication</SelectItem>
+                      {currentSkills.map(s => (
+                        <SelectItem key={s.skill} value={s.skill.toLowerCase()}>
+                          {s.skill}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select value={dateRange} onValueChange={setDateRange}>
-                    <SelectTrigger className="rounded-lg"><SelectValue placeholder="Date Range" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7d">Last 7 days</SelectItem>
-                      <SelectItem value="30d">Last 30 days</SelectItem>
-                      <SelectItem value="90d">Last 90 days</SelectItem>
-                      <SelectItem value="ytd">Year to date</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={readinessStatus} onValueChange={setReadinessStatus}>
-                    <SelectTrigger className="rounded-lg"><SelectValue placeholder="Readiness Status" /></SelectTrigger>
+                  <Select value={readinessStatus} onValueChange={(val) => { setReadinessStatus(val); setCurrentPage(1); }} disabled={!skillCategory}>
+                    <SelectTrigger className="rounded-lg">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="ready">Placement Ready</SelectItem>
@@ -260,7 +243,7 @@ const PlacementStudentReports = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {students.map(s => (
+                        {paginatedStudents.map(s => (
                           <React.Fragment key={s.id}>
                             <tr
                               className="border-b border-border/40 hover:bg-muted/30 cursor-pointer transition-colors"
@@ -270,11 +253,11 @@ const PlacementStudentReports = () => {
                                 {expanded === s.id ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                               </td>
                               <td className="px-4 py-3 font-medium">{s.name}</td>
-                              <td className={`px-4 py-3 text-center font-semibold ${scoreColor(s.pri)}`}>{s.pri}</td>
-                              <td className="px-4 py-3 text-center">{s.assessment}</td>
-                              <td className="px-4 py-3 text-center">{s.skill}</td>
-                              <td className="px-4 py-3 text-center">{s.mock}</td>
-                              <td className="px-4 py-3"><Progress value={s.progress} className="h-2" /></td>
+                              <td className={`px-4 py-3 text-center font-semibold ${scoreColor(s.final_score)}`}>{s.final_score.toFixed(1)}</td>
+                              <td className="px-4 py-3 text-center">{s.assess_score.toFixed(1)}</td>
+                              <td className="px-4 py-3 text-center">{s.skill_score.toFixed(1)}</td>
+                              <td className="px-4 py-3 text-center">{s.mock_score.toFixed(1)}</td>
+                              <td className="px-4 py-3"><Progress value={s.learning_score} className="h-2" /></td>
                               <td className="px-4 py-3">{statusBadge(s.status)}</td>
                             </tr>
                             {expanded === s.id && (
@@ -297,22 +280,38 @@ const PlacementStudentReports = () => {
                                     </div>
                                     <div className="rounded-xl bg-white border border-border/60 p-4 space-y-2">
                                       <div className="text-xs font-medium text-muted-foreground mb-1">Skill Progress</div>
-                                      {skills.slice(0, 4).map(sk => (
-                                        <div key={sk.skill}>
-                                          <div className="flex justify-between text-xs mb-0.5"><span>{sk.skill}</span><span className="font-medium">{sk.score}</span></div>
-                                          <Progress value={sk.score} className="h-1.5" />
+                                      {Object.entries(s.subject_scores || {}).slice(0, 4).map(([skill, score]) => (
+                                        <div key={skill}>
+                                          <div className="flex justify-between text-xs mb-0.5"><span>{skill}</span><span className="font-medium">{score.toFixed(1)}</span></div>
+                                          <Progress value={score} className="h-1.5" />
                                         </div>
                                       ))}
+                                      {Object.keys(s.subject_scores || {}).length === 0 && (
+                                        <div className="text-xs text-muted-foreground italic">No skill data available.</div>
+                                      )}
                                     </div>
                                     <div className="rounded-xl bg-white border border-border/60 p-4">
                                       <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
                                         <Sparkles className="h-3.5 w-3.5 text-[#6C63FF]" /> AI Insights
                                       </div>
                                       <ul className="space-y-1.5 text-xs text-foreground/80">
-                                        <li>• Top 15% in assessment growth this quarter</li>
-                                        <li>• Mock interview confidence trending up (+8%)</li>
-                                        <li>• Recommend SQL deep-dive sessions</li>
-                                        <li>• Schedule advanced DSA mock</li>
+                                        {s.final_score >= 80 ? (
+                                          <li>• Top performer, ready for MAANG level interviews</li>
+                                        ) : s.final_score >= 50 ? (
+                                          <li>• Showing steady progress, focus on consistency</li>
+                                        ) : (
+                                          <li>• Needs immediate attention and remedial sessions</li>
+                                        )}
+                                        
+                                        {Object.entries(s.subject_scores || {}).length > 0 && (
+                                          <>
+                                            <li>• Strongest area: {Object.entries(s.subject_scores).reduce((max, [k, v]) => v > max[1] ? [k, v] : max, ["", 0])[0]}</li>
+                                            <li>• Recommend deep-dive in: {Object.entries(s.subject_scores).reduce((min, [k, v]) => v < min[1] ? [k, v] : min, ["", 100])[0]}</li>
+                                          </>
+                                        )}
+                                        
+                                        {s.mock_score < 60 && <li>• Schedule additional mock interviews for confidence</li>}
+                                        {s.practice_score < 50 && <li>• Increase daily coding streak to build problem-solving skills</li>}
                                       </ul>
                                     </div>
                                   </div>
@@ -324,6 +323,50 @@ const PlacementStudentReports = () => {
                       </tbody>
                     </table>
                   </div>
+                  
+                  {/* Pagination Controls */}
+                  {currentStudents.length > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-border/60 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span>Show</span>
+                        <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
+                          <SelectTrigger className="h-8 w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="25">25</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <span>entries</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-muted-foreground">
+                          Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, currentStudents.length)} of {currentStudents.length}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-3" 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                          >
+                            Previous
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-3" 
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

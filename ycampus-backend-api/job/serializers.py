@@ -15,6 +15,7 @@ from .models import (
     Project,
     Education,
     Certification,
+    OfferRecord,
 )
 from authentication.models import Profile
 from authentication.serializers import UserSerializer
@@ -655,3 +656,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class OfferRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OfferRecord
+        fields = "__all__"
+
