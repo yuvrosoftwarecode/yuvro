@@ -404,6 +404,13 @@ docker compose \
   -f docker-compose.dev.yml \
   ps
 
+echo "🔒 Activating nginx HTTPS config from repo..."
+sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
+sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
+sudo nginx -t && sudo systemctl reload nginx \
+  && echo "✅ Nginx HTTPS config active" \
+  || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
+
 echo "⏳ Waiting for backends to be healthy..."
 sleep 20
 
@@ -412,13 +419,6 @@ docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | ta
 
 echo "📦 Loading sample data for YCampus..."
 docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
-
-echo "🔒 Activating nginx HTTPS config from repo..."
-sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
-sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
-sudo nginx -t && sudo systemctl reload nginx \
-  && echo "✅ Nginx HTTPS config active" \
-  || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
 DEPLOY_EOF
 
     print_success "Applications deployed"
