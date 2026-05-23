@@ -38,6 +38,10 @@ class Command(BaseCommand):
                     self.style.SUCCESS("✓ Database migrations completed\n")
                 )
 
+            self.stdout.write("🤖 Seeding AI agents...")
+            call_command("seed_agents", verbosity=1)
+            self.stdout.write("")
+
             self.stdout.write("👥 Setting up test users...")
             if options["clear"]:
                 call_command("create_test_users", "--clear", deploy_env=options["deploy_env"], verbosity=1)
@@ -78,6 +82,7 @@ class Command(BaseCommand):
                     "🎉 Local testing environment setup completed successfully!"
                 )
             )
+            self.stdout.write(self.style.SUCCESS("✓ AI Agents seeded"))
             self.stdout.write(self.style.SUCCESS("✓ Test users created"))
             self.stdout.write(self.style.SUCCESS("✓ Sample courses loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample companies and jobs loaded"))
@@ -89,3 +94,4 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"❌ Error during setup: {str(e)}"))
             raise e
+

@@ -52,6 +52,12 @@ _validate-deploy:
 	fi
 	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_TYPE=$(DEPLOY_TYPE)"
 
+.PHONY: _create-executor-network
+_create-executor-network:
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		docker network create executor 2>/dev/null || true; \
+	fi
+
 # ============================================================================
 # Environment-Specific Configuration Loading
 # ============================================================================
@@ -218,7 +224,7 @@ ifeq ($(DEPLOY_TYPE),docker)
   COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml $(ENV_OVERRIDE)
 endif
 
-install run: _validate-deploy
+install run: _validate-deploy _create-executor-network
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
@@ -380,7 +386,7 @@ port-forward: _validate-deploy
 # Platform-Specific Commands
 # ============================================================================
 
-install-ycode: _validate-deploy
+install-ycode: _validate-deploy _create-executor-network
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
@@ -407,7 +413,7 @@ install-ycode: _validate-deploy
 		echo "✅ YCode deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
-install-ycampus: _validate-deploy
+install-ycampus: _validate-deploy _create-executor-network
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
@@ -576,7 +582,7 @@ check-all:
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
 
-observability-dev: _validate-deploy load-env-files
+observability-dev: _validate-deploy load-env-files _create-executor-network
 	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "🔍 Starting observability stack (Prometheus + Jaeger + Loki + Grafana)..."; \
 		docker compose $(COMPOSE_FILES) -f docker-compose.yobservability.yml up; \
