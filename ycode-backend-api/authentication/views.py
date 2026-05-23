@@ -133,23 +133,21 @@ def google_login_view(request):
     if not email:
         return Response({"error": "Could not retrieve email from Google"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get or create user
+    # Get or create user by email
     user, created = User.objects.get_or_create(
         email=email,
         defaults={
             "username": email,
             "first_name": first_name,
             "last_name": last_name,
-            "google_id": google_id,
             "is_active": True,
         },
     )
-
-    if not created:
-        # Update google_id if not set
-        if not user.google_id:
-            user.google_id = google_id
-            user.save(update_fields=["google_id"])
+    
+    profile, _ = Profile.objects.get_or_create(user=user)
+    if not profile.google_id:
+        profile.google_id = google_id
+        profile.save(update_fields=["google_id"])
 
     # Generate JWT tokens
     token_serializer = CustomTokenObtainPairSerializer()
