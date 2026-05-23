@@ -158,8 +158,8 @@ help:
 	@echo "  prod   → k8s (Kubernetes)"
 	@echo ""
 	@echo "Main Commands:"
-	@echo "  make install            Install/start all services"
-	@echo "  make run                Start all services (alias for install)"
+	@echo "  make install            Build and start all services"
+	@echo "  make run                Start all services (no build)"
 	@echo "  make stop               Stop all services"
 	@echo "  make clean              Clean all containers/volumes"
 	@echo "  make logs               View all logs"
@@ -185,10 +185,10 @@ help:
 	@echo "  make secrets-audit      Audit secret access (staging/prod only)"
 	@echo ""
 	@echo "Platform-Specific Commands:"
-	@echo "  make install-ycode      Start YCode services only"
-	@echo "  make install-ycampus    Start YCampus services only"
-	@echo "  make run-ycode          Start YCode services (alias for install-ycode)"
-	@echo "  make run-ycampus        Start YCampus services (alias for install-ycampus)"
+	@echo "  make install-ycode      Build and start YCode services only"
+	@echo "  make install-ycampus    Build and start YCampus services only"
+	@echo "  make run-ycode          Start YCode services (no build)"
+	@echo "  make run-ycampus        Start YCampus services (no build)"
 	@echo "  make stop-ycode         Stop YCode services"
 	@echo "  make stop-ycampus       Stop YCampus services"
 	@echo "  make clean-ycode        Clean YCode containers/volumes"
@@ -218,7 +218,41 @@ ifeq ($(DEPLOY_TYPE),docker)
   COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml $(ENV_OVERRIDE)
 endif
 
-install run: _validate-deploy
+install: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo ""; \
+		bash infra/scripts/deploy-dev-auto.sh; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🔨 Building all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		docker compose $(COMPOSE_FILES) build; \
+		echo "🚀 Starting all services..."; \
+		docker compose $(COMPOSE_FILES) up; \
+	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
+			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
+			exit 1; \
+		fi; \
+		if ! command -v helm &> /dev/null; then \
+			echo "❌ Helm is not installed"; \
+			exit 1; \
+		fi; \
+		if ! kubectl cluster-info &> /dev/null; then \
+			echo "❌ Kubernetes cluster not accessible"; \
+			exit 1; \
+		fi; \
+		kubectl apply -f helm/namespace.yaml; \
+		helm dependency update helm; \
+		helm upgrade --install yuvro helm \
+			--namespace yuvro \
+			--create-namespace \
+			--values helm/values-$(DEPLOY_ENV).yaml \
+			|| true; \
+		echo "✅ Deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+	fi
+
+run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
@@ -382,7 +416,9 @@ port-forward: _validate-deploy
 
 install-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo "� Building YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		echo "🚀 Starting YCode services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying YCode to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -409,7 +445,9 @@ install-ycode: _validate-deploy
 
 install-ycampus: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo "� Building YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) build; \
+		echo "🚀 Starting YCampus services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying YCampus to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -434,9 +472,59 @@ install-ycampus: _validate-deploy
 		echo "✅ YCampus deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
-run-ycode: install-ycode
+run-ycode: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+		echo "🚀 Deploying YCode to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
+			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
+			exit 1; \
+		fi; \
+		kubectl apply -f helm/namespace.yaml; \
+		helm dependency update helm; \
+		helm upgrade --install yuvro-code helm \
+			--namespace yuvro \
+			--create-namespace \
+			--values helm/values-$(DEPLOY_ENV).yaml \
+			--set ycode-backend.enabled=true \
+			--set ycampus-backend.enabled=false \
+			--set ycode-frontend.enabled=true \
+			--set ycampus-frontend.enabled=false \
+			--set code-executor.enabled=true \
+			--set postgresql-ycode.enabled=true \
+			--set postgresql-ycampus.enabled=false \
+			|| true; \
+		echo "✅ YCode deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+	fi
 
-run-ycampus: install-ycampus
+run-ycampus: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+		echo "🚀 Deploying YCampus to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
+			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
+			exit 1; \
+		fi; \
+		kubectl apply -f helm/namespace.yaml; \
+		helm dependency update helm; \
+		helm upgrade --install yuvro-code helm \
+			--namespace yuvro \
+			--create-namespace \
+			--values helm/values-$(DEPLOY_ENV).yaml \
+			--set ycode-backend.enabled=false \
+			--set ycampus-backend.enabled=true \
+			--set ycode-frontend.enabled=false \
+			--set ycampus-frontend.enabled=true \
+			--set code-executor.enabled=true \
+			--set postgresql-ycode.enabled=false \
+			--set postgresql-ycampus.enabled=true \
+			|| true; \
+		echo "✅ YCampus deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+	fi
 
 stop-ycode: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
