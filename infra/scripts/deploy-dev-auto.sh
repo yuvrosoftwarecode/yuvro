@@ -325,8 +325,8 @@ Host github.com
 SSHCONF
 chmod 600 /home/ubuntu/.ssh/config
 
-# Stop any running containers first to free ports (must happen before build)
-echo "📦 Stopping any existing containers to free ports..."
+# Stop any running containers gracefully
+echo "📦 Stopping any existing containers..."
 if [ -d "/home/ubuntu/yuvro" ]; then
   cd /home/ubuntu/yuvro
   docker compose \
@@ -337,23 +337,7 @@ if [ -d "/home/ubuntu/yuvro" ]; then
     down --remove-orphans 2>/dev/null || true
   cd /home/ubuntu
 fi
-
-# Hard-kill any container still holding the ports we need
-echo "🔪 Force-freeing ports 3000, 3002, 8001, 8009, 8003..."
-set +e
-for port in 3000 3002 8001 8009 8003; do
-  cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
-  [ -n "\$cid" ] && docker kill \$cid 2>/dev/null && docker rm -f \$cid 2>/dev/null
-  pid=\$(sudo lsof -ti tcp:\$port 2>/dev/null)
-  [ -n "\$pid" ] && sudo kill -9 \$pid 2>/dev/null
-done
-running=\$(docker ps -q 2>/dev/null)
-[ -n "\$running" ] && docker stop \$running 2>/dev/null
-all=\$(docker ps -aq 2>/dev/null)
-[ -n "\$all" ] && docker rm \$all 2>/dev/null
-set -e
-sleep 3
-echo "✅ Ports cleared"
+echo "✅ Containers stopped"
 
 echo "📦 Cloning/updating repository..."
 cd /home/ubuntu
@@ -369,8 +353,6 @@ else
 fi
 
 echo "📦 Restoring secrets files (copied before this step)..."
-# Secrets were already scp'd to the correct paths before this SSH session.
-# Verify they exist; warn if missing.
 for sf in \
     ycode-backend-api/.env.dev-secrets \
     ycampus-backend-api/.env.dev-secrets \
@@ -406,17 +388,7 @@ docker compose \
   build 2>&1 | tail -20
 
 echo "📦 Starting services..."
-# Final port safety check
-for port in 3000 3002 8001 8009 8003; do
-  cid=\$(docker ps -q --filter "publish=\$port" 2>/dev/null)
-  [ -n "\$cid" ] && docker rm -f \$cid 2>/dev/null || true
-done
-running=\$(docker ps -q 2>/dev/null)
-[ -n "\$running" ] && docker stop \$running 2>/dev/null || true
-all=\$(docker ps -aq 2>/dev/null)
-[ -n "\$all" ] && docker rm \$all 2>/dev/null || true
-sleep 2
-
+docker network create executor 2>/dev/null || true
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
@@ -441,22 +413,12 @@ docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data 2>&1 | ta
 echo "📦 Loading sample data for YCampus..."
 docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5 || echo "⚠ YCampus sample data already loaded or failed"
 
-echo "🔒 Restoring nginx HTTPS config from repo..."
-if [ -f "infra/nginx/yuvro-dev.conf" ]; then
-  sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
-  sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
-  sudo nginx -t && sudo systemctl reload nginx \
-    && echo "✅ Nginx HTTPS config restored from repo" \
-    || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
-elif [ -f "/etc/nginx/yuvro-dev-https.conf" ]; then
-  echo "⚠ Repo nginx config not found, falling back to saved copy"
-  sudo cp /etc/nginx/yuvro-dev-https.conf /etc/nginx/sites-available/yuvro-dev
-  sudo nginx -t && sudo systemctl reload nginx \
-    && echo "✅ Nginx HTTPS config restored from saved copy" \
-    || echo "⚠ Nginx config test failed"
-else
-  echo "⚠ No nginx HTTPS config found — run a full deploy to set up nginx"
-fi
+echo "🔒 Activating nginx HTTPS config from repo..."
+sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
+sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/yuvro-dev-https.conf
+sudo nginx -t && sudo systemctl reload nginx \
+  && echo "✅ Nginx HTTPS config active" \
+  || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
 DEPLOY_EOF
 
     print_success "Applications deployed"
@@ -481,44 +443,13 @@ sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-
 echo "✅ Nginx and certbot ready"
 NGINX_INSTALL_EOF
 
-    # ── Always upload the HTTPS config from the repo ───────────────────────
-    # This is the single source of truth — infra/nginx/yuvro-dev.conf
-    print_info "Uploading nginx HTTPS config..."
+    # ── Upload the HTTPS config from the repo (single source of truth) ─────
+    print_info "Uploading nginx HTTPS config from repo..."
     scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
         "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" \
         "ubuntu@$instance_ip:/tmp/yuvro-nginx-https.conf"
 
-    # ── Deploy HTTP-only config for certbot ACME challenge ─────────────────
-    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" 'sudo python3 -c "
-domains = [
-    \"code-dev.yuvro.ai\",
-    \"campus-dev.yuvro.ai\",
-    \"backend-code-dev.yuvro.ai\",
-    \"backend-campus-dev.yuvro.ai\",
-    \"code-executer-dev.yuvro.ai\",
-]
-conf = \"\"
-for d in domains:
-    conf += f\"\"\"server {{
-    listen 80;
-    server_name {d};
-    location /.well-known/acme-challenge/ {{ root /var/www/certbot; }}
-    location / {{ return 301 https://\$host\$request_uri; }}
-}}
-\"\"\"
-open(\"/etc/nginx/sites-available/yuvro-dev\", \"w\").write(conf)
-print(\"HTTP-only config written for ACME challenge\")
-"'
-
-    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_HTTP_EOF'
-set -e
-sudo nginx -t
-sudo systemctl enable nginx
-sudo systemctl reload nginx || sudo systemctl restart nginx
-echo "✅ Nginx HTTP-only config active (for certbot)"
-NGINX_HTTP_EOF
-
-    # ── Obtain Let's Encrypt certificates (skip if already exist) ──────────
+    # ── Check if all certs already exist — skip certbot if so ──────────────
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'CERTBOT_EOF'
 DOMAINS=(
     "code-dev.yuvro.ai"
@@ -529,58 +460,72 @@ DOMAINS=(
 )
 CERT_EMAIL="rohith@yuvro.ai"
 
-for domain in "${DOMAINS[@]}"; do
-    if [ -d "/etc/letsencrypt/live/$domain" ]; then
-        echo "✅ Cert exists for $domain — skipping"
-    else
-        echo "🔐 Obtaining cert for $domain ..."
-        sudo certbot certonly \
-            --webroot \
-            --webroot-path /var/www/certbot \
-            --non-interactive \
-            --agree-tos \
-            --email "$CERT_EMAIL" \
-            --domain "$domain" 2>&1 \
-        && echo "✅ Got cert for $domain" \
-        || echo "⚠ certbot failed for $domain — check DNS"
-    fi
-done
-CERTBOT_EOF
-
-    # ── Always activate HTTPS config at the end ────────────────────────────
-    # Check if all certs exist; if so use HTTPS config, otherwise keep HTTP
-    ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << 'NGINX_FINAL_EOF'
-set -e
-DOMAINS=(
-    "code-dev.yuvro.ai"
-    "campus-dev.yuvro.ai"
-    "backend-code-dev.yuvro.ai"
-    "backend-campus-dev.yuvro.ai"
-    "code-executer-dev.yuvro.ai"
-)
-
 ALL_CERTS=true
 for domain in "${DOMAINS[@]}"; do
-    [ ! -d "/etc/letsencrypt/live/$domain" ] && ALL_CERTS=false && echo "⚠ Missing cert: $domain"
+    if [ ! -d "/etc/letsencrypt/live/$domain" ]; then
+        ALL_CERTS=false
+        break
+    fi
 done
 
 if [ "$ALL_CERTS" = "true" ]; then
-    sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
-    # Save a permanent copy so re-deploys can restore it without re-running certbot
-    sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/yuvro-dev-https.conf
-    sudo nginx -t && sudo systemctl reload nginx
-    echo "✅ HTTPS nginx config active — all sites on HTTPS"
-    echo "✅ Saved to /etc/nginx/yuvro-dev-https.conf for future re-deploys"
+    echo "✅ All SSL certs already exist — skipping certbot"
 else
-    echo "⚠ Some certs missing — staying on HTTP redirect config"
-    echo "  Re-run deployment once DNS is confirmed pointing to this server"
+    echo "🔐 Some certs missing — running certbot with HTTP-only config first..."
+
+    # Write HTTP-only config for ACME challenge
+    sudo python3 -c "
+domains = [
+    'code-dev.yuvro.ai',
+    'campus-dev.yuvro.ai',
+    'backend-code-dev.yuvro.ai',
+    'backend-campus-dev.yuvro.ai',
+    'code-executer-dev.yuvro.ai',
+]
+conf = ''
+for d in domains:
+    conf += f'''server {{
+    listen 80;
+    server_name {d};
+    location /.well-known/acme-challenge/ {{ root /var/www/certbot; }}
+    location / {{ return 301 https://\$host\$request_uri; }}
+}}
+'''
+open('/etc/nginx/sites-available/yuvro-dev', 'w').write(conf)
+print('HTTP-only config written for ACME challenge')
+"
+    sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
+
+    for domain in "${DOMAINS[@]}"; do
+        if [ -d "/etc/letsencrypt/live/$domain" ]; then
+            echo "✅ Cert exists for $domain — skipping"
+        else
+            echo "🔐 Obtaining cert for $domain ..."
+            sudo certbot certonly \
+                --webroot \
+                --webroot-path /var/www/certbot \
+                --non-interactive \
+                --agree-tos \
+                --email "$CERT_EMAIL" \
+                --domain "$domain" 2>&1 \
+            && echo "✅ Got cert for $domain" \
+            || echo "⚠ certbot failed for $domain — check DNS"
+        fi
+    done
 fi
+
+# Always activate HTTPS config from the uploaded repo file
+sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
+sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/yuvro-dev-https.conf
+sudo nginx -t && sudo systemctl reload nginx \
+  && echo "✅ HTTPS nginx config active" \
+  || echo "⚠ Nginx config test failed — check /etc/nginx/sites-available/yuvro-dev"
 
 # Auto-renewal cron
 CRON_JOB="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
 ( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON_JOB" ) | sudo crontab -
 echo "✅ Certbot auto-renewal cron configured"
-NGINX_FINAL_EOF
+CERTBOT_EOF
 
     print_success "Nginx reverse proxy configured"
     echo ""
