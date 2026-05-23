@@ -1,0 +1,64 @@
+# docker-compose.local.yml
+# Override for DEPLOY_ENV=local: loads .env.local + .env.local-secrets and mounts source for live reload.
+# Usage: docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml \
+#          -f docker-compose.ycampus.yml -f docker-compose.local.yml up
+
+services:
+  # ── YCode ──────────────────────────────────────────────────────────────────
+  ycode-db:
+    env_file:
+      - ./ycode-backend-api/.env.local
+      - path: ./ycode-backend-api/.env.local-secrets
+        required: false
+
+  ycode-backend:
+    env_file:
+      - ./ycode-backend-api/.env.local
+      - path: ./ycode-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ./ycode-backend-api:/app
+      - /app/venv
+
+  ycode-frontend:
+    env_file:
+      - ./ycode-web/.env.local
+      - path: ./ycode-web/.env.local-secrets
+        required: false
+    volumes:
+      - ./ycode-web:/app
+      - /app/node_modules
+
+  # ── YCampus ────────────────────────────────────────────────────────────────
+  ycampus-db:
+    env_file:
+      - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
+
+  ycampus-backend:
+    env_file:
+      - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ./ycampus-backend-api:/app
+      - /app/venv
+
+  ycampus-frontend:
+    env_file:
+      - ./ycampus-web/.env.local
+      - path: ./ycampus-web/.env.local-secrets
+        required: false
+    volumes:
+      - ./ycampus-web:/app
+      - /app/node_modules
+
+  # ── Code Executor ──────────────────────────────────────────────────────────
+  yuvro-code-executor:
+    env_file:
+      - ./yuvro-code-executer/.env.local
+      - path: ./yuvro-code-executer/.env.local-secrets
+        required: false
+    volumes:
+      - ./yuvro-code-executer:/app

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -190,6 +191,12 @@ CORS_ALLOW_HEADERS = [
     "tracestate",
     "baggage",
 ]
+
+# CSRF trusted origins — required when Django is behind a reverse proxy serving HTTPS
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://backend-campus-dev.yuvro.ai,https://backend-code-dev.yuvro.ai,http://localhost:8003",
+).split(",")
 
 # Django Allauth Settings
 SITE_ID = 1

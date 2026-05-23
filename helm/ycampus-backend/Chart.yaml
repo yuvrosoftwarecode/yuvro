@@ -1,0 +1,4 @@
+apiVersion: v2
+name: ycampus-backend
+description: YCampus Backend API Helm chart
+version: 1.0.0

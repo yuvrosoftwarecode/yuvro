@@ -1,0 +1,120 @@
+# Local environment values
+global:
+  deployEnv: local
+  deployType: kubernetes
+  imageRegistry: ""
+  storageClass: hostpath
+
+ycode-backend:
+  replicaCount: 1
+  image: ycode-backend
+  imageTag: latest
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: false
+  persistence:
+    enabled: false
+
+ycampus-backend:
+  replicaCount: 1
+  image: ycampus-backend
+  imageTag: latest
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: false
+  persistence:
+    enabled: false
+
+ycode-frontend:
+  replicaCount: 1
+  image: ycode-frontend
+  imageTag: latest
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: false
+
+ycampus-frontend:
+  replicaCount: 1
+  image: ycampus-frontend
+  imageTag: latest
+  service:
+    port: 3002
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: false
+
+code-executor:
+  replicaCount: 1
+  image: yc-code-executor
+  imageTag: latest
+  service:
+    port: 8002
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  ingress:
+    enabled: false
+
+postgresql-ycode:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    storageClass: hostpath
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+postgresql-ycampus:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    storageClass: hostpath
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi

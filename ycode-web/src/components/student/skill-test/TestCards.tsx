@@ -11,7 +11,7 @@ interface TestCardsProps {
   topicName: string;
   onBack: () => void;
   onStartTest: (test: Test) => void;
-  onViewResult: (submissionId: string, test: Test) => void;
+  onViewResult: (test: Test) => void;
   onViewAllResults: (test: Test) => void;
   completedTests: Set<string>;
 }

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import admin_users
+from .views import admin_users, google_login_view
 
 app_name = "authentication"
 
@@ -12,6 +12,7 @@ router.register(r'departments', views.DepartmentViewSet, basename='department')
 urlpatterns = [
     path("register/", views.UserRegistrationView.as_view(), name="register"),
     path("login/", views.login_view, name="login"),
+    path("google/", google_login_view, name="google_login"),
     path("logout/", views.logout_view, name="logout"),
     path(
         "token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"

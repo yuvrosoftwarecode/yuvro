@@ -2,16 +2,20 @@ services:
   ycampus-db:
     image: postgres:15
     env_file:
-      - ./ycampus-backend-api/.env
+      - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
     volumes:
       - ycampus_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5433:5432"  # YCampus PostgreSQL (tech.md: 5433)
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
+    restart: on-failure
     networks:
       - ycampus
 
@@ -20,12 +24,12 @@ services:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
     ports:
-      - "8001:8000"  # Django API
+      - "8003:8000"  # Django API (tech.md: 8003)
       - "9001:9001"  # Prometheus metrics
     env_file:
-      - ./ycampus-backend-api/.env
-    volumes:
-      - ./ycampus-backend-api:/app
+      - ./ycampus-backend-api/.env.local
+      - path: ./ycampus-backend-api/.env.local-secrets
+        required: false
     depends_on:
       ycampus-db:
         condition: service_healthy
@@ -38,30 +42,36 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+    restart: on-failure
     networks:
       - ycampus
-      - executor  # Connect to executor network
+      - executor
 
   ycampus-frontend:
     build:
       context: ./ycampus-web
       dockerfile: Dockerfile
       target: development
-    ports:
-      - "3001:3000"
     env_file:
-      - ./ycampus-web/.env
-    volumes:
-      - ./ycampus-web:/app
-      - /app/node_modules
+      - ./ycampus-web/.env.local
+      - path: ./ycampus-web/.env.local-secrets
+        required: false
     stdin_open: true
     tty: true
     depends_on:
-      - ycampus-backend
+      ycampus-backend:
+        condition: service_healthy
     command: npm run dev -- --host 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
     networks:
       - ycampus
-      - executor  # Connect to executor network
+      - executor
 
 volumes:
   ycampus_postgres_data:

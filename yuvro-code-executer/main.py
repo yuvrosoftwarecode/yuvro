@@ -27,14 +27,22 @@ tracer = get_tracer(__name__)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        # Local development
         "http://localhost:3000",
-        "http://localhost:5173", 
+        "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
         "http://localhost:3001",
-        "http://127.0.0.1:3001"
-
-    ],  # Configure this properly in production
+        "http://127.0.0.1:3001",
+        # Dev environment (AWS)
+        "https://code-dev.yuvro.ai",
+        "https://campus-dev.yuvro.ai",
+        "http://code-dev.yuvro.ai",
+        "http://campus-dev.yuvro.ai",
+        # Staging / production (add as needed)
+        "https://yuvro.ai",
+        "https://www.yuvro.ai",
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

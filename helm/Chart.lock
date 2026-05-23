@@ -1,0 +1,24 @@
+dependencies:
+- name: ycode-backend
+  repository: file://./ycode-backend
+  version: 1.0.0
+- name: ycampus-backend
+  repository: file://./ycampus-backend
+  version: 1.0.0
+- name: ycode-frontend
+  repository: file://./ycode-frontend
+  version: 1.0.0
+- name: ycampus-frontend
+  repository: file://./ycampus-frontend
+  version: 1.0.0
+- name: code-executor
+  repository: file://./code-executor
+  version: 1.0.0
+- name: postgresql-ycode
+  repository: file://./postgresql-ycode
+  version: 1.0.0
+- name: postgresql-ycampus
+  repository: file://./postgresql-ycampus
+  version: 1.0.0
+digest: sha256:1e814c6ef4fec6c7c54d18f495c2abfb9999105d94bb694d50316467e369457f
+generated: "2026-03-24T23:10:17.364813+05:30"

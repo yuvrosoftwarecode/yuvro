@@ -31,6 +31,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Environment files - local overrides should never be committed
+# .env.local, .env.dev, .env.prod etc CAN be committed (no real secrets)
+# .env.local-secrets, .env.dev-secrets etc must NEVER be committed
+**/.env.*-secrets
+secrets.env
+
 # Docker
 *.pid
 docker-compose.override.yml

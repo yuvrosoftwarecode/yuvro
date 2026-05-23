@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,7 @@ const SolutionViewer: React.FC<SolutionViewerProps> = ({
         : (defaultSolutionCode
             ? [{
                 title: 'Reference Solution',
+                approach: 'optimal',
                 language: defaultSolutionLanguage || 'python',
                 code: defaultSolutionCode,
                 is_primary: true

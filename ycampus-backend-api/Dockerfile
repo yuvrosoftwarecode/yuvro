@@ -37,7 +37,9 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 # Production stage
 FROM base as production
 COPY . .
-# Create static directory
-RUN mkdir -p /app/staticfiles
+# Collect static files at build time so WhiteNoise can serve them
+RUN mkdir -p /app/staticfiles \
+    && SECRET_KEY=build-placeholder DATABASE_URL=sqlite:///tmp/build.db python manage.py collectstatic --noinput
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
+# Use gunicorn with the correct Django project module (yc-backend-api folder)
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "yc-backend-api.wsgi:application"]

@@ -1,0 +1,161 @@
+# Staging environment values
+global:
+  deployEnv: staging
+  deployType: kubernetes
+  imageRegistry: 123456789012.dkr.ecr.us-east-1.amazonaws.com
+  storageClass: gp3
+
+ycode-backend:
+  replicaCount: 2
+  image: ycode-backend
+  imageTag: staging
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: staging-api.ycode.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: ycode-backend-tls
+        hosts:
+          - staging-api.ycode.example.com
+  persistence:
+    enabled: false
+
+ycampus-backend:
+  replicaCount: 2
+  image: ycampus-backend
+  imageTag: staging
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  hpa:
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: staging-api.ycampus.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: ycampus-backend-tls
+        hosts:
+          - staging-api.ycampus.example.com
+  persistence:
+    enabled: false
+
+ycode-frontend:
+  replicaCount: 2
+  image: ycode-frontend
+  imageTag: staging
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: staging.ycode.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: ycode-frontend-tls
+        hosts:
+          - staging.ycode.example.com
+
+ycampus-frontend:
+  replicaCount: 2
+  image: ycampus-frontend
+  imageTag: staging
+  service:
+    port: 3002
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: staging.ycampus.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: ycampus-frontend-tls
+        hosts:
+          - staging.ycampus.example.com
+
+code-executor:
+  replicaCount: 2
+  image: code-executor
+  imageTag: staging
+  service:
+    port: 8002
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  hpa:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  ingress:
+    enabled: false
+
+postgresql-ycode:
+  enabled: false
+  existingManaged: true
+  host: ycode-staging-db.example.us-east-1.rds.amazonaws.com
+  port: 5432
+  database: ycode_backend_db
+  sslMode: require
+
+postgresql-ycampus:
+  enabled: false
+  existingManaged: true
+  host: ycampus-staging-db.example.us-east-1.rds.amazonaws.com
+  port: 5432
+  database: ycampus_backend_db
+  sslMode: require
