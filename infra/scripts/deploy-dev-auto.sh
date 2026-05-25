@@ -311,6 +311,15 @@ deploy_applications() {
         VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ycode-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
     fi
 
+    YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL=""
+    if [ -f "$SECRETS_DIR/ycampus-web/.env.dev-secrets" ]; then
+        YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$SECRETS_DIR/ycampus-web/.env.dev-secrets" | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+    fi
+    # Fall back to ycode client ID if ycampus-specific one not set
+    if [ -z "$YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL" ]; then
+        YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL="$VITE_GOOGLE_CLIENT_ID_VAL"
+    fi
+
     ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no "ubuntu@$instance_ip" bash << DEPLOY_EOF
 set -e
 
@@ -373,6 +382,7 @@ export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
 export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export VITE_GOOGLE_CLIENT_ID="${VITE_GOOGLE_CLIENT_ID_VAL}"
+export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL}"
 
 echo "✓ Build args configured"
 echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
