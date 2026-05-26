@@ -120,7 +120,7 @@ def google_login_view(request):
     if not email:
         return Response({"error": "Could not retrieve email from Google"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get or create user
+    # Get or create user by email
     user, created = User.objects.get_or_create(
         email=email,
         defaults={
@@ -130,6 +130,15 @@ def google_login_view(request):
             "is_active": True,
         },
     )
+
+    # Never touch an existing password — user may have registered with email/password
+    # and is now signing in with Google on the same account.
+
+    # Store google_id on Profile (that's where the field lives)
+    profile, _ = Profile.objects.get_or_create(user=user)
+    if not profile.google_id:
+        profile.google_id = google_id
+        profile.save(update_fields=["google_id"])
 
     # Generate JWT tokens
     token_serializer = CustomTokenObtainPairSerializer()

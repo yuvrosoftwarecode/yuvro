@@ -96,7 +96,7 @@ services:
       args:
         - VITE_BACKEND_API_BASE_URL=${YCAMPUS_VITE_BACKEND_API_BASE_URL:-https://backend-campus-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
-        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_GOOGLE_CLIENT_ID=${YCAMPUS_VITE_GOOGLE_CLIENT_ID:-}
     env_file:
       - ./ycampus-web/.env.dev
       - path: ./ycampus-web/.env.dev-secrets
