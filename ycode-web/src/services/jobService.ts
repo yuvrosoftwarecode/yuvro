@@ -173,6 +173,12 @@ export const jobService = {
         return restApiAuthUtil.delete(`/jobs/companies/${companyId}/`);
     },
 
+    async checkCompanyName(name: string, excludeId?: string): Promise<{ exists: boolean }> {
+        const params: any = { name };
+        if (excludeId) params.exclude_id = excludeId;
+        return restApiAuthUtil.get('/jobs/companies/check-name/', { params });
+    },
+
     async getQuestion(questionId: number): Promise<Question> {
         return restApiAuthUtil.get(`/course/questions/${questionId}/`);
     },

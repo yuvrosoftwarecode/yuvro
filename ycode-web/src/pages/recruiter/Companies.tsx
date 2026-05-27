@@ -41,6 +41,8 @@ const RecruiterCompanies: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSizeFilter, setSelectedSizeFilter] = useState('all');
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [isValidatingName, setIsValidatingName] = useState(false);
 
   const [companyFormData, setCompanyFormData] = useState({
     name: "",
@@ -56,6 +58,35 @@ const RecruiterCompanies: React.FC = () => {
     loadCompanies();
   }, []);
 
+  useEffect(() => {
+    if (!companyFormData.name.trim()) {
+      setNameError(null);
+      setIsValidatingName(false);
+      return;
+    }
+
+    setIsValidatingName(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const result = await jobService.checkCompanyName(
+          companyFormData.name.trim(),
+          isEditing && selectedCompanyId ? selectedCompanyId : undefined
+        );
+        if (result.exists) {
+          setNameError("A company with this name is already registered.");
+        } else {
+          setNameError(null);
+        }
+      } catch (error) {
+        console.error("Error checking company name:", error);
+      } finally {
+        setIsValidatingName(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [companyFormData.name, isEditing, selectedCompanyId]);
+
   const loadCompanies = async () => {
     try {
       const data = await jobService.getAllCompanies();
@@ -69,6 +100,8 @@ const RecruiterCompanies: React.FC = () => {
   const openAddForm = () => {
     setIsEditing(false);
     setSelectedCompanyId(null);
+    setNameError(null);
+    setIsValidatingName(false);
     setCompanyFormData({
       name: "",
       domain: "",
@@ -84,6 +117,8 @@ const RecruiterCompanies: React.FC = () => {
   const openEditForm = (company: Company) => {
     setIsEditing(true);
     setSelectedCompanyId(company.id);
+    setNameError(null);
+    setIsValidatingName(false);
     setCompanyFormData({
       name: company.name,
       domain: company.domain || "",
@@ -99,6 +134,10 @@ const RecruiterCompanies: React.FC = () => {
   const handleSubmitCompany = async () => {
     if (!companyFormData.name.trim()) {
       toast.error('Please enter a company name');
+      return;
+    }
+    if (nameError) {
+      toast.error('Please fix the errors before submitting');
       return;
     }
 
@@ -400,13 +439,16 @@ const RecruiterCompanies: React.FC = () => {
                     <CardContent className="space-y-4 pt-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Company Name *</Label>
+                          <Label className={nameError ? "text-red-500" : ""}>Company Name *</Label>
                           <Input
                             value={companyFormData.name}
                             onChange={(e) => setCompanyFormData({ ...companyFormData, name: e.target.value })}
                             placeholder="e.g., Tech Solutions Inc."
-                            className="bg-white"
+                            className={`bg-white ${nameError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                           />
+                          {nameError && (
+                            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label>Domain</Label>
@@ -494,9 +536,10 @@ const RecruiterCompanies: React.FC = () => {
                     </Button>
                     <Button
                       onClick={handleSubmitCompany}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      disabled={isValidatingName || !!nameError}
+                      className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isEditing ? "Update Company" : "Add Company"}
+                      {isValidatingName ? "Validating..." : (isEditing ? "Update Company" : "Add Company")}
                     </Button>
                   </div>
                 </div>

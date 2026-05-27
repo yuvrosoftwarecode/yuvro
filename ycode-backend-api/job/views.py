@@ -80,6 +80,20 @@ class CompanyViewSet(viewsets.ModelViewSet):
         )
         return super().partial_update(request, *args, **kwargs)
 
+    @action(detail=False, methods=["get"])
+    def check_name(self, request):
+        name = request.query_params.get("name", "").strip()
+        exclude_id = request.query_params.get("exclude_id")
+        if not name:
+            return Response({"exists": False})
+
+        qs = Company.objects.filter(name__iexact=name)
+        if exclude_id:
+            qs = qs.exclude(id=exclude_id)
+
+        exists = qs.exists()
+        return Response({"exists": exists})
+
 
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
