@@ -93,7 +93,7 @@ export const collegeService = {
     },
 
     deleteCollege: async (id: string | number) => {
-        return restApiAuthUtil.delete(`/core/college/${id}/`);
+        return restApiAuthUtil.delete(`/course/colleges/${id}/`);
     },
 
     // University endpoints
