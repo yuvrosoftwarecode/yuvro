@@ -606,6 +606,7 @@ class UserToggleStatusView(APIView):
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticatedUser]
 
@@ -614,6 +615,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticatedUser]
 
