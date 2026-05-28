@@ -11,7 +11,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser
+from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsAdminUser
 from .utils import CodeExecutionUtil
 from gamification.service import GamificationService
 from gamification.models import UserGamificationProfile, DailyUserActivity
@@ -53,6 +53,11 @@ def instructor_assigned(user, course):
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     permission_classes = [CanManageCourses]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAdminUser()]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         return CourseSerializer if self.action == "retrieve" else CourseBasicSerializer
@@ -121,6 +126,20 @@ class CourseViewSet(viewsets.ModelViewSet):
         )
 
         return queryset
+
+    @action(detail=False, methods=["get"], url_path="check-name")
+    def check_name(self, request):
+        name = request.query_params.get("name", "").strip()
+        if not name:
+            return Response({"exists": False})
+        
+        qs = Course.objects.filter(name__iexact=name)
+        
+        exclude_id = request.query_params.get("exclude_id")
+        if exclude_id:
+            qs = qs.exclude(pk=exclude_id)
+            
+        return Response({"exists": qs.exists()})
 
     @action(detail=True, methods=["get"])
     def instructors(self, request, pk=None):

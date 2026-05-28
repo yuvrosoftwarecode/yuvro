@@ -145,6 +145,15 @@ class CourseSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_name(self, value):
+        name = value.strip()
+        qs = Course.objects.filter(name__iexact=name)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("A course with this name already exists.")
+        return name
+
 
 class CourseBasicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -168,6 +177,15 @@ class CourseBasicSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
     total_score = serializers.FloatField(read_only=True)
     ai_help_used = serializers.IntegerField(read_only=True)
+
+    def validate_name(self, value):
+        name = value.strip()
+        qs = Course.objects.filter(name__iexact=name)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("A course with this name already exists.")
+        return name
 
 
 class VideoSerializer(serializers.ModelSerializer):
