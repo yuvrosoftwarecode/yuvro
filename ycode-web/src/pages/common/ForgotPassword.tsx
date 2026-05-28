@@ -13,7 +13,7 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${import.meta.env.BACKEND_API_BASE_URL}/auth/forgot-password/`, {
+      await axios.post(`${import.meta.env.VITE_BACKEND_API_BASE_URL}/auth/forgot-password/`, {
         email,
       });
       setMessage("If this email exists, a reset link will be sent.");
