@@ -141,6 +141,18 @@ const PlacementSidebar = () => {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
+                  {/* Skill Tests */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => navigate('/placement/skill-tests')}
+                      isActive={location.pathname === '/placement/skill-tests'}
+                      className={location.pathname === '/placement/skill-tests' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}
+                    >
+                      <Trophy className="h-4 w-4" />
+                      <span className="flex-1">Skill Tests</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
                   {/* Job Management Dropdown */}
                   <SidebarMenuItem>
                     <SidebarMenuButton
