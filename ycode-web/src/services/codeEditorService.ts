@@ -63,6 +63,7 @@ export interface ExecutionResult extends CodeSubmission {
     }>;
   };
   plagiarism_flagged: boolean;
+  gamification?: any;
 }
 
 class CodeEditorService {
@@ -218,7 +219,8 @@ class CodeEditorService {
           results: response.test_results?.test_results || response.test_results?.results || [],
           success: response.status === 'completed'
         },
-        plagiarism_flagged: response.plagiarism_flagged || false
+        plagiarism_flagged: response.plagiarism_flagged || false,
+        gamification: response.gamification
       };
     } catch (error) {
       console.error('Code submission failed:', error);
