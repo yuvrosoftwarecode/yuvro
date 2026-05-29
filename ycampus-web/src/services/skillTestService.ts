@@ -203,9 +203,13 @@ export const getSkillTestsByUnit = async (unitId: string, testType?: string): Pr
   return fetchSkillTests({ unit: unitId, test_type: testType });
 };
 
-export const getSkillTestSubmissions = async (skillTestId: string): Promise<any[]> => {
+export const getSkillTestSubmissions = async (skillTestId: string, collegeId?: string): Promise<any[]> => {
   try {
-    const response = await restApiAuthUtil.get(`/assessment/skill-test/submissions/?skill_test=${skillTestId}`);
+    let url = `/assessment/skill-test/submissions/?skill_test=${skillTestId}`;
+    if (collegeId) {
+      url += `&college_id=${collegeId}&college=${collegeId}`;
+    }
+    const response = await restApiAuthUtil.get(url);
     return response as any[];
   } catch (error) {
     console.error('Error fetching submissions:', error);
