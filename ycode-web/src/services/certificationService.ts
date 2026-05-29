@@ -65,3 +65,11 @@ export const getCertificationSubmission = async (submissionId: string | number) 
 export const deleteCertificationExam = async (id: string | number) => {
     return restApiAuthUtil.delete(`/assessment/certification-exams/${id}/`);
 };
+
+export const getMyCertificates = async (): Promise<any[]> => {
+    return restApiAuthUtil.get('/assessment/certificates/');
+};
+
+export const getCertificate = async (id: string | number): Promise<any> => {
+    return restApiAuthUtil.get(`/assessment/certificates/${id}/`);
+};

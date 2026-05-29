@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
+import { getMyCertificates } from '@/services/certificationService';
 
 import {
   BookOpen,
@@ -31,12 +32,20 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [myCertificates, setMyCertificates] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const data = await studentDashboardService.getDashboardData();
+        const [data, certificates] = await Promise.all([
+          studentDashboardService.getDashboardData(),
+          getMyCertificates().catch(err => {
+            console.error('Failed to fetch certificates:', err);
+            return [];
+          })
+        ]);
         setDashboardData(data);
+        setMyCertificates(certificates);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         // Use mock data as fallback
@@ -378,6 +387,53 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Earned Certificates */}
+            {myCertificates.length > 0 && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-amber-500" />
+                    Earned Certificates
+                  </h3>
+                  <button
+                    onClick={() => navigate('/student/certifications')}
+                    className="text-gray-500 hover:text-gray-700 cursor-pointer text-sm font-medium flex items-center"
+                  >
+                    View All <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-4">
+                    {myCertificates.slice(0, 3).map((cert) => (
+                      <div key={cert.id} className="flex items-center justify-between p-3.5 bg-gradient-to-r from-slate-50 to-indigo-50/20 border border-gray-100 rounded-xl hover:shadow-sm transition-all duration-300">
+                        <div className="min-w-0 flex-1 pr-2">
+                          <p className="text-sm font-bold text-gray-900 truncate">
+                            {cert.course_name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            ID: <span className="font-mono">{cert.certificate_id}</span>
+                          </p>
+                        </div>
+                        <a
+                          href={(() => {
+                            const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
+                            const host = apiBase.replace(/\/api\/?$/, '');
+                            return `${host}${cert.certificate_url}`;
+                          })()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 flex items-center justify-center p-2 text-indigo-600 hover:text-white hover:bg-indigo-600 bg-indigo-50 rounded-lg transition-all active:scale-95"
+                          title="View Certificate"
+                        >
+                          <span className="text-sm px-1.5 font-bold">⎙</span>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
 
             {/* Recommended Jobs */}

@@ -192,6 +192,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         # Check for passing and issue certificate
         passed = False
         certificate_id = None
+        certificate_url = None
         if total_score >= exam.passing_marks:
             passed = True
             # Check if certificate already exists
@@ -204,6 +205,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                 }
             )
             certificate_id = cert.certificate_id
+            certificate_url = cert.certificate_url
 
         # --- Gamification: record activity for certification submission ---
         gamification = {}
@@ -218,6 +220,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             'score': total_score,
             'passed': passed,
             'certificate_id': certificate_id,
+            'certificate_url': certificate_url,
             'gamification': gamification,
         })
 
@@ -1587,5 +1590,52 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         if exam_id:
             qs = qs.filter(certification_exam_id=exam_id)
         return qs
+
+
+class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Certificate.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        from .serializers import CertificateSerializer
+        return CertificateSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'role') and user.role in ['admin', 'instructor']:
+            return Certificate.objects.all()
+        return Certificate.objects.filter(user=user)
+
+    @action(detail=True, methods=['get'], url_path='view', permission_classes=[AllowAny])
+    def view_certificate(self, request, pk=None):
+        cert = get_object_or_404(Certificate, pk=pk)
+        
+        # Calculate percentage
+        percentage = 0
+        score = 0
+        if cert.submission and cert.submission.marks is not None:
+            score = cert.submission.marks
+            if cert.certification_exam and cert.certification_exam.total_marks:
+                percentage = round((score / cert.certification_exam.total_marks) * 100, 1)
+        
+        completion_date = cert.issued_at.strftime('%B %d, %Y')
+        if cert.submission and cert.submission.completed_at:
+            completion_date = cert.submission.completed_at.strftime('%B %d, %Y')
+
+        student_name = f"{cert.user.first_name} {cert.user.last_name}".strip() or cert.user.username
+
+        context = {
+            'student_name': student_name,
+            'exam_title': cert.certification_exam.title if cert.certification_exam else cert.course.name,
+            'course_name': cert.course.name,
+            'score': score,
+            'percentage': percentage,
+            'completion_date': completion_date,
+            'certificate_id': cert.certificate_id,
+            'issued_at': cert.issued_at.strftime('%B %d, %Y'),
+        }
+        
+        from django.shortcuts import render
+        return render(request, 'assessment/certificate.html', context)
 
 

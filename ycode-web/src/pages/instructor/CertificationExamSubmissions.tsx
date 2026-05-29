@@ -6,7 +6,7 @@ import StatusBadge from '@/components/common/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import DashboardLayout from '@/components/common/DashboardLayout';
-import { Eye, Clock, Calendar, CheckCircle } from 'lucide-react';
+import { Eye, Clock, Calendar, CheckCircle, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -109,7 +109,14 @@ export default function CertificationExamSubmissions() {
                                                 <StatusBadge status={sub.status} />
                                             </TableCell>
                                             <TableCell className="font-medium">
-                                                {sub.marks !== null ? `${sub.marks} / ${exam?.passing_marks ? '100' : '100'}` : '-'}
+                                                <div className="flex flex-col gap-1">
+                                                    <span>{sub.marks !== null ? `${sub.marks} / ${exam?.passing_marks || 60}` : '-'}</span>
+                                                    {sub.certificate && (
+                                                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] w-fit font-bold uppercase tracking-wider py-0.5">
+                                                            🎓 Certified
+                                                        </Badge>
+                                                    )}
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1.5 text-gray-500 text-sm">
@@ -124,13 +131,30 @@ export default function CertificationExamSubmissions() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <button
-                                                    onClick={() => navigate(`/instructor/certifications/submissions/${sub.id}`)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                                                    title="View Details"
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </button>
+                                                <div className="flex justify-end gap-2">
+                                                    {sub.certificate && (
+                                                        <a
+                                                            href={(() => {
+                                                                const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
+                                                                const host = apiBase.replace(/\/api\/?$/, '');
+                                                                return `${host}${sub.certificate.certificate_url}`;
+                                                            })()}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 text-amber-600 hover:bg-amber-50 rounded-md transition-colors flex items-center justify-center"
+                                                            title={`View Earned Certificate (${sub.certificate.certificate_id})`}
+                                                        >
+                                                            <Award className="h-4 w-4" />
+                                                        </a>
+                                                    )}
+                                                    <button
+                                                        onClick={() => navigate(`/instructor/certifications/submissions/${sub.id}`)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                        title="View Details"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
