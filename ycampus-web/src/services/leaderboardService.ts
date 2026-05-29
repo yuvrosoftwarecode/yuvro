@@ -28,8 +28,9 @@ export const leaderboardService = {
     return await restApiAuthUtil.get<LeaderboardEntry[]>(`/assessment/leaderboards/subject/${subjectId}/`);
   },
 
-  getGlobalLeaderboard: async (): Promise<LeaderboardEntry[]> => {
-    return await restApiAuthUtil.get<LeaderboardEntry[]>('/assessment/leaderboards/global/');
+  getGlobalLeaderboard: async (testType?: string): Promise<LeaderboardEntry[]> => {
+    const url = testType ? `/assessment/leaderboards/global/?test_type=${testType}` : '/assessment/leaderboards/global/';
+    return await restApiAuthUtil.get<LeaderboardEntry[]>(url);
   },
 
   getAssessmentLeaderboard: async (subjectId: string): Promise<LeaderboardEntry[]> => {

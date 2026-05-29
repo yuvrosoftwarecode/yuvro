@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   FileText, Search, Loader2, Trophy, Clock, Users, BarChart2, ArrowLeft,
-  CheckCircle2, BookOpen, TrendingUp, ClipboardList, AlertCircle
+  CheckCircle2, BookOpen, TrendingUp, ClipboardList, AlertCircle, Download
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,6 +23,7 @@ import AnalyticsStats from '@/components/college-admin/analytics/AnalyticsStats'
 import CandidatesTable from '@/components/college-admin/analytics/CandidatesTable';
 import SubmissionAnalyticsView from '@/components/college-admin/analytics/SubmissionAnalyticsView';
 import LeaderboardTable from '@/components/placement/leaderboard/LeaderboardTable';
+import LeaderboardLayout from '@/components/placement/leaderboard/LeaderboardLayout';
 import leaderboardService, { LeaderboardEntry } from '@/services/leaderboardService';
 
 type ViewMode = 'list' | 'analytics' | 'submission-results';
@@ -207,6 +208,7 @@ const PlacementSkillTests = () => {
   const [testsLoading, setTestsLoading] = useState(false);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [collegeSubjects, setCollegeSubjects] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>('');
@@ -216,6 +218,7 @@ const PlacementSkillTests = () => {
   const [activeTab, setActiveTab] = useState<'skill-tests' | 'assessments'>('skill-tests');
   const [activeSubTab, setActiveSubTab] = useState<SubTabMode>('tests');
   const [leaderboardScope, setLeaderboardScope] = useState<LeaderboardScope>('unit');
+  const [selectedTestIdForLeaderboard, setSelectedTestIdForLeaderboard] = useState<string>('');
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
@@ -387,19 +390,19 @@ const PlacementSkillTests = () => {
 
   useEffect(() => {
     if (activeTab === 'skill-tests') {
-      if (selectedUnit && view === 'list' && activeSubTab === 'tests') {
+      if (selectedUnit && view === 'list') {
         loadSkillTests(selectedUnit);
-      } else {
+      } else if (!selectedUnit) {
         setSkillTests([]);
       }
     } else {
-      if (selectedSubject && view === 'list' && activeSubTab === 'tests') {
+      if (selectedSubject && view === 'list') {
         loadAssessments(selectedSubject);
-      } else {
+      } else if (!selectedSubject) {
         setSkillTests([]);
       }
     }
-  }, [selectedSubject, selectedUnit, activeTab, view, activeSubTab]);
+  }, [selectedSubject, selectedUnit, activeTab, view]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -413,8 +416,8 @@ const PlacementSkillTests = () => {
         } else if (leaderboardScope === 'unit' && selectedUnit) {
           data = await leaderboardService.getUnitLeaderboard(selectedUnit);
         } else if (leaderboardScope === 'test' && skillTests.length > 0) {
-          // Default to first test in list if scoping to test without selecting one
-          data = await leaderboardService.getTestLeaderboard(skillTests[0].id);
+          const targetTestId = selectedTestIdForLeaderboard || skillTests[0].id;
+          data = await leaderboardService.getTestLeaderboard(targetTestId);
         } else if (leaderboardScope === 'assessments' && selectedSubject) {
           data = await leaderboardService.getAssessmentLeaderboard(selectedSubject);
         }
@@ -429,7 +432,7 @@ const PlacementSkillTests = () => {
     if (activeSubTab === 'leaderboard' && view === 'list') {
       fetchLeaderboard();
     }
-  }, [activeSubTab, leaderboardScope, selectedSubject, selectedUnit, skillTests, view]);
+  }, [activeSubTab, leaderboardScope, selectedSubject, selectedUnit, skillTests, view, selectedTestIdForLeaderboard]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -437,6 +440,92 @@ const PlacementSkillTests = () => {
     setSelectedTest(test);
     loadAnalytics(test.id);
     setView('analytics');
+  };
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      let csvContent = "";
+      let filename = `skill-test-report-${currentSubjectName || 'subject'}-${currentUnitName || 'unit'}.csv`;
+      
+      if (view === 'analytics' && selectedTest) {
+        // Export from Analytics view
+        filename = `analytics-report-${selectedTest.title}.csv`;
+        
+        // Header
+        const headers = ["Student Name", "Roll Number", "Subject", "Unit", "Test Name", "Score", "Accuracy %", "Attempt Date"];
+        csvContent += headers.join(",") + "\n";
+        
+        submissions.forEach(sub => {
+          const studentName = sub.user_details?.name || sub.user_details?.first_name || sub.user_name || "Unknown";
+          const rollNo = sub.user_details?.roll_no || sub.user_id || "";
+          const score = sub.score !== undefined ? sub.score : (sub.marks !== undefined ? sub.marks : 0);
+          const maxScore = selectedTest.total_marks || 1;
+          const accuracy = Math.round((score / maxScore) * 100);
+          const attemptDate = sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : (sub.created_at ? new Date(sub.created_at).toLocaleDateString() : "");
+          
+          const row = [
+            `"${studentName}"`,
+            `"${rollNo}"`,
+            `"${currentSubjectName}"`,
+            `"${currentUnitName}"`,
+            `"${selectedTest.title}"`,
+            score,
+            `${accuracy}%`,
+            `"${attemptDate}"`
+          ];
+          csvContent += row.join(",") + "\n";
+        });
+      } else if (activeSubTab === 'leaderboard') {
+        // Export from Leaderboard view
+        const headers = ["Rank", "Student Name", "ID", "Score / Performance", "Accuracy %"];
+        if (leaderboardScope === 'test') {
+          headers.push("Time Taken");
+        } else {
+          headers.push("Tests Completed");
+        }
+        csvContent += headers.join(",") + "\n";
+        
+        leaderboardData.forEach(entry => {
+          const scoreStr = leaderboardScope === 'test' ? entry.score : entry.performance_score;
+          const extraStr = leaderboardScope === 'test' 
+            ? (entry.time_taken ? `${Math.floor(entry.time_taken / 60)}m ${Math.floor(entry.time_taken % 60)}s` : '-')
+            : (entry.tests_completed);
+            
+          const row = [
+            entry.rank,
+            `"${entry.student_name}"`,
+            `"${entry.user_id}"`,
+            scoreStr,
+            `${entry.accuracy}%`,
+            `"${extraStr}"`
+          ];
+          csvContent += row.join(",") + "\n";
+        });
+      }
+
+      if (!csvContent) {
+        toast({ title: 'Notice', description: 'No data available to export.', variant: 'default' });
+        return;
+      }
+
+      // Create a Blob and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename.replace(/\s+/g, '-').toLowerCase());
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({ title: 'Success', description: 'Report exported successfully.', variant: 'default' });
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Error', description: 'Failed to export report.', variant: 'destructive' });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // ── Breadcrumbs ──────────────────────────────────────────────────────────
@@ -487,41 +576,26 @@ const PlacementSkillTests = () => {
                   <Trophy className="w-4 h-4 mr-2" /> Leaderboard
                 </TabsTrigger>
               </TabsList>
-              
-              {activeSubTab === 'leaderboard' && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground">Scope:</span>
-                  <Select value={leaderboardScope} onValueChange={(v: any) => setLeaderboardScope(v)}>
-                    <SelectTrigger className="w-[140px] h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="test">Test Level</SelectItem>
-                      <SelectItem value="unit">Unit Level</SelectItem>
-                      <SelectItem value="subject">Subject Level</SelectItem>
-                      <SelectItem value="global">Global Level</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </div>
 
-          <Card className="border-border bg-card">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex flex-wrap gap-4">
-                <FilterSelect label="Subject" value={selectedSubject || null}
-                  options={collegeSubjects.map(s => s.subject_name)}
-                  values={collegeSubjects.map(s => String(s.id))}
-                  onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
-                  disabled={isLoadingInitial}
-                  emptyMessage="No assessment subjects found" />
-                <FilterSelect label="Unit" value={selectedUnit || null}
-                  options={units.map(u => u.name)} values={units.map(u => u.id)}
-                  onChange={setSelectedUnit} disabled={!selectedSubject}
-                  emptyMessage="No units in subject" />
-              </div>
-            </CardContent>
-          </Card>
+          {activeSubTab !== 'leaderboard' && (
+            <Card className="border-border bg-card">
+              <CardContent className="pt-5 pb-5">
+                <div className="flex flex-wrap gap-4">
+                  <FilterSelect label="Subject" value={selectedSubject || null}
+                    options={collegeSubjects.map(s => s.subject_name)}
+                    values={collegeSubjects.map(s => String(s.id))}
+                    onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
+                    disabled={isLoadingInitial}
+                    emptyMessage="No assessment subjects found" />
+                  <FilterSelect label="Unit" value={selectedUnit || null}
+                    options={units.map(u => u.name)} values={units.map(u => u.id)}
+                    onChange={setSelectedUnit} disabled={!selectedSubject}
+                    emptyMessage="No units in subject" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <TabsContent value="tests" className="mt-0">
           {testsLoading ? (
@@ -573,13 +647,7 @@ const PlacementSkillTests = () => {
           </TabsContent>
 
           <TabsContent value="leaderboard" className="mt-0">
-            {leaderboardLoading ? (
-              <LoadingPlaceholder text="Calculating rankings..." />
-            ) : (!selectedUnit && leaderboardScope === 'unit') || (!selectedSubject && leaderboardScope === 'subject') ? (
-              <SelectionRequiredPlaceholder />
-            ) : (
-              <LeaderboardTable entries={leaderboardData} scope={leaderboardScope} />
-            )}
+            <LeaderboardLayout collegeSubjects={collegeSubjects} activeTab={activeTab} />
           </TabsContent>
           </Tabs>
         </TabsContent>
@@ -606,18 +674,20 @@ const PlacementSkillTests = () => {
               </TabsList>
             </div>
 
-          <Card className="border-border bg-card">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex flex-wrap gap-4">
-                <FilterSelect label="Subject" value={selectedSubject || null}
-                  options={collegeSubjects.map(s => s.subject_name)}
-                  values={collegeSubjects.map(s => String(s.id))}
-                  onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
-                  disabled={isLoadingInitial}
-                  emptyMessage="No assessment subjects found" />
-              </div>
-            </CardContent>
-          </Card>
+          {activeSubTab !== 'leaderboard' && (
+            <Card className="border-border bg-card">
+              <CardContent className="pt-5 pb-5">
+                <div className="flex flex-wrap gap-4">
+                  <FilterSelect label="Subject" value={selectedSubject || null}
+                    options={collegeSubjects.map(s => s.subject_name)}
+                    values={collegeSubjects.map(s => String(s.id))}
+                    onChange={(v) => { setSelectedSubject(v); setSelectedUnit(''); }}
+                    disabled={isLoadingInitial}
+                    emptyMessage="No assessment subjects found" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <TabsContent value="tests" className="mt-0">
           {testsLoading ? (
@@ -677,13 +747,7 @@ const PlacementSkillTests = () => {
           </TabsContent>
 
           <TabsContent value="leaderboard" className="mt-0">
-            {leaderboardLoading ? (
-              <LoadingPlaceholder text="Calculating assessment rankings..." />
-            ) : !selectedSubject ? (
-              <SelectionRequiredPlaceholder />
-            ) : (
-              <LeaderboardTable entries={leaderboardData} scope="assessments" />
-            )}
+            <LeaderboardLayout collegeSubjects={collegeSubjects} activeTab={activeTab} />
           </TabsContent>
           </Tabs>
         </TabsContent>
@@ -704,6 +768,16 @@ const PlacementSkillTests = () => {
             <h1 className="text-2xl font-bold text-foreground">Analytics Overview</h1>
             <p className="text-sm text-muted-foreground mt-0.5">{selectedTest.title} (Your College)</p>
           </div>
+          <div className="ml-auto">
+            <Button 
+              onClick={handleExportCSV} 
+              disabled={isExporting || submissions.length === 0}
+              className="flex items-center gap-2"
+            >
+              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Export CSV
+            </Button>
+          </div>
         </div>
 
         {analyticsLoading ? (
@@ -717,7 +791,7 @@ const PlacementSkillTests = () => {
                 value={`${
                   submissions.length > 0
                     ? Math.round(
-                        (submissions.filter(s => (s.score ?? 0) >= selectedTest.passing_marks).length / submissions.length) * 100
+                        (submissions.filter(s => (s.marks ?? s.score ?? 0) >= (selectedTest.passing_marks || 0)).length / submissions.length) * 100
                       )
                     : 0
                 }%`}
@@ -728,13 +802,13 @@ const PlacementSkillTests = () => {
                 label="Average Score"
                 value={
                   submissions.length > 0
-                    ? Math.round(submissions.reduce((acc, curr) => acc + (curr.score ?? 0), 0) / submissions.length)
+                    ? Math.round(submissions.reduce((acc, curr) => acc + (curr.marks ?? curr.score ?? 0), 0) / submissions.length)
                     : 0
                 }
                 icon={Trophy}
                 colorClass="bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
               />
-              <StatCard label="Total Marks" value={selectedTest.total_marks} icon={ClipboardList} colorClass="bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" />
+              <StatCard label="Total Marks" value={selectedTest.total_marks || 0} icon={ClipboardList} colorClass="bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" />
             </div>
 
             <Tabs defaultValue="candidates" className="w-full">
