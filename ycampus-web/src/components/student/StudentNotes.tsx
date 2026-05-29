@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X, Brain, Zap, Table as TableIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote } from '@/services/subjectService';
+import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote, markSubUnitComplete } from '@/services/subjectService';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -19,6 +19,8 @@ const MaterialsView = ({
   setIsChatOpen,
   showHeader = true,
   subunit,
+  isMarkedComplete,
+  onMarkComplete,
 }: {
   materials: Note[];
   isSplitView: boolean;
@@ -27,6 +29,8 @@ const MaterialsView = ({
   setIsChatOpen: (value: boolean) => void;
   showHeader?: boolean;
   subunit?: any;
+  isMarkedComplete?: boolean;
+  onMarkComplete?: () => void;
 }) => {
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
@@ -370,17 +374,15 @@ const MaterialsView = ({
                 }`}>Mark this lesson as completed to update your progress dashboard.</p>
               </div>
               <Button
-                onClick={() => {
-                  setCompleted(!completed);
-                  if (!completed) toast.success("Awesome job! Lesson marked as completed 🎉");
-                }}
+                onClick={onMarkComplete}
+                disabled={isMarkedComplete}
                 className={`rounded-xl px-5 py-2.5 font-sans font-semibold transition-all duration-300 shadow-sm hover:shadow-md ${
-                  completed 
-                    ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-200 animate-bounce-short' 
+                  isMarkedComplete 
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-not-allowed' 
                     : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                 }`}
               >
-                {completed ? '✓ Completed' : 'Mark as Completed'}
+                {isMarkedComplete ? '✓ Completed' : 'Mark as Completed'}
               </Button>
             </div>
           </div>
@@ -850,11 +852,15 @@ const StudentNotes = ({
   mode = 'materials',
   sessionId,
   onNewSession,
+  isMarkedComplete,
+  onProgressUpdate,
 }: {
   subunitId: string;
   mode?: 'materials' | 'my-notes';
   sessionId?: string;
   onNewSession?: () => void;
+  isMarkedComplete?: boolean;
+  onProgressUpdate?: () => void;
 }) => {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
@@ -980,6 +986,18 @@ const StudentNotes = ({
     }
   };
 
+  const handleMarkComplete = async () => {
+    try {
+      await markSubUnitComplete(subunitId);
+      toast.success("Awesome job! Lesson marked as completed 🎉");
+      if (onProgressUpdate) {
+        onProgressUpdate();
+      }
+    } catch (error) {
+      toast.error("Failed to mark lesson as completed");
+    }
+  };
+
   if (loading) {
     return <div className="text-muted-foreground p-4 font-sans">Loading notes...</div>;
   }
@@ -1055,6 +1073,8 @@ const StudentNotes = ({
                   setIsChatOpen={setIsChatOpen}
                   showHeader={false}
                   subunit={subunit}
+                  isMarkedComplete={isMarkedComplete}
+                  onMarkComplete={handleMarkComplete}
                 />
               </div>
             </div>
@@ -1127,6 +1147,8 @@ const StudentNotes = ({
             isChatOpen={isChatOpen}
             setIsChatOpen={setIsChatOpen}
             subunit={subunit}
+            isMarkedComplete={isMarkedComplete}
+            onMarkComplete={handleMarkComplete}
           />
         ) : (
           <MyNotesView

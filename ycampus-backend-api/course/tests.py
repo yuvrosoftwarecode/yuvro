@@ -275,3 +275,114 @@ class SubUnitAPITest(APITestCase):
             self.assertEqual(len(response.data['results']), 1)
         else:
             self.assertEqual(len(response.data), 1)
+
+
+class UserSubjectProgressTest(TestCase):
+    """
+    Test cases for UserSubjectProgress progress calculation.
+    """
+    def setUp(self):
+        from authentication.models import User
+        from core.models import College
+        
+        # Create a college
+        self.college = College.objects.create(
+            name="Test College",
+            product_type="campus"
+        )
+        
+        # Create test student
+        self.student = User.objects.create_user(
+            email="student@test.com",
+            username="student",
+            password="testpass123",
+            role="student"
+        )
+        from core.models import StudentProfile
+        self.student_profile = StudentProfile.objects.create(
+            user=self.student,
+            college=self.college
+        )
+        self.subject = Subject.objects.create(subject_name="Test Subject")
+        self.unit = Unit.objects.create(
+            subject=self.subject, name="Test Unit", order_index=0
+        )
+        self.subunit = SubUnit.objects.create(
+            unit=self.unit, name="Test SubUnit", order_index=0
+        )
+        
+        # Create UserSubjectProgress
+        from .models import UserSubjectProgress
+        self.progress = UserSubjectProgress.objects.create(
+            user=self.student,
+            subject=self.subject,
+            unit=self.unit,
+            sub_unit=self.subunit
+        )
+
+    def test_calculate_progress_empty(self):
+        """Test progress calculation when nothing is completed."""
+        self.progress.calculate_progress()
+        self.assertEqual(self.progress.progress_percent, 90.0)
+        self.assertFalse(self.progress.is_completed)
+
+    def test_calculate_progress_with_quiz_and_test(self):
+        """Test progress with a quiz and a test present."""
+        # Add a question (quiz) to subunit
+        from .models import Question
+        Question.objects.create(
+            sub_unit=self.subunit,
+            title="Quiz Question",
+            content="What is 1+1?",
+            type="mcq_single",
+            level="subunit",
+            categories=["learn"],
+            created_by=self.student,
+            mcq_options=[
+                {"text": "1", "is_correct": False},
+                {"text": "2", "is_correct": True}
+            ]
+        )
+        
+        # Add a skill test (practice type for campus)
+        from assessment.models import SkillTest
+        skill_test = SkillTest.objects.create(
+            unit=self.unit,
+            title="Unit Practice Test",
+            test_type="practice",
+            created_by=self.student
+        )
+        
+        # Re-evaluate progress
+        self.progress.calculate_progress()
+        # No materials (0%), quiz not passed (0%), test not submitted (0%)
+        # Total = 0%
+        self.assertEqual(self.progress.progress_percent, 0.0)
+        
+        # Mark materials completed (10%)
+        self.progress.is_marked_complete = True
+        self.progress.calculate_progress()
+        self.assertEqual(self.progress.progress_percent, 10.0)
+        
+        # Submit quiz but with low score (70%)
+        self.progress.quiz_highest_score = 70.0
+        self.progress.calculate_progress()
+        self.assertEqual(self.progress.progress_percent, 10.0) # Still 10%
+        
+        # Submit quiz with passing score (85%)
+        self.progress.quiz_highest_score = 85.0
+        self.progress.calculate_progress()
+        self.assertEqual(self.progress.progress_percent, 40.0) # 10% + 30% = 40%
+        
+        # Submit practice test
+        from assessment.models import SkillTestSubmission
+        SkillTestSubmission.objects.create(
+            user=self.student,
+            skill_test=skill_test,
+            status=SkillTestSubmission.STATUS_COMPLETED
+        )
+        
+        self.progress.calculate_progress()
+        self.assertEqual(self.progress.progress_percent, 100.0) # 10% + 30% + 60% = 100%
+        self.assertTrue(self.progress.is_completed)
+

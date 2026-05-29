@@ -51,3 +51,25 @@ def sync_questions_active_status():
 @receiver(post_delete, sender=CertificationExam)
 def update_questions_active_status_on_test_change(sender, instance, **kwargs):
     sync_questions_active_status()
+
+
+@receiver(post_save, sender='assessment.SkillTestSubmission')
+def update_user_progress_on_submission(sender, instance, **kwargs):
+    from course.models import UserSubjectProgress
+    skill_test = instance.skill_test
+    if skill_test and skill_test.subject:
+        if instance.status in ["completed", "submitted", "evaluated"]:
+            if skill_test.unit:
+                progress_qs = UserSubjectProgress.objects.filter(
+                    user=instance.user,
+                    unit=skill_test.unit
+                )
+            else:
+                progress_qs = UserSubjectProgress.objects.filter(
+                    user=instance.user,
+                    subject=skill_test.subject
+                )
+            
+            for progress in progress_qs:
+                progress.calculate_progress()
+                progress.save()

@@ -2403,13 +2403,18 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             defaults={"subject": sub_unit.unit.subject, "unit": sub_unit.unit},
         )
 
-        progress.is_completed = True
-        progress.progress_percent = 100.0
-        progress.completed_at = timezone.now()
+        progress.is_marked_complete = True
+        new_percent = progress.calculate_progress()
+        if new_percent >= 100:
+            progress.completed_at = timezone.now()
         progress.save()
 
         return Response(
-            {"message": "Marked as complete", "progress": progress.progress_percent}
+            {
+                "message": "Marked as complete",
+                "progress": progress.progress_percent,
+                "is_completed": progress.is_completed,
+            }
         )
 
     @action(detail=False, methods=["post"])
@@ -2431,9 +2436,18 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             defaults={"subject": sub_unit.unit.subject, "unit": sub_unit.unit},
         )
 
-        progress.quiz_score = float(score_percent)
-        progress.quiz_answers = answers or {}
-        progress.is_quiz_completed = is_passed
+        # Track quiz highest score
+        progress.quiz_highest_score = max(progress.quiz_highest_score, float(score_percent))
+
+        # Only store the score and answers if it is the first attempt or a higher score
+        is_first_attempt = not progress.quiz_answers
+        is_better_score = float(score_percent) >= progress.quiz_score
+
+        if is_first_attempt or is_better_score:
+            progress.quiz_score = float(score_percent)
+            progress.quiz_answers = answers or {}
+
+        progress.is_quiz_completed = progress.quiz_highest_score >= 80.0
 
         new_percent = progress.calculate_progress()
         if new_percent >= 100:
@@ -2442,7 +2456,8 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         progress.save()
 
         # Gamification Hook: Quiz
-        if is_passed:
+        if is_passed or progress.is_quiz_completed:
+            from .gamification_service import GamificationService
             GamificationService.record_activity(user, 'quiz')
 
         return Response(
@@ -3156,6 +3171,27 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         else:
             user_to_query = user
 
+        # Ensure progress records exist for all subunits of this subject for this user
+        all_subunits = SubUnit.objects.filter(unit__subject_id=subject_id).select_related("unit")
+        existing_sub_unit_ids = set(
+            UserSubjectProgress.objects.filter(
+                user=user_to_query, subject_id=subject_id
+            ).values_list("sub_unit_id", flat=True)
+        )
+
+        missing_subunits = all_subunits.exclude(id__in=existing_sub_unit_ids)
+        if missing_subunits.exists():
+            new_records = [
+                UserSubjectProgress(
+                    user=user_to_query,
+                    subject_id=subject_id,
+                    unit=su.unit,
+                    sub_unit=su,
+                )
+                for su in missing_subunits
+            ]
+            UserSubjectProgress.objects.bulk_create(new_records)
+
         # Updated to use unit__subject_id or sub_unit queries
         progress_qs = (
             UserSubjectProgress.objects.filter(user=user_to_query, subject_id=subject_id)
@@ -3170,7 +3206,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
 
         if updated_records:
             UserSubjectProgress.objects.bulk_update(
-                updated_records, ["progress_percent", "is_completed"]
+                updated_records, ["progress_percent", "is_completed", "is_quiz_completed"]
             )
 
         from .serializers import UserSubjectProgressSerializer

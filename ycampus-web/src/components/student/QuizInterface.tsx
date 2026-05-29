@@ -5,7 +5,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import CodeEditor from '@/components/ui/code-editor';
-import { ChevronLeft, ChevronRight, CheckCircle, XCircle, RotateCcw, Check, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, RotateCcw, Check, ArrowLeft, Trophy } from 'lucide-react';
+import { submitQuiz } from '@/services/subjectService';
+import { toast } from 'sonner';
 
 interface Question {
   id: number;
@@ -24,6 +26,9 @@ interface QuizInterfaceProps {
   code: string;
   onCodeChange: (code: string) => void;
   backendQuestions?: Question[];
+  subunitId: string;
+  onQuizComplete?: () => void;
+  highestScore?: number;
 }
 
 const mockQuestions: Question[] = [
@@ -63,7 +68,10 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   onToggleCodeEditor,
   code,
   onCodeChange,
-  backendQuestions
+  backendQuestions,
+  subunitId,
+  onQuizComplete,
+  highestScore = 0
 }) => {
   const questions = backendQuestions && backendQuestions.length > 0 ? backendQuestions : mockQuestions;
   
@@ -115,7 +123,38 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
     }
   };
 
-  const calculateResults = () => {
+  const calculateResults = async () => {
+    const score = getScore();
+    const passed = score >= 80;
+    
+    try {
+      const answersMap: Record<string, any> = {};
+      selectedAnswers.forEach((ans, idx) => {
+        const q = questions[idx];
+        if (q && q.id) {
+          answersMap[q.id.toString()] = {
+            user_answer: ans !== null ? [q.options[ans]] : [],
+            correct_answer: [q.options[q.correctAnswer]],
+            is_correct: ans === q.correctAnswer
+          };
+        }
+      });
+
+      await submitQuiz(subunitId, answersMap, score, passed);
+      if (passed) {
+        toast.success("Congratulations! You passed the quiz 🎉");
+      } else {
+        toast.error("Quiz completed, but you did not pass (requires 80%).");
+      }
+      
+      if (onQuizComplete) {
+        onQuizComplete();
+      }
+    } catch (error) {
+      console.error("Failed to submit quiz score to backend", error);
+      toast.error("Failed to save quiz progress");
+    }
+    
     setShowResults(true);
   };
 
@@ -240,6 +279,19 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
 
   const renderQuestionCard = () => (
     <div className="space-y-6">
+      {highestScore >= 80 && (
+        <div className="flex items-center justify-between p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-100 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold shadow-sm">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-emerald-600 dark:text-emerald-450" />
+            <span>Quiz Passed!</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="opacity-75">Highest Score:</span>
+            <span className="font-bold text-sm text-emerald-700 dark:text-emerald-450">{Math.round(highestScore)}%</span>
+          </div>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-muted-foreground">
