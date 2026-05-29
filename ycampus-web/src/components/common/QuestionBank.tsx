@@ -252,9 +252,9 @@ export default function QuestionBank({
         if (selectedQuestions.includes(questionId)) {
           handleQuestionToggle(questionId);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete question:', error);
-        toast.error('Failed to delete question');
+        toast.error(error.message || 'Failed to delete question');
       }
     }
   };

@@ -1,5 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -346,11 +348,24 @@ const App = () => (
 
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <ToastNotificationManager />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
+
+const ToastNotificationManager = () => {
+  const { toast } = useToast();
+  useEffect(() => {
+    const error = sessionStorage.getItem('toast_error');
+    if (error) {
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+      sessionStorage.removeItem('toast_error');
+    }
+  }, [toast]);
+  return null;
+};
 
 export default App;

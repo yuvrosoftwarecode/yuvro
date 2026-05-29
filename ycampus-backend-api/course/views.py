@@ -2352,6 +2352,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         question = self.get_object()
+        if question.is_active:
+            return Response(
+                {"error": "This question cannot be deleted because it is active in one or more tests/assessments."},
+                status=400
+            )
         user = request.user
 
         # Get the Subject for permission checking

@@ -31,8 +31,8 @@ export default function ContestAttempt() {
                 }
                 setDuration(duration);
             } catch (err: any) {
-                toast.error(err.response?.data?.error || "Failed to start contest");
-                navigate('/student/contests');
+                sessionStorage.setItem('toast_error', err.message || "Failed to start contest");
+                window.location.href = '/student/contests';
             } finally {
                 setLoading(false);
             }

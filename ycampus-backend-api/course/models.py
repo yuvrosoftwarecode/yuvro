@@ -405,6 +405,10 @@ class Question(models.Model):
         default=list,
         help_text="List of categories this question belongs to (learn, practice, skill_test, contest)",
     )
+    is_active = models.BooleanField(
+        default=False,
+        help_text="Designates whether this question is active in any test/assessment.",
+    )
 
     # MCQ specific fields
     mcq_options = models.JSONField(
@@ -521,6 +525,12 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        if self.is_active:
+            raise ValidationError("This question cannot be deleted because it is active in one or more tests/assessments.")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.type.upper()}: {self.title[:50]}..."

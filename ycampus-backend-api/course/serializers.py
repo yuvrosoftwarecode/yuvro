@@ -594,6 +594,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "marks",
             "duration",
             "categories",
+            "is_active",
             "mcq_options",
             "test_cases_basic",
             "test_cases_advanced",

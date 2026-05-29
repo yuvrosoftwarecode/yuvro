@@ -19,6 +19,7 @@ export interface Question {
   marks: number;
   duration: number;
   categories: string[];
+  is_active?: boolean;
   hints?: string[];
   solutions?: any[];
   mcq_options?: MCQOption[];
