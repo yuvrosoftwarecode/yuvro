@@ -120,6 +120,7 @@ class CodeEditorService {
             expected_output: result.expected_output || '',
             actual_output: result.actual_output || '',
             error: result.error || '',
+            error_message: result.error || '',
             execution_time: result.execution_time || 0
           })),
           success: executionResult.success || false

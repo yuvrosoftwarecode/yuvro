@@ -377,6 +377,84 @@ if __name__ == '__main__':
 """
 
 class CodeExecutorService:
+    # Blacklists for security validation
+    BLACKLISTED_PYTHON_IMPORTS = ['os', 'subprocess', 'socket', 'ctypes', 'shutil', 'multiprocessing', 'threading', 'resource', 'psutil', 'importlib', 'pickle', 'marshal', 'asyncio']
+    BLACKLISTED_PYTHON_FUNCTIONS = ['eval', 'exec', 'compile', 'open', '__import__']
+    BLACKLISTED_SYSTEM_COMMANDS = ['rm', 'sudo', 'chmod', 'chown', 'shutdown', 'reboot', 'kill', 'pkill', 'systemctl', 'curl', 'wget', 'ssh', 'scp', 'bash']
+    BLACKLISTED_JS_PATTERNS = ["require('fs')", 'require("fs")', "require('child_process')", 'require("child_process")', 'eval(', 'Function(', 'process.exit', 'fetch(', 'globalThis', 'setTimeout(', 'setInterval(']
+    BLACKLISTED_JAVA_IMPORTS = ['java.io', 'java.net', 'ProcessBuilder', 'Runtime.getRuntime', 'System.exit']
+    BLACKLISTED_CPP_HEADERS = ['unistd.h', 'sys/socket.h', 'arpa/inet.h', 'filesystem', 'thread', 'fstream', 'system(', 'popen(', 'fork(', 'exec(']
+    BLACKLISTED_PATHS = ['/etc/', '/proc/', '/sys/', '/dev/', '/root/']
+
+    @staticmethod
+    def validate_code(code: str, language: str) -> Dict[str, Any]:
+        """
+        Validates code against dangerous patterns before execution.
+        
+        Security context:
+        - Arbitrary code execution can lead to host compromise if not properly sandboxed.
+        - Filesystem access risks sensitive data exposure (e.g., /etc/passwd).
+        - Process spawning can be used for denial of service or evasion.
+        - Networking can be used for data exfiltration or lateral movement.
+        - NOTE: Regex-based validation is limited and can sometimes be bypassed via obfuscation.
+          It serves as a first line of defense alongside OS-level sandboxing (e.g., Docker, timeouts).
+
+        Sample security test cases:
+        - Reading /etc/passwd: python: open('/etc/passwd').read(), bash: cat /etc/passwd
+        - Using eval: python: eval('print(1)'), js: eval('console.log(1)')
+        - Using subprocess: python: import subprocess
+        - Using os.system: python: import os; os.system('ls')
+        - Using require('fs'): js: require('fs').readFileSync(...)
+        - Using ProcessBuilder: java: new ProcessBuilder("ls").start()
+        - Using fork(): cpp: fork()
+        """
+        import re
+        
+        code_lower = code.lower()
+        
+        # Check for dangerous paths
+        for path in CodeExecutorService.BLACKLISTED_PATHS:
+            if path in code_lower:
+                return {"success": False, "error": f"Security exception: Detected dangerous filesystem path access: {path}"}
+                
+        # Check for dangerous system commands (usually useful if they are spawning shells)
+        for cmd in CodeExecutorService.BLACKLISTED_SYSTEM_COMMANDS:
+            # Word boundary check to avoid false positives (e.g., matching 'arm' inside a variable)
+            if re.search(r'\b' + re.escape(cmd) + r'\b', code_lower):
+                return {"success": False, "error": f"Security exception: Detected dangerous system command: {cmd}"}
+
+        if language == 'python':
+            # Check imports
+            for imp in CodeExecutorService.BLACKLISTED_PYTHON_IMPORTS:
+                # Match 'import X' or 'from X import'
+                if re.search(r'\bimport\s+' + re.escape(imp) + r'\b', code) or \
+                   re.search(r'\bfrom\s+' + re.escape(imp) + r'\b', code):
+                    return {"success": False, "error": f"Security exception: Detected dangerous Python import: {imp}"}
+            
+            # Check functions
+            for func in CodeExecutorService.BLACKLISTED_PYTHON_FUNCTIONS:
+                if re.search(r'\b' + re.escape(func) + r'\s*\(', code):
+                    return {"success": False, "error": f"Security exception: Detected dangerous Python function: {func}"}
+                    
+        elif language == 'javascript':
+            for pattern in CodeExecutorService.BLACKLISTED_JS_PATTERNS:
+                # Escape pattern but allow flexible whitespace for functions
+                esc_pattern = re.escape(pattern).replace(r'\(', r'\s*\(')
+                if re.search(esc_pattern, code):
+                    return {"success": False, "error": f"Security exception: Detected dangerous JavaScript pattern: {pattern}"}
+                    
+        elif language == 'java':
+            for imp in CodeExecutorService.BLACKLISTED_JAVA_IMPORTS:
+                if imp in code:
+                    return {"success": False, "error": f"Security exception: Detected dangerous Java import/pattern: {imp}"}
+                    
+        elif language in ['cpp', 'c']:
+            for header in CodeExecutorService.BLACKLISTED_CPP_HEADERS:
+                if header in code:
+                    return {"success": False, "error": f"Security exception: Detected dangerous C/C++ header/function: {header}"}
+
+        return {"success": True}
+
     @staticmethod
     async def execute_code(code: str, language: str, input_data: str = "", timeout: int = 10) -> Dict[str, Any]:
         """Execute code and return results"""
@@ -387,6 +465,17 @@ class CodeExecutorService:
             return {
                 'success': False,
                 'error': f'Unsupported language: {language}',
+                'output': '',
+                'execution_time': 0,
+                'memory_usage': 0,
+                'status': 'error'
+            }
+            
+        validation_result = CodeExecutorService.validate_code(code, language)
+        if not validation_result['success']:
+            return {
+                'success': False,
+                'error': validation_result['error'],
                 'output': '',
                 'execution_time': 0,
                 'memory_usage': 0,
@@ -649,6 +738,63 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
         language = request.language
         if language not in LANGUAGE_CONFIGS:
             raise HTTPException(status_code=400, detail=f"Unsupported language: {language}")
+
+        # Check code validation for security
+        validation_result = CodeExecutorService.validate_code(request.code, language)
+        if not validation_result['success']:
+            err_msg = validation_result['error']
+            
+            basic_results = [TestResult(
+                passed=False,
+                input=tc.input,
+                expected_output=tc.expected_output,
+                actual_output='',
+                error=err_msg,
+                execution_time=0,
+                console_output=''
+            ) for tc in (request.test_cases_basic or [])]
+            
+            advanced_results = [TestResult(
+                passed=False,
+                input=tc.input,
+                expected_output=tc.expected_output,
+                actual_output='',
+                error=err_msg,
+                execution_time=0,
+                console_output=''
+            ) for tc in (request.test_cases_advanced or [])]
+            
+            custom_results = [TestResult(
+                passed=False,
+                input=tc.input,
+                expected_output=tc.expected_output,
+                actual_output='',
+                error=err_msg,
+                execution_time=0,
+                console_output=''
+            ) for tc in (request.test_cases_custom or [])]
+            
+            all_results = basic_results + advanced_results + custom_results
+            
+            return CodeExecutionResponse(
+                execution_result=ExecutionResult(
+                    success=False,
+                    output='',
+                    error=err_msg,
+                    execution_time=0,
+                    memory_usage=0,
+                    status='security_error'
+                ),
+                test_results=all_results,
+                total_passed=0,
+                total_tests=len(all_results),
+                basic_results=basic_results,
+                advanced_results=advanced_results,
+                custom_results=custom_results,
+                basic_passed=0,
+                advanced_passed=0,
+                custom_passed=0
+            )
 
         config = LANGUAGE_CONFIGS[language]
         

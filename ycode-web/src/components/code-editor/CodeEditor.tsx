@@ -601,6 +601,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                       {/* Console output */}
                       {(output || (testResults && testResults.results)) && (() => {
                         const consoleText = (() => {
+                          if (executionMetrics?.status === 'security_error' || executionMetrics?.status === 'error') {
+                            return output || '';
+                          }
                           if (testResults?.results && Array.isArray(testResults.results)) {
                             const lines = testResults.results
                               .filter((r: any) => !r.is_hidden && r.console_output)
