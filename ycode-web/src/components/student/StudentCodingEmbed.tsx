@@ -159,6 +159,10 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
         } catch (error) {
           console.error('Failed to update coding progress:', error);
         }
+      } else {
+        if (submissionResult?.gamification) {
+          showGamificationToasts(submissionResult.gamification);
+        }
       }
     }
   };

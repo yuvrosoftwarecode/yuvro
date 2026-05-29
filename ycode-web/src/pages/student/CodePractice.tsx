@@ -10,6 +10,7 @@ import { fetchQuestionById, fetchQuestions } from '@/services/questionService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import DashboardLayout from '@/components/common/DashboardLayout';
+import { showGamificationToasts } from '@/utils/gamificationToast';
 
 export type ViewType = 'dashboard' | 'topics' | 'problem' | 'analytics' | 'insights';
 
@@ -268,6 +269,11 @@ const CodePractice = () => {
                 onViewAnalytics={handleViewAnalytics}
                 codeSubmissionType="practice"
                 initialEditorOpen={true}
+                onSubmissionComplete={(problemId, success, result) => {
+                  if (success && result?.gamification) {
+                    showGamificationToasts(result.gamification);
+                  }
+                }}
               />
             )}
 

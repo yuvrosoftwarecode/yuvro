@@ -29,7 +29,7 @@ const ResetPassword: React.FC = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.BACKEND_API_BASE_URL}/auth/reset-password/${uidb64}/${token}/`,
+        `${import.meta.env.VITE_BACKEND_API_BASE_URL}/auth/reset-password/${uidb64}/${token}/`,
         { password }
       );
 
