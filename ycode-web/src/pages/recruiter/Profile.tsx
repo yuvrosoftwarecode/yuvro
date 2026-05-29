@@ -4,6 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import RoleSidebar from "@/components/common/RoleSidebar";
 import RoleHeader from "@/components/common/RoleHeader";
 
+// Dialogs
+import EditProfileDialog from "@/components/student/profile/EditProfileDialog";
+import AddSkillDialog from "@/components/student/profile/AddSkillDialog";
+import profileService from "@/services/profileService";
+import { toast } from "sonner";
+
 // UI Components
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -106,6 +112,13 @@ interface Certification {
   certificate_file?: string;
 }
 
+// Form types for dialogs
+type SkillForm = {
+  name: string;
+  level: string;
+  percentage: number;
+};
+
 // Profile strength calculator
 const calculateProfileStrength = (profile: RecruiterProfile) => {
   let score = 0;
@@ -192,31 +205,27 @@ const RecruiterProfile = () => {
   const [profilePic, setProfilePic] = useState<string>("");
   const [coverPic, setCoverPic] = useState<string>("");
 
-  // Dialog states
+  const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+
+  // Dialog state hooks
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [skillDialogOpen, setSkillDialogOpen] = useState(false);
-  const [experienceDialogOpen, setExperienceDialogOpen] = useState(false);
-  const [educationDialogOpen, setEducationDialogOpen] = useState(false);
-  const [linksDialogOpen, setLinksDialogOpen] = useState(false);
-  const [certificationDialogOpen, setCertificationDialogOpen] = useState(false);
   const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
 
-  // Initialize empty profile
-  useEffect(() => {
-    const initializeProfile = () => {
-      const emptyProfile: RecruiterProfile = {
-        id: user?.id || '1',
-        full_name: user?.first_name && user?.last_name 
-          ? `${user.first_name} ${user.last_name}` 
-          : user?.username || '',
-        email: user?.email || '',
-        phone: '',
-        location: '',
-        title: '',
-        about: '',
-        profile_image: '',
-        cover_image: '',
-        date_joined: new Date().toISOString(),
+  const loadProfile = async () => {
+    try {
+      const response = await profileService.fetchProfileDetail();
+      const mappedProfile: RecruiterProfile = {
+        id: response.id,
+        full_name: response.full_name || '',
+        email: response.user?.email || response.email || '',
+        phone: response.phone || '',
+        location: response.location || '',
+        title: response.title || '',
+        about: response.about || '',
+        profile_image: response.profile_image || '',
+        cover_image: response.cover_image || '',
+        date_joined: response.created_at || new Date().toISOString(),
         company: {
           id: '1',
           name: '',
@@ -225,25 +234,45 @@ const RecruiterProfile = () => {
           website: '',
           description: ''
         },
-        specializations: [],
-        education: [],
-        experiences: [],
-        certifications: [],
+        specializations: response.skills || [],
+        education: response.education || [],
+        experiences: response.experiences || [],
+        certifications: response.certifications || [],
         links: {
-          linkedin: '',
-          github: '',
-          portfolio: '',
-          email: user?.email || ''
+          linkedin: response.links.linkedin || '',
+          github: response.links.github || '',
+          portfolio: response.links.portfolio || '',
+          email: response.links.email || response.user?.email || ''
         }
       };
-
-      setProfile(emptyProfile);
+      setProfile(mappedProfile);
+      if (response.profile_image) setProfilePic(response.profile_image);
+      if (response.cover_image) setCoverPic(response.cover_image);
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
-    // Simulate API call - replace with actual service call
-    setTimeout(initializeProfile, 500);
-  }, [user]);
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const handleSaveSkill = async (data: SkillForm) => {
+    if (editingSkill) {
+      await profileService.updateSkill(editingSkill.id, data);
+    } else {
+      await profileService.addSkill(data);
+    }
+    await loadProfile();
+    setEditingSkill(null);
+  };
+
+  const handleDeleteSkill = async (id: string) => {
+    await profileService.deleteSkill(id);
+    await loadProfile();
+  };
 
   if (loading) {
     return (
@@ -511,10 +540,22 @@ const RecruiterProfile = () => {
                               <div className="flex justify-between items-start mb-2">
                                 <h3 className="font-semibold">{skill.name}</h3>
                                 <div className="flex gap-1">
-                                  <Button size="sm" variant="ghost">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setEditingSkill(skill);
+                                      setSkillDialogOpen(true);
+                                    }}
+                                  >
                                     <Edit className="h-4 w-4" />
                                   </Button>
-                                  <Button size="sm" variant="ghost" className="hover:text-destructive">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="hover:text-destructive"
+                                    onClick={() => handleDeleteSkill(skill.id)}
+                                  >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
@@ -596,13 +637,44 @@ const RecruiterProfile = () => {
                     </CardContent>
                   </Card>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              </div> {/* grid */}
+            </div> {/* max-w */}
+          </div> {/* p-6 */}
+        </div> {/* flex-1 */}
+      </div> {/* flex */}
+
+      {/* Dialogs */}
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        profileData={{
+          first_name: profile?.full_name?.split(" ")[0] || "",
+          last_name: profile?.full_name?.split(" ").slice(1).join(" ") || "",
+          title: profile?.title || "",
+          location: profile?.location || "",
+          about: profile?.about || "",
+          college: null,
+          college_other: null,
+          department: null,
+          github: profile?.links?.github || "",
+          linkedin: profile?.links?.linkedin || "",
+          portfolio: profile?.links?.portfolio || "",
+        }}
+        onSave={async () => {
+          await loadProfile();
+        }}
+      />
+      <AddSkillDialog
+        open={skillDialogOpen}
+        onOpenChange={(open) => {
+          setSkillDialogOpen(open);
+          if (!open) setEditingSkill(null);
+        }}
+        editingData={editingSkill ?? undefined}
+        onSave={handleSaveSkill}
+      />
     </div>
   );
 };
 
-export default RecruiterProfile;
+export default RecruiterProfile;
