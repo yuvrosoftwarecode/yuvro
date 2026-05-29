@@ -25,6 +25,7 @@ import { ImageCarousel } from './ImageCarousel';
 import { CommentThread } from './CommentThread';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CommentComposer } from './CommentComposer';
+import { FormattedContent } from './FormattedContent';
 
 interface PostDetailPanelProps {
   post: CommunityPost | null;
@@ -135,9 +136,7 @@ export function PostDetailPanel({
           )}
 
           {/* Content */}
-          <p className="text-foreground whitespace-pre-wrap text-base leading-relaxed">
-            {post.content}
-          </p>
+          <FormattedContent content={post.content} />
 
           {/* Images */}
           {post.images && post.images.length > 0 && <ImageCarousel images={post.images} />}

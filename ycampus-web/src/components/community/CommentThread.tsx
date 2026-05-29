@@ -6,6 +6,7 @@ import { Heart, Reply, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { CommunityComment } from '@/hooks/useCommunity';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { FormattedContent } from './FormattedContent';
 
 interface CommentThreadProps {
   comment: CommunityComment;
@@ -58,9 +59,9 @@ export function CommentThread({
             </span>
           </div>
 
-          <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">
-            {comment.content}
-          </p>
+          <div className="mt-1">
+            <FormattedContent content={comment.content} />
+          </div>
 
           <div className="flex items-center gap-1 mt-2">
             <Button
