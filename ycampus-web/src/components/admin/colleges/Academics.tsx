@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import {
     ChevronRight, Building2, Calendar, Clock, Hash,
     Plus, Trash2, Layers, AlertCircle, Loader2, Search,
-    Check, Zap
+    Check, Zap, Edit2
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -86,6 +86,12 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const [selectedPresets, setSelectedPresets] = useState<{ name: string, short_form: string }[]>([]);
     const [addMode, setAddMode] = useState<'manual' | 'preset'>('preset');
 
+    // Edit Department State
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingDept, setEditingDept] = useState<any>(null);
+    const [editDeptName, setEditDeptName] = useState("");
+    const [editDeptShortForm, setEditDeptShortForm] = useState("");
+
     // Bulk Section State
     const [isBulkSectionsDialogOpen, setIsBulkSectionsDialogOpen] = useState(false);
     const [selectedSectionLimit, setSelectedSectionLimit] = useState<number>(0);
@@ -120,13 +126,21 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const loadDepartmentsForBatch = async (batchName: string, pushPath = true) => {
         setManageLoading(true);
         try {
-            const batches = await batchService.getBatchesByCollegeAndName(college.id, batchName);
-            const data = batches.filter(b => b.department).map(b => ({
-                id: b.department,
-                name: b.department_name,
-                batchId: b.id,
-                semesters: b.semesters || []
-            }));
+            const [batches, allDepartments] = await Promise.all([
+                batchService.getBatchesByCollegeAndName(college.id, batchName),
+                departmentService.getDepartments(college.id)
+            ]);
+            
+            const data = batches.filter(b => b.department).map(b => {
+                const deptDetails = allDepartments.find(d => d.id === b.department);
+                return {
+                    id: b.department,
+                    name: b.department_name || deptDetails?.name,
+                    short_form: deptDetails?.short_form || '',
+                    batchId: b.id,
+                    semesters: b.semesters || []
+                };
+            });
 
             setHierarchyData(data);
             setManageView('departments');
@@ -332,6 +346,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 toast.error("Start and End years are required");
                 return;
             }
+            if (parseInt(endYear) <= parseInt(startYear)) {
+                toast.error("End year must be after start year");
+                return;
+            }
             nameToAdd = `${startYear}-${endYear}`;
         }
 
@@ -358,6 +376,18 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 }
 
                 const existingDepts = await departmentService.getDepartments(college.id);
+
+                if (addMode === 'manual') {
+                    const isDuplicate = existingDepts.some(d => 
+                        d.name.toLowerCase() === nameToAdd.toLowerCase() || 
+                        d.short_form?.toLowerCase() === newItemShortForm.toLowerCase()
+                    );
+                    if (isDuplicate) {
+                        toast.error("Department with this code already exists");
+                        setIsAdding(false);
+                        return;
+                    }
+                }
 
                 for (const deptData of departmentsToCreate) {
                     let dept = existingDepts.find(d => d.name.toLowerCase() === deptData.name.toLowerCase());
@@ -406,6 +436,40 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             toast.success(`${manageView.slice(0, -1)} added successfully`);
         } catch (err: any) {
             toast.error(err.message || "Failed to add item");
+        } finally {
+            setIsAdding(false);
+        }
+    };
+
+    const handleEditDepartment = async () => {
+        if (!editDeptName.trim() || !editDeptShortForm.trim()) {
+            toast.error("Name and short form are required");
+            return;
+        }
+        setIsAdding(true);
+        try {
+            const existingDepts = await departmentService.getDepartments(college.id);
+            const isDuplicate = existingDepts.some(d => 
+                d.id !== editingDept.id && (
+                d.name.toLowerCase() === editDeptName.trim().toLowerCase() || 
+                d.short_form?.toLowerCase() === editDeptShortForm.trim().toLowerCase()
+                )
+            );
+            if (isDuplicate) {
+                toast.error("Department with this code or name already exists");
+                setIsAdding(false);
+                return;
+            }
+
+            await departmentService.updateDepartment(editingDept.id, {
+                name: editDeptName.trim(),
+                short_form: editDeptShortForm.trim()
+            });
+            toast.success("Department updated successfully");
+            setIsEditDialogOpen(false);
+            loadDepartmentsForBatch(selectedBatchName!, false);
+        } catch (err: any) {
+            toast.error(err.message || "Failed to update department");
         } finally {
             setIsAdding(false);
         }
@@ -608,6 +672,22 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
                                     {/* Absolute buttons for Edit/Delete that appear on hover */}
                                     <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {manageView === 'departments' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingDept(item);
+                                                    setEditDeptName(item.name || "");
+                                                    setEditDeptShortForm(item.short_form || "");
+                                                    setIsEditDialogOpen(true);
+                                                }}
+                                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -776,6 +856,45 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                         <Button onClick={handleAddItem} disabled={isAdding}>
                             {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                             Add {manageView.slice(0, -1)}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Department Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit Department</DialogTitle>
+                        <DialogDescription>
+                            Update the department details below. Note that changing this will affect all linked batches.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold tracking-wider text-muted-foreground">Department Name</label>
+                            <Input
+                                placeholder="Enter department name"
+                                value={editDeptName}
+                                onChange={(e) => setEditDeptName(e.target.value)}
+                                className="font-bold border-border"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold tracking-wider text-muted-foreground">Short Form / Shortcut</label>
+                            <Input
+                                placeholder="e.g. CSE"
+                                value={editDeptShortForm}
+                                onChange={(e) => setEditDeptShortForm(e.target.value)}
+                                className="font-bold border-border"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleEditDepartment} disabled={isAdding}>
+                            {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Save Changes
                         </Button>
                     </DialogFooter>
                 </DialogContent>

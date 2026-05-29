@@ -100,7 +100,26 @@ const CollegePage = () => {
     const [uniDeleteId, setUniDeleteId] = useState<string | number | null>(null);
 
     const [saving, setSaving] = useState(false);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    const validateForm = () => {
+        const errors: Record<string, string> = {};
+        if (!form.name.trim()) {
+            errors.name = "College Name is required";
+        } else if (form.name.trim().length < 3) {
+            errors.name = "Name must be at least 3 characters";
+        }
+
+        if (form.website && form.website.trim() !== '') {
+            try {
+                new URL(form.website);
+            } catch (_) {
+                errors.website = "Enter a valid URL (e.g. https://example.com)";
+            }
+        }
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     // Filters
     const [searchQuery, setSearchQuery] = useState('');
@@ -167,6 +186,7 @@ const CollegePage = () => {
     const openAdd = () => {
         setEditingCollegeId(null);
         setForm(EMPTY_FORM);
+        setFormErrors({});
         setDialogOpen(true);
     };
 
@@ -185,13 +205,14 @@ const CollegePage = () => {
             sidebar_config: c.sidebar_config || {},
         };
         setForm(editData);
+        setFormErrors({});
         setDialogOpen(true);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.name.trim()) {
-            toast.error("College Name is required");
+        if (!validateForm()) {
+            toast.error("Please fix the validation errors");
             return;
         }
 
@@ -534,19 +555,43 @@ const CollegePage = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>College Name <span className="text-destructive">*</span></Label>
-                                    <Input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="e.g. Stanford University" required />
+                                    <Input 
+                                        value={form.name} 
+                                        onChange={e => updateForm('name', e.target.value)} 
+                                        placeholder="e.g. Stanford University" 
+                                        className={formErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}
+                                    />
+                                    {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Short Code</Label>
-                                    <Input value={form.short_form} onChange={e => updateForm('short_form', e.target.value)} placeholder="e.g. SU" className=" " />
+                                    <Input 
+                                        value={form.short_form} 
+                                        onChange={e => updateForm('short_form', e.target.value)} 
+                                        placeholder="e.g. SU" 
+                                        className={formErrors.short_form ? "border-destructive focus-visible:ring-destructive" : ""} 
+                                    />
+                                    {formErrors.short_form && <p className="text-xs text-destructive">{formErrors.short_form}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Location</Label>
-                                    <Input value={form.location} onChange={e => updateForm('location', e.target.value)} placeholder="e.g. California, USA" />
+                                    <Input 
+                                        value={form.location} 
+                                        onChange={e => updateForm('location', e.target.value)} 
+                                        placeholder="e.g. California, USA" 
+                                        className={formErrors.location ? "border-destructive focus-visible:ring-destructive" : ""}
+                                    />
+                                    {formErrors.location && <p className="text-xs text-destructive">{formErrors.location}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Website</Label>
-                                    <Input value={form.website} onChange={e => updateForm('website', e.target.value)} placeholder="https://..." />
+                                    <Input 
+                                        value={form.website} 
+                                        onChange={e => updateForm('website', e.target.value)} 
+                                        placeholder="https://..." 
+                                        className={formErrors.website ? "border-destructive focus-visible:ring-destructive" : ""}
+                                    />
+                                    {formErrors.website && <p className="text-xs text-destructive">{formErrors.website}</p>}
                                 </div>
                             </div>
                         </div>

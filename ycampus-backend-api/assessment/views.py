@@ -1513,6 +1513,15 @@ class PlacementDashboardViewSet(viewsets.ViewSet):
                     students = students.filter(batch_id=batch_id)
             except ValueError:
                 students = students.filter(batch__name=batch_id)
+                
+        department_id = request.query_params.get('department')
+        if department_id and department_id != 'all' and department_id != 'undefined':
+            import uuid
+            try:
+                uuid.UUID(str(department_id))
+                students = students.filter(department_id=department_id)
+            except ValueError:
+                students = students.filter(department__name=department_id)
             
         student_list = list(students.select_related('user'))
         user_ids = [s.user_id for s in student_list if s.user_id]
