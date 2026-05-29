@@ -16,6 +16,9 @@ from .models import (
     Certificate,
     PredefinedInterviewQuestion,
 )
+from django.utils import timezone
+from django.utils.timezone import localdate
+
 
 User = get_user_model()
 
@@ -227,9 +230,7 @@ class ContestSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        from django.utils import timezone
-        from django.utils.timezone import localdate
-
+        
         start_datetime = attrs.get('start_datetime')
         end_datetime = attrs.get('end_datetime')
         registration_start_datetime = attrs.get('registration_start_datetime')
