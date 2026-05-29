@@ -91,6 +91,35 @@ class CodeEditorService {
         timeout: 10
       });
 
+      if (data && data.status === 'tle') {
+        return {
+          id: 0,
+          coding_problem: '',
+          problem_title: request.problem_title || 'Quick Run',
+          problem_description: '',
+          code: request.code,
+          language: request.language,
+          status: 'timeout',
+          output: '⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.',
+          error_message: 'Time Limit Exceeded',
+          execution_time: 5,
+          memory_usage: 0,
+          test_cases_passed: 0,
+          total_test_cases: request.test_cases?.length || 0,
+          plagiarism_score: 0,
+          plagiarism_details: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          test_results: {
+            passed: 0,
+            total: request.test_cases?.length || 0,
+            results: [],
+            success: false
+          },
+          plagiarism_flagged: false
+        };
+      }
+
       const executionResult = data.execution_result || {};
       const testResults = data.test_results || [];
 
@@ -193,6 +222,35 @@ class CodeEditorService {
       }
 
       const response: any = await restApiAuthUtil.post(endpoint, payload);
+
+      if (response && response.status === 'tle') {
+        return {
+          id: 0,
+          coding_problem: request.question_id,
+          problem_title: 'Code Practice',
+          problem_description: '',
+          code: request.code,
+          language: request.language,
+          status: 'timeout',
+          output: '⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.',
+          error_message: 'Time Limit Exceeded',
+          execution_time: 5,
+          memory_usage: 0,
+          test_cases_passed: 0,
+          total_test_cases: 0,
+          plagiarism_score: 0,
+          plagiarism_details: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          test_results: {
+            passed: 0,
+            total: 0,
+            results: [],
+            success: false
+          },
+          plagiarism_flagged: false
+        };
+      }
 
       return {
         id: response.id || 0,

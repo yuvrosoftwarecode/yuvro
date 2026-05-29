@@ -390,6 +390,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         const passed = res.test_results?.passed ?? 0;
         const total = res.test_results?.total ?? 0;
         toast.success(`Passed ${passed} of ${total} tests`);
+      } else if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
+        toast.error('Time Limit Exceeded');
       } else {
         toast.error('Code execution failed');
       }
@@ -459,6 +461,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         });
       }
 
+      setOutput(res.output || res.error_message || '');
       setTestResults(res.test_results ?? null);
       setExecutionMetrics({
         execution_time: res.execution_time,
@@ -467,16 +470,20 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         plagiarism_score: res.plagiarism_score,
       });
 
-      const passed = res.test_cases_passed ?? 0;
-      const total = res.total_test_cases ?? 0;
-      const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
-
-      if (passed === total && total > 0) {
-        toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
-      } else if (total > 0) {
-        toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
+      if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
+        toast.error('Time Limit Exceeded');
       } else {
-        toast.success('Solution submitted successfully');
+        const passed = res.test_cases_passed ?? 0;
+        const total = res.total_test_cases ?? 0;
+        const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
+
+        if (passed === total && total > 0) {
+          toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
+        } else if (total > 0) {
+          toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
+        } else {
+          toast.success('Solution submitted successfully');
+        }
       }
 
       onSubmissionComplete?.(res);
