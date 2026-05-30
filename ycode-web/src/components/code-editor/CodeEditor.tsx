@@ -396,9 +396,17 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         toast.error('Code execution failed');
       }
     } catch (err) {
-      console.error('runCode error', err);
-      toast.error('Error running code');
-      setOutput(typeof err === 'string' ? err : err instanceof Error ? err.message : 'Unknown error');
+      const isTle = (err instanceof Error && err.message === 'Time Limit Exceeded') ||
+        (err && typeof err === 'object' && (err as any).status === 400 && (err as any).data?.status === 'tle');
+      if (isTle) {
+        toast.error('Time Limit Exceeded');
+        setOutput('⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.');
+      } else {
+        console.error('runCode error', err);
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error('Error running code');
+        setOutput(errMsg);
+      }
       setShowOutput(true);
     } finally {
       setIsRunning(false);
@@ -488,8 +496,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
       onSubmissionComplete?.(res);
     } catch (err) {
-      console.error('submitSolution error', err);
-      toast.error('Error submitting solution');
+      const isTle = (err instanceof Error && err.message === 'Time Limit Exceeded') ||
+        (err && typeof err === 'object' && (err as any).status === 400 && (err as any).data?.status === 'tle');
+      if (isTle) {
+        toast.error('Time Limit Exceeded');
+        setOutput('⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.');
+      } else {
+        console.error('submitSolution error', err);
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error('Error submitting solution');
+        setOutput(errMsg);
+      }
+      setShowOutput(true);
     } finally {
       setIsSubmitting(false);
     }

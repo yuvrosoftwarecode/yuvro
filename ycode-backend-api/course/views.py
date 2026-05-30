@@ -800,7 +800,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                             "status": "tle",
                             "message": "Time Limit Exceeded"
                         },
-                        status=status.HTTP_200_OK
+                        status=status.HTTP_400_BAD_REQUEST
                     )
 
                 execution_results = result["execution_results"]
@@ -1330,7 +1330,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                             "status": "tle",
                             "message": "Time Limit Exceeded"
                         },
-                        status=status.HTTP_200_OK
+                        status=status.HTTP_400_BAD_REQUEST
                     )
 
                 execution_results = result["execution_results"]

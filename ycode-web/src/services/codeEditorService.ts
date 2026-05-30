@@ -1,5 +1,6 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
 import restApiUtilCodeExecuter from '../utils/RestApiUtilCodeExecuter';
+import { ApiError } from '../utils/RestApiUtil';
 
 export interface CodeSubmission {
   id: number;
@@ -65,7 +66,18 @@ export interface ExecutionResult extends CodeSubmission {
   plagiarism_flagged: boolean;
 }
 
+
+/** Returns true when the error is a TLE response (HTTP 400, status: 'tle'). */
+export function isTleError(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status === 400 &&
+    (error.details as any)?.status === 'tle'
+  );
+}
+
 class CodeEditorService {
+
   async runCode(request: {
     code: string;
     language: string;
@@ -91,33 +103,10 @@ class CodeEditorService {
         timeout: 10
       });
 
+      // The code-executer returns TLE as a 200 with { status: 'tle' } in the body.
+      // Normalise it to a proper 400 ApiError so callers handle it uniformly.
       if (data && data.status === 'tle') {
-        return {
-          id: 0,
-          coding_problem: '',
-          problem_title: request.problem_title || 'Quick Run',
-          problem_description: '',
-          code: request.code,
-          language: request.language,
-          status: 'timeout',
-          output: '⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.',
-          error_message: 'Time Limit Exceeded',
-          execution_time: 5,
-          memory_usage: 0,
-          test_cases_passed: 0,
-          total_test_cases: request.test_cases?.length || 0,
-          plagiarism_score: 0,
-          plagiarism_details: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          test_results: {
-            passed: 0,
-            total: request.test_cases?.length || 0,
-            results: [],
-            success: false
-          },
-          plagiarism_flagged: false
-        };
+        throw new ApiError('Time Limit Exceeded', 400, { status: 'tle', message: 'Time Limit Exceeded' });
       }
 
       const executionResult = data.execution_result || {};
@@ -158,6 +147,8 @@ class CodeEditorService {
         plagiarism_flagged: false
       };
     } catch (error) {
+      // Re-throw TLE as-is so CodeEditor can handle it with the correct UI.
+      if (isTleError(error)) throw error;
       console.error('Code execution failed:', error);
       throw new Error(`Code execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -198,7 +189,7 @@ class CodeEditorService {
         submission_id: request.submission_id,
         contest_id: request.contest_id,
         skill_test_id: request.skill_test_id,
-        mock_interview_id: request.mock_interview_id
+        mock_interview_id: request.mock_interview_id,
       };
 
       switch (submissionType) {
@@ -223,33 +214,9 @@ class CodeEditorService {
 
       const response: any = await restApiAuthUtil.post(endpoint, payload);
 
+      // Fallback in-body TLE check for legacy endpoints
       if (response && response.status === 'tle') {
-        return {
-          id: 0,
-          coding_problem: request.question_id,
-          problem_title: 'Code Practice',
-          problem_description: '',
-          code: request.code,
-          language: request.language,
-          status: 'timeout',
-          output: '⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.',
-          error_message: 'Time Limit Exceeded',
-          execution_time: 5,
-          memory_usage: 0,
-          test_cases_passed: 0,
-          total_test_cases: 0,
-          plagiarism_score: 0,
-          plagiarism_details: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          test_results: {
-            passed: 0,
-            total: 0,
-            results: [],
-            success: false
-          },
-          plagiarism_flagged: false
-        };
+        throw new ApiError('Time Limit Exceeded', 400, { status: 'tle', message: 'Time Limit Exceeded' });
       }
 
       return {
@@ -274,11 +241,13 @@ class CodeEditorService {
           passed: response.test_cases_passed || 0,
           total: response.total_test_cases || 0,
           results: response.test_results?.test_results || response.test_results?.results || [],
-          success: response.status === 'completed'
+          success: response.status === 'completed',
         },
-        plagiarism_flagged: response.plagiarism_flagged || false
+        plagiarism_flagged: response.plagiarism_flagged || false,
       };
     } catch (error) {
+      // Re-throw TLE as-is so CodeEditor can handle it
+      if (isTleError(error)) throw error;
       console.error('Code submission failed:', error);
       throw new Error(`Solution submission failed: ${error instanceof Error ? error.message : 'No response received from submission service'}`);
     }
