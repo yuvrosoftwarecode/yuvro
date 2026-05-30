@@ -1461,6 +1461,18 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 all_displayed_results = visible_test_results + masked_advanced_results
                 overall_success = total_tests > 0 and total_passed == total_tests
 
+                # --- Gamification: record activity for coding practice ---
+                gamification = {}
+                if overall_success:
+                    try:
+                        from gamification.service import GamificationService
+                        gamification = GamificationService.record_activity(request.user, 'coding')
+                    except Exception:
+                        pass
+
+                new_badges = gamification.get('new_badges', [])
+                welcome_bonus = gamification.get('welcome_bonus', 0)
+
                 formatted_response = {
                     "id": submission.id,
                     "coding_problem": str(question.id),
@@ -1496,8 +1508,9 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         "overall_success": overall_success,
                     },
                     "plagiarism_flagged": plagiarism_score > 0.8,
-                    "new_badges": [{"key": b.key, "name": b.name, "icon": b.icon} for b in new_badges],
+                    "new_badges": [{"key": b['key'], "name": b['name'], "icon": b['icon']} for b in new_badges],
                     "welcome_bonus": welcome_bonus,
+                    "gamification": gamification,
                 }
 
                 return Response(formatted_response, status=status.HTTP_201_CREATED)

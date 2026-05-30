@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { usePlacementStats } from '@/hooks/usePlacement';
 import { useBatchIds } from '@/hooks/useBatchIds';
+import { useDepartments } from '@/hooks/useDepartments';
 import { usePlacementKPIs } from '@/hooks/usePlacementKPIs';
 import skillTestService from '@/services/skillTestService';
 import {
@@ -133,13 +134,16 @@ const PlacementDashboard = () => {
 
   const { data: stats, isLoading } = usePlacementStats();
   const { batchIds: batches, isLoading: batchesLoading } = useBatchIds();
+  const { departments, isLoading: depsLoading } = useDepartments();
   const [year, setYear] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
   const [skillCategory, setSkillCategory] = useState('');
   const [readinessStatus, setReadinessStatus] = useState('');
 
   // Fetch KPI data dynamically
   const { data: kpiData, isLoading: kpisLoading } = usePlacementKPIs(
     year,
+    departmentId,
     'all',
     skillCategory,
     readinessStatus
@@ -260,8 +264,8 @@ const PlacementDashboard = () => {
 
         {/* Filters */}
         <Card className="border-border/60 shadow-sm rounded-2xl">
-          <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-            <Select value={year} onValueChange={(val) => { setYear(val); setSkillCategory(''); setReadinessStatus(''); }}>
+          <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Select value={year} onValueChange={(val) => { setYear(val); setDepartmentId(''); setSkillCategory(''); setReadinessStatus(''); }}>
               <SelectTrigger className="rounded-lg">
                 <SelectValue placeholder="Select Batch" />
               </SelectTrigger>
@@ -274,7 +278,20 @@ const PlacementDashboard = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={skillCategory} onValueChange={(val) => { setSkillCategory(val); setReadinessStatus(''); }} disabled={!year}>
+            <Select value={departmentId} onValueChange={(val) => { setDepartmentId(val); setSkillCategory(''); setReadinessStatus(''); }} disabled={!year}>
+              <SelectTrigger className="rounded-lg">
+                <SelectValue placeholder="Select Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments?.map(dept => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={skillCategory} onValueChange={(val) => { setSkillCategory(val); setReadinessStatus(''); }} disabled={!departmentId}>
               <SelectTrigger className="rounded-lg">
                 <SelectValue placeholder="Select Skill" />
               </SelectTrigger>

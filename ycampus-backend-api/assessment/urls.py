@@ -10,8 +10,10 @@ from .views import (
     CertificationSubmissionViewSet,
     PlacementDashboardViewSet,
 )
+from .leaderboard_views import LeaderboardViewSet
 
 router = DefaultRouter()
+router.register(r"leaderboards", LeaderboardViewSet, basename="leaderboard")
 router.register(r"contests", ContestViewSet)
 router.register(r"skill-tests", SkillTestViewSet)
 router.register(r"mock-interviews", MockInterviewViewSet)

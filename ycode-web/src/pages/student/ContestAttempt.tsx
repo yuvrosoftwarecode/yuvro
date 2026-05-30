@@ -81,6 +81,7 @@ export default function ContestAttempt() {
             onComplete={handleComplete}
             onSubmit={handleSubmit}
             onBack={() => navigate('/student/contests')}
+            assessmentType="contests"
         />
     );
 }

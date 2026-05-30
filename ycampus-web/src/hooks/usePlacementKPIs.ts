@@ -103,18 +103,20 @@ export interface PlacementKPIData {
 
 export function usePlacementKPIs(
   batch: string,
+  department: string,
   assessmentType: string,
   skillCategory: string,
   readinessStatus: string
 ) {
   return useQuery<PlacementKPIData>({
-    queryKey: ['placement-kpis', batch, assessmentType, skillCategory, readinessStatus],
+    queryKey: ['placement-kpis', batch, department, assessmentType, skillCategory, readinessStatus],
     queryFn: async () => {
       const response = await restApiAuthUtil.get<PlacementKPIData>(
         '/assessment/placement-dashboard/kpis/',
         {
           params: {
             batch: batch || 'all',
+            department: department || 'all',
             assessment_type: assessmentType || 'all',
             skill_category: skillCategory || 'all',
             readiness_status: readinessStatus || 'all',

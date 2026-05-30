@@ -64,6 +64,7 @@ export interface ExecutionResult extends CodeSubmission {
     }>;
   };
   plagiarism_flagged: boolean;
+  gamification?: any;
 }
 
 

@@ -452,11 +452,22 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{settings.FRONTEND_URL}/reset-password/{uidb64}/{token}"
 
+        # Render styled HTML email template
+        from django.template.loader import render_to_string
+        context = {
+            "user": user,
+            "reset_link": reset_link,
+            "frontend_url": settings.FRONTEND_URL,
+        }
+        html_message = render_to_string("emails/password_reset.html", context)
+        plain_message = f"Click the link to reset your password: {reset_link}"
+
         send_mail(
             subject="Password Reset Request",
-            message=f"Click the link to reset your password: {reset_link}",
+            message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
+            html_message=html_message,
             fail_silently=False,
         )
 
