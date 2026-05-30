@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Globe, Users, Briefcase, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,9 +9,10 @@ interface CompanyFormProps {
   onCompanyCreated: (company: Company) => void;
   isEditing?: boolean;
   company?: Company;
+  existingCompanies?: Company[];
 }
 
-export default function CompanyForm({ onClose, onCompanyCreated, isEditing = false, company }: CompanyFormProps) {
+export default function CompanyForm({ onClose, onCompanyCreated, isEditing = false, company, existingCompanies = [] }: CompanyFormProps) {
   const [formData, setFormData] = useState({
     name: company?.name || "",
     domain: company?.domain || "",
@@ -22,6 +23,25 @@ export default function CompanyForm({ onClose, onCompanyCreated, isEditing = fal
   });
 
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!formData.name.trim()) {
+      setNameError(null);
+      return;
+    }
+    
+    const isDuplicate = existingCompanies.some(
+      c => c.name.toLowerCase() === formData.name.trim().toLowerCase() && 
+           (isEditing && company ? c.id !== company.id : true)
+    );
+    
+    if (isDuplicate) {
+      setNameError("A company with this name is already registered.");
+    } else {
+      setNameError(null);
+    }
+  }, [formData.name, existingCompanies, isEditing, company]);
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
@@ -30,6 +50,7 @@ export default function CompanyForm({ onClose, onCompanyCreated, isEditing = fal
     }
 
     setLoading(true);
+    setNameError(null);
     try {
       let savedCompany: Company;
       
@@ -45,9 +66,15 @@ export default function CompanyForm({ onClose, onCompanyCreated, isEditing = fal
       
       onCompanyCreated(savedCompany);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving company:', error);
-      toast.error(isEditing ? 'Failed to update company' : 'Failed to create company');
+      const errorMessage = error?.data?.name?.[0] || error?.response?.data?.name?.[0] || error?.message;
+      if (errorMessage && typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('already registered')) {
+         setNameError(errorMessage);
+         toast.error('A company with this name is already registered');
+      } else {
+         toast.error(isEditing ? 'Failed to update company' : 'Failed to create company');
+      }
     } finally {
       setLoading(false);
     }
@@ -78,16 +105,24 @@ export default function CompanyForm({ onClose, onCompanyCreated, isEditing = fal
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${nameError ? 'text-red-600' : 'text-gray-700'}`}>
                 Company Name *
               </label>
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (nameError) setNameError(null);
+                }}
                 placeholder="e.g., Tech Solutions Inc."
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                  nameError ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {nameError && (
+                <p className="mt-1 text-sm text-red-600">{nameError}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -174,7 +209,7 @@ export default function CompanyForm({ onClose, onCompanyCreated, isEditing = fal
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !!nameError}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : (isEditing ? 'Update Company' : 'Create Company')}

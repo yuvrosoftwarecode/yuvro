@@ -36,11 +36,6 @@ urlpatterns = [
         name="company-detail",
     ),
     path(
-        "companies/check-name/",
-        CompanyViewSet.as_view({"get": "check_name"}),
-        name="company-check-name",
-    ),
-    path(
         "applications/my-applications/",
         JobApplicationViewSet.as_view({"get": "my_applications"}),
         name="my-applications",

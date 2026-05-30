@@ -51,23 +51,14 @@ export default function CompaniesModal({ isOpen, onClose, onCompanySelect }: Com
     setShowCompanyForm(true);
   };
 
-  const handleCompanyCreated = async (company: Company) => {
-    try {
-      if (editingCompany) {
-        const updatedCompany = await companyService.updateCompany(editingCompany.id, company);
-        setCompanies(prev => prev.map(c => c.id === editingCompany.id ? updatedCompany : c));
-        toast.success('Company updated successfully');
-      } else {
-        const newCompany = await companyService.createCompany(company);
-        setCompanies(prev => [...prev, newCompany]);
-        toast.success('Company created successfully');
-      }
-      setShowCompanyForm(false);
-      setEditingCompany(null);
-    } catch (error) {
-      console.error('Error saving company:', error);
-      toast.error(editingCompany ? 'Failed to update company' : 'Failed to create company');
+  const handleCompanyCreated = (company: Company) => {
+    if (editingCompany) {
+      setCompanies(prev => prev.map(c => c.id === editingCompany.id ? company : c));
+    } else {
+      setCompanies(prev => [company, ...prev]);
     }
+    setShowCompanyForm(false);
+    setEditingCompany(null);
   };
 
   const handleSelectCompany = (company: Company) => {
@@ -89,6 +80,7 @@ export default function CompaniesModal({ isOpen, onClose, onCompanySelect }: Com
             onCompanyCreated={handleCompanyCreated}
             isEditing={!!editingCompany}
             company={editingCompany || undefined}
+            existingCompanies={companies}
           />
         </div>
       </div>

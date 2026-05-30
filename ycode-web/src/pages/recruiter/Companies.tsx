@@ -42,7 +42,6 @@ const RecruiterCompanies: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSizeFilter, setSelectedSizeFilter] = useState('all');
   const [nameError, setNameError] = useState<string | null>(null);
-  const [isValidatingName, setIsValidatingName] = useState(false);
 
   const [companyFormData, setCompanyFormData] = useState({
     name: "",
@@ -61,31 +60,20 @@ const RecruiterCompanies: React.FC = () => {
   useEffect(() => {
     if (!companyFormData.name.trim()) {
       setNameError(null);
-      setIsValidatingName(false);
       return;
     }
-
-    setIsValidatingName(true);
-    const timeoutId = setTimeout(async () => {
-      try {
-        const result = await jobService.checkCompanyName(
-          companyFormData.name.trim(),
-          isEditing && selectedCompanyId ? selectedCompanyId : undefined
-        );
-        if (result.exists) {
-          setNameError("A company with this name is already registered.");
-        } else {
-          setNameError(null);
-        }
-      } catch (error) {
-        console.error("Error checking company name:", error);
-      } finally {
-        setIsValidatingName(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [companyFormData.name, isEditing, selectedCompanyId]);
+    
+    const isDuplicate = companies.some(
+      c => c.name.toLowerCase() === companyFormData.name.trim().toLowerCase() && 
+           (isEditing ? c.id !== selectedCompanyId : true)
+    );
+    
+    if (isDuplicate) {
+      setNameError("A company with this name is already registered.");
+    } else {
+      setNameError(null);
+    }
+  }, [companyFormData.name, companies, isEditing, selectedCompanyId]);
 
   const loadCompanies = async () => {
     try {
@@ -101,7 +89,6 @@ const RecruiterCompanies: React.FC = () => {
     setIsEditing(false);
     setSelectedCompanyId(null);
     setNameError(null);
-    setIsValidatingName(false);
     setCompanyFormData({
       name: "",
       domain: "",
@@ -118,7 +105,6 @@ const RecruiterCompanies: React.FC = () => {
     setIsEditing(true);
     setSelectedCompanyId(company.id);
     setNameError(null);
-    setIsValidatingName(false);
     setCompanyFormData({
       name: company.name,
       domain: company.domain || "",
@@ -136,10 +122,6 @@ const RecruiterCompanies: React.FC = () => {
       toast.error('Please enter a company name');
       return;
     }
-    if (nameError) {
-      toast.error('Please fix the errors before submitting');
-      return;
-    }
 
     try {
       if (isEditing && selectedCompanyId) {
@@ -149,13 +131,20 @@ const RecruiterCompanies: React.FC = () => {
         await jobService.createCompany(companyFormData);
         toast.success('Company added successfully');
       }
+      setNameError(null);
       loadCompanies();
       setShowCompanyForm(false);
       setIsEditing(false);
       setSelectedCompanyId(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving company:", err);
-      toast.error(isEditing ? 'Failed to update company' : 'Failed to add company');
+      const errorMessage = err?.data?.name?.[0] || err?.response?.data?.name?.[0] || err?.message;
+      if (errorMessage && typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('already registered')) {
+         setNameError(errorMessage);
+         toast.error('A company with this name is already registered');
+      } else {
+         toast.error(isEditing ? 'Failed to update company' : 'Failed to add company');
+      }
     }
   };
 
@@ -442,7 +431,10 @@ const RecruiterCompanies: React.FC = () => {
                           <Label className={nameError ? "text-red-500" : ""}>Company Name *</Label>
                           <Input
                             value={companyFormData.name}
-                            onChange={(e) => setCompanyFormData({ ...companyFormData, name: e.target.value })}
+                            onChange={(e) => {
+                              setCompanyFormData({ ...companyFormData, name: e.target.value });
+                              if (nameError) setNameError(null);
+                            }}
                             placeholder="e.g., Tech Solutions Inc."
                             className={`bg-white ${nameError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                           />
@@ -536,10 +528,10 @@ const RecruiterCompanies: React.FC = () => {
                     </Button>
                     <Button
                       onClick={handleSubmitCompany}
-                      disabled={isValidatingName || !!nameError}
+                      disabled={!!nameError}
                       className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isValidatingName ? "Validating..." : (isEditing ? "Update Company" : "Add Company")}
+                      {isEditing ? "Update Company" : "Add Company"}
                     </Button>
                   </div>
                 </div>

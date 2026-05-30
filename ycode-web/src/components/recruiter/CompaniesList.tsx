@@ -61,25 +61,14 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
     setShowCompanyForm(true);
   };
 
-  const handleCompanyCreated = async (company: Company) => {
-    try {
-      if (editingCompany) {
-        // Update existing company
-        const updatedCompany = await companyService.updateCompany(editingCompany.id, company);
-        setCompanies(prev => prev.map(c => c.id === editingCompany.id ? updatedCompany : c));
-        toast.success('Company updated successfully');
-      } else {
-        // Create new company
-        const newCompany = await companyService.createCompany(company);
-        setCompanies(prev => [...prev, newCompany]);
-        toast.success('Company created successfully');
-      }
-      setShowCompanyForm(false);
-      setEditingCompany(null);
-    } catch (error) {
-      console.error('Error saving company:', error);
-      toast.error(editingCompany ? 'Failed to update company' : 'Failed to create company');
+  const handleCompanyCreated = (company: Company) => {
+    if (editingCompany) {
+      setCompanies(prev => prev.map(c => c.id === editingCompany.id ? company : c));
+    } else {
+      setCompanies(prev => [company, ...prev]);
     }
+    setShowCompanyForm(false);
+    setEditingCompany(null);
   };
 
   const handleDeleteCompany = async (id: number) => {
@@ -125,6 +114,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
         onCompanyCreated={handleCompanyCreated}
         isEditing={!!editingCompany}
         company={editingCompany || undefined}
+        existingCompanies={companies}
       />
     );
   }
