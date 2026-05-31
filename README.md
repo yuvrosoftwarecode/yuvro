@@ -11,11 +11,13 @@ cd yuvro
 make install
 make install-ycode
 make install-ycampus
+make install-ylabs
 
 # Only Run ( no build)
 make run
 make run-ycode
 make run-ycampus
+make run-ylabs
 
 # Setup initial fixtures data like users, courses etc
 make setup-fixtures-data
@@ -27,6 +29,7 @@ make setup-fixtures-data-ycode
 make stop
 make stop-ycode 
 make stop-ycampus
+make stop-ylabs
 
 
 # Only delete db volumes

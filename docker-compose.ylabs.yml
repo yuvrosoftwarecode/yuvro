@@ -1,0 +1,80 @@
+services:
+  ylabs-db:
+    image: postgres:15
+    env_file:
+      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ylabs_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"  # YLabs PostgreSQL
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: on-failure
+    networks:
+      - ylabs
+
+  ylabs-backend:
+    build:
+      context: ./ylabs-backend-api
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"  # Django API (host: 8002)
+      - "9003:9001"  # Prometheus metrics
+    env_file:
+      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local-secrets
+        required: false
+    depends_on:
+      ylabs-db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: on-failure
+    networks:
+      - ylabs
+
+  ylabs-frontend:
+    build:
+      context: ./ylabs-web
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./ylabs-web/.env.local
+      - path: ./ylabs-web/.env.local-secrets
+        required: false
+    stdin_open: true
+    tty: true
+    depends_on:
+      ylabs-backend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: on-failure
+    networks:
+      - ylabs
+
+volumes:
+  ylabs_postgres_data:
+
+networks:
+  ylabs:
+    driver: bridge
+  executor:
+    external: true
