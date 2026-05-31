@@ -45,8 +45,11 @@ make clean
 
 YCode frontend: http://localhost:3000/
 YCampus frontend: http://localhost:3001/
+YLabs frontend: http://localhost:3002/
+
 YCode backend health: http://localhost:8000/api/health/
 YCampus backend health: http://localhost:8001/api/health/
+YLabs backend health: http://localhost:8002/api/health/
 Code executor: http://localhost:8009/
 
 YCode Frontend:    https://code-dev.yuvro.ai
