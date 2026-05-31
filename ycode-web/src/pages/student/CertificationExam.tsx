@@ -99,11 +99,11 @@ const CertificationExam: React.FC = () => {
         // Handled by result screen, no immediate navigation needed
     };
 
-    const getCertificateViewUrl = (relativeUrl: string) => {
-        if (!relativeUrl) return '#';
+    const getCertificateViewUrl = (certId: string) => {
+        if (!certId) return '#';
         const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
         const host = apiBase.replace(/\/api\/?$/, '');
-        return `${host}${relativeUrl}`;
+        return `${host}/api/assessment/certificates/${certId}/view/`;
     };
 
     if (loading) {
@@ -175,7 +175,7 @@ const CertificationExam: React.FC = () => {
                                     <div>
                                         <h4 className="font-bold text-emerald-900 text-lg">Official Certificate Issued</h4>
                                         <p className="text-emerald-700 text-sm mt-1 leading-relaxed">
-                                            A secure digital certificate has been dynamically generated under Certificate ID <span className="font-mono font-bold">{result.certificate_id}</span>. You can view, verify, or download it immediately.
+                                            A secure digital certificate has been dynamically generated under Certificate ID <span className="font-mono font-bold">{result.certificate_display_id}</span>. You can view, verify, or download it immediately.
                                         </p>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@ const CertificationExam: React.FC = () => {
                         <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100">
                             {isPassed ? (
                                 <a 
-                                    href={getCertificateViewUrl(result.certificate_url)}
+                                    href={getCertificateViewUrl(result.certificate_id)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-base rounded-2xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all"

@@ -32,7 +32,7 @@ from .serializers import (
     MockInterviewSubmissionSerializer,
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
-
+from django.shortcuts import render
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     queryset = CertificationExam.objects.all()
     serializer_class = CertificationExamSerializer
@@ -204,8 +204,8 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'submission': submission
                 }
             )
-            certificate_id = cert.certificate_id
-            certificate_url = cert.certificate_url
+            certificate_id = str(cert.id)
+            certificate_url = f"/api/assessment/certificates/{cert.id}/view/"
 
         # --- Gamification: record activity for certification submission ---
         gamification = {}
@@ -220,6 +220,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             'score': total_score,
             'passed': passed,
             'certificate_id': certificate_id,
+            'certificate_display_id': cert.display_id if passed else None,
             'certificate_url': certificate_url,
             'gamification': gamification,
         })
@@ -1631,11 +1632,11 @@ class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
             'score': score,
             'percentage': percentage,
             'completion_date': completion_date,
-            'certificate_id': cert.certificate_id,
+            'certificate_id': cert.display_id,
             'issued_at': cert.issued_at.strftime('%B %d, %Y'),
         }
         
-        from django.shortcuts import render
+        
         return render(request, 'assessment/certificate.html', context)
 
 

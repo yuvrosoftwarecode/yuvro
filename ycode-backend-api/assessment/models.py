@@ -726,8 +726,6 @@ class Certificate(BaseTimestampedModel):
     submission = models.OneToOneField(CertificationSubmission, on_delete=models.SET_NULL, null=True, related_name="certificate")
     
     issued_at = models.DateTimeField(auto_now_add=True)
-    certificate_url = models.URLField(blank=True, help_text="URL to downloaded certificate")
-    certificate_id = models.CharField(max_length=50, unique=True, help_text="Unique certificate identifier")
     
     class Meta:
         ordering = ["-issued_at"]
@@ -735,14 +733,7 @@ class Certificate(BaseTimestampedModel):
     def __str__(self):
         return f"Certificate: {self.user.username} - {self.course.name}"
 
-    def save(self, *args, **kwargs):
-        if not self.certificate_id:
-            # Generate a simple unique ID: YUVRO-YYYY-RANDOM
-            import random
-            import string
-            year = timezone.now().year
-            rand_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-            self.certificate_id = f"YUVRO-{year}-{rand_str}"
-        if not self.certificate_url:
-            self.certificate_url = f"/api/assessment/certificates/{self.id}/view/"
-        super().save(*args, **kwargs)
+    @property
+    def display_id(self):
+        year = self.issued_at.year if self.issued_at else timezone.now().year
+        return f"YUVRO-{year}-{str(self.id).upper().replace('-', '')[:5]}"

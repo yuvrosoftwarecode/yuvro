@@ -137,12 +137,12 @@ export default function CertificationExamSubmissions() {
                                                             href={(() => {
                                                                 const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
                                                                 const host = apiBase.replace(/\/api\/?$/, '');
-                                                                return `${host}${sub.certificate.certificate_url}`;
+                                                                return `${host}/api/assessment/certificates/${sub.certificate.id}/view/`;
                                                             })()}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="p-2 text-amber-600 hover:bg-amber-50 rounded-md transition-colors flex items-center justify-center"
-                                                            title={`View Earned Certificate (${sub.certificate.certificate_id})`}
+                                                            title={`View Earned Certificate (${sub.certificate.display_id})`}
                                                         >
                                                             <Award className="h-4 w-4" />
                                                         </a>

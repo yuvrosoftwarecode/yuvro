@@ -122,18 +122,22 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
 class CertificateSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source="course.name", read_only=True)
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
+    certificate_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Certificate
         fields = [
             "id",
-            "certificate_id",
+            "display_id",
             "user_name",
             "course_name",
             "issued_at",
             "certificate_url",
         ]
-        read_only_fields = ["id", "certificate_id", "issued_at", "user_name", "course_name"]
+        read_only_fields = ["id", "display_id", "issued_at", "user_name", "course_name"]
+
+    def get_certificate_url(self, obj):
+        return f"/api/assessment/certificates/{obj.id}/view/"
 
 
 class CertificationSubmissionSerializer(serializers.ModelSerializer):

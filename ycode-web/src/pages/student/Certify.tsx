@@ -148,7 +148,7 @@ const Certify: React.FC = () => {
                                                     ACCREDITED
                                                 </Badge>
                                                 <span className="text-[10px] font-mono text-gray-400">
-                                                    {cert.certificate_id}
+                                                    {cert.display_id}
                                                 </span>
                                             </div>
                                             <CardTitle className="text-lg font-bold text-white mt-2 line-clamp-1">{cert.course_name}</CardTitle>
@@ -165,7 +165,7 @@ const Certify: React.FC = () => {
                                                 href={(() => {
                                                     const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
                                                     const host = apiBase.replace(/\/api\/?$/, '');
-                                                    return `${host}${cert.certificate_url}`;
+                                                    return `${host}/api/assessment/certificates/${cert.id}/view/`;
                                                 })()}
                                                 target="_blank"
                                                 rel="noopener noreferrer"

@@ -412,14 +412,14 @@ const Dashboard: React.FC = () => {
                             {cert.course_name}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            ID: <span className="font-mono">{cert.certificate_id}</span>
+                            ID: <span className="font-mono">{cert.display_id}</span>
                           </p>
                         </div>
                         <a
                           href={(() => {
                             const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
                             const host = apiBase.replace(/\/api\/?$/, '');
-                            return `${host}${cert.certificate_url}`;
+                            return `${host}/api/assessment/certificates/${cert.id}/view/`;
                           })()}
                           target="_blank"
                           rel="noopener noreferrer"
