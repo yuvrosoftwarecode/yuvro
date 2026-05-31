@@ -1,0 +1,136 @@
+# YLabs Platform Makefile
+
+.PHONY: setup dev dev-detached stop restart logs clean reload-data
+.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
+.PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
+.PHONY: frontend-shell frontend-test frontend-format frontend-format-fix frontend-lint frontend-install
+
+# ============================================================================
+# Setup
+# ============================================================================
+
+setup:
+	@echo "🚀 Setting up YLabs Platform..."
+	@command -v docker >/dev/null 2>&1 || { echo "❌ Docker is required but not installed."; exit 1; }
+	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
+
+	@echo "Creating environment files..."
+	@if [ ! -f ylabs-backend-api/.env ]; then cp ylabs-backend-api/.env.example ylabs-backend-api/.env; echo "✅ Created backend .env"; fi
+	@if [ ! -f ylabs-web/.env ]; then cp ylabs-web/.env.example ylabs-web/.env; echo "✅ Created frontend .env"; fi
+
+	@echo "Creating executor network..."
+	@docker network create executor 2>/dev/null || true
+
+	@echo "Stopping existing YLabs containers (preserving volumes)..."
+	docker compose -f docker-compose.ylabs.yml down
+	@sleep 2
+
+	@echo "Building and starting YLabs services..."
+	docker compose -f docker-compose.ylabs.yml up -d --build --wait
+
+	@echo "✅ YLabs setup complete!"
+	@echo "🌐 Frontend: http://localhost:3002"
+	@echo "🔧 Backend API: http://localhost:8002"
+
+# ============================================================================
+# Development
+# ============================================================================
+
+dev:
+	docker compose -f docker-compose.ylabs.yml up --remove-orphans
+
+dev-detached:
+	docker compose -f docker-compose.ylabs.yml up -d --remove-orphans
+
+stop:
+	docker compose -f docker-compose.ylabs.yml down
+
+restart:
+	docker compose -f docker-compose.ylabs.yml restart
+
+logs:
+	@if [ "$(SERVICE)" = "" ]; then \
+		docker compose -f docker-compose.ylabs.yml logs -f; \
+	else \
+		docker compose -f docker-compose.ylabs.yml logs -f $(SERVICE); \
+	fi
+
+clean:
+	@echo "🧹 Cleaning YLabs containers and volumes..."
+	docker compose -f docker-compose.ylabs.yml down -v --remove-orphans
+	@echo "✅ Cleanup complete!"
+
+# ============================================================================
+# Database
+# ============================================================================
+
+db-shell:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-db psql -U postgres -d ylabs_backend_db
+
+db-migrate:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py migrate
+
+db-makemigrations:
+	docker compose -f docker-compose.ylabs.yml run --rm ylabs-backend python manage.py makemigrations
+
+db-createsuperuser:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py createsuperuser
+
+db-reset:
+	@echo "🔄 Resetting database..."
+	docker compose -f docker-compose.ylabs.yml down ylabs-db -v
+	docker compose -f docker-compose.ylabs.yml up -d ylabs-db
+	@echo "✅ Database reset complete!"
+
+# ============================================================================
+# Backend
+# ============================================================================
+
+backend-shell:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py shell
+
+backend-test:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend python manage.py test
+
+backend-format:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend black . --check --diff
+
+backend-format-fix:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend black .
+
+backend-lint:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend flake8 .
+
+backend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ylabs backend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend pip install $(PKG)
+	docker compose -f docker-compose.ylabs.yml exec ylabs-backend pip freeze > ylabs-backend-api/requirements.txt
+
+# ============================================================================
+# Frontend
+# ============================================================================
+
+frontend-shell:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend sh
+
+frontend-test:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend npm test -- --run
+
+frontend-format:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend npm run format:check
+
+frontend-format-fix:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend npm run format
+
+frontend-lint:
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend npm run lint
+
+frontend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ylabs frontend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ylabs.yml exec ylabs-frontend npm install $(PKG)
