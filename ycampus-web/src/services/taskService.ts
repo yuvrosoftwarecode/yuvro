@@ -22,6 +22,7 @@ export interface Task {
     question_details?: any[];
     is_sent?: boolean;
     due_date?: string;
+    attachment?: string;
     created_at: string;
     updated_at: string;
 }
@@ -36,6 +37,21 @@ export interface TaskComment {
     updated_at: string;
 }
 
+export interface TaskSubmissionHistory {
+    id: string;
+    attempt_number: number;
+    answer: string;
+    answers_data?: Record<string, any>;
+    file?: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    grade?: string | number | null;
+    rejection_reason?: string | null;
+    rejection_comment?: string | null;
+    submitted_at?: string;
+    reviewed_at?: string;
+    reviewed_by?: any;
+}
+
 export interface TaskSubmission {
     id: string;
     task: string;
@@ -46,8 +62,15 @@ export interface TaskSubmission {
     file?: string;
     is_submitted: boolean;
     status: 'pending' | 'accepted' | 'rejected';
+    grade?: string | number | null;
+    rejection_reason?: string | null;
+    rejection_comment?: string | null;
+    attempt_number: number;
+    reviewed_at?: string;
+    reviewed_by?: any;
     submitted_at?: string;
     comments: TaskComment[];
+    history?: TaskSubmissionHistory[];
     created_at: string;
     updated_at: string;
 }
@@ -62,6 +85,19 @@ export const taskService = {
     },
 
     createTask: async (data: any): Promise<Task> => {
+        if (data.attachment) {
+            const formData = new FormData();
+            Object.keys(data).forEach(key => {
+                if (data[key] !== undefined && data[key] !== null) {
+                    if (Array.isArray(data[key])) {
+                        data[key].forEach((val: any) => formData.append(key, val));
+                    } else {
+                        formData.append(key, data[key]);
+                    }
+                }
+            });
+            return await restApiAuthUtil.post<Task>('/core/tasks/', formData);
+        }
         return await restApiAuthUtil.post<Task>('/core/tasks/', data);
     },
 
@@ -87,8 +123,16 @@ export const taskService = {
         return await restApiAuthUtil.get<TaskSubmission>(`/core/task-submissions/${id}/`);
     },
 
-    addCommentToSubmission: async (id: string, comment: string): Promise<TaskComment> => {
-        return await restApiAuthUtil.post<TaskComment>(`/core/task-submissions/${id}/add_comment/`, { comment });
+    reviewSubmission: async (id: string, data: { status: 'accepted' | 'rejected', grade?: number, rejection_reason?: string, rejection_comment?: string }): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.post<TaskSubmission>(`/core/task-submissions/${id}/review/`, data);
+    },
+
+    resubmitSubmission: async (id: string): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.post<TaskSubmission>(`/core/task-submissions/${id}/resubmit/`, {});
+    },
+
+    addCommentToSubmission: async (submissionId: string, comment: string): Promise<TaskComment> => {
+        return await restApiAuthUtil.post<TaskComment>(`/core/task-submissions/${submissionId}/add_comment/`, { comment });
     },
 
     createTaskSubmission: async (data: FormData): Promise<TaskSubmission> => {
@@ -99,12 +143,9 @@ export const taskService = {
         return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, data);
     },
 
-    updateSubmissionStatus: async (id: string, status: 'pending' | 'accepted' | 'rejected'): Promise<TaskSubmission> => {
-        return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, { status });
-    },
-
-    getStudentSubmissions: async (studentId: string): Promise<TaskSubmission[]> => {
-        return await restApiAuthUtil.get<TaskSubmission[]>('/core/task-submissions/', { params: { student: studentId } });
+    getStudentSubmissions: async (studentId?: string): Promise<TaskSubmission[]> => {
+        // Backend automatically filters submissions for the currently authenticated student
+        return await restApiAuthUtil.get<TaskSubmission[]>('/core/task-submissions/');
     }
 };
 

@@ -15,22 +15,37 @@ interface CreateTaskFormProps {
   sections: string[];
   onSubmit: (taskData: any) => void;
   onCancel: () => void;
+  initialData?: any;
 }
 
-const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, onSubmit, onCancel }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [taskType, setTaskType] = useState<'descriptive' | 'coding'>('descriptive');
-  const [source, setSource] = useState<'manual' | 'bank'>('manual');
+const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, onSubmit, onCancel, initialData }) => {
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    // Adjust to local time
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+  
+  const [dueDate, setDueDate] = useState(formatDateForInput(initialData?.due_date));
+  
+  const minDateTime = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+  const [taskType, setTaskType] = useState<'descriptive' | 'coding'>(initialData?.task_type || 'descriptive');
+  const [source, setSource] = useState<'manual' | 'bank'>(initialData?.question_source || 'manual');
+  const [attachment, setAttachment] = useState<File | null>(null);
   
   const [units, setUnits] = useState<UnitBasic[]>([]);
   const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
-  const [selectedUnit, setSelectedUnit] = useState('');
-  const [selectedSubUnit, setSelectedSubUnit] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState(String(initialData?.unit || ''));
+  const [selectedSubUnit, setSelectedSubUnit] = useState(String(initialData?.sub_unit || ''));
   
   const [bankQuestions, setBankQuestions] = useState<any[]>([]);
-  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+  const [selectedQuestions, setSelectedQuestions] = useState<string[]>(
+    initialData?.question_details?.map((q: any) => String(q.id)) || []
+  );
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   useEffect(() => {
@@ -77,7 +92,8 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
     
     // Validations based on source mode
     if (source === 'manual') {
-      if (!description.trim() || !selectedSubUnit) return;
+      if (!description.trim() && !attachment) return;
+      if (!selectedSubUnit) return;
     }
     
     if (source === 'bank' && selectedQuestions.length === 0) {
@@ -93,7 +109,8 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
       sub_unit: selectedSubUnit || undefined,
       sections: sections,
       question_source: source,
-      questions: source === 'bank' ? selectedQuestions : undefined
+      questions: source === 'bank' ? selectedQuestions : undefined,
+      attachment: attachment || undefined
     });
   };
 
@@ -101,7 +118,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
     <Card className="border-2 border-primary/20 shadow-lg">
       <CardHeader className="pb-3 border-b">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-xl font-bold">Create New Task</CardTitle>
+          <CardTitle>{initialData ? 'Edit Task' : 'Create New Task'}</CardTitle>
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <X className="h-4 w-4" />
           </Button>
@@ -131,6 +148,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
                   type="datetime-local"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  min={minDateTime}
                   className="pl-10"
                   required
                 />
@@ -204,15 +222,30 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
           </div>
 
           {source === 'manual' ? (
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Task Description <span className="text-red-500">*</span></label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter detailed task description and requirements"
-                rows={5}
-                required={source === 'manual'}
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">Task Description {!attachment && <span className="text-red-500">*</span>}</label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter detailed task description and requirements"
+                  rows={5}
+                  required={source === 'manual' && !attachment}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">Attachment (Optional)</label>
+                <Input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setAttachment(e.target.files[0]);
+                    }
+                  }}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-slate-500">Upload an optional file for clear understanding if the task description is too long.</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-3 border rounded-lg p-4 bg-slate-50 border-slate-200 shadow-inner">
@@ -288,7 +321,7 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
               className="flex-1 shadow-md hover:shadow-lg transition-all font-bold"
               disabled={source === 'bank' && selectedQuestions.length === 0}
             >
-              Confirm & Create Task
+              {initialData ? 'Save Changes' : 'Confirm & Create Task'}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel} className="flex-1 font-semibold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">
               Discard

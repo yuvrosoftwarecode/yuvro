@@ -41,7 +41,7 @@ interface Task {
 
 interface TaskCardProps {
   task: Task;
-  onEdit: (taskId: string, updatedData: { title: string; description: string }) => void;
+  onEdit: (taskId: string) => void;
   onDelete: (taskId: string) => void;
   onSend: (taskId: string, sectionIds?: string[]) => void;
   onViewResponses: (taskId: string) => void;
@@ -58,23 +58,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
   availableSections = [],
   currentSectionId
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(task.title);
-  const [editDescription, setEditDescription] = useState(task.description);
   const [showSendOptions, setShowSendOptions] = useState(false);
   const [showMultiModal, setShowMultiModal] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>(currentSectionId ? [currentSectionId] : []);
-
-  const handleSaveEdit = () => {
-    onEdit(task.id, { title: editTitle, description: editDescription });
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    setEditTitle(task.title);
-    setEditDescription(task.description);
-    setIsEditing(false);
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -88,16 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     <Card className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2">
-          {isEditing ? (
-            <Input
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className="font-semibold"
-              placeholder="Task title"
-            />
-          ) : (
-            <CardTitle className="text-lg leading-tight">{task.title}</CardTitle>
-          )}
+          <CardTitle className="text-lg leading-tight">{task.title}</CardTitle>
           <Badge variant={!task.is_sent ? 'secondary' : 'default'}>
             {task.is_sent ? 'Sent' : 'Draft'}
           </Badge>
@@ -106,18 +83,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
       <CardContent className="flex-1 flex flex-col">
         <div className="flex-1 space-y-3">
-          {isEditing ? (
-            <Textarea
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              placeholder="Task description"
-              rows={4}
-            />
-          ) : (
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {task.description}
-            </p>
-          )}
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            {task.description}
+          </p>
 
           <p className="text-xs text-muted-foreground">
             Created: {formatDate(task.created_at)}
@@ -125,72 +93,60 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         <div className="pt-4 space-y-2">
-          {isEditing ? (
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSaveEdit} className="flex-1">
-                Save
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit} className="flex-1">
-                Cancel
-              </Button>
-            </div>
-          ) : (
-            <>
-              {!task.is_sent ? (
-                <>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsEditing(true)}
-                      className="flex-1"
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="flex-1">
-                          <Trash2 className="h-3 w-3 mr-1" />
-                          Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete "{task.title}"? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDelete(task.id)}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    className="w-full font-bold shadow-sm" 
-                    onClick={() => setShowSendOptions(true)}
-                  >
-                    <Send className="h-3 w-3 mr-1" />
-                    Send Task
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onEdit(task.id)}
+              className="flex-1"
+            >
+              <Edit className="h-3 w-3 mr-1" />
+              Edit
+            </Button>
+            {!task.is_sent && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="flex-1">
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
                   </Button>
-                </>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => onViewResponses(task.id)}
-                  className="w-full"
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  View Responses
-                </Button>
-              )}
-            </>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete "{task.title}"? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(task.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+          
+          {!task.is_sent ? (
+            <Button 
+              size="sm" 
+              className="w-full font-bold shadow-sm" 
+              onClick={() => setShowSendOptions(true)}
+            >
+              <Send className="h-3 w-3 mr-1" />
+              Send Task
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => onViewResponses(task.id)}
+              className="w-full"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              View Responses
+            </Button>
           )}
         </div>
       </CardContent>

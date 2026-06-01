@@ -404,6 +404,7 @@ class Task(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    attachment = models.FileField(upload_to="task_attachments/", blank=True, null=True)
     is_sent = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -433,17 +434,62 @@ class TaskSubmission(BaseTimestampedModel):
     submitted_at = models.DateTimeField(null=True, blank=True)
     file = models.FileField(upload_to="task_submissions/", null=True, blank=True)
 
+    # Review Process Fields
+    status = models.CharField(
+        max_length=20, 
+        choices=[('pending', 'Pending Review'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], 
+        default='pending'
+    )
+    grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    rejection_reason = models.CharField(max_length=100, null=True, blank=True)
+    rejection_comment = models.TextField(null=True, blank=True)
+    attempt_number = models.IntegerField(default=1)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        'FacultyProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name="reviewed_submissions"
+    )
+
     class Meta:
         unique_together = ("task", "student")
         ordering = ["-submitted_at"]
 
     def __str__(self):
-        return f"{self.student.user.username} - {self.task.title}"
+        return f"{self.student.user.username} - {self.task.title} (Attempt {self.attempt_number})"
 
     def save(self, *args, **kwargs):
         if self.is_submitted and self.submitted_at is None:
             self.submitted_at = timezone.now()
         super().save(*args, **kwargs)
+
+
+class TaskSubmissionHistory(BaseTimestampedModel):
+    """
+    Model representing historical attempts for a task submission.
+    """
+    submission = models.ForeignKey(
+        TaskSubmission, on_delete=models.CASCADE, related_name="history"
+    )
+    attempt_number = models.IntegerField()
+    answer = models.TextField(blank=True, null=True)
+    answers_data = models.JSONField(default=dict, blank=True)
+    file = models.FileField(upload_to="task_submissions_history/", null=True, blank=True)
+    
+    status = models.CharField(max_length=20, default='pending')
+    grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    rejection_reason = models.CharField(max_length=100, null=True, blank=True)
+    rejection_comment = models.TextField(null=True, blank=True)
+    
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        'FacultyProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name="reviewed_history"
+    )
+
+    class Meta:
+        ordering = ["-attempt_number"]
+
+    def __str__(self):
+        return f"History for {self.submission} - Attempt {self.attempt_number}"
 
 class TaskComment(BaseTimestampedModel):
     """
