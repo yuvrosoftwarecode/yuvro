@@ -99,6 +99,24 @@ class JobViewSet(viewsets.ModelViewSet):
                 | Q(description__icontains=search)
             )
 
+        # Filter by student's department if applicable
+        user = self.request.user
+        if hasattr(user, "role") and user.role == "student":
+            student_profile = getattr(user, "student_profile", None)
+            if student_profile and student_profile.department:
+                dept_name = student_profile.department.name
+                dept_short = student_profile.department.short_form
+                
+                # Exclude jobs that have specific eligible_branches but neither dept_name nor dept_short is in it
+                from django.db.models import Q
+                queryset = queryset.filter(
+                    Q(eligible_branches=[]) | 
+                    Q(eligible_branches='[]') |
+                    Q(eligible_branches__contains=dept_name) |
+                    Q(eligible_branches__contains=dept_short) |
+                    Q(eligible_branches__isnull=True)
+                )
+
         return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
@@ -243,9 +261,8 @@ class JobViewSet(viewsets.ModelViewSet):
 
         logger.info(f"User {user.username} applying to job: {job.title}")
 
-        if JobApplication.objects.filter(
-            job=job, applicant=user, is_applied=True
-        ).exists():
+        existing_app = JobApplication.objects.filter(job=job, applicant=user).first()
+        if existing_app and existing_app.is_applied and existing_app.status != "withdrawn":
             return Response(
                 {"error": "You have already applied to this job"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -261,6 +278,11 @@ class JobViewSet(viewsets.ModelViewSet):
             "notice_period_days": request.data.get("notice_period_days"),
             "screening_responses": request.data.get("screening_responses", {}),
         }
+        
+        if "resume_file" in request.FILES:
+            application_data["resume_file"] = request.FILES["resume_file"]
+        elif "resume_file" in request.data:
+            application_data["resume_file"] = request.data["resume_file"]
 
         serializer = JobApplicationSerializer(
             data=application_data, context={"request": request}
@@ -551,6 +573,33 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Bookmark not found"}, status=status.HTTP_404_NOT_FOUND
             )
+
+    @action(detail=True, methods=["post"])
+    def withdraw(self, request, pk=None):
+        application = self.get_object()
+        if application.applicant != request.user:
+            return Response(
+                {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+            
+        if application.status in ["selected", "rejected"]:
+            return Response(
+                {"error": "Cannot withdraw from a processed application"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        application.status = "withdrawn"
+        application.is_applied = False
+        application.save()
+        
+        # Invalidate cache
+        cache.delete(f"job_applications_{application.job_id}")
+        
+        serializer = JobApplicationSerializer(application)
+        return Response({
+            "message": "Application withdrawn successfully",
+            "application": serializer.data
+        })
 
     @action(detail=False, methods=["get"])
     def user_job_status(self, request):
@@ -1025,7 +1074,29 @@ class OfferRecordViewSet(viewsets.ModelViewSet):
             created_records.append(record)
         
         OfferRecord.objects.bulk_create(created_records)
-        return Response({"message": f"{len(created_records)} records imported successfully."})
+        
+        from django.contrib.auth import get_user_model
+        from .models import JobApplication
+        User = get_user_model()
+        
+        updated_count = 0
+        for record in created_records:
+            if record.offer_status and record.offer_status.lower() == 'accepted':
+                user = User.objects.filter(student_profile__roll_number=record.roll_number).first()
+                if user:
+                    apps = JobApplication.objects.filter(
+                        applicant=user,
+                        job__company__name__iexact=record.company,
+                    ).exclude(status='selected')
+                    
+                    if apps.exists():
+                        updated_count += apps.update(status='selected')
+                        for app in apps:
+                            cache.delete(f"job_applications_{app.job_id}")
+
+        return Response({
+            "message": f"{len(created_records)} records imported successfully. {updated_count} job applications marked as selected."
+        })
 
     @action(detail=False, methods=['post'], url_path='bulk-delete')
     def bulk_delete(self, request):
