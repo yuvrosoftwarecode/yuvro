@@ -2622,13 +2622,36 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         }
 
         if question_id and language and code:
+            exec_res = execution_results.get("execution_result", {})
+            if exec_res.get("status") == "timeout":
+                return Response(
+                    {
+                        "status": "timeout",
+                        "reason": "Infinite loop detected or execution timed out.",
+                        "message": "Infinite loop detected or execution timed out.",
+                    }
+                )
+
+            basic_results = execution_results.get("basic_results", [])
+            advanced_results = execution_results.get("advanced_results", [])
+            custom_results = execution_results.get("custom_results", [])
+
+            status_val = "completed"
+            reason_val = ""
+            for r in (basic_results + advanced_results + custom_results):
+                if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
+                    status_val = "failed"
+                    reason_val = r.get("error")
+                    break
+
             response_data.update(
                 {
                     "code": code,
                     "language": language,
                     "test_results": test_results,
                     "execution_output": execution_output,
-                    "status": "completed",
+                    "status": status_val,
+                    "reason": reason_val,
                 }
             )
 
@@ -3306,6 +3329,19 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         unit = question.sub_unit.unit
 
                 exec_res = execution_results.get("execution_result", {})
+                if exec_res.get("status") == "timeout":
+                    return Response(
+                        {
+                            "status": "timeout",
+                            "reason": "Infinite loop detected or execution timed out.",
+                            "message": "Infinite loop detected or execution timed out.",
+                            "execution_time": exec_res.get("execution_time", 0),
+                            "memory_usage": exec_res.get("memory_usage", 0),
+                            "test_cases_passed": 0,
+                            "total_test_cases": execution_results.get("total_tests", 0),
+                        }
+                    )
+
                 basic_results = execution_results.get("basic_results", [])
                 advanced_results = execution_results.get("advanced_results", [])
                 custom_results = execution_results.get("custom_results", [])
@@ -3317,6 +3353,14 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 custom_passed = test_results.get("custom_passed", 0)
 
                 is_successful = total_tests > 0 and total_passed == total_tests
+
+                status_val = "completed"
+                reason_val = ""
+                for r in (basic_results + advanced_results + custom_results):
+                    if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
+                        status_val = "failed"
+                        reason_val = r.get("error")
+                        break
 
                 existing_submission = StudentCodePractice.objects.filter(
                     user=request.user, question=question
@@ -3484,7 +3528,8 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     "problem_description": question.content,
                     "code": code,
                     "language": language,
-                    "status": "completed",
+                    "status": status_val,
+                    "reason": reason_val,
                     "output": submission.execution_output,
                     "error_message": exec_res.get("error", ""),
                     "execution_time": exec_res.get("execution_time", 0),

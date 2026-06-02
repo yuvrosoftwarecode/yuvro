@@ -335,6 +335,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
       });
 
@@ -342,6 +343,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         const passed = res.test_results?.passed ?? 0;
         const total = res.test_results?.total ?? 0;
         toast.success(`Passed ${passed} of ${total} tests`);
+      } else if (res.status === 'timeout') {
+        toast.error('Execution Timed Out');
       } else {
         toast.error('Code execution failed');
       }
@@ -421,6 +424,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
       });
 
@@ -428,7 +432,11 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
       const total = res.total_test_cases ?? 0;
       const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
 
-      if (passed === total && total > 0) {
+      if (res.status === 'timeout') {
+          toast.error('Submission Failed: Execution Timed Out');
+      } else if (res.status === 'failed' && res.reason) {
+          toast.error(`Submission Failed: ${res.reason}`);
+      } else if (passed === total && total > 0) {
         toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
       } else if (total > 0) {
         toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
@@ -622,6 +630,27 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Failure Banner */}
+                        {executionMetrics && (executionMetrics.status === 'failed' || executionMetrics.status === 'timeout') && (
+                          <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm">
+                            <div className="flex">
+                              <div className="flex-shrink-0">
+                                <XCircle className="h-5 w-5 text-red-500" />
+                              </div>
+                              <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">
+                                  {executionMetrics.status === 'timeout' ? 'Execution Timed Out' : 'Execution Failed'}
+                                </h3>
+                                <div className="mt-2 text-sm text-red-700">
+                                  <p>
+                                    {executionMetrics.reason || (executionMetrics.status === 'timeout' ? 'Infinite loop detected or execution timed out.' : 'Your code failed to execute within the limits.')}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}

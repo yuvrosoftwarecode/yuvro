@@ -408,6 +408,13 @@ class Question(models.Model):
         default=list, blank=True, help_text="List of predefined hint strings"
     )
 
+    # Code Executor Limits (Time & Memory)
+    code_executor_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Execution limits: {'time_limit': 10, 'memory_limit': 256}"
+    )
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

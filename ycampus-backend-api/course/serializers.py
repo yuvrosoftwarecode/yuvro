@@ -597,6 +597,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "mcq_options",
             "test_cases_basic",
             "test_cases_advanced",
+            "code_executor_config",
+            "solutions",
             "created_at",
             "updated_at",
             "created_by",
