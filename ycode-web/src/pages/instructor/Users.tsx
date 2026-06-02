@@ -47,13 +47,13 @@ interface UserFormData {
     username: string;
     first_name: string;
     last_name: string;
-    role: 'admin' | 'instructor' | 'recruiter' | 'student';
+    role: 'admin' | 'instructor' | 'recruiter' | 'student' | 'guest';
     is_active: boolean;
 }
 
 const Users: React.FC = () => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'admin' | 'instructor' | 'recruiter' | 'student'>('admin');
+    const [activeTab, setActiveTab] = useState<'admin' | 'instructor' | 'recruiter' | 'student' | 'guest'>('admin');
     const [showAddUser, setShowAddUser] = useState(false);
     const [showEditUser, setShowEditUser] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -277,6 +277,7 @@ const Users: React.FC = () => {
             case 'instructor': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'recruiter': return 'bg-purple-100 text-purple-700 border-purple-200';
             case 'student': return 'bg-green-100 text-green-700 border-green-200';
+            case 'guest': return 'bg-orange-100 text-orange-700 border-orange-200';
             default: return 'bg-gray-100 text-gray-700 border-gray-200';
         }
     };
@@ -381,7 +382,8 @@ const Users: React.FC = () => {
                         colorScheme={
                             activeTab === 'admin' ? 'red' :
                                 activeTab === 'instructor' ? 'blue' :
-                                    activeTab === 'recruiter' ? 'purple' : 'green'
+                                    activeTab === 'recruiter' ? 'purple' :
+                                        activeTab === 'guest' ? 'orange' : 'green'
                         }
                     />
                 </div>
@@ -394,6 +396,7 @@ const Users: React.FC = () => {
                             <TabsTrigger value="instructor" className="px-5">Instructors</TabsTrigger>
                             <TabsTrigger value="recruiter" className="px-5">Recruiters</TabsTrigger>
                             <TabsTrigger value="student" className="px-5">Students</TabsTrigger>
+                            <TabsTrigger value="guest" className="px-5">Guests</TabsTrigger>
                         </TabsList>
                     </Tabs>
                     <div className="w-full sm:w-72">
@@ -534,6 +537,7 @@ const Users: React.FC = () => {
                                     <SelectItem value="instructor">Instructor</SelectItem>
                                     <SelectItem value="recruiter">Recruiter</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="guest">Guest</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -621,6 +625,7 @@ const Users: React.FC = () => {
                                     <SelectItem value="instructor">Instructor</SelectItem>
                                     <SelectItem value="recruiter">Recruiter</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="guest">Guest</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StatusBadge from '@/components/common/StatusBadge';
-import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle, Award, CheckCircle2, XCircle, Code, ShieldAlert, Check, Loader2 } from 'lucide-react';
 import { jobService, Job } from '../../services/jobService';
 import { jobApplicationService, JobApplication } from '../../services/jobApplicationService';
 import RoleSidebar from '../../components/common/RoleSidebar';
@@ -70,6 +70,40 @@ const JobApplicantsContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'assessment'>('info');
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmails, setInviteEmails] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
+  const [invitingAppId, setInvitingAppId] = useState<string | null>(null);
+
+  const handleSendInvitations = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedAppIds.length === 0 && !inviteEmails.trim()) {
+      toast.error('Please select at least one applicant or enter at least one email address.');
+      return;
+    }
+
+    setIsInviting(true);
+    try {
+      const emailList = inviteEmails
+        .split(',')
+        .map(e => e.trim())
+        .filter(e => e.length > 0);
+
+      const response = await jobService.inviteAssessment(jobId!, selectedAppIds, emailList);
+      toast.success(response.message || 'Invitations sent successfully!');
+      setShowInviteModal(false);
+      setInviteEmails('');
+      setSelectedAppIds([]);
+      loadApplications();
+    } catch (error: any) {
+      console.error('Error sending invitations:', error);
+      toast.error(error.response?.data?.error || 'Failed to send invitations.');
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   useEffect(() => {
     if (jobId) {
@@ -117,6 +151,20 @@ const JobApplicantsContent: React.FC = () => {
     }
   };
 
+  const handleSendIndividualInvitation = async (applicationId: string) => {
+    setInvitingAppId(applicationId);
+    try {
+      const response = await jobService.inviteAssessment(jobId!, [applicationId], []);
+      toast.success(response.message || 'Invitation sent successfully!');
+      loadApplications(); // Refresh the list
+    } catch (error: any) {
+      console.error('Error sending individual invitation:', error);
+      toast.error(error.response?.data?.error || 'Failed to send invitation.');
+    } finally {
+      setInvitingAppId(null);
+    }
+  };
+
 
 
   const getStatusText = (status: string | null | undefined) => {
@@ -134,6 +182,7 @@ const JobApplicantsContent: React.FC = () => {
 
   const statusOptions = [
     { value: 'under_review', label: 'Under Review' },
+    { value: 'screening_test_completed', label: 'Screening Test Completed' },
     { value: 'shortlisted', label: 'Shortlisted' },
     { value: 'interview_scheduled', label: 'Interview Scheduled' },
     { value: 'selected', label: 'Selected' },
@@ -141,15 +190,22 @@ const JobApplicantsContent: React.FC = () => {
   ];
 
   const headerActions = (
-    <>
+    <div className="flex items-center gap-3">
+      <button
+        onClick={() => setShowInviteModal(true)}
+        className="flex items-center space-x-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-semibold shadow-sm text-sm"
+      >
+        <Mail className="h-4 w-4" />
+        <span>Invite Candidates</span>
+      </button>
       <button
         onClick={() => navigate('/recruiter/jobs')}
-        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Jobs</span>
       </button>
-    </>
+    </div>
   );
 
   if (loading) {
@@ -225,6 +281,59 @@ const JobApplicantsContent: React.FC = () => {
               </div>
             )}
 
+            {/* Header Metrics Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              {/* Total Candidates */}
+              <div className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Candidates</span>
+                  <div className="text-2xl font-bold text-slate-800 mt-1">{applications.length}</div>
+                </div>
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
+                  <User className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Invitations Sent */}
+              <div className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Invitations Sent</span>
+                  <div className="text-2xl font-bold text-slate-800 mt-1">
+                    {applications.filter(app => app.screening_responses?.invited_at || app.screening_responses?.submitted_at).length}
+                  </div>
+                </div>
+                <div className="p-3 bg-purple-50 text-purple-600 rounded-lg">
+                  <Mail className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Assessments Completed */}
+              <div className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+                  <div className="text-2xl font-bold text-slate-800 mt-1">
+                    {applications.filter(app => app.screening_responses?.submitted_at).length}
+                  </div>
+                </div>
+                <div className="p-3 bg-green-50 text-green-600 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Pending Assessments */}
+              <div className="bg-white border border-slate-100 shadow-sm rounded-xl p-5 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending (Not Started)</span>
+                  <div className="text-2xl font-bold text-slate-800 mt-1">
+                    {applications.filter(app => app.screening_responses?.invited_at && !app.screening_responses?.submitted_at).length}
+                  </div>
+                </div>
+                <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+                  <Clock className="w-5 h-5" />
+                </div>
+              </div>
+            </div>
+
             {/* Filters and Search */}
             <div className="mb-6 bg-white border border-gray-200 rounded-lg p-4">
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -260,8 +369,29 @@ const JobApplicantsContent: React.FC = () => {
               </div>
             </div>
 
-            {/* Applications List */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            {/* Selected Candidates Action Bar */}
+            {selectedAppIds.length > 0 && (
+              <div className="mb-6 bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-between animate-in slide-in-from-top duration-200">
+                <div className="text-sm font-semibold text-orange-850">
+                  {selectedAppIds.length} candidate(s) selected
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setSelectedAppIds([])}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+                  >
+                    Clear Selection
+                  </button>
+                  <button
+                    onClick={() => setShowInviteModal(true)}
+                    className="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+                  >
+                    Invite to Job Assessment
+                  </button>
+                </div>
+              </div>
+            )}            {/* Applications Table */}
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
               {filteredApplications.length === 0 ? (
                 <div className="text-center py-12">
                   <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -274,124 +404,196 @@ const JobApplicantsContent: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-200">
-                  {filteredApplications.map((application) => (
-                    <div key={application.id} className="p-6 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                              {(application.applicant_name && application.applicant_name.charAt(0)) || '?'}
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-gray-900">{application.applicant_name || 'Unknown Applicant'}</h3>
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center">
-                                  <Mail className="h-4 w-4 mr-1" />
-                                  {application.applicant_email || 'No email provided'}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/75 border-b border-gray-200 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                        <th className="px-6 py-4 w-12">
+                          <input
+                            type="checkbox"
+                            checked={filteredApplications.length > 0 && selectedAppIds.length === filteredApplications.length}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedAppIds(filteredApplications.map(app => app.id));
+                              } else {
+                                setSelectedAppIds([]);
+                              }
+                            }}
+                            className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                          />
+                        </th>
+                        <th className="px-6 py-4">Candidate</th>
+                        <th className="px-6 py-4">Applied Date</th>
+                        <th className="px-6 py-4">Job Assessment</th>
+                        <th className="px-6 py-4">Mock Interview</th>
+                        <th className="px-6 py-4">Application Status</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-sm text-slate-700">
+                      {filteredApplications.map((application) => {
+                        const invitedAt = application.screening_responses?.invited_at;
+                        const submittedAt = application.screening_responses?.submitted_at;
+                        const score = application.screening_responses?.score;
+                        const totalMarks = application.screening_responses?.total_marks;
+
+                        return (
+                          <tr key={application.id} className="hover:bg-slate-50/50 transition-colors">
+                            {/* Checkbox column */}
+                            <td className="px-6 py-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedAppIds.includes(application.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedAppIds(prev => [...prev, application.id]);
+                                  } else {
+                                    setSelectedAppIds(prev => prev.filter(id => id !== application.id));
+                                  }
+                                }}
+                                className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                              />
+                            </td>
+
+                            {/* Candidate column */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                                  {(application.applicant_name && application.applicant_name.charAt(0)) || '?'}
                                 </div>
-                                {application.applied_at && (
-                                  <div className="flex items-center">
-                                    <Calendar className="h-4 w-4 mr-1" />
-                                    Applied {new Date(application.applied_at).toLocaleDateString()}
-                                  </div>
+                                <div>
+                                  <span className="font-semibold text-slate-800 block">
+                                    {application.applicant_name || 'Unknown Applicant'}
+                                  </span>
+                                  <span className="text-xs text-slate-400 block font-mono">
+                                    {application.applicant_email || 'No email'}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Applied Date column */}
+                            <td className="px-6 py-4 text-slate-500">
+                              {application.applied_at ? new Date(application.applied_at).toLocaleDateString() : '—'}
+                            </td>
+
+                            {/* Job Assessment (Test) column */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2.5">
+                                {submittedAt ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedApplication(application);
+                                      setActiveTab('assessment');
+                                      setShowApplicationModal(true);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors shadow-sm cursor-pointer"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Completed ({score ?? 0}/{totalMarks ?? 0})
+                                  </button>
+                                ) : !invitedAt ? (
+                                  <>
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                      Not Sent
+                                    </span>
+                                    <button
+                                      onClick={() => handleSendIndividualInvitation(application.id)}
+                                      disabled={invitingAppId !== null}
+                                      className="px-2 py-1 text-xs font-bold text-orange-600 border border-orange-200 hover:bg-orange-50 rounded-lg transition-colors shadow-sm cursor-pointer disabled:opacity-60 flex items-center gap-1"
+                                    >
+                                      {invitingAppId === application.id ? (
+                                        <>
+                                          <Loader2 className="w-3 h-3 animate-spin text-orange-600" />
+                                          <span>Sending...</span>
+                                        </>
+                                      ) : (
+                                        <span>Send Test</span>
+                                      )}
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                      <Clock className="w-3.5 h-3.5" />
+                                      Pending
+                                    </span>
+                                    <button
+                                      onClick={() => handleSendIndividualInvitation(application.id)}
+                                      disabled={invitingAppId !== null}
+                                      className="text-xs font-semibold text-orange-600 hover:underline cursor-pointer disabled:opacity-60 flex items-center gap-1"
+                                    >
+                                      {invitingAppId === application.id ? (
+                                        <>
+                                          <Loader2 className="w-3 h-3 animate-spin text-orange-600" />
+                                          <span>Resending...</span>
+                                        </>
+                                      ) : (
+                                        <span>Resend</span>
+                                      )}
+                                    </button>
+                                  </>
                                 )}
                               </div>
-                            </div>
-                          </div>
+                            </td>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                            {application.expected_salary && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <DollarSign className="h-4 w-4 mr-2" />
-                                <span>Expected: {application.expected_salary} {application.expected_currency}</span>
-                              </div>
-                            )}
-                            {application.available_from && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Calendar className="h-4 w-4 mr-2" />
-                                <span>Available: {new Date(application.available_from).toLocaleDateString()}</span>
-                              </div>
-                            )}
-                            {application.notice_period_days && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Clock className="h-4 w-4 mr-2" />
-                                <span>Notice: {application.notice_period_days} days</span>
-                              </div>
-                            )}
-                            {application.portfolio_url && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <ExternalLink className="h-4 w-4 mr-2" />
-                                <a
-                                  href={application.portfolio_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800"
+                            {/* Mock Interview column */}
+                            <td className="px-6 py-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                Not Scheduled
+                              </span>
+                            </td>
+
+                            {/* Status dropdown column */}
+                            <td className="px-6 py-4">
+                              <select
+                                value={application.status || 'under_review'}
+                                onChange={(e) => handleStatusUpdate(application.id, e.target.value)}
+                                className="text-xs font-medium border border-gray-300 rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-700 shadow-sm"
+                              >
+                                {statusOptions.map(option => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+
+                            {/* Actions column */}
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => {
+                                    setSelectedApplication(application);
+                                    setActiveTab('info');
+                                    setShowApplicationModal(true);
+                                  }}
+                                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100 shadow-sm cursor-pointer"
+                                  title="View Details"
                                 >
-                                  Portfolio
-                                </a>
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const email = application.applicant_email;
+                                    if (email) {
+                                      window.open(`mailto:${email}`, '_blank');
+                                    } else {
+                                      toast.error('No email address available');
+                                    }
+                                  }}
+                                  className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-100 shadow-sm cursor-pointer"
+                                  title="Send Email"
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </button>
                               </div>
-                            )}
-                          </div>
-
-                          {application.cover_letter && (
-                            <div className="mb-4">
-                              <div className="flex items-center mb-2">
-                                <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                <span className="text-sm font-medium text-gray-700">Cover Letter</span>
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="text-sm text-gray-700 line-clamp-3">{application.cover_letter}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-3 ml-6">
-                          <StatusBadge status={application.status || ''} />
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                setSelectedApplication(application);
-                                setShowApplicationModal(true);
-                              }}
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="View Details"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                const email = application.applicant_email;
-                                if (email) {
-                                  window.open(`mailto:${email}`, '_blank');
-                                } else {
-                                  toast.error('No email address available');
-                                }
-                              }}
-                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Send Email"
-                            >
-                              <Mail className="h-4 w-4" />
-                            </button>
-                          </div>
-
-                          <select
-                            value={application.status || 'under_review'}
-                            onChange={(e) => handleStatusUpdate(application.id, e.target.value)}
-                            className="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            {statusOptions.map(option => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
@@ -402,7 +604,7 @@ const JobApplicantsContent: React.FC = () => {
       {/* Application Details Modal */}
       {showApplicationModal && selectedApplication && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-5xl w-[90%] max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900">Application Details</h2>
@@ -438,65 +640,234 @@ const JobApplicantsContent: React.FC = () => {
                 </div>
               </div>
 
-              {/* Application Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {selectedApplication.expected_salary && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Expected Salary</span>
-                    </div>
-                    <p className="text-gray-900">{selectedApplication.expected_salary} {selectedApplication.expected_currency}</p>
-                  </div>
-                )}
+              {/* Tab Selector */}
+              {selectedApplication.screening_responses && selectedApplication.screening_responses.submitted_at && (
+                <div className="flex border-b border-gray-200 mb-6">
+                  <button
+                    onClick={() => setActiveTab('info')}
+                    className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 ${
+                      activeTab === 'info' ? 'border-orange-600 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Candidate Info
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('assessment')}
+                    className={`pb-3 px-4 text-sm font-semibold transition-all border-b-2 ${
+                      activeTab === 'assessment' ? 'border-orange-600 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Job Assessment
+                  </button>
+                </div>
+              )}
 
-                {selectedApplication.available_from && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Available From</span>
-                    </div>
-                    <p className="text-gray-900">{new Date(selectedApplication.available_from).toLocaleDateString()}</p>
-                  </div>
-                )}
+              {(!selectedApplication.screening_responses?.submitted_at || activeTab === 'info') ? (
+                <>
+                  {/* Application Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {selectedApplication.expected_salary && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">Expected Salary</span>
+                        </div>
+                        <p className="text-gray-900">{selectedApplication.expected_salary} {selectedApplication.expected_currency}</p>
+                      </div>
+                    )}
 
-                {selectedApplication.notice_period_days && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Notice Period</span>
-                    </div>
-                    <p className="text-gray-900">{selectedApplication.notice_period_days} days</p>
-                  </div>
-                )}
+                    {selectedApplication.available_from && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">Available From</span>
+                        </div>
+                        <p className="text-gray-900">{new Date(selectedApplication.available_from).toLocaleDateString()}</p>
+                      </div>
+                    )}
 
-                {selectedApplication.portfolio_url && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center mb-2">
-                      <ExternalLink className="h-4 w-4 mr-2 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Portfolio</span>
-                    </div>
-                    <a
-                      href={selectedApplication.portfolio_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 break-all"
-                    >
-                      {selectedApplication.portfolio_url}
-                    </a>
-                  </div>
-                )}
-              </div>
+                    {selectedApplication.notice_period_days && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">Notice Period</span>
+                        </div>
+                        <p className="text-gray-900">{selectedApplication.notice_period_days} days</p>
+                      </div>
+                    )}
 
-              {/* Cover Letter */}
-              {selectedApplication.cover_letter && (
-                <div className="mb-6">
-                  <div className="flex items-center mb-3">
-                    <FileText className="h-5 w-5 mr-2 text-gray-500" />
-                    <span className="text-lg font-medium text-gray-900">Cover Letter</span>
+                    {selectedApplication.portfolio_url && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <ExternalLink className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">Portfolio</span>
+                        </div>
+                        <a
+                          href={selectedApplication.portfolio_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 break-all"
+                        >
+                          {selectedApplication.portfolio_url}
+                        </a>
+                      </div>
+                    )}
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.cover_letter}</p>
+
+                  {/* Cover Letter */}
+                  {selectedApplication.cover_letter && (
+                    <div className="mb-6">
+                      <div className="flex items-center mb-3">
+                        <FileText className="h-5 w-5 mr-2 text-gray-500" />
+                        <span className="text-lg font-medium text-gray-900">Cover Letter</span>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.cover_letter}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-6">
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 flex flex-col justify-between">
+                      <span className="text-xs font-semibold text-orange-700 uppercase tracking-wider">Assessment Score</span>
+                      <div className="flex items-baseline gap-1 mt-2">
+                        <span className="text-2xl font-bold text-orange-905">
+                          {selectedApplication.screening_responses?.score ?? 0}
+                        </span>
+                        <span className="text-sm text-orange-750">
+                          / {selectedApplication.screening_responses?.total_marks ?? 0}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
+                      <span className="text-xs font-semibold text-slate-505 uppercase tracking-wider">Test Status</span>
+                      <div className="mt-2">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Completed
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex flex-col justify-between">
+                      <span className="text-xs font-semibold text-red-700 uppercase tracking-wider">Proctoring Flags</span>
+                      <div className="flex items-baseline gap-1 mt-2">
+                        <span className="text-2xl font-bold text-red-905">
+                          {(selectedApplication.screening_responses?.proctoring_events ?? []).filter(
+                            (e: any) => e.activity_type.includes('switched') || e.activity_type.includes('blur') || e.activity_type.includes('detected')
+                          ).length}
+                        </span>
+                        <span className="text-sm text-red-700">switches / blurs</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submission Breakdown */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-bold text-slate-800 border-b border-gray-100 pb-2">Questions & Candidate Answers</h3>
+                    {Object.keys(selectedApplication.screening_responses?.graded_results || {}).length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">No answer results found.</p>
+                    ) : (
+                      Object.keys(selectedApplication.screening_responses.graded_results).map((key, index) => {
+                        const qResult = selectedApplication.screening_responses.graded_results[key];
+                        return (
+                          <div key={key} className="border border-slate-150 rounded-xl p-5 bg-white space-y-3">
+                            <div className="flex justify-between items-start">
+                              <div className="space-y-1">
+                                <span className="text-sm font-bold text-slate-800">Q{index + 1}: {qResult.question_title || 'Question'}</span>
+                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{qResult.question_type?.replace('_', ' ') || 'Screening'}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {qResult.is_correct ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
+                                    <Check className="w-3 h-3" /> Correct
+                                  </span>
+                                ) : qResult.question_type?.startsWith('mcq') ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                    <XCircle className="w-3 h-3" /> Incorrect
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                    Submitted
+                                  </span>
+                                )}
+                                <span className="text-xs font-semibold text-slate-505">
+                                  {qResult.score} / {qResult.max_marks} Marks
+                                </span>
+                              </div>
+                            </div>
+
+                            {qResult.question_content && (
+                              <div className="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 prose prose-sm max-w-none">
+                                <span className="font-semibold block mb-1">Description:</span>
+                                <div dangerouslySetInnerHTML={{ __html: qResult.question_content }} />
+                              </div>
+                            )}
+
+                            <div className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto relative">
+                              <span className="text-[10px] uppercase font-bold text-slate-400 absolute top-2 right-3">Candidate Response</span>
+                              <pre className="mt-2 whitespace-pre-wrap">
+                                {typeof qResult.user_answer === 'object' 
+                                  ? JSON.stringify(qResult.user_answer, null, 2) 
+                                  : qResult.user_answer || 'No response recorded.'}
+                              </pre>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Proctoring Logs Section */}
+                  <div className="space-y-4 pt-4 border-t border-gray-150">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <ShieldAlert className="w-5 h-5 text-red-600" />
+                      Proctoring Violation Log
+                    </h3>
+                    <div className="border border-slate-150 rounded-xl overflow-hidden">
+                      {!(selectedApplication.screening_responses?.proctoring_events) || selectedApplication.screening_responses.proctoring_events.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-gray-500 italic bg-slate-50">
+                          No proctoring violation logs recorded. The candidate remained fully on the exam page.
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-slate-150 max-h-60 overflow-y-auto bg-white">
+                          {selectedApplication.screening_responses.proctoring_events
+                            .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                            .map((event: any, idx: number) => {
+                              const isViolation = event.activity_type.includes('switched') || event.activity_type.includes('blur') || event.activity_type.includes('detected');
+                              return (
+                                <div key={idx} className={`p-3 text-xs flex justify-between items-center ${isViolation ? 'bg-rose-50/50' : ''}`}>
+                                  <div className="space-y-1">
+                                    <span className={`font-semibold ${isViolation ? 'text-red-700' : 'text-slate-700'}`}>
+                                      {event.activity_type.replace(/_/g, ' ').toUpperCase()}
+                                    </span>
+                                    {event.meta_data?.key && (
+                                      <span className="block text-[10px] text-slate-400">Action Key: {event.meta_data.key}</span>
+                                    )}
+                                    {event.meta_data?.copied_text && (
+                                      <span className="block text-[10px] text-red-600 bg-red-50 p-1.5 rounded font-mono mt-1 max-w-md break-all">
+                                        Copied: "{event.meta_data.copied_text}"
+                                      </span>
+                                    )}
+                                    {event.meta_data?.pasted_text && (
+                                      <span className="block text-[10px] text-red-600 bg-red-50 p-1.5 rounded font-mono mt-1 max-w-md break-all">
+                                        Pasted: "{event.meta_data.pasted_text}"
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-slate-400">
+                                    {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -541,6 +912,69 @@ const JobApplicantsContent: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Candidates Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full relative overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            {/* Top decorative bar */}
+            <div className="h-1.5 bg-orange-600 w-full" />
+            
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-xl font-bold text-slate-900">Invite Candidates to Job Assessment</h2>
+              <button
+                onClick={() => setShowInviteModal(false)}
+                className="p-1.5 hover:bg-gray-50 rounded-lg transition-colors"
+                disabled={isInviting}
+              >
+                <X className="h-5 w-5 text-gray-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendInvitations} className="p-6 space-y-6">
+              {selectedAppIds.length > 0 && (
+                <div className="p-4 rounded-xl bg-orange-50 border border-orange-100 text-sm text-orange-800">
+                  <span className="font-semibold">{selectedAppIds.length}</span> candidate(s) currently selected from the list.
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Enter candidate email(s)
+                </label>
+                <textarea
+                  value={inviteEmails}
+                  onChange={(e) => setInviteEmails(e.target.value)}
+                  placeholder="candidate1@example.com, candidate2@example.com"
+                  className="w-full h-32 p-3 text-sm rounded-xl border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all resize-none"
+                  disabled={isInviting}
+                />
+                <span className="text-xs text-slate-400 block mt-2">
+                  Separate multiple emails with commas. If a candidate doesn't have an account, one will be created and temporary password credentials sent.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowInviteModal(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium"
+                  disabled={isInviting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold shadow-md transition-all text-sm flex items-center gap-2 disabled:opacity-60"
+                  disabled={isInviting}
+                >
+                  Invite
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
