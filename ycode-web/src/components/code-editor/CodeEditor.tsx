@@ -383,6 +383,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
       });
 
@@ -475,6 +476,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
       });
 
@@ -622,6 +624,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                   <TabsContent value="output" className="flex-1 overflow-auto p-0 m-0">
                     {/* ── Scrollable content ── */}
                     <div className="flex-1 overflow-auto p-4 space-y-4">
+
+                      {/* Failure Banner */}
+                      {executionMetrics && (executionMetrics.status === 'failed' || executionMetrics.status === 'timeout') && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col mb-4">
+                          <h4 className="text-red-800 font-bold text-sm">
+                            {executionMetrics.status === 'timeout' ? 'Execution Timed Out' : 'Execution Failed'}
+                          </h4>
+                          <p className="text-red-700 text-xs mt-1">
+                            {executionMetrics.reason || (executionMetrics.status === 'timeout' ? 'Infinite loop detected or execution timed out.' : 'Your code failed to execute within the limits.')}
+                          </p>
+                        </div>
+                      )}
 
                       {/* Console output */}
                       {(output || (testResults && testResults.results)) && (() => {

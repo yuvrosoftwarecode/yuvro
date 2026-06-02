@@ -947,6 +947,19 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
         if question_id and language and code:
             exec_res = execution_results.get("execution_result", {})
+            if exec_res.get("status") == "timeout":
+                return Response(
+                    {
+                        "status": "timeout",
+                        "reason": "Infinite loop detected or execution timed out.",
+                        "message": "Infinite loop detected or execution timed out.",
+                        "execution_time": exec_res.get("execution_time", 0),
+                        "memory_usage": exec_res.get("memory_usage", 0),
+                        "test_cases_passed": 0,
+                        "total_test_cases": execution_results.get("total_tests", 0),
+                    }
+                )
+
             basic_results = execution_results.get("basic_results", [])
             advanced_results = execution_results.get("advanced_results", [])
             custom_results = execution_results.get("custom_results", [])
@@ -954,6 +967,15 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                 {**r, "is_hidden": True, "actual_output": "***" if not r.get("passed") else r.get("actual_output", "")}
                 for r in advanced_results
             ]
+
+            status_val = "completed"
+            reason_val = ""
+            for r in (basic_results + advanced_results + custom_results):
+                if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
+                    status_val = "failed"
+                    reason_val = r.get("error")
+                    break
+
             response_data.update(
                 {
                     "code": code,
@@ -966,7 +988,8 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                         "test_results": all_results,
                     },
                     "execution_output": execution_output,
-                    "status": "completed",
+                    "status": status_val,
+                    "reason": reason_val,
                     "execution_time": exec_res.get("execution_time", 0),
                     "memory_usage": exec_res.get("memory_usage", 0),
                     "test_cases_passed": test_results.get("passed", 0),
@@ -1389,6 +1412,19 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         topic = question.subtopic.topic
 
                 exec_res = execution_results.get("execution_result", {})
+                if exec_res.get("status") == "timeout":
+                    return Response(
+                        {
+                            "status": "timeout",
+                            "reason": "Infinite loop detected or execution timed out.",
+                            "message": "Infinite loop detected or execution timed out.",
+                            "execution_time": exec_res.get("execution_time", 0),
+                            "memory_usage": exec_res.get("memory_usage", 0),
+                            "test_cases_passed": 0,
+                            "total_test_cases": execution_results.get("total_tests", 0),
+                        }
+                    )
+
                 basic_results = execution_results.get("basic_results", [])
                 advanced_results = execution_results.get("advanced_results", [])
                 custom_results = execution_results.get("custom_results", [])
@@ -1402,6 +1438,14 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 is_successful = total_tests > 0 and total_passed == total_tests
 
                 context = request.data.get("context", "practice")
+
+                status_val = "completed"
+                reason_val = ""
+                for r in (basic_results + advanced_results + custom_results):
+                    if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
+                        status_val = "failed"
+                        reason_val = r.get("error")
+                        break
 
                 plagiarism_dict = {
                     "is_plagiarized": plagiarism_score > 0.8,
@@ -1499,7 +1543,8 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     "problem_description": question.content,
                     "code": code,
                     "language": language,
-                    "status": "completed",
+                    "status": status_val,
+                    "reason": reason_val,
                     "output": submission.execution_output,
                     "error_message": exec_res.get("error", ""),
                     "execution_time": exec_res.get("execution_time", 0),

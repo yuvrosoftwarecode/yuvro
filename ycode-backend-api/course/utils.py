@@ -37,6 +37,9 @@ class CodeExecutionUtil:
             requests.exceptions.RequestException: If code executor service is unavailable
             Exception: For other execution errors
         """
+        time_limit = 10
+        memory_limit = 256
+
         if question_id:
             try:
                 question = Question.objects.get(id=question_id)
@@ -44,6 +47,10 @@ class CodeExecutionUtil:
                     test_cases_basic = question.test_cases_basic or []
                 if not test_cases_advanced:
                     test_cases_advanced = question.test_cases_advanced or []
+
+                config = question.code_executor_config or {}
+                time_limit = config.get("time_limit", 10)
+                memory_limit = config.get("memory_limit", 256)
             except Question.DoesNotExist:
                 raise Exception(f"Question with id {question_id} not found")
 
@@ -62,7 +69,9 @@ class CodeExecutionUtil:
             "test_cases_basic": test_cases_basic,
             "test_cases_advanced": test_cases_advanced,
             "test_cases_custom": test_cases_custom,
-            "timeout": 10,
+            "timeout": time_limit,
+            "time_limit": time_limit,
+            "memory_limit": memory_limit,
         }
 
         executor_response = requests.post(
