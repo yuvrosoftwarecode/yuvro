@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -373,6 +374,7 @@ export function StudentSidebar() {
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </button>
+              <DeployInfo collapsed={collapsed} visible={profileOpen} />
             </div>
           </div>
         </div>

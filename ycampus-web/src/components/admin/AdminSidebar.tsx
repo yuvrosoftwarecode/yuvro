@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -131,9 +132,11 @@ export function AdminSidebar() {
               <button onClick={logout} className="flex items-center w-full rounded-md px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors">
                 <LogOut className="mr-2 h-4 w-4" />Logout
               </button>
+              <DeployInfo collapsed={collapsed} visible={profileOpen} />
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );

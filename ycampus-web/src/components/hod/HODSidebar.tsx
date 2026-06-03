@@ -1,4 +1,5 @@
 import { LayoutDashboard, UserCheck, FileText, ChevronDown, BarChart3, ClipboardCheck, Users2, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone } from 'lucide-react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -172,9 +173,11 @@ export function HODSidebar() {
               <button onClick={logout} className="flex items-center w-full rounded-md px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors">
                 <LogOut className="mr-2 h-4 w-4" />Logout
               </button>
+              <DeployInfo collapsed={collapsed} visible={profileOpen} />
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );
