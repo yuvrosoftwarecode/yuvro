@@ -374,7 +374,7 @@ export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL}"
 export VITE_DEPLOY_COMMIT_SHA=\$(git rev-parse HEAD 2>/dev/null || echo 'unknown')
 export VITE_DEPLOY_BRANCH=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')
 # Read app version from package.json (ycode-web)
-export VITE_DEPLOY_APP_VERSION=\$(node -e "try{process.stdout.write(require('./ycode-web/package.json').version)}catch(e){process.stdout.write('0.0.0')}" 2>/dev/null || echo '0.0.0')
+export VITE_DEPLOY_APP_VERSION=\$(python3 -c "import json; print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo '1.0.0')
 
 echo "✓ Build args configured"
 echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
