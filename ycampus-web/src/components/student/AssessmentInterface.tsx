@@ -137,10 +137,11 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
         }
       } catch (err: any) {
         if (!cancelled) {
-          const msg = err?.response?.data?.error || 'Failed to load assessment questions. Please try again.';
-          setLoadError(msg);
+          const msg = err?.message || 'Failed to load assessment questions. Please try again.';
+          cleanupCamera();
           loadPromiseRef.current = null;
-          toast({ title: 'Error', description: msg, variant: 'destructive' });
+          sessionStorage.setItem('toast_error', msg);
+          window.location.reload();
         }
       } finally {
         if (!cancelled) setIsLoadingTest(false);

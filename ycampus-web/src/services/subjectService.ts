@@ -633,7 +633,7 @@ export async function fetchSkillTestQuestions(unitId: string) {
     return raw.split(/[,|;]/).map((s: string) => s.trim()).filter(Boolean);
   }
 
-  const questions = await restApiAuthUtil.get<any[]>('/course/questions/', { params: { unit: unitId, category: 'skill_test' } });
+  // const questions = await restApiAuthUtil.get<any[]>('/course/questions/', { params: { unit: unitId, category: 'skill_test' } });
 
   // Assuming frontend still expects split lists or combined
   // Need to adjust parsing based on new question endpoint if it changed?

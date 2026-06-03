@@ -32,6 +32,52 @@ from .serializers import (
     MockInterviewSubmissionSerializer,
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
+
+
+def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
+    """
+    Checks if the user has any active test, assessment, or mock interview submission.
+    Returns the active submission object if found, otherwise None.
+    If excluding_model is provided, we ignore the active submission of that model 
+    if it matches the excluding_assessment_field with excluding_assessment_id.
+    """
+    if not user or not user.is_authenticated or (hasattr(user, 'role') and user.role != 'student'):
+        return None
+
+    from .models import (
+        SkillTestSubmission, ContestSubmission, MockInterviewSubmission,
+        CertificationSubmission, JobTestSubmission
+    )
+    
+    submissions_to_check = [
+        (SkillTestSubmission, 'skill_test_id'),
+        (ContestSubmission, 'contest_id'),
+        (MockInterviewSubmission, 'mock_interview_id'),
+        (CertificationSubmission, 'certification_exam_id'),
+        (JobTestSubmission, 'job_test_id'),
+    ]
+    
+    for model, field in submissions_to_check:
+        try:
+            if model == excluding_model:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).exclude(**{field: excluding_assessment_id}).first()
+            else:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).first()
+                
+            if active:
+                return active
+        except Exception:
+            pass
+            
+    return None
+
+
 from django.shortcuts import render
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     queryset = CertificationExam.objects.all()
@@ -72,6 +118,18 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         exam = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=CertificationSubmission,
+            excluding_assessment_field='certification_exam_id',
+            excluding_assessment_id=exam.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # Check active submission
         submission = CertificationSubmission.objects.filter(
             certification_exam=exam,
@@ -445,6 +503,19 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         
         contest = self.get_object()
         user = request.user
+
+        active_session = has_active_submission(
+            user,
+            excluding_model=ContestSubmission,
+            excluding_assessment_field='contest_id',
+            excluding_assessment_id=contest.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         now = timezone.now()
 
         # Enforce registration before starting
@@ -1098,6 +1169,18 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         skill_test = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=SkillTestSubmission,
+            excluding_assessment_field='skill_test_id',
+            excluding_assessment_id=skill_test.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # 1. Check for existing UNFINISHED submission to resume
         submission = SkillTestSubmission.objects.filter(
             skill_test=skill_test,
@@ -1305,6 +1388,18 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         try:
             mock_interview = self.get_object()
             user = request.user
+
+            active_session = has_active_submission(
+                user,
+                excluding_model=MockInterviewSubmission,
+                excluding_assessment_field='mock_interview_id',
+                excluding_assessment_id=mock_interview.id
+            )
+            if active_session:
+                return Response(
+                    {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             # Get user settings
             experience_level = request.data.get('experience_level', MockInterviewSubmission.EXP_LEVEL_BEGINNER)

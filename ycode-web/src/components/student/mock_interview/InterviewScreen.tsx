@@ -6,6 +6,7 @@ import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2 } from 
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
+import { toast } from 'sonner';
 
 import { Role, Message } from '@/types/mockInterview';
 
@@ -191,10 +192,11 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           checkCodingQuestion(aiText);
         }
         setIsAITyping(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to start interview", error);
         setIsAITyping(false);
-        // Handle error (alert or exit)
+        sessionStorage.setItem('toast_error', error.message || "Failed to start interview. Please try again.");
+        window.location.href = '/student/mock-interview';
       }
     };
 

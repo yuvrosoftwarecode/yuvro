@@ -319,9 +319,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       setQuestions(prev => prev.filter(q => q.id !== confirmDelete));
       toast.success('Question deleted successfully');
       setConfirmDelete(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting question:', error);
-      toast.error('Failed to delete question');
+      toast.error(error.message || 'Failed to delete question');
     } finally {
       setDeleting(false);
     }

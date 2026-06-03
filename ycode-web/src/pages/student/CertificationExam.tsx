@@ -67,12 +67,8 @@ const CertificationExam: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Failed to start exam", err);
-                if (err.response?.data?.error) {
-                    toast.error(err.response.data.error);
-                } else {
-                    toast.error("Failed to load certification exam.");
-                }
-                navigate('/student/certifications');
+                sessionStorage.setItem('toast_error', err.message || "Failed to load certification exam.");
+                window.location.href = '/student/certifications';
             } finally {
                 setLoading(false);
             }

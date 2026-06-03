@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import './observability/telemetry';
@@ -735,11 +736,23 @@ function App() {
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
             <Toaster position="top-right" />
+            <ToastNotificationManager />
           </div>
         </Router>
       </AuthProvider>
     </ErrorBoundary>
   );
 }
+
+const ToastNotificationManager = () => {
+  useEffect(() => {
+    const error = sessionStorage.getItem('toast_error');
+    if (error) {
+      toast.error(error);
+      sessionStorage.removeItem('toast_error');
+    }
+  }, []);
+  return null;
+};
 
 export default App;

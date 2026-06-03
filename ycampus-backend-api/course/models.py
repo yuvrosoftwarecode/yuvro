@@ -271,9 +271,18 @@ class UserSubjectProgress(BaseTimestampedModel):
         default=False,
     )
 
+    is_marked_complete = models.BooleanField(
+        default=False,
+        help_text="Whether student marked the subunit as complete (10% progress weight)",
+    )
+    quiz_highest_score = models.FloatField(
+        default=0.0,
+        help_text="Highest quiz score (0-100)",
+    )
+
     progress_percent = models.FloatField(
         default=0.0,
-        help_text="Overall progress percentage considering videos + quiz + coding (0-100)",
+        help_text="Overall progress percentage considering materials + quiz + test (0-100)",
     )
     is_completed = models.BooleanField(
         default=False, help_text="Whether this subunit is fully completed"
@@ -298,34 +307,50 @@ class UserSubjectProgress(BaseTimestampedModel):
         return f"{self.user.username} - {self.sub_unit.name} ({self.progress_percent:.1f}%)"
 
     def calculate_progress(self):
-        # Use .all() to leverage prefetch_related if available
+        # 1. Materials marked completed (10%)
+        materials_score = 10.0 if self.is_marked_complete else 0.0
+
+        # 2. Quiz completed (30%)
+        # Fetch subunit questions to check if a quiz exists
         questions = self.sub_unit.questions.all()
-
         has_quiz = any(q.type in ["mcq_single", "mcq_multiple"] for q in questions)
-        has_coding = any(q.type == "coding" for q in questions)
 
-        w_video = 20.0
-        w_quiz = 30.0 if has_quiz else 0.0
-        w_coding = 50.0 if has_coding else 0.0
+        if not has_quiz:
+            quiz_score = 30.0
+        else:
+            self.is_quiz_completed = self.quiz_highest_score >= 80.0
+            quiz_score = 30.0 if self.is_quiz_completed else 0.0
 
-        total_weight = w_video + w_quiz + w_coding
+        # 3. Practice/Skill Test completed (60%)
+        # Note: In the database, all unit-level tests (both practice tests on campus
+        # and skill tests on assessments platform) are stored with test_type='practice'.
+        target_test_type = 'practice'
 
-        if total_weight == 0:
-            return 100.0 if self.is_videos_watched else 0.0
+        from assessment.models import SkillTest, SkillTestSubmission
 
-        current_score = 0.0
+        unit = self.unit or (self.sub_unit.unit if self.sub_unit else None)
 
-        if self.is_videos_watched:
-            current_score += w_video
+        if not unit:
+            tests = SkillTest.objects.none()
+        else:
+            tests = SkillTest.objects.filter(unit=unit, test_type=target_test_type)
 
-        if has_quiz and self.is_quiz_completed:
-            current_score += w_quiz * (self.quiz_score / 100.0)
+        if not tests.exists():
+            test_score = 60.0
+        else:
+            # Check if user has a completed submission for any of these tests
+            has_submission = SkillTestSubmission.objects.filter(
+                user=self.user,
+                skill_test__in=tests,
+                status__in=[
+                    SkillTestSubmission.STATUS_COMPLETED,
+                    SkillTestSubmission.STATUS_SUBMITTED,
+                    SkillTestSubmission.STATUS_EVALUATED
+                ]
+            ).exists()
+            test_score = 60.0 if has_submission else 0.0
 
-        if has_coding:
-            current_score += w_coding * (self.coding_score / 100.0)
-
-        self.progress_percent = round((current_score / total_weight) * 100.0, 2)
-
+        self.progress_percent = round(materials_score + quiz_score + test_score, 2)
         self.is_completed = self.progress_percent >= 99.0
 
         return self.progress_percent
@@ -404,6 +429,10 @@ class Question(models.Model):
     categories = models.JSONField(
         default=list,
         help_text="List of categories this question belongs to (learn, practice, skill_test, contest)",
+    )
+    is_active = models.BooleanField(
+        default=False,
+        help_text="Designates whether this question is active in any test/assessment.",
     )
 
     # MCQ specific fields
@@ -521,6 +550,12 @@ class Question(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        if self.is_active:
+            raise ValidationError("This question cannot be deleted because it is active in one or more tests/assessments.")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.type.upper()}: {self.title[:50]}..."

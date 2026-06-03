@@ -25,6 +25,7 @@ import {
 import CodeEditor from '@/components/ui/code-editor';
 import { startSkillTest, submitSkillTest, uploadSnapshot } from '@/services/skillTestService';
 import { useProctoring } from '@/hooks/useProctoring';
+import { useToast } from '@/hooks/use-toast';
 
 interface Topic {
   id: string;
@@ -68,6 +69,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   course,
   onComplete
 }) => {
+  const { toast } = useToast();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [timeLeft, setTimeLeft] = useState(topic.duration * 60);
   const [answers, setAnswers] = useState<{[key: string]: any}>({});
@@ -127,10 +129,11 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       } catch (err: any) {
         console.error('Test loading error:', err);
         if (!cancelled) {
-          const msg = err?.response?.data?.error || 'Failed to load test questions. Please try again.';
-          setLoadError(msg);
+          const msg = err?.message || 'Failed to load test questions. Please try again.';
+          stopMediaMonitoring();
           loadPromiseRef.current = null; // Clear promise so user can retry
-          toast({ title: 'Error', description: msg, variant: 'destructive' });
+          sessionStorage.setItem('toast_error', msg);
+          window.location.reload();
         }
       } finally {
         if (!cancelled) setIsLoadingTest(false);

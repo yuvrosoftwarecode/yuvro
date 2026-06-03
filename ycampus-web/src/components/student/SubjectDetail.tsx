@@ -59,6 +59,8 @@ const SubjectDetail: React.FC = () => {
   const [contentLoading, setContentLoading] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [readMap, setReadMap] = useState<Record<string, boolean>>({});
+  const [markedCompleteMap, setMarkedCompleteMap] = useState<Record<string, boolean>>({});
+  const [quizHighestScoreMap, setQuizHighestScoreMap] = useState<Record<string, number>>({});
 
   const [activeProgress, setActiveProgress] = useState({ quiz: false, coding: false, video: false });
 
@@ -109,14 +111,20 @@ const SubjectDetail: React.FC = () => {
       const progressData = (await fetchUserSubjectProgress(subjectId)) as Record<string, any>;
       const newProgressMap: Record<string, number> = {};
       const newReadMap: Record<string, boolean> = {};
+      const newMarkedCompleteMap: Record<string, boolean> = {};
+      const newQuizHighestScoreMap: Record<string, number> = {};
 
       Object.entries(progressData || {}).forEach(([subId, data]: [string, any]) => {
         newProgressMap[subId] = data?.progress_percent || 0;
         newReadMap[subId] = !!data?.is_completed;
+        newMarkedCompleteMap[subId] = !!data?.is_marked_complete;
+        newQuizHighestScoreMap[subId] = data?.quiz_highest_score || 0;
       });
 
       setProgressMap(newProgressMap);
       setReadMap(newReadMap);
+      setMarkedCompleteMap(newMarkedCompleteMap);
+      setQuizHighestScoreMap(newQuizHighestScoreMap);
 
       if (selectedTopic) {
         const selectedProgress = progressData?.[selectedTopic];
@@ -223,6 +231,9 @@ const SubjectDetail: React.FC = () => {
         code={code}
         onCodeChange={setCode}
         backendQuestions={mappedQuestions}
+        subunitId={selectedTopic}
+        onQuizComplete={loadProgress}
+        highestScore={selectedTopic ? quizHighestScoreMap[selectedTopic] : 0}
       />
     );
   };
@@ -255,11 +266,29 @@ const SubjectDetail: React.FC = () => {
     }
 
     if (activeTab === 'materials') {
-      return <StudentNotes subunitId={selectedTopic} mode="materials" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)} />;
+      return (
+        <StudentNotes
+          subunitId={selectedTopic}
+          mode="materials"
+          sessionId={chatSessionId}
+          onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
+          isMarkedComplete={!!markedCompleteMap[selectedTopic]}
+          onProgressUpdate={loadProgress}
+        />
+      );
     }
 
     if (activeTab === 'my-notes') {
-      return <StudentNotes subunitId={selectedTopic} mode="my-notes" sessionId={chatSessionId} onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)} />;
+      return (
+        <StudentNotes
+          subunitId={selectedTopic}
+          mode="my-notes"
+          sessionId={chatSessionId}
+          onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
+          isMarkedComplete={!!markedCompleteMap[selectedTopic]}
+          onProgressUpdate={loadProgress}
+        />
+      );
     }
 
     return <div className="p-6">{renderQuizContent()}</div>;

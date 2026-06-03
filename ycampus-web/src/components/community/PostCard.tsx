@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { ImageCarousel } from './ImageCarousel';
 import { ReportDialog } from './ReportDialog';
 import { CreatePostDrawer } from './CreatePostDrawer';
+import { FormattedContent } from './FormattedContent';
 
 interface PostCardProps {
   post: CommunityPost;
@@ -184,10 +185,7 @@ export function PostCard({
 
           {/* Content */}
           <div className="mb-3" onClick={onClick}>
-            <p className="text-foreground whitespace-pre-wrap">
-              {displayContent}
-              {shouldTruncate && !isExpanded && '...'}
-            </p>
+            <FormattedContent content={displayContent + (shouldTruncate && !isExpanded ? '...' : '')} />
             {shouldTruncate && (
               <Button
                 variant="link"
