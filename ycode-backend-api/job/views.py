@@ -861,6 +861,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
 
 class SocialLinksUpdateView(generics.UpdateAPIView):
+    queryset = SocialLinks.objects.all()
     serializer_class = SocialLinksSerializer
     permission_classes = [IsAuthenticatedUser]
 
