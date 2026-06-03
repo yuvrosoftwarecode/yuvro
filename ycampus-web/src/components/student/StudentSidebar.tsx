@@ -374,10 +374,10 @@ export function StudentSidebar() {
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </button>
+              <DeployInfo collapsed={collapsed} visible={profileOpen} />
             </div>
           </div>
         </div>
-      <DeployInfo collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );
