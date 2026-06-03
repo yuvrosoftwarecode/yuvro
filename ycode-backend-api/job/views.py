@@ -430,6 +430,127 @@ class JobViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=True, methods=["post"])
+    def invite_assessment(self, request, pk=None):
+        """
+        Invite candidates to take a Job Assessment.
+        Payload: {"emails": ["email1@test.com"], "application_ids": ["uuid-1"]}
+        """
+        if not request.user.role in ["recruiter", "admin", "instructor"]:
+            return Response(
+                {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        job = self.get_object()
+        emails = request.data.get("emails", [])
+        application_ids = request.data.get("application_ids", [])
+
+        # Parse emails if string
+        if isinstance(emails, str):
+            emails = [e.strip() for e in emails.split(",") if e.strip()]
+
+        candidate_emails = set()
+
+        # Gather emails from application_ids
+        if application_ids:
+            apps = JobApplication.objects.filter(id__in=application_ids, job=job)
+            for app in apps:
+                candidate_emails.add(app.applicant.email)
+
+        # Add raw emails
+        for email in emails:
+            email_clean = email.strip().lower()
+            if email_clean:
+                candidate_emails.add(email_clean)
+
+        if not candidate_emails:
+            return Response(
+                {"error": "No valid email addresses or applications provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        from django.contrib.auth import get_user_model
+        from authentication.models import Profile
+        import random
+        import string
+        from django.template.loader import render_to_string
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        User = get_user_model()
+        invited_count = 0
+
+        for email in candidate_emails:
+            is_new_user = False
+            temp_pass = None
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                # Create user
+                is_new_user = True
+                temp_pass = "".join(random.choices(string.ascii_letters + string.digits, k=10))
+                # Django username must be unique
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=temp_pass,
+                    role="guest"
+                )
+                user.is_active = True
+                user.save()
+                # Create profile
+                Profile.objects.get_or_create(user=user)
+
+            # Get or create application
+            application, created = JobApplication.objects.get_or_create(
+                job=job,
+                applicant=user
+            )
+
+            # Record invitation time
+            if not application.screening_responses:
+                application.screening_responses = {}
+            application.screening_responses["invited_at"] = timezone.now().isoformat()
+            
+            # Ensure it is marked as applied and shows up in the applications list
+            application.is_applied = True
+            if not application.applied_at:
+                application.applied_at = timezone.now()
+            if not application.status or application.status == "bookmarked":
+                application.status = "under_review"
+                
+            application.save()
+
+            # Send Email
+            context = {
+                "user": user,
+                "job_title": job.title,
+                "company_name": job.company.name,
+                "is_new_user": is_new_user,
+                "temp_password": temp_pass,
+                "assessment_link": f"{settings.FRONTEND_URL}/job-test/{application.id}",
+                "frontend_url": settings.FRONTEND_URL,
+            }
+            html_message = render_to_string("emails/job_assessment_invitation.html", context)
+            plain_message = f"You are invited to take the Job Assessment for {job.title} at {job.company.name}. Link: {context['assessment_link']}"
+            if is_new_user:
+                plain_message += f"\nYour credentials are:\nEmail: {user.email}\nTemporary Password: {temp_pass}"
+
+            send_mail(
+                subject=f"Invitation: Job Assessment for {job.title} at {job.company.name}",
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            invited_count += 1
+
+        return Response(
+            {"message": f"Successfully invited {invited_count} candidate(s) to the Job Assessment."},
+            status=status.HTTP_200_OK
+        )
+
 
 class JobApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = JobApplicationSerializer
@@ -574,6 +695,169 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
         serializer = JobApplicationSerializer(application)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def start_test(self, request, pk=None):
+        """
+        Start the job assessment. Returns instructions, job info, and questions (without correct options).
+        """
+        application = self.get_object()
+        # Verify the candidate is the request user
+        if application.applicant != request.user:
+            return Response(
+                {"error": "You do not have permission to take this assessment."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Check if the assessment is already completed
+        if application.status == "screening_test_completed":
+            return Response(
+                {"error": "You have already completed this job assessment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        job = application.job
+        config = job.screening_questions_config or {}
+        
+        # Collect all question IDs
+        question_ids = []
+        for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+            ids = config.get(qtype, [])
+            if isinstance(ids, list):
+                question_ids.extend(ids)
+
+        from course.models import Question
+        questions = Question.objects.filter(id__in=question_ids)
+
+        # Order questions as they are in the config lists if possible, or just default ordering
+        # Clean mcq_options to not expose correct answers to prevent cheating
+        questions_data = []
+        for q in questions:
+            options = q.mcq_options
+            if options and isinstance(options, list):
+                cleaned_options = []
+                for opt in options:
+                    if isinstance(opt, dict):
+                        cleaned_options.append({
+                            "text": opt.get("text", "")
+                        })
+                    else:
+                        cleaned_options.append(opt)
+                options = cleaned_options
+
+            questions_data.append({
+                "id": str(q.id),
+                "type": q.type,
+                "title": q.title,
+                "content": q.content,
+                "mcq_options": options,
+                "test_cases_basic": q.test_cases_basic,
+                "marks": q.marks,
+                "duration": q.duration,
+            })
+
+        return Response({
+            "application_id": application.id,
+            "job_title": job.title,
+            "company_name": job.company.name,
+            "questions": questions_data,
+        })
+
+    @action(detail=True, methods=["post"])
+    def submit_test(self, request, pk=None):
+        """
+        Submit the completed job assessment.
+        Payload: {"responses": {"q1_uuid": "user_answer", "q2_uuid": ["choice1", "choice2"]}}
+        """
+        application = self.get_object()
+        # Verify the candidate is the request user
+        if application.applicant != request.user:
+            return Response(
+                {"error": "You do not have permission to submit this assessment."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if application.status == "screening_test_completed":
+            return Response(
+                {"error": "You have already completed this job assessment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        responses = request.data.get("responses", {})
+        
+        job = application.job
+        config = job.screening_questions_config or {}
+        
+        question_ids = []
+        for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+            ids = config.get(qtype, [])
+            if isinstance(ids, list):
+                question_ids.extend(ids)
+
+        from course.models import Question
+        questions = Question.objects.filter(id__in=question_ids)
+
+        total_marks = 0
+        marks_obtained = 0
+        graded_results = {}
+
+        for q in questions:
+            total_marks += q.marks
+            user_ans = responses.get(str(q.id))
+            
+            if q.is_auto_gradable:
+                is_correct, score = q.grade_answer(user_ans)
+                if is_correct:
+                    marks_obtained += score
+                graded_results[str(q.id)] = {
+                    "question_title": q.title,
+                    "question_content": q.content,
+                    "question_type": q.type,
+                    "is_correct": is_correct,
+                    "score": score,
+                    "max_marks": q.marks,
+                    "user_answer": user_ans
+                }
+            else:
+                # Descriptive or coding which cannot be auto-graded immediately via grade_answer
+                # Set as pending manual review
+                graded_results[str(q.id)] = {
+                    "question_title": q.title,
+                    "question_content": q.content,
+                    "question_type": q.type,
+                    "is_correct": False,
+                    "score": 0,
+                    "max_marks": q.marks,
+                    "user_answer": user_ans,
+                    "pending_review": True
+                }
+
+        proctoring_events = request.data.get("proctoring_events", [])
+
+        # Preserve invited_at if it exists
+        invited_at = None
+        if application.screening_responses and isinstance(application.screening_responses, dict):
+            invited_at = application.screening_responses.get("invited_at")
+
+        # Save responses and score details
+        application.screening_responses = {
+            "answers": responses,
+            "graded_results": graded_results,
+            "score": marks_obtained,
+            "total_marks": total_marks,
+            "proctoring_events": proctoring_events,
+            "submitted_at": timezone.now().isoformat()
+        }
+        if invited_at:
+            application.screening_responses["invited_at"] = invited_at
+        application.status = "screening_test_completed"
+        application.is_applied = True
+        application.applied_at = timezone.now()
+        application.save()
+
+        return Response({
+            "message": "Job Assessment submitted successfully. Thank you!"
+        }, status=status.HTTP_200_OK)
 
 
 class SocialLinksUpdateView(generics.UpdateAPIView):

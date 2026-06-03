@@ -16,6 +16,9 @@ const DashboardRedirect: React.FC = () => {
         case 'recruiter':
           navigate('/recruiter/dashboard', { replace: true });
           break;
+        case 'guest':
+          navigate('/change-password', { replace: true });
+          break;
         case 'student':
         default:
           navigate('/student/dashboard', { replace: true });
