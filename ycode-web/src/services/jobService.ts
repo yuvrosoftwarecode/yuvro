@@ -173,6 +173,8 @@ export const jobService = {
         return restApiAuthUtil.delete(`/jobs/companies/${companyId}/`);
     },
 
+
+
     async getQuestion(questionId: number): Promise<Question> {
         return restApiAuthUtil.get(`/course/questions/${questionId}/`);
     },

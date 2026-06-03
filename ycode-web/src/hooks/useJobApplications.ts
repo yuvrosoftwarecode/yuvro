@@ -94,13 +94,13 @@ export const useJobApplications = () => {
     setUserJobStatus(prev => ({
       ...prev,
       [jobId]: {
-        ...prev[jobId],
+        ...(prev[jobId] || { is_applied: false }),
         is_bookmarked: !wasBookmarked
       }
     }));
 
     if (wasBookmarked) {
-      setBookmarks(prev => prev.filter(bookmark => bookmark.job.id !== jobId));
+      setBookmarks(prev => prev.filter(bookmark => bookmark.job?.id !== jobId));
     }
 
     try {
@@ -111,14 +111,25 @@ export const useJobApplications = () => {
           duration: 3000,
         });
       } else {
-        await jobApplicationService.bookmarkJob(jobId);
+        const response = await jobApplicationService.bookmarkJob(jobId);
         toast.success('Job bookmarked successfully!', {
           description: 'You can find this job in your Bookmarks tab.',
           duration: 3000,
         });
+        
+        if (response && response.application_id) {
+          try {
+            const newBookmark = await jobApplicationService.getApplication(response.application_id);
+            setBookmarks(prev => {
+              if (prev.some(b => b.job?.id === jobId)) return prev;
+              return [newBookmark, ...prev];
+            });
+          } catch (e) {
+            console.error('Failed to fetch new bookmark details', e);
+            fetchBookmarks();
+          }
+        }
       }
-
-      await Promise.all([fetchBookmarks(), fetchMyApplications(), fetchUserJobStatus()]);
     } catch (error) {
       setBookmarkedJobs(prev => {
         const newSet = new Set(prev);
@@ -133,13 +144,15 @@ export const useJobApplications = () => {
       setUserJobStatus(prev => ({
         ...prev,
         [jobId]: {
-          ...prev[jobId],
+          ...(prev[jobId] || { is_applied: false }),
           is_bookmarked: wasBookmarked
         }
       }));
 
-      if (!wasBookmarked) {
-        await fetchBookmarks(); 
+      if (wasBookmarked) {
+        fetchBookmarks(); 
+      } else {
+        setBookmarks(prev => prev.filter(bookmark => bookmark.job?.id !== jobId));
       }
 
       console.error('Error bookmarking job:', error);
