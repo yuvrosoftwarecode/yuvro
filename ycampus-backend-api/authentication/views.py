@@ -273,7 +273,18 @@ class ForgotPasswordView(generics.GenericAPIView):
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uidb64}/{token}"
+        # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
+        from urllib.parse import urlparse
+        origin = request.META.get("HTTP_ORIGIN")
+        if not origin:
+            referer = request.META.get("HTTP_REFERER")
+            if referer:
+                parsed_uri = urlparse(referer)
+                origin = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+        
+        frontend_url = origin.rstrip("/") if origin else settings.FRONTEND_URL
+
+        reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
         send_mail(
             subject="Password Reset Request",

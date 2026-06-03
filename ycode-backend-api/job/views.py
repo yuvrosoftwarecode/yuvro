@@ -469,6 +469,17 @@ class JobViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
+        from urllib.parse import urlparse
+        origin = request.META.get("HTTP_ORIGIN")
+        if not origin:
+            referer = request.META.get("HTTP_REFERER")
+            if referer:
+                parsed_uri = urlparse(referer)
+                origin = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+        
+        frontend_url = origin.rstrip("/") if origin else settings.FRONTEND_URL
+
         from django.contrib.auth import get_user_model
         from authentication.models import Profile
         import random
@@ -528,8 +539,8 @@ class JobViewSet(viewsets.ModelViewSet):
                 "company_name": job.company.name,
                 "is_new_user": is_new_user,
                 "temp_password": temp_pass,
-                "assessment_link": f"{settings.FRONTEND_URL}/job-test/{application.id}",
-                "frontend_url": settings.FRONTEND_URL,
+                "assessment_link": f"{frontend_url}/job-test/{application.id}",
+                "frontend_url": frontend_url,
             }
             html_message = render_to_string("emails/job_assessment_invitation.html", context)
             plain_message = f"You are invited to take the Job Assessment for {job.title} at {job.company.name}. Link: {context['assessment_link']}"
