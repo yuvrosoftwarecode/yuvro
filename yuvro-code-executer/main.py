@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
@@ -11,6 +12,23 @@ import difflib
 import asyncio
 import json
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
+
+def kill_process_tree(pid: int):
+    try:
+        parent = psutil.Process(pid)
+        for child in parent.children(recursive=True):
+            try:
+                child.kill()
+            except:
+                pass
+        try:
+            parent.kill()
+        except:
+            pass
+    except psutil.NoSuchProcess:
+        pass
+    except Exception as e:
+        print(f"Error killing process tree for pid {pid}: {e}")
 
 # Initialize OpenTelemetry
 setup_telemetry()
@@ -394,6 +412,8 @@ class CodeExecutorService:
             }
 
         config = LANGUAGE_CONFIGS[language]
+        # Cap timeout between 2 and 5 seconds to prevent backend/CPU resource abuse
+        timeout = min(max(timeout or 3, 2), 5)
 
         with tracer.start_as_current_span(
             f"execute_code_{language}",
@@ -434,9 +454,26 @@ class CodeExecutorService:
                             stderr=asyncio.subprocess.PIPE
                         )
                         
-                        compile_stdout, compile_stderr = await asyncio.wait_for(
-                            compile_process.communicate(), timeout=timeout
-                        )
+                        try:
+                            compile_stdout, compile_stderr = await asyncio.wait_for(
+                                compile_process.communicate(), timeout=timeout
+                            )
+                        except asyncio.TimeoutError:
+                            if compile_process:
+                                try:
+                                    kill_process_tree(compile_process.pid)
+                                except:
+                                    pass
+                            res = {
+                                'success': False,
+                                'error': 'Compilation timed out',
+                                'output': '',
+                                'execution_time': timeout,
+                                'memory_usage': 0,
+                                'status': 'tle'
+                            }
+                            record_code_execution(language, 'tle', timeout)
+                            return res
                         
                         if compile_process.returncode != 0:
                             res = {
@@ -471,9 +508,30 @@ class CodeExecutorService:
                             stderr=asyncio.subprocess.PIPE
                         )
                         
-                        compile_stdout, compile_stderr = await asyncio.wait_for(
-                            compile_process.communicate(), timeout=timeout
-                        )
+                        try:
+                            compile_stdout, compile_stderr = await asyncio.wait_for(
+                                compile_process.communicate(), timeout=timeout
+                            )
+                        except asyncio.TimeoutError:
+                            if compile_process:
+                                try:
+                                    kill_process_tree(compile_process.pid)
+                                except:
+                                    pass
+                                try:
+                                    compile_process.kill()
+                                except:
+                                    pass
+                            res = {
+                                'success': False,
+                                'error': 'Compilation timed out',
+                                'output': '',
+                                'execution_time': timeout,
+                                'memory_usage': 0,
+                                'status': 'tle'
+                            }
+                            record_code_execution(language, 'tle', timeout)
+                            return res
                         
                         if compile_process.returncode != 0:
                             res = {
@@ -551,6 +609,10 @@ class CodeExecutorService:
                     except asyncio.TimeoutError:
                         if process:
                             try:
+                                kill_process_tree(process.pid)
+                            except:
+                                pass
+                            try:
                                 process.kill()
                             except:
                                 pass
@@ -560,9 +622,9 @@ class CodeExecutorService:
                             'output': '',
                             'execution_time': timeout,
                             'memory_usage': 0,
-                            'status': 'timeout'
+                            'status': 'tle'
                         }
-                        record_code_execution(language, 'timeout', timeout)
+                        record_code_execution(language, 'tle', timeout)
                         return res
 
                 except Exception as e:
@@ -615,21 +677,31 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "code-executor"}
 
-@app.post("/execute", response_model=ExecutionResult)
+@app.post("/execute")
 async def execute_code(request: CodeExecutionRequest):
     """Execute code and return results"""
     try:
+        # Cap timeout between 2 and 5 seconds to prevent resource abuse
+        exec_timeout = min(max(request.timeout or 3, 2), 5)
         result = await CodeExecutorService.execute_code(
             request.code,
             request.language,
             request.input,
-            request.timeout
+            exec_timeout
         )
+        if result.get('status') == 'tle':
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "status": "tle",
+                    "message": "Time Limit Exceeded"
+                }
+            )
         return ExecutionResult(**result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/execute-with-tests", response_model=CodeExecutionResponse)
+@app.post("/execute-with-tests")
 async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
     """Execute code and run test cases"""
     try:
@@ -651,6 +723,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
             raise HTTPException(status_code=400, detail=f"Unsupported language: {language}")
 
         config = LANGUAGE_CONFIGS[language]
+        # Cap timeout between 2 and 5 seconds to prevent resource abuse
+        exec_timeout = min(max(request.timeout or 3, 2), 5)
         
         # 1. First, compile the code once if needed
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -680,7 +754,26 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE
                 )
-                stdout, stderr = await asyncio.wait_for(compile_process.communicate(), timeout=request.timeout)
+                
+                try:
+                    stdout, stderr = await asyncio.wait_for(compile_process.communicate(), timeout=exec_timeout)
+                except asyncio.TimeoutError:
+                    if compile_process:
+                        try:
+                            kill_process_tree(compile_process.pid)
+                        except:
+                            pass
+                        try:
+                            compile_process.kill()
+                        except:
+                            pass
+                    return JSONResponse(
+                        status_code=200,
+                        content={
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        }
+                    )
                 
                 if compile_process.returncode != 0:
                     # Return error for all tests if compilation failed
@@ -788,7 +881,7 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     except Exception:
                         pass
 
-                    stdout, stderr = await asyncio.wait_for(mem_task, timeout=request.timeout)
+                    stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
                     execution_time = time.time() - start_time
 
 
@@ -810,17 +903,22 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         console_output=console_output
                     ))
                 except asyncio.TimeoutError:
-                    try: process.kill()
-                    except: pass
-                    test_results.append(TestResult(
-                        passed=False,
-                        input=test_case.input,
-                        expected_output=test_case.expected_output,
-                        actual_output='',
-                        error='Timeout',
-                        execution_time=request.timeout,
-                        console_output=''
-                    ))
+                    if process:
+                        try:
+                            kill_process_tree(process.pid)
+                        except:
+                            pass
+                        try:
+                            process.kill()
+                        except:
+                            pass
+                    return JSONResponse(
+                        status_code=200,
+                        content={
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        }
+                    )
 
             # Determine basic_result (first test or summary)
             basic_result = ExecutionResult(

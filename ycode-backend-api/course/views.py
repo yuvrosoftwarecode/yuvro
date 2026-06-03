@@ -812,6 +812,16 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     test_cases_custom=test_cases_custom,
                 )
 
+                response_data = result.get("response_data", {})
+                if response_data.get("status") == "tle":
+                    return Response(
+                        {
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 execution_results = result["execution_results"]
                 test_results = result["test_results"]
                 execution_output = result["execution_output"]
@@ -1332,10 +1342,19 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     test_cases_custom=test_cases_custom,
                 )
 
+                response_data = result.get("response_data", {})
+                if response_data.get("status") == "tle":
+                    return Response(
+                        {
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 execution_results = result["execution_results"]
                 test_results = result["test_results"]
                 execution_output = result["execution_output"]
-                response_data = result["response_data"]
 
                 service_url = os.environ.get(
                     "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009"
