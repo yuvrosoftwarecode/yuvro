@@ -389,6 +389,7 @@ docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   build 2>&1 | tail -20
 
@@ -398,11 +399,7 @@ docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
-  -f docker-compose.dev.yml \
-  up -d --force-recreate
-  -f docker-compose.yuvro.yml \
-  -f docker-compose.ycode.yml \
-  -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   up -d --force-recreate
 
@@ -411,6 +408,7 @@ docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   ps
 
