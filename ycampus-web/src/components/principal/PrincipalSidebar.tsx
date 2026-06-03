@@ -1,4 +1,5 @@
 import { LayoutDashboard, Building2, UserCheck, Users, FileText, Bell, Megaphone, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -151,6 +152,7 @@ export function PrincipalSidebar() {
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );

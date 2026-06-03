@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -376,6 +377,7 @@ export function StudentSidebar() {
             </div>
           </div>
         </div>
+      <DeployInfo collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );

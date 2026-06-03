@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -197,6 +198,7 @@ const FacultySidebar = () => {
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,4 +1,5 @@
 import { LayoutDashboard, UserCheck, FileText, ChevronDown, BarChart3, ClipboardCheck, Users2, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone } from 'lucide-react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -175,6 +176,7 @@ export function HODSidebar() {
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,4 +1,5 @@
 import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone, ShieldCheck, Trophy } from 'lucide-react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -151,6 +152,7 @@ export function CollegeAdminSidebar() {
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );

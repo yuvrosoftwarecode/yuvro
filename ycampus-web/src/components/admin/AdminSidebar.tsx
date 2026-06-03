@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DeployInfo from '@/components/common/DeployInfo';
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -134,6 +135,7 @@ export function AdminSidebar() {
             </div>
           </div>
         </div>
+
       </SidebarFooter>
     </Sidebar>
   );
