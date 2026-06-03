@@ -249,7 +249,6 @@ DEFAULT_FROM_EMAIL = config(
     default=EMAIL_HOST_USER
 )
 
-
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 # if frontend runs on 5173 (Vite)
 

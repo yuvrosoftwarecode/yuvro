@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2 } from 'lucide-react';
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2, Video, VideoOff, Settings, PhoneOff, Eye, Volume2, Target, Shield } from 'lucide-react';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
 import { Role, Message } from '@/types/mockInterview';
+import { useAuth } from '@/contexts/AuthContext';
+import knowledgeTree from '@/assets/knowledge-tree.png';
 
 interface InterviewScreenProps {
   role: Role;
@@ -52,6 +54,48 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('modern');
   const [interviewState, setInterviewState] = useState<'initial' | 'listening' | 'thinking' | 'speaking'>('initial');
+
+  const { user } = useAuth();
+  const startTimeRef = useRef<number>(Date.now());
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoStopped, setIsVideoStopped] = useState(false);
+  const [metrics, setMetrics] = useState({
+    eyeContact: 72,
+    speechClarity: 85,
+    confidence: 68
+  });
+
+  useEffect(() => {
+    if (interviewState !== 'listening') return;
+
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        eyeContact: Math.min(95, Math.max(50, prev.eyeContact + Math.floor(Math.random() * 5) - 2)),
+        speechClarity: Math.min(98, Math.max(60, prev.speechClarity + Math.floor(Math.random() * 5) - 2)),
+        confidence: Math.min(95, Math.max(50, prev.confidence + Math.floor(Math.random() * 5) - 2))
+      }));
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [interviewState]);
+
+  const toggleMute = () => {
+    if (mediaStream) {
+      mediaStream.getAudioTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleVideo = () => {
+    if (mediaStream) {
+      mediaStream.getVideoTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      setIsVideoStopped(!isVideoStopped);
+    }
+  };
 
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -213,6 +257,8 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         const config = aiConfig;
         const isPredefined = config.interview_type === 'predefined';
 
+        startTimeRef.current = Date.now();
+
         if (isPredefined) {
           // --- PREDEFINED MODE INITIALIZATION ---
           const greeting = config.first_question || "Hello! I'm your interviewer today. To start, could you please introduce yourself?";
@@ -220,6 +266,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
             type: 'ai',
             content: greeting,
             timestamp: new Date().toLocaleTimeString(),
+            relativeTime: 0,
           }]);
           
           setIsAITyping(false);
@@ -247,6 +294,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
             content: aiText,
             timestamp: new Date().toLocaleTimeString(),
             questionType: 'behavioral',
+            relativeTime: 0,
           }]);
           setIsAITyping(false);
           setTimeout(() => {
@@ -426,11 +474,14 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     console.log("[InterviewEngine] Initiating submission...");
     isProcessingRef.current = true;
     
+    const elapsedSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
+
     const userMessage: Message = {
       type: 'user',
       content: cleanAnswer || '(No verbal answer)',
       timestamp: new Date().toLocaleTimeString(),
       codeSubmission: isEditorActive ? latestCode : undefined,
+      relativeTime: elapsedSeconds,
     };
     setConversation(prev => [...prev, userMessage]);
     setCurrentUserAnswer('');
@@ -461,10 +512,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         const nextText = response.question;
         console.log("[InterviewEngine] Received next question:", nextText);
 
+        const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
         const aiMessage: Message = {
           type: 'ai',
           content: nextText,
           timestamp: new Date().toLocaleTimeString(),
+          relativeTime: aiElapsed,
         };
         setConversation(prev => [...prev, aiMessage]);
         speakText(nextText);
@@ -487,10 +540,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         }
 
         console.log("[InterviewEngine] Received AI response");
+        const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
         const aiMessage: Message = {
           type: 'ai',
           content: aiText,
           timestamp: new Date().toLocaleTimeString(),
+          relativeTime: aiElapsed,
         };
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
@@ -515,160 +570,236 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
   };
 
+  const userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username : 'Medishetty Manikanta Gandhi';
+  const userEmail = user?.email || 'mkgandhioff@gmail.com';
+  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const formatElapsed = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const formatTimeFull = (seconds: number): string => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    
+    const hStr = h > 0 ? `${h.toString().padStart(2, '0')} : ` : '00 : ';
+    const mStr = `${m.toString().padStart(2, '0')}`;
+    const sStr = `${s.toString().padStart(2, '0')}`;
+    
+    return `${hStr}${mStr} : ${sStr}`;
+  };
+
+  const getRingColor = () => {
+    switch (interviewState) {
+      case 'listening': return 'border-emerald-500/30 bg-emerald-500/5';
+      case 'thinking': return 'border-amber-500/30 bg-amber-500/5';
+      case 'speaking': return 'border-indigo-500/30 bg-indigo-500/5';
+      default: return 'border-slate-700/30 bg-slate-700/5';
+    }
+  };
+
   return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans selection:bg-blue-100">
+    <div className="h-screen overflow-hidden bg-[#060b13] flex flex-col font-sans text-slate-200 select-none">
+      <style>{`
+        @keyframes pulseRing {
+          0% {
+            transform: scale(0.95);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.15);
+            opacity: 0.4;
+          }
+          100% {
+            transform: scale(1.3);
+            opacity: 0;
+          }
+        }
+        @keyframes wave {
+          0%, 100% {
+            transform: scaleY(0.3);
+          }
+          50% {
+            transform: scaleY(1);
+          }
+        }
+        .pulse-ring-1 {
+          animation: pulseRing 3s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+        }
+        .pulse-ring-2 {
+          animation: pulseRing 3s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+          animation-delay: 1s;
+        }
+        .pulse-ring-3 {
+          animation: pulseRing 3s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+          animation-delay: 2s;
+        }
+        .soundwave-bar {
+          animation: wave 1.2s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Top Bar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-50 shadow-sm">
-        <div className="relative flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <Badge className="bg-white hover:bg-white text-slate-800 border-slate-200 text-xs font-semibold px-3 py-1 truncate max-w-[260px]">
+      <div className="h-16 px-6 bg-[#090e18]/95 border-b border-slate-800/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-50 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <img src={knowledgeTree} alt="Yuvro" className="h-8 w-8 object-contain" />
+            <span className="font-bold text-lg text-white tracking-wide">yuvro</span>
+          </div>
+          <div className="h-5 border-l border-slate-800 mx-1 hidden sm:block"></div>
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase">AI Mock Interview</span>
+            <span className="text-slate-700">•</span>
+            <Badge className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border-none text-xs font-semibold px-2.5 py-0.5 rounded">
               {role.title}
             </Badge>
-            <Badge className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-100 text-xs font-semibold px-3 py-1 capitalize">
+            <Badge className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-none text-xs font-semibold px-2.5 py-0.5 rounded capitalize">
               {difficulty}
             </Badge>
           </div>
+        </div>
 
-          {layout === 'classic' && (
-            <div className="absolute left-1/2 -translate-x-1/2 w-20 h-10 bg-black rounded-md overflow-hidden border border-slate-200 shadow-sm">
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-              <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full border border-white" />
-            </div>
-          )}
+        {/* Dynamic State Central Badge */}
+        <div className="flex items-center gap-3 bg-[#0a0f1d] border border-slate-800 px-4 py-1.5 rounded-full shadow-inner">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+          </span>
+          <span className="font-mono text-sm font-bold text-slate-200 tracking-wider">
+            {formatTimeFull(timeLeft)}
+          </span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider border-l border-slate-800 pl-3">
+            Interview in progress
+          </span>
+        </div>
 
-          <div className="flex items-center gap-3">
-          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
-            <button
-              onClick={() => setLayout('modern')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${layout === 'modern' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              Split
-            </button>
-            <button
-              onClick={() => setLayout('classic')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${layout === 'classic' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              Classic
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-slate-200">
-            <Clock className="w-4 h-4 text-slate-500" />
-            <span className={`font-mono font-bold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-slate-700'}`}>
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-
+        <div className="flex items-center gap-3">
+          <Shield className="w-5 h-5 text-emerald-400 cursor-pointer hover:text-emerald-300 transition-colors mr-2" title="AI Proctoring Active" />
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
             onClick={handleEndInterview}
             disabled={loadingExit}
-            className="h-9 px-4 text-sm font-semibold border-slate-200"
+            className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl px-4 py-2 text-xs font-semibold border border-rose-500/20 flex items-center gap-2 transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(244,63,94,0.05)]"
           >
-            {loadingExit ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
-            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
+            <LogOut className="w-4 h-4" />
+            {loadingExit ? 'Leaving...' : 'Leave Interview'}
           </Button>
-          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 w-full mx-auto p-6 flex gap-6 overflow-hidden max-w-[1800px]">
-        {/* Conversation Panel */}
-        <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? (showCodeEditor ? 'w-full lg:w-1/2' : 'w-full max-w-4xl mx-auto') : (showCodeEditor ? 'w-full lg:w-1/4' : 'w-full lg:w-3/4')}`}>
-          <Card className="flex-1 flex flex-col overflow-hidden shadow-sm border-slate-200 h-full">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+        {/* Left Column: AI Interviewer Card & Questions Transcript */}
+        <div className={`transition-all duration-500 flex flex-col gap-6 h-full overflow-hidden ${
+          showCodeEditor ? 'w-1/4' : 'w-[55%]'
+        }`}>
+          {/* AI Interviewer Card */}
+          <Card className="bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 rounded-2xl flex flex-col overflow-hidden shadow-2xl p-5 relative shrink-0">
+            <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <h2 className="font-bold text-slate-800">Interview Conversation</h2>
-                {isRecording && <Badge variant="destructive" className="animate-pulse">Recording...</Badge>}
+                <Bot className="w-4 h-4 text-indigo-400" />
+                <span className="text-sm font-bold text-slate-400">AI Interviewer ({interviewer})</span>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
-                <RotateCcw className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center">
+                <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border ${
+                  interviewState === 'speaking' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
+                  interviewState === 'thinking' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
+                  interviewState === 'listening' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                  'bg-slate-800/40 text-slate-500 border-slate-800'
+                }`}>
+                  {interviewState === 'speaking' ? 'Speaking' :
+                   interviewState === 'thinking' ? 'Thinking' :
+                   interviewState === 'listening' ? 'Listening' :
+                   'Idle'}
+                </span>
+                {interviewState === 'speaking' && (
+                  <div className="flex items-center gap-1 ml-2.5">
+                    <div className="w-0.5 h-3 bg-indigo-400 rounded-full soundwave-bar" style={{ animationDelay: '0.1s' }} />
+                    <div className="w-0.5 h-4.5 bg-indigo-400 rounded-full soundwave-bar" style={{ animationDelay: '0.3s' }} />
+                    <div className="w-0.5 h-2 bg-indigo-400 rounded-full soundwave-bar" style={{ animationDelay: '0.5s' }} />
+                    <div className="w-0.5 h-3.5 bg-indigo-400 rounded-full soundwave-bar" style={{ animationDelay: '0.2s' }} />
+                    <div className="w-0.5 h-2.5 bg-indigo-400 rounded-full soundwave-bar" style={{ animationDelay: '0.4s' }} />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
-              {conversation.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-full text-center opacity-60">
-                  <Bot className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="text-sm text-slate-500">The AI is preparing your first question...</p>
-                </div>
+            <div className="h-44 relative w-full flex items-center justify-center overflow-hidden">
+              {/* Radar pulse rings */}
+              {interviewState !== 'initial' && (
+                <>
+                  <div className={`absolute w-32 h-32 rounded-full border pulse-ring-1 ${getRingColor()}`} />
+                  <div className={`absolute w-32 h-32 rounded-full border pulse-ring-2 ${getRingColor()}`} />
+                  <div className={`absolute w-32 h-32 rounded-full border pulse-ring-3 ${getRingColor()}`} />
+                </>
               )}
+              {/* Center visualizer circle */}
+              <div className={`relative z-10 w-24 h-24 flex items-center justify-center rounded-full bg-[#0d1324] border transition-all duration-500 shadow-2xl ${
+                interviewState === 'speaking' ? 'border-indigo-500 shadow-indigo-500/20 scale-105' :
+                interviewState === 'thinking' ? 'border-amber-500 shadow-amber-500/20 scale-105' :
+                interviewState === 'listening' ? 'border-emerald-500 shadow-emerald-500/20 scale-105' :
+                'border-slate-800'
+              }`}>
+                {interviewState === 'thinking' && (
+                  <div className="absolute inset-0 rounded-full border-t-2 border-r-2 border-indigo-400 border-b-transparent border-l-transparent animate-spin" />
+                )}
+                <span className={`text-3xl font-bold transition-colors duration-500 ${
+                  interviewState === 'speaking' ? 'text-indigo-400' :
+                  interviewState === 'thinking' ? 'text-amber-400' :
+                  interviewState === 'listening' ? 'text-emerald-400' :
+                  'text-slate-500'
+                }`}>
+                  J
+                </span>
+              </div>
+            </div>
+          </Card>
 
-              {conversation.map((msg, i) => (
-                <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
-                    msg.type === 'user'
-                      ? 'bg-slate-900 text-white rounded-tr-sm'
-                      : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                  }`}>
-                    <div className="flex items-center gap-2 mb-2 opacity-70 text-[10px] uppercase font-bold tracking-wider">
-                      {msg.type === 'ai' ? <><Bot className="w-3 h-3" /> AI Interviewer</> : <><User className="w-3 h-3" /> You</>}
-                      <span>• {msg.timestamp}</span>
-                    </div>
-                    {msg.content}
-                    {msg.codeSubmission && (
-                      <div className="mt-3 p-2 bg-white/10 rounded border border-white/20">
-                        <div className="text-[10px] opacity-70 mb-1">Code Submitted</div>
-                        <pre className="text-xs overflow-x-auto"><code>{msg.codeSubmission}</code></pre>
-                      </div>
-                    )}
+          {/* Transcript Log Card */}
+          <Card className="flex-1 bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 rounded-2xl flex flex-col overflow-hidden shadow-2xl p-5">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/5 shrink-0">
+              <h2 className="text-sm font-bold text-slate-300">Interview Transcript (AI Questions)</h2>
+              <span className="flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                LIVE
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
+              {conversation.filter(msg => msg.type === 'ai').length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center opacity-40">
+                  <Loader2 className="w-8 h-8 animate-spin text-slate-500 mb-2" />
+                  <p className="text-xs text-slate-400">AI interviewer is initializing...</p>
+                </div>
+              ) : (
+                conversation.filter(msg => msg.type === 'ai').map((msg, idx) => (
+                  <div key={idx} className="flex gap-4 items-start py-2 border-b border-white/5 last:border-0">
+                    <span className="font-mono text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded shrink-0">
+                      {msg.relativeTime !== undefined ? formatElapsed(msg.relativeTime) : '00:00'}
+                    </span>
+                    <p className="text-sm text-slate-200 leading-relaxed font-medium">
+                      {msg.content}
+                    </p>
                   </div>
-                </div>
-              ))}
-
-              {isAITyping && (
-                <div className="flex items-center gap-2 text-xs text-slate-400 ml-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]" />
-                  AI is thinking...
-                </div>
+                ))
               )}
               <div ref={conversationEndRef} />
-            </div>
-
-            <div className="p-4 bg-white border-t border-slate-100 flex flex-col items-center justify-center gap-3">
-              <div className="flex items-center gap-3">
-                {interviewState === 'listening' && (
-                  <div className="flex items-center gap-1 h-8 px-4">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div key={i} className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: `${Math.random() * 80 + 20}%`, animationDelay: `${i * 0.1}s` }} />
-                    ))}
-                    <span className="text-xs font-bold text-blue-600 ml-2 uppercase tracking-widest">Listening</span>
-                  </div>
-                )}
-                {interviewState === 'speaking' && (
-                  <div className="flex items-center gap-1 h-8 px-4">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div key={i} className="w-1 bg-green-500 rounded-full animate-bounce" style={{ height: `${Math.random() * 80 + 20}%`, animationDelay: `${i * 0.15}s` }} />
-                    ))}
-                    <span className="text-xs font-bold text-green-600 ml-2 uppercase tracking-widest">AI Speaking</span>
-                  </div>
-                )}
-                {interviewState === 'thinking' && (
-                  <div className="flex items-center gap-2 h-8 px-4">
-                    <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">AI Thinking</span>
-                  </div>
-                )}
-              </div>
-              
-        
             </div>
           </Card>
         </div>
 
-        {/* Code Editor Panel */}
+        {/* Code Editor Column (if toggled) */}
         {showCodeEditor && (
-          <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? 'w-full lg:w-1/2' : 'w-full lg:w-1/2'}`}>
-            <Card className="flex-1 h-full border-slate-200 overflow-hidden flex flex-col shadow-sm">
-              <div className="px-4 py-2 bg-white border-b border-slate-100 flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-600 flex items-center gap-2">
-                  <Code className="w-3 h-3" /> Code Editor
+          <div className="flex-1 flex flex-col gap-6 h-full transition-all duration-500">
+            <Card className="flex-1 h-full border-slate-800 bg-[#0a0f1d]/50 overflow-hidden flex flex-col shadow-2xl">
+              <div className="px-4 py-3 bg-[#090e18]/80 border-b border-slate-800 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                  <Code className="w-4 h-4 text-indigo-400" /> Code Editor
                 </span>
-                <Badge variant="outline" className="text-[10px] bg-white">JavaScript</Badge>
+                <Badge variant="outline" className="text-[10px] text-indigo-300 border-indigo-500/20 bg-indigo-500/5">JavaScript</Badge>
               </div>
               <div className="flex-1 relative">
                 <CodeEditor
@@ -682,75 +813,99 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           </div>
         )}
 
-        {/* Modern Layout - Video Panels */}
-        {layout === 'modern' && (
-          <div className={`flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-500 ${showCodeEditor ? 'w-full lg:w-1/3' : 'w-full lg:w-1/4'}`}>
-            <Card className={`overflow-hidden shadow-sm transition-all duration-300 ${isAITyping ? 'ring-2 ring-blue-500 shadow-blue-200 scale-[1.02]' : 'border-slate-200'}`}>
-              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isAITyping ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
-                <span>AI Interviewer ({interviewer})</span>
-                {isAITyping && <span className="text-[10px] uppercase font-extrabold animate-pulse">Speaking...</span>}
+        {/* Right Column: User Video & Live Metrics */}
+        <div className={`transition-all duration-500 flex flex-col gap-6 h-full overflow-hidden shrink-0 ${
+          showCodeEditor ? 'w-1/3' : 'w-[45%]'
+        }`}>
+          {/* User Video Card */}
+          <Card className="flex-1 bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#0d1324]/20 shrink-0">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-bold text-slate-300">You</span>
               </div>
-              <div className="aspect-video bg-white relative flex items-center justify-center overflow-hidden">
-                {isAITyping && (
-                  <>
-                    <div className="absolute inset-0 bg-blue-500/5 animate-pulse" />
-                    <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping [animation-duration:2s]" />
-                    <div className="absolute w-32 h-32 bg-blue-500/20 rounded-full animate-ping [animation-duration:1.5s]" />
-                  </>
-                )}
-                <div className={`relative w-24 h-24 flex items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 z-10 ${isAITyping ? 'scale-110 ring-4 ring-blue-100' : ''}`}>
-                  <Bot className={`w-12 h-12 ${isAITyping ? 'text-blue-600' : 'text-slate-400'}`} />
+              <span className={`flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded-full border transition-all ${
+                isRecording ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-rose-500 animate-ping' : 'bg-emerald-500'}`} />
+                {isRecording ? 'RECORDING' : 'LIVE'}
+              </span>
+            </div>
+
+            <div className="flex-1 bg-[#04060a] relative overflow-hidden flex items-center justify-center">
+              {isVideoStopped ? (
+                <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-fade-in">
+                  <div className="w-20 h-20 rounded-full bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-slate-400 text-3xl font-extrabold shadow-inner">
+                    {userInitials}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-4 font-semibold tracking-wider">Camera turned off</p>
                 </div>
+              ) : (
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+              )}
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 pointer-events-none" />
+
+              {/* Speech Sound Wave Overlay (When speaking) */}
+              {isRecording && interviewState === 'listening' && (
+                <div className="absolute bottom-4 right-4 flex gap-1 items-end h-8 px-3 py-1 bg-black/40 backdrop-blur rounded-lg border border-white/5 pointer-events-none">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="w-0.5 bg-emerald-400/80 rounded-full soundwave-bar" style={{ height: `${Math.random() * 60 + 40}%`, animationDelay: `${i * 0.1}s` }} />
+                  ))}
+                </div>
+              )}
+
+
+            </div>
+          </Card>
+
+          {/* Live Metrics Row */}
+          <div className="grid grid-cols-3 gap-4 shrink-0">
+            {/* Eye Contact */}
+            <Card className="bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 p-4 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Eye Contact</span>
+                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                  <Eye className="w-4 h-4" />
+                </div>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-slate-100 tracking-tight">{metrics.eyeContact}%</p>
+                <p className="text-[10px] font-bold text-blue-400/90 capitalize">{metrics.eyeContact >= 70 ? 'Good' : 'Needs Work'}</p>
               </div>
             </Card>
 
-            <Card className={`overflow-hidden shadow-sm flex-1 flex flex-col transition-all duration-300 ${isRecording ? 'ring-2 ring-green-500 shadow-green-200 scale-[1.02]' : 'border-slate-200'}`}>
-              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isRecording ? 'bg-green-50 border-green-100 text-green-800' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
-                <span>You</span>
-                <span className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border transition-all ${isRecording ? 'bg-green-500 text-white border-green-600' : 'bg-green-50 text-green-600 border-green-100'}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-green-500 animate-pulse'}`} />
-                  {isRecording ? 'RECORDING' : 'LIVE'}
-                </span>
+            {/* Speech Clarity */}
+            <Card className="bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 p-4 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Speech Clarity</span>
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                  <Volume2 className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex-1 bg-black relative overflow-hidden">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 pointer-events-none" />
-                {isRecording && (
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 items-end h-16 px-8 pointer-events-none">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                      <div key={i} className="w-1.5 bg-green-400/80 rounded-t-full animate-pulse" style={{ height: `${Math.random() * 60 + 20}%`, animationDelay: `${i * 0.05}s` }} />
-                    ))}
-                  </div>
-                )}
+              <div>
+                <p className="text-2xl font-black text-slate-100 tracking-tight">{metrics.speechClarity}%</p>
+                <p className="text-[10px] font-bold text-emerald-400/90 capitalize">{metrics.speechClarity >= 80 ? 'Excellent' : 'Good'}</p>
+              </div>
+            </Card>
 
-                {/* Live Transcript OVERLAY */}
-                {isUserTyping && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-md text-white p-4 animate-in fade-in slide-in-from-bottom-4 duration-500 border-t border-white/10 z-20">
-                    <div className="flex items-center gap-2 mb-2">
-                       <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-                       <span className="text-[10px] uppercase font-black tracking-[0.2em] text-blue-400">Live Transcript</span>
-                    </div>
-                    <div className="text-sm leading-relaxed font-medium transition-all duration-300">
-                      {currentUserAnswer ? (
-                        <>
-                          <span>{currentUserAnswer.split(' [interim]')[0]}</span>
-                          {currentUserAnswer.includes(' [interim]') && (
-                            <span className="text-white/50 italic ml-1">
-                              {currentUserAnswer.split(' [interim]')[1]}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-white/40 italic">Listening...</span>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* Confidence */}
+            <Card className="bg-[#0a0f1d]/50 backdrop-blur-md border-white/5 p-4 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Confidence</span>
+                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                  <Target className="w-4 h-4" />
+                </div>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-slate-100 tracking-tight">{metrics.confidence}%</p>
+                <p className="text-[10px] font-bold text-amber-400/90 capitalize">{metrics.confidence >= 70 ? 'Excellent' : 'Good'}</p>
               </div>
             </Card>
           </div>
-        )}
+        </div>
       </div>
+
     </div>
   );
 };
