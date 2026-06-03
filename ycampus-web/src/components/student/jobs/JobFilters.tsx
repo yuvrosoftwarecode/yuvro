@@ -14,7 +14,7 @@ interface JobFiltersProps {
 
 export function JobFilters({ searchQuery, onSearchChange, locationFilter, onLocationChange, typeFilter, onTypeChange }: JobFiltersProps) {
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-4 flex-wrap">
       <div className="relative flex-1 min-w-[200px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -24,7 +24,9 @@ export function JobFilters({ searchQuery, onSearchChange, locationFilter, onLoca
           className="pl-9 h-9"
         />
       </div>
-      <Select value={locationFilter} onValueChange={onLocationChange}>
+
+      <div className="flex items-center gap-3">
+        <Select value={locationFilter} onValueChange={onLocationChange}>
         <SelectTrigger className="w-[150px] h-9">
           <SelectValue placeholder="Location" />
         </SelectTrigger>
@@ -48,6 +50,7 @@ export function JobFilters({ searchQuery, onSearchChange, locationFilter, onLoca
           <SelectItem value="IT Service & Consulting">IT Service & Consulting</SelectItem>
         </SelectContent>
       </Select>
+      </div>
     </div>
   );
 }

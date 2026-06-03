@@ -7,8 +7,9 @@ import { JobFilters } from '@/components/student/jobs/JobFilters';
 import { ApplyDialog } from '@/components/student/jobs/ApplyDialog';
 import { Briefcase, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePlacementJobs, useStudentApplications, useApplyToJob, PlacementJob } from '@/hooks/usePlacement';
+import { usePlacementJobs, useStudentApplications, useApplyToJob, useWithdrawApplication, PlacementJob } from '@/hooks/usePlacement';
 import PageHeader from '@/components/common/PageHeader';
+import { Slider } from '@/components/ui/slider';
 
 export interface StudentJob {
   id: string;
@@ -33,12 +34,13 @@ export interface StudentJob {
 }
 
 export interface StudentJobApplication {
+  id: string;
   jobId: string;
   appliedDate: string;
   cgpa: number;
   previousOffers: boolean;
   highestCtc?: number;
-  status: 'applied' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
+  status: 'applied' | 'shortlisted' | 'interview' | 'selected' | 'rejected' | 'withdrawn';
 }
 
 // Real data mapping
@@ -74,6 +76,7 @@ export default function StudentJobs() {
   const { data: allJobs = [], isLoading: jobsLoading } = usePlacementJobs();
   const { data: applications = [], isLoading: appsLoading } = useStudentApplications();
   const applyMutation = useApplyToJob();
+  const withdrawMutation = useWithdrawApplication();
   
   const [selectedJob, setSelectedJob] = useState<StudentJob | null>(null);
   const [applyJob, setApplyJob] = useState<StudentJob | null>(null);
@@ -140,7 +143,7 @@ export default function StudentJobs() {
     });
   }, [allJobs]);
 
-  const isApplied = (jobId: string) => applications.some((a: any) => (a.job_id || a.job?.id) === jobId);
+  const isApplied = (jobId: string) => applications.some((a: any) => (a.job_id || a.job?.id) === jobId && a.status !== 'withdrawn');
 
   // Applied jobs should be visible regardless of current status or eligibility
   const appliedJobs = uniqueAllJobs
@@ -171,10 +174,17 @@ export default function StudentJobs() {
     setApplyJob(null);
   };
 
+  const handleWithdraw = async (applicationId: string) => {
+    if (confirm("Are you sure you want to withdraw this application?")) {
+      await withdrawMutation.mutateAsync(applicationId);
+    }
+  };
+
   const getApplication = (jobId: string): StudentJobApplication | undefined => {
-    const app = applications.find((a: any) => (a.job_id || a.job?.id) === jobId);
+    const app = applications.find((a: any) => (a.job_id || a.job?.id) === jobId && a.status !== 'withdrawn');
     if (!app) return undefined;
     return {
+      id: app.id,
       jobId: app.job_id || app.job?.id,
       appliedDate: app.created_at || app.applied_at,
       cgpa: app.cgpa || 0,
@@ -214,6 +224,7 @@ export default function StudentJobs() {
           application={getApplication(selectedJob.id)}
           onBack={() => setSelectedJob(null)}
           onApply={() => setApplyJob(selectedJob)}
+          onWithdraw={(appId) => handleWithdraw(appId)}
         />
         <ApplyDialog
           job={applyJob}
@@ -234,26 +245,46 @@ export default function StudentJobs() {
         />
 
         <Tabs defaultValue="active" className="space-y-4">
-          <TabsList className="bg-muted/60">
-            <TabsTrigger value="active" className="data-[state=active]:bg-background">
-              Active Jobs
-              <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                {filterJobs(activeJobs).length}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="applied" className="data-[state=active]:bg-background">
-              Applied Jobs
-              <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                {filterJobs(appliedJobs).length}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="previous" className="data-[state=active]:bg-background">
-              Previous Jobs
-              <span className="ml-1.5 text-xs bg-muted-foreground/20 text-muted-foreground px-1.5 py-0.5 rounded-full">
-                {filterJobs(previousJobs).length}
-              </span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <TabsList className="bg-muted/60">
+              <TabsTrigger value="active" className="data-[state=active]:bg-background">
+                Active Jobs
+                <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                  {filterJobs(activeJobs).length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="applied" className="data-[state=active]:bg-background">
+                Applied Jobs
+                <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                  {filterJobs(appliedJobs).length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="previous" className="data-[state=active]:bg-background">
+                Previous Jobs
+                <span className="ml-1.5 text-xs bg-muted-foreground/20 text-muted-foreground px-1.5 py-0.5 rounded-full">
+                  {filterJobs(previousJobs).length}
+                </span>
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex flex-col gap-1 w-[140px] shrink-0 mr-6">
+              <div className="flex justify-between items-center px-1">
+                <span className="text-[11px] font-medium text-muted-foreground">Min CTC</span>
+                <span className="text-[11px] font-medium text-foreground">
+                  {ctcRange[0] >= 100000 ? `₹${ctcRange[0]/100000}L` : `₹${ctcRange[0].toLocaleString()}`}+
+                </span>
+              </div>
+              <div className="px-1">
+                <Slider
+                  value={[ctcRange[0]]}
+                  max={5000000}
+                  step={50000}
+                  onValueChange={(val) => setCtcRange([val[0], ctcRange[1]])}
+                  className="w-full cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
 
           <JobFilters
             searchQuery={searchQuery}

@@ -67,6 +67,11 @@ urlpatterns = [
         name="update-application-status",
     ),
     path(
+        "applications/<uuid:pk>/withdraw/",
+        JobApplicationViewSet.as_view({"post": "withdraw"}),
+        name="withdraw-application",
+    ),
+    path(
         "applications/<uuid:pk>/",
         JobApplicationViewSet.as_view(
             {
