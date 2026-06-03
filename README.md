@@ -11,11 +11,13 @@ cd yuvro
 make install
 make install-ycode
 make install-ycampus
+make install-ylabs
 
 # Only Run ( no build)
 make run
 make run-ycode
 make run-ycampus
+make run-ylabs
 
 # Setup initial fixtures data like users, courses etc
 make setup-fixtures-data
@@ -27,6 +29,7 @@ make setup-fixtures-data-ycode
 make stop
 make stop-ycode 
 make stop-ycampus
+make stop-ylabs
 
 
 # Only delete db volumes
@@ -42,8 +45,11 @@ make clean
 
 YCode frontend: http://localhost:3000/
 YCampus frontend: http://localhost:3001/
+YLabs frontend: http://localhost:3002/
+
 YCode backend health: http://localhost:8000/api/health/
 YCampus backend health: http://localhost:8001/api/health/
+YLabs backend health: http://localhost:8002/api/health/
 Code executor: http://localhost:8009/
 
 YCode Frontend:    https://code-dev.yuvro.ai

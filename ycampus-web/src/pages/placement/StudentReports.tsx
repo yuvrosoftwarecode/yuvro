@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBatchIds } from '@/hooks/useBatchIds';
+import { useDepartments } from '@/hooks/useDepartments';
 import { usePlacementKPIs } from '@/hooks/usePlacementKPIs';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import PlacementSidebar from '@/components/placement/PlacementSidebar';
@@ -118,12 +119,14 @@ const Sparkline = ({ data, positive }: { data: number[]; positive: boolean }) =>
 const PlacementStudentReports = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [year, setYear] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
   const [skillCategory, setSkillCategory] = useState('');
   const [readinessStatus, setReadinessStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { batchIds: batches } = useBatchIds();
-  const { data: kpiData } = usePlacementKPIs(year, 'all', skillCategory, readinessStatus);
+  const { departments } = useDepartments();
+  const { data: kpiData } = usePlacementKPIs(year, departmentId, 'all', skillCategory, readinessStatus);
 
   // Keep a stable skills list — only update when real API data arrives.
   // This prevents the dropdown from flickering to static placeholder data
@@ -176,8 +179,8 @@ const PlacementStudentReports = () => {
 
               {/* Filters */}
               <Card className="border-border/60 shadow-sm rounded-2xl">
-                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <Select value={year} onValueChange={(val) => { setYear(val); setSkillCategory(''); setReadinessStatus(''); setCurrentPage(1); }}>
+                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Select value={year} onValueChange={(val) => { setYear(val); setDepartmentId(''); setSkillCategory(''); setReadinessStatus(''); setCurrentPage(1); }}>
                     <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select Batch" />
                     </SelectTrigger>
@@ -190,7 +193,22 @@ const PlacementStudentReports = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={skillCategory} onValueChange={(val) => { setSkillCategory(val); setReadinessStatus(''); setCurrentPage(1); }} disabled={!year}>
+
+                  <Select value={departmentId} onValueChange={(val) => { setDepartmentId(val); setSkillCategory(''); setReadinessStatus(''); setCurrentPage(1); }} disabled={!year}>
+                    <SelectTrigger className="rounded-lg">
+                      <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {departments?.map(dept => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={skillCategory} onValueChange={(val) => { setSkillCategory(val); setReadinessStatus(''); setCurrentPage(1); }} disabled={!departmentId}>
                     <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select Skill" />
                     </SelectTrigger>
@@ -203,6 +221,7 @@ const PlacementStudentReports = () => {
                       ))}
                     </SelectContent>
                   </Select>
+
                   <Select value={readinessStatus} onValueChange={(val) => { setReadinessStatus(val); setCurrentPage(1); }} disabled={!skillCategory}>
                     <SelectTrigger className="rounded-lg">
                       <SelectValue placeholder="Select Status" />

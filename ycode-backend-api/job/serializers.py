@@ -43,6 +43,15 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
+    def validate_name(self, value):
+        name = value.strip()
+        qs = Company.objects.filter(name__iexact=name)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("A company with this name is already registered.")
+        return name
+
 
 class JobSerializer(serializers.ModelSerializer):
     company = CompanySerializer(read_only=True)
@@ -246,6 +255,7 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
             "portfolio_url",
             "available_from",
             "notice_period_days",
+            "screening_responses",
             "created_at",
             "updated_at",
         ]

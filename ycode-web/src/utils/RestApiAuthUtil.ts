@@ -92,9 +92,10 @@ class RestApiAuthUtil extends RestApiUtil {
 
     private logout(): void {
         console.log('Logging out user due to authentication failure');
+        const currentPath = window.location.pathname + window.location.search;
         this.clearAuthToken();
         if (!window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
         }
     }
 

@@ -681,3 +681,33 @@ class Certificate(BaseTimestampedModel):
             rand_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
             self.certificate_id = f"YUVRO-{year}-{rand_str}"
         super().save(*args, **kwargs)
+
+class LeaderboardEntry(BaseTimestampedModel):
+    LEADERBOARD_TYPE_CHOICES = [
+        ('TEST', 'Test'),
+        ('UNIT', 'Unit'),
+        ('SUBJECT', 'Subject'),
+        ('GLOBAL', 'Global'),
+        ('ASSESSMENT', 'Assessment'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leaderboard_entries")
+    subject = models.ForeignKey("course.Subject", on_delete=models.CASCADE, null=True, blank=True)
+    unit = models.ForeignKey("course.Unit", on_delete=models.CASCADE, null=True, blank=True)
+    test = models.ForeignKey("assessment.SkillTest", on_delete=models.CASCADE, null=True, blank=True, related_name="test_leaderboard_entries")
+    assessment = models.ForeignKey("assessment.SkillTest", on_delete=models.CASCADE, null=True, blank=True, related_name="assessment_leaderboard_entries")
+    
+    leaderboard_type = models.CharField(max_length=20, choices=LEADERBOARD_TYPE_CHOICES)
+    score = models.FloatField(default=0.0)
+    accuracy = models.FloatField(default=0.0)
+    time_taken = models.IntegerField(default=0, help_text="Time taken in seconds")
+    tests_completed = models.IntegerField(default=0)
+    performance_score = models.FloatField(default=0.0)
+    rank = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-performance_score", "-accuracy", "time_taken"]
+        unique_together = ["user", "leaderboard_type", "subject", "unit", "test", "assessment"]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.leaderboard_type} - Score: {self.performance_score}"

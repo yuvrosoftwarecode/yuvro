@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, Paperclip } from 'lucide-react';
+import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, Paperclip, XCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { taskService, Task, TaskSubmission, TaskComment } from '@/services/taskService';
 import { CodeEditor } from '@/components/ui/code-editor';
@@ -111,10 +111,11 @@ const StudentTask: React.FC = () => {
     }
   };
 
-  // Polling for updates when a task is active
+  // Polling for updates
   useEffect(() => {
     let interval: any;
     if (showTaskView && currentTask) {
+      // Poll single task frequently when viewing it
       interval = setInterval(async () => {
         try {
           const subs = await taskService.getTaskSubmissions(currentTask.id);
@@ -125,6 +126,22 @@ const StudentTask: React.FC = () => {
           console.error("Polling failed", err);
         }
       }, 5000);
+    } else {
+      // Poll all submissions less frequently when on list view
+      interval = setInterval(async () => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const u = JSON.parse(userStr);
+            const subs = await taskService.getStudentSubmissions(u.id);
+            const submissionMap: Record<string, TaskSubmission> = {};
+            subs.forEach(s => submissionMap[s.task] = s);
+            setSubmissions(submissionMap);
+          } catch (err) {
+            console.error("Background polling failed", err);
+          }
+        }
+      }, 10000); // 10 seconds
     }
     return () => clearInterval(interval);
   }, [showTaskView, currentTask]);
@@ -146,6 +163,13 @@ const StudentTask: React.FC = () => {
     const matchesStatus = selectedStatus === 'all' || getTaskStatus(t.id) === selectedStatus;
     return matchesSubject && matchesStatus;
   });
+
+  const isTaskUpdated = (t: Task) => {
+    if (!t.updated_at || !t.created_at) return false;
+    const created = new Date(t.created_at).getTime();
+    const updated = new Date(t.updated_at).getTime();
+    return (updated - created) > 60000; // Updated more than 1 minute after creation
+  };
 
   // Handlers
   const handleTaskClick = (task: Task) => {
@@ -266,6 +290,9 @@ const StudentTask: React.FC = () => {
 
       let updatedSub;
       if (sub) {
+        if (sub.status === 'rejected') {
+           await taskService.resubmitSubmission(sub.id);
+        }
         updatedSub = await taskService.submitTask(sub.id, formData);
       } else {
         updatedSub = await taskService.createTaskSubmission(formData);
@@ -298,12 +325,11 @@ const StudentTask: React.FC = () => {
   const getStatusLabelText = (taskId: string) => {
     const status = getTaskStatus(taskId);
     const sub = submissions[taskId];
-    if (status === 'completed') {
-      if (sub?.status === 'accepted') return 'Accepted';
-      if (sub?.status === 'rejected') return 'Rejected';
-      return 'Completed';
-    }
-    return status === 'in_progress' ? 'In Progress' : 'Pending';
+    if (sub?.status === 'accepted') return sub.grade ? `Accepted (${sub.grade}/10)` : 'Accepted';
+    if (sub?.status === 'rejected') return 'Rejected';
+    if (status === 'completed') return 'Submitted';
+    if (status === 'in_progress') return 'In Progress';
+    return 'Pending';
   };
 
   const openFileViewer = (url: string) => {
@@ -341,10 +367,16 @@ const StudentTask: React.FC = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Tasks
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
               {currentTask.title}
               {currentTask.unit_name && (
                 <span className="text-2xl font-bold text-foreground"> - {currentTask.unit_name}</span>
+              )}
+              {isTaskUpdated(currentTask) && (
+                <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 shadow-sm ml-2">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Task Updated
+                </Badge>
               )}
             </h1>
           </div>
@@ -474,7 +506,7 @@ const StudentTask: React.FC = () => {
                         })}
                       </div>
 
-                      {getTaskStatus(currentTask.id) !== 'completed' && (
+                      {!(getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected') && (
                         <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
                           <p className="text-sm font-medium text-slate-500">
                             Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
@@ -485,18 +517,27 @@ const StudentTask: React.FC = () => {
                             ) : (
                               <Send className="h-4 w-4 mr-2" />
                             )}
-                            Submit Entire Task
+                            {submissions[currentTask.id]?.status === 'rejected' ? 'Retry / Resubmit' : 'Submit Entire Task'}
                           </Button>
                         </div>
                       )}
-                      {getTaskStatus(currentTask.id) === 'completed' && (
+                      {getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected' && (
                         <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
                           <p className="text-sm font-bold text-slate-500">
                             Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
                           </p>
                           <p className="text-sm text-emerald-600 font-bold flex items-center gap-2">
-                            <CheckCircle2 className="h-5 w-5" />
-                            Task submitted
+                            {submissions[currentTask.id]?.status === 'accepted' ? (
+                                <>
+                                  <CheckCircle2 className="h-5 w-5" />
+                                  Accepted (Grade: {submissions[currentTask.id]?.grade ?? 'N/A'})
+                                </>
+                            ) : (
+                                <>
+                                  <CheckCircle2 className="h-5 w-5" />
+                                  Task submitted (Pending Review)
+                                </>
+                            )}
                           </p>
                         </div>
                       )}
@@ -529,6 +570,50 @@ const StudentTask: React.FC = () => {
                         </div>
                       )}
 
+                      {!isMultiQuestion && (currentTask.description || currentTask.attachment) && (
+                        <div className="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-xl relative shadow-sm">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl"></div>
+                          <div className="pl-1">
+                            {currentTask.description && (
+                                <p className="text-sm font-semibold text-slate-700 leading-relaxed whitespace-pre-wrap mb-3">
+                                  {currentTask.description}
+                                </p>
+                            )}
+                            {currentTask.attachment && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="font-semibold bg-white"
+                                  onClick={() => openFileViewer(getAccessibleUrl(currentTask.attachment!))}
+                                >
+                                  <FileText className="h-4 w-4 mr-2 text-primary" />
+                                  View Task Description Document
+                                </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {submissions[currentTask.id]?.status === 'rejected' && (
+                        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl relative shadow-sm">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-red-500 rounded-l-xl"></div>
+                          <div className="pl-1">
+                            <h4 className="text-sm font-bold text-red-700 mb-1 flex items-center gap-2">
+                              <XCircle className="h-4 w-4" />
+                              Submission Rejected
+                            </h4>
+                            <p className="text-sm font-semibold text-red-600 mb-2">
+                              Reason: {submissions[currentTask.id]?.rejection_reason}
+                            </p>
+                            {submissions[currentTask.id]?.rejection_comment && (
+                              <p className="text-sm text-red-600 whitespace-pre-wrap">
+                                {submissions[currentTask.id]?.rejection_comment}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="h-[520px] w-full rounded-md border">
                         {isCoding ? (
                           <CodeEditor
@@ -540,7 +625,7 @@ const StudentTask: React.FC = () => {
                                 setTaskContent(code);
                               }
                             }}
-                            readOnly={getTaskStatus(currentTask.id) === 'completed'}
+                            readOnly={getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected'}
                             className="h-full border-0"
                           />
                         ) : (
@@ -553,17 +638,17 @@ const StudentTask: React.FC = () => {
                                 setTaskContent(e.target.value);
                               }
                             }}
-                            placeholder={getTaskStatus(currentTask.id) === 'completed'
+                            placeholder={getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected'
                               ? 'No content available for this task.'
                               : 'Explain your answer in detail...'
                             }
                             className="h-full resize-none border-0 focus-visible:ring-0 text-sm"
-                            disabled={getTaskStatus(currentTask.id) === 'completed'}
+                            disabled={getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected'}
                           />
                         )}
                       </div>
 
-                      {getTaskStatus(currentTask.id) !== 'completed' && (
+                      {!(getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected') && (
                         <div className="flex justify-end mt-5 pt-5 border-t border-slate-50">
                           {isMultiQuestion && activeQuestionIndex !== null ? (
                             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -590,18 +675,18 @@ const StudentTask: React.FC = () => {
                               </Button>
                             </div>
                           ) : !isMultiQuestion && (
-                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md w-full sm:w-auto px-8">
-                              {isSubmitting ? (
-                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              ) : (
-                                <Send className="h-4 w-4 mr-2" />
-                              )}
-                              Submit Work
+                            <Button onClick={handleSubmitTask} disabled={isSubmitting} className="font-bold">
+                                {isSubmitting ? (
+                                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                ) : (
+                                  <Send className="h-4 w-4 mr-2" />
+                                )}
+                                {submissions[currentTask.id]?.status === 'rejected' ? 'Retry / Resubmit' : 'Submit Task'}
                             </Button>
                           )}
                         </div>
                       )}
-                      {getTaskStatus(currentTask.id) === 'completed' && !isMultiQuestion && (
+                      {getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected' && !isMultiQuestion && (
                         <div className="flex justify-end mt-4">
                           <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-lg">
                             <CheckCircle2 className="h-5 w-5" />
@@ -820,9 +905,14 @@ const StudentTask: React.FC = () => {
                           {capitalizeFirstLetter(getSubjectName(task))}
                         </span>
                       </div>
-                      <CardTitle className="text-lg">
-                        {task.title}
-                      </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg">{task.title}</CardTitle>
+                      {isTaskUpdated(task) && (
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 text-[10px] px-2 py-0 h-5">
+                          Updated
+                        </Badge>
+                      )}
+                    </div>
                       <CardDescription className="line-clamp-2">
                         {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
                       </CardDescription>
@@ -830,7 +920,9 @@ const StudentTask: React.FC = () => {
 
                     <Badge
                       variant={getStatusBadgeVariant(task.id) as any}
-                      className={`py-1 ${getTaskStatus(task.id) === 'pending' ? 'px-4' : 'px-3'}`}
+                      className={`py-1 ${getTaskStatus(task.id) === 'pending' ? 'px-4' : 'px-3'} ${
+                        submissions[task.id]?.status === 'accepted' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''
+                      }`}
                     >
                       {getStatusLabelText(task.id)}
                     </Badge>

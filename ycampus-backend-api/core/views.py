@@ -24,6 +24,7 @@ from .models import (
     Section,
     Task,
     TaskSubmission,
+    TaskSubmissionHistory,
     TaskComment,
     Note,
     Announcement,
@@ -41,6 +42,7 @@ from .serializers import (
     AttendanceRecordSerializer,
     TaskSerializer,
     TaskSubmissionSerializer,
+    TaskSubmissionHistorySerializer,
     TaskCommentSerializer,
     NoteSerializer,
     AnnouncementSerializer,
@@ -1330,7 +1332,37 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         from core.models import StudentProfile
         student = get_object_or_404(StudentProfile, user=self.request.user)
-        serializer.save(student=student)
+        instance = serializer.save(student=student)
+        
+        # Create initial history record
+        TaskSubmissionHistory.objects.create(
+            submission=instance,
+            attempt_number=instance.attempt_number,
+            answer=instance.answer,
+            answers_data=instance.answers_data,
+            file=instance.file,
+            status=instance.status,
+            submitted_at=instance.submitted_at
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        # Update current history record to match new state
+        history_record = instance.history.filter(attempt_number=instance.attempt_number).first()
+        if not history_record:
+            history_record = TaskSubmissionHistory(submission=instance, attempt_number=instance.attempt_number)
+            
+        history_record.answer = instance.answer
+        history_record.answers_data = instance.answers_data
+        history_record.file = instance.file
+        history_record.status = instance.status
+        history_record.grade = instance.grade
+        history_record.rejection_reason = instance.rejection_reason
+        history_record.rejection_comment = instance.rejection_comment
+        history_record.submitted_at = instance.submitted_at
+        history_record.reviewed_at = instance.reviewed_at
+        history_record.reviewed_by = instance.reviewed_by
+        history_record.save()
 
     def get_queryset(self):
         qs = TaskSubmission.objects.select_related(
@@ -1348,6 +1380,119 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
             return TaskSubmission.objects.none()
             
         return qs
+
+    @action(detail=True, methods=["post"])
+    def review(self, request, pk=None):
+        """
+        Faculty action to accept or reject a submission.
+        """
+        submission = self.get_object()
+        
+        # Check permissions
+        if request.user.role != "faculty":
+            return Response({"error": "Only faculty can review submissions"}, status=status.HTTP_403_FORBIDDEN)
+        
+        from core.models import FacultyProfile
+        faculty = get_object_or_404(FacultyProfile, user=request.user)
+        if submission.task.faculty != faculty:
+            return Response({"error": "You can only review submissions for your own tasks"}, status=status.HTTP_403_FORBIDDEN)
+
+        status_value = request.data.get("status")
+        if status_value not in ["accepted", "rejected"]:
+            return Response({"error": "Invalid status. Must be 'accepted' or 'rejected'"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if status_value == "accepted":
+            grade = request.data.get("grade")
+            if grade is None:
+                return Response({"error": "Grade is mandatory for accepted submissions"}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                grade = float(grade)
+                if grade < 0 or grade > 10:
+                    return Response({"error": "Grade must be between 0 and 10"}, status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                return Response({"error": "Grade must be a number"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            submission.status = "accepted"
+            submission.grade = grade
+            submission.rejection_reason = None
+            submission.rejection_comment = None
+            
+        elif status_value == "rejected":
+            rejection_reason = request.data.get("rejection_reason")
+            rejection_comment = request.data.get("rejection_comment")
+            
+            if not rejection_reason:
+                return Response({"error": "Rejection reason is mandatory for rejected submissions"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if rejection_reason == "Other" and not rejection_comment:
+                return Response({"error": "Custom comment is mandatory when rejection reason is 'Other'"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            submission.status = "rejected"
+            submission.rejection_reason = rejection_reason
+            submission.rejection_comment = rejection_comment
+            submission.grade = None
+
+        submission.reviewed_at = timezone.now()
+        submission.reviewed_by = faculty
+        submission.save()
+        
+        # Update history
+        history_record = submission.history.filter(attempt_number=submission.attempt_number).first()
+        if history_record:
+            history_record.status = submission.status
+            history_record.grade = submission.grade
+            history_record.rejection_reason = submission.rejection_reason
+            history_record.rejection_comment = submission.rejection_comment
+            history_record.reviewed_at = submission.reviewed_at
+            history_record.reviewed_by = submission.reviewed_by
+            history_record.save()
+
+        serializer = self.get_serializer(submission)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["post"])
+    def resubmit(self, request, pk=None):
+        """
+        Student action to resubmit a rejected submission.
+        """
+        submission = self.get_object()
+        
+        # Check permissions
+        if request.user.role != "student":
+            return Response({"error": "Only students can resubmit"}, status=status.HTTP_403_FORBIDDEN)
+            
+        from core.models import StudentProfile
+        student = get_object_or_404(StudentProfile, user=request.user)
+        if submission.student != student:
+            return Response({"error": "You can only resubmit your own submissions"}, status=status.HTTP_403_FORBIDDEN)
+
+        if submission.status != "rejected":
+            return Response({"error": "Only rejected submissions can be resubmitted"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Increment attempt and reset status
+        submission.attempt_number += 1
+        submission.status = "pending"
+        submission.grade = None
+        submission.rejection_reason = None
+        submission.rejection_comment = None
+        submission.reviewed_at = None
+        submission.reviewed_by = None
+        # Do not clear answers here, the student will overwrite them via regular update/PATCH.
+        # But we do record a new history entry right now for the new attempt:
+        submission.save()
+        
+        TaskSubmissionHistory.objects.create(
+            submission=submission,
+            attempt_number=submission.attempt_number,
+            answer=submission.answer,
+            answers_data=submission.answers_data,
+            file=submission.file,
+            status=submission.status,
+            submitted_at=submission.submitted_at
+        )
+
+        serializer = self.get_serializer(submission)
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
     def add_comment(self, request, pk=None):

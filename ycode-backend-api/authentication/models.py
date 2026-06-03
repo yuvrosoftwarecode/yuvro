@@ -9,6 +9,7 @@ class User(AbstractUser):
         ("instructor", "Instructor"),
         ("recruiter", "Recruiter"),
         ("admin", "Administrator"),
+        ("guest", "Guest"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -33,6 +34,9 @@ class User(AbstractUser):
 
     def is_student(self):
         return self.role == "student"
+
+    def is_guest(self):
+        return self.role == "guest"
 
     def can_manage_content(self):
         return self.role in ["admin", "instructor"]

@@ -28,4 +28,5 @@ export interface Message {
     timestamp: string;
     questionType?: 'behavioral' | 'coding';
     codeSubmission?: string;
+    relativeTime?: number;
 }

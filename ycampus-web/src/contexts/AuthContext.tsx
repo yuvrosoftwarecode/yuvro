@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<void> => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(email.toLowerCase(), password);
 
       localStorage.setItem('user', JSON.stringify(response.user));
 

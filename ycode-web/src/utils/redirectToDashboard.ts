@@ -14,6 +14,9 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
     case 'recruiter':
       navigate('/recruiter/dashboard', { replace: true });
       break;
+    case 'guest':
+      navigate('/change-password', { replace: true });
+      break;
     case 'student':
       navigate('/student/dashboard', { replace: true });
       // navigate('/student/learn', { replace: true });

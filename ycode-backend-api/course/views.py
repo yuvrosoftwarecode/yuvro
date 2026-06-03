@@ -11,7 +11,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser
+from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsAdminUser
 from .utils import CodeExecutionUtil
 from gamification.service import GamificationService
 from gamification.models import UserGamificationProfile, DailyUserActivity
@@ -53,6 +53,11 @@ def instructor_assigned(user, course):
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     permission_classes = [CanManageCourses]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAdminUser()]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         return CourseSerializer if self.action == "retrieve" else CourseBasicSerializer
@@ -121,6 +126,20 @@ class CourseViewSet(viewsets.ModelViewSet):
         )
 
         return queryset
+
+    @action(detail=False, methods=["get"], url_path="check-name")
+    def check_name(self, request):
+        name = request.query_params.get("name", "").strip()
+        if not name:
+            return Response({"exists": False})
+        
+        qs = Course.objects.filter(name__iexact=name)
+        
+        exclude_id = request.query_params.get("exclude_id")
+        if exclude_id:
+            qs = qs.exclude(pk=exclude_id)
+            
+        return Response({"exists": qs.exists()})
 
     @action(detail=True, methods=["get"])
     def instructors(self, request, pk=None):
@@ -793,6 +812,16 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     test_cases_custom=test_cases_custom,
                 )
 
+                response_data = result.get("response_data", {})
+                if response_data.get("status") == "tle":
+                    return Response(
+                        {
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 execution_results = result["execution_results"]
                 test_results = result["test_results"]
                 execution_output = result["execution_output"]
@@ -1313,10 +1342,19 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     test_cases_custom=test_cases_custom,
                 )
 
+                response_data = result.get("response_data", {})
+                if response_data.get("status") == "tle":
+                    return Response(
+                        {
+                            "status": "tle",
+                            "message": "Time Limit Exceeded"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 execution_results = result["execution_results"]
                 test_results = result["test_results"]
                 execution_output = result["execution_output"]
-                response_data = result["response_data"]
 
                 service_url = os.environ.get(
                     "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009"
@@ -1442,6 +1480,18 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 all_displayed_results = visible_test_results + masked_advanced_results
                 overall_success = total_tests > 0 and total_passed == total_tests
 
+                # --- Gamification: record activity for coding practice ---
+                gamification = {}
+                if overall_success:
+                    try:
+                        from gamification.service import GamificationService
+                        gamification = GamificationService.record_activity(request.user, 'coding')
+                    except Exception:
+                        pass
+
+                new_badges = gamification.get('new_badges', [])
+                welcome_bonus = gamification.get('welcome_bonus', 0)
+
                 formatted_response = {
                     "id": submission.id,
                     "coding_problem": str(question.id),
@@ -1477,8 +1527,9 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         "overall_success": overall_success,
                     },
                     "plagiarism_flagged": plagiarism_score > 0.8,
-                    "new_badges": [{"key": b.key, "name": b.name, "icon": b.icon} for b in new_badges],
+                    "new_badges": [{"key": b['key'], "name": b['name'], "icon": b['icon']} for b in new_badges],
                     "welcome_bonus": welcome_bonus,
+                    "gamification": gamification,
                 }
 
                 return Response(formatted_response, status=status.HTTP_201_CREATED)

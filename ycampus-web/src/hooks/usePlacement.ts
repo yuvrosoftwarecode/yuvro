@@ -220,7 +220,6 @@ export function usePlacementJobs(statusFilter?: string) {
     queryKey: ['placement-jobs', statusFilter],
     queryFn: async () => {
       const jobs = await jobService.getAllJobs();
-      console.log('usePlacementJobs fetched jobs:', jobs);
       
       // Map backend Job to UI PlacementJob
       const mapped: PlacementJob[] = jobs.map(j => ({
@@ -451,10 +450,20 @@ export function useApplyToJob() {
   const qc = useQueryClient();
   
   return useMutation({
-    mutationFn: async (data: { job_id: string; cgpa: number; status?: string }) => {
-      const res = await jobService.applyToJob(data.job_id, {
-        cgpa: data.cgpa, // Though backend might not store it explicitly, we send it
-      });
+    mutationFn: async (data: { job_id: string; cgpa: number; status?: string; resumeFile?: File | null }) => {
+      let payload: any;
+      if (data.resumeFile) {
+        payload = new FormData();
+        payload.append('cgpa', data.cgpa.toString());
+        if (data.status) payload.append('status', data.status);
+        payload.append('resume_file', data.resumeFile);
+      } else {
+        payload = {
+          cgpa: data.cgpa,
+          status: data.status,
+        };
+      }
+      const res = await jobService.applyToJob(data.job_id, payload);
       return res;
     },
     onSuccess: () => {
@@ -464,6 +473,24 @@ export function useApplyToJob() {
     },
     onError: (e: any) => {
       toast({ title: 'Application Failed', description: e.message, variant: 'destructive' });
+    }
+  });
+}
+
+export function useWithdrawApplication() {
+  const qc = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (applicationId: string) => {
+      return restApiAuthUtil.post(`/jobs/applications/${applicationId}/withdraw/`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student-applications'] });
+      qc.invalidateQueries({ queryKey: ['placement-jobs'] });
+      toast({ title: 'Application Withdrawn', description: 'Your application has been successfully withdrawn.' });
+    },
+    onError: (e: any) => {
+      toast({ title: 'Withdraw Failed', description: e.message, variant: 'destructive' });
     }
   });
 }
@@ -497,8 +524,38 @@ export function usePlacementDrives() {
   return useQuery({
     queryKey: ['placement-drives'],
     queryFn: async () => {
-      // Backend drives service
-      return [];
+      const jobs = await jobService.getAllJobs();
+      
+      const drives: PlacementDrive[] = jobs.map(j => {
+        let driveStatus = 'upcoming';
+        const now = new Date();
+        const driveDate = j.expires_at ? new Date(j.expires_at) : (j.posted_at ? new Date(j.posted_at) : new Date(j.created_at));
+        
+        if (j.status === 'closed') {
+          driveStatus = 'completed';
+        } else if (driveDate < now) {
+          driveStatus = 'completed';
+        } else if (j.status === 'active') {
+          // If it's active and in the future, it's upcoming, if it's today it's ongoing
+          const isToday = driveDate.toDateString() === now.toDateString();
+          driveStatus = isToday ? 'ongoing' : 'upcoming';
+        }
+
+        return {
+          id: j.id,
+          job_id: j.id,
+          title: j.title,
+          company_name: j.company.name,
+          drive_date: driveDate.toISOString(),
+          end_date: j.expires_at || null,
+          status: driveStatus,
+          notes: j.description ? (j.description.substring(0, 100) + '...') : null,
+          reminder_sent: false,
+          created_at: j.created_at
+        };
+      });
+      
+      return drives;
     },
   });
 }

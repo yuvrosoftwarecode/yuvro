@@ -4,25 +4,42 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Send, CheckCircle, XCircle, FileText, Eye } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle, XCircle, FileText, Eye, History, AlertCircle } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskSubmission, TaskComment } from '@/services/taskService';
 import { format } from 'date-fns';
 import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
 import { CodeEditor } from '@/components/ui/code-editor';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface StudentResponseDetailProps {
   response: TaskSubmission;
   onAddComment: (comment: string) => void;
-  onUpdateStatus: (status: 'accepted' | 'rejected') => void;
+  onReview: (data: { status: 'accepted' | 'rejected', grade?: number, rejection_reason?: string, rejection_comment?: string }) => void;
   onBack: () => void;
   submitting?: boolean;
 }
 
+const REJECTION_REASONS = [
+  "Incomplete Submission",
+  "Incorrect Solution/Implementation",
+  "Missing Required Documents",
+  "Does Not Meet Assignment Requirements",
+  "Poor Code Quality",
+  "Plagiarism/Suspected Copying",
+  "Invalid File Format",
+  "Missing Project Demonstration",
+  "Insufficient Explanation/Documentation",
+  "Other"
+];
+
 const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
   response,
   onAddComment,
-  onUpdateStatus,
+  onReview,
   onBack,
   submitting = false
 }) => {
@@ -34,6 +51,25 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
   const annotationInputRef = useRef<HTMLTextAreaElement>(null);
   const student = response.student_details || {};
   const user = student.user_details || {};
+
+  const [isAcceptOpen, setIsAcceptOpen] = useState(false);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [grade, setGrade] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionComment, setRejectionComment] = useState('');
+
+  const handleAcceptSubmit = () => {
+    if (!grade || isNaN(Number(grade)) || Number(grade) < 0 || Number(grade) > 10) return;
+    onReview({ status: 'accepted', grade: Number(grade) });
+    setIsAcceptOpen(false);
+  };
+
+  const handleRejectSubmit = () => {
+    if (!rejectionReason) return;
+    if (rejectionReason === 'Other' && !rejectionComment.trim()) return;
+    onReview({ status: 'rejected', rejection_reason: rejectionReason, rejection_comment: rejectionComment });
+    setIsRejectOpen(false);
+  };
 
   // Auto-scroll to bottom when comments change
   useEffect(() => {
@@ -140,7 +176,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
           <Button 
             variant="outline" 
             className="border-red-200 text-red-600 hover:bg-red-50"
-            onClick={() => onUpdateStatus('rejected')}
+            onClick={() => setIsRejectOpen(true)}
             disabled={submitting || response.status === 'rejected'}
           >
             <XCircle className="h-4 w-4 mr-2" />
@@ -148,11 +184,18 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
           </Button>
           <Button 
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            onClick={() => onUpdateStatus('accepted')}
-            disabled={submitting || response.status === 'accepted'}
+            onClick={() => {
+              if (response.status === 'accepted' && response.grade !== undefined && response.grade !== null) {
+                setGrade(response.grade.toString());
+              } else {
+                setGrade('');
+              }
+              setIsAcceptOpen(true);
+            }}
+            disabled={submitting}
           >
             <CheckCircle className="h-4 w-4 mr-2" />
-            Accept
+            {response.status === 'accepted' ? 'Update Score' : 'Accept'}
           </Button>
         </div>
       </div>
@@ -212,6 +255,51 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
               )}
             </div>
           </div>
+
+          {/* Attempt History Section */}
+          {response.history && response.history.length > 0 && (
+            <div className="space-y-4 pt-6 border-t border-slate-100">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+                <History className="h-5 w-5 text-slate-500" />
+                Attempt History
+              </h3>
+              <div className="space-y-4">
+                {response.history.map((hist, idx) => (
+                  <Card key={hist.id || idx} className="bg-slate-50/50 shadow-sm border-slate-200">
+                    <CardHeader className="py-3 px-4 border-b border-slate-100 bg-slate-100/50">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-sm font-bold text-slate-700">Attempt {hist.attempt_number}</CardTitle>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-slate-500">
+                            {hist.submitted_at ? format(new Date(hist.submitted_at), 'MMM dd, HH:mm') : 'N/A'}
+                          </span>
+                          <Badge variant={
+                            hist.status === 'accepted' ? 'default' : hist.status === 'rejected' ? 'destructive' : 'secondary'
+                          } className="capitalize text-[10px] px-2 h-4">
+                            {hist.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    {hist.status === 'rejected' && hist.rejection_reason && (
+                      <CardContent className="py-3 px-4 bg-red-50/30">
+                        <p className="text-sm font-semibold text-red-700 flex items-center gap-1.5 mb-1">
+                          <AlertCircle className="h-4 w-4" />
+                          Rejected: {hist.rejection_reason}
+                        </p>
+                        {hist.rejection_comment && (
+                          <p className="text-sm text-red-600/80 ml-5 whitespace-pre-wrap">
+                            {hist.rejection_comment}
+                          </p>
+                        )}
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Discussion Section */}
@@ -334,6 +422,81 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
         submitting={submitting}
         initialHighlight={fileViewerHighlight}
       />
+
+      <Dialog open={isAcceptOpen} onOpenChange={setIsAcceptOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{response.status === 'accepted' ? 'Update Score' : 'Accept Submission'}</DialogTitle>
+            <DialogDescription>Assign a grade (0-10) for this submission.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Grade (out of 10)</Label>
+              <Input 
+                type="number" 
+                min="0" 
+                max="10" 
+                step="0.1" 
+                value={grade} 
+                onChange={(e) => setGrade(e.target.value)} 
+                placeholder="e.g. 8.5"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAcceptOpen(false)}>Cancel</Button>
+            <Button onClick={handleAcceptSubmit} disabled={!grade || isNaN(Number(grade)) || Number(grade) < 0 || Number(grade) > 10 || submitting}>
+              {response.status === 'accepted' ? 'Update Score' : 'Confirm Accept'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Submission</DialogTitle>
+            <DialogDescription>Provide a reason for rejecting this submission.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Rejection Reason *</Label>
+              <Select value={rejectionReason} onValueChange={setRejectionReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECTION_REASONS.map(reason => (
+                    <SelectItem key={reason} value={reason}>{reason}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(rejectionReason === 'Other' || rejectionReason) && (
+              <div className="space-y-2">
+                <Label>Additional Feedback {rejectionReason === 'Other' && '*'}</Label>
+                <Textarea 
+                  value={rejectionComment} 
+                  onChange={(e) => setRejectionComment(e.target.value)} 
+                  placeholder="Provide specific feedback..."
+                  className="min-h-[100px]"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRejectOpen(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleRejectSubmit} 
+              disabled={!rejectionReason || (rejectionReason === 'Other' && !rejectionComment.trim()) || submitting}
+            >
+              Confirm Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };

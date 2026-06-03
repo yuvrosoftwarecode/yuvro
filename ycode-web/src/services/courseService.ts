@@ -110,6 +110,14 @@ export async function deleteCourse(courseId: string) {
   return true;
 }
 
+export async function checkCourseName(name: string, excludeId?: string): Promise<{ exists: boolean }> {
+  const params: any = { name };
+  if (excludeId) {
+    params.exclude_id = excludeId;
+  }
+  return restApiAuthUtil.get('/course/courses/check-name/', { params });
+}
+
 export async function createTopic(payload: {
   name: string;
   course: string;
@@ -376,6 +384,7 @@ const courseService = {
   createCourse,
   updateCourse,
   deleteCourse,
+  checkCourseName,
   getTopics: fetchTopicsByCourse,
   createTopic,
   updateTopic,

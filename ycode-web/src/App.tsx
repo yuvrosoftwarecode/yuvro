@@ -15,6 +15,8 @@ import InstructorDashboard from './pages/instructor/Dashboard';
 import Courses from './pages/instructor/Courses';
 import CourseEdit from './components/instructor/courses/CourseEdit';
 import ResumeBuilder from "./pages/student/ResumeBuilder";
+import ChangePassword from './pages/common/ChangePassword';
+import JobTestAttempt from './pages/student/JobTestAttempt';
 
 
 import Users from './pages/instructor/Users';
@@ -91,6 +93,22 @@ function App() {
               <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
               <Route path="/add-job" element={<AddJob />} />
               <Route path="/student/applications" element={<ApplicationTracker appliedJobs={[]} />} />
+              <Route
+                path="/change-password"
+                element={
+                  <ProtectedRoute allowedRoles={["student", "recruiter", "admin", "instructor", "guest"]}>
+                    <ChangePassword />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/job-test/:applicationId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <JobTestAttempt />
+                  </ProtectedRoute>
+                }
+              />
 
 
               <Route

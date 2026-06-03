@@ -66,6 +66,16 @@ urlpatterns = [
         name="update-application-status",
     ),
     path(
+        "applications/<uuid:pk>/start-test/",
+        JobApplicationViewSet.as_view({"get": "start_test"}),
+        name="application-start-test",
+    ),
+    path(
+        "applications/<uuid:pk>/submit-test/",
+        JobApplicationViewSet.as_view({"post": "submit_test"}),
+        name="application-submit-test",
+    ),
+    path(
         "applications/<uuid:pk>/",
         JobApplicationViewSet.as_view(
             {
@@ -99,6 +109,11 @@ urlpatterns = [
     ),
     path(
         "<uuid:pk>/reject/", JobViewSet.as_view({"post": "reject"}), name="job-reject"
+    ),
+    path(
+        "<uuid:pk>/invite-assessment/",
+        JobViewSet.as_view({"post": "invite_assessment"}),
+        name="job-invite-assessment",
     ),
     path("filter/", JobViewSet.as_view({"post": "filter"}), name="job-filter"),
     path(

@@ -83,6 +83,7 @@ import PlacementSettings from "./pages/placement/PlacementSettings";
 import PlacementPRIReport from "./pages/placement/PlacementPRIReport";
 import JobApplicationsPage from "./pages/placement/JobApplications";
 import PlacementCompany from "./pages/placement/Company";
+import PlacementSkillTests from "./pages/placement/SkillTests";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
 import StudentAssessments from "./pages/student/StudentAssessments";
@@ -341,6 +342,7 @@ const App = () => (
                       <Route path="job-applications/:jobId" element={<JobApplicationsPage />} />
                       <Route path="job-applications" element={<JobApplicationsPage />} />
                       <Route path="company" element={<PlacementCompany />} />
+                      <Route path="skill-tests" element={<PlacementSkillTests />} />
                     </Routes>
                   </ProtectedRoute>
                 }

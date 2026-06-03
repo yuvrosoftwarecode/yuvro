@@ -13,13 +13,15 @@ interface ApplyDialogProps {
   job: StudentJob | null;
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => void;
+  onSubmit: (data: { cgpa: number; previousOffers: boolean; highestCtc?: number; resumeFile?: File | null }) => void;
 }
 
 export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) {
   const [cgpa, setCgpa] = useState('');
   const [previousOffers, setPreviousOffers] = useState('no');
   const [highestCtc, setHighestCtc] = useState('');
+  const [resumeOption, setResumeOption] = useState('existing');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -31,6 +33,9 @@ export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) 
     if (previousOffers === 'yes' && (!highestCtc || isNaN(parseFloat(highestCtc)))) {
       errs.highestCtc = 'Highest CTC is required when you have previous offers';
     }
+    if (resumeOption === 'new' && !resumeFile) {
+      errs.resumeFile = 'Please upload a resume file';
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -41,10 +46,13 @@ export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) 
       cgpa: parseFloat(cgpa),
       previousOffers: previousOffers === 'yes',
       highestCtc: previousOffers === 'yes' ? parseFloat(highestCtc) : undefined,
+      resumeFile: resumeOption === 'new' ? resumeFile : undefined,
     });
     setCgpa('');
     setPreviousOffers('no');
     setHighestCtc('');
+    setResumeOption('existing');
+    setResumeFile(null);
     setErrors({});
   };
 
@@ -52,6 +60,8 @@ export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) 
     setCgpa('');
     setPreviousOffers('no');
     setHighestCtc('');
+    setResumeOption('existing');
+    setResumeFile(null);
     setErrors({});
     onClose();
   };
@@ -107,6 +117,33 @@ export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) 
                 onChange={e => setHighestCtc(e.target.value)}
               />
               {errors.highestCtc && <p className="text-xs text-destructive">{errors.highestCtc}</p>}
+            </div>
+          )}
+
+          <div className="space-y-1.5 pt-2 border-t">
+            <Label>Resume Option</Label>
+            <RadioGroup value={resumeOption} onValueChange={setResumeOption} className="flex flex-col gap-2 mt-2">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="existing" id="existing" />
+                <Label htmlFor="existing" className="font-normal cursor-pointer">Continue with existing resume</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="new" id="new" />
+                <Label htmlFor="new" className="font-normal cursor-pointer">Upload new resume</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {resumeOption === 'new' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="resumeFile">Upload Resume <span className="text-destructive">*</span></Label>
+              <Input
+                id="resumeFile"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={e => setResumeFile(e.target.files?.[0] || null)}
+              />
+              {errors.resumeFile && <p className="text-xs text-destructive">{errors.resumeFile}</p>}
             </div>
           )}
         </div>

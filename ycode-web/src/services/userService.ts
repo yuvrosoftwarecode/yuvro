@@ -6,7 +6,7 @@ export interface User {
   username: string;
   first_name: string;
   last_name: string;
-  role: 'admin' | 'instructor' | 'recruiter' | 'student';
+  role: 'admin' | 'instructor' | 'recruiter' | 'student' | 'guest';
   is_active: boolean;
   last_login: string | null;
   date_joined: string;

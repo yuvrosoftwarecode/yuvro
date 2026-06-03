@@ -248,7 +248,8 @@ class CodeExecutorService:
                 'error': f'Execution timed out after {timeout} seconds',
                 'output': '',
                 'execution_time': timeout,
-                'memory_usage': max_memory
+                'memory_usage': max_memory,
+                'status': 'tle'
             }
         
         except Exception as e:
