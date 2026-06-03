@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCertificationExams, CertificationExam } from '@/services/certificationService';
+import { getCertificationExams, getMyCertificates, CertificationExam } from '@/services/certificationService';
 import { fetchCourses, Course } from '@/services/courseService';
 import DashboardLayout from "@/components/common/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -21,6 +21,7 @@ const Certify: React.FC = () => {
     const [courses, setCourses] = useState<Course[]>([]);
     const [allExams, setAllExams] = useState<CertificationExam[]>([]);
     const [exams, setExams] = useState<CertificationExam[]>([]);
+    const [myCertificates, setMyCertificates] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [currentView, setCurrentView] = useState<'courses' | 'exams'>('courses');
@@ -50,12 +51,14 @@ const Certify: React.FC = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [examsData, coursesData] = await Promise.all([
+            const [examsData, coursesData, certificatesData] = await Promise.all([
                 getCertificationExams() as Promise<CertificationExam[] | PaginatedResponse<CertificationExam>>,
-                fetchCourses() as Promise<Course[] | PaginatedResponse<Course>>
+                fetchCourses() as Promise<Course[] | PaginatedResponse<Course>>,
+                getMyCertificates() as Promise<any[] | PaginatedResponse<any>>
             ]);
             setAllExams(Array.isArray(examsData) ? examsData : examsData.results || []);
             setCourses(Array.isArray(coursesData) ? coursesData : coursesData.results || []);
+            setMyCertificates(Array.isArray(certificatesData) ? certificatesData : (certificatesData as any).results || []);
         } catch (error) {
             console.error('Failed to fetch data:', error);
             toast.error('Failed to load data');
@@ -127,6 +130,55 @@ const Certify: React.FC = () => {
                             )}
                         </div>
                     </div>
+
+                    {currentView === 'courses' && myCertificates.length > 0 && (
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                                <span>🎓</span> My Earned Certificates
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {myCertificates.map((cert) => (
+                                    <Card key={cert.id} className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 border-none text-white overflow-hidden shadow-lg shadow-indigo-950/20 relative group hover:scale-[1.02] transition-transform duration-300">
+                                        <div className="absolute top-0 right-0 p-4 opacity-15 text-6xl pointer-events-none group-hover:scale-110 transition-transform duration-500">
+                                            🏆
+                                        </div>
+                                        <CardHeader className="pb-2">
+                                            <div className="flex justify-between items-start">
+                                                <Badge className="bg-amber-500 text-black font-bold text-[10px] tracking-wide hover:bg-amber-600">
+                                                    ACCREDITED
+                                                </Badge>
+                                                <span className="text-[10px] font-mono text-gray-400">
+                                                    {cert.display_id}
+                                                </span>
+                                            </div>
+                                            <CardTitle className="text-lg font-bold text-white mt-2 line-clamp-1">{cert.course_name}</CardTitle>
+                                            <CardDescription className="text-indigo-200/70 text-xs">
+                                                Issued on {cert.issued_at ? new Date(cert.issued_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="pb-4 pt-1">
+                                            <p className="text-xs text-indigo-100/60 font-medium">Recipient</p>
+                                            <p className="text-sm font-bold text-white">{cert.user_name}</p>
+                                        </CardContent>
+                                        <CardFooter className="pt-2 border-t border-indigo-900/50 flex justify-between gap-3">
+                                            <a 
+                                                href={(() => {
+                                                    const apiBase = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api';
+                                                    const host = apiBase.replace(/\/api\/?$/, '');
+                                                    return `${host}/api/assessment/certificates/${cert.id}/view/`;
+                                                })()}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-full text-center py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-xl shadow-md transition-colors active:scale-[0.98]"
+                                            >
+                                                View & Download
+                                            </a>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {currentView === 'courses' && (
                         <>

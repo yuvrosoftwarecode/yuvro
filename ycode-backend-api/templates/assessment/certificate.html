@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate - {{ certificate_id }}</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables for Premium Navy & Gold theme */
+        :root {
+            --primary-navy: #0B192C;
+            --secondary-navy: #1E3E62;
+            --gold-light: #F1C40F;
+            --gold-dark: #D4AC0D;
+            --gold-gradient: linear-gradient(135deg, #F39C12 0%, #F1C40F 50%, #F39C12 100%);
+            --text-dark: #2C3E50;
+            --text-muted: #7F8C8D;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #F4F6F7;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Floating controls */
+        .controls {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-print {
+            background: var(--gold-gradient);
+            color: #000000;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(241, 196, 15, 0.4);
+        }
+
+        .btn-back {
+            background: var(--primary-navy);
+            color: #FFFFFF;
+        }
+
+        .btn-back:hover {
+            background: var(--secondary-navy);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(11, 25, 44, 0.3);
+        }
+
+        /* Certificate Container: Landscape standard ratio 4:3 */
+        .certificate-container {
+            width: 1050px;
+            height: 750px;
+            background: #FFFFFF;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Watermark Background */
+        .certificate-watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(var(--secondary-navy) 0.5px, transparent 0.5px), radial-gradient(var(--secondary-navy) 0.5px, #FFFFFF 0.5px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            opacity: 0.02;
+            pointer-events: none;
+        }
+
+        /* Navy & Gold Premium Border */
+        .outer-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 6px solid var(--primary-navy);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .inner-border {
+            position: absolute;
+            top: 28px;
+            left: 28px;
+            right: 28px;
+            bottom: 28px;
+            border: 2px solid var(--gold-dark);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        /* Decorative Corners */
+        .corner-element {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--gold-dark);
+            pointer-events: none;
+        }
+
+        .top-left { top: 35px; left: 35px; border-right: none; border-bottom: none; }
+        .top-right { top: 35px; right: 35px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 35px; left: 35px; border-right: none; border-top: none; }
+        .bottom-right { bottom: 35px; right: 35px; border-left: none; border-top: none; }
+
+        /* Header Elements */
+        .header {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .academy-logo {
+            font-size: 26px;
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            color: var(--primary-navy);
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .academy-logo span {
+            color: var(--gold-dark);
+        }
+
+        .logo-crest {
+            width: 32px;
+            height: 32px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .logo-crest::after {
+            content: 'Y';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary-navy);
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .cert-title {
+            font-family: 'Cinzel', serif;
+            font-size: 38px;
+            font-weight: 700;
+            color: var(--primary-navy);
+            letter-spacing: 4px;
+            margin: 15px 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .cert-subtitle {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--gold-dark);
+            margin-bottom: 20px;
+        }
+
+        /* Recipient and Details */
+        .recipient-section {
+            text-align: center;
+            width: 100%;
+        }
+
+        .presented-to {
+            font-size: 16px;
+            font-style: italic;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .recipient-name {
+            font-family: 'Cinzel', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--secondary-navy);
+            border-bottom: 2px solid #EAECEE;
+            padding-bottom: 10px;
+            margin: 0 auto 20px auto;
+            display: inline-block;
+            min-width: 60%;
+            text-align: center;
+        }
+
+        .achievement-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-dark);
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        .highlight-gold {
+            font-weight: 700;
+            color: var(--gold-dark);
+        }
+
+        /* Footer Elements (Signatures and Seal) */
+        .footer-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            padding: 0 40px;
+            margin-bottom: 20px;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 220px;
+        }
+
+        .signature-line {
+            border-top: 1.5px solid var(--text-muted);
+            margin-top: 10px;
+            padding-top: 8px;
+        }
+
+        .signature-name {
+            font-family: 'Alex Brush', cursive;
+            font-size: 32px;
+            color: var(--secondary-navy);
+            margin-bottom: -5px;
+        }
+
+        .signature-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Golden Star Crest Seal */
+        .seal-block {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seal-ribbon-left, .seal-ribbon-right {
+            position: absolute;
+            width: 20px;
+            height: 70px;
+            background: #C0392B;
+            bottom: -20px;
+            z-index: 1;
+        }
+
+        .seal-ribbon-left {
+            transform: rotate(25deg);
+            left: 35px;
+        }
+
+        .seal-ribbon-right {
+            transform: rotate(-25deg);
+            right: 35px;
+        }
+
+        .seal-circle {
+            width: 80px;
+            height: 80px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: 2px dashed #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seal-inner {
+            color: var(--primary-navy);
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 9px;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: 1px;
+        }
+
+        /* Certificate Meta Details */
+        .meta-details {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 40px;
+            margin-top: 5px;
+            border-top: 1px solid #F2F4F4;
+            padding-top: 8px;
+            z-index: 2;
+        }
+
+        .meta-item span {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* ============================================================================
+           Print Media Styles: Perfect vector landscape output with zero margins
+           ============================================================================ */
+        @media print {
+            body {
+                background: #FFFFFF;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .controls {
+                display: none !important;
+            }
+
+            .certificate-container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                padding: 30px !important;
+                page-break-inside: avoid;
+            }
+
+            .outer-border {
+                top: 15px; left: 15px; right: 15px; bottom: 15px;
+            }
+
+            .inner-border {
+                top: 22px; left: 22px; right: 22px; bottom: 22px;
+            }
+
+            .corner-element {
+                top: 28px; left: 28px; right: 28px; bottom: 28px;
+            }
+            .top-left { top: 28px; left: 28px; }
+            .top-right { top: 28px; right: 28px; }
+            .bottom-left { bottom: 28px; left: 28px; }
+            .bottom-right { bottom: 28px; right: 28px; }
+
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UI Controls (Hidden during print) -->
+    <div class="controls">
+        <button class="btn btn-back" onclick="window.history.back()">
+            ← Back to Dashboard
+        </button>
+        <button class="btn btn-print" onclick="window.print()">
+            ⎙ Save as PDF / Print
+        </button>
+    </div>
+
+    <!-- Certificate -->
+    <div class="certificate-container">
+        <!-- Watermark -->
+        <div class="certificate-watermark"></div>
+        
+        <!-- Borders -->
+        <div class="outer-border"></div>
+        <div class="inner-border"></div>
+        
+        <!-- Corners -->
+        <div class="corner-element top-left"></div>
+        <div class="corner-element top-right"></div>
+        <div class="corner-element bottom-left"></div>
+        <div class="corner-element bottom-right"></div>
+
+        <!-- Academy Logo Header -->
+        <div class="header">
+            <div class="academy-logo">
+                <div class="logo-crest"></div>
+                YUVRO <span>ACADEMY</span>
+            </div>
+            <div class="cert-title">CERTIFICATE OF EXCELLENCE</div>
+            <div class="cert-subtitle">Honorable Accomplishment</div>
+        </div>
+
+        <!-- Recipient and Details -->
+        <div class="recipient-section">
+            <div class="presented-to">This is proudly presented to</div>
+            <div class="recipient-name">{{ student_name }}</div>
+            <div class="achievement-text">
+                for successfully passing the official certification examination in 
+                <span class="highlight">{{ course_name }}</span> 
+                with a score of <span class="highlight-gold">{{ score }} / 100</span> (<span class="highlight-gold">{{ percentage }}%</span>) 
+                demonstrating thorough expertise and mastery.
+            </div>
+        </div>
+
+        <!-- Footer Signatures & Seal -->
+        <div class="footer-section">
+            <div class="signature-block">
+                <div class="signature-name">P. Srinivasan</div>
+                <div class="signature-line"></div>
+                <div class="signature-title">LMS Director</div>
+            </div>
+
+            <!-- Golden Star Crest Seal -->
+            <div class="seal-block">
+                <div class="seal-ribbon-left"></div>
+                <div class="seal-ribbon-right"></div>
+                <div class="seal-circle">
+                    <div class="seal-inner">
+                        OFFICIAL<br>SEAL<br>★ ★ ★
+                    </div>
+                </div>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-name">Y. V. Rao</div>
+                <div class="signature-line"></div>
+                <div class="signature-title">Lead Instructor</div>
+            </div>
+        </div>
+
+        <!-- Certificate Metadata -->
+        <div class="meta-details">
+            <div class="meta-item">Verification ID: <span>{{ certificate_id }}</span></div>
+            <div class="meta-item">Completion Date: <span>{{ completion_date }}</span></div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -567,5 +567,5 @@ class CertificationQuestionActivityAdmin(BaseQuestionActivityAdmin):
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
-    list_display = ["certificate_id", "user", "course", "issued_at"]
-    search_fields = ["certificate_id", "user__username", "course__name"]
+    list_display = ["id", "user", "course", "issued_at"]
+    search_fields = ["id", "user__username", "course__name"]
