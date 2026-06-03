@@ -13,7 +13,7 @@ RUN bun install --frozen-lockfile
 FROM base as development
 COPY . .
 EXPOSE 3000
-CMD ["bun", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["bunx", "vite", "dev", "--host", "0.0.0.0", "--port", "3000"]
 
 # Build stage
 FROM base as build
