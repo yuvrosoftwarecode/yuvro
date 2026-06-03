@@ -384,10 +384,19 @@ export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export VITE_GOOGLE_CLIENT_ID="${VITE_GOOGLE_CLIENT_ID_VAL}"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL}"
 
+# Deploy metadata — baked into the frontend bundle at build time
+export VITE_DEPLOY_COMMIT_SHA="\$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
+export VITE_DEPLOY_BRANCH="\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
+# Read app version from package.json (ycode-web)
+export VITE_DEPLOY_APP_VERSION="\$(node -pe "require('./ycode-web/package.json').version" 2>/dev/null || echo '0.0.0')"
+
 echo "✓ Build args configured"
 echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
 echo "  YCAMPUS_VITE_BACKEND_API_BASE_URL=\$YCAMPUS_VITE_BACKEND_API_BASE_URL"
 echo "  VITE_GOOGLE_CLIENT_ID=\${VITE_GOOGLE_CLIENT_ID:0:20}..."
+echo "  VITE_DEPLOY_BRANCH=\$VITE_DEPLOY_BRANCH"
+echo "  VITE_DEPLOY_COMMIT_SHA=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
+echo "  VITE_DEPLOY_APP_VERSION=\$VITE_DEPLOY_APP_VERSION"
 
 echo "📦 Building services (this takes a few minutes on t3.medium)..."
 docker compose \
