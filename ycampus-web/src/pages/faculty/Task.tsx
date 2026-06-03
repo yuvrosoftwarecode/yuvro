@@ -23,6 +23,7 @@ const TaskPage: React.FC = () => {
   const [submissions, setSubmissions] = useState<TaskSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Filter State
   const [selectedDept, setSelectedDept] = useState<string>('all');
@@ -163,6 +164,13 @@ const TaskPage: React.FC = () => {
     }
   };
 
+  const handleEditTaskClick = (taskId: string) => {
+    const task = filteredTasks.find(t => t.id === taskId);
+    if (task) {
+      setEditingTask(task);
+    }
+  };
+
   const handleSendTask = async (taskId: string, sectionIds?: string[]) => {
     try {
       setIsActionLoading(true);
@@ -189,11 +197,13 @@ const TaskPage: React.FC = () => {
     }
   };
 
-  const handleEditTask = async (taskId: string, data: any) => {
+  const handleEditTask = async (payload: any) => {
+    if (!editingTask) return;
     try {
       setIsActionLoading(true);
-      await taskService.updateTask(taskId, data);
+      await taskService.updateTask(editingTask.id, payload);
       toast({ title: 'Success', description: 'Task updated.' });
+      setEditingTask(null);
       fetchTasks();
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to update task.', variant: 'destructive' });
@@ -241,15 +251,16 @@ const TaskPage: React.FC = () => {
     }
   };
 
-  const handleUpdateStatus = async (status: 'accepted' | 'rejected') => {
+  const handleReview = async (reviewData: { status: 'accepted' | 'rejected', grade?: number, rejection_reason?: string, rejection_comment?: string }) => {
     if (!selectedSubmissionId) return;
     try {
       setIsActionLoading(true);
-      await taskService.updateSubmissionStatus(selectedSubmissionId, status);
-      toast({ title: 'Success', description: `Task ${status}!` });
+      await taskService.reviewSubmission(selectedSubmissionId, reviewData);
+      toast({ title: 'Success', description: `Task ${reviewData.status}!` });
       // Refresh details
       const data = await taskService.getSubmissionDetail(selectedSubmissionId);
       setCurrentSubmission(data);
+      setSubmissions(prev => prev.map(sub => sub.id === data.id ? data : sub));
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to update status.', variant: 'destructive' });
     } finally {
@@ -286,7 +297,7 @@ const TaskPage: React.FC = () => {
           <StudentResponseDetail
             response={currentSubmission}
             onAddComment={handleAddComment}
-            onUpdateStatus={handleUpdateStatus}
+            onReview={handleReview}
             submitting={isActionLoading}
             onBack={() => {
               setCurrentSubmission(null);
@@ -329,13 +340,17 @@ const TaskPage: React.FC = () => {
           )}
         </div>
 
-        {/* Create Task Form Overflow */}
-        {showCreateForm && (
+        {/* Create / Edit Task Form Overlay */}
+        {(showCreateForm || editingTask) && (
           <CreateTaskForm
             subjectId={selectedSubject}
             sections={selectedSection === 'all' ? availableSections.map(s => s.id) : [selectedSection]}
-            onSubmit={handleCreateTask}
-            onCancel={() => setShowCreateForm(false)}
+            onSubmit={editingTask ? handleEditTask : handleCreateTask}
+            onCancel={() => {
+              setShowCreateForm(false);
+              setEditingTask(null);
+            }}
+            initialData={editingTask}
           />
         )}
 
@@ -513,7 +528,7 @@ const TaskPage: React.FC = () => {
                   <TaskCard
                     key={task.id}
                     task={task as any}
-                    onEdit={handleEditTask}
+                    onEdit={handleEditTaskClick}
                     onDelete={handleDeleteTask}
                     onSend={handleSendTask}
                     onViewResponses={handleViewResponses}

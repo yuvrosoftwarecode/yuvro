@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Search, Users, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Search, Users, CheckCircle, Clock, XCircle, ArrowUpDown } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -34,6 +35,10 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
   onViewStudentResponse
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortField, setSortField] = useState<'name' | 'roll' | 'status' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const filteredSubmissions = submissions.filter(s => {
     const student = s.student_details || {};
@@ -43,6 +48,42 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
     const query = searchQuery.toLowerCase();
     return name.includes(query) || roll.includes(query);
   });
+
+  let sortedSubmissions = [...filteredSubmissions];
+  if (sortField) {
+    sortedSubmissions.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+      if (sortField === 'name') {
+        valA = `${a.student_details?.user_details?.first_name || ''} ${a.student_details?.user_details?.last_name || ''}`.trim().toLowerCase();
+        valB = `${b.student_details?.user_details?.first_name || ''} ${b.student_details?.user_details?.last_name || ''}`.trim().toLowerCase();
+      } else if (sortField === 'roll') {
+        valA = (a.student_details?.roll_number || '').toLowerCase();
+        valB = (b.student_details?.roll_number || '').toLowerCase();
+      } else if (sortField === 'status') {
+        valA = (a.status || '').toLowerCase();
+        valB = (b.status || '').toLowerCase();
+      }
+      
+      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const handleSort = (field: 'name' | 'roll' | 'status') => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const totalPages = Math.ceil(sortedSubmissions.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentSubmissions = sortedSubmissions.slice(startIndex, endIndex);
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -121,14 +162,19 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
         <CardHeader className="pb-3 border-b">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <CardTitle className="text-lg font-bold">Student Submissions</CardTitle>
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search by name or roll no..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 border-slate-200 focus:ring-primary/20"
-              />
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Search by name or roll no..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10 h-10 border-slate-200 focus:ring-primary/20"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -136,15 +182,30 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow>
-                <TableHead className="font-bold py-4">Roll No</TableHead>
-                <TableHead className="font-bold">Student Name</TableHead>
-                <TableHead className="font-bold">Status</TableHead>
+                <TableHead className="font-bold py-4 cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort('roll')}>
+                  <div className="flex items-center gap-2">
+                    Roll No
+                    <ArrowUpDown className={`h-3.5 w-3.5 ${sortField === 'roll' ? 'text-primary' : 'text-slate-400'}`} />
+                  </div>
+                </TableHead>
+                <TableHead className="font-bold cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort('name')}>
+                  <div className="flex items-center gap-2">
+                    Student Name
+                    <ArrowUpDown className={`h-3.5 w-3.5 ${sortField === 'name' ? 'text-primary' : 'text-slate-400'}`} />
+                  </div>
+                </TableHead>
+                <TableHead className="font-bold cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort('status')}>
+                  <div className="flex items-center gap-2">
+                    Status
+                    <ArrowUpDown className={`h-3.5 w-3.5 ${sortField === 'status' ? 'text-primary' : 'text-slate-400'}`} />
+                  </div>
+                </TableHead>
                 <TableHead className="font-bold text-center px-6">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredSubmissions.length > 0 ? (
-                filteredSubmissions.map((s) => {
+              {currentSubmissions.length > 0 ? (
+                currentSubmissions.map((s) => {
                   const student = s.student_details || {};
                   const user = student.user_details || {};
                   return (
@@ -184,6 +245,35 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
               )}
             </TableBody>
           </Table>
+          
+          {/* Pagination Controls */}
+          {filteredSubmissions.length > 0 && (
+            <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50/50">
+              <div className="text-sm text-slate-500 font-medium">
+                Showing <span className="text-slate-800">{startIndex + 1}</span> to <span className="text-slate-800">{Math.min(endIndex, filteredSubmissions.length)}</span> of <span className="text-slate-800">{filteredSubmissions.length}</span> entries
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="font-bold shadow-sm"
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="font-bold shadow-sm"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

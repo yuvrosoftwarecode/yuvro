@@ -16,6 +16,7 @@ from .models import (
     AttendanceRecord,
     Task,
     TaskSubmission,
+    TaskSubmissionHistory,
     TaskComment,
     Note,
     Announcement,
@@ -241,14 +242,31 @@ class TaskCommentSerializer(serializers.ModelSerializer):
         fields = ["id", "submission", "faculty", "faculty_details", "student", "student_details", "comment", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+class TaskSubmissionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskSubmissionHistory
+        fields = [
+            "id", "attempt_number", "answer", "answers_data", "file", 
+            "status", "grade", "rejection_reason", "rejection_comment", 
+            "submitted_at", "reviewed_at", "reviewed_by"
+        ]
+        read_only_fields = fields
+
 class TaskSubmissionSerializer(serializers.ModelSerializer):
     student_details = StudentProfileSerializer(source="student", read_only=True)
     comments = TaskCommentSerializer(many=True, read_only=True)
+    history = TaskSubmissionHistorySerializer(many=True, read_only=True)
 
     class Meta:
         model = TaskSubmission
-        fields = ["id", "task", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
-        read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at"]
+        fields = [
+            "id", "task", "student", "student_details", "answer", "answers_data", 
+            "file", "is_submitted", "submitted_at", "comments", 
+            "status", "grade", "rejection_reason", "rejection_comment",
+            "attempt_number", "reviewed_at", "reviewed_by", "history",
+            "created_at", "updated_at"
+        ]
+        read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at", "attempt_number", "reviewed_at", "reviewed_by", "history"]
 
 class TaskSerializer(serializers.ModelSerializer):
     faculty_details = serializers.SerializerMethodField()
@@ -283,6 +301,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "question_source",
             "questions",
             "question_details",
+            "attachment",
             "is_sent",
             "due_date",
             "created_at",
