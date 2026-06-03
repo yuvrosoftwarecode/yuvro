@@ -722,3 +722,41 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         dept.verification_status = 'rejected'
         dept.save()
         return Response({'status': 'rejected'})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def change_password_view(request):
+    """Allow logged-in users (especially those with temp passwords) to change their password."""
+    password = request.data.get("password")
+    if not password:
+        return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    first_name = request.data.get("first_name")
+    last_name = request.data.get("last_name")
+
+    user = request.user
+
+    # Require first and last name for guest accounts on reset
+    if user.role == "guest":
+        if not first_name:
+            return Response({"error": "First name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not last_name:
+            return Response({"error": "Last name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(password, user)
+    except ValidationError as e:
+        return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(password)
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
+
+    if user.role == "guest":
+        user.role = "student"
+    user.save()
+
+    return Response({"message": "Password changed successfully."})

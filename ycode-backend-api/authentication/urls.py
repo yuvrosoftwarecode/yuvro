@@ -28,6 +28,7 @@ urlpatterns = [
         views.ResetPasswordView.as_view(),
         name="reset_password",
     ),
+    path("change-password/", views.change_password_view, name="change_password"),
     path("admin-users/", admin_users, name="admin_users"),
     path("users/", views.UsersListCreateView.as_view(), name="users_list"),
     path("users/<uuid:pk>/", views.UserDetailView.as_view(), name="user_detail"),

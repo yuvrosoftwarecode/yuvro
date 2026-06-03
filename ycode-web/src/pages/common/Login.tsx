@@ -20,9 +20,21 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated && user && user.role) {
-      redirectToDashboard(user, navigate);
+      const queryParams = new URLSearchParams(location.search);
+      const redirectParam = queryParams.get('redirect') || (location.state as any)?.from?.pathname;
+      
+      if (user.role === 'guest') {
+        const finalRedirect = redirectParam || '/dashboard';
+        navigate(`/change-password?redirect=${encodeURIComponent(finalRedirect)}`, { replace: true });
+      } else {
+        if (redirectParam && redirectParam !== '/dashboard' && redirectParam !== '/') {
+          navigate(redirectParam, { replace: true });
+        } else {
+          redirectToDashboard(user, navigate);
+        }
+      }
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +61,19 @@ const Login: React.FC = () => {
       const loggedInUser = await login(email, password);
 
       if (loggedInUser && loggedInUser.role) {
-        redirectToDashboard(loggedInUser, navigate);
+        const queryParams = new URLSearchParams(location.search);
+        const redirectParam = queryParams.get('redirect') || (location.state as any)?.from?.pathname;
+
+        if (loggedInUser.role === 'guest') {
+          const finalRedirect = redirectParam || '/dashboard';
+          navigate(`/change-password?redirect=${encodeURIComponent(finalRedirect)}`, { replace: true });
+        } else {
+          if (redirectParam && redirectParam !== '/dashboard' && redirectParam !== '/') {
+            navigate(redirectParam, { replace: true });
+          } else {
+            redirectToDashboard(loggedInUser, navigate);
+          }
+        }
       }
     } catch (err) {
       console.error('Login error:', err);

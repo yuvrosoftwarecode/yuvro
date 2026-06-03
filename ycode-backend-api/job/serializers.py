@@ -246,6 +246,7 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
             "portfolio_url",
             "available_from",
             "notice_period_days",
+            "screening_responses",
             "created_at",
             "updated_at",
         ]

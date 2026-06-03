@@ -226,6 +226,13 @@ export const jobService = {
     async rejectJob(jobId: string): Promise<{ message: string; job: Job }> {
         return restApiAuthUtil.post(`/jobs/${jobId}/reject/`);
     },
+
+    async inviteAssessment(jobId: string, applicationIds: string[], emails: string[]): Promise<{ message: string }> {
+        return restApiAuthUtil.post(`/jobs/${jobId}/invite-assessment/`, {
+            application_ids: applicationIds,
+            emails: emails
+        });
+    },
 };
 
 export default jobService;
