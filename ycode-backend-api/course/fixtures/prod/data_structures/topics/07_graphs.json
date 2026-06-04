@@ -147,7 +147,11 @@
                 "Imagine the grid as a graph where '1's are nodes and adjacent '1's have edges.",
                 "Use DFS or BFS to 'flood' an entire island once you find a '1', marking all its cells as visited (e.g., by flipping them to '0').",
                 "The number of times you need to start a new traversal from an unvisited '1' is the total number of islands."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "mcq_single",
@@ -275,7 +279,11 @@
                 "This is a standard traversal problem. Starting from (sr, sc), explore all 4-directional neighbors with the same original color.",
                 "Update each connected pixel to the new color. You can use either recursion (DFS) or a queue (BFS).",
                 "Edge case: If the new color is the same as the original color, return early to avoid an infinite recursion or loop."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -349,7 +357,11 @@
                 "This is a connectivity problem in an undirected graph. BFS, DFS, or Disjoint Set Union (DSU) are all valid approaches.",
                 "For a traversal approach, start from the source and use a visited set to keep track of reachable nodes. Check if the destination is reached.",
                 "DSU is particularly efficient here: 'union' nodes connected by edges and finally check if 'find(source) == find(destination)'."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -422,7 +434,11 @@
                 "The problem boils down to detecting a cycle in a directed graph. If there's a cycle, you can't finish all courses.",
                 "Use Kahn's Algorithm (BFS) by tracking the in-degree of each node. Courses with zero in-degree can be taken immediately.",
                 "Alternatively, use DFS with a recursion stack to detect back-edges, which indicate a cycle."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -495,7 +511,11 @@
                 "Finding the shortest path in an unweighted graph (word transformations) makes BFS the ideal candidate.",
                 "To find neighbors of a word, try changing each character 'a'-'z' and check if the new word exists in the dictionary.",
                 "For optimization, you can pre-process the dictionary into a map of patterns (e.g., 'h*t' -> ['hot', 'hit']) to find neighbors in O(L) time."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -568,7 +588,11 @@
                 "Instead of checking where water from each cell flows (which is O(M*N) per cell), think backwards: where can water from the oceans reach?",
                 "Start one DFS/BFS from all 'Pacific' boundary cells and another from all 'Atlantic' boundary cells, moving ONLY to cells with equal or greater height.",
                 "The cells that are marked as reachable in both traversals are the ones that can flow to both oceans."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -633,7 +657,11 @@
                 "Compare adjacent words in the sorted dictionary to find the first differing characters. This defines a directed edge (e.g., 'abc' before 'abd' means 'c' -> 'd').",
                 "Build a directed graph of all unique characters and perform a Topological Sort (Kahn's or DFS).",
                 "Check for consistency: if there's a cycle (Topological Sort fails) or if a prefix comes AFTER a longer word (e.g., 'abc' after 'abcd'), return an empty string."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -686,7 +714,11 @@
                 "This is a multi-source BFS problem. All initially rotten oranges start rotting their neighbors simultaneously.",
                 "Put all rotten oranges in a queue and track the count of fresh oranges. Perform BFS level by level, where each level is 1 minute.",
                 "If the queue becomes empty but fresh oranges still remain, it means some oranges are isolated; return -1."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -726,7 +758,11 @@
                 "A tree with N nodes and N edges must have exactly one cycle. You need to find the edge that completes this cycle.",
                 "Use Disjoint Set Union (DSU) to add edges one by one. For each edge (u, v), check if u and v are already in the same component.",
                 "The first edge you encounter that connects two nodes already in the same component is the one that creates the cycle and should be removed."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -776,7 +812,11 @@
                 "This is similar to 'Number of Islands', but you need to return the size of the largest connected component of '1's.",
                 "Perform a DFS or BFS from every unvisited '1' and count the number of nodes reached during that specific traversal.",
                 "Maintain a global variable to track and update the maximum area found so far."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

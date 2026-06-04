@@ -944,7 +944,10 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             for r in (basic_results + advanced_results + custom_results):
                 if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                     status_val = "failed"
-                    reason_val = r.get("error")
+                    if r.get("error") == "Time Limit Exceeded":
+                        reason_val = f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
+                    else:
+                        reason_val = f"Memory Limit Exceeded. Solution used {r.get('memory_usage', 0):.2f}MB, which exceeds the limit."
                     break
 
             response_data.update(
@@ -1406,7 +1409,10 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 for r in (basic_results + advanced_results + custom_results):
                     if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                         status_val = "failed"
-                        reason_val = r.get("error")
+                        if r.get("error") == "Time Limit Exceeded":
+                            reason_val = f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
+                        else:
+                            reason_val = f"Memory Limit Exceeded. Solution used {r.get('memory_usage', 0):.2f}MB, which exceeds the limit."
                         break
 
                 plagiarism_dict = {
@@ -1451,11 +1457,25 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 basic_count = len(test_cases_basic)
                 custom_count = len(test_cases_custom)
                 advanced_count = len(test_cases_advanced)
-                visible_test_count = basic_count + custom_count
 
-                visible_test_results = basic_results + custom_results
                 visible_passed = basic_passed + custom_passed
                 visible_test_count = len(basic_results) + len(custom_results)
+
+                # Normalize visible test results with display metadata
+                normalized_visible_results = []
+                for i, result in enumerate(basic_results + custom_results):
+                    normalized_visible_results.append({
+                        "passed": result.get("passed", False),
+                        "input": result.get("input", ""),
+                        "expected_output": result.get("expected_output", ""),
+                        "actual_output": result.get("actual_output", ""),
+                        "error": result.get("error", ""),
+                        "execution_time": result.get("execution_time", 0),
+                        "memory_usage": result.get("memory_usage", 0),
+                        "console_output": result.get("console_output", ""),
+                        "is_hidden": False,
+                        "test_case_number": i + 1,
+                    })
 
                 masked_advanced_results = []
                 for i, result in enumerate(advanced_results):
@@ -1478,12 +1498,25 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                             if not result.get("passed", False)
                             else "",
                             "execution_time": result.get("execution_time", 0),
+                            "memory_usage": result.get("memory_usage", 0),
+                            "console_output": "",
                             "is_hidden": True,
                             "test_case_number": visible_test_count + i + 1,
                         }
                     )
 
-                all_displayed_results = visible_test_results + masked_advanced_results
+                all_displayed_results = normalized_visible_results + masked_advanced_results
+
+                # Detect performance warnings: correct output but resource limit exceeded
+                performance_warnings = []
+                for r in (basic_results + advanced_results + custom_results):
+                    err = r.get("error", "")
+                    if r.get("passed") and err in ("Time Limit Exceeded", "Memory Limit Exceeded"):
+                        performance_warnings.append({
+                            "type": err,
+                            "execution_time": r.get("execution_time", 0),
+                            "memory_usage": r.get("memory_usage", 0),
+                        })
                 overall_success = total_tests > 0 and total_passed == total_tests
 
                 # --- Gamification: record activity for coding practice ---
@@ -1517,6 +1550,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     "plagiarism_details": plagiarism_details,
                     "created_at": submission.created_at.isoformat(),
                     "updated_at": submission.updated_at.isoformat(),
+                    "performance_warnings": performance_warnings,
                     "test_results": {
                         "passed": total_passed,
                         "total": total_tests,

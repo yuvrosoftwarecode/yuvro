@@ -148,7 +148,11 @@
                 "To reach step n, you must come from either step n-1 or step n-2. This reveals a recursive structure.",
                 "The number of ways to reach step n is Ways(n-1) + Ways(n-2). This is identical to the Fibonacci sequence.",
                 "Use a simple loop with two variables to store previous values (Ways(i-1), Ways(i-2)) to reach O(1) space optimization."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -239,7 +243,11 @@
                 "If the last characters of both strings match, they must be part of the LCS. If they don't, the LCS comes from either skipping a character in text1 or text2.",
                 "Define dp[i][j] as the LCS of text1[i:] and text2[j:]. If text1[i] == text2[j], dp[i][j] = 1 + dp[i+1][j+1]; otherwise max(dp[i+1][j], dp[i][j+1]).",
                 "A 2D table of size (M+1) x (N+1) is typically used for bottom-up tabulation. You can optimize space to O(N) by only keeping the previous row."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -321,7 +329,11 @@
                 "The recursion F(n) = F(n-1) + F(n-2) has many overlapping subproblems (e.g., F(3) is calculated multiple times).",
                 "Store results of subproblems in a table (tabulation) or a hash map (memoization) to avoid redundant work.",
                 "Since you only need the previous two terms to calculate the next one, you can optimize space to O(1) using just two variables."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -403,7 +415,11 @@
                 "At each house, you have two choices: rob it (and skip the next one) or skip it (and consider robbing the next one).",
                 "Formula: max_money(i) = max(money(i) + max_money(i-2), max_money(i-1)).",
                 "This problem has a linear DP structure. You can solve it using a simple iteration and minimize space to O(1) by only tracking the last two maximums."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -485,7 +501,11 @@
                 "Define dp[i] as the minimum coins needed to make amount i. To find dp[i], try subtracting each coin denomination c and take min(dp[i-c] + 1).",
                 "Initialize the DP array with a value greater than any possible amount (e.g., amount + 1) to represent 'infinity'.",
                 "Base case: dp[0] = 0. The final answer is dp[amount] if it's less than your infinity, else -1."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -566,7 +586,11 @@
                 "For each character pair (i, j), if they match, no operation is needed. If they don't, you can Insert, Delete, or Replace.",
                 "Recurrence: If chars differ, dp[i][j] = 1 + min(delete, insert, replace). These operations correspond to dp[i-1][j], dp[i][j-1], and dp[i-1][j-1].",
                 "Build a 2D table where dp[i][0] = i (all deletions) and dp[0][j] = j (all insertions) as base cases."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -647,7 +671,11 @@
                 "Use a boolean DP array where dp[i] is true if the prefix s[0:i] can be segmented using the dictionary.",
                 "For each index i, check every previous index j. If dp[j] is true and the substring s[j:i] exists in the dictionary, then dp[i] becomes true.",
                 "Converting the word dictionary into a Set provides O(1) lookups, which significantly speeds up the process."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -728,7 +756,11 @@
                 "A basic DP approach tracks the LIS ending at each index i by checking all j < i (O(N^2)).",
                 "For an optimal O(N log N) solution, maintain a sorted list of the smallest possible tail for each LIS length.",
                 "Use binary search (like Python's bisect_left) to find where the current element fits in the 'tails' list to either replace a value or extend the LIS."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -793,7 +825,11 @@
                 "A palindrome reads the same backwards and forwards. A common approach is to treat each character (or pair) as a center and expand outwards.",
                 "Consider both odd-length (expand from one center) and even-length (expand from between two characters) palindromes.",
                 "Update the result whenever you find a palindrome longer than the current maximum."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -853,7 +889,11 @@
                 "While you can use DP (O(N^2)), a greedy approach is much more efficient. Track the farthest index you can reach so far.",
                 "As you iterate, if the current index is greater than the farthest reach, you're stuck. Otherwise, update the farthest reach using i + nums[i].",
                 "Alternatively, work backwards: if you can reach the 'goal' index from the current index, update the goal to the current index. If you reach index 0, return true."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -910,7 +950,11 @@
                 "The number of ways to reach a cell (r, c) is the sum of ways to reach (r-1, c) and (r, c-1).",
                 "Base cases: All cells in the first row and first column have exactly 1 path (since you can only move right or down).",
                 "You can reduce the space complexity from O(M*N) to O(N) by only storing the values of the previous row."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

@@ -373,6 +373,36 @@ class QuestionSerializer(serializers.ModelSerializer):
                             f"Advanced test case {i+1} must have 'input' and 'expected_output' fields"
                         )
 
+        # Validate code_executor_config if provided
+        config = data.get("code_executor_config")
+        if config is not None:
+            if not isinstance(config, dict):
+                raise serializers.ValidationError(
+                    {"code_executor_config": "code_executor_config must be an object"}
+                )
+            time_limit = config.get("time_limit")
+            memory_limit = config.get("memory_limit")
+
+            if time_limit is not None:
+                if not isinstance(time_limit, (int, float)) or time_limit <= 0:
+                    raise serializers.ValidationError(
+                        {"code_executor_config": "time_limit must be a positive number (seconds)"}
+                    )
+                if time_limit > 300:
+                    raise serializers.ValidationError(
+                        {"code_executor_config": "time_limit cannot exceed 300 seconds"}
+                    )
+
+            if memory_limit is not None:
+                if not isinstance(memory_limit, (int, float)) or memory_limit <= 0:
+                    raise serializers.ValidationError(
+                        {"code_executor_config": "memory_limit must be a positive number (MB)"}
+                    )
+                if memory_limit > 4096:
+                    raise serializers.ValidationError(
+                        {"code_executor_config": "memory_limit cannot exceed 4096 MB"}
+                    )
+
         return data
 
     def create(self, validated_data):

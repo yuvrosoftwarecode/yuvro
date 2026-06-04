@@ -69,7 +69,7 @@ class CodeExecutionUtil:
             "test_cases_basic": test_cases_basic,
             "test_cases_advanced": test_cases_advanced,
             "test_cases_custom": test_cases_custom,
-            "timeout": time_limit,
+            "timeout": time_limit + 5,
             "time_limit": time_limit,
             "memory_limit": memory_limit,
         }

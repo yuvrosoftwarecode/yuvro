@@ -783,15 +783,30 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     mem_task = asyncio.create_task(
                         process.communicate(input=input_data.encode())
                     )
-                    memory_usage = 0
-                    try:
-                        ps_proc = psutil.Process(process.pid)
-                        memory_usage = ps_proc.memory_info().rss / 1024 / 1024
-                    except Exception:
-                        pass
+                    
+                    # Background task to poll for peak memory usage
+                    async def track_peak_memory(pid):
+                        max_mem = 0
+                        try:
+                            ps_proc = psutil.Process(pid)
+                            # Poll while process is alive
+                            while process.returncode is None:
+                                try:
+                                    mem = ps_proc.memory_info().rss / 1024 / 1024
+                                    if mem > max_mem:
+                                        max_mem = mem
+                                except Exception:
+                                    pass
+                                await asyncio.sleep(0.05)
+                        except Exception:
+                            pass
+                        return max_mem
+                        
+                    monitor_task = asyncio.create_task(track_peak_memory(process.pid))
 
                     stdout, stderr = await asyncio.wait_for(mem_task, timeout=request.timeout)
                     execution_time = time.time() - start_time
+                    memory_usage = await monitor_task
 
 
                     actual_output = stdout.decode().strip()
@@ -802,19 +817,21 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     error_msg = stderr.decode() if not passed and not console_output else ""
 
                     # If output is correct but limits exceeded, keep passed=True but
-                    # inject a structured warning into the console output.
+                    # inject a structured warning into the console output and set error_msg.
                     if passed and request.time_limit is not None and execution_time > request.time_limit:
+                        error_msg = "Time Limit Exceeded"
                         limit_warning = json.dumps({
                             "status": "failed",
                             "reason": "Time Limit Exceeded",
-                            "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds."
+                            "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds. Execution took {execution_time:.2f}s."
                         })
                         console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
                     elif passed and request.memory_limit is not None and memory_usage > request.memory_limit:
+                        error_msg = "Memory Limit Exceeded"
                         limit_warning = json.dumps({
                             "status": "failed",
                             "reason": "Memory Limit Exceeded",
-                            "message": f"Program execution exceeded the configured memory limit of {request.memory_limit} MB."
+                            "message": f"Program execution exceeded the configured memory limit of {request.memory_limit} MB. Used {memory_usage:.2f} MB."
                         })
                         console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
 
