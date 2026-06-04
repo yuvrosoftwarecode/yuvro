@@ -59,6 +59,7 @@ from authentication.permissions import (
     IsInstructorOrAdmin,
 )
 from django.contrib.auth import get_user_model
+from urllib.parse import urlparse
 
 User = get_user_model()
 
@@ -451,7 +452,6 @@ class ForgotPasswordView(generics.GenericAPIView):
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
         # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
-        from urllib.parse import urlparse
         origin = request.META.get("HTTP_ORIGIN")
         if not origin:
             referer = request.META.get("HTTP_REFERER")
