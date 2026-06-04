@@ -59,6 +59,7 @@ from authentication.permissions import (
     IsInstructorOrAdmin,
 )
 from django.contrib.auth import get_user_model
+from urllib.parse import urlparse
 
 User = get_user_model()
 
@@ -450,14 +451,24 @@ class ForgotPasswordView(generics.GenericAPIView):
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uidb64}/{token}"
+        # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
+        origin = request.META.get("HTTP_ORIGIN")
+        if not origin:
+            referer = request.META.get("HTTP_REFERER")
+            if referer:
+                parsed_uri = urlparse(referer)
+                origin = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+        
+        frontend_url = origin.rstrip("/") if origin else settings.FRONTEND_URL
+
+        reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
         # Render styled HTML email template
         from django.template.loader import render_to_string
         context = {
             "user": user,
             "reset_link": reset_link,
-            "frontend_url": settings.FRONTEND_URL,
+            "frontend_url": frontend_url,
         }
         html_message = render_to_string("emails/password_reset.html", context)
         plain_message = f"Click the link to reset your password: {reset_link}"
