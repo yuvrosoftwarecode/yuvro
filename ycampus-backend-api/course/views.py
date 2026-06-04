@@ -2669,7 +2669,10 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             for r in (basic_results + advanced_results + custom_results):
                 if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                     status_val = "failed"
-                    reason_val = r.get("error")
+                    if r.get("error") == "Time Limit Exceeded":
+                        reason_val = f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
+                    else:
+                        reason_val = f"Memory Limit Exceeded. Solution used {r.get('memory_usage', 0):.2f}MB, which exceeds the limit."
                     break
 
             response_data.update(
@@ -3419,7 +3422,10 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 for r in (basic_results + advanced_results + custom_results):
                     if r.get("error") in ["Time Limit Exceeded", "Memory Limit Exceeded"]:
                         status_val = "failed"
-                        reason_val = r.get("error")
+                        if r.get("error") == "Time Limit Exceeded":
+                            reason_val = f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
+                        else:
+                            reason_val = f"Memory Limit Exceeded. Solution used {r.get('memory_usage', 0):.2f}MB, which exceeds the limit."
                         break
 
                 existing_submission = StudentCodePractice.objects.filter(

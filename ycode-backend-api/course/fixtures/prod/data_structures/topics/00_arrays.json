@@ -2759,7 +2759,11 @@
                 "Iterate through the array and keep track of the maximum element found so far.",
                 "Initialize the maximum element with the first element of the array.",
                 "Compare each element with the current maximum element and update it if the current element is greater."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2870,7 +2874,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2981,7 +2989,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3092,7 +3104,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3203,7 +3219,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3314,7 +3334,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3424,7 +3448,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3534,7 +3562,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3644,7 +3676,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3755,7 +3791,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3866,7 +3906,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3977,7 +4021,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4088,7 +4136,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4199,7 +4251,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4310,7 +4366,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4421,7 +4481,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4532,7 +4596,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4643,7 +4711,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4754,7 +4826,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4865,7 +4941,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4976,7 +5056,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5087,7 +5171,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5198,7 +5286,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5309,7 +5401,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5420,7 +5516,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5531,7 +5631,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5642,7 +5746,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5753,7 +5861,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5864,7 +5976,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -5975,7 +6091,11 @@
                 "Consider sorting the array as a first step to simplify the problem.",
                 "Once sorted, elements that share properties (like duplicates or parts of a target sum) will be adjacent or easier to find.",
                 "Iterate through the sorted elements to find the final answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6086,7 +6206,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6197,7 +6321,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6308,7 +6436,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6419,7 +6551,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6530,7 +6666,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6633,7 +6773,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6736,7 +6880,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6839,7 +6987,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6942,7 +7094,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7045,7 +7201,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7156,7 +7316,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7267,7 +7431,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7378,7 +7546,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7489,7 +7661,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7600,7 +7776,11 @@
                 "Read the problem carefully and identify the inputs and the expected output.",
                 "Start by thinking of a simple brute-force approach, even if it might be slow, to understand the core logic.",
                 "Look for ways to optimize by storing previously computed results or using a more efficient data structure."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7711,7 +7891,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7822,7 +8006,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7933,7 +8121,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8044,7 +8236,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8155,7 +8351,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8266,7 +8466,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8377,7 +8581,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8488,7 +8696,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8599,7 +8811,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8710,7 +8926,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8821,7 +9041,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8932,7 +9156,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9043,7 +9271,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9154,7 +9386,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9265,7 +9501,11 @@
                 "Think about the properties of continuous segments in the array.",
                 "Can you compute a running sum (prefix sum) to optimize checking subarrays?",
                 "Use an auxiliary data structure like a hash map or sliding window to avoid nested loops."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9376,7 +9616,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9487,7 +9731,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9598,7 +9846,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9709,7 +9961,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9820,7 +10076,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9931,7 +10191,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10042,7 +10306,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10153,7 +10421,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10264,7 +10536,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10375,7 +10651,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10486,7 +10766,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10597,7 +10881,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10708,7 +10996,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10819,7 +11111,11 @@
                 "Initialize pointers or a window boundary to keep track of the current sequence.",
                 "Adjust the pointers or window size based on the given condition (e.g., expanding when safe, shrinking when violating).",
                 "Keep track of the optimal answer (max, min, or count) during each valid state of the pointers/window."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
