@@ -145,7 +145,7 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
                 {stat.icon}
               </div>
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                <p className="text-[10px] font-semi bold text-muted-foreground  tracking-widest">{stat.label}</p>
                 <p className="text-2xl font-bold tracking-tight text-foreground">{stat.value}</p>
               </div>
             </CardContent>

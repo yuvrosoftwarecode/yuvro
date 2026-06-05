@@ -347,7 +347,7 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
             {filteredAssessments.map((assessment) => (
               <Card 
                 key={assessment.id} 
-                className="hover:shadow-md transition-shadow duration-300 border border-gray-100 bg-card rounded-xl p-5"
+                className="border border-gray-100 bg-card rounded-xl p-5"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex flex-col gap-1">
@@ -358,7 +358,7 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
                       {assessment.course}
                     </p>
                   </div>
-                  <Badge className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-medium flex items-center gap-1.5", getStatusColor(assessment.status))}>
+                  <Badge className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-medium flex items-center gap-1.5 pointer-events-none", getStatusColor(assessment.status))}>
                     {assessment.status === 'completed' ? (
                       <><CheckCircle className="h-3.5 w-3.5" /> Completed</>
                     ) : (
@@ -392,12 +392,12 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Badge className={cn("rounded-full px-3 py-0.5 text-[11px] font-bold", getDifficultyColor(assessment.difficulty))}>
+                    <Badge className={cn("rounded-full px-3 py-0.5 text-[11px] font-bold pointer-events-none", getDifficultyColor(assessment.difficulty))}>
                       {assessment.difficulty}
                     </Badge>
                     
                     {assessment.status === 'completed' && assessment.score !== undefined && (
-                      <Badge className="bg-blue-50 text-slate-700 rounded-full px-2.5 py-0.5 text-[11px] font-medium border-none">
+                      <Badge className="bg-blue-50 text-slate-700 rounded-full px-2.5 py-0.5 text-[11px] font-medium border-none pointer-events-none">
                         Score: {assessment.score}/{assessment.marks}
                       </Badge>
                     )}

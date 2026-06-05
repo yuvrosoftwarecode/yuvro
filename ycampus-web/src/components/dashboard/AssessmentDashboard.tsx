@@ -99,7 +99,7 @@ export function AssessmentDashboard() {
 
       {/* Top Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-200 dark:border-blue-800">
+        <Card className="bg-blue-500/10 border-blue-200 dark:border-blue-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Code Practice</CardTitle>
             <Code className="h-4 w-4 text-blue-500" />
@@ -107,11 +107,11 @@ export function AssessmentDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{solvedProblems} / {totalProblems}</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Problems Solved</p>
-            <Progress value={codePracticeProgress} className="h-2" />
+            <Progress value={codePracticeProgress} className="h-2 [&>div]:bg-blue-500" />
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-200 dark:border-green-800">
+        <Card className="bg-green-500/10 border-green-200 dark:border-green-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Skill Tests</CardTitle>
             <BookOpen className="h-4 w-4 text-green-500" />
@@ -119,37 +119,37 @@ export function AssessmentDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{testPerformance?.avgScore || 0}%</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
-            <Progress value={testPerformance?.avgScore || 0} className="h-2" />
+            <Progress value={testPerformance?.avgScore || 0} className="h-2 [&>div]:bg-green-500" />
             <div className="text-[10px] text-muted-foreground mt-2">
               {testPerformance?.completed || 0} / {practiceTests?.length || 0} Tests Completed
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-200 dark:border-purple-800">
+        <Card className="bg-yellow-500/10 border-yellow-200 dark:border-yellow-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Aptitude & Reasoning</CardTitle>
-            <BrainCircuit className="h-4 w-4 text-purple-500" />
+            <BrainCircuit className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{assessments?.avgScore || 0}%</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
-            <Progress value={aptitudeProgress} className="h-2" />
+            <Progress value={aptitudeProgress} className="h-2 [&>div]:bg-yellow-500" />
             <div className="text-[10px] text-muted-foreground mt-2">
               {assessments?.completed || 0} / 50 Assessments Completed
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-500/10 to-transparent border-orange-200 dark:border-orange-800">
+        <Card className="bg-purple-500/10 border-purple-200 dark:border-purple-800">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Mock Interviews</CardTitle>
-            <Mic className="h-4 w-4 text-orange-500" />
+            <Mic className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{interviewAvgScore}%</div>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Average Score</p>
-            <Progress value={interviewAvgScore} className="h-2" />
+            <Progress value={interviewAvgScore} className="h-2 [&>div]:bg-purple-500" />
             <div className="text-[10px] text-muted-foreground mt-2">
               {myInterviews?.length || 0} / 15 Interviews Attended
             </div>

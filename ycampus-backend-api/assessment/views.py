@@ -1488,9 +1488,44 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         def generate():
             try:
                 logger.info(f"Starting background report generation for session {interview_session.id}")
-                generator = InterviewReportGenerator(interview_session)
+                
+                # Check if report already exists
+                if hasattr(interview_session, "report") and interview_session.report:
+                    logger.info(f"Report already exists for session {interview_session.id}, skipping generation.")
+                    return
+                
+                generator = InterviewReportGenerator()
+                
+                # Prepare conversation text
+                trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
+                messages = interview_session.chat_session.messages.order_by("created_at")
+                conversation_text = ""
+                for msg in messages:
+                    if msg.content.strip() == trigger_text:
+                        continue
+                    role = "Interviewer" if msg.message_type != "user" else "Candidate"
+                    conversation_text += f"{role}: {msg.content}\n\n"
+
+                # Use extracted resume text from context if available
+                resume_text = interview_session.chat_session.context.get("candidate_info", "No resume provided.")
+
                 # Use async_to_sync because generate_report is async
-                async_to_sync(generator.generate_report)()
+                report_data = async_to_sync(generator.generate_report)(
+                    conversation_text, resume_content=resume_text
+                )
+                
+                # Create Report object
+                InterviewReport.objects.create(
+                    interview_session=interview_session,
+                    overall_score=report_data.get("overall_score", 0),
+                    feedback_summary=report_data.get("feedback_summary", ""),
+                    performance_metrics=report_data.get("performance_metrics", {}),
+                    skill_analysis=report_data.get("skill_analysis", {}),
+                    question_analysis=report_data.get("question_analysis", []),
+                    key_takeaways=report_data.get("key_takeaways", {}),
+                    meta_stats=report_data.get("meta_stats", {})
+                )
+                
                 logger.info(f"Background report generation successfully finished for session {interview_session.id}")
             except Exception as e:
                 logger.error(f"Background report generation failed: {str(e)}")

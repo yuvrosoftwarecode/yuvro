@@ -187,15 +187,20 @@ class AnthropicService(BaseAIService):
                         {"role": msg["role"], "content": msg["content"]}
                     )
 
+            create_params = {
+                "model": self.model_name,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": anthropic_messages,
+                **kwargs,
+            }
+            if system_message:
+                create_params["system"] = system_message
+
             if stream:
                 response = await self.client.messages.create(
-                    model=self.model_name,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    system=system_message,
-                    messages=anthropic_messages,
                     stream=True,
-                    **kwargs,
+                    **create_params,
                 )
                 return {
                     "stream": response,
@@ -203,12 +208,7 @@ class AnthropicService(BaseAIService):
                 }
 
             response = await self.client.messages.create(
-                model=self.model_name,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system=system_message,
-                messages=anthropic_messages,
-                **kwargs,
+                **create_params,
             )
 
             end_time = time.time()
@@ -470,11 +470,11 @@ class InterviewReportGenerator:
     """
 
     def __init__(self):
-        # We'll use Gemini for report generation as it handles large contexts well
-        self.api_key = config("GEMINI_API_KEY", default=None)
+        self.api_key = config("ANTHROPIC_API_KEY", default=None)
         if not self.api_key:
-            raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
-        self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
+            raise AIServiceError("ANTHROPIC_API_KEY not found needed for report generation.")
+        model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
+        self.service = AnthropicService(self.api_key, model_name=model_name)
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
         """
@@ -539,7 +539,17 @@ class InterviewReportGenerator:
             # clean up potential markdown formatting if model ignores instruction
             response_text = response_text.replace("```json", "").replace("```", "").strip()
             
-            return json.loads(response_text)
+            try:
+                return json.loads(response_text)
+            except json.JSONDecodeError:
+                # Fallback: extract just the object if there is surrounding text
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}') + 1
+                if start_idx != -1 and end_idx != 0:
+                    response_text = response_text[start_idx:end_idx]
+                    return json.loads(response_text)
+                else:
+                    raise
 
         except json.JSONDecodeError:
             logger.error("Failed to parse AI report JSON")
