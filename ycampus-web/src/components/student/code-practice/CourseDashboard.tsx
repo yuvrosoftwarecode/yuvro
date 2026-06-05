@@ -5,7 +5,8 @@ import {
   Code2, Database, Cpu, FileCode, Braces, Terminal,
   Trophy, Brain, CheckCircle2, Zap, Layout, Monitor, Calculator, Play
 } from 'lucide-react';
-import { fetchSubjects, type Subject as apiSubject } from '@/services/subjectService';
+import { fetchSubjects, fetchSubjectsByCollege, type Subject as apiSubject } from '@/services/subjectService';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Subject as CodePracticeSubject } from '@/types/codePractice';
 import { toast } from 'sonner';
 import PageHeader from '@/components/common/PageHeader';
@@ -47,14 +48,22 @@ const getSubjectStyle = (id: string | number) => {
 
 
 const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboardProps) => {
+  const { user } = useAuth();
   const [subjects, setSubjects] = useState<CodePracticeSubject[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadSubjects = async () => {
       try {
-        const fetchedSubjects = await fetchSubjects();
-        const dsaSubjects = fetchedSubjects.filter((s: apiSubject) => s.short_code === 'DSA100');
+        let fetchedSubjects: apiSubject[] = [];
+        if (user?.college_id) {
+          fetchedSubjects = await fetchSubjectsByCollege(user.college_id);
+        } else {
+          fetchedSubjects = await fetchSubjects();
+        }
+        const dsaSubjects = fetchedSubjects.filter((s: apiSubject) => {
+          return s.product_type === 'assessments' && (s.short_code === 'DSA100' || s.subject_code === 'DSA100');
+        });
         const transformedSubjects: CodePracticeSubject[] = dsaSubjects.map((s: apiSubject) => ({
           id: s.id.toString(),
           name: s.subject_name || s.name || s.title || 'Untitled Subject',
@@ -77,7 +86,7 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
       }
     };
     loadSubjects();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (

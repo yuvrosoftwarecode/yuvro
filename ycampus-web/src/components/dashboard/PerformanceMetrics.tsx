@@ -68,7 +68,7 @@ export function PerformanceMetrics() {
     { label: 'Learning Progress', value: learningProgress, color: 'hsl(var(--success))' },
     { label: 'Task Completion', value: taskCompletion, color: 'hsl(var(--success-light))' },
     { label: 'Test Average', value: testAverage, color: 'hsl(var(--saffron))' },
-    { label: 'Assessment Average', value: assessmentAverage, color: 'hsl(var(--primary))' },
+    { label: user?.college_product_type === 'assessments' ? 'Assessment Average' : 'Internal Test Average', value: assessmentAverage, color: 'hsl(var(--primary))' },
     { label: 'Contest Participation', value: Math.min(contestParticipation * 10, 100), displayValue: String(contestParticipation), color: 'hsl(var(--saffron-light))' },
     { label: 'Attendance Rate', value: attendanceRate, color: 'hsl(var(--success))' }
   ];

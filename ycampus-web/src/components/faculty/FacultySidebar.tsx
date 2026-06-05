@@ -24,7 +24,7 @@ const menuItems = [
   { title: 'Dashboard', url: '/faculty/dashboard', icon: LayoutDashboard },
   { title: 'Syllabus', url: '/faculty/syllabus', icon: BookOpen },
   { title: 'Revise', url: '/faculty/revise', icon: RefreshCw },
-  { title: 'Assessment', url: '/faculty/assessment', icon: ClipboardList },
+  { title: 'Internal tests', url: '/faculty/internal-test', icon: ClipboardList },
   { title: 'Attendance', url: '/faculty/attendance', icon: CalendarCheck },
   { title: 'Task', url: '/faculty/task', icon: ListTodo },
 ];
@@ -195,7 +195,7 @@ const FacultySidebar = () => {
               <button onClick={logout} className="flex items-center w-full rounded-md px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors">
                 <LogOut className="mr-2 h-4 w-4" />Logout
               </button>
-              <DeployInfo collapsed={collapsed} visible={profileOpen} />
+              <DeployInfo collapsed={isCollapsed} visible={profileOpen} />
             </div>
           </div>
         </div>

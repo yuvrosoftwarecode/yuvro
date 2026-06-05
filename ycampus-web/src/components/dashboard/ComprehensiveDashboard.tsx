@@ -1,7 +1,7 @@
 import { NotesProgress } from './NotesProgress';
 import { TestPerformance } from './TestPerformance';
 import { TasksSummary } from './TasksSummary';
-import { AssessmentsOverview } from './AssessmentsOverview';
+import { InternalTestsOverview } from './InternalTestsOverview';
 import { AssessmentsPerformance } from './AssessmentsPerformance';
 import { AttendanceOverview } from './AttendanceOverview';
 import { AnnouncementsWidget } from './AnnouncementsWidget';
@@ -25,7 +25,7 @@ export function ComprehensiveDashboard() {
 
       {/* Middle Row: Assessments and Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AssessmentsOverview />
+        <InternalTestsOverview />
         <AssessmentsPerformance />
       </div>
 

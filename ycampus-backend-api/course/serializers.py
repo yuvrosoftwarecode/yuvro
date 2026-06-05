@@ -267,7 +267,7 @@ class SubUnitSerializer(serializers.ModelSerializer):
             from core.models import StudentProfile
             profile = StudentProfile.objects.filter(user=request.user).select_related('college').first()
             if profile:
-                if profile.college and profile.college.product_type == 'assessments':
+                if profile.college and (profile.college.product_type == 'assessments' or (obj.unit and obj.unit.subject and obj.unit.subject.product_type == 'assessments')):
                     return True
                 if not section_id:
                     section_id = profile.section_id
@@ -507,13 +507,35 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
     unit_count = serializers.SerializerMethodField()
 
     def get_total_problems(self, obj):
-        return getattr(obj, 'total_problems', 0)
+        total = getattr(obj, 'total_problems', None)
+        if total is not None:
+            return total
+        return obj.questions.filter(type='coding', categories__contains=['practice']).count()
 
     def get_solved_problems(self, obj):
-        return getattr(obj, 'solved_problems', 0)
+        solved = getattr(obj, 'solved_problems', None)
+        if solved is not None:
+            return solved
+        request = self.context.get('request')
+        if request and request.user and request.user.is_authenticated:
+            return StudentCodePractice.objects.filter(
+                user=request.user,
+                subject=obj,
+                status__in=['completed', 'evaluated'],
+                question__type='coding',
+                question__categories__contains=['practice']
+            ).count()
+        return 0
 
     def get_progress_percentage(self, obj):
-        return getattr(obj, 'progress_percentage', 0.0)
+        pct = getattr(obj, 'progress_percentage', None)
+        if pct is not None:
+            return pct
+        total = self.get_total_problems(obj)
+        if total > 0:
+            solved = self.get_solved_problems(obj)
+            return round((solved / total) * 100, 2)
+        return 0.0
 
     def get_total_score(self, obj):
         return getattr(obj, 'total_score', 0.0)
@@ -522,10 +544,16 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
         return getattr(obj, 'ai_help_used', 0)
 
     def get_college_count(self, obj):
-        return getattr(obj, 'college_count', 0)
+        cc = getattr(obj, 'college_count', None)
+        if cc is not None:
+            return cc
+        return obj.subject_colleges.count()
 
     def get_unit_count(self, obj):
-        return getattr(obj, 'unit_count', 0)
+        uc = getattr(obj, 'unit_count', None)
+        if uc is not None:
+            return uc
+        return obj.units.count()
 
 
 

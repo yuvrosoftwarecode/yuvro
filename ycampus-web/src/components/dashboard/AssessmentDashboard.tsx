@@ -8,18 +8,24 @@ import { studentDashboardService } from '@/services/studentDashboardService';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchSubjects } from '@/services/subjectService';
+import { fetchSubjects, fetchSubjectsByCollege } from '@/services/subjectService';
+import { useLocation } from 'react-router-dom';
 
 export function AssessmentDashboard() {
   const { user } = useAuth();
+  const location = useLocation();
+
+  const isAssessmentsPath = location.pathname.includes('/student/assessments');
+  const effectiveProductType = isAssessmentsPath || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
 
   const { data: testPerformance } = useQuery({
-    queryKey: ['testPerformance', user?.college_product_type],
-    queryFn: () => studentDashboardService.getTestPerformance(user?.college_product_type)
+    queryKey: ['testPerformance', effectiveProductType, user?.id],
+    queryFn: () => studentDashboardService.getTestPerformance(effectiveProductType),
+    enabled: !!user
   });
 
   const { data: practiceTests } = useQuery({
-    queryKey: ['practiceTests', user?.college_product_type],
+    queryKey: ['practiceTests', effectiveProductType, user?.id],
     queryFn: async () => {
       try {
         const res = await restApiAuthUtil.get<any>('/assessment/skill-tests/?test_type=practice');
@@ -27,29 +33,38 @@ export function AssessmentDashboard() {
       } catch (e) {
         return [];
       }
-    }
+    },
+    enabled: !!user
   });
 
   const { data: assessments } = useQuery({
-    queryKey: ['assessmentsOverview', user?.college_product_type],
-    queryFn: () => studentDashboardService.getAssessments(user?.college_product_type)
+    queryKey: ['assessmentsOverview', effectiveProductType, user?.id],
+    queryFn: () => studentDashboardService.getAssessments(effectiveProductType),
+    enabled: !!user
   });
 
   const { data: myInterviews } = useQuery({
-    queryKey: ['myInterviews'],
-    queryFn: () => mockInterviewService.getMyInterviews()
+    queryKey: ['myInterviews', user?.id],
+    queryFn: () => mockInterviewService.getMyInterviews(),
+    enabled: !!user
   });
 
   const { data: dsaSubjects } = useQuery({
-    queryKey: ['dsaSubjects'],
+    queryKey: ['dsaSubjects', user?.id, user?.college_id],
     queryFn: async () => {
       try {
-        const fetched = await fetchSubjects();
-        return fetched.filter((s: any) => s.short_code === 'DSA100');
+        let fetched = [];
+        if (user?.college_id) {
+          fetched = await fetchSubjectsByCollege(user.college_id);
+        } else {
+          fetched = await fetchSubjects();
+        }
+        return fetched.filter((s: any) => s.short_code === 'DSA100' || s.subject_code === 'DSA100');
       } catch (e) {
         return [];
       }
-    }
+    },
+    enabled: !!user
   });
 
   const solvedProblems = dsaSubjects
@@ -57,8 +72,8 @@ export function AssessmentDashboard() {
     : 0;
 
   const totalProblems = dsaSubjects
-    ? dsaSubjects.reduce((sum: number, s: any) => sum + (s.total_problems || 0), 0) || 150
-    : 150;
+    ? dsaSubjects.reduce((sum: number, s: any) => sum + (s.total_problems || 0), 0) || 0
+    : 0;
 
   const completedInterviews = myInterviews
     ? myInterviews.filter((i: any) => i.status === 'completed' || i.status === 'evaluated')

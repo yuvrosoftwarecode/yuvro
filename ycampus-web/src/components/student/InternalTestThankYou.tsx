@@ -12,7 +12,7 @@ interface Assessment {
   totalQuestions: number;
 }
 
-interface AssessmentThankYouProps {
+interface InternalTestThankYouProps {
   assessment: Assessment;
   answeredCount: number;
   totalQuestions: number;
@@ -20,13 +20,14 @@ interface AssessmentThankYouProps {
   onBackToAssessment: () => void;
 }
 
-const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
+const InternalTestThankYou: React.FC<InternalTestThankYouProps> = ({
   assessment,
   answeredCount,
   totalQuestions,
   timeSpent,
   onBackToAssessment
 }) => {
+  const isCampus = !window.location.pathname.includes('/student/assessments');
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -48,10 +49,10 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl text-green-600 mb-2">
-            Assessment Submitted Successfully!
+            {isCampus ? "Internal Test" : "Assessment"} Submitted Successfully!
           </CardTitle>
           <p className="text-muted-foreground">
-            Thank you for completing the assessment. Your responses have been recorded.
+            Thank you for completing the {isCampus ? "internal test" : "assessment"}. Your responses have been recorded.
           </p>
         </CardHeader>
 
@@ -60,11 +61,11 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
           <div className="bg-muted/30 rounded-lg p-4">
             <h3 className="font-semibold mb-3 flex items-center">
               <FileText className="h-4 w-4 mr-2" />
-              Assessment Summary
+              {isCampus ? "Internal Test" : "Assessment"} Summary
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Assessment</p>
+                <p className="text-sm text-muted-foreground">{isCampus ? "Internal Test" : "Assessment"}</p>
                 <p className="font-medium">{assessment.title}</p>
               </div>
               <div>
@@ -94,7 +95,7 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
               <li>• Your responses are being evaluated</li>
               <li>• Results will be available shortly</li>
               <li>• You will receive feedback on your performance</li>
-              <li>• Check the assessment card to view detailed analytics</li>
+              <li>• Check the {isCampus ? "internal test" : "assessment"} card to view detailed analytics</li>
             </ul>
           </div>
 
@@ -105,7 +106,7 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back to Assessments</span>
+              <span>Back to {isCampus ? "Internal Tests" : "Assessments"}</span>
             </Button>
           </div>
         </CardContent>
@@ -114,4 +115,4 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
   );
 };
 
-export default AssessmentThankYou;
+export default InternalTestThankYou;

@@ -35,6 +35,7 @@ export interface Subject {
   id: string | number;
   yuvro_id?: string;
   short_code?: string;
+  subject_code?: string;
   subject_name: string;
   name?: string; // Deprecated, use subject_name
   title?: string; // Deprecated, use subject_name
@@ -725,7 +726,15 @@ export async function removeSubjectFromCollege(assignmentId: string): Promise<vo
 
 export async function fetchSubjectsByCollege(collegeId: string): Promise<Subject[]> {
   const assignments = await fetchCollegeSubjects(collegeId);
-  return assignments.map(a => a.subject_details).filter(Boolean) as Subject[];
+  return assignments
+    .map(a => {
+      if (!a.subject_details) return null;
+      return {
+        ...a.subject_details,
+        subject_code: a.subject_code || a.subject_details.short_code
+      };
+    })
+    .filter(Boolean) as Subject[];
 }
 
 // ==================== Attendance Management ====================

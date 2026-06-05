@@ -50,7 +50,7 @@ const CodePractice = () => {
         subject = await fetchSubjectById(subjectId);
         if (subject.short_code !== 'DSA100') {
           toast.error("Unauthorized access.");
-          navigate('/student/code-practice');
+          navigate('/student/assessments/code-practice');
           setIsHydrating(false);
           return;
         }
@@ -144,14 +144,14 @@ const CodePractice = () => {
   const handleSubjectSelect = (subject: Subject) => {
     setSelectedSubject(subject);
     setCurrentView('units');
-    navigate(`/student/code-practice/subjects/${subject.id}`);
+    navigate(`/student/assessments/code-practice/subjects/${subject.id}`);
   };
 
   const handleUnitSelect = (unit: Unit) => {
     setSelectedUnit(unit);
     const sId = selectedSubject?.id || subjectId;
     if (sId) {
-      navigate(`/student/code-practice/subjects/${sId}/units/${unit.id}`);
+      navigate(`/student/assessments/code-practice/subjects/${sId}/units/${unit.id}`);
     }
   };
 
@@ -161,7 +161,7 @@ const CodePractice = () => {
     const sId = selectedSubject?.id || subjectId;
     const uId = selectedUnit?.id || unitId;
     if (sId && uId) {
-      navigate(`/student/code-practice/subjects/${sId}/units/${uId}/questions/${problem.id}`);
+      navigate(`/student/assessments/code-practice/subjects/${sId}/units/${uId}/questions/${problem.id}`);
     }
   };
 
@@ -170,7 +170,7 @@ const CodePractice = () => {
     setSelectedSubject(null);
     setSelectedUnit(null);
     setSelectedProblem(null);
-    navigate('/student/code-practice');
+    navigate('/student/assessments/code-practice');
   };
 
   const handleBackToUnits = () => {
@@ -179,11 +179,11 @@ const CodePractice = () => {
     const sId = selectedSubject?.id || subjectId;
     const uId = selectedUnit?.id || unitId;
     if (sId && uId) {
-      navigate(`/student/code-practice/subjects/${sId}/units/${uId}`);
+      navigate(`/student/assessments/code-practice/subjects/${sId}/units/${uId}`);
     } else if (sId) {
-      navigate(`/student/code-practice/subjects/${sId}`);
+      navigate(`/student/assessments/code-practice/subjects/${sId}`);
     } else {
-      navigate('/student/code-practice');
+      navigate('/student/assessments/code-practice');
     }
   };
 

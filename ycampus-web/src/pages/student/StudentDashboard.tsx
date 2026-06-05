@@ -5,7 +5,7 @@ import MockInterviewLibrary from '@/components/student/MockInterviewLibrary';
 import Notes from '@/components/student/Notes';
 import TestContent from '@/components/student/TestContent';
 import TaskContent from '@/components/student/TaskContent';
-import AssessmentContent from '@/components/student/AssessmentContent';
+import InternalTestContent from '@/components/student/InternalTestContent';
 import { ComprehensiveDashboard } from '@/components/dashboard/ComprehensiveDashboard';
 import { AssessmentDashboard } from '@/components/dashboard/AssessmentDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ const StudentDashboard = () => {
   
   // Get active menu from URL path
   const getActiveMenuFromPath = (pathname: string) => {
+    if (pathname.includes('/dashboard')) return 'dashboard';
     if (pathname.includes('/student/test')) return 'test';
     if (pathname.includes('/student/task')) return 'task';
     if (pathname.includes('/student/assessment')) return 'assessment';
@@ -76,7 +77,8 @@ const StudentDashboard = () => {
   ];
 
   const renderDashboardContent = () => {
-    if (user?.college_product_type === 'assessments') {
+    const isAssessmentsPath = location.pathname.includes('/student/assessments');
+    if (isAssessmentsPath || user?.college_product_type === 'assessments') {
       return <AssessmentDashboard />;
     }
     return <ComprehensiveDashboard />;
@@ -91,7 +93,7 @@ const StudentDashboard = () => {
       case 'task':
         return <TaskContent />;
       case 'assessment':
-        return <AssessmentContent />;
+        return <InternalTestContent />;
       case 'mock-interview':
         return <MockInterviewLibrary onStartInterview={handleStartInterview} />;
       case 'notes':

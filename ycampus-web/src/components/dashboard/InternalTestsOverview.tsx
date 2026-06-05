@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { studentDashboardService } from '@/services/studentDashboardService';
 
-export function AssessmentsOverview() {
+export function InternalTestsOverview() {
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
@@ -36,12 +36,12 @@ export function AssessmentsOverview() {
   const lastStatusText = stats.recentStatus > 0 ? `Completed - ${stats.recentStatus}%` : 'No recent activities';
 
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" onClick={() => navigate('/student/assessment')}>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" onClick={() => navigate('/student/campus/internal-test')}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <FileCheck className="h-5 w-5" style={{ color: 'hsl(var(--saffron-light))' }} />
-            Assessments Overview
+            Internal Tests Overview
           </CardTitle>
           <Badge variant="outline">{stats.completed}/{stats.total}</Badge>
         </div>
@@ -109,7 +109,7 @@ export function AssessmentsOverview() {
         </div>
 
         <div className="text-xs text-muted-foreground mt-auto">
-          Click to view all assessments
+          Click to view all internal tests
         </div>
       </CardContent>
     </Card>
