@@ -1905,35 +1905,35 @@
             "inputFormat": "A single line containing string s.",
             "outputFormat": "Return the final string after removing all bad adjacent pairs.",
             "solutions": [
-{
-"title": "Stack Based Character Cancellation - Python",
-"language": "python",
-"code": "import sys\ns = sys.stdin.read().strip()\nstack = []\n\nfor c in s:\n    if stack and abs(ord(stack[-1]) - ord(c)) == 32:\n        stack.pop()\n    else:\n        stack.append(c)\n\nprint(''.join(stack))",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Simulation - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        StringBuilder stack = new StringBuilder();\n\n        for (char c : s.toCharArray()) {\n            int len = stack.length();\n\n            if (len > 0 && Math.abs(stack.charAt(len - 1) - c) == 32) {\n                stack.deleteCharAt(len - 1);\n            } else {\n                stack.append(c);\n            }\n        }\n\n        System.out.print(stack.toString());\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Array Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n    char s[200];\n    scanf(\"%s\", s);\n\n    char stack[200];\n    int top = -1;\n\n    for (int i = 0; i < strlen(s); i++) {\n        char c = s[i];\n\n        if (top >= 0 && abs(stack[top] - c) == 32) {\n            top--;\n        } else {\n            stack[++top] = c;\n        }\n    }\n\n    for (int i = 0; i <= top; i++) {\n        printf(\"%c\", stack[i]);\n    }\n\n    return 0;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n\n    string res = \"\";\n\n    for (char c : s) {\n        if (!res.empty() && abs(res.back() - c) == 32) {\n            res.pop_back();\n        } else {\n            res += c;\n        }\n    }\n\n    cout << res;\n    return 0;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Based Character Cancellation - Python",
+                    "language": "python",
+                    "code": "import sys\ns = sys.stdin.read().strip()\nstack = []\n\nfor c in s:\n    if stack and abs(ord(stack[-1]) - ord(c)) == 32:\n        stack.pop()\n    else:\n        stack.append(c)\n\nprint(''.join(stack))",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Simulation - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        StringBuilder stack = new StringBuilder();\n\n        for (char c : s.toCharArray()) {\n            int len = stack.length();\n\n            if (len > 0 && Math.abs(stack.charAt(len - 1) - c) == 32) {\n                stack.deleteCharAt(len - 1);\n            } else {\n                stack.append(c);\n            }\n        }\n\n        System.out.print(stack.toString());\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Array Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n    char s[200];\n    scanf(\"%s\", s);\n\n    char stack[200];\n    int top = -1;\n\n    for (int i = 0; i < strlen(s); i++) {\n        char c = s[i];\n\n        if (top >= 0 && abs(stack[top] - c) == 32) {\n            top--;\n        } else {\n            stack[++top] = c;\n        }\n    }\n\n    for (int i = 0; i <= top; i++) {\n        printf(\"%c\", stack[i]);\n    }\n\n    return 0;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n\n    string res = \"\";\n\n    for (char c : s) {\n        if (!res.empty() && abs(res.back() - c) == 32) {\n            res.pop_back();\n        } else {\n            res += c;\n        }\n    }\n\n    cout << res;\n    return 0;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2004,32 +2004,32 @@
             "inputFormat": "A single line containing a valid parentheses string s.",
             "outputFormat": "Return the resulting string after removing the outermost parentheses of each primitive substring.",
             "solutions": [
-{
-"title": "Stack Depth Tracking - Python",
-"language": "python",
-"code": "import sys\ns = sys.stdin.read().strip()\n\nresult = []\ndepth = 0\n\nfor c in s:\n    if c == '(':\n        if depth > 0:\n            result.append(c)\n        depth += 1\n    else:\n        depth -= 1\n        if depth > 0:\n            result.append(c)\n\nprint(''.join(result))",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Simulation - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        StringBuilder result = new StringBuilder();\n        int depth = 0;\n\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                if (depth > 0) {\n                    result.append(c);\n                }\n                depth++;\n            } else {\n                depth--;\n                if (depth > 0) {\n                    result.append(c);\n                }\n            }\n        }\n\n        System.out.print(result.toString());\n    }\n}",
-"is_primary": false
-},
-{
-"title": "Depth Counter Approach",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n\n    char s[100000];\n    scanf(\"%s\", s);\n\n    int depth = 0;\n\n    for (int i = 0; i < strlen(s); i++) {\n\n        if (s[i] == '(') {\n            if (depth > 0) {\n                printf(\"(\");\n            }\n            depth++;\n        }\n        else {\n            depth--;\n            if (depth > 0) {\n                printf(\")\");\n            }\n        }\n    }\n\n    return 0;\n}",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    string result = \"\";\n    int depth = 0;\n\n    for (char c : s) {\n\n        if (c == '(') {\n            if (depth > 0) {\n                result += c;\n            }\n            depth++;\n        }\n        else {\n            depth--;\n            if (depth > 0) {\n                result += c;\n            }\n        }\n    }\n\n    cout << result;\n    return 0;\n}",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Depth Tracking - Python",
+                    "language": "python",
+                    "code": "import sys\ns = sys.stdin.read().strip()\n\nresult = []\ndepth = 0\n\nfor c in s:\n    if c == '(':\n        if depth > 0:\n            result.append(c)\n        depth += 1\n    else:\n        depth -= 1\n        if depth > 0:\n            result.append(c)\n\nprint(''.join(result))",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Simulation - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        StringBuilder result = new StringBuilder();\n        int depth = 0;\n\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                if (depth > 0) {\n                    result.append(c);\n                }\n                depth++;\n            } else {\n                depth--;\n                if (depth > 0) {\n                    result.append(c);\n                }\n            }\n        }\n\n        System.out.print(result.toString());\n    }\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Depth Counter Approach",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n\n    char s[100000];\n    scanf(\"%s\", s);\n\n    int depth = 0;\n\n    for (int i = 0; i < strlen(s); i++) {\n\n        if (s[i] == '(') {\n            if (depth > 0) {\n                printf(\"(\");\n            }\n            depth++;\n        }\n        else {\n            depth--;\n            if (depth > 0) {\n                printf(\")\");\n            }\n        }\n    }\n\n    return 0;\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    string result = \"\";\n    int depth = 0;\n\n    for (char c : s) {\n\n        if (c == '(') {\n            if (depth > 0) {\n                result += c;\n            }\n            depth++;\n        }\n        else {\n            depth--;\n            if (depth > 0) {\n                result += c;\n            }\n        }\n    }\n\n    cout << result;\n    return 0;\n}",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2100,19 +2100,19 @@
             "inputFormat": "Each line represents a stack operation.",
             "outputFormat": "Print the maximum element when query type 3 appears.",
             "solutions": [
-{
-"title": "Stack with Max Tracking - Python",
-"language": "python",
-"code": "import sys\n\nstack = []\nmax_stack = []\nresult = None\n\nfor line in sys.stdin.read().strip().split('\\n'):\n    parts = line.split()\n\n    if parts[0] == '1':\n        x = int(parts[1])\n        stack.append(x)\n\n        if not max_stack or x >= max_stack[-1]:\n            max_stack.append(x)\n\n    elif parts[0] == '2':\n        val = stack.pop()\n\n        if val == max_stack[-1]:\n            max_stack.pop()\n\n    elif parts[0] == '3':\n        result = max_stack[-1]\n\nprint(result)",
-"is_primary": true
-},
-{
-"title": "Two Stack Method - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n\n        Stack<Integer> stack = new Stack<>();\n        Stack<Integer> maxStack = new Stack<>();\n\n        int result = 0;\n\n        while (sc.hasNextLine()) {\n\n            String line = sc.nextLine();\n            String[] parts = line.split(\" \");\n\n            if (parts[0].equals(\"1\")) {\n\n                int x = Integer.parseInt(parts[1]);\n                stack.push(x);\n\n                if (maxStack.isEmpty() || x >= maxStack.peek()) {\n                    maxStack.push(x);\n                }\n            }\n\n            else if (parts[0].equals(\"2\")) {\n\n                int val = stack.pop();\n\n                if (val == maxStack.peek()) {\n                    maxStack.pop();\n                }\n            }\n\n            else if (parts[0].equals(\"3\")) {\n                result = maxStack.peek();\n            }\n        }\n\n        System.out.print(result);\n    }\n}",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack with Max Tracking - Python",
+                    "language": "python",
+                    "code": "import sys\n\nstack = []\nmax_stack = []\nresult = None\n\nfor line in sys.stdin.read().strip().split('\\n'):\n    parts = line.split()\n\n    if parts[0] == '1':\n        x = int(parts[1])\n        stack.append(x)\n\n        if not max_stack or x >= max_stack[-1]:\n            max_stack.append(x)\n\n    elif parts[0] == '2':\n        val = stack.pop()\n\n        if val == max_stack[-1]:\n            max_stack.pop()\n\n    elif parts[0] == '3':\n        result = max_stack[-1]\n\nprint(result)",
+                    "is_primary": true
+                },
+                {
+                    "title": "Two Stack Method - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n\n        Stack<Integer> stack = new Stack<>();\n        Stack<Integer> maxStack = new Stack<>();\n\n        int result = 0;\n\n        while (sc.hasNextLine()) {\n\n            String line = sc.nextLine();\n            String[] parts = line.split(\" \");\n\n            if (parts[0].equals(\"1\")) {\n\n                int x = Integer.parseInt(parts[1]);\n                stack.push(x);\n\n                if (maxStack.isEmpty() || x >= maxStack.peek()) {\n                    maxStack.push(x);\n                }\n            }\n\n            else if (parts[0].equals(\"2\")) {\n\n                int val = stack.pop();\n\n                if (val == maxStack.peek()) {\n                    maxStack.pop();\n                }\n            }\n\n            else if (parts[0].equals(\"3\")) {\n                result = maxStack.peek();\n            }\n        }\n\n        System.out.print(result);\n    }\n}",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2183,19 +2183,19 @@
             "inputFormat": "A list of stock prices.",
             "outputFormat": "Return a list representing the span for each price.",
             "solutions": [
-{
-"title": "Monotonic Stack Approach - Python",
-"language": "python",
-"code": "import sys, ast\n\nprices = ast.literal_eval(sys.stdin.read())\n\nstack = []\nresult = []\n\nfor price in prices:\n\n    span = 1\n\n    while stack and stack[-1][0] <= price:\n        span += stack.pop()[1]\n\n    stack.append((price, span))\n    result.append(span)\n\nprint(\"[\" + \",\".join(map(str, result)) + \"]\")",
-"is_primary": true
-},
-{
-"title": "Stack Solution - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        s = s.substring(1, s.length() - 1);\n        String[] parts = s.split(\",\");\n\n        Stack<int[]> stack = new Stack<>();\n        List<Integer> result = new ArrayList<>();\n\n        for (String p : parts) {\n\n            int price = Integer.parseInt(p.trim());\n            int span = 1;\n\n            while (!stack.isEmpty() && stack.peek()[0] <= price) {\n                span += stack.pop()[1];\n            }\n\n            stack.push(new int[]{price, span});\n            result.add(span);\n        }\n\n        System.out.print(\"[\");\n\n        for (int i = 0; i < result.size(); i++) {\n            System.out.print(result.get(i));\n            if (i < result.size() - 1) System.out.print(\",\");\n        }\n\n        System.out.print(\"]\");\n    }\n}",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack Approach - Python",
+                    "language": "python",
+                    "code": "import sys, ast\n\nprices = ast.literal_eval(sys.stdin.read())\n\nstack = []\nresult = []\n\nfor price in prices:\n\n    span = 1\n\n    while stack and stack[-1][0] <= price:\n        span += stack.pop()[1]\n\n    stack.append((price, span))\n    result.append(span)\n\nprint(\"[\" + \",\".join(map(str, result)) + \"]\")",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Solution - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        s = s.substring(1, s.length() - 1);\n        String[] parts = s.split(\",\");\n\n        Stack<int[]> stack = new Stack<>();\n        List<Integer> result = new ArrayList<>();\n\n        for (String p : parts) {\n\n            int price = Integer.parseInt(p.trim());\n            int span = 1;\n\n            while (!stack.isEmpty() && stack.peek()[0] <= price) {\n                span += stack.pop()[1];\n            }\n\n            stack.push(new int[]{price, span});\n            result.add(span);\n        }\n\n        System.out.print(\"[\");\n\n        for (int i = 0; i < result.size(); i++) {\n            System.out.print(result.get(i));\n            if (i < result.size() - 1) System.out.print(\",\");\n        }\n\n        System.out.print(\"]\");\n    }\n}",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Use a monotonic stack to store indices of prices in decreasing order.",
                 "For each price, pop elements from the stack that are smaller or equal; the span is current index minus top of stack.",
@@ -2266,32 +2266,32 @@
             "inputFormat": "JSON list of tokens.",
             "outputFormat": "Return evaluated integer.",
             "solutions": [
-{
-"title": "Stack Evaluation - Python",
-"language": "python",
-"code": "import sys, ast\n\ntokens = ast.literal_eval(sys.stdin.read())\nstack = []\n\nfor t in tokens:\n\n    if t not in '+-*/':\n        stack.append(int(t))\n\n    else:\n        b = stack.pop()\n        a = stack.pop()\n\n        if t == '+':\n            stack.append(a + b)\n        elif t == '-':\n            stack.append(a - b)\n        elif t == '*':\n            stack.append(a * b)\n        else:\n            stack.append(int(a / b))\n\nprint(stack[0])",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Evaluation - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine();\n\n        line = line.substring(1, line.length() - 1);\n        String[] tokens = line.replace(\"\\\"\", \"\").split(\",\");\n\n        Stack<Integer> stack = new Stack<>();\n\n        for (String t : tokens) {\n\n            t = t.trim();\n\n            if (!t.equals(\"+\") && !t.equals(\"-\") && !t.equals(\"*\") && !t.equals(\"/\")) {\n                stack.push(Integer.parseInt(t));\n            }\n            else {\n                int b = stack.pop();\n                int a = stack.pop();\n\n                if (t.equals(\"+\")) stack.push(a + b);\n                else if (t.equals(\"-\")) stack.push(a - b);\n                else if (t.equals(\"*\")) stack.push(a * b);\n                else stack.push(a / b);\n            }\n        }\n\n        System.out.print(stack.pop());\n    }\n}",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n\n    char s[1000];\n    fgets(s, 1000, stdin);\n\n    int stack[1000];\n    int top = -1;\n\n    char *token = strtok(s, \"[\\\", ]\\n\");\n\n    while (token) {\n\n        if (strcmp(token, \"+\") && strcmp(token, \"-\") && strcmp(token, \"*\") && strcmp(token, \"/\")) {\n            stack[++top] = atoi(token);\n        }\n        else {\n\n            int b = stack[top--];\n            int a = stack[top--];\n\n            if (!strcmp(token, \"+\")) stack[++top] = a + b;\n            else if (!strcmp(token, \"-\")) stack[++top] = a - b;\n            else if (!strcmp(token, \"*\")) stack[++top] = a * b;\n            else stack[++top] = a / b;\n        }\n\n        token = strtok(NULL, \"[\\\", ]\\n\");\n    }\n\n    printf(\"%d\", stack[top]);\n}",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    getline(cin, s);\n\n    vector<string> tokens;\n    string t = \"\";\n\n    for (char c : s) {\n\n        if (isalnum(c) || c == '-') {\n            t += c;\n        }\n        else if (!t.empty()) {\n            tokens.push_back(t);\n            t = \"\";\n        }\n    }\n\n    stack<int> st;\n\n    for (string x : tokens) {\n\n        if (x == \"+\" || x == \"-\" || x == \"*\" || x == \"/\") {\n\n            int b = st.top(); st.pop();\n            int a = st.top(); st.pop();\n\n            if (x == \"+\") st.push(a + b);\n            else if (x == \"-\") st.push(a - b);\n            else if (x == \"*\") st.push(a * b);\n            else st.push(a / b);\n        }\n        else {\n            st.push(stoi(x));\n        }\n    }\n\n    cout << st.top();\n}",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Evaluation - Python",
+                    "language": "python",
+                    "code": "import sys, ast\n\ntokens = ast.literal_eval(sys.stdin.read())\nstack = []\n\nfor t in tokens:\n\n    if t not in '+-*/':\n        stack.append(int(t))\n\n    else:\n        b = stack.pop()\n        a = stack.pop()\n\n        if t == '+':\n            stack.append(a + b)\n        elif t == '-':\n            stack.append(a - b)\n        elif t == '*':\n            stack.append(a * b)\n        else:\n            stack.append(int(a / b))\n\nprint(stack[0])",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Evaluation - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine();\n\n        line = line.substring(1, line.length() - 1);\n        String[] tokens = line.replace(\"\\\"\", \"\").split(\",\");\n\n        Stack<Integer> stack = new Stack<>();\n\n        for (String t : tokens) {\n\n            t = t.trim();\n\n            if (!t.equals(\"+\") && !t.equals(\"-\") && !t.equals(\"*\") && !t.equals(\"/\")) {\n                stack.push(Integer.parseInt(t));\n            }\n            else {\n                int b = stack.pop();\n                int a = stack.pop();\n\n                if (t.equals(\"+\")) stack.push(a + b);\n                else if (t.equals(\"-\")) stack.push(a - b);\n                else if (t.equals(\"*\")) stack.push(a * b);\n                else stack.push(a / b);\n            }\n        }\n\n        System.out.print(stack.pop());\n    }\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n\n    char s[1000];\n    fgets(s, 1000, stdin);\n\n    int stack[1000];\n    int top = -1;\n\n    char *token = strtok(s, \"[\\\", ]\\n\");\n\n    while (token) {\n\n        if (strcmp(token, \"+\") && strcmp(token, \"-\") && strcmp(token, \"*\") && strcmp(token, \"/\")) {\n            stack[++top] = atoi(token);\n        }\n        else {\n\n            int b = stack[top--];\n            int a = stack[top--];\n\n            if (!strcmp(token, \"+\")) stack[++top] = a + b;\n            else if (!strcmp(token, \"-\")) stack[++top] = a - b;\n            else if (!strcmp(token, \"*\")) stack[++top] = a * b;\n            else stack[++top] = a / b;\n        }\n\n        token = strtok(NULL, \"[\\\", ]\\n\");\n    }\n\n    printf(\"%d\", stack[top]);\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    getline(cin, s);\n\n    vector<string> tokens;\n    string t = \"\";\n\n    for (char c : s) {\n\n        if (isalnum(c) || c == '-') {\n            t += c;\n        }\n        else if (!t.empty()) {\n            tokens.push_back(t);\n            t = \"\";\n        }\n    }\n\n    stack<int> st;\n\n    for (string x : tokens) {\n\n        if (x == \"+\" || x == \"-\" || x == \"*\" || x == \"/\") {\n\n            int b = st.top(); st.pop();\n            int a = st.top(); st.pop();\n\n            if (x == \"+\") st.push(a + b);\n            else if (x == \"-\") st.push(a - b);\n            else if (x == \"*\") st.push(a * b);\n            else st.push(a / b);\n        }\n        else {\n            st.push(stoi(x));\n        }\n    }\n\n    cout << st.top();\n}",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "RPN (Reverse Polish Notation) is another name for postfix notation.",
                 "Use a stack to hold operands and pop them whenever you encounter an operator.",
@@ -2362,29 +2362,29 @@
             "inputFormat": "A single encoded string s.",
             "outputFormat": "Return the decoded string after expanding all encoded patterns.",
             "solutions": [
-{
-"title": "Stack Based Decoding - Python",
-"language": "python",
-"code": "import sys\ns = sys.stdin.read().strip()\n\nstack = []\ncurrent = \"\"\nnum = 0\n\nfor c in s:\n\n    if c.isdigit():\n        num = num * 10 + int(c)\n\n    elif c == '[':\n        stack.append((current, num))\n        current = \"\"\n        num = 0\n\n    elif c == ']':\n        prev, k = stack.pop()\n        current = prev + current * k\n\n    else:\n        current += c\n\nprint(current)",
-"is_primary": true
-},
-{
-"title": "Stack Based Decoding - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        Stack<Integer> countStack = new Stack<>();\n        Stack<String> stringStack = new Stack<>();\n\n        String current = \"\";\n        int k = 0;\n\n        for (char c : s.toCharArray()) {\n\n            if (Character.isDigit(c)) {\n                k = k * 10 + (c - '0');\n            }\n            else if (c == '[') {\n                countStack.push(k);\n                stringStack.push(current);\n                current = \"\";\n                k = 0;\n            }\n            else if (c == ']') {\n\n                int repeat = countStack.pop();\n                String prev = stringStack.pop();\n\n                StringBuilder temp = new StringBuilder(prev);\n\n                for (int i = 0; i < repeat; i++) {\n                    temp.append(current);\n                }\n\n                current = temp.toString();\n            }\n            else {\n                current += c;\n            }\n        }\n\n        System.out.print(current);\n    }\n}",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n\n    char s[1000];\n    scanf(\"%s\", s);\n\n    char stack_str[100][1000];\n    int stack_num[100];\n\n    int top = -1;\n\n    char current[1000] = \"\";\n    int num = 0;\n\n    for (int i = 0; i < strlen(s); i++) {\n\n        char c = s[i];\n\n        if (c >= '0' && c <= '9') {\n            num = num * 10 + (c - '0');\n        }\n\n        else if (c == '[') {\n            top++;\n            strcpy(stack_str[top], current);\n            stack_num[top] = num;\n\n            current[0] = '\\0';\n            num = 0;\n        }\n\n        else if (c == ']') {\n\n            char temp[1000];\n            strcpy(temp, current);\n\n            strcpy(current, stack_str[top]);\n\n            for (int j = 0; j < stack_num[top]; j++) {\n                strcat(current, temp);\n            }\n\n            top--;\n        }\n\n        else {\n            int len = strlen(current);\n            current[len] = c;\n            current[len + 1] = '\\0';\n        }\n    }\n\n    printf(\"%s\", current);\n}"
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    stack<int> countStack;\n    stack<string> stringStack;\n\n    string current = \"\";\n    int num = 0;\n\n    for (char c : s) {\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        else if (c == '[') {\n            countStack.push(num);\n            stringStack.push(current);\n\n            current = \"\";\n            num = 0;\n        }\n\n        else if (c == ']') {\n\n            int k = countStack.top();\n            countStack.pop();\n\n            string prev = stringStack.top();\n            stringStack.pop();\n\n            string temp = prev;\n\n            for (int i = 0; i < k; i++) {\n                temp += current;\n            }\n\n            current = temp;\n        }\n\n        else {\n            current += c;\n        }\n    }\n\n    cout << current;\n}"
-}
-],
+                {
+                    "title": "Stack Based Decoding - Python",
+                    "language": "python",
+                    "code": "import sys\ns = sys.stdin.read().strip()\n\nstack = []\ncurrent = \"\"\nnum = 0\n\nfor c in s:\n\n    if c.isdigit():\n        num = num * 10 + int(c)\n\n    elif c == '[':\n        stack.append((current, num))\n        current = \"\"\n        num = 0\n\n    elif c == ']':\n        prev, k = stack.pop()\n        current = prev + current * k\n\n    else:\n        current += c\n\nprint(current)",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Based Decoding - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        Stack<Integer> countStack = new Stack<>();\n        Stack<String> stringStack = new Stack<>();\n\n        String current = \"\";\n        int k = 0;\n\n        for (char c : s.toCharArray()) {\n\n            if (Character.isDigit(c)) {\n                k = k * 10 + (c - '0');\n            }\n            else if (c == '[') {\n                countStack.push(k);\n                stringStack.push(current);\n                current = \"\";\n                k = 0;\n            }\n            else if (c == ']') {\n\n                int repeat = countStack.pop();\n                String prev = stringStack.pop();\n\n                StringBuilder temp = new StringBuilder(prev);\n\n                for (int i = 0; i < repeat; i++) {\n                    temp.append(current);\n                }\n\n                current = temp.toString();\n            }\n            else {\n                current += c;\n            }\n        }\n\n        System.out.print(current);\n    }\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint main() {\n\n    char s[1000];\n    scanf(\"%s\", s);\n\n    char stack_str[100][1000];\n    int stack_num[100];\n\n    int top = -1;\n\n    char current[1000] = \"\";\n    int num = 0;\n\n    for (int i = 0; i < strlen(s); i++) {\n\n        char c = s[i];\n\n        if (c >= '0' && c <= '9') {\n            num = num * 10 + (c - '0');\n        }\n\n        else if (c == '[') {\n            top++;\n            strcpy(stack_str[top], current);\n            stack_num[top] = num;\n\n            current[0] = '\\0';\n            num = 0;\n        }\n\n        else if (c == ']') {\n\n            char temp[1000];\n            strcpy(temp, current);\n\n            strcpy(current, stack_str[top]);\n\n            for (int j = 0; j < stack_num[top]; j++) {\n                strcat(current, temp);\n            }\n\n            top--;\n        }\n\n        else {\n            int len = strlen(current);\n            current[len] = c;\n            current[len + 1] = '\\0';\n        }\n    }\n\n    printf(\"%s\", current);\n}"
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    stack<int> countStack;\n    stack<string> stringStack;\n\n    string current = \"\";\n    int num = 0;\n\n    for (char c : s) {\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        else if (c == '[') {\n            countStack.push(num);\n            stringStack.push(current);\n\n            current = \"\";\n            num = 0;\n        }\n\n        else if (c == ']') {\n\n            int k = countStack.top();\n            countStack.pop();\n\n            string prev = stringStack.top();\n            stringStack.pop();\n\n            string temp = prev;\n\n            for (int i = 0; i < k; i++) {\n                temp += current;\n            }\n\n            current = temp;\n        }\n\n        else {\n            current += c;\n        }\n    }\n\n    cout << current;\n}"
+                }
+            ],
             "hints": [
                 "This problem involves nested structures, which is a classic use case for a stack.",
                 "Push the current string and the current repeat count onto the stack when you see '['.",
@@ -2455,39 +2455,39 @@
             "inputFormat": "Sequence of push and pop operations.",
             "outputFormat": "Return the element removed during pop operation.",
             "solutions": [
-{
-"title": "Frequency Map with Stack Groups - Python",
-"language": "python",
-"code": "import sys\nfrom collections import defaultdict\n\ntokens = sys.stdin.read().split()\n\nfreq = defaultdict(int)\ngroup = defaultdict(list)\nmaxf = 0\n\nresult = None\n\ni = 0\n\nwhile i < len(tokens):\n\n    if tokens[i] == \"push\":\n\n        x = int(tokens[i+1])\n        f = freq[x] + 1\n        freq[x] = f\n\n        if f > maxf:\n            maxf = f\n\n        group[f].append(x)\n\n        i += 2\n\n    else:\n\n        x = group[maxf].pop()\n        freq[x] -= 1\n\n        if not group[maxf]:\n            maxf -= 1\n\n        result = x\n        i += 1\n\nprint(result)",
-"is_primary": true
-},
-{
-"title": "HashMap and Stack Groups - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n\n        Map<Integer,Integer> freq = new HashMap<>();\n        Map<Integer,Stack<Integer>> group = new HashMap<>();\n\n        int maxf = 0;\n        int result = 0;\n\n        while (sc.hasNext()) {\n\n            String cmd = sc.next();\n\n            if (cmd.equals(\"push\")) {\n\n                int x = sc.nextInt();\n                int f = freq.getOrDefault(x,0) + 1;\n                freq.put(x,f);\n\n                maxf = Math.max(maxf,f);\n\n                group.putIfAbsent(f,new Stack<>());\n                group.get(f).push(x);\n            }\n            else {\n\n                int x = group.get(maxf).pop();\n                freq.put(x,freq.get(x)-1);\n\n                if (group.get(maxf).isEmpty())\n                    maxf--;\n\n                result = x;\n            }\n        }\n\n        System.out.print(result);\n    }\n}",
-"is_primary": false
-},
-{
-"title": "Frequency Array Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint freq[10000];\nint group[10000][1000];\nint top[10000];\nint maxf = 0;\n\nvoid push(int x) {\n\n    int f = ++freq[x];\n\n    if (f > maxf) {\n        maxf = f;\n    }\n\n    group[f][top[f]++] = x;\n}\n\nint pop() {\n\n    int x = group[maxf][--top[maxf]];\n\n    freq[x]--;\n\n    if (top[maxf] == 0) {\n        maxf--;\n    }\n\n    return x;\n}\n\nint main() {\n\n    char cmd[20];\n    int x;\n\n    int result = 0;\n\n    while (scanf(\"%s\", cmd) != EOF) {\n\n        if (strcmp(cmd, \"push\") == 0) {\n            scanf(\"%d\", &x);\n            push(x);\n        }\n\n        else if (strcmp(cmd, \"pop\") == 0) {\n            result = pop();\n        }\n    }\n\n    printf(\"%d\", result);\n}"
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    unordered_map<int,int> freq;\n    unordered_map<int, stack<int>> group;\n\n    int maxf = 0;\n    int result = 0;\n\n    string cmd;\n\n    while (cin >> cmd) {\n\n        if (cmd == \"push\") {\n\n            int x;\n            cin >> x;\n\n            int f = ++freq[x];\n\n            maxf = max(maxf, f);\n\n            group[f].push(x);\n        }\n\n        else if (cmd == \"pop\") {\n\n            int x = group[maxf].top();\n            group[maxf].pop();\n\n            freq[x]--;\n\n            if (group[maxf].empty()) {\n                maxf--;\n            }\n\n            result = x;\n        }\n    }\n\n    cout << result;\n}"
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nint main() {\n\n    char s[100000];\n    scanf(\"%s\", s);\n\n    int stack[100000];\n    int top = -1;\n\n    int num = 0;\n    char sign = '+';\n\n    int len = strlen(s);\n\n    for (int i = 0; i <= len; i++) {\n\n        char c = (i == len) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == len) {\n\n            if (sign == '+') stack[++top] = num;\n            else if (sign == '-') stack[++top] = -num;\n            else if (sign == '*') stack[top] = stack[top] * num;\n            else if (sign == '/') stack[top] = stack[top] / num;\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    for (int i = 0; i <= top; i++) {\n        result += stack[i];\n    }\n\n    printf(\"%d\", result);\n}"
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    stack<int> st;\n\n    int num = 0;\n    char sign = '+';\n\n    for (int i = 0; i <= s.size(); i++) {\n\n        char c = (i == s.size()) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == s.size()) {\n\n            if (sign == '+') st.push(num);\n            else if (sign == '-') st.push(-num);\n            else if (sign == '*') {\n                int v = st.top(); st.pop();\n                st.push(v * num);\n            }\n            else if (sign == '/') {\n                int v = st.top(); st.pop();\n                st.push(v / num);\n            }\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    while (!st.empty()) {\n        result += st.top();\n        st.pop();\n    }\n\n    cout << result;\n}"
-}
-],
+                {
+                    "title": "Frequency Map with Stack Groups - Python",
+                    "language": "python",
+                    "code": "import sys\nfrom collections import defaultdict\n\ntokens = sys.stdin.read().split()\n\nfreq = defaultdict(int)\ngroup = defaultdict(list)\nmaxf = 0\n\nresult = None\n\ni = 0\n\nwhile i < len(tokens):\n\n    if tokens[i] == \"push\":\n\n        x = int(tokens[i+1])\n        f = freq[x] + 1\n        freq[x] = f\n\n        if f > maxf:\n            maxf = f\n\n        group[f].append(x)\n\n        i += 2\n\n    else:\n\n        x = group[maxf].pop()\n        freq[x] -= 1\n\n        if not group[maxf]:\n            maxf -= 1\n\n        result = x\n        i += 1\n\nprint(result)",
+                    "is_primary": true
+                },
+                {
+                    "title": "HashMap and Stack Groups - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n\n        Map<Integer,Integer> freq = new HashMap<>();\n        Map<Integer,Stack<Integer>> group = new HashMap<>();\n\n        int maxf = 0;\n        int result = 0;\n\n        while (sc.hasNext()) {\n\n            String cmd = sc.next();\n\n            if (cmd.equals(\"push\")) {\n\n                int x = sc.nextInt();\n                int f = freq.getOrDefault(x,0) + 1;\n                freq.put(x,f);\n\n                maxf = Math.max(maxf,f);\n\n                group.putIfAbsent(f,new Stack<>());\n                group.get(f).push(x);\n            }\n            else {\n\n                int x = group.get(maxf).pop();\n                freq.put(x,freq.get(x)-1);\n\n                if (group.get(maxf).isEmpty())\n                    maxf--;\n\n                result = x;\n            }\n        }\n\n        System.out.print(result);\n    }\n}",
+                    "is_primary": false
+                },
+                {
+                    "title": "Frequency Array Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint freq[10000];\nint group[10000][1000];\nint top[10000];\nint maxf = 0;\n\nvoid push(int x) {\n\n    int f = ++freq[x];\n\n    if (f > maxf) {\n        maxf = f;\n    }\n\n    group[f][top[f]++] = x;\n}\n\nint pop() {\n\n    int x = group[maxf][--top[maxf]];\n\n    freq[x]--;\n\n    if (top[maxf] == 0) {\n        maxf--;\n    }\n\n    return x;\n}\n\nint main() {\n\n    char cmd[20];\n    int x;\n\n    int result = 0;\n\n    while (scanf(\"%s\", cmd) != EOF) {\n\n        if (strcmp(cmd, \"push\") == 0) {\n            scanf(\"%d\", &x);\n            push(x);\n        }\n\n        else if (strcmp(cmd, \"pop\") == 0) {\n            result = pop();\n        }\n    }\n\n    printf(\"%d\", result);\n}"
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    unordered_map<int,int> freq;\n    unordered_map<int, stack<int>> group;\n\n    int maxf = 0;\n    int result = 0;\n\n    string cmd;\n\n    while (cin >> cmd) {\n\n        if (cmd == \"push\") {\n\n            int x;\n            cin >> x;\n\n            int f = ++freq[x];\n\n            maxf = max(maxf, f);\n\n            group[f].push(x);\n        }\n\n        else if (cmd == \"pop\") {\n\n            int x = group[maxf].top();\n            group[maxf].pop();\n\n            freq[x]--;\n\n            if (group[maxf].empty()) {\n                maxf--;\n            }\n\n            result = x;\n        }\n    }\n\n    cout << result;\n}"
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ctype.h>\n\nint main() {\n\n    char s[100000];\n    scanf(\"%s\", s);\n\n    int stack[100000];\n    int top = -1;\n\n    int num = 0;\n    char sign = '+';\n\n    int len = strlen(s);\n\n    for (int i = 0; i <= len; i++) {\n\n        char c = (i == len) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == len) {\n\n            if (sign == '+') stack[++top] = num;\n            else if (sign == '-') stack[++top] = -num;\n            else if (sign == '*') stack[top] = stack[top] * num;\n            else if (sign == '/') stack[top] = stack[top] / num;\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    for (int i = 0; i <= top; i++) {\n        result += stack[i];\n    }\n\n    printf(\"%d\", result);\n}"
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n    string s;\n    cin >> s;\n\n    stack<int> st;\n\n    int num = 0;\n    char sign = '+';\n\n    for (int i = 0; i <= s.size(); i++) {\n\n        char c = (i == s.size()) ? '+' : s[i];\n\n        if (isdigit(c)) {\n            num = num * 10 + (c - '0');\n        }\n\n        if (!isdigit(c) || i == s.size()) {\n\n            if (sign == '+') st.push(num);\n            else if (sign == '-') st.push(-num);\n            else if (sign == '*') {\n                int v = st.top(); st.pop();\n                st.push(v * num);\n            }\n            else if (sign == '/') {\n                int v = st.top(); st.pop();\n                st.push(v / num);\n            }\n\n            sign = c;\n            num = 0;\n        }\n    }\n\n    int result = 0;\n\n    while (!st.empty()) {\n        result += st.top();\n        st.pop();\n    }\n\n    cout << result;\n}"
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2558,19 +2558,19 @@
             "inputFormat": "A single string containing the arithmetic expression.",
             "outputFormat": "Return the evaluated integer result.",
             "solutions": [
-{
-"title": "Stack Based Expression Evaluation - Python",
-"language": "python",
-"code": "import sys\n\ns = sys.stdin.read().strip()\n\nstack = []\nnum = 0\nsign = '+'\n\nfor c in s + '+':\n\n    if c.isdigit():\n        num = num * 10 + int(c)\n\n    elif c in '+-*/':\n\n        if sign == '+':\n            stack.append(num)\n\n        elif sign == '-':\n            stack.append(-num)\n\n        elif sign == '*':\n            stack.append(stack.pop() * num)\n\n        elif sign == '/':\n            stack.append(int(stack.pop() / num))\n\n        num = 0\n        sign = c\n\nprint(sum(stack))",
-"is_primary": true
-},
-{
-"title": "Stack Based Parsing - Java",
-"language": "java",
-"code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        Stack<Integer> stack = new Stack<>();\n\n        int num = 0;\n        char sign = '+';\n\n        for (int i = 0; i <= s.length(); i++) {\n\n            char c = (i == s.length()) ? '+' : s.charAt(i);\n\n            if (Character.isDigit(c)) {\n                num = num * 10 + (c - '0');\n            }\n\n            else if (c == '+' || c == '-' || c == '*' || c == '/') {\n\n                if (sign == '+') stack.push(num);\n                else if (sign == '-') stack.push(-num);\n                else if (sign == '*') stack.push(stack.pop() * num);\n                else stack.push(stack.pop() / num);\n\n                sign = c;\n                num = 0;\n            }\n        }\n\n        int result = 0;\n\n        for (int x : stack)\n            result += x;\n\n        System.out.print(result);\n    }\n}",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Based Expression Evaluation - Python",
+                    "language": "python",
+                    "code": "import sys\n\ns = sys.stdin.read().strip()\n\nstack = []\nnum = 0\nsign = '+'\n\nfor c in s + '+':\n\n    if c.isdigit():\n        num = num * 10 + int(c)\n\n    elif c in '+-*/':\n\n        if sign == '+':\n            stack.append(num)\n\n        elif sign == '-':\n            stack.append(-num)\n\n        elif sign == '*':\n            stack.append(stack.pop() * num)\n\n        elif sign == '/':\n            stack.append(int(stack.pop() / num))\n\n        num = 0\n        sign = c\n\nprint(sum(stack))",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Based Parsing - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n\n    public static void main(String[] args) {\n\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n\n        Stack<Integer> stack = new Stack<>();\n\n        int num = 0;\n        char sign = '+';\n\n        for (int i = 0; i <= s.length(); i++) {\n\n            char c = (i == s.length()) ? '+' : s.charAt(i);\n\n            if (Character.isDigit(c)) {\n                num = num * 10 + (c - '0');\n            }\n\n            else if (c == '+' || c == '-' || c == '*' || c == '/') {\n\n                if (sign == '+') stack.push(num);\n                else if (sign == '-') stack.push(-num);\n                else if (sign == '*') stack.push(stack.pop() * num);\n                else stack.push(stack.pop() / num);\n\n                sign = c;\n                num = 0;\n            }\n        }\n\n        int result = 0;\n\n        for (int x : stack)\n            result += x;\n\n        System.out.print(result);\n    }\n}",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2641,35 +2641,35 @@
             "inputFormat": "A single string s containing only '(' and ')'.",
             "outputFormat": "Return the minimum number of parentheses required to make the string valid.",
             "solutions": [
-{
-"title": "Stack Counter Approach - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read().strip()\nbalance=0\ninsertions=0\nfor c in s:\n    if c=='(':\n        balance+=1\n    else:\n        if balance==0:\n            insertions+=1\n        else:\n            balance-=1\nprint(insertions+balance)",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": true
-},
-{
-"title": "Stack Counter Approach - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int balance=0;\n        int insertions=0;\n        for(char c:s.toCharArray()){\n            if(c=='(') balance++;\n            else{\n                if(balance==0) insertions++;\n                else balance--;\n            }\n        }\n        System.out.print(insertions+balance);\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Counter Based Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[2000];\n    scanf(\"%s\",s);\n    int balance=0,insertions=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='(') balance++;\n        else{\n            if(balance==0) insertions++;\n            else balance--;\n        }\n    }\n    printf(\"%d\",insertions+balance);\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    cin>>s;\n    int balance=0,insertions=0;\n    for(char c:s){\n        if(c=='(') balance++;\n        else{\n            if(balance==0) insertions++;\n            else balance--;\n        }\n    }\n    cout<<insertions+balance;\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Counter Approach - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read().strip()\nbalance=0\ninsertions=0\nfor c in s:\n    if c=='(':\n        balance+=1\n    else:\n        if balance==0:\n            insertions+=1\n        else:\n            balance-=1\nprint(insertions+balance)",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Counter Approach - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int balance=0;\n        int insertions=0;\n        for(char c:s.toCharArray()){\n            if(c=='(') balance++;\n            else{\n                if(balance==0) insertions++;\n                else balance--;\n            }\n        }\n        System.out.print(insertions+balance);\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Counter Based Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[2000];\n    scanf(\"%s\",s);\n    int balance=0,insertions=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='(') balance++;\n        else{\n            if(balance==0) insertions++;\n            else balance--;\n        }\n    }\n    printf(\"%d\",insertions+balance);\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    cin>>s;\n    int balance=0,insertions=0;\n    for(char c:s){\n        if(c=='(') balance++;\n        else{\n            if(balance==0) insertions++;\n            else balance--;\n        }\n    }\n    cout<<insertions+balance;\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2740,35 +2740,35 @@
             "inputFormat": "A single string s representing a valid parentheses expression.",
             "outputFormat": "Return an integer representing the maximum nesting depth of parentheses.",
             "solutions": [
-{
-"title": "Depth Counter Approach - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read()\nd=0\nm=0\nfor c in s:\n    if c=='(':\n        d+=1\n        m=max(m,d)\n    elif c==')':\n        d-=1\nprint(m)",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": true
-},
-{
-"title": "Depth Counter Approach - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int depth=0,maxDepth=0;\n        for(char c:s.toCharArray()){\n            if(c=='('){\n                depth++;\n                maxDepth=Math.max(maxDepth,depth);\n            }\n            else if(c==')') depth--;\n        }\n        System.out.print(maxDepth);\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Counter Based Approach",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[2000];\n    fgets(s,sizeof(s),stdin);\n    int depth=0,maxDepth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            depth++;\n            if(depth>maxDepth) maxDepth=depth;\n        }\n        else if(s[i]==')') depth--;\n    }\n    printf(\"%d\",maxDepth);\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    getline(cin,s);\n    int depth=0,maxDepth=0;\n    for(char c:s){\n        if(c=='('){\n            depth++;\n            maxDepth=max(maxDepth,depth);\n        }\n        else if(c==')') depth--;\n    }\n    cout<<maxDepth;\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Depth Counter Approach - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read()\nd=0\nm=0\nfor c in s:\n    if c=='(':\n        d+=1\n        m=max(m,d)\n    elif c==')':\n        d-=1\nprint(m)",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Depth Counter Approach - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int depth=0,maxDepth=0;\n        for(char c:s.toCharArray()){\n            if(c=='('){\n                depth++;\n                maxDepth=Math.max(maxDepth,depth);\n            }\n            else if(c==')') depth--;\n        }\n        System.out.print(maxDepth);\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Counter Based Approach",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[2000];\n    fgets(s,sizeof(s),stdin);\n    int depth=0,maxDepth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            depth++;\n            if(depth>maxDepth) maxDepth=depth;\n        }\n        else if(s[i]==')') depth--;\n    }\n    printf(\"%d\",maxDepth);\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    getline(cin,s);\n    int depth=0,maxDepth=0;\n    for(char c:s){\n        if(c=='('){\n            depth++;\n            maxDepth=max(maxDepth,depth);\n        }\n        else if(c==')') depth--;\n    }\n    cout<<maxDepth;\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2839,35 +2839,35 @@
             "inputFormat": "A single string s representing a valid parentheses string.",
             "outputFormat": "Return the string after removing the outermost parentheses of each primitive substring.",
             "solutions": [
-{
-"title": "Depth Tracking Approach - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read().strip()\nd=0\nres=[]\nfor c in s:\n    if c=='(':\n        if d>0: res.append(c)\n        d+=1\n    else:\n        d-=1\n        if d>0: res.append(c)\nprint(''.join(res))",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Depth Counter Approach - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int depth=0;\n        StringBuilder res=new StringBuilder();\n        for(char c:s.toCharArray()){\n            if(c=='('){\n                if(depth>0) res.append(c);\n                depth++;\n            }\n            else{\n                depth--;\n                if(depth>0) res.append(c);\n            }\n        }\n        System.out.print(res.toString());\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Counter Based Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[200000];\n    scanf(\"%s\",s);\n    int depth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        }\n        else{\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    cin>>s;\n    int depth=0;\n    string res=\"\";\n    for(char c:s){\n        if(c=='('){\n            if(depth>0) res+=c;\n            depth++;\n        }\n        else{\n            depth--;\n            if(depth>0) res+=c;\n        }\n    }\n    cout<<res;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Depth Tracking Approach - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read().strip()\nd=0\nres=[]\nfor c in s:\n    if c=='(':\n        if d>0: res.append(c)\n        d+=1\n    else:\n        d-=1\n        if d>0: res.append(c)\nprint(''.join(res))",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Depth Counter Approach - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        int depth=0;\n        StringBuilder res=new StringBuilder();\n        for(char c:s.toCharArray()){\n            if(c=='('){\n                if(depth>0) res.append(c);\n                depth++;\n            }\n            else{\n                depth--;\n                if(depth>0) res.append(c);\n            }\n        }\n        System.out.print(res.toString());\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Counter Based Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[200000];\n    scanf(\"%s\",s);\n    int depth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        }\n        else{\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    cin>>s;\n    int depth=0;\n    string res=\"\";\n    for(char c:s){\n        if(c=='('){\n            if(depth>0) res+=c;\n            depth++;\n        }\n        else{\n            depth--;\n            if(depth>0) res+=c;\n        }\n    }\n    cout<<res;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -2938,35 +2938,35 @@
             "inputFormat": "A single string containing lowercase letters and parentheses.",
             "outputFormat": "Return the final string after reversing substrings inside parentheses.",
             "solutions": [
-{
-"title": "Stack Based Reversal - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read().strip()\nstack=[]\nfor c in s:\n    if c==')':\n        temp=\"\"\n        while stack[-1] != '(':\n            temp+=stack.pop()\n        stack.pop()\n        for ch in temp:\n            stack.append(ch)\n    else:\n        stack.append(c)\nprint(''.join(stack))",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Based Reversal - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Character> stack=new Stack<>();\n        for(char c:s.toCharArray()){\n            if(c==')'){\n                StringBuilder temp=new StringBuilder();\n                while(stack.peek()!='(') temp.append(stack.pop());\n                stack.pop();\n                for(char ch:temp.toString().toCharArray()) stack.push(ch);\n            }else stack.push(c);\n        }\n        StringBuilder res=new StringBuilder();\n        for(char c:stack) res.append(c);\n        System.out.print(res.toString());\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    scanf(\"%s\",s);\n    char stack[1000];\n    int top=-1;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]==')'){\n            char temp[1000];\n            int k=0;\n            while(stack[top]!='(') temp[k++]=stack[top--];\n            top--;\n            for(int j=0;j<k;j++) stack[++top]=temp[j];\n        }else stack[++top]=s[i];\n    }\n    for(int i=0;i<=top;i++) printf(\"%c\",stack[i]);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;cin>>s;\n    stack<char> st;\n    for(char c:s){\n        if(c==')'){\n            string temp=\"\";\n            while(st.top()!='('){\n                temp+=st.top();\n                st.pop();\n            }\n            st.pop();\n            for(char ch:temp) st.push(ch);\n        }else st.push(c);\n    }\n    string res=\"\";\n    while(!st.empty()){\n        res=st.top()+res;\n        st.pop();\n    }\n    cout<<res;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Based Reversal - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read().strip()\nstack=[]\nfor c in s:\n    if c==')':\n        temp=\"\"\n        while stack[-1] != '(':\n            temp+=stack.pop()\n        stack.pop()\n        for ch in temp:\n            stack.append(ch)\n    else:\n        stack.append(c)\nprint(''.join(stack))",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Based Reversal - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Character> stack=new Stack<>();\n        for(char c:s.toCharArray()){\n            if(c==')'){\n                StringBuilder temp=new StringBuilder();\n                while(stack.peek()!='(') temp.append(stack.pop());\n                stack.pop();\n                for(char ch:temp.toString().toCharArray()) stack.push(ch);\n            }else stack.push(c);\n        }\n        StringBuilder res=new StringBuilder();\n        for(char c:stack) res.append(c);\n        System.out.print(res.toString());\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    scanf(\"%s\",s);\n    char stack[1000];\n    int top=-1;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]==')'){\n            char temp[1000];\n            int k=0;\n            while(stack[top]!='(') temp[k++]=stack[top--];\n            top--;\n            for(int j=0;j<k;j++) stack[++top]=temp[j];\n        }else stack[++top]=s[i];\n    }\n    for(int i=0;i<=top;i++) printf(\"%c\",stack[i]);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;cin>>s;\n    stack<char> st;\n    for(char c:s){\n        if(c==')'){\n            string temp=\"\";\n            while(st.top()!='('){\n                temp+=st.top();\n                st.pop();\n            }\n            st.pop();\n            for(char ch:temp) st.push(ch);\n        }else st.push(c);\n    }\n    string res=\"\";\n    while(!st.empty()){\n        res=st.top()+res;\n        st.pop();\n    }\n    cout<<res;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -3036,36 +3036,36 @@
             ],
             "inputFormat": "A balanced parentheses string.",
             "outputFormat": "Return integer score.",
-           "solutions": [
-{
-"title": "Stack Based Scoring - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read().strip()\nstack=[0]\nfor c in s:\n    if c=='(':\n        stack.append(0)\n    else:\n        v=stack.pop()\n        stack[-1]+=max(2*v,1)\nprint(stack[0])",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Approach - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Integer> stack=new Stack<>();\n        stack.push(0);\n        for(char c:s.toCharArray()){\n            if(c=='(') stack.push(0);\n            else{\n                int v=stack.pop();\n                stack.push(stack.pop()+Math.max(2*v,1));\n            }\n        }\n        System.out.print(stack.peek());\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    scanf(\"%s\",s);\n    int stack[1000];\n    int top=0;\n    stack[top]=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='(') stack[++top]=0;\n        else{\n            int v=stack[top--];\n            int score=v==0?1:2*v;\n            stack[top]+=score;\n        }\n    }\n    printf(\"%d\",stack[0]);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;cin>>s;\n    stack<int> st;\n    st.push(0);\n    for(char c:s){\n        if(c=='(') st.push(0);\n        else{\n            int v=st.top();st.pop();\n            int score=max(2*v,1);\n            int prev=st.top();st.pop();\n            st.push(prev+score);\n        }\n    }\n    cout<<st.top();\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+            "solutions": [
+                {
+                    "title": "Stack Based Scoring - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read().strip()\nstack=[0]\nfor c in s:\n    if c=='(':\n        stack.append(0)\n    else:\n        v=stack.pop()\n        stack[-1]+=max(2*v,1)\nprint(stack[0])",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Approach - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Integer> stack=new Stack<>();\n        stack.push(0);\n        for(char c:s.toCharArray()){\n            if(c=='(') stack.push(0);\n            else{\n                int v=stack.pop();\n                stack.push(stack.pop()+Math.max(2*v,1));\n            }\n        }\n        System.out.print(stack.peek());\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    scanf(\"%s\",s);\n    int stack[1000];\n    int top=0;\n    stack[top]=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='(') stack[++top]=0;\n        else{\n            int v=stack[top--];\n            int score=v==0?1:2*v;\n            stack[top]+=score;\n        }\n    }\n    printf(\"%d\",stack[0]);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;cin>>s;\n    stack<int> st;\n    st.push(0);\n    for(char c:s){\n        if(c=='(') st.push(0);\n        else{\n            int v=st.top();st.pop();\n            int score=max(2*v,1);\n            int prev=st.top();st.pop();\n            st.push(prev+score);\n        }\n    }\n    cout<<st.top();\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about how the score doubles for nested parentheses: '(()' vs '()'.",
                 "Use a stack to keep track of the total score at different nesting levels.",
@@ -3136,35 +3136,35 @@
             "inputFormat": "Arithmetic expression string.",
             "outputFormat": "Return evaluated result.",
             "solutions": [
-{
-"title": "Stack Based Expression Evaluation - Python",
-"language": "python",
-"code": "import sys\ns=sys.stdin.read()\nstack=[]\nres=0\nnum=0\nsign=1\nfor c in s:\n    if c.isdigit(): num=num*10+int(c)\n    elif c in '+-':\n        res+=sign*num\n        num=0\n        sign=1 if c=='+' else -1\n    elif c=='(':\n        stack.append(res)\n        stack.append(sign)\n        res=0\n        sign=1\n    elif c==')':\n        res+=sign*num\n        num=0\n        res*=stack.pop()\n        res+=stack.pop()\nres+=sign*num\nprint(res)",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Parsing - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Integer> stack=new Stack<>();\n        int result=0,number=0,sign=1;\n        for(char c:s.toCharArray()){\n            if(Character.isDigit(c)) number=number*10+(c-'0');\n            else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n            else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n            else if(c=='('){ stack.push(result); stack.push(sign); result=0; sign=1; }\n            else if(c==')'){ result+=sign*number; number=0; result*=stack.pop(); result+=stack.pop(); }\n        }\n        result+=sign*number;\n        System.out.print(result);\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){\n    char s[10000];\n    fgets(s,sizeof(s),stdin);\n    int stack[1000];\n    int top=-1;\n    int result=0,number=0,sign=1;\n    for(int i=0;i<strlen(s);i++){\n        char c=s[i];\n        if(isdigit(c)) number=number*10+(c-'0');\n        else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n        else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n        else if(c=='('){ stack[++top]=result; stack[++top]=sign; result=0; sign=1; }\n        else if(c==')'){ result+=sign*number; number=0; result*=stack[top--]; result+=stack[top--]; }\n    }\n    result+=sign*number;\n    printf(\"%d\",result);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;getline(cin,s);\n    stack<int> st;\n    int result=0,number=0,sign=1;\n    for(char c:s){\n        if(isdigit(c)) number=number*10+(c-'0');\n        else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n        else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n        else if(c=='('){ st.push(result); st.push(sign); result=0; sign=1; }\n        else if(c==')'){ result+=sign*number; number=0; result*=st.top(); st.pop(); result+=st.top(); st.pop(); }\n    }\n    result+=sign*number;\n    cout<<result;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Based Expression Evaluation - Python",
+                    "language": "python",
+                    "code": "import sys\ns=sys.stdin.read()\nstack=[]\nres=0\nnum=0\nsign=1\nfor c in s:\n    if c.isdigit(): num=num*10+int(c)\n    elif c in '+-':\n        res+=sign*num\n        num=0\n        sign=1 if c=='+' else -1\n    elif c=='(':\n        stack.append(res)\n        stack.append(sign)\n        res=0\n        sign=1\n    elif c==')':\n        res+=sign*num\n        num=0\n        res*=stack.pop()\n        res+=stack.pop()\nres+=sign*num\nprint(res)",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Parsing - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        Stack<Integer> stack=new Stack<>();\n        int result=0,number=0,sign=1;\n        for(char c:s.toCharArray()){\n            if(Character.isDigit(c)) number=number*10+(c-'0');\n            else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n            else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n            else if(c=='('){ stack.push(result); stack.push(sign); result=0; sign=1; }\n            else if(c==')'){ result+=sign*number; number=0; result*=stack.pop(); result+=stack.pop(); }\n        }\n        result+=sign*number;\n        System.out.print(result);\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){\n    char s[10000];\n    fgets(s,sizeof(s),stdin);\n    int stack[1000];\n    int top=-1;\n    int result=0,number=0,sign=1;\n    for(int i=0;i<strlen(s);i++){\n        char c=s[i];\n        if(isdigit(c)) number=number*10+(c-'0');\n        else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n        else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n        else if(c=='('){ stack[++top]=result; stack[++top]=sign; result=0; sign=1; }\n        else if(c==')'){ result+=sign*number; number=0; result*=stack[top--]; result+=stack[top--]; }\n    }\n    result+=sign*number;\n    printf(\"%d\",result);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;getline(cin,s);\n    stack<int> st;\n    int result=0,number=0,sign=1;\n    for(char c:s){\n        if(isdigit(c)) number=number*10+(c-'0');\n        else if(c=='+'){ result+=sign*number; number=0; sign=1; }\n        else if(c=='-'){ result+=sign*number; number=0; sign=-1; }\n        else if(c=='('){ st.push(result); st.push(sign); result=0; sign=1; }\n        else if(c==')'){ result+=sign*number; number=0; result*=st.top(); st.pop(); result+=st.top(); st.pop(); }\n    }\n    result+=sign*number;\n    cout<<result;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "A stack is essential here to handle the precedence of operations and parentheses.",
                 "Store the results and the signs (+1 or -1) before a parenthesis on the stack.",
@@ -3235,35 +3235,35 @@
             "inputFormat": "A single string containing XML-style code.",
             "outputFormat": "Return true if the code snippet is valid, otherwise false.",
             "solutions": [
-{
-"title": "Stack Based Tag Validation - Python",
-"language": "python",
-"code": "import sys\ncode=sys.stdin.read().strip()\nstack=[]\ni=0\nn=len(code)\nwhile i<n:\n    if code.startswith('<![CDATA[',i):\n        j=code.find(']]>',i)\n        if j==-1:\n            print('false')\n            exit()\n        i=j+3\n    elif code.startswith('</',i):\n        j=code.find('>',i)\n        if j==-1:\n            print('false')\n            exit()\n        tag=code[i+2:j]\n        if not stack or stack.pop()!=tag:\n            print('false')\n            exit()\n        i=j+1\n    elif code.startswith('<',i):\n        j=code.find('>',i)\n        if j==-1:\n            print('false')\n            exit()\n        tag=code[i+1:j]\n        if not tag.isupper() or not (1<=len(tag)<=9):\n            print('false')\n            exit()\n        stack.append(tag)\n        i=j+1\n    else:\n        i+=1\nprint('true' if not stack else 'false')",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Stack Tag Parser - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String code=sc.nextLine();\n        Stack<String> stack=new Stack<>();\n        int i=0,n=code.length();\n        while(i<n){\n            if(code.startsWith(\"<![CDATA[\",i)){\n                int j=code.indexOf(\"]]>\",i);\n                if(j==-1){System.out.print(\"false\");return;}\n                i=j+3;\n            }\n            else if(code.startsWith(\"</\",i)){\n                int j=code.indexOf('>',i);\n                if(j==-1){System.out.print(\"false\");return;}\n                String tag=code.substring(i+2,j);\n                if(stack.isEmpty() || !stack.pop().equals(tag)){\n                    System.out.print(\"false\");return;\n                }\n                i=j+1;\n            }\n            else if(code.startsWith(\"<\",i)){\n                int j=code.indexOf('>',i);\n                if(j==-1){System.out.print(\"false\");return;}\n                String tag=code.substring(i+1,j);\n                if(!tag.matches(\"[A-Z]{1,9}\")){\n                    System.out.print(\"false\");return;\n                }\n                stack.push(tag);\n                i=j+1;\n            }\n            else i++;\n        }\n        System.out.print(stack.isEmpty()?\"true\":\"false\");\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack Simulation",
-"language": "c",
-"code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\nint main(){\n    char code[10000];\n    fgets(code,sizeof(code),stdin);\n    char stack[100][20];\n    int top=-1;\n    int i=0,n=strlen(code);\n    while(i<n){\n        if(strncmp(code+i,\"<![CDATA[\",9)==0){\n            char *p=strstr(code+i, \"]]>\");\n            if(!p){printf(\"false\");return 0;}\n            i=(p-code)+3;\n        }\n        else if(strncmp(code+i,\"</\",2)==0){\n            int j=i+2;\n            while(j<n && code[j]!='>') j++;\n            if(j>=n){printf(\"false\");return 0;}\n            char tag[20];\n            strncpy(tag,code+i+2,j-i-2);\n            tag[j-i-2]='\\0';\n            if(top<0 || strcmp(stack[top--],tag)!=0){printf(\"false\");return 0;}\n            i=j+1;\n        }\n        else if(code[i]=='<'){\n            int j=i+1;\n            while(j<n && code[j]!='>') j++;\n            if(j>=n){printf(\"false\");return 0;}\n            char tag[20];\n            strncpy(tag,code+i+1,j-i-1);\n            tag[j-i-1]='\\0';\n            int len=strlen(tag);\n            if(len<1||len>9){printf(\"false\");return 0;}\n            for(int k=0;k<len;k++) if(!isupper(tag[k])){printf(\"false\");return 0;}\n            strcpy(stack[++top],tag);\n            i=j+1;\n        }\n        else i++;\n    }\n    printf(top==-1?\"true\":\"false\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string code;\n    getline(cin,code);\n    stack<string> st;\n    int i=0,n=code.size();\n    while(i<n){\n        if(code.compare(i,9,\"<![CDATA[\")==0){\n            int j=code.find(\"]]>\",i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            i=j+3;\n        }\n        else if(code.compare(i,2,\"</\")==0){\n            int j=code.find('>',i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            string tag=code.substr(i+2,j-i-2);\n            if(st.empty()||st.top()!=tag){cout<<\"false\";return 0;}\n            st.pop();\n            i=j+1;\n        }\n        else if(code[i]=='<'){\n            int j=code.find('>',i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            string tag=code.substr(i+1,j-i-1);\n            if(tag.size()<1||tag.size()>9){cout<<\"false\";return 0;}\n            for(char c:tag) if(!isupper(c)){cout<<\"false\";return 0;}\n            st.push(tag);\n            i=j+1;\n        }\n        else i++;\n    }\n    cout<<(st.empty()?\"true\":\"false\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Stack Based Tag Validation - Python",
+                    "language": "python",
+                    "code": "import sys\ncode=sys.stdin.read().strip()\nstack=[]\ni=0\nn=len(code)\nwhile i<n:\n    if code.startswith('<![CDATA[',i):\n        j=code.find(']]>',i)\n        if j==-1:\n            print('false')\n            exit()\n        i=j+3\n    elif code.startswith('</',i):\n        j=code.find('>',i)\n        if j==-1:\n            print('false')\n            exit()\n        tag=code[i+2:j]\n        if not stack or stack.pop()!=tag:\n            print('false')\n            exit()\n        i=j+1\n    elif code.startswith('<',i):\n        j=code.find('>',i)\n        if j==-1:\n            print('false')\n            exit()\n        tag=code[i+1:j]\n        if not tag.isupper() or not (1<=len(tag)<=9):\n            print('false')\n            exit()\n        stack.append(tag)\n        i=j+1\n    else:\n        i+=1\nprint('true' if not stack else 'false')",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Tag Parser - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String code=sc.nextLine();\n        Stack<String> stack=new Stack<>();\n        int i=0,n=code.length();\n        while(i<n){\n            if(code.startsWith(\"<![CDATA[\",i)){\n                int j=code.indexOf(\"]]>\",i);\n                if(j==-1){System.out.print(\"false\");return;}\n                i=j+3;\n            }\n            else if(code.startsWith(\"</\",i)){\n                int j=code.indexOf('>',i);\n                if(j==-1){System.out.print(\"false\");return;}\n                String tag=code.substring(i+2,j);\n                if(stack.isEmpty() || !stack.pop().equals(tag)){\n                    System.out.print(\"false\");return;\n                }\n                i=j+1;\n            }\n            else if(code.startsWith(\"<\",i)){\n                int j=code.indexOf('>',i);\n                if(j==-1){System.out.print(\"false\");return;}\n                String tag=code.substring(i+1,j);\n                if(!tag.matches(\"[A-Z]{1,9}\")){\n                    System.out.print(\"false\");return;\n                }\n                stack.push(tag);\n                i=j+1;\n            }\n            else i++;\n        }\n        System.out.print(stack.isEmpty()?\"true\":\"false\");\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\nint main(){\n    char code[10000];\n    fgets(code,sizeof(code),stdin);\n    char stack[100][20];\n    int top=-1;\n    int i=0,n=strlen(code);\n    while(i<n){\n        if(strncmp(code+i,\"<![CDATA[\",9)==0){\n            char *p=strstr(code+i, \"]]>\");\n            if(!p){printf(\"false\");return 0;}\n            i=(p-code)+3;\n        }\n        else if(strncmp(code+i,\"</\",2)==0){\n            int j=i+2;\n            while(j<n && code[j]!='>') j++;\n            if(j>=n){printf(\"false\");return 0;}\n            char tag[20];\n            strncpy(tag,code+i+2,j-i-2);\n            tag[j-i-2]='\\0';\n            if(top<0 || strcmp(stack[top--],tag)!=0){printf(\"false\");return 0;}\n            i=j+1;\n        }\n        else if(code[i]=='<'){\n            int j=i+1;\n            while(j<n && code[j]!='>') j++;\n            if(j>=n){printf(\"false\");return 0;}\n            char tag[20];\n            strncpy(tag,code+i+1,j-i-1);\n            tag[j-i-1]='\\0';\n            int len=strlen(tag);\n            if(len<1||len>9){printf(\"false\");return 0;}\n            for(int k=0;k<len;k++) if(!isupper(tag[k])){printf(\"false\");return 0;}\n            strcpy(stack[++top],tag);\n            i=j+1;\n        }\n        else i++;\n    }\n    printf(top==-1?\"true\":\"false\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string code;\n    getline(cin,code);\n    stack<string> st;\n    int i=0,n=code.size();\n    while(i<n){\n        if(code.compare(i,9,\"<![CDATA[\")==0){\n            int j=code.find(\"]]>\",i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            i=j+3;\n        }\n        else if(code.compare(i,2,\"</\")==0){\n            int j=code.find('>',i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            string tag=code.substr(i+2,j-i-2);\n            if(st.empty()||st.top()!=tag){cout<<\"false\";return 0;}\n            st.pop();\n            i=j+1;\n        }\n        else if(code[i]=='<'){\n            int j=code.find('>',i);\n            if(j==string::npos){cout<<\"false\";return 0;}\n            string tag=code.substr(i+1,j-i-1);\n            if(tag.size()<1||tag.size()>9){cout<<\"false\";return 0;}\n            for(char c:tag) if(!isupper(c)){cout<<\"false\";return 0;}\n            st.push(tag);\n            i=j+1;\n        }\n        else i++;\n    }\n    cout<<(st.empty()?\"true\":\"false\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "XML tags follow a LIFO structure: the last tag opened must be the first one closed.",
                 "Extract the tag names and use a stack to push opening tags and pop them for corresponding closing tags.",
@@ -3334,35 +3334,35 @@
             "inputFormat": "Two arrays nums1 and nums2.",
             "outputFormat": "Return an array representing the next greater element for each element in nums1.",
             "solutions": [
-{
-"title": "Monotonic Stack Mapping - Python",
-"language": "python",
-"code": "import sys,re\ns=sys.stdin.read()\nnums=re.findall(r'-?\\d+',s)\nmid=len(nums)//2\nnums1=list(map(int,nums[:mid]))\nnums2=list(map(int,nums[mid:]))\nstack=[]\nmp={}\nfor n in nums2:\n    while stack and stack[-1]<n:\n        mp[stack.pop()]=n\n    stack.append(n)\nwhile stack:\n    mp[stack.pop()]=-1\nres=[mp[x] for x in nums1]\nprint('['+','.join(map(str,res))+']')",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack Mapping - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        s+=sc.nextLine();\n        ArrayList<Integer> nums=new ArrayList<>();\n        String num=\"\";\n        for(char c:s.toCharArray()){\n            if(Character.isDigit(c)||c=='-') num+=c;\n            else if(!num.isEmpty()){ nums.add(Integer.parseInt(num)); num=\"\"; }\n        }\n        if(!num.isEmpty()) nums.add(Integer.parseInt(num));\n        int mid=nums.size()/2;\n        int[] nums1=new int[mid];\n        int[] nums2=new int[nums.size()-mid];\n        for(int i=0;i<mid;i++) nums1[i]=nums.get(i);\n        for(int i=mid;i<nums.size();i++) nums2[i-mid]=nums.get(i);\n        Stack<Integer> stack=new Stack<>();\n        Map<Integer,Integer> map=new HashMap<>();\n        for(int n:nums2){\n            while(!stack.isEmpty() && stack.peek()<n)\n                map.put(stack.pop(),n);\n            stack.push(n);\n        }\n        while(!stack.isEmpty()) map.put(stack.pop(),-1);\n        System.out.print(\"[\");\n        for(int i=0;i<nums1.length;i++){\n            if(i>0) System.out.print(\",\");\n            System.out.print(map.get(nums1[i]));\n        }\n        System.out.print(\"]\");\n    }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack Mapping",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n char t[2000]; fgets(t,sizeof(t),stdin);\n strcat(s,t);\n int nums[200],n=0;\n char *tok=strtok(s,\"[], =\\n\");\n while(tok){ nums[n++]=atoi(tok); tok=strtok(NULL,\"[], =\\n\"); }\n int mid=n/2;\n int nums1[100],nums2[100];\n for(int i=0;i<mid;i++) nums1[i]=nums[i];\n for(int i=mid;i<n;i++) nums2[i-mid]=nums[i];\n int map[10000]; for(int i=0;i<10000;i++) map[i]=-1;\n int stack[100],top=-1;\n for(int i=0;i<n-mid;i++){\n  while(top>=0 && stack[top]<nums2[i]) map[stack[top--]]=nums2[i];\n  stack[++top]=nums2[i];\n }\n printf(\"[\");\n for(int i=0;i<mid;i++){\n  if(i) printf(\",\");\n  printf(\"%d\",map[nums1[i]]);\n }\n printf(\"]\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n string t;getline(cin,t);\n s+=t;\n vector<int> nums; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ nums.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) nums.push_back(stoi(num));\n int mid=nums.size()/2;\n vector<int> nums1(nums.begin(),nums.begin()+mid);\n vector<int> nums2(nums.begin()+mid,nums.end());\n stack<int> st; unordered_map<int,int> mp;\n for(int n:nums2){\n  while(!st.empty() && st.top()<n){ mp[st.top()]=n; st.pop(); }\n  st.push(n);\n }\n while(!st.empty()){ mp[st.top()]=-1; st.pop(); }\n cout<<\"[\";\n for(int i=0;i<nums1.size();i++){\n  if(i) cout<<\",\";\n  cout<<mp[nums1[i]];\n }\n cout<<\"]\";\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack Mapping - Python",
+                    "language": "python",
+                    "code": "import sys,re\ns=sys.stdin.read()\nnums=re.findall(r'-?\\d+',s)\nmid=len(nums)//2\nnums1=list(map(int,nums[:mid]))\nnums2=list(map(int,nums[mid:]))\nstack=[]\nmp={}\nfor n in nums2:\n    while stack and stack[-1]<n:\n        mp[stack.pop()]=n\n    stack.append(n)\nwhile stack:\n    mp[stack.pop()]=-1\nres=[mp[x] for x in nums1]\nprint('['+','.join(map(str,res))+']')",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack Mapping - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.nextLine();\n        s+=sc.nextLine();\n        ArrayList<Integer> nums=new ArrayList<>();\n        String num=\"\";\n        for(char c:s.toCharArray()){\n            if(Character.isDigit(c)||c=='-') num+=c;\n            else if(!num.isEmpty()){ nums.add(Integer.parseInt(num)); num=\"\"; }\n        }\n        if(!num.isEmpty()) nums.add(Integer.parseInt(num));\n        int mid=nums.size()/2;\n        int[] nums1=new int[mid];\n        int[] nums2=new int[nums.size()-mid];\n        for(int i=0;i<mid;i++) nums1[i]=nums.get(i);\n        for(int i=mid;i<nums.size();i++) nums2[i-mid]=nums.get(i);\n        Stack<Integer> stack=new Stack<>();\n        Map<Integer,Integer> map=new HashMap<>();\n        for(int n:nums2){\n            while(!stack.isEmpty() && stack.peek()<n)\n                map.put(stack.pop(),n);\n            stack.push(n);\n        }\n        while(!stack.isEmpty()) map.put(stack.pop(),-1);\n        System.out.print(\"[\");\n        for(int i=0;i<nums1.length;i++){\n            if(i>0) System.out.print(\",\");\n            System.out.print(map.get(nums1[i]));\n        }\n        System.out.print(\"]\");\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack Mapping",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n char t[2000]; fgets(t,sizeof(t),stdin);\n strcat(s,t);\n int nums[200],n=0;\n char *tok=strtok(s,\"[], =\\n\");\n while(tok){ nums[n++]=atoi(tok); tok=strtok(NULL,\"[], =\\n\"); }\n int mid=n/2;\n int nums1[100],nums2[100];\n for(int i=0;i<mid;i++) nums1[i]=nums[i];\n for(int i=mid;i<n;i++) nums2[i-mid]=nums[i];\n int map[10000]; for(int i=0;i<10000;i++) map[i]=-1;\n int stack[100],top=-1;\n for(int i=0;i<n-mid;i++){\n  while(top>=0 && stack[top]<nums2[i]) map[stack[top--]]=nums2[i];\n  stack[++top]=nums2[i];\n }\n printf(\"[\");\n for(int i=0;i<mid;i++){\n  if(i) printf(\",\");\n  printf(\"%d\",map[nums1[i]]);\n }\n printf(\"]\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n string t;getline(cin,t);\n s+=t;\n vector<int> nums; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ nums.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) nums.push_back(stoi(num));\n int mid=nums.size()/2;\n vector<int> nums1(nums.begin(),nums.begin()+mid);\n vector<int> nums2(nums.begin()+mid,nums.end());\n stack<int> st; unordered_map<int,int> mp;\n for(int n:nums2){\n  while(!st.empty() && st.top()<n){ mp[st.top()]=n; st.pop(); }\n  st.push(n);\n }\n while(!st.empty()){ mp[st.top()]=-1; st.pop(); }\n cout<<\"[\";\n for(int i=0;i<nums1.size();i++){\n  if(i) cout<<\",\";\n  cout<<mp[nums1[i]];\n }\n cout<<\"]\";\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
                 "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
@@ -3433,35 +3433,35 @@
             "inputFormat": "An integer array prices.",
             "outputFormat": "Return an array of final prices after applying discounts.",
             "solutions": [
-{
-"title": "Monotonic Stack Discount - Python",
-"language": "python",
-"code": "import sys,re\nprices=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nres=prices[:]\nfor i,p in enumerate(prices):\n    while stack and prices[stack[-1]]>=p:\n        res[stack.pop()]-=p\n    stack.append(i)\nprint('['+','.join(map(str,res))+']')",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack Discount - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int[] prices=new int[n];\n  for(int i=0;i<n;i++) prices[i]=arr.get(i);\n  Stack<Integer> stack=new Stack<>();\n  int[] res=prices.clone();\n  for(int i=0;i<n;i++){\n   while(!stack.isEmpty() && prices[stack.peek()]>=prices[i]){\n    int idx=stack.pop();\n    res[idx]-=prices[i];\n   }\n   stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){\n   if(i>0) System.out.print(\",\");\n   System.out.print(res[i]);\n  }\n  System.out.print(\"]\");\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack Discount",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int prices[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ prices[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int res[200]; for(int i=0;i<n;i++) res[i]=prices[i];\n int stack[200],top=-1;\n for(int i=0;i<n;i++){\n  while(top>=0 && prices[stack[top]]>=prices[i]){\n   int idx=stack[top--];\n   res[idx]-=prices[i];\n  }\n  stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> prices; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ prices.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) prices.push_back(stoi(num));\n int n=prices.size();\n vector<int> res=prices;\n stack<int> st;\n for(int i=0;i<n;i++){\n  while(!st.empty() && prices[st.top()]>=prices[i]){\n   res[st.top()]-=prices[i]; st.pop();\n  }\n  st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack Discount - Python",
+                    "language": "python",
+                    "code": "import sys,re\nprices=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nres=prices[:]\nfor i,p in enumerate(prices):\n    while stack and prices[stack[-1]]>=p:\n        res[stack.pop()]-=p\n    stack.append(i)\nprint('['+','.join(map(str,res))+']')",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack Discount - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int[] prices=new int[n];\n  for(int i=0;i<n;i++) prices[i]=arr.get(i);\n  Stack<Integer> stack=new Stack<>();\n  int[] res=prices.clone();\n  for(int i=0;i<n;i++){\n   while(!stack.isEmpty() && prices[stack.peek()]>=prices[i]){\n    int idx=stack.pop();\n    res[idx]-=prices[i];\n   }\n   stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){\n   if(i>0) System.out.print(\",\");\n   System.out.print(res[i]);\n  }\n  System.out.print(\"]\");\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack Discount",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int prices[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ prices[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int res[200]; for(int i=0;i<n;i++) res[i]=prices[i];\n int stack[200],top=-1;\n for(int i=0;i<n;i++){\n  while(top>=0 && prices[stack[top]]>=prices[i]){\n   int idx=stack[top--];\n   res[idx]-=prices[i];\n  }\n  stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> prices; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ prices.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) prices.push_back(stoi(num));\n int n=prices.size();\n vector<int> res=prices;\n stack<int> st;\n for(int i=0;i<n;i++){\n  while(!st.empty() && prices[st.top()]>=prices[i]){\n   res[st.top()]-=prices[i]; st.pop();\n  }\n  st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
@@ -3532,35 +3532,35 @@
             "inputFormat": "An integer array representing building heights.",
             "outputFormat": "Return an array containing indices of buildings with an ocean view.",
             "solutions": [
-{
-"title": "Reverse Monotonic Stack - Python",
-"language": "python",
-"code": "import sys,re\nheights=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nres=[]\nmax_h=0\nfor i in range(len(heights)-1,-1,-1):\n    if heights[i]>max_h:\n        res.append(i)\n        max_h=heights[i]\nres=res[::-1]\nprint('['+','.join(map(str,res))+']')",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": true
-},
-{
-"title": "Reverse Traversal - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int max=0;\n  ArrayList<Integer> res=new ArrayList<>();\n  for(int i=n-1;i>=0;i--){\n   if(arr.get(i)>max){\n    res.add(i);\n    max=arr.get(i);\n   }\n  }\n  Collections.reverse(res);\n  System.out.print(\"[\");\n  for(int i=0;i<res.size();i++){\n   if(i>0) System.out.print(\",\");\n   System.out.print(res.get(i));\n  }\n  System.out.print(\"]\");\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Reverse Traversal - C",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int max=0,res[200],k=0;\n for(int i=n-1;i>=0;i--){\n  if(arr[i]>max){ res[k++]=i; max=arr[i]; }\n }\n printf(\"[\");\n for(int i=k-1;i>=0;i--){ printf(\"%d\",res[i]); if(i) printf(\",\"); }\n printf(\"]\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int max_h=0; vector<int> res;\n for(int i=arr.size()-1;i>=0;i--){\n  if(arr[i]>max_h){ res.push_back(i); max_h=arr[i]; }\n }\n reverse(res.begin(),res.end());\n cout<<\"[\";\n for(int i=0;i<res.size();i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Reverse Monotonic Stack - Python",
+                    "language": "python",
+                    "code": "import sys,re\nheights=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nres=[]\nmax_h=0\nfor i in range(len(heights)-1,-1,-1):\n    if heights[i]>max_h:\n        res.append(i)\n        max_h=heights[i]\nres=res[::-1]\nprint('['+','.join(map(str,res))+']')",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Reverse Traversal - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int max=0;\n  ArrayList<Integer> res=new ArrayList<>();\n  for(int i=n-1;i>=0;i--){\n   if(arr.get(i)>max){\n    res.add(i);\n    max=arr.get(i);\n   }\n  }\n  Collections.reverse(res);\n  System.out.print(\"[\");\n  for(int i=0;i<res.size();i++){\n   if(i>0) System.out.print(\",\");\n   System.out.print(res.get(i));\n  }\n  System.out.print(\"]\");\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Reverse Traversal - C",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int max=0,res[200],k=0;\n for(int i=n-1;i>=0;i--){\n  if(arr[i]>max){ res[k++]=i; max=arr[i]; }\n }\n printf(\"[\");\n for(int i=k-1;i>=0;i--){ printf(\"%d\",res[i]); if(i) printf(\",\"); }\n printf(\"]\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int max_h=0; vector<int> res;\n for(int i=arr.size()-1;i>=0;i--){\n  if(arr[i]>max_h){ res.push_back(i); max_h=arr[i]; }\n }\n reverse(res.begin(),res.end());\n cout<<\"[\";\n for(int i=0;i<res.size();i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "A building has an ocean view if all buildings to its right are shorter than it.",
                 "Traverse from right to left while keeping track of the maximum height seen so far.",
@@ -3631,35 +3631,35 @@
             "inputFormat": "An integer array nums.",
             "outputFormat": "Return the number of steps required to make the array non-decreasing.",
             "solutions": [
-{
-"title": "Monotonic Stack with DP - Python",
-"language": "python",
-"code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\ndp=[0]*len(nums)\nres=0\nfor i,n in enumerate(nums):\n cur=0\n while stack and nums[stack[-1]]<=n:\n  cur=max(cur,dp[stack.pop()])\n if stack:\n  dp[i]=cur+1\n  res=max(res,dp[i])\n stack.append(i)\nprint(res)",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack DP - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> nums=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ nums.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) nums.add(Integer.parseInt(num));\n  int n=nums.size();\n  Stack<Integer> stack=new Stack<>();\n  int[] dp=new int[n];\n  int res=0;\n  for(int i=0;i<n;i++){\n   int cur=0;\n   while(!stack.isEmpty() && nums.get(stack.peek())<=nums.get(i)){\n    cur=Math.max(cur,dp[stack.pop()]);\n   }\n   if(!stack.isEmpty()){\n    dp[i]=cur+1;\n    res=Math.max(res,dp[i]);\n   }\n   stack.push(i);\n  }\n  System.out.print(res);\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack DP",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int nums[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ nums[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,dp[200]={0},res=0;\n for(int i=0;i<n;i++){\n  int cur=0;\n  while(top>=0 && nums[stack[top]]<=nums[i]){\n   if(dp[stack[top]]>cur) cur=dp[stack[top]];\n   top--;\n  }\n  if(top>=0){ dp[i]=cur+1; if(dp[i]>res) res=dp[i]; }\n  stack[++top]=i;\n }\n printf(\"%d\",res);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> nums; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ nums.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) nums.push_back(stoi(num));\n int n=nums.size();\n stack<int> st;\n vector<int> dp(n);\n int res=0;\n for(int i=0;i<n;i++){\n  int cur=0;\n  while(!st.empty() && nums[st.top()]<=nums[i]){\n   cur=max(cur,dp[st.top()]);\n   st.pop();\n  }\n  if(!st.empty()){\n   dp[i]=cur+1;\n   res=max(res,dp[i]);\n  }\n  st.push(i);\n }\n cout<<res;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack with DP - Python",
+                    "language": "python",
+                    "code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\ndp=[0]*len(nums)\nres=0\nfor i,n in enumerate(nums):\n cur=0\n while stack and nums[stack[-1]]<=n:\n  cur=max(cur,dp[stack.pop()])\n if stack:\n  dp[i]=cur+1\n  res=max(res,dp[i])\n stack.append(i)\nprint(res)",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack DP - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> nums=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ nums.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) nums.add(Integer.parseInt(num));\n  int n=nums.size();\n  Stack<Integer> stack=new Stack<>();\n  int[] dp=new int[n];\n  int res=0;\n  for(int i=0;i<n;i++){\n   int cur=0;\n   while(!stack.isEmpty() && nums.get(stack.peek())<=nums.get(i)){\n    cur=Math.max(cur,dp[stack.pop()]);\n   }\n   if(!stack.isEmpty()){\n    dp[i]=cur+1;\n    res=Math.max(res,dp[i]);\n   }\n   stack.push(i);\n  }\n  System.out.print(res);\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack DP",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int nums[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ nums[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,dp[200]={0},res=0;\n for(int i=0;i<n;i++){\n  int cur=0;\n  while(top>=0 && nums[stack[top]]<=nums[i]){\n   if(dp[stack[top]]>cur) cur=dp[stack[top]];\n   top--;\n  }\n  if(top>=0){ dp[i]=cur+1; if(dp[i]>res) res=dp[i]; }\n  stack[++top]=i;\n }\n printf(\"%d\",res);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> nums; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ nums.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) nums.push_back(stoi(num));\n int n=nums.size();\n stack<int> st;\n vector<int> dp(n);\n int res=0;\n for(int i=0;i<n;i++){\n  int cur=0;\n  while(!st.empty() && nums[st.top()]<=nums[i]){\n   cur=max(cur,dp[st.top()]);\n   st.pop();\n  }\n  if(!st.empty()){\n   dp[i]=cur+1;\n   res=max(res,dp[i]);\n  }\n  st.push(i);\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Each element 'e' will be removed if there is an element to its left that is larger than 'e'.",
                 "The time it takes to remove 'e' depends on how many elements between it and the larger element were removed before it.",
@@ -3730,35 +3730,35 @@
             "inputFormat": "An integer array temperatures.",
             "outputFormat": "Return an array representing days until a warmer temperature.",
             "solutions": [
-{
-"title": "Monotonic Stack (Next Warmer Day) - Python",
-"language": "python",
-"code": "import sys,re\ntemps=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nres=[0]*len(temps)\nfor i,t in enumerate(temps):\n while stack and temps[stack[-1]]<t:\n  idx=stack.pop()\n  res[idx]=i-idx\n stack.append(i)\nprint('['+','.join(map(str,res))+']')",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  Stack<Integer> stack=new Stack<>();\n  int[] res=new int[n];\n  for(int i=0;i<n;i++){\n   while(!stack.isEmpty() && arr.get(stack.peek())<arr.get(i)){\n    int idx=stack.pop();\n    res[idx]=i-idx;\n   }\n   stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){ if(i>0) System.out.print(\",\"); System.out.print(res[i]); }\n  System.out.print(\"]\");\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,res[200]={0};\n for(int i=0;i<n;i++){\n  while(top>=0 && arr[stack[top]]<arr[i]){\n   int idx=stack[top--];\n   res[idx]=i-idx;\n  }\n  stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n vector<int> res(n);\n stack<int> st;\n for(int i=0;i<n;i++){\n  while(!st.empty() && arr[st.top()]<arr[i]){\n   int idx=st.top(); st.pop();\n   res[idx]=i-idx;\n  }\n  st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack (Next Warmer Day) - Python",
+                    "language": "python",
+                    "code": "import sys,re\ntemps=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nres=[0]*len(temps)\nfor i,t in enumerate(temps):\n while stack and temps[stack[-1]]<t:\n  idx=stack.pop()\n  res[idx]=i-idx\n stack.append(i)\nprint('['+','.join(map(str,res))+']')",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  Stack<Integer> stack=new Stack<>();\n  int[] res=new int[n];\n  for(int i=0;i<n;i++){\n   while(!stack.isEmpty() && arr.get(stack.peek())<arr.get(i)){\n    int idx=stack.pop();\n    res[idx]=i-idx;\n   }\n   stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){ if(i>0) System.out.print(\",\"); System.out.print(res[i]); }\n  System.out.print(\"]\");\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,res[200]={0};\n for(int i=0;i<n;i++){\n  while(top>=0 && arr[stack[top]]<arr[i]){\n   int idx=stack[top--];\n   res[idx]=i-idx;\n  }\n  stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n vector<int> res(n);\n stack<int> st;\n for(int i=0;i<n;i++){\n  while(!st.empty() && arr[st.top()]<arr[i]){\n   int idx=st.top(); st.pop();\n   res[idx]=i-idx;\n  }\n  st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "This is exactly the 'Next Greater Element' problem applied to temperature data.",
                 "Use a monotonic stack to find the next day with a warmer temperature.",
@@ -3829,35 +3829,35 @@
             "inputFormat": "An integer array nums.",
             "outputFormat": "Return an array representing the next greater element for each index.",
             "solutions": [
-{
-"title": "Monotonic Stack with Circular Traversal - Python",
-"language": "python",
-"code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nn=len(nums)\nres=[-1]*n\nstack=[]\nfor i in range(2*n):\n while stack and nums[stack[-1]]<nums[i%n]:\n  res[stack.pop()]=nums[i%n]\n if i<n: stack.append(i)\nprint('['+','.join(map(str,res))+']')",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack Circular - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int[] res=new int[n];\n  Arrays.fill(res,-1);\n  Stack<Integer> stack=new Stack<>();\n  for(int i=0;i<2*n;i++){\n   while(!stack.isEmpty() && arr.get(stack.peek())<arr.get(i%n)){\n    res[stack.pop()]=arr.get(i%n);\n   }\n   if(i<n) stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){ if(i>0) System.out.print(\",\"); System.out.print(res[i]); }\n  System.out.print(\"]\");\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack Circular",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,res[200];\n for(int i=0;i<n;i++) res[i]=-1;\n for(int i=0;i<2*n;i++){\n  while(top>=0 && arr[stack[top]]<arr[i%n]){\n   res[stack[top--]]=arr[i%n];\n  }\n  if(i<n) stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n vector<int> res(n,-1);\n stack<int> st;\n for(int i=0;i<2*n;i++){\n  while(!st.empty() && arr[st.top()]<arr[i%n]){\n   res[st.top()]=arr[i%n]; st.pop();\n  }\n  if(i<n) st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack with Circular Traversal - Python",
+                    "language": "python",
+                    "code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nn=len(nums)\nres=[-1]*n\nstack=[]\nfor i in range(2*n):\n while stack and nums[stack[-1]]<nums[i%n]:\n  res[stack.pop()]=nums[i%n]\n if i<n: stack.append(i)\nprint('['+','.join(map(str,res))+']')",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack Circular - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  int[] res=new int[n];\n  Arrays.fill(res,-1);\n  Stack<Integer> stack=new Stack<>();\n  for(int i=0;i<2*n;i++){\n   while(!stack.isEmpty() && arr.get(stack.peek())<arr.get(i%n)){\n    res[stack.pop()]=arr.get(i%n);\n   }\n   if(i<n) stack.push(i);\n  }\n  System.out.print(\"[\");\n  for(int i=0;i<n;i++){ if(i>0) System.out.print(\",\"); System.out.print(res[i]); }\n  System.out.print(\"]\");\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack Circular",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,res[200];\n for(int i=0;i<n;i++) res[i]=-1;\n for(int i=0;i<2*n;i++){\n  while(top>=0 && arr[stack[top]]<arr[i%n]){\n   res[stack[top--]]=arr[i%n];\n  }\n  if(i<n) stack[++top]=i;\n }\n printf(\"[\");\n for(int i=0;i<n;i++){ if(i) printf(\",\"); printf(\"%d\",res[i]); }\n printf(\"]\");\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n vector<int> res(n,-1);\n stack<int> st;\n for(int i=0;i<2*n;i++){\n  while(!st.empty() && arr[st.top()]<arr[i%n]){\n   res[st.top()]=arr[i%n]; st.pop();\n  }\n  if(i<n) st.push(i);\n }\n cout<<\"[\";\n for(int i=0;i<n;i++){ if(i) cout<<\",\"; cout<<res[i]; }\n cout<<\"]\";\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
                 "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
@@ -3928,35 +3928,35 @@
             "inputFormat": "An integer array nums.",
             "outputFormat": "Return the sum of all subarray ranges.",
             "solutions": [
-{
-"title": "Brute Force Range Calculation - Python",
-"language": "python",
-"code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nn=len(nums)\nres=0\nfor i in range(n):\n mn=mx=nums[i]\n for j in range(i,n):\n  mn=min(mn,nums[j])\n  mx=max(mx,nums[j])\n  res+=mx-mn\nprint(res)",
-"complexity_analysis": "Time O(N^2). Space O(1).",
-"is_primary": true
-},
-{
-"title": "Brute Force Range Calculation - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  long res=0;\n  for(int i=0;i<n;i++){\n   int mn=arr.get(i),mx=arr.get(i);\n   for(int j=i;j<n;j++){\n    mn=Math.min(mn,arr.get(j));\n    mx=Math.max(mx,arr.get(j));\n    res+=mx-mn;\n   }\n  }\n  System.out.print(res);\n }\n}",
-"complexity_analysis": "Time O(N^2). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Brute Force Range Calculation",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n long res=0;\n for(int i=0;i<n;i++){\n  int mn=arr[i],mx=arr[i];\n  for(int j=i;j<n;j++){\n   if(arr[j]<mn) mn=arr[j];\n   if(arr[j]>mx) mx=arr[j];\n   res+=mx-mn;\n  }\n }\n printf(\"%ld\",res);\n}",
-"complexity_analysis": "Time O(N^2). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n long long res=0;\n for(int i=0;i<n;i++){\n  int mn=arr[i],mx=arr[i];\n  for(int j=i;j<n;j++){\n   mn=min(mn,arr[j]);\n   mx=max(mx,arr[j]);\n   res+=mx-mn;\n  }\n }\n cout<<res;\n}",
-"complexity_analysis": "Time O(N^2). Space O(1).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Brute Force Range Calculation - Python",
+                    "language": "python",
+                    "code": "import sys,re\nnums=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nn=len(nums)\nres=0\nfor i in range(n):\n mn=mx=nums[i]\n for j in range(i,n):\n  mn=min(mn,nums[j])\n  mx=max(mx,nums[j])\n  res+=mx-mn\nprint(res)",
+                    "complexity_analysis": "Time O(N^2). Space O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Brute Force Range Calculation - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  long res=0;\n  for(int i=0;i<n;i++){\n   int mn=arr.get(i),mx=arr.get(i);\n   for(int j=i;j<n;j++){\n    mn=Math.min(mn,arr.get(j));\n    mx=Math.max(mx,arr.get(j));\n    res+=mx-mn;\n   }\n  }\n  System.out.print(res);\n }\n}",
+                    "complexity_analysis": "Time O(N^2). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Brute Force Range Calculation",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n long res=0;\n for(int i=0;i<n;i++){\n  int mn=arr[i],mx=arr[i];\n  for(int j=i;j<n;j++){\n   if(arr[j]<mn) mn=arr[j];\n   if(arr[j]>mx) mx=arr[j];\n   res+=mx-mn;\n  }\n }\n printf(\"%ld\",res);\n}",
+                    "complexity_analysis": "Time O(N^2). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n int n=arr.size();\n long long res=0;\n for(int i=0;i<n;i++){\n  int mn=arr[i],mx=arr[i];\n  for(int j=i;j<n;j++){\n   mn=min(mn,arr[j]);\n   mx=max(mx,arr[j]);\n   res+=mx-mn;\n  }\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time O(N^2). Space O(1).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Range of a subarray is (max - min). Sum of ranges = Sum(max of all subarrays) - Sum(min of all subarrays).",
                 "Calculate 'Sum of Subarray Minimums' and 'Sum of Subarray Maximums' independently using monotonic stacks.",
@@ -4027,35 +4027,35 @@
             "inputFormat": "An integer array heights.",
             "outputFormat": "Return the largest rectangle area.",
             "solutions": [
-{
-"title": "Monotonic Stack Histogram - Python",
-"language": "python",
-"code": "import sys,re\nheights=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nmax_area=0\nheights.append(0)\nfor i,h in enumerate(heights):\n    while stack and heights[stack[-1]]>h:\n        height=heights[stack.pop()]\n        width=i if not stack else i-stack[-1]-1\n        max_area=max(max_area,height*width)\n    stack.append(i)\nprint(max_area)",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack Histogram - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  Stack<Integer> stack=new Stack<>();\n  int maxArea=0;\n  for(int i=0;i<=n;i++){\n   int h=(i==n)?0:arr.get(i);\n   while(!stack.isEmpty() && arr.get(stack.peek())>h){\n    int height=arr.get(stack.pop());\n    int width=stack.isEmpty()?i:i-stack.peek()-1;\n    maxArea=Math.max(maxArea,height*width);\n   }\n   stack.push(i);\n  }\n  System.out.print(maxArea);\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack Histogram",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,maxArea=0;\n for(int i=0;i<=n;i++){\n  int h=(i==n)?0:arr[i];\n  while(top>=0 && arr[stack[top]]>h){\n   int height=arr[stack[top--]];\n   int width=(top==-1)?i:i-stack[top]-1;\n   int area=height*width;\n   if(area>maxArea) maxArea=area;\n  }\n  stack[++top]=i;\n }\n printf(\"%d\",maxArea);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n stack<int> st;\n int maxArea=0,n=arr.size();\n for(int i=0;i<=n;i++){\n  int h=(i==n)?0:arr[i];\n  while(!st.empty() && arr[st.top()]>h){\n   int height=arr[st.top()]; st.pop();\n   int width=st.empty()?i:i-st.top()-1;\n   maxArea=max(maxArea,height*width);\n  }\n  st.push(i);\n }\n cout<<maxArea;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack Histogram - Python",
+                    "language": "python",
+                    "code": "import sys,re\nheights=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nstack=[]\nmax_area=0\nheights.append(0)\nfor i,h in enumerate(heights):\n    while stack and heights[stack[-1]]>h:\n        height=heights[stack.pop()]\n        width=i if not stack else i-stack[-1]-1\n        max_area=max(max_area,height*width)\n    stack.append(i)\nprint(max_area)",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack Histogram - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  Stack<Integer> stack=new Stack<>();\n  int maxArea=0;\n  for(int i=0;i<=n;i++){\n   int h=(i==n)?0:arr.get(i);\n   while(!stack.isEmpty() && arr.get(stack.peek())>h){\n    int height=arr.get(stack.pop());\n    int width=stack.isEmpty()?i:i-stack.peek()-1;\n    maxArea=Math.max(maxArea,height*width);\n   }\n   stack.push(i);\n  }\n  System.out.print(maxArea);\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack Histogram",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1,maxArea=0;\n for(int i=0;i<=n;i++){\n  int h=(i==n)?0:arr[i];\n  while(top>=0 && arr[stack[top]]>h){\n   int height=arr[stack[top--]];\n   int width=(top==-1)?i:i-stack[top]-1;\n   int area=height*width;\n   if(area>maxArea) maxArea=area;\n  }\n  stack[++top]=i;\n }\n printf(\"%d\",maxArea);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n stack<int> st;\n int maxArea=0,n=arr.size();\n for(int i=0;i<=n;i++){\n  int h=(i==n)?0:arr[i];\n  while(!st.empty() && arr[st.top()]>h){\n   int height=arr[st.top()]; st.pop();\n   int width=st.empty()?i:i-st.top()-1;\n   maxArea=max(maxArea,height*width);\n  }\n  st.push(i);\n }\n cout<<maxArea;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "For each bar, find the width of the rectangle by identifying the nearest smaller bars to its left and right.",
                 "Use a monotonic increasing stack to store indices; calculate area when a bar is popped.",
@@ -4126,35 +4126,35 @@
             "inputFormat": "An integer array height.",
             "outputFormat": "Return the total units of trapped rain water.",
             "solutions": [
-{
-"title": "Two Pointer Water Trapping - Python",
-"language": "python",
-"code": "import sys,re\nh=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nleft,right=0,len(h)-1\nleft_max=right_max=0\nwater=0\nwhile left<right:\n if h[left]<h[right]:\n  if h[left]>=left_max:\n   left_max=h[left]\n  else:\n   water+=left_max-h[left]\n  left+=1\n else:\n  if h[right]>=right_max:\n   right_max=h[right]\n  else:\n   water+=right_max-h[right]\n  right-=1\nprint(water)",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": true
-},
-{
-"title": "Two Pointer Water Trapping - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> h=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ h.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) h.add(Integer.parseInt(num));\n  int left=0,right=h.size()-1;\n  int leftMax=0,rightMax=0,water=0;\n  while(left<right){\n   if(h.get(left)<h.get(right)){\n    if(h.get(left)>=leftMax) leftMax=h.get(left);\n    else water+=leftMax-h.get(left);\n    left++;\n   }else{\n    if(h.get(right)>=rightMax) rightMax=h.get(right);\n    else water+=rightMax-h.get(right);\n    right--;\n   }\n  }\n  System.out.print(water);\n }\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Two Pointer Approach",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int h[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ h[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int left=0,right=n-1,leftMax=0,rightMax=0,water=0;\n while(left<right){\n  if(h[left]<h[right]){\n   if(h[left]>=leftMax) leftMax=h[left];\n   else water+=leftMax-h[left];\n   left++;\n  }else{\n   if(h[right]>=rightMax) rightMax=h[right];\n   else water+=rightMax-h[right];\n   right--;\n  }\n }\n printf(\"%d\",water);\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> h; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ h.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) h.push_back(stoi(num));\n int left=0,right=h.size()-1,leftMax=0,rightMax=0,water=0;\n while(left<right){\n  if(h[left]<h[right]){\n   if(h[left]>=leftMax) leftMax=h[left];\n   else water+=leftMax-h[left];\n   left++;\n  }else{\n   if(h[right]>=rightMax) rightMax=h[right];\n   else water+=rightMax-h[right];\n   right--;\n  }\n }\n cout<<water;\n}",
-"complexity_analysis": "Time O(N). Space O(1).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Two Pointer Water Trapping - Python",
+                    "language": "python",
+                    "code": "import sys,re\nh=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nleft,right=0,len(h)-1\nleft_max=right_max=0\nwater=0\nwhile left<right:\n if h[left]<h[right]:\n  if h[left]>=left_max:\n   left_max=h[left]\n  else:\n   water+=left_max-h[left]\n  left+=1\n else:\n  if h[right]>=right_max:\n   right_max=h[right]\n  else:\n   water+=right_max-h[right]\n  right-=1\nprint(water)",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Two Pointer Water Trapping - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> h=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)) num+=c;\n   else if(!num.isEmpty()){ h.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) h.add(Integer.parseInt(num));\n  int left=0,right=h.size()-1;\n  int leftMax=0,rightMax=0,water=0;\n  while(left<right){\n   if(h.get(left)<h.get(right)){\n    if(h.get(left)>=leftMax) leftMax=h.get(left);\n    else water+=leftMax-h.get(left);\n    left++;\n   }else{\n    if(h.get(right)>=rightMax) rightMax=h.get(right);\n    else water+=rightMax-h.get(right);\n    right--;\n   }\n  }\n  System.out.print(water);\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Two Pointer Approach",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int h[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ h[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int left=0,right=n-1,leftMax=0,rightMax=0,water=0;\n while(left<right){\n  if(h[left]<h[right]){\n   if(h[left]>=leftMax) leftMax=h[left];\n   else water+=leftMax-h[left];\n   left++;\n  }else{\n   if(h[right]>=rightMax) rightMax=h[right];\n   else water+=rightMax-h[right];\n   right--;\n  }\n }\n printf(\"%d\",water);\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> h; string num=\"\";\n for(char c:s){\n  if(isdigit(c)) num+=c;\n  else if(!num.empty()){ h.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) h.push_back(stoi(num));\n int left=0,right=h.size()-1,leftMax=0,rightMax=0,water=0;\n while(left<right){\n  if(h[left]<h[right]){\n   if(h[left]>=leftMax) leftMax=h[left];\n   else water+=leftMax-h[left];\n   left++;\n  }else{\n   if(h[right]>=rightMax) rightMax=h[right];\n   else water+=rightMax-h[right];\n   right--;\n  }\n }\n cout<<water;\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "Water traps in 'valleys' between taller columns.",
                 "A stack approach involves keeping bars in decreasing order to identify these valleys.",
@@ -4225,35 +4225,35 @@
             "inputFormat": "An integer array arr.",
             "outputFormat": "Return the sum of the minimums of all subarrays modulo 10^9 + 7.",
             "solutions": [
-{
-"title": "Monotonic Stack Contribution - Python",
-"language": "python",
-"code": "import sys,re\narr=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nMOD=10**9+7\nstack=[]\nres=0\nfor i in range(len(arr)+1):\n while stack and (i==len(arr) or arr[stack[-1]]>arr[i]):\n  mid=stack.pop()\n  left=mid-(stack[-1] if stack else -1)\n  right=i-mid\n  res+=arr[mid]*left*right\n stack.append(i)\nprint(res%MOD)",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": true
-},
-{
-"title": "Monotonic Stack Contribution - Java",
-"language": "java",
-"code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  long res=0; int mod=1000000007;\n  Stack<Integer> stack=new Stack<>();\n  for(int i=0;i<=n;i++){\n   while(!stack.isEmpty() && (i==n || arr.get(stack.peek())>arr.get(i))){\n    int mid=stack.pop();\n    int left=mid-(stack.isEmpty()?-1:stack.peek());\n    int right=i-mid;\n    res+=(long)arr.get(mid)*left*right;\n   }\n   stack.push(i);\n  }\n  System.out.print(res%mod);\n }\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Monotonic Stack Contribution",
-"language": "c",
-"code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\n#define MOD 1000000007\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1;\n long res=0;\n for(int i=0;i<=n;i++){\n  while(top>=0 && (i==n || arr[stack[top]]>arr[i])){\n   int mid=stack[top--];\n   int left=mid-(top==-1?-1:stack[top]);\n   int right=i-mid;\n   res+=(long)arr[mid]*left*right;\n  }\n  stack[++top]=i;\n }\n printf(\"%ld\",res%MOD);\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-},
-{
-"title": "Stack implementation - CPP",
-"language": "cpp",
-"code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n stack<int> st;\n long long res=0;\n int n=arr.size();\n for(int i=0;i<=n;i++){\n  while(!st.empty() && (i==n || arr[st.top()]>arr[i])){\n   int mid=st.top(); st.pop();\n   int left=mid-(st.empty()?-1:st.top());\n   int right=i-mid;\n   res+=(long long)arr[mid]*left*right;\n  }\n  st.push(i);\n }\n cout<<res%1000000007;\n}",
-"complexity_analysis": "Time O(N). Space O(N).",
-"is_primary": false
-}
-],
+                {
+                    "title": "Monotonic Stack Contribution - Python",
+                    "language": "python",
+                    "code": "import sys,re\narr=list(map(int,re.findall(r'-?\\d+',sys.stdin.read())))\nMOD=10**9+7\nstack=[]\nres=0\nfor i in range(len(arr)+1):\n while stack and (i==len(arr) or arr[stack[-1]]>arr[i]):\n  mid=stack.pop()\n  left=mid-(stack[-1] if stack else -1)\n  right=i-mid\n  res+=arr[mid]*left*right\n stack.append(i)\nprint(res%MOD)",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Monotonic Stack Contribution - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  ArrayList<Integer> arr=new ArrayList<>();\n  String num=\"\";\n  for(char c:s.toCharArray()){\n   if(Character.isDigit(c)||c=='-') num+=c;\n   else if(!num.isEmpty()){ arr.add(Integer.parseInt(num)); num=\"\"; }\n  }\n  if(!num.isEmpty()) arr.add(Integer.parseInt(num));\n  int n=arr.size();\n  long res=0; int mod=1000000007;\n  Stack<Integer> stack=new Stack<>();\n  for(int i=0;i<=n;i++){\n   while(!stack.isEmpty() && (i==n || arr.get(stack.peek())>arr.get(i))){\n    int mid=stack.pop();\n    int left=mid-(stack.isEmpty()?-1:stack.peek());\n    int right=i-mid;\n    res+=(long)arr.get(mid)*left*right;\n   }\n   stack.push(i);\n  }\n  System.out.print(res%mod);\n }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Monotonic Stack Contribution",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n#include<stdlib.h>\n#define MOD 1000000007\nint main(){\n char s[2000]; fgets(s,sizeof(s),stdin);\n int arr[200],n=0;\n char *tok=strtok(s,\"[], \\n\");\n while(tok){ arr[n++]=atoi(tok); tok=strtok(NULL,\"[], \\n\"); }\n int stack[200],top=-1;\n long res=0;\n for(int i=0;i<=n;i++){\n  while(top>=0 && (i==n || arr[stack[top]]>arr[i])){\n   int mid=stack[top--];\n   int left=mid-(top==-1?-1:stack[top]);\n   int right=i-mid;\n   res+=(long)arr[mid]*left*right;\n  }\n  stack[++top]=i;\n }\n printf(\"%ld\",res%MOD);\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;getline(cin,s);\n vector<int> arr; string num=\"\";\n for(char c:s){\n  if(isdigit(c)||c=='-') num+=c;\n  else if(!num.empty()){ arr.push_back(stoi(num)); num=\"\"; }\n }\n if(!num.empty()) arr.push_back(stoi(num));\n stack<int> st;\n long long res=0;\n int n=arr.size();\n for(int i=0;i<=n;i++){\n  while(!st.empty() && (i==n || arr[st.top()]>arr[i])){\n   int mid=st.top(); st.pop();\n   int left=mid-(st.empty()?-1:st.top());\n   int right=i-mid;\n   res+=(long long)arr[mid]*left*right;\n  }\n  st.push(i);\n }\n cout<<res%1000000007;\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                }
+            ],
             "hints": [
                 "For each element, calculate how many subarrays it acts as the minimum value.",
                 "This depends on finding the distance to the 'nearest smaller' elements on BOTH left and right.",
@@ -6317,6 +6317,105 @@
                     "is_correct": false
                 }
             ]
+        },
+        {
+            "type": "coding",
+            "title": "Maximum of Minimums for Every Window Size",
+            "content": "Given an array of n integers, for every window size w from 1 to n, find the maximum of the minimum values across all windows of that size.\n\nFormally, for each w, find: max over all i of (min(arr[i..i+w-1]))\n\n**Constraints:**\n- 1 <= n <= 10^5\n- 1 <= arr[i] <= 10^6",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test",
+                "contest"
+            ],
+            "inputFormat": "First line: integer n.\nSecond line: n space-separated integers.",
+            "outputFormat": "n space-separated integers: the maximum of minimums for window sizes 1 to n.",
+            "examples": [
+                {
+                    "input": "7\n10 20 30 50 10 70 30",
+                    "expected_output": "70 30 20 10 10 10 10",
+                    "explanation": "For w=1: max min = 70. For w=2: max min of pairs = 30. etc."
+                }
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "7\n10 20 30 50 10 70 30",
+                    "expected_output": "70 30 20 10 10 10 10"
+                },
+                {
+                    "input": "4\n10 20 30 50",
+                    "expected_output": "50 20 10 10"
+                },
+                {
+                    "input": "3\n3 1 2",
+                    "expected_output": "3 1 1"
+                },
+                {
+                    "input": "1\n5",
+                    "expected_output": "5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5 4 3 2 1"
+                },
+                {
+                    "input": "5\n5 4 3 2 1",
+                    "expected_output": "5 4 3 2 1"
+                },
+                {
+                    "input": "6\n1 3 2 4 5 2",
+                    "expected_output": "5 3 2 2 1 1"
+                },
+                {
+                    "input": "4\n4 4 4 4",
+                    "expected_output": "4 4 4 4"
+                }
+            ],
+            "hints": [
+                "Use a monotonic stack to find, for each element, the span over which it is the minimum — i.e., the left and right boundaries.",
+                "For element at index i, if it is the minimum over a window of size w = right[i] - left[i] - 1, update ans[w] = max(ans[w], arr[i]).",
+                "After filling ans[], propagate: for w from n-1 down to 1, ans[w] = max(ans[w], ans[w+1]) to handle larger windows."
+            ],
+            "solutions": [
+                {
+                    "title": "Monotonic Stack - Python",
+                    "language": "python",
+                    "code": "import sys\ndata = sys.stdin.read().split()\nn = int(data[0]); arr = list(map(int, data[1:n+1]))\nleft  = [-1] * n   # index of nearest smaller on left\nright = [n]  * n   # index of nearest smaller on right\nstack = []\nfor i in range(n):\n    while stack and arr[stack[-1]] >= arr[i]: stack.pop()\n    left[i] = stack[-1] if stack else -1\n    stack.append(i)\nstack = []\nfor i in range(n-1,-1,-1):\n    while stack and arr[stack[-1]] >= arr[i]: stack.pop()\n    right[i] = stack[-1] if stack else n\n    stack.append(i)\nans = [0] * (n + 2)\nfor i in range(n):\n    w = right[i] - left[i] - 1\n    ans[w] = max(ans[w], arr[i])\nfor w in range(n-1, 0, -1):\n    ans[w] = max(ans[w], ans[w+1])\nprint(' '.join(map(str, ans[1:n+1])))",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - JavaScript",
+                    "language": "javascript",
+                    "code": "const data = require('fs').readFileSync(0,'utf8').trim().split(/\\s+/);\nconst n = parseInt(data[0]);\nconst arr = data.slice(1,n+1).map(Number);\nconst left = new Array(n).fill(-1), right = new Array(n).fill(n);\nlet stack = [];\nfor(let i=0;i<n;i++){ while(stack.length&&arr[stack[stack.length-1]]>=arr[i]) stack.pop(); left[i]=stack.length?stack[stack.length-1]:-1; stack.push(i); }\nstack=[];\nfor(let i=n-1;i>=0;i--){ while(stack.length&&arr[stack[stack.length-1]]>=arr[i]) stack.pop(); right[i]=stack.length?stack[stack.length-1]:n; stack.push(i); }\nconst ans=new Array(n+2).fill(0);\nfor(let i=0;i<n;i++){ const w=right[i]-left[i]-1; ans[w]=Math.max(ans[w],arr[i]); }\nfor(let w=n-1;w>=1;w--) ans[w]=Math.max(ans[w],ans[w+1]);\nconsole.log(ans.slice(1,n+1).join(' '));",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - C++",
+                    "language": "cpp",
+                    "code": "#include <iostream>\n#include <vector>\n#include <stack>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> arr(n); for(int&x:arr) cin>>x;\n    vector<int> L(n,-1),R(n,n);\n    stack<int> st;\n    for(int i=0;i<n;i++){while(!st.empty()&&arr[st.top()]>=arr[i])st.pop();L[i]=st.empty()?-1:st.top();st.push(i);}\n    while(!st.empty())st.pop();\n    for(int i=n-1;i>=0;i--){while(!st.empty()&&arr[st.top()]>=arr[i])st.pop();R[i]=st.empty()?n:st.top();st.push(i);}\n    vector<int> ans(n+2,0);\n    for(int i=0;i<n;i++){int w=R[i]-L[i]-1;ans[w]=max(ans[w],arr[i]);}\n    for(int w=n-1;w>=1;w--) ans[w]=max(ans[w],ans[w+1]);\n    for(int w=1;w<=n;w++) cout<<ans[w]<<(w<n?' ':'\\n');\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#define MAXN 100005\nint arr[MAXN],L[MAXN],R[MAXN],ans[MAXN],stk[MAXN];\nint main(){\n    int n; scanf(\"%d\",&n);\n    for(int i=0;i<n;i++) scanf(\"%d\",&arr[i]);\n    int top=-1;\n    for(int i=0;i<n;i++){while(top>=0&&arr[stk[top]]>=arr[i])top--;L[i]=top<0?-1:stk[top];stk[++top]=i;}\n    top=-1;\n    for(int i=n-1;i>=0;i--){while(top>=0&&arr[stk[top]]>=arr[i])top--;R[i]=top<0?n:stk[top];stk[++top]=i;}\n    for(int i=0;i<n+2;i++) ans[i]=0;\n    for(int i=0;i<n;i++){int w=R[i]-L[i]-1;if(arr[i]>ans[w])ans[w]=arr[i];}\n    for(int w=n-1;w>=1;w--) if(ans[w+1]>ans[w]) ans[w]=ans[w+1];\n    for(int w=1;w<=n;w++) printf(\"%d%c\",ans[w],w<n?' ':'\\n');\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "level": "subtopic",
+            "unit_name": "Stacks",
+            "subunit_name": "Monotonic Stack Pattern"
         }
     ]
 }
