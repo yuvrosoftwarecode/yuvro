@@ -2,7 +2,8 @@ services:
   ylabs-db:
     image: postgres:15
     env_file:
-      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local
+        required: false
       - path: ./ylabs-backend-api/.env.local-secrets
         required: false
     volumes:
@@ -27,7 +28,8 @@ services:
       - "8002:8000"  # Django API (host: 8002)
       - "9003:9001"  # Prometheus metrics
     env_file:
-      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local
+        required: false
       - path: ./ylabs-backend-api/.env.local-secrets
         required: false
     depends_on:
@@ -52,7 +54,8 @@ services:
       dockerfile: Dockerfile
       target: development
     env_file:
-      - ./ylabs-web/.env.local
+      - path: ./ylabs-web/.env.local
+        required: false
       - path: ./ylabs-web/.env.local-secrets
         required: false
     stdin_open: true
