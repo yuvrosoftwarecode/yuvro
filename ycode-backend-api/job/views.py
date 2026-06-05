@@ -728,14 +728,53 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             )
 
         job = application.job
-        config = job.screening_questions_config or {}
         
-        # Collect all question IDs
-        question_ids = []
-        for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
-            ids = config.get(qtype, [])
-            if isinstance(ids, list):
-                question_ids.extend(ids)
+        if not application.screening_responses:
+            application.screening_responses = {}
+            
+        if "started_at" not in application.screening_responses:
+            application.screening_responses["started_at"] = timezone.now().isoformat()
+            application.save()
+            
+        question_ids = application.screening_responses.get("question_ids", [])
+        
+        if not question_ids:
+            # Check screening_questions_random_config first
+            random_config = job.screening_questions_random_config or {}
+            has_random_config = any(
+                int(random_config.get(qtype, 0) or 0) > 0 
+                for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]
+            )
+            
+            from course.models import Question
+            import random
+
+            if has_random_config:
+                # Generate random questions of specified types
+                for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+                    count_str = random_config.get(qtype, 0)
+                    try:
+                        count = int(count_str or 0)
+                    except (ValueError, TypeError):
+                        count = 0
+                        
+                    if count > 0:
+                        all_ids = list(Question.objects.filter(type=qtype).values_list("id", flat=True))
+                        if all_ids:
+                            sample_size = min(len(all_ids), count)
+                            selected_ids = random.sample(all_ids, sample_size)
+                            question_ids.extend([str(qid) for qid in selected_ids])
+            else:
+                # Use static screening_questions_config
+                static_config = job.screening_questions_config or {}
+                for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+                    ids = static_config.get(qtype, [])
+                    if isinstance(ids, list):
+                        question_ids.extend(ids)
+                        
+            # Save the generated question IDs so they are persistent for this applicant
+            application.screening_responses["question_ids"] = question_ids
+            application.save()
 
         from course.models import Question
         questions = Question.objects.filter(id__in=question_ids)
@@ -797,13 +836,19 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         responses = request.data.get("responses", {})
         
         job = application.job
-        config = job.screening_questions_config or {}
         
+        # Load from persisted screening_responses if present
         question_ids = []
-        for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
-            ids = config.get(qtype, [])
-            if isinstance(ids, list):
-                question_ids.extend(ids)
+        if application.screening_responses and isinstance(application.screening_responses, dict):
+            question_ids = application.screening_responses.get("question_ids", [])
+            
+        if not question_ids:
+            # Fallback if not saved
+            config = job.screening_questions_config or {}
+            for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
+                ids = config.get(qtype, [])
+                if isinstance(ids, list):
+                    question_ids.extend(ids)
 
         from course.models import Question
         questions = Question.objects.filter(id__in=question_ids)
@@ -829,8 +874,35 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                     "max_marks": q.marks,
                     "user_answer": user_ans
                 }
+            elif q.type == "coding":
+                from course.models import StudentCodePractice
+                query = StudentCodePractice.objects.filter(user=request.user, question=q)
+                
+                started_at_str = application.screening_responses.get("started_at") if application.screening_responses else None
+                if started_at_str:
+                    try:
+                        from django.utils.dateparse import parse_datetime
+                        started_at = parse_datetime(started_at_str)
+                        if started_at:
+                            query = query.filter(created_at__gte=started_at)
+                    except Exception:
+                        pass
+                sub = query.order_by("-created_at").first()
+                score = sub.marks_obtained if sub and sub.marks_obtained is not None else 0
+                is_correct = (score >= q.marks) if q.marks > 0 else (score > 0)
+                
+                marks_obtained += score
+                graded_results[str(q.id)] = {
+                    "question_title": q.title,
+                    "question_content": q.content,
+                    "question_type": q.type,
+                    "is_correct": is_correct,
+                    "score": score,
+                    "max_marks": q.marks,
+                    "user_answer": user_ans,
+                }
             else:
-                # Descriptive or coding which cannot be auto-graded immediately via grade_answer
+                # Descriptive which cannot be auto-graded immediately via grade_answer
                 # Set as pending manual review
                 graded_results[str(q.id)] = {
                     "question_title": q.title,
