@@ -104,29 +104,27 @@ class Command(BaseCommand):
     def load_companies_from_json(self, data):
         """Load companies from JSON data"""
 
-        # Get or create a default user for creating companies
         default_user = self.get_or_create_default_user()
 
         for company_data in data.get("companies", []):
             self.stdout.write(f'Loading company: {company_data["name"]}')
 
-            company, created = Company.objects.get_or_create(
-                name=company_data["name"],
-                defaults={
-                    "description": company_data.get("description", ""),
-                    "benefits": company_data.get("benefits", ""),
-                    "domain": company_data.get("domain", ""),
-                    "website": company_data.get("website", ""),
-                    "size": company_data.get("size", ""),
-                    "location": company_data.get("location", ""),
-                    "created_by": default_user,
-                },
-            )
-
-            if created:
-                self.stdout.write(f"✓ Created new company: {company.name}")
-            else:
+            # Use filter().first() to avoid MultipleObjectsReturned if duplicates exist
+            company = Company.objects.filter(name=company_data["name"]).first()
+            if company:
                 self.stdout.write(f"→ Company already exists: {company.name}")
+            else:
+                company = Company.objects.create(
+                    name=company_data["name"],
+                    description=company_data.get("description", ""),
+                    benefits=company_data.get("benefits", ""),
+                    domain=company_data.get("domain", ""),
+                    website=company_data.get("website", ""),
+                    size=company_data.get("size", ""),
+                    location=company_data.get("location", ""),
+                    created_by=default_user,
+                )
+                self.stdout.write(f"✓ Created new company: {company.name}")
 
     def load_jobs_from_json(self, data):
         """Load jobs from JSON data"""
