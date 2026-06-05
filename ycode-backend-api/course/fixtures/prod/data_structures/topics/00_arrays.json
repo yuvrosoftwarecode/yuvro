@@ -10949,7 +10949,7 @@
                 {
                     "input": "6\n0 1 2 0 1 2",
                     "expected_output": "0 0 1 1 2 2",
-                    "explanation": "Dutch flag: move 0s to left, 2s to right, 1s in middle."
+                    "explanation": "After sorting: all 0s, then 1s, then 2s."
                 },
                 {
                     "input": "5\n2 0 1 0 2",
