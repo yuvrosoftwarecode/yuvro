@@ -226,7 +226,10 @@ class Command(BaseCommand):
                     f"No instructor/admin for {course.short_code}, skipping questions"
                 ))
 
-    def _create_question(self, q_data, course, topic_map, subtopic_map, creator):
+    def _create_question(self, q_data, course, topic_map, subtopic_map, creator,
+                         default_topic_name=None):
+        """Create a question. If topic/subtopic refs are missing, falls back to
+        default_topic_name (the topic file's own name) at topic level."""
         MARKS = {
             "mcq_single":  {"easy": 1, "medium": 2, "hard": 3},
             "mcq_multiple": {"easy": 1, "medium": 2, "hard": 3},

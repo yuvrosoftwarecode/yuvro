@@ -966,11 +966,11 @@
                 },
                 {
                     "input": "1000000000",
-                    "expected_output": "32"
+                    "expected_output": "31"
                 },
                 {
                     "input": "2000000000",
-                    "expected_output": "33"
+                    "expected_output": "32"
                 },
                 {
                     "input": "100",

@@ -1,0 +1,10 @@
+{
+    "courses": [
+        {
+            "short_code": "RJS100",
+            "name": "React JS",
+            "category": "fundamentals",
+            "instructor_email": "admin@yuvro.com"
+        }
+    ]
+}

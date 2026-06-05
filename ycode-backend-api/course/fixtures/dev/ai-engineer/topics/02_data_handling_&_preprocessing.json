@@ -1,0 +1,1788 @@
+{
+  "name": "Data Handling & Preprocessing",
+  "subject_short_code": "AI100",
+  "order_index": 2,
+  "sub_units": [
+    {
+      "name": "Data Processing",
+      "content": "This module provides a detailed exploration of Data Processing, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Data Processing",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Processing",
+          "ai_context": "Detailed overview and key concepts of Data Processing"
+        },
+        {
+          "title": "Data Processing",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Processing",
+          "ai_context": "Detailed overview and key concepts of Data Processing"
+        }
+      ]
+    },
+    {
+      "name": "Data Cleaning",
+      "content": "This module provides a detailed exploration of Data Cleaning, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Data Cleaning",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Cleaning",
+          "ai_context": "Detailed overview and key concepts of Data Cleaning"
+        },
+        {
+          "title": "Data Cleaning",
+          "video_link": "https://www.youtube.com/results?search_query=Data%20Cleaning",
+          "ai_context": "Detailed overview and key concepts of Data Cleaning"
+        }
+      ]
+    },
+    {
+      "name": "Feature Engineering",
+      "content": "This module provides a detailed exploration of Feature Engineering, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Feature Engineering",
+          "video_link": "https://www.youtube.com/results?search_query=Feature%20Engineering",
+          "ai_context": "Detailed overview and key concepts of Feature Engineering"
+        },
+        {
+          "title": "Feature Engineering",
+          "video_link": "https://www.youtube.com/results?search_query=Feature%20Engineering",
+          "ai_context": "Detailed overview and key concepts of Feature Engineering"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Pandas",
+      "content": "What is Pandas mainly used for in data science?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data handling and analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Game development",
+          "is_correct": false
+        },
+        {
+          "text": "Operating system design",
+          "is_correct": false
+        },
+        {
+          "text": "Computer networking",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NumPy Purpose",
+      "content": "NumPy is primarily used for:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Numerical computation and array operations",
+          "is_correct": true
+        },
+        {
+          "text": "Website hosting",
+          "is_correct": false
+        },
+        {
+          "text": "Database administration",
+          "is_correct": false
+        },
+        {
+          "text": "Image editing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pandas Data Structure",
+      "content": "Which Pandas structure is commonly used for tabular data?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DataFrame",
+          "is_correct": true
+        },
+        {
+          "text": "Dictionary",
+          "is_correct": false
+        },
+        {
+          "text": "Stack",
+          "is_correct": false
+        },
+        {
+          "text": "Queue",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NumPy Core Structure",
+      "content": "What is the core data structure of NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "ndarray",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrame",
+          "is_correct": false
+        },
+        {
+          "text": "Linked List",
+          "is_correct": false
+        },
+        {
+          "text": "HashMap",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pandas Advantage",
+      "content": "Why is Pandas widely used in preprocessing?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides tools for cleaning and transforming data",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "It builds hardware systems",
+          "is_correct": false
+        },
+        {
+          "text": "It only creates graphs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "NumPy Performance",
+      "content": "NumPy operations are generally faster than Python lists because:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy uses optimized array operations",
+          "is_correct": true
+        },
+        {
+          "text": "Python lists cannot store numbers",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy avoids memory usage",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy only works online",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pandas and NumPy Relationship",
+      "content": "Pandas internally relies heavily on which library?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy",
+          "is_correct": true
+        },
+        {
+          "text": "Flask",
+          "is_correct": false
+        },
+        {
+          "text": "TensorFlow",
+          "is_correct": false
+        },
+        {
+          "text": "Django",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Between Pandas and NumPy",
+      "content": "Which situation is more suitable for using NumPy instead of Pandas?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Performing large-scale mathematical operations on arrays",
+          "is_correct": true
+        },
+        {
+          "text": "Handling missing values in labeled tabular data",
+          "is_correct": false
+        },
+        {
+          "text": "Working with CSV column names",
+          "is_correct": false
+        },
+        {
+          "text": "Analyzing grouped business data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pandas vs NumPy Usage",
+      "content": "Why might a DataFrame be preferred over a NumPy array in many real-world datasets?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "DataFrames support labels, mixed data types, and easier data manipulation",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays cannot store data",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames eliminate preprocessing needs",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames only work with text data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Missing Values Meaning",
+      "content": "What are missing values in a dataset?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data entries that are absent or null",
+          "is_correct": true
+        },
+        {
+          "text": "Duplicate rows in a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Sorted records only",
+          "is_correct": false
+        },
+        {
+          "text": "Encoded features",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Outlier Definition",
+      "content": "An outlier is:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A value significantly different from most data points",
+          "is_correct": true
+        },
+        {
+          "text": "A missing value",
+          "is_correct": false
+        },
+        {
+          "text": "A categorical feature",
+          "is_correct": false
+        },
+        {
+          "text": "A duplicated column",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Encoding Purpose",
+      "content": "Why are encoding techniques used?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To convert categorical data into numerical format",
+          "is_correct": true
+        },
+        {
+          "text": "To increase image resolution",
+          "is_correct": false
+        },
+        {
+          "text": "To remove duplicate rows only",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce storage size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Handling Missing Data",
+      "content": "Which is a common method for handling missing values?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Mean or median imputation",
+          "is_correct": true
+        },
+        {
+          "text": "Image augmentation",
+          "is_correct": false
+        },
+        {
+          "text": "Hyperparameter tuning",
+          "is_correct": false
+        },
+        {
+          "text": "Gradient descent",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Effect of Outliers",
+      "content": "Why can outliers be problematic in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They can distort model performance and statistics",
+          "is_correct": true
+        },
+        {
+          "text": "They always improve accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "They remove categorical variables",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically normalize data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "One-Hot Encoding",
+      "content": "What does one-hot encoding do?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Creates separate binary columns for categories",
+          "is_correct": true
+        },
+        {
+          "text": "Removes all categories",
+          "is_correct": false
+        },
+        {
+          "text": "Sorts rows alphabetically",
+          "is_correct": false
+        },
+        {
+          "text": "Replaces numbers with text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Outlier Detection",
+      "content": "Which method is commonly used to identify outliers?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Interquartile Range (IQR)",
+          "is_correct": true
+        },
+        {
+          "text": "Bag of Words",
+          "is_correct": false
+        },
+        {
+          "text": "Gradient boosting",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Missing Value Strategy",
+      "content": "When should rows with missing values be removed instead of imputed?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "When only a small portion of data is missing and removal has little impact",
+          "is_correct": true
+        },
+        {
+          "text": "When all rows contain important information",
+          "is_correct": false
+        },
+        {
+          "text": "When the dataset is already too small",
+          "is_correct": false
+        },
+        {
+          "text": "When no missing values exist",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Encoding Technique Selection",
+      "content": "Why might label encoding be unsuitable for some categorical variables?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It may introduce a false ordinal relationship between categories",
+          "is_correct": true
+        },
+        {
+          "text": "It removes all categories",
+          "is_correct": false
+        },
+        {
+          "text": "It works only on numerical data",
+          "is_correct": false
+        },
+        {
+          "text": "It increases missing values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Engineering Meaning",
+      "content": "What is feature engineering in machine learning?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The process of creating and improving input features for models",
+          "is_correct": true
+        },
+        {
+          "text": "Designing computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Creating APIs only",
+          "is_correct": false
+        },
+        {
+          "text": "Building operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Creation Purpose",
+      "content": "Why is feature creation performed?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To derive more informative features from existing data",
+          "is_correct": true
+        },
+        {
+          "text": "To delete all original features",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce internet speed",
+          "is_correct": false
+        },
+        {
+          "text": "To create databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Selection Goal",
+      "content": "What is the main goal of feature selection?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Select the most relevant features for model training",
+          "is_correct": true
+        },
+        {
+          "text": "Create duplicate columns",
+          "is_correct": false
+        },
+        {
+          "text": "Increase file size",
+          "is_correct": false
+        },
+        {
+          "text": "Replace machine learning algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Example of Feature Creation",
+      "content": "Combining 'height' and 'weight' to create BMI is an example of:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature creation",
+          "is_correct": true
+        },
+        {
+          "text": "Data visualization",
+          "is_correct": false
+        },
+        {
+          "text": "Model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Hyperparameter tuning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefits of Feature Selection",
+      "content": "Feature selection can improve machine learning models by:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reducing overfitting and improving efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Increasing missing values",
+          "is_correct": false
+        },
+        {
+          "text": "Eliminating training data",
+          "is_correct": false
+        },
+        {
+          "text": "Creating neural networks automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Irrelevant Features",
+      "content": "Including too many irrelevant features may:",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Guarantee perfect accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Automatically clean data",
+          "is_correct": false
+        },
+        {
+          "text": "Convert categorical values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Selection Technique",
+      "content": "Which approach is commonly used for feature selection?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Correlation analysis",
+          "is_correct": true
+        },
+        {
+          "text": "Image compression",
+          "is_correct": false
+        },
+        {
+          "text": "Tokenization",
+          "is_correct": false
+        },
+        {
+          "text": "Sorting algorithms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Engineering Impact",
+      "content": "Why can feature engineering significantly improve model performance?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Well-designed features help models capture meaningful patterns",
+          "is_correct": true
+        },
+        {
+          "text": "It completely removes the need for algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "It guarantees perfect predictions",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces training data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Feature Selection Tradeoff",
+      "content": "What risk can occur if too many features are removed during feature selection?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Important predictive information may be lost",
+          "is_correct": true
+        },
+        {
+          "text": "The dataset becomes duplicated",
+          "is_correct": false
+        },
+        {
+          "text": "All outliers disappear",
+          "is_correct": false
+        },
+        {
+          "text": "Models become unsupervised",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Pandas",
+      "content": "Which statements correctly describe Pandas?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas is a Python library for data manipulation",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas provides DataFrame and Series structures",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas is mainly used for image generation",
+          "is_correct": false
+        },
+        {
+          "text": "Pandas helps organize tabular data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "NumPy Basics",
+      "content": "Which statements correctly describe NumPy?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy supports numerical computations",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy provides multidimensional arrays",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy is used only for text processing",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy enables efficient mathematical operations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pandas Data Structures",
+      "content": "Which statements correctly describe Pandas data structures?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Series represents one-dimensional labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrame represents two-dimensional data",
+          "is_correct": true
+        },
+        {
+          "text": "DataFrames cannot contain multiple columns",
+          "is_correct": false
+        },
+        {
+          "text": "DataFrames are commonly used in data science",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "NumPy Arrays",
+      "content": "Which statements correctly describe NumPy arrays?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy arrays support vectorized operations",
+          "is_correct": true
+        },
+        {
+          "text": "Arrays can store numerical data efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays are slower than Python lists in all cases",
+          "is_correct": false
+        },
+        {
+          "text": "Arrays are useful in machine learning computations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pandas for Data Handling",
+      "content": "Which statements correctly describe the use of Pandas in data handling?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas helps clean and preprocess datasets",
+          "is_correct": true
+        },
+        {
+          "text": "It supports filtering and grouping operations",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas cannot handle missing values",
+          "is_correct": false
+        },
+        {
+          "text": "It is commonly used in exploratory data analysis",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "NumPy Computation Features",
+      "content": "Which statements correctly describe NumPy computation features?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "NumPy supports mathematical and statistical operations",
+          "is_correct": true
+        },
+        {
+          "text": "Broadcasting is a feature of NumPy",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays cannot perform element-wise operations",
+          "is_correct": false
+        },
+        {
+          "text": "NumPy improves computational efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pandas and NumPy Together",
+      "content": "Which statements correctly describe how Pandas and NumPy work together?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas is built on top of NumPy",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy powers efficient computations for Pandas",
+          "is_correct": true
+        },
+        {
+          "text": "Pandas and NumPy are unrelated libraries",
+          "is_correct": false
+        },
+        {
+          "text": "They are commonly used together in data science",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Processing Concepts",
+      "content": "Which statements correctly describe advanced data processing concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Vectorized operations improve performance",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy arrays use optimized memory structures",
+          "is_correct": true
+        },
+        {
+          "text": "Data preprocessing is unnecessary before model training",
+          "is_correct": false
+        },
+        {
+          "text": "Efficient computation is important in machine learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Science Workflow with Pandas and NumPy",
+      "content": "Which statements correctly describe Pandas and NumPy roles in data science workflows?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Processing",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pandas handles structured data operations",
+          "is_correct": true
+        },
+        {
+          "text": "NumPy supports fast numerical computation",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning pipelines never use these libraries",
+          "is_correct": false
+        },
+        {
+          "text": "They form a foundation of Python data science ecosystems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Missing Values",
+      "content": "Which statements correctly describe missing values in datasets?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Missing values represent unavailable data entries",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values can affect model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values should always be ignored",
+          "is_correct": false
+        },
+        {
+          "text": "Handling missing data is part of preprocessing",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Outliers Basics",
+      "content": "Which statements correctly describe outliers?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Outliers are unusually distant data points",
+          "is_correct": true
+        },
+        {
+          "text": "Outliers can impact statistical analysis",
+          "is_correct": true
+        },
+        {
+          "text": "All datasets must have outliers",
+          "is_correct": false
+        },
+        {
+          "text": "Outliers may affect machine learning models",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Encoding Techniques Introduction",
+      "content": "Which statements correctly describe encoding techniques?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Encoding converts categorical data into numerical form",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning algorithms often require encoded inputs",
+          "is_correct": true
+        },
+        {
+          "text": "Encoding is only used for numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "Label encoding is a type of encoding",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Handling Missing Data",
+      "content": "Which statements correctly describe missing data handling methods?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rows with missing values can be removed",
+          "is_correct": true
+        },
+        {
+          "text": "Imputation can replace missing values",
+          "is_correct": true
+        },
+        {
+          "text": "Missing values have no impact on analysis",
+          "is_correct": false
+        },
+        {
+          "text": "Mean or median can be used for imputation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Outlier Detection Techniques",
+      "content": "Which statements correctly describe outlier detection?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Box plots help identify outliers",
+          "is_correct": true
+        },
+        {
+          "text": "Z-score can be used for outlier detection",
+          "is_correct": true
+        },
+        {
+          "text": "Outliers never influence machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "IQR method can detect unusual values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Encoding Methods Comparison",
+      "content": "Which statements correctly describe encoding methods?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "One-hot encoding creates multiple binary columns",
+          "is_correct": true
+        },
+        {
+          "text": "Label encoding assigns numbers to categories",
+          "is_correct": true
+        },
+        {
+          "text": "All encoding methods produce identical outputs",
+          "is_correct": false
+        },
+        {
+          "text": "Different datasets may require different encoding approaches",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Cleaning Importance",
+      "content": "Which statements correctly describe the importance of data cleaning?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clean data improves model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Handling outliers can improve reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Data cleaning is unnecessary in ML workflows",
+          "is_correct": false
+        },
+        {
+          "text": "Preprocessing reduces noise in data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Missing Data and Outlier Handling",
+      "content": "Which statements correctly describe advanced data cleaning concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improper handling of missing values may bias models",
+          "is_correct": true
+        },
+        {
+          "text": "Outliers can distort statistical summaries",
+          "is_correct": true
+        },
+        {
+          "text": "Removing all outliers is always the best strategy",
+          "is_correct": false
+        },
+        {
+          "text": "Cleaning decisions should depend on context",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Data Cleaning Workflow",
+      "content": "Which statements correctly describe a complete data cleaning workflow?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Data Cleaning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data cleaning may involve handling missing values and outliers",
+          "is_correct": true
+        },
+        {
+          "text": "Encoding prepares categorical variables for models",
+          "is_correct": true
+        },
+        {
+          "text": "Raw data is always ready for machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "Preprocessing improves overall data quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Feature Creation",
+      "content": "Which statements correctly describe feature creation?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature creation involves generating new variables from existing data",
+          "is_correct": true
+        },
+        {
+          "text": "New features can improve model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Feature creation always reduces dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "Engineered features may capture hidden patterns",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Feature Selection Basics",
+      "content": "Which statements correctly describe feature selection?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature selection chooses relevant variables",
+          "is_correct": true
+        },
+        {
+          "text": "It can reduce model complexity",
+          "is_correct": true
+        },
+        {
+          "text": "Feature selection always adds new columns",
+          "is_correct": false
+        },
+        {
+          "text": "Selecting useful features can improve efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Benefits of Feature Engineering",
+      "content": "Which statements correctly describe feature engineering benefits?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature engineering can improve prediction accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Useful features help models learn patterns better",
+          "is_correct": true
+        },
+        {
+          "text": "Feature engineering is unrelated to machine learning",
+          "is_correct": false
+        },
+        {
+          "text": "It helps transform raw data into useful information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Feature Types",
+      "content": "Which statements correctly describe features in datasets?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Features are input variables used by models",
+          "is_correct": true
+        },
+        {
+          "text": "Features may be numerical or categorical",
+          "is_correct": true
+        },
+        {
+          "text": "Features are always target labels",
+          "is_correct": false
+        },
+        {
+          "text": "Feature quality affects model outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Feature Creation Techniques",
+      "content": "Which statements correctly describe feature creation techniques?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combining columns can create new features",
+          "is_correct": true
+        },
+        {
+          "text": "Date fields can generate day or month features",
+          "is_correct": true
+        },
+        {
+          "text": "Feature creation never changes existing information",
+          "is_correct": false
+        },
+        {
+          "text": "Domain knowledge helps create meaningful features",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Feature Selection Benefits",
+      "content": "Which statements correctly describe feature selection advantages?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Removing irrelevant features can reduce overfitting",
+          "is_correct": true
+        },
+        {
+          "text": "Feature selection may improve training speed",
+          "is_correct": true
+        },
+        {
+          "text": "Adding every available feature always improves performance",
+          "is_correct": false
+        },
+        {
+          "text": "Reducing noise can improve generalization",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Feature Engineering Workflow",
+      "content": "Which statements correctly describe a feature engineering workflow?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature engineering often follows data cleaning",
+          "is_correct": true
+        },
+        {
+          "text": "Engineered features can improve model learning",
+          "is_correct": true
+        },
+        {
+          "text": "Feature engineering is only used in deep learning",
+          "is_correct": false
+        },
+        {
+          "text": "Evaluation helps determine feature usefulness",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Feature Analysis Concepts",
+      "content": "Which statements correctly describe advanced feature analysis concepts?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Proper feature understanding can improve machine learning performance",
+          "is_correct": true
+        },
+        {
+          "text": "Feature selection and creation often complement each other",
+          "is_correct": true
+        },
+        {
+          "text": "Feature engineering has no impact on predictive modeling",
+          "is_correct": false
+        },
+        {
+          "text": "Effective feature engineering supports better model accuracy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Feature Selection Strategies",
+      "content": "Which statements correctly describe advanced feature selection strategies?",
+      "level": "subtopic",
+      "unit_name": "Data Handling & Preprocessing",
+      "subunit_name": "Feature Engineering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Feature selection can reduce multicollinearity issues",
+          "is_correct": true
+        },
+        {
+          "text": "Choosing relevant features may improve model interpretability",
+          "is_correct": true
+        },
+        {
+          "text": "All features contribute equally in every dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Selecting meaningful features can improve model robustness",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4537 @@
+{
+    "name": "Filtering, Operators & Aggregation",
+    "course_short_code": "SQL101",
+    "order_index": 4,
+    "subtopics": [
+        {
+            "name": "Logical Operators (AND, OR, NOT)",
+            "content": "Logical operators are used to combine multiple conditions in a WHERE clause. The AND operator displays a record if all the conditions separated by AND are TRUE. The OR operator displays a record if any of the conditions separated by OR is TRUE. The NOT operator displays a record if the condition(s) is NOT TRUE.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Comparison Operators (=, >, <, etc.)",
+            "content": "Comparison operators are used to compare two values. They include equal to (=), greater than (>), less than (<), greater than or equal to (>=), less than or equal to (<=), and not equal to (<> or !=). They are essential for filtering data accurately.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "IN, BETWEEN",
+            "content": "The IN operator allows you to specify multiple values in a WHERE clause, serving as a shorthand for multiple OR conditions. The BETWEEN operator selects values within a given range (inclusive), working with numbers, text, or dates.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Pattern Matching (LIKE, wildcards %, _)",
+            "content": "The LIKE operator is used in a WHERE clause to search for a specified pattern in a column. Wildcards are used with LIKE: the percent sign (%) represents zero, one, or multiple characters, while the underscore sign (_) represents a single character.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "IS NULL, IS NOT NULL",
+            "content": "A field with a NULL value is a field with no value. You cannot use comparison operators like = or < to test for NULL. Instead, you must use the IS NULL or IS NOT NULL operators to filter records with empty or non-empty values.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "content": "Aggregate functions perform a calculation on a set of values and return a single value. COUNT returns the number of rows, SUM returns the total sum of a numeric column, AVG returns the average value, and MIN/MAX return the smallest and largest values respectively.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "GROUP BY",
+            "content": "The GROUP BY statement groups rows that have the same values into summary rows. It is often used with aggregate functions (COUNT, MAX, MIN, SUM, AVG) to group the result-set by one or more columns.",
+            "order_index": 6,
+            "videos": []
+        },
+        {
+            "name": "HAVING",
+            "content": "The HAVING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions. HAVING allows you to filter the results of a GROUP BY operation based on an aggregated condition.",
+            "order_index": 7,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Purpose of AND",
+            "content": "What is the purpose of the AND operator in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To combine multiple conditions where all must be true",
+                    "is_correct": true
+                },
+                {
+                    "text": "To combine conditions where any one can be true",
+                    "is_correct": false
+                },
+                {
+                    "text": "To reverse conditions",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of OR",
+            "content": "What does the OR operator do in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Returns rows when at least one condition is true",
+                    "is_correct": true
+                },
+                {
+                    "text": "Returns rows only when all conditions are true",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes rows not matching conditions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorts rows alphabetically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of NOT",
+            "content": "What is the role of the NOT operator in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To exclude rows matching a condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "To combine multiple conditions",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort query results",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Logical Filtering",
+            "content": "Logical operators in SQL are mainly used for what purpose?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filtering rows based on conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Scenario",
+            "content": "An online store wants to display products that are both in stock AND priced below ₹5000. Which operator is most suitable?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "AND",
+                    "is_correct": true
+                },
+                {
+                    "text": "OR",
+                    "is_correct": false
+                },
+                {
+                    "text": "NOT",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Job Portal Scenario",
+            "content": "A job portal searches candidates skilled in either Python OR Java. Why is OR appropriate here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It returns records matching at least one condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "It returns records matching all conditions",
+                    "is_correct": false
+                },
+                {
+                    "text": "It permanently excludes unmatched candidates",
+                    "is_correct": false
+                },
+                {
+                    "text": "It sorts candidates automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Banking Scenario",
+            "content": "A banking system excludes transactions marked as fraudulent using a filter condition. Which operator is mainly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NOT",
+                    "is_correct": true
+                },
+                {
+                    "text": "AND",
+                    "is_correct": false
+                },
+                {
+                    "text": "OR",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Query Optimization",
+            "content": "Why should developers carefully design queries using AND and OR in large-scale systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poor filtering logic can reduce query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical operators permanently modify tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "AND automatically deletes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "OR removes indexes permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security Filtering Scenario",
+            "content": "Why is the NOT operator important in security and fraud-detection systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps exclude suspicious or restricted records",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes fraudulent data",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts sensitive records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables transactions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Complex Filtering Logic",
+            "content": "Why can mixing AND and OR conditions incorrectly lead to unexpected results in enterprise applications?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Logical precedence may change how conditions are evaluated",
+                    "is_correct": true
+                },
+                {
+                    "text": "AND permanently overrides OR conditions",
+                    "is_correct": false
+                },
+                {
+                    "text": "OR disables filtering automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "NOT converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Logical Operator Basics",
+            "content": "Which statements are true about logical operators in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "AND requires all conditions to be true",
+                    "is_correct": true
+                },
+                {
+                    "text": "OR requires at least one condition to be true",
+                    "is_correct": true
+                },
+                {
+                    "text": "NOT excludes matching conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical operators permanently modify table data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "AND Operator Features",
+            "content": "Which are true regarding the AND operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "All conditions must evaluate to true",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is used for strict filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps narrow down results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically sorts rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "OR Operator Features",
+            "content": "Which statements correctly describe the OR operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "At least one condition should be true",
+                    "is_correct": true
+                },
+                {
+                    "text": "It broadens query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is useful for optional matching",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently removes unmatched rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NOT Operator Features",
+            "content": "Which are common uses of the NOT operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Excluding unwanted records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Filtering out restricted data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Removing matching conditions from results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Management Scenario",
+            "content": "A hospital database searches patients who are above 60 years AND have diabetes. Why is AND useful here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Both conditions must be satisfied",
+                    "is_correct": true
+                },
+                {
+                    "text": "It enables precise filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "It narrows the result set",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes non-matching patients",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Travel Booking Scenario",
+            "content": "A travel website searches flights that are either low-cost OR non-stop. Why is OR beneficial here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Results can match any one condition",
+                    "is_correct": true
+                },
+                {
+                    "text": "The search becomes more flexible",
+                    "is_correct": true
+                },
+                {
+                    "text": "More relevant options can be displayed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rows are permanently rearranged",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Fraud Detection Scenario",
+            "content": "Why is NOT frequently used in fraud detection and compliance systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Suspicious records can be excluded",
+                    "is_correct": true
+                },
+                {
+                    "text": "Restricted transactions can be filtered out",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unwanted entries can be avoided in reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fraudulent rows are permanently deleted automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Logical Filtering",
+            "content": "Which statements are true regarding logical operators in enterprise SQL queries?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poor logical conditions can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "AND and OR combinations require careful design",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical precedence impacts query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical operators permanently modify data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which problems may occur because of incorrect use of logical operators?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unexpected query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Security filtering mistakes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance degradation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic table deletion",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding AND, OR, and NOT operators?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Logical Operators (AND, OR, NOT)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "AND requires all conditions to be true",
+                    "is_correct": true
+                },
+                {
+                    "text": "OR works if at least one condition is true",
+                    "is_correct": true
+                },
+                {
+                    "text": "NOT excludes matching conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logical operators permanently change database records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of IN",
+            "content": "What is the main purpose of the IN operator in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To match values from a given list",
+                    "is_correct": true
+                },
+                {
+                    "text": "To sort records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently group rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of BETWEEN",
+            "content": "What does the BETWEEN operator do in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filters values within a specified range",
+                    "is_correct": true
+                },
+                {
+                    "text": "Checks duplicate records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorts values alphabetically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes rows permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "IN Operator Usage",
+            "content": "Which scenario is most suitable for using the IN operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Checking whether a value exists in multiple options",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting records",
+                    "is_correct": false
+                },
+                {
+                    "text": "Joining tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating constraints",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "BETWEEN Operator Usage",
+            "content": "BETWEEN is commonly used for filtering which type of values?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Ranges of numbers or dates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Table names",
+                    "is_correct": false
+                },
+                {
+                    "text": "Indexes only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Category Scenario",
+            "content": "An online store wants to display products belonging to Electronics, Fashion, or Grocery categories. Which operator is most suitable?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IN",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Salary Range Scenario",
+            "content": "An HR system filters employees earning between ₹40,000 and ₹80,000. Why is BETWEEN appropriate here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It simplifies range-based filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently groups employees",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts salaries",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate salary records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Student Department Scenario",
+            "content": "A university portal filters students from CSE, ECE, and IT departments only. Which operator makes the query simpler?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IN",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN",
+                    "is_correct": false
+                },
+                {
+                    "text": "ORDER BY",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Query Optimization",
+            "content": "Why are IN and BETWEEN operators useful in enterprise-level SQL queries?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They simplify complex filtering conditions and improve readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently change stored records",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically normalize tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "They create indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics System Scenario",
+            "content": "Why is BETWEEN heavily used in reporting and analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reports often rely on date and value ranges",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN permanently stores summarized reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "BETWEEN automatically removes outliers",
+                    "is_correct": false
+                },
+                {
+                    "text": "BETWEEN disables filtering logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Large Dataset Filtering",
+            "content": "Why should developers optimize queries using IN with large lists of values?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Large filtering lists can impact query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "IN permanently removes unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "IN disables indexes automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "IN converts relational databases into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "IN Operator Basics",
+            "content": "Which statements are true regarding the IN operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IN checks values against a list",
+                    "is_correct": true
+                },
+                {
+                    "text": "IN simplifies multiple OR conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "IN improves query readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "IN permanently changes stored rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "BETWEEN Operator Basics",
+            "content": "Which statements are correct regarding BETWEEN?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "BETWEEN is used for range filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN works with numeric values",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN can also work with dates",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN permanently deletes rows outside the range",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Uses of IN",
+            "content": "In which situations is the IN operator commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filtering specific categories",
+                    "is_correct": true
+                },
+                {
+                    "text": "Selecting multiple departments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Checking predefined value lists",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sorting rows alphabetically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Common Uses of BETWEEN",
+            "content": "Which tasks commonly use the BETWEEN operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Date range filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Salary range selection",
+                    "is_correct": true
+                },
+                {
+                    "text": "Score interval filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Streaming Platform Scenario",
+            "content": "A streaming app filters movies belonging to Action, Comedy, and Thriller genres. Why is IN beneficial here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Multiple values can be checked efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Query readability improves",
+                    "is_correct": true
+                },
+                {
+                    "text": "Complex OR conditions become simpler",
+                    "is_correct": true
+                },
+                {
+                    "text": "Movies outside the genres are permanently deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Banking Date Range Scenario",
+            "content": "A banking system generates reports for transactions between January and March. Why is BETWEEN useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Date-based filtering becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Range conditions become more readable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business reports can be generated efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Old transactions are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Filtering Scenario",
+            "content": "Why are IN and BETWEEN commonly used in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They simplify filtering logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "They improve query readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "They support business-rule filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically normalize tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Filtering Concepts",
+            "content": "Which statements are true regarding IN and BETWEEN in large SQL systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IN simplifies multiple equality checks",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN is useful for range-based reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poor filtering design may affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "IN and BETWEEN permanently change table data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient usage of IN and BETWEEN in large datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic table deletion",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding IN and BETWEEN operators?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IN, BETWEEN",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IN checks values against a list",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN filters values within a range",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both operators are useful for filtering conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both operators permanently modify stored records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of LIKE",
+            "content": "What is the main purpose of the LIKE operator in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To search data using patterns",
+                    "is_correct": true
+                },
+                {
+                    "text": "To sort records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently group rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Meaning of %",
+            "content": "What does the % wildcard represent in SQL pattern matching?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Zero or more characters",
+                    "is_correct": true
+                },
+                {
+                    "text": "Exactly one character",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only numeric values",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only special characters",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Meaning of _",
+            "content": "What does the underscore (_) wildcard represent in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Exactly one character",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unlimited characters",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only numbers",
+                    "is_correct": false
+                },
+                {
+                    "text": "A blank space only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Pattern Matching Usage",
+            "content": "Pattern matching in SQL is mainly used for what purpose?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Searching text with flexible conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating constraints",
+                    "is_correct": false
+                },
+                {
+                    "text": "Sorting tables permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Search Scenario",
+            "content": "An online shopping app allows users to search products starting with 'Sam'. Which SQL feature is most useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIKE with % wildcard",
+                    "is_correct": true
+                },
+                {
+                    "text": "BETWEEN operator",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT clause",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Employee Search Scenario",
+            "content": "An HR system searches employee IDs where the third character can vary but all others are fixed. Which wildcard is most suitable?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "_",
+                    "is_correct": true
+                },
+                {
+                    "text": "%",
+                    "is_correct": false
+                },
+                {
+                    "text": "=",
+                    "is_correct": false
+                },
+                {
+                    "text": "IN",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Customer Search Scenario",
+            "content": "A CRM system allows searching customers whose names contain the word 'tech'. Why is LIKE useful here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It enables flexible text-based searching",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently updates customer names",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts names",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate customer records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Search Systems",
+            "content": "Why is pattern matching heavily used in enterprise applications?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Users often require flexible and partial-text searches",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIKE permanently changes stored text values",
+                    "is_correct": false
+                },
+                {
+                    "text": "Wildcards automatically normalize data",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIKE disables indexing permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Optimization",
+            "content": "Why can excessive wildcard usage impact SQL query performance?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex text searching may require scanning many records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wildcards permanently delete unmatched rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIKE converts relational databases into NoSQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "Wildcards disable transactions automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security and Filtering",
+            "content": "Why must developers carefully design LIKE queries in large-scale systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poorly optimized text searches can reduce application performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIKE permanently modifies text values",
+                    "is_correct": false
+                },
+                {
+                    "text": "Wildcards automatically encrypt records",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIKE disables filtering conditions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "LIKE Operator Basics",
+            "content": "Which statements are true about the LIKE operator?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIKE is used for pattern-based searching",
+                    "is_correct": true
+                },
+                {
+                    "text": "% represents zero or more characters",
+                    "is_correct": true
+                },
+                {
+                    "text": "_ represents exactly one character",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIKE permanently changes stored records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Wildcard Features",
+            "content": "Which statements are correct regarding SQL wildcards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "% can represent multiple characters",
+                    "is_correct": true
+                },
+                {
+                    "text": "_ matches a single character",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wildcards support flexible searching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wildcards automatically sort rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Pattern Matching Use Cases",
+            "content": "In which scenarios is pattern matching commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Customer search systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product search functionality",
+                    "is_correct": true
+                },
+                {
+                    "text": "Partial-text filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of LIKE",
+            "content": "Why is LIKE useful in SQL applications?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Supports flexible searching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improves user search experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "Allows partial matching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically removes duplicate records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Streaming Platform Scenario",
+            "content": "A streaming app searches movies containing the word 'love' in their titles. Why is LIKE beneficial here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Partial-text matching becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexible search functionality improves usability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Users can search incomplete text",
+                    "is_correct": true
+                },
+                {
+                    "text": "Movie titles are permanently updated automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise CRM Scenario",
+            "content": "Why are wildcards heavily used in CRM and enterprise search systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Users may not know exact spellings",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexible customer searching becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Partial-name matching improves usability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wildcards permanently delete unmatched records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Large Dataset Search Scenario",
+            "content": "Why should LIKE queries be optimized carefully in systems handling millions of records?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Text-based searches can become expensive",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance may degrade with complex wildcards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient indexing strategies may be needed",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIKE automatically normalizes tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Pattern Matching",
+            "content": "Which statements are true regarding LIKE and wildcards in enterprise systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIKE enables flexible text searching",
+                    "is_correct": true
+                },
+                {
+                    "text": "% supports multi-character matching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improper wildcard usage can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "LIKE permanently changes stored records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which issues may occur because of poorly designed LIKE queries?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "High processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding LIKE and SQL wildcards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Pattern Matching (LIKE, wildcards %, _)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LIKE is used for pattern matching",
+                    "is_correct": true
+                },
+                {
+                    "text": "% matches zero or more characters",
+                    "is_correct": true
+                },
+                {
+                    "text": "_ matches exactly one character",
+                    "is_correct": true
+                },
+                {
+                    "text": "Wildcards permanently modify database rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of IS NULL",
+            "content": "What is the purpose of the IS NULL condition in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To check whether a column contains NULL values",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete empty rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort NULL values",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create constraints",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of IS NOT NULL",
+            "content": "What does IS NOT NULL do in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filters rows where values are present",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes NULL records permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates mandatory columns",
+                    "is_correct": false
+                },
+                {
+                    "text": "Groups NULL records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "NULL Meaning",
+            "content": "In SQL, what does a NULL value represent?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing or unknown data",
+                    "is_correct": true
+                },
+                {
+                    "text": "The value zero",
+                    "is_correct": false
+                },
+                {
+                    "text": "An empty string only",
+                    "is_correct": false
+                },
+                {
+                    "text": "A duplicate value",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Checking NULL Values",
+            "content": "Why can't normal comparison operators like '=' be reliably used with NULL values?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NULL represents unknown data and requires special handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL values are automatically deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "Comparison operators only work on numbers",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL ignores all NULL values permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Employee Database Scenario",
+            "content": "An HR system wants to find employees whose phone numbers are missing. Which condition is most suitable?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IS NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "= NULL",
+                    "is_correct": false
+                },
+                {
+                    "text": "BETWEEN",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Customer Data Scenario",
+            "content": "A CRM system wants to display customers whose email addresses are available. Which condition should be used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IS NOT NULL",
+                    "is_correct": true
+                },
+                {
+                    "text": "IS NULL",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIKE",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Healthcare Scenario",
+            "content": "A hospital system identifies patients whose emergency contact details are missing. Why is IS NULL useful here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps detect incomplete records",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently deletes missing records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically fills missing values",
+                    "is_correct": false
+                },
+                {
+                    "text": "It normalizes patient tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Data Quality",
+            "content": "Why are IS NULL and IS NOT NULL heavily used in enterprise applications?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help identify missing or incomplete business data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently remove incomplete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically repair missing data",
+                    "is_correct": false
+                },
+                {
+                    "text": "They disable constraints automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Analytics and Reporting",
+            "content": "Why is NULL handling critical in analytics and reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing data can affect report accuracy and business decisions",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL values automatically disappear during reporting",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reports cannot contain any NULL values",
+                    "is_correct": false
+                },
+                {
+                    "text": "NULL values automatically become zero",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Large-Scale Data Management",
+            "content": "Why should developers carefully design queries involving NULL checks on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Poor filtering strategies may reduce query performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL checks permanently modify records",
+                    "is_correct": false
+                },
+                {
+                    "text": "IS NULL disables indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "NULL handling converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NULL Basics",
+            "content": "Which statements are true regarding NULL values in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NULL represents missing or unknown data",
+                    "is_correct": true
+                },
+                {
+                    "text": "IS NULL checks for missing values",
+                    "is_correct": true
+                },
+                {
+                    "text": "IS NOT NULL checks for available values",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL always means zero",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "IS NULL Usage",
+            "content": "In which situations is IS NULL commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Finding incomplete records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Detecting missing values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validating data quality",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatically deleting records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "IS NOT NULL Usage",
+            "content": "Which statements are correct regarding IS NOT NULL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It filters rows containing valid values",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps retrieve complete records",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is useful in data validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently fills missing values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "NULL Handling Importance",
+            "content": "Why is proper NULL handling important in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It improves data quality management",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps detect incomplete information",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports accurate filtering",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically normalizes tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "E-commerce Scenario",
+            "content": "An e-commerce company checks products without descriptions before publishing. Why is IS NULL useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing product information can be detected",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incomplete product listings can be filtered",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data quality checks become easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product rows are permanently deleted automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Banking Scenario",
+            "content": "A bank identifies customers whose KYC details are unavailable. Which benefits do NULL checks provide?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Incomplete records can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compliance validation becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing information can be tracked",
+                    "is_correct": true
+                },
+                {
+                    "text": "Customer accounts are automatically blocked",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Reporting Scenario",
+            "content": "Why are IS NULL and IS NOT NULL frequently used in reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reports may require filtering incomplete data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data quality analysis becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing information can impact business insights",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reports automatically repair missing values",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced NULL Handling",
+            "content": "Which statements are true regarding NULL handling in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "NULL checks help maintain data quality",
+                    "is_correct": true
+                },
+                {
+                    "text": "Incomplete records can affect analytics",
+                    "is_correct": true
+                },
+                {
+                    "text": "Efficient NULL filtering improves reporting accuracy",
+                    "is_correct": true
+                },
+                {
+                    "text": "IS NULL permanently modifies database rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Production Risks",
+            "content": "Which issues may occur because of improper NULL handling in SQL systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Incorrect business reports",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data quality problems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Unexpected query results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic table deletion",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding IS NULL and IS NOT NULL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "IS NULL, IS NOT NULL",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "IS NULL checks missing values",
+                    "is_correct": true
+                },
+                {
+                    "text": "IS NOT NULL filters available values",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL represents unknown or absent data",
+                    "is_correct": true
+                },
+                {
+                    "text": "NULL always behaves like the value zero",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of COUNT",
+            "content": "What is the purpose of the COUNT() function in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To count the number of rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "To calculate averages",
+                    "is_correct": false
+                },
+                {
+                    "text": "To sort records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of SUM",
+            "content": "Which aggregate function is used to calculate the total of numeric values?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SUM()",
+                    "is_correct": true
+                },
+                {
+                    "text": "COUNT()",
+                    "is_correct": false
+                },
+                {
+                    "text": "AVG()",
+                    "is_correct": false
+                },
+                {
+                    "text": "MAX()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of AVG",
+            "content": "What does the AVG() function return in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Average value of numeric data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maximum value",
+                    "is_correct": false
+                },
+                {
+                    "text": "Minimum value",
+                    "is_correct": false
+                },
+                {
+                    "text": "Number of rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "MIN and MAX",
+            "content": "Which aggregate functions are used to find the smallest and largest values?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "MIN() and MAX()",
+                    "is_correct": true
+                },
+                {
+                    "text": "COUNT() and AVG()",
+                    "is_correct": false
+                },
+                {
+                    "text": "SUM() and COUNT()",
+                    "is_correct": false
+                },
+                {
+                    "text": "AVG() and SUM()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Sales Scenario",
+            "content": "An e-commerce company wants to calculate total monthly sales revenue. Which aggregate function is most suitable?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "SUM()",
+                    "is_correct": true
+                },
+                {
+                    "text": "COUNT()",
+                    "is_correct": false
+                },
+                {
+                    "text": "MIN()",
+                    "is_correct": false
+                },
+                {
+                    "text": "AVG()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Student Performance Scenario",
+            "content": "A university wants to calculate the average marks scored by students in a subject. Why is AVG() appropriate?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It computes the mean value of numeric data",
+                    "is_correct": true
+                },
+                {
+                    "text": "It counts the number of students",
+                    "is_correct": false
+                },
+                {
+                    "text": "It identifies the highest mark only",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate marks",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Banking Analytics Scenario",
+            "content": "A bank wants to identify the highest transaction amount recorded in a day. Which function is best suited?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "MAX()",
+                    "is_correct": true
+                },
+                {
+                    "text": "MIN()",
+                    "is_correct": false
+                },
+                {
+                    "text": "COUNT()",
+                    "is_correct": false
+                },
+                {
+                    "text": "AVG()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting",
+            "content": "Why are aggregate functions heavily used in enterprise reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help summarize and analyze large volumes of business data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They permanently modify stored records",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically normalize tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Consideration",
+            "content": "Why should developers optimize aggregate queries on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Complex aggregations may increase query execution time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions automatically delete rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aggregate functions disable indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Aggregate functions convert SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why are functions like SUM() and AVG() critical in business intelligence systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help generate meaningful insights from raw data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically repair incomplete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "They permanently encrypt sensitive data",
+                    "is_correct": false
+                },
+                {
+                    "text": "They create database relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Aggregate Function Basics",
+            "content": "Which statements are true regarding aggregate functions in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "COUNT() counts rows",
+                    "is_correct": true
+                },
+                {
+                    "text": "SUM() calculates totals",
+                    "is_correct": true
+                },
+                {
+                    "text": "AVG() calculates averages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions permanently modify data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "MIN and MAX Usage",
+            "content": "Which statements are correct regarding MIN() and MAX()?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "MIN() returns the smallest value",
+                    "is_correct": true
+                },
+                {
+                    "text": "MAX() returns the largest value",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are useful in analytics",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically sort rows permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Aggregate Function Applications",
+            "content": "In which scenarios are aggregate functions commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Business reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sales analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance tracking",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of Aggregation",
+            "content": "Why are aggregate functions useful in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They summarize data efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "They help generate insights",
+                    "is_correct": true
+                },
+                {
+                    "text": "They reduce manual calculations",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically normalize tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Analytics Scenario",
+            "content": "A retail company analyzes sales performance using aggregate functions. Which benefits do these functions provide?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sales totals can be calculated quickly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Average revenue trends can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Peak and minimum sales can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sales records are automatically deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Management Scenario",
+            "content": "A hospital system uses aggregate functions for patient analytics. Why are they useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Patient statistics can be summarized",
+                    "is_correct": true
+                },
+                {
+                    "text": "Average treatment costs can be calculated",
+                    "is_correct": true
+                },
+                {
+                    "text": "Maximum and minimum patient counts can be identified",
+                    "is_correct": true
+                },
+                {
+                    "text": "Medical records are automatically encrypted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Dashboard Scenario",
+            "content": "Why are aggregate functions essential for enterprise dashboards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They help generate summarized KPIs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business trends can be analyzed",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large datasets become easier to interpret",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions automatically create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Aggregation Concepts",
+            "content": "Which statements are true regarding aggregate functions in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aggregate functions are essential for analytics",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large-scale reporting relies heavily on aggregation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized aggregation queries may affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions permanently change stored rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient aggregate queries on large datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High resource consumption",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced reporting performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding SQL aggregate functions?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "Aggregate Functions: COUNT, SUM, AVG, MIN, MAX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "COUNT() counts records",
+                    "is_correct": true
+                },
+                {
+                    "text": "SUM() calculates totals",
+                    "is_correct": true
+                },
+                {
+                    "text": "AVG() computes average values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions permanently modify stored data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of GROUP BY",
+            "content": "What is the main purpose of the GROUP BY clause in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To group rows with similar values together",
+                    "is_correct": true
+                },
+                {
+                    "text": "To permanently sort records",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete duplicate rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "GROUP BY Usage",
+            "content": "GROUP BY is commonly used with which type of functions?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Aggregate functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "String functions only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Date functions only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Comparison operators only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Grouping Records",
+            "content": "What happens when rows share the same value in a GROUP BY column?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are combined into a single group",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are permanently deleted",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are automatically sorted",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are converted into indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Aggregate Reporting",
+            "content": "Why is GROUP BY important in reporting queries?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps summarize data category-wise",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically updates reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes NULL values permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates relationships between tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "E-commerce Sales Scenario",
+            "content": "An e-commerce company wants to calculate total sales for each product category. Why is GROUP BY useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It groups sales records category-wise before aggregation",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently combines product categories",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts products by revenue",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate categories permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Student Analytics Scenario",
+            "content": "A university wants to calculate average marks department-wise. Which SQL concept is most important here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GROUP BY with AVG()",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY only",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT only",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT clause",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Banking Analytics Scenario",
+            "content": "A bank wants to count the number of transactions branch-wise. Why is GROUP BY appropriate?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It organizes records into branch-based groups for counting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges bank branches",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts transaction records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes duplicate transactions permanently",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting Systems",
+            "content": "Why is GROUP BY heavily used in enterprise reporting and analytics systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses often require summarized insights category-wise",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY permanently changes stored records",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY automatically normalizes tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY replaces primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Optimization",
+            "content": "Why should developers optimize GROUP BY queries on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Grouping and aggregation can increase processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY permanently deletes rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY disables indexing automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "GROUP BY converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is GROUP BY critical in business intelligence dashboards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It enables summarized KPI and trend analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically repairs incomplete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It permanently stores report results",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates foreign keys automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "GROUP BY Basics",
+            "content": "Which statements are true regarding GROUP BY in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GROUP BY organizes rows into groups",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is commonly used with aggregate functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Rows with similar values can form a group",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY permanently modifies records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Aggregate Reporting",
+            "content": "Which aggregate functions are commonly used with GROUP BY?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "COUNT()",
+                    "is_correct": true
+                },
+                {
+                    "text": "SUM()",
+                    "is_correct": true
+                },
+                {
+                    "text": "AVG()",
+                    "is_correct": true
+                },
+                {
+                    "text": "CREATE TABLE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "GROUP BY Applications",
+            "content": "In which scenarios is GROUP BY commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Department-wise reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Sales analytics",
+                    "is_correct": true
+                },
+                {
+                    "text": "Category-based summaries",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating indexes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of GROUP BY",
+            "content": "Why is GROUP BY useful in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It simplifies summarized reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It helps organize analytical data",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves category-based analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically normalizes tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Business Scenario",
+            "content": "A retail company groups products by category for sales analysis. Which advantages does GROUP BY provide?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Category-wise sales insights become possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregated reporting becomes easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business trends can be analyzed effectively",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product rows are permanently merged",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Analytics Scenario",
+            "content": "A hospital groups patient data department-wise for analytics. Why is GROUP BY beneficial?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Department-level reporting becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Patient trends can be summarized",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregated healthcare analytics improve decision-making",
+                    "is_correct": true
+                },
+                {
+                    "text": "Medical records are permanently encrypted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Dashboard Scenario",
+            "content": "Why is GROUP BY heavily used in enterprise dashboards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "KPI summaries can be generated efficiently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Department-wise metrics become easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large datasets become easier to interpret",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY automatically creates relationships",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced GROUP BY Concepts",
+            "content": "Which statements are true regarding GROUP BY in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GROUP BY is essential for analytical reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregate functions often depend on GROUP BY",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized grouping queries can affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY permanently changes stored data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient GROUP BY queries on massive datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High memory and CPU usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced reporting performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of grouped records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding GROUP BY?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "GROUP BY",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GROUP BY groups similar rows together",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is frequently combined with aggregate functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "It is useful for summarized reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "GROUP BY permanently modifies database rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Purpose of HAVING",
+            "content": "What is the main purpose of the HAVING clause in SQL?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To filter grouped data",
+                    "is_correct": true
+                },
+                {
+                    "text": "To sort grouped data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create database indexes",
+                    "is_correct": false
+                },
+                {
+                    "text": "To permanently delete groups",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HAVING vs WHERE",
+            "content": "What is the key difference between WHERE and HAVING?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HAVING filters grouped results, while WHERE filters rows before grouping",
+                    "is_correct": true
+                },
+                {
+                    "text": "WHERE works only with aggregate functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "HAVING permanently modifies grouped data",
+                    "is_correct": false
+                },
+                {
+                    "text": "WHERE is used only for sorting",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HAVING Usage",
+            "content": "HAVING is commonly used together with which SQL clause?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GROUP BY",
+                    "is_correct": true
+                },
+                {
+                    "text": "ORDER BY only",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT only",
+                    "is_correct": false
+                },
+                {
+                    "text": "DISTINCT only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Filtering Aggregates",
+            "content": "Why is HAVING important in SQL reporting?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps filter summarized or aggregated results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently removes duplicate groups",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically creates reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "It replaces aggregate functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Sales Analytics Scenario",
+            "content": "An e-commerce company wants to display only product categories with total sales above ₹1,00,000. Why is HAVING useful?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It filters groups after aggregation",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently merges categories",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically sorts products",
+                    "is_correct": false
+                },
+                {
+                    "text": "It deletes low-sales categories",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Student Reporting Scenario",
+            "content": "A university wants to show departments where the average student score is above 80. Which SQL concept is essential?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HAVING with AVG()",
+                    "is_correct": true
+                },
+                {
+                    "text": "DISTINCT only",
+                    "is_correct": false
+                },
+                {
+                    "text": "LIMIT clause",
+                    "is_correct": false
+                },
+                {
+                    "text": "CREATE INDEX",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Banking Analytics Scenario",
+            "content": "A bank wants to identify branches with more than 500 transactions per day. Why is HAVING appropriate here?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It filters branch-wise grouped transaction results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It permanently removes low-transaction branches",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically encrypts transaction data",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates branch indexes automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Enterprise Reporting Systems",
+            "content": "Why is HAVING heavily used in enterprise analytics and reporting systems?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Businesses often need filtering on summarized data",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING permanently modifies stored records",
+                    "is_correct": false
+                },
+                {
+                    "text": "HAVING automatically normalizes tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "HAVING replaces aggregate functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Performance Optimization",
+            "content": "Why should HAVING clauses be optimized carefully on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Filtering aggregated groups can increase processing overhead",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING automatically deletes grouped rows",
+                    "is_correct": false
+                },
+                {
+                    "text": "HAVING disables indexing permanently",
+                    "is_correct": false
+                },
+                {
+                    "text": "HAVING converts SQL into NoSQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Business Intelligence Scenario",
+            "content": "Why is HAVING critical in business intelligence dashboards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It enables advanced filtering of summarized KPI data",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically repairs incomplete records",
+                    "is_correct": false
+                },
+                {
+                    "text": "It permanently stores reports",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates relationships automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HAVING Basics",
+            "content": "Which statements are true regarding the HAVING clause?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HAVING filters grouped data",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING is commonly used with GROUP BY",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING can work with aggregate functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING permanently modifies records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HAVING vs WHERE",
+            "content": "Which statements correctly describe HAVING and WHERE?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "WHERE filters rows before grouping",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING filters groups after aggregation",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING is useful with aggregate conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "WHERE permanently groups records",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HAVING Applications",
+            "content": "In which scenarios is HAVING commonly used?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Sales reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Department-wise analytics",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance tracking",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating primary keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Benefits of HAVING",
+            "content": "Why is HAVING useful in SQL analytics?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It filters summarized results",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves grouped-data analysis",
+                    "is_correct": true
+                },
+                {
+                    "text": "It supports business reporting",
+                    "is_correct": true
+                },
+                {
+                    "text": "It automatically normalizes tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Retail Analytics Scenario",
+            "content": "A retail company wants to identify product categories with very high revenue. Which advantages does HAVING provide?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "High-performing categories can be filtered easily",
+                    "is_correct": true
+                },
+                {
+                    "text": "Aggregated sales reports become more meaningful",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business insights become easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Product records are permanently merged",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Hospital Reporting Scenario",
+            "content": "A hospital wants to display departments with more than 100 patients admitted monthly. Why is HAVING beneficial?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Department-level filtering becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "Grouped patient analytics improve decision-making",
+                    "is_correct": true
+                },
+                {
+                    "text": "Summarized healthcare reports become easier",
+                    "is_correct": true
+                },
+                {
+                    "text": "Medical records are permanently encrypted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Enterprise Dashboard Scenario",
+            "content": "Why is HAVING heavily used in enterprise dashboards?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "KPI thresholds can be filtered effectively",
+                    "is_correct": true
+                },
+                {
+                    "text": "Large summarized datasets become easier to analyze",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance-based filtering becomes possible",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING automatically creates foreign keys",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced HAVING Concepts",
+            "content": "Which statements are true regarding HAVING in enterprise databases?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HAVING is essential for filtering aggregated results",
+                    "is_correct": true
+                },
+                {
+                    "text": "Business analytics often depend on HAVING conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Poorly optimized HAVING queries may affect performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING permanently changes stored rows",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Performance Risks",
+            "content": "Which issues may occur because of inefficient HAVING queries on huge datasets?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Slow grouped-query execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "High CPU and memory usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reduced reporting efficiency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic deletion of groups",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Concept Trap",
+            "content": "Which statements are correct regarding HAVING?",
+            "level": "subtopic",
+            "topic_name": "Filtering, Operators & Aggregation",
+            "subtopic_name": "HAVING",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HAVING filters grouped results",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING is commonly used with GROUP BY",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING supports aggregate conditions",
+                    "is_correct": true
+                },
+                {
+                    "text": "HAVING permanently modifies database rows",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}

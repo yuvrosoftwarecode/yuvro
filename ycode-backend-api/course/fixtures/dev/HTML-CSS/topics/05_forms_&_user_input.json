@@ -1,0 +1,4798 @@
+{
+  "name": "Forms & User Input",
+  "subject_short_code": "HTMLCSS100",
+  "order_index": 5,
+  "sub_units": [
+    {
+      "name": "Form Basics",
+      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Introduction to Form Basics",
+          "video_link": "https://www.youtube.com/results?search_query=Form+Basics+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Form Basics in HTML/CSS."
+        },
+        {
+          "title": "Advanced Form Basics Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Form+Basics+html+css",
+          "ai_context": "In-depth explanation and practical examples for Form Basics."
+        }
+      ]
+    },
+    {
+      "name": "Input Fields",
+      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Introduction to Input Fields",
+          "video_link": "https://www.youtube.com/results?search_query=Input+Fields+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Input Fields in HTML/CSS."
+        },
+        {
+          "title": "Advanced Input Fields Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Input+Fields+html+css",
+          "ai_context": "In-depth explanation and practical examples for Input Fields."
+        }
+      ]
+    },
+    {
+      "name": "Selection Inputs",
+      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Introduction to Selection Inputs",
+          "video_link": "https://www.youtube.com/results?search_query=Selection+Inputs+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Selection Inputs in HTML/CSS."
+        },
+        {
+          "title": "Advanced Selection Inputs Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Selection+Inputs+html+css",
+          "ai_context": "In-depth explanation and practical examples for Selection Inputs."
+        }
+      ]
+    },
+    {
+      "name": "Buttons",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Introduction to Buttons",
+          "video_link": "https://www.youtube.com/results?search_query=Buttons+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Buttons in HTML/CSS."
+        },
+        {
+          "title": "Advanced Buttons Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Buttons+html+css",
+          "ai_context": "In-depth explanation and practical examples for Buttons."
+        }
+      ]
+    },
+    {
+      "name": "Form Validation",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 4,
+      "videos": [
+        {
+          "title": "Introduction to Form Validation",
+          "video_link": "https://www.youtube.com/results?search_query=Form+Validation+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Form Validation in HTML/CSS."
+        },
+        {
+          "title": "Advanced Form Validation Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Form+Validation+html+css",
+          "ai_context": "In-depth explanation and practical examples for Form Validation."
+        }
+      ]
+    },
+    {
+      "name": "Advanced Forms",
+      "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+      "order_index": 5,
+      "videos": [
+        {
+          "title": "Introduction to Advanced Forms",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Forms+html+css",
+          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced Forms in HTML/CSS."
+        },
+        {
+          "title": "Advanced Advanced Forms Techniques",
+          "video_link": "https://www.youtube.com/results?search_query=Advanced+Forms+html+css",
+          "ai_context": "In-depth explanation and practical examples for Advanced Forms."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Form Tag",
+      "content": "Which HTML tag is used to create a form?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<form>",
+          "is_correct": true
+        },
+        {
+          "text": "<input>",
+          "is_correct": false
+        },
+        {
+          "text": "<fieldset>",
+          "is_correct": false
+        },
+        {
+          "text": "<dataform>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Action Attribute",
+      "content": "What does the action attribute in a form specify?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The URL where form data is sent",
+          "is_correct": true
+        },
+        {
+          "text": "The form background color",
+          "is_correct": false
+        },
+        {
+          "text": "The type of input field",
+          "is_correct": false
+        },
+        {
+          "text": "The browser window size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Method Attribute",
+      "content": "Which form attribute defines how form data is sent to the server?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "method",
+          "is_correct": true
+        },
+        {
+          "text": "target",
+          "is_correct": false
+        },
+        {
+          "text": "name",
+          "is_correct": false
+        },
+        {
+          "text": "autocomplete",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "GET Method",
+      "content": "Which HTTP method appends form data to the URL?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GET",
+          "is_correct": true
+        },
+        {
+          "text": "POST",
+          "is_correct": false
+        },
+        {
+          "text": "PUT",
+          "is_correct": false
+        },
+        {
+          "text": "DELETE",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "POST Method Usage",
+      "content": "Why is the POST method preferred for sensitive form data?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data is sent in the request body instead of the URL",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically encrypts all data",
+          "is_correct": false
+        },
+        {
+          "text": "It only works offline",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents all hacking attempts",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Form Syntax",
+      "content": "Which HTML snippet correctly creates a form that sends data using POST?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<form action=\"submit.php\" method=\"POST\"></form>",
+          "is_correct": true
+        },
+        {
+          "text": "<form method=\"submit.php\" action=\"POST\"></form>",
+          "is_correct": false
+        },
+        {
+          "text": "<form post=\"submit.php\"></form>",
+          "is_correct": false
+        },
+        {
+          "text": "<form send=\"POST\"></form>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Form Methods",
+      "content": "Which scenario is most appropriate for using the GET method?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Search forms where data can appear in the URL",
+          "is_correct": true
+        },
+        {
+          "text": "Submitting passwords securely",
+          "is_correct": false
+        },
+        {
+          "text": "Uploading files",
+          "is_correct": false
+        },
+        {
+          "text": "Sending confidential payment details",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Text Input Type",
+      "content": "Which input type is used for entering plain text in HTML forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "text",
+          "is_correct": true
+        },
+        {
+          "text": "password",
+          "is_correct": false
+        },
+        {
+          "text": "email",
+          "is_correct": false
+        },
+        {
+          "text": "number",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Password Field",
+      "content": "What is the main purpose of the password input type?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To hide typed characters for security",
+          "is_correct": true
+        },
+        {
+          "text": "To validate phone numbers",
+          "is_correct": false
+        },
+        {
+          "text": "To upload files",
+          "is_correct": false
+        },
+        {
+          "text": "To select dates",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Email Input",
+      "content": "Which input type provides basic validation for email addresses?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "email",
+          "is_correct": true
+        },
+        {
+          "text": "text",
+          "is_correct": false
+        },
+        {
+          "text": "number",
+          "is_correct": false
+        },
+        {
+          "text": "date",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Number Input Usage",
+      "content": "Which input type is best suited for numeric values only?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "number",
+          "is_correct": true
+        },
+        {
+          "text": "text",
+          "is_correct": false
+        },
+        {
+          "text": "password",
+          "is_correct": false
+        },
+        {
+          "text": "email",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Date Input Field",
+      "content": "Which input type allows users to select a date using a calendar interface in supported browsers?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "date",
+          "is_correct": true
+        },
+        {
+          "text": "calendar",
+          "is_correct": false
+        },
+        {
+          "text": "datetime",
+          "is_correct": false
+        },
+        {
+          "text": "select",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Password Syntax",
+      "content": "Which HTML snippet correctly creates a password input field?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<input type=\"password\">",
+          "is_correct": true
+        },
+        {
+          "text": "<password input>",
+          "is_correct": false
+        },
+        {
+          "text": "<input password>",
+          "is_correct": false
+        },
+        {
+          "text": "<textbox type=\"password\">",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Email Validation Benefit",
+      "content": "Why is using type=\"email\" preferred over type=\"text\" for email fields?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It provides built-in browser validation for email format",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically sends emails",
+          "is_correct": false
+        },
+        {
+          "text": "It encrypts all form data",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces the need for a form tag",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Radio Button Input Type",
+      "content": "Which input type is used to create radio buttons in HTML forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "radio",
+          "is_correct": true
+        },
+        {
+          "text": "checkbox",
+          "is_correct": false
+        },
+        {
+          "text": "select",
+          "is_correct": false
+        },
+        {
+          "text": "option",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Checkbox Purpose",
+      "content": "What is the main purpose of checkboxes in a form?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To allow users to select multiple options",
+          "is_correct": true
+        },
+        {
+          "text": "To allow only one selection",
+          "is_correct": false
+        },
+        {
+          "text": "To upload files",
+          "is_correct": false
+        },
+        {
+          "text": "To enter passwords",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dropdown Element",
+      "content": "Which HTML tag is used to create a dropdown list?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<select>",
+          "is_correct": true
+        },
+        {
+          "text": "<dropdown>",
+          "is_correct": false
+        },
+        {
+          "text": "<list>",
+          "is_correct": false
+        },
+        {
+          "text": "<optionlist>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Radio Button Behavior",
+      "content": "How can multiple radio buttons be grouped so only one can be selected?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By giving them the same name attribute",
+          "is_correct": true
+        },
+        {
+          "text": "By placing them inside a table",
+          "is_correct": false
+        },
+        {
+          "text": "By using the same id attribute",
+          "is_correct": false
+        },
+        {
+          "text": "By adding multiple forms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Dropdown Options",
+      "content": "Which tag is used inside a <select> element to define choices?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<option>",
+          "is_correct": true
+        },
+        {
+          "text": "<choice>",
+          "is_correct": false
+        },
+        {
+          "text": "<item>",
+          "is_correct": false
+        },
+        {
+          "text": "<value>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Checkbox Syntax",
+      "content": "Which HTML snippet correctly creates a checkbox input?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<input type=\"checkbox\">",
+          "is_correct": true
+        },
+        {
+          "text": "<checkbox></checkbox>",
+          "is_correct": false
+        },
+        {
+          "text": "<input checkbox>",
+          "is_correct": false
+        },
+        {
+          "text": "<select type=\"checkbox\">",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Choosing Input Types",
+      "content": "Which form control is best when users must choose exactly one option from several choices?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Radio buttons",
+          "is_correct": true
+        },
+        {
+          "text": "Checkboxes",
+          "is_correct": false
+        },
+        {
+          "text": "Text fields",
+          "is_correct": false
+        },
+        {
+          "text": "Password fields",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Submit Button Type",
+      "content": "Which button type is used to send form data to the server?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "submit",
+          "is_correct": true
+        },
+        {
+          "text": "reset",
+          "is_correct": false
+        },
+        {
+          "text": "button",
+          "is_correct": false
+        },
+        {
+          "text": "send",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reset Button Purpose",
+      "content": "What does a reset button do in an HTML form?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clears form fields to their default values",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes the webpage",
+          "is_correct": false
+        },
+        {
+          "text": "Submits the form automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Refreshes the browser",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Button Element",
+      "content": "Which HTML tag is commonly used to create clickable buttons?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<button>",
+          "is_correct": true
+        },
+        {
+          "text": "<click>",
+          "is_correct": false
+        },
+        {
+          "text": "<submit>",
+          "is_correct": false
+        },
+        {
+          "text": "<press>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Default Button Type",
+      "content": "What is the default type of a <button> element inside a form if no type is specified?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "submit",
+          "is_correct": true
+        },
+        {
+          "text": "reset",
+          "is_correct": false
+        },
+        {
+          "text": "button",
+          "is_correct": false
+        },
+        {
+          "text": "click",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Generic Button Type",
+      "content": "Which button type is commonly used for JavaScript actions without submitting the form?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "button",
+          "is_correct": true
+        },
+        {
+          "text": "submit",
+          "is_correct": false
+        },
+        {
+          "text": "reset",
+          "is_correct": false
+        },
+        {
+          "text": "action",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Reset Button Syntax",
+      "content": "Which HTML snippet correctly creates a reset button?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<button type=\"reset\">Reset</button>",
+          "is_correct": true
+        },
+        {
+          "text": "<button reset>Reset</button>",
+          "is_correct": false
+        },
+        {
+          "text": "<input type=\"clear\">",
+          "is_correct": false
+        },
+        {
+          "text": "<resetbutton>Reset</resetbutton>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Button Type Importance",
+      "content": "Why is it important to specify the type attribute for buttons inside forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To avoid unintended form submissions",
+          "is_correct": true
+        },
+        {
+          "text": "To improve internet speed",
+          "is_correct": false
+        },
+        {
+          "text": "To automatically style buttons",
+          "is_correct": false
+        },
+        {
+          "text": "To replace CSS functionality",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Required Attribute",
+      "content": "Which HTML attribute makes a form field mandatory before submission?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "required",
+          "is_correct": true
+        },
+        {
+          "text": "mandatory",
+          "is_correct": false
+        },
+        {
+          "text": "validate",
+          "is_correct": false
+        },
+        {
+          "text": "needed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Min Attribute",
+      "content": "What is the purpose of the min attribute in HTML forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To define the minimum allowed value",
+          "is_correct": true
+        },
+        {
+          "text": "To limit text formatting",
+          "is_correct": false
+        },
+        {
+          "text": "To set maximum input length",
+          "is_correct": false
+        },
+        {
+          "text": "To disable form submission",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pattern Attribute",
+      "content": "Which attribute is used to validate input against a specific format using regular expressions?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pattern",
+          "is_correct": true
+        },
+        {
+          "text": "format",
+          "is_correct": false
+        },
+        {
+          "text": "regex",
+          "is_correct": false
+        },
+        {
+          "text": "match",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Built-in Validation",
+      "content": "What is the benefit of HTML built-in form validation?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It checks user input before form submission",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces the need for HTML forms",
+          "is_correct": false
+        },
+        {
+          "text": "It stores form data automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It disables browser validation",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Max Attribute Usage",
+      "content": "Which input field is most suitable for using min and max attributes?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "number",
+          "is_correct": true
+        },
+        {
+          "text": "password",
+          "is_correct": false
+        },
+        {
+          "text": "checkbox",
+          "is_correct": false
+        },
+        {
+          "text": "button",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Pattern Syntax",
+      "content": "Which HTML snippet correctly validates a field to allow only 3 digits?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<input type=\"text\" pattern=\"[0-9]{3}\">",
+          "is_correct": true
+        },
+        {
+          "text": "<input regex=\"[0-9]{3}\">",
+          "is_correct": false
+        },
+        {
+          "text": "<input validate=\"3digits\">",
+          "is_correct": false
+        },
+        {
+          "text": "<pattern>[0-9]{3}</pattern>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Validation Limitation",
+      "content": "Why should server-side validation still be used even with built-in HTML validation?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Client-side validation can be bypassed by users",
+          "is_correct": true
+        },
+        {
+          "text": "HTML validation works only on mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "Server-side validation is faster than browsers",
+          "is_correct": false
+        },
+        {
+          "text": "Built-in validation deletes invalid data automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "File Upload Input",
+      "content": "Which input type is used to allow users to upload files in an HTML form?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "file",
+          "is_correct": true
+        },
+        {
+          "text": "upload",
+          "is_correct": false
+        },
+        {
+          "text": "document",
+          "is_correct": false
+        },
+        {
+          "text": "attachment",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hidden Input Purpose",
+      "content": "What is the purpose of a hidden input field in HTML forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store data that users cannot directly see or edit",
+          "is_correct": true
+        },
+        {
+          "text": "To hide the entire form",
+          "is_correct": false
+        },
+        {
+          "text": "To encrypt passwords",
+          "is_correct": false
+        },
+        {
+          "text": "To disable form submission",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Autocomplete Attribute",
+      "content": "Which attribute enables browsers to suggest previously entered values in form fields?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "autocomplete",
+          "is_correct": true
+        },
+        {
+          "text": "autosuggest",
+          "is_correct": false
+        },
+        {
+          "text": "remember",
+          "is_correct": false
+        },
+        {
+          "text": "history",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Datalist Function",
+      "content": "What is the main purpose of the <datalist> element?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To provide predefined suggestions for input fields",
+          "is_correct": true
+        },
+        {
+          "text": "To create database tables",
+          "is_correct": false
+        },
+        {
+          "text": "To upload multiple files",
+          "is_correct": false
+        },
+        {
+          "text": "To validate passwords",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "File Upload Requirement",
+      "content": "Which form attribute value is commonly required for file uploads?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "multipart/form-data",
+          "is_correct": true
+        },
+        {
+          "text": "text/html",
+          "is_correct": false
+        },
+        {
+          "text": "application/json",
+          "is_correct": false
+        },
+        {
+          "text": "form/upload",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Correct Datalist Syntax",
+      "content": "Which HTML snippet correctly connects an input field with a datalist?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<input list=\"cities\"><datalist id=\"cities\"><option value=\"Delhi\"></datalist>",
+          "is_correct": true
+        },
+        {
+          "text": "<datalist><input value=\"Delhi\"></datalist>",
+          "is_correct": false
+        },
+        {
+          "text": "<input datalist=\"cities\">",
+          "is_correct": false
+        },
+        {
+          "text": "<list id=\"cities\"><option>Delhi</option></list>",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Hidden Input Limitation",
+      "content": "Why should sensitive information not be stored only in hidden input fields?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Users can still inspect and modify hidden fields using browser tools",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden inputs are deleted automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Hidden inputs do not send data to the server",
+          "is_correct": false
+        },
+        {
+          "text": "Browsers ignore hidden fields completely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Form Tag Basics",
+      "content": "Which of the following statements about the <form> tag are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<form> is used to collect user input",
+          "is_correct": true
+        },
+        {
+          "text": "<form> can contain input elements like text fields and buttons",
+          "is_correct": true
+        },
+        {
+          "text": "<form> is used only for displaying images",
+          "is_correct": false
+        },
+        {
+          "text": "<form> helps in submitting data to a server",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Form Structure Basics",
+      "content": "Which of the following statements about form structure are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forms can contain multiple input fields",
+          "is_correct": true
+        },
+        {
+          "text": "Forms usually include a submit button",
+          "is_correct": true
+        },
+        {
+          "text": "Forms cannot include text inputs",
+          "is_correct": false
+        },
+        {
+          "text": "Forms are used to send data to servers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Form Action and Method Basics",
+      "content": "Which of the following statements about action and method attributes are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "action defines where form data is sent",
+          "is_correct": true
+        },
+        {
+          "text": "method defines how data is sent (GET or POST)",
+          "is_correct": true
+        },
+        {
+          "text": "action is used to style the form",
+          "is_correct": false
+        },
+        {
+          "text": "method affects how data is transmitted",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "GET and POST Methods",
+      "content": "Which of the following statements about GET and POST methods are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "GET method appends data to the URL",
+          "is_correct": true
+        },
+        {
+          "text": "POST method sends data in the request body",
+          "is_correct": true
+        },
+        {
+          "text": "GET is always more secure than POST",
+          "is_correct": false
+        },
+        {
+          "text": "POST is commonly used for sensitive data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Form Submission Behavior",
+      "content": "Which of the following statements about form submission behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forms can submit data to server endpoints",
+          "is_correct": true
+        },
+        {
+          "text": "action attribute determines submission destination",
+          "is_correct": true
+        },
+        {
+          "text": "Forms always refresh the page and cannot be controlled",
+          "is_correct": false
+        },
+        {
+          "text": "JavaScript can enhance form submission behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Form Concepts",
+      "content": "Which of the following statements about advanced form concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Forms can be validated before submission",
+          "is_correct": true
+        },
+        {
+          "text": "Secure form handling requires proper method usage",
+          "is_correct": true
+        },
+        {
+          "text": "All form data is always visible to users in GET method",
+          "is_correct": true
+        },
+        {
+          "text": "Forms cannot interact with backend systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Forms",
+      "content": "Which of the following are best practices for using forms in HTML?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use POST for sensitive data submission",
+          "is_correct": true
+        },
+        {
+          "text": "Always specify action and method attributes",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid validating user input",
+          "is_correct": false
+        },
+        {
+          "text": "Design forms for better user experience and clarity",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Basic Input Types",
+      "content": "Which of the following are valid HTML input field types?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "text input type is used for general text input",
+          "is_correct": true
+        },
+        {
+          "text": "password input hides entered characters",
+          "is_correct": true
+        },
+        {
+          "text": "email input is used only for images",
+          "is_correct": false
+        },
+        {
+          "text": "number input allows numeric values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Email and Number Inputs",
+      "content": "Which of the following statements about email and number input types are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "email input validates email format",
+          "is_correct": true
+        },
+        {
+          "text": "number input restricts non-numeric values",
+          "is_correct": true
+        },
+        {
+          "text": "email input accepts only numbers",
+          "is_correct": false
+        },
+        {
+          "text": "number input can have min and max values",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Date Input Basics",
+      "content": "Which of the following statements about date input type are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "date input allows users to select a date",
+          "is_correct": true
+        },
+        {
+          "text": "date input provides a calendar picker in many browsers",
+          "is_correct": true
+        },
+        {
+          "text": "date input is used for entering passwords",
+          "is_correct": false
+        },
+        {
+          "text": "date input helps standardize date format",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Input Type Behavior",
+      "content": "Which of the following statements about input types are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "password type hides user input",
+          "is_correct": true
+        },
+        {
+          "text": "email type validates format automatically",
+          "is_correct": true
+        },
+        {
+          "text": "text input can only accept letters",
+          "is_correct": false
+        },
+        {
+          "text": "number input allows numeric validation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Input Validation Features",
+      "content": "Which of the following statements about HTML input validation features are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "email input checks for valid email format",
+          "is_correct": true
+        },
+        {
+          "text": "number input can enforce numeric constraints",
+          "is_correct": true
+        },
+        {
+          "text": "date input accepts any text format",
+          "is_correct": false
+        },
+        {
+          "text": "input types help reduce invalid user data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Input Types",
+      "content": "Which of the following statements about advanced input type usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "input types improve form validation and usability",
+          "is_correct": true
+        },
+        {
+          "text": "different input types enhance user experience",
+          "is_correct": true
+        },
+        {
+          "text": "all input types behave exactly the same",
+          "is_correct": false
+        },
+        {
+          "text": "email, number, and date inputs have built-in browser support",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Input Types",
+      "content": "Which of the following are best practices when using input types in forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "use correct input types for accurate validation",
+          "is_correct": true
+        },
+        {
+          "text": "use password type for sensitive information",
+          "is_correct": true
+        },
+        {
+          "text": "avoid using email input for email fields",
+          "is_correct": false
+        },
+        {
+          "text": "use date input for consistent date selection",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Radio Buttons Basics",
+      "content": "Which of the following statements about radio buttons are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Radio buttons allow only one option to be selected",
+          "is_correct": true
+        },
+        {
+          "text": "Radio buttons are used for single-choice selection",
+          "is_correct": true
+        },
+        {
+          "text": "Radio buttons allow multiple selections at the same time",
+          "is_correct": false
+        },
+        {
+          "text": "Radio buttons are created using <input type='radio'>",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Checkbox Basics",
+      "content": "Which of the following statements about checkboxes are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Checkboxes allow multiple selections",
+          "is_correct": true
+        },
+        {
+          "text": "Checkboxes are created using <input type='checkbox'>",
+          "is_correct": true
+        },
+        {
+          "text": "Checkboxes allow only one option to be selected",
+          "is_correct": false
+        },
+        {
+          "text": "Checkboxes are useful for multiple-choice questions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dropdown Basics",
+      "content": "Which of the following statements about dropdowns are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "<select> is used to create dropdown lists",
+          "is_correct": true
+        },
+        {
+          "text": "<option> defines items inside a dropdown",
+          "is_correct": true
+        },
+        {
+          "text": "Dropdowns only allow multiple selections by default",
+          "is_correct": false
+        },
+        {
+          "text": "Dropdowns help users choose from predefined options",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Radio vs Checkbox",
+      "content": "Which of the following statements about radio buttons and checkboxes are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Radio buttons allow only one selection",
+          "is_correct": true
+        },
+        {
+          "text": "Checkboxes allow multiple selections",
+          "is_correct": true
+        },
+        {
+          "text": "Radio buttons allow multiple selections",
+          "is_correct": false
+        },
+        {
+          "text": "Both are input selection controls",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Dropdown Behavior",
+      "content": "Which of the following statements about dropdown behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Dropdowns use <select> and <option> elements",
+          "is_correct": true
+        },
+        {
+          "text": "Dropdowns can contain multiple predefined options",
+          "is_correct": true
+        },
+        {
+          "text": "Dropdowns are used for free text input",
+          "is_correct": false
+        },
+        {
+          "text": "Dropdowns improve structured selection of data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Selection Inputs",
+      "content": "Which of the following statements about advanced selection input concepts are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Radio buttons in a group share the same name attribute",
+          "is_correct": true
+        },
+        {
+          "text": "Checkboxes can be grouped for multiple selections",
+          "is_correct": true
+        },
+        {
+          "text": "Dropdowns always allow multiple selections by default",
+          "is_correct": false
+        },
+        {
+          "text": "Selection inputs improve form usability and structure",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Selection Inputs",
+      "content": "Which of the following are best practices for using selection inputs?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use radio buttons for single-choice questions",
+          "is_correct": true
+        },
+        {
+          "text": "Use checkboxes for multiple-choice selections",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using labels for selection inputs",
+          "is_correct": false
+        },
+        {
+          "text": "Use dropdowns when space is limited",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Submit Button Basics",
+      "content": "Which of the following statements about submit buttons are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Submit button is used to send form data",
+          "is_correct": true
+        },
+        {
+          "text": "Submit button triggers form submission",
+          "is_correct": true
+        },
+        {
+          "text": "Submit button resets form fields",
+          "is_correct": false
+        },
+        {
+          "text": "Submit button is created using type='submit'",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Reset Button Basics",
+      "content": "Which of the following statements about reset buttons are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reset button clears all form inputs",
+          "is_correct": true
+        },
+        {
+          "text": "Reset button restores default values",
+          "is_correct": true
+        },
+        {
+          "text": "Reset button submits form data",
+          "is_correct": false
+        },
+        {
+          "text": "Reset button is created using type='reset'",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Button Types Basics",
+      "content": "Which of the following statements about button types are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML supports submit, reset, and button types",
+          "is_correct": true
+        },
+        {
+          "text": "Button type determines its behavior",
+          "is_correct": true
+        },
+        {
+          "text": "All buttons always submit form data",
+          "is_correct": false
+        },
+        {
+          "text": "type='button' is used for custom actions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Submit and Reset Behavior",
+      "content": "Which of the following statements about submit and reset buttons are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Submit button sends data to server",
+          "is_correct": true
+        },
+        {
+          "text": "Reset button clears form inputs",
+          "is_correct": true
+        },
+        {
+          "text": "Reset button submits data to server",
+          "is_correct": false
+        },
+        {
+          "text": "Submit button is required in all forms",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Button Type Usage",
+      "content": "Which of the following statements about button types usage are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "type='submit' is used to submit forms",
+          "is_correct": true
+        },
+        {
+          "text": "type='reset' restores form defaults",
+          "is_correct": true
+        },
+        {
+          "text": "type='button' always submits forms",
+          "is_correct": false
+        },
+        {
+          "text": "Buttons can trigger JavaScript actions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Button Behavior",
+      "content": "Which of the following statements about advanced button behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Buttons can be styled using CSS for better UI",
+          "is_correct": true
+        },
+        {
+          "text": "Buttons can trigger both form submission and JavaScript",
+          "is_correct": true
+        },
+        {
+          "text": "All buttons behave the same regardless of type",
+          "is_correct": false
+        },
+        {
+          "text": "Button behavior depends on its type attribute",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Buttons",
+      "content": "Which of the following are best practices for using buttons in forms?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use submit buttons for form submission",
+          "is_correct": true
+        },
+        {
+          "text": "Use reset buttons carefully to avoid data loss",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using button types for clarity",
+          "is_correct": false
+        },
+        {
+          "text": "Use descriptive labels on buttons",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Required Attribute Basics",
+      "content": "Which of the following statements about the required attribute are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "required makes an input field mandatory",
+          "is_correct": true
+        },
+        {
+          "text": "required prevents form submission if field is empty",
+          "is_correct": true
+        },
+        {
+          "text": "required is used to style input fields",
+          "is_correct": false
+        },
+        {
+          "text": "required helps enforce basic validation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Min and Max Attributes Basics",
+      "content": "Which of the following statements about min and max attributes are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "min defines the minimum allowed value",
+          "is_correct": true
+        },
+        {
+          "text": "max defines the maximum allowed value",
+          "is_correct": true
+        },
+        {
+          "text": "min and max are used only for text inputs",
+          "is_correct": false
+        },
+        {
+          "text": "min and max help validate numeric inputs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Pattern Attribute Basics",
+      "content": "Which of the following statements about the pattern attribute are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pattern is used for regex-based validation",
+          "is_correct": true
+        },
+        {
+          "text": "pattern helps restrict input format",
+          "is_correct": true
+        },
+        {
+          "text": "pattern is used to submit form data",
+          "is_correct": false
+        },
+        {
+          "text": "pattern works with text-based inputs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Built-in Validation Basics",
+      "content": "Which of the following statements about built-in HTML validation are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "HTML provides built-in validation for inputs",
+          "is_correct": true
+        },
+        {
+          "text": "required, min, and pattern are part of built-in validation",
+          "is_correct": true
+        },
+        {
+          "text": "Built-in validation requires JavaScript always",
+          "is_correct": false
+        },
+        {
+          "text": "Built-in validation helps reduce invalid form submissions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Validation Attributes Usage",
+      "content": "Which of the following statements about validation attributes are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "min and max are used for numeric range validation",
+          "is_correct": true
+        },
+        {
+          "text": "pattern is used for format validation",
+          "is_correct": true
+        },
+        {
+          "text": "required allows empty submissions",
+          "is_correct": false
+        },
+        {
+          "text": "Validation attributes improve data accuracy",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Validation Concepts",
+      "content": "Which of the following statements about advanced form validation are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "pattern uses regular expressions for validation",
+          "is_correct": true
+        },
+        {
+          "text": "Built-in validation reduces need for JavaScript validation",
+          "is_correct": true
+        },
+        {
+          "text": "HTML validation cannot be bypassed in all cases",
+          "is_correct": false
+        },
+        {
+          "text": "min and max improve constraint-based validation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Form Validation",
+      "content": "Which of the following are best practices for form validation?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use built-in validation along with JavaScript when needed",
+          "is_correct": true
+        },
+        {
+          "text": "Use required attribute for mandatory fields",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using validation to improve user experience",
+          "is_correct": false
+        },
+        {
+          "text": "Use pattern to enforce input format rules",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Upload Basics",
+      "content": "Which of the following statements about file upload in forms are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "File upload is done using input type='file'",
+          "is_correct": true
+        },
+        {
+          "text": "File upload allows users to select files from their device",
+          "is_correct": true
+        },
+        {
+          "text": "File upload is used only for text input",
+          "is_correct": false
+        },
+        {
+          "text": "File inputs can be included inside forms",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Hidden Input Basics",
+      "content": "Which of the following statements about hidden inputs are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hidden inputs are not visible to users",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden inputs use type='hidden'",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden inputs are used for file selection",
+          "is_correct": false
+        },
+        {
+          "text": "Hidden inputs can store form data",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Autocomplete and Datalist Basics",
+      "content": "Which of the following statements about autocomplete and datalist are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autocomplete helps browsers suggest previous inputs",
+          "is_correct": true
+        },
+        {
+          "text": "Datalist provides predefined suggestions for input fields",
+          "is_correct": true
+        },
+        {
+          "text": "Datalist is used for file uploads",
+          "is_correct": false
+        },
+        {
+          "text": "Autocomplete improves user experience in forms",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "File Upload and Hidden Inputs",
+      "content": "Which of the following statements about file upload and hidden inputs are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "File inputs are used to upload files to a server",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden inputs store data not visible to users",
+          "is_correct": true
+        },
+        {
+          "text": "Hidden inputs are used to display images",
+          "is_correct": false
+        },
+        {
+          "text": "File inputs can accept multiple file types",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Autocomplete and Datalist Behavior",
+      "content": "Which of the following statements about autocomplete and datalist behavior are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autocomplete suggests previously entered values",
+          "is_correct": true
+        },
+        {
+          "text": "Datalist provides selectable suggestions in input fields",
+          "is_correct": true
+        },
+        {
+          "text": "Datalist replaces the need for input fields",
+          "is_correct": false
+        },
+        {
+          "text": "Autocomplete can be enabled or disabled",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Form Features",
+      "content": "Which of the following statements about advanced form features are correct?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Hidden inputs are often used to send metadata",
+          "is_correct": true
+        },
+        {
+          "text": "Datalist improves input efficiency with suggestions",
+          "is_correct": true
+        },
+        {
+          "text": "File upload works without form submission",
+          "is_correct": false
+        },
+        {
+          "text": "Autocomplete enhances user experience by reducing typing effort",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices for Advanced Forms",
+      "content": "Which of the following are best practices for using advanced form features?",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Use file inputs for uploading user files securely",
+          "is_correct": true
+        },
+        {
+          "text": "Use hidden inputs only for non-sensitive data",
+          "is_correct": true
+        },
+        {
+          "text": "Avoid using datalist for user guidance",
+          "is_correct": false
+        },
+        {
+          "text": "Use autocomplete carefully to improve UX",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Basic Login Form",
+      "content": "Create an HTML login form using the <form> tag with username and password fields.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Login form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form contains username and password fields"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<form> with input fields",
+          "explanation": "Forms are used to collect user input."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML login form.",
+      "solutions": [
+        {
+          "title": "Basic Login Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Login Form</title>\n</head>\n<body>\n    <form>\n        <label>Username:</label>\n        <input type=\"text\" name=\"username\"><br><br>\n        <label>Password:</label>\n        <input type=\"password\" name=\"password\"><br><br>\n        <button type=\"submit\">Login</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input fields inside form tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple Registration Form",
+      "content": "Build an HTML registration form using <form> tag with name and email fields.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form includes name and email fields"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Simple registration form",
+          "explanation": "Forms collect structured user data."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML registration form.",
+      "solutions": [
+        {
+          "title": "Registration Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Registration Form</title>\n</head>\n<body>\n    <form>\n        <label>Name:</label>\n        <input type=\"text\" name=\"name\"><br><br>\n        <label>Email:</label>\n        <input type=\"email\" name=\"email\"><br><br>\n        <button type=\"submit\">Register</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type email for validation."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Contact Us Form",
+      "content": "Design a simple contact form using <form> with name, email, and message fields.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Contact form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form includes message field"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<textarea> used in form",
+          "explanation": "Textarea is used for long text input."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML contact form.",
+      "solutions": [
+        {
+          "title": "Contact Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Contact Form</title>\n</head>\n<body>\n    <form>\n        <label>Name:</label>\n        <input type=\"text\"><br><br>\n\n        <label>Email:</label>\n        <input type=\"email\"><br><br>\n\n        <label>Message:</label><br>\n        <textarea></textarea><br><br>\n\n        <button type=\"submit\">Send</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use textarea for message input."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Form with GET Method",
+      "content": "Create an HTML form using method='get' and demonstrate data submission via URL.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Form with GET method"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form data appears in URL after submit"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<form method='get'>",
+          "explanation": "GET method sends data via URL."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form using GET method.",
+      "solutions": [
+        {
+          "title": "GET Method Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>GET Form</title>\n</head>\n<body>\n    <form action=\"/submit\" method=\"get\">\n        <input type=\"text\" name=\"username\">\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use method='get' in form tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Secure POST Form",
+      "content": "Build an HTML form using method='post' for submitting sensitive data like passwords.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "POST form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Data sent securely using POST method"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<form method='post'>",
+          "explanation": "POST method hides data from URL."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML POST form.",
+      "solutions": [
+        {
+          "title": "POST Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>POST Form</title>\n</head>\n<body>\n    <form action=\"/login\" method=\"post\">\n        <input type=\"text\" name=\"username\">\n        <input type=\"password\" name=\"password\">\n        <button type=\"submit\">Login</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use POST method for secure data submission."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Multi-field Application Form",
+      "content": "Create a complex HTML form using GET or POST method with multiple input fields including name, email, age, and address.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All fields properly structured and submitted"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Full application form",
+          "explanation": "Complex forms collect multiple user details."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML application form.",
+      "solutions": [
+        {
+          "title": "Application Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Application Form</title>\n</head>\n<body>\n    <form action=\"/apply\" method=\"post\">\n        <input type=\"text\" name=\"name\" placeholder=\"Name\"><br><br>\n        <input type=\"email\" name=\"email\" placeholder=\"Email\"><br><br>\n        <input type=\"number\" name=\"age\" placeholder=\"Age\"><br><br>\n        <input type=\"text\" name=\"address\" placeholder=\"Address\"><br><br>\n        <button type=\"submit\">Apply</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine multiple input types inside a form.",
+        "Use POST for better data handling."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Job Application Form with Validation Structure",
+      "content": "Create a job application form using form action and method attributes with structured input fields ready for validation.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Basics",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form structured for validation and submission"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Job application form layout",
+          "explanation": "Forms often include structured fields for applications."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job application form.",
+      "solutions": [
+        {
+          "title": "Job Application Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Application</title>\n</head>\n<body>\n    <form action=\"/submit-job\" method=\"post\">\n        <label>Name:</label>\n        <input type=\"text\" name=\"name\" required><br><br>\n\n        <label>Email:</label>\n        <input type=\"email\" name=\"email\" required><br><br>\n\n        <label>Phone:</label>\n        <input type=\"tel\" name=\"phone\"><br><br>\n\n        <label>Resume Link:</label>\n        <input type=\"url\" name=\"resume\"><br><br>\n\n        <button type=\"submit\">Submit Application</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use action attribute to define submission endpoint.",
+        "Add required fields for validation structure."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple Text Input Form",
+      "content": "Create an HTML form that contains a text input field for entering a username.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Text input field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form contains text input for username"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='text'>",
+          "explanation": "Text input is used for general text entry."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with text input.",
+      "solutions": [
+        {
+          "title": "Text Input Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Text Input</title>\n</head>\n<body>\n    <form>\n        <label>Username:</label>\n        <input type=\"text\" name=\"username\">\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type='text'."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Password Input Form",
+      "content": "Build an HTML form that includes a password input field for secure entry.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Password field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Input is masked as password"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='password'>",
+          "explanation": "Password input hides characters."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML password form.",
+      "solutions": [
+        {
+          "title": "Password Input Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Password Input</title>\n</head>\n<body>\n    <form>\n        <label>Password:</label>\n        <input type=\"password\" name=\"password\">\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type='password'."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create an Email Input Form",
+      "content": "Create an HTML form with an email input field that accepts valid email format.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Email input field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Accepts valid email format"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='email'>",
+          "explanation": "Email type validates email format."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML email form.",
+      "solutions": [
+        {
+          "title": "Email Input Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Email Input</title>\n</head>\n<body>\n    <form>\n        <label>Email:</label>\n        <input type=\"email\" name=\"email\">\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type='email' for validation."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Number Input Form",
+      "content": "Build an HTML form that accepts only numeric input using number input type.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Number input field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Only numeric values allowed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='number'>",
+          "explanation": "Number input restricts non-numeric values."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML number input form.",
+      "solutions": [
+        {
+          "title": "Number Input Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Number Input</title>\n</head>\n<body>\n    <form>\n        <label>Age:</label>\n        <input type=\"number\" name=\"age\">\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use input type='number'."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Date Picker Form",
+      "content": "Create an HTML form that allows users to select a date using a date input field.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Date picker displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "User can select a date"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='date'>",
+          "explanation": "Date input provides calendar UI."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML date input form.",
+      "solutions": [
+        {
+          "title": "Date Input Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Date Input</title>\n</head>\n<body>\n    <form>\n        <label>Date:</label>\n        <input type=\"date\" name=\"date\">\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use input type='date'."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a User Registration Form with Multiple Input Types",
+      "content": "Create a registration form using text, email, password, number, and date input fields together.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All input types correctly included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form with multiple input fields",
+          "explanation": "Real-world forms use multiple input types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML registration form.",
+      "solutions": [
+        {
+          "title": "Multi-field Registration Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Registration Form</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\"><br><br>\n        <input type=\"email\" placeholder=\"Email\"><br><br>\n        <input type=\"password\" placeholder=\"Password\"><br><br>\n        <input type=\"number\" placeholder=\"Age\"><br><br>\n        <input type=\"date\"><br><br>\n        <button type=\"submit\">Register</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all input types in one form.",
+        "Use placeholders for better UX."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Job Application Form with Valid Input Types",
+      "content": "Build a job application form using text, email, number, date, and password fields with proper structure.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Input Fields",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All input fields properly structured"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Job application form",
+          "explanation": "Complex forms require multiple validated inputs."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job application form.",
+      "solutions": [
+        {
+          "title": "Job Application Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Application</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Full Name\"><br><br>\n        <input type=\"email\" placeholder=\"Email\"><br><br>\n        <input type=\"password\" placeholder=\"Password\"><br><br>\n        <input type=\"number\" placeholder=\"Experience (years)\"><br><br>\n        <input type=\"date\"><br><br>\n        <button type=\"submit\">Apply</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use appropriate input types for validation.",
+        "Structure form for real-world job applications."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Radio Button for Gender Selection",
+      "content": "Create an HTML form that uses radio buttons to select gender options.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Radio buttons displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Only one option selectable"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='radio'>",
+          "explanation": "Radio buttons allow single selection."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with radio buttons.",
+      "solutions": [
+        {
+          "title": "Radio Button Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Radio Buttons</title>\n</head>\n<body>\n    <form>\n        <p>Select Gender:</p>\n        <input type=\"radio\" name=\"gender\" value=\"male\"> Male<br>\n        <input type=\"radio\" name=\"gender\" value=\"female\"> Female<br>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use same name attribute for grouping radio buttons."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Checkbox for Multiple Interests",
+      "content": "Build an HTML form that uses checkboxes to select multiple interests.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Checkboxes displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Multiple selections allowed"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='checkbox'>",
+          "explanation": "Checkbox allows multiple selections."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with checkboxes.",
+      "solutions": [
+        {
+          "title": "Checkbox Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Checkboxes</title>\n</head>\n<body>\n    <form>\n        <p>Select Interests:</p>\n        <input type=\"checkbox\" name=\"interest\" value=\"music\"> Music<br>\n        <input type=\"checkbox\" name=\"interest\" value=\"sports\"> Sports<br>\n        <input type=\"checkbox\" name=\"interest\" value=\"reading\"> Reading<br>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use checkbox input type for multiple selection."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Dropdown for Country Selection",
+      "content": "Create an HTML form with a dropdown list to select a country.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Dropdown displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Country options selectable"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<select> with options",
+          "explanation": "Dropdowns are created using select tag."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML dropdown form.",
+      "solutions": [
+        {
+          "title": "Dropdown Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dropdown</title>\n</head>\n<body>\n    <form>\n        <label>Country:</label>\n        <select>\n            <option>India</option>\n            <option>USA</option>\n            <option>UK</option>\n        </select>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use select and option tags."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Survey Form with Radio and Checkbox",
+      "content": "Create a survey form that includes both radio buttons and checkboxes for user feedback.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice",
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Survey form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Both radio and checkbox inputs present"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Survey with single and multiple selections",
+          "explanation": "Surveys often combine different input types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML survey form.",
+      "solutions": [
+        {
+          "title": "Survey Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Survey Form</title>\n</head>\n<body>\n    <form>\n        <p>Rate our service:</p>\n        <input type=\"radio\" name=\"rating\" value=\"good\"> Good\n        <input type=\"radio\" name=\"rating\" value=\"bad\"> Bad\n\n        <p>Select features:</p>\n        <input type=\"checkbox\" value=\"ui\"> UI\n        <input type=\"checkbox\" value=\"speed\"> Speed\n\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine radio and checkbox inputs in one form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Registration Form with Country Dropdown",
+      "content": "Build a registration form that includes text input, radio buttons, and a dropdown for country selection.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Dropdown and radio buttons included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form with multiple selection inputs",
+          "explanation": "Registration forms use multiple input types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML registration form.",
+      "solutions": [
+        {
+          "title": "Registration Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Registration</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\"><br><br>\n\n        <p>Gender:</p>\n        <input type=\"radio\" name=\"gender\" value=\"male\"> Male\n        <input type=\"radio\" name=\"gender\" value=\"female\"> Female<br><br>\n\n        <label>Country:</label>\n        <select>\n            <option>India</option>\n            <option>USA</option>\n        </select><br><br>\n\n        <button type=\"submit\">Register</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine multiple input types in one form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Job Application Form with Preferences",
+      "content": "Create a job application form using radio buttons for job type, checkboxes for skills, and a dropdown for location.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All selection inputs properly included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Complex form with multiple selection types",
+          "explanation": "Job forms require structured selection inputs."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job application form.",
+      "solutions": [
+        {
+          "title": "Job Application Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Application</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\"><br><br>\n\n        <p>Job Type:</p>\n        <input type=\"radio\" name=\"job\" value=\"fulltime\"> Full Time\n        <input type=\"radio\" name=\"job\" value=\"parttime\"> Part Time<br><br>\n\n        <p>Skills:</p>\n        <input type=\"checkbox\" value=\"html\"> HTML\n        <input type=\"checkbox\" value=\"css\"> CSS\n        <input type=\"checkbox\" value=\"js\"> JavaScript<br><br>\n\n        <label>Location:</label>\n        <select>\n            <option>India</option>\n            <option>USA</option>\n        </select><br><br>\n\n        <button type=\"submit\">Apply</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine radio, checkbox, and dropdown in one form.",
+        "Use proper grouping for radio buttons."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Feedback Form with Multiple Selection Controls",
+      "content": "Create a feedback form that includes radio buttons for rating, checkboxes for feedback categories, and a dropdown for service type.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Selection Inputs",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Feedback form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All selection inputs work correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Feedback form with rating and categories",
+          "explanation": "Feedback systems combine multiple input types."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML feedback form.",
+      "solutions": [
+        {
+          "title": "Feedback Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Feedback Form</title>\n</head>\n<body>\n    <form>\n        <p>Rating:</p>\n        <input type=\"radio\" name=\"rating\" value=\"1\">1\n        <input type=\"radio\" name=\"rating\" value=\"2\">2\n        <input type=\"radio\" name=\"rating\" value=\"3\">3<br><br>\n\n        <p>Feedback Type:</p>\n        <input type=\"checkbox\" value=\"ui\"> UI\n        <input type=\"checkbox\" value=\"performance\"> Performance<br><br>\n\n        <label>Service Type:</label>\n        <select>\n            <option>Web</option>\n            <option>App</option>\n        </select><br><br>\n\n        <button type=\"submit\">Send</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use radio for rating scale.",
+        "Use checkbox for multiple feedback categories."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple Submit Button Form",
+      "content": "Create an HTML form that includes a submit button to send form data.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Submit button displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form can be submitted using button"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<button type='submit'>",
+          "explanation": "Submit button sends form data."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with submit button.",
+      "solutions": [
+        {
+          "title": "Submit Button Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Submit Button</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\">\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use button type='submit' inside form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Reset Button Form",
+      "content": "Build an HTML form that includes a reset button to clear all input fields.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Reset button displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form fields reset when clicked"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<button type='reset'>",
+          "explanation": "Reset button clears form fields."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with reset button.",
+      "solutions": [
+        {
+          "title": "Reset Button Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Reset Button</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Enter Name\">\n        <button type=\"reset\">Reset</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use type='reset' in button."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Form with Submit and Reset Buttons",
+      "content": "Create an HTML form that includes both submit and reset buttons.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Both buttons displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form can submit and reset"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Submit + Reset buttons",
+          "explanation": "Forms often include both actions."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form.",
+      "solutions": [
+        {
+          "title": "Submit and Reset",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Form Buttons</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\">\n        <button type=\"submit\">Submit</button>\n        <button type=\"reset\">Reset</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use both submit and reset button types."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Styled Login Form with Button Types",
+      "content": "Build a login form that includes submit and reset buttons with proper button types and structure.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Login form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Submit and reset buttons work correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Login form with buttons",
+          "explanation": "Forms require action buttons."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML login form.",
+      "solutions": [
+        {
+          "title": "Login Form Buttons",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Login</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Username\"><br><br>\n        <input type=\"password\" placeholder=\"Password\"><br><br>\n        <button type=\"submit\">Login</button>\n        <button type=\"reset\">Clear</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use both submit and reset buttons inside form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Registration Form with Multiple Button Types",
+      "content": "Build a registration form using submit, reset, and an extra custom button.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Multiple button types included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form with submit, reset, and custom button",
+          "explanation": "Different button types serve different actions."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form.",
+      "solutions": [
+        {
+          "title": "Registration Buttons",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Register</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\"><br><br>\n        <input type=\"email\" placeholder=\"Email\"><br><br>\n        <button type=\"submit\">Register</button>\n        <button type=\"reset\">Reset</button>\n        <button type=\"button\" onclick=\"alert('Custom Action')\">Click Me</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use type='button' for custom actions."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Job Application Form with Multiple Buttons",
+      "content": "Create a job application form using submit, reset, and custom action buttons with proper structure.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All button types functional"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Advanced form with multiple buttons",
+          "explanation": "Real applications use multiple actions."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job application form.",
+      "solutions": [
+        {
+          "title": "Job Application Buttons",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Application</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Full Name\"><br><br>\n        <input type=\"email\" placeholder=\"Email\"><br><br>\n        <button type=\"submit\">Apply</button>\n        <button type=\"reset\">Clear</button>\n        <button type=\"button\" onclick=\"alert('Saved as Draft')\">Save Draft</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine multiple button types for real-world use cases."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Feedback Form with Custom Button Actions",
+      "content": "Create a feedback form that uses submit, reset, and a custom button for previewing feedback.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Buttons",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Feedback form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All buttons perform correct actions"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form with multiple button actions",
+          "explanation": "Advanced forms support multiple interactions."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML feedback form.",
+      "solutions": [
+        {
+          "title": "Feedback Buttons Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Feedback</title>\n</head>\n<body>\n    <form>\n        <textarea placeholder=\"Write feedback\"></textarea><br><br>\n        <button type=\"submit\">Submit</button>\n        <button type=\"reset\">Reset</button>\n        <button type=\"button\" onclick=\"alert('Preview Feedback')\">Preview</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use type='button' for non-submit actions.",
+        "Combine multiple button behaviors."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Required Field Form",
+      "content": "Create an HTML form with a required input field for username using built-in validation.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Required field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form cannot be submitted if empty"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input required>",
+          "explanation": "Required attribute ensures field is not empty."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with required validation.",
+      "solutions": [
+        {
+          "title": "Required Field Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Required Field</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" name=\"username\" required>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use required attribute in input tag."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create Email Field with Required Validation",
+      "content": "Build an HTML form that includes an email input field with required validation.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Email field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Form cannot submit without email"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='email' required>",
+          "explanation": "Email field ensures valid email input."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML email form.",
+      "solutions": [
+        {
+          "title": "Email Required Field",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Email Validation</title>\n</head>\n<body>\n    <form>\n        <input type=\"email\" name=\"email\" required>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Combine type='email' with required."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Number Input with Range Validation",
+      "content": "Create an HTML form that uses min and max attributes to restrict number input between 1 and 100.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Number input field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Input restricted between 1 and 100"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='number' min='1' max='100'>",
+          "explanation": "Min and max restrict input range."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML number validation form.",
+      "solutions": [
+        {
+          "title": "Min Max Validation",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Min Max Validation</title>\n</head>\n<body>\n    <form>\n        <input type=\"number\" min=\"1\" max=\"100\">\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use min and max attributes."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Password Form with Pattern Validation",
+      "content": "Build an HTML form that uses pattern attribute to enforce password rules like minimum 6 characters.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Password field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Only valid pattern passwords accepted"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input pattern='.{6,}'>",
+          "explanation": "Pattern enforces custom validation rules."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML password validation form.",
+      "solutions": [
+        {
+          "title": "Pattern Password Validation",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Password Pattern</title>\n</head>\n<body>\n    <form>\n        <input type=\"password\" pattern=\".{6,}\" required>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use pattern attribute for custom rules."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Form with Full Built-in Validation",
+      "content": "Build an HTML form that includes required, email type, min/max, and pattern validation together.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Form displayed with validation fields"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All validations enforced correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Complete validation form",
+          "explanation": "Combines multiple HTML validation features."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML validated form.",
+      "solutions": [
+        {
+          "title": "Complete Validation Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Validation Form</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" required><br><br>\n        <input type=\"email\" required><br><br>\n        <input type=\"number\" min=\"1\" max=\"100\"><br><br>\n        <input type=\"text\" pattern=\"[A-Za-z]{3,}\"><br><br>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine multiple validation attributes in one form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Build a Registration Form with Strict Validation Rules",
+      "content": "Create a registration form with required fields, email validation, password pattern, and age range validation using min and max.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All validation rules enforced"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Strict validated form",
+          "explanation": "Real-world forms enforce multiple validations."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML registration form.",
+      "solutions": [
+        {
+          "title": "Strict Validation Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Registration Validation</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Name\" required><br><br>\n        <input type=\"email\" required><br><br>\n        <input type=\"password\" pattern=\".{6,}\" required><br><br>\n        <input type=\"number\" min=\"18\" max=\"60\"><br><br>\n        <button type=\"submit\">Register</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine required, pattern, min, max together.",
+        "Use proper input types for validation."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Job Application Form with Advanced Validation",
+      "content": "Create a job application form using required fields, email validation, age restriction (min/max), and password pattern validation.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Form Validation",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "All validation rules enforced correctly"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Advanced validated form",
+          "explanation": "Job forms require strict validation rules."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job application form.",
+      "solutions": [
+        {
+          "title": "Job Application Validation",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Application</title>\n</head>\n<body>\n    <form>\n        <input type=\"text\" placeholder=\"Full Name\" required><br><br>\n        <input type=\"email\" required><br><br>\n        <input type=\"password\" pattern=\".{6,}\" required><br><br>\n        <input type=\"number\" min=\"21\" max=\"50\"><br><br>\n        <button type=\"submit\">Apply</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine all validation attributes carefully.",
+        "Ensure correct input types for each field."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Simple File Upload Form",
+      "content": "Create an HTML form that allows users to upload a file using the file input type.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "File upload field displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "User can select a file"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='file'>",
+          "explanation": "File input allows users to upload files."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with file upload.",
+      "solutions": [
+        {
+          "title": "File Upload Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>File Upload</title>\n</head>\n<body>\n    <form>\n        <input type=\"file\" name=\"file\">\n        <button type=\"submit\">Upload</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type='file'."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Hidden Input Form",
+      "content": "Build an HTML form that uses a hidden input field to store a user ID.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "learn"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Hidden input field present"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Data is hidden from user view"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input type='hidden'>",
+          "explanation": "Hidden fields store invisible data."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with hidden input.",
+      "solutions": [
+        {
+          "title": "Hidden Input Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Hidden Input</title>\n</head>\n<body>\n    <form>\n        <input type=\"hidden\" name=\"userId\" value=\"123\">\n        <input type=\"text\" placeholder=\"Name\">\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use input type='hidden' for invisible data."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create an Autocomplete Input Field",
+      "content": "Create an HTML form that uses autocomplete attribute for a name input field.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "easy",
+      "marks": 5,
+      "categories": [
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Autocomplete enabled input"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Browser suggests previous values"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<input autocomplete='on'>",
+          "explanation": "Autocomplete helps suggest previous inputs."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML form with autocomplete.",
+      "solutions": [
+        {
+          "title": "Autocomplete Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Autocomplete</title>\n</head>\n<body>\n    <form autocomplete=\"on\">\n        <input type=\"text\" name=\"name\">\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "basic"
+        }
+      ],
+      "hints": [
+        "Use autocomplete='on' in form or input."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Datalist Input for Suggestions",
+      "content": "Build an HTML form that uses datalist to provide suggestions for a text input field.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "learn",
+        "practice"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Datalist suggestions shown"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "User can select suggested values"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "<datalist> used with input",
+          "explanation": "Datalist provides predefined options."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML datalist form.",
+      "solutions": [
+        {
+          "title": "Datalist Example",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Datalist</title>\n</head>\n<body>\n    <form>\n        <input list=\"browsers\" name=\"browser\">\n        <datalist id=\"browsers\">\n            <option value=\"Chrome\">\n            <option value=\"Firefox\">\n            <option value=\"Edge\">\n        </datalist>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Use input list attribute with datalist id."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Job Form with File Upload and Hidden Input",
+      "content": "Build a job application form that includes file upload for resume and a hidden input for user ID.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "medium",
+      "marks": 10,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Job form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "File upload and hidden input included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Form with resume upload",
+          "explanation": "Advanced forms include file handling and hidden data."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML job form.",
+      "solutions": [
+        {
+          "title": "Job Form Advanced",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Job Form</title>\n</head>\n<body>\n    <form>\n        <input type=\"hidden\" name=\"userId\" value=\"101\">\n        <input type=\"text\" placeholder=\"Name\"><br><br>\n        <input type=\"file\" name=\"resume\"><br><br>\n        <button type=\"submit\">Apply</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "intermediate"
+        }
+      ],
+      "hints": [
+        "Combine hidden and file inputs in one form."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Create a Smart Registration Form with Datalist and Autocomplete",
+      "content": "Build a registration form that uses datalist for city suggestions and autocomplete enabled inputs.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Registration form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Datalist and autocomplete working"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Smart form with suggestions",
+          "explanation": "Modern forms use intelligent input assistance."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML registration form.",
+      "solutions": [
+        {
+          "title": "Smart Registration Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Smart Form</title>\n</head>\n<body>\n    <form autocomplete=\"on\">\n        <input type=\"text\" name=\"name\" placeholder=\"Name\"><br><br>\n        <input list=\"cities\" name=\"city\">\n        <datalist id=\"cities\">\n            <option value=\"Delhi\">\n            <option value=\"Mumbai\">\n            <option value=\"Chennai\">\n        </datalist><br><br>\n        <button type=\"submit\">Submit</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Combine datalist with input list attribute.",
+        "Enable autocomplete for better UX."
+      ]
+    },
+    {
+      "type": "coding",
+      "title": "Design a Secure Application Form with Hidden ID and File Upload",
+      "content": "Create a secure application form that uses hidden input for user tracking and file upload for documents.",
+      "level": "subtopic",
+      "unit_name": "Forms & User Input",
+      "subunit_name": "Advanced Forms",
+      "difficulty": "hard",
+      "marks": 15,
+      "categories": [
+        "skill_test"
+      ],
+      "test_cases_basic": [
+        {
+          "input": "",
+          "expected_output": "Application form displayed"
+        }
+      ],
+      "test_cases_advanced": [
+        {
+          "input": "",
+          "expected_output": "Hidden ID and file upload included"
+        }
+      ],
+      "examples": [
+        {
+          "input": "",
+          "expected_output": "Secure form structure",
+          "explanation": "Advanced forms manage user identity and uploads."
+        }
+      ],
+      "inputFormat": "No input.",
+      "outputFormat": "HTML application form.",
+      "solutions": [
+        {
+          "title": "Secure Application Form",
+          "language": "html",
+          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Secure Form</title>\n</head>\n<body>\n    <form>\n        <input type=\"hidden\" name=\"appId\" value=\"555\">\n        <input type=\"text\" placeholder=\"Full Name\"><br><br>\n        <input type=\"file\" name=\"documents\"><br><br>\n        <button type=\"submit\">Submit Application</button>\n    </form>\n</body>\n</html>",
+          "complexity_analysis": "Time: O(1), Space: O(1)",
+          "is_primary": true,
+          "approach": "advanced"
+        }
+      ],
+      "hints": [
+        "Use hidden input for tracking.",
+        "Use file input for document upload."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4531 @@
+{
+    "name": "API & Backend",
+    "course_short_code": "RJS100",
+    "order_index": 5,
+    "subtopics": [
+        {
+            "name": "Fetch / Axios",
+            "content": "The Fetch API is a built-in browser interface for making network requests. Axios is a popular third-party library that provides a simpler API, automatic JSON transformation, and better error handling for HTTP requests in React apps.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "REST APIs",
+            "content": "REST (Representational State Transfer) is an architectural style for designing networked applications. In React, you typically interact with REST APIs using HTTP methods like GET, POST, PUT, and DELETE to manage data.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "CRUD Operations",
+            "content": "CRUD stands for Create, Read, Update, and Delete. These are the four basic functions of persistent storage. Implementing CRUD in React involves making appropriate API calls and updating the UI state based on the server response.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "Loading/Error Handling",
+            "content": "When fetching data, it's important to provide visual feedback to the user. This involves managing loading states to show spinners and error states to display helpful messages if a request fails.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Authentication Basics",
+            "content": "Authentication is the process of verifying who a user is. In React, this typically involves sending credentials to a server, receiving a token, and storing it (e.g., in local storage) to keep the user logged in.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "JWT",
+            "content": "JSON Web Token (JWT) is an open standard for securely transmitting information between parties as a JSON object. In modern web apps, JWTs are commonly used for stateless authentication and authorization.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Env Variables",
+            "content": "Environment variables allow you to configure your application differently for development, staging, and production environments. In React (e.g., via Vite or Create React App), these are often used to store API base URLs.",
+            "order_index": 6,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Fetch Purpose",
+            "content": "What is Fetch API used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To make HTTP requests",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To manage routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Axios Purpose",
+            "content": "What is Axios used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HTTP requests handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Fetch Type",
+            "content": "Is Fetch built into JavaScript?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Yes, built-in API",
+                    "is_correct": true
+                },
+                {
+                    "text": "No, external library",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only backend feature",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CSS feature",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Axios Type",
+            "content": "Axios is a:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Library for HTTP requests",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database engine",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS framework",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing tool",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Axios Advantage",
+            "content": "What is a key advantage of Axios over Fetch?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Automatic JSON parsing",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS handling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing support",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Handling",
+            "content": "Which has better error handling?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Axios",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "DOM",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "HTTP Methods",
+            "content": "Which HTTP method is used to get data?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST only",
+                    "is_correct": false
+                },
+                {
+                    "text": "DELETE only",
+                    "is_correct": false
+                },
+                {
+                    "text": "PATCH only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Fetch Limitation",
+            "content": "What is a limitation of Fetch API?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No automatic error handling for HTTP errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better than Axios in all cases",
+                    "is_correct": false
+                },
+                {
+                    "text": "No async support",
+                    "is_correct": false
+                },
+                {
+                    "text": "No browser support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Interceptors",
+            "content": "What are Axios interceptors used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Modify requests/responses globally",
+                    "is_correct": true
+                },
+                {
+                    "text": "Style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create routes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Build UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Nature",
+            "content": "Both Fetch and Axios are:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Asynchronous",
+                    "is_correct": true
+                },
+                {
+                    "text": "Synchronous only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS based",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database tools",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Fetch Features",
+            "content": "What are features of Fetch API?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Built-in browser API",
+                    "is_correct": true
+                },
+                {
+                    "text": "Supports promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used for HTTP requests",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used for styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Axios Features",
+            "content": "What are features of Axios?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Promise-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic JSON parsing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Works in browser & Node",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS framework",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTTP Methods",
+            "content": "Which are HTTP methods?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "STYLE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Usage",
+            "content": "Where are Fetch/Axios used?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend communication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data fetching",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Axios Advantages",
+            "content": "What are advantages of Axios?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Better error handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Interceptors support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Automatic JSON conversion",
+                    "is_correct": true
+                },
+                {
+                    "text": "No HTTP support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Fetch Limitations",
+            "content": "What are limitations of Fetch?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Manual JSON parsing",
+                    "is_correct": true
+                },
+                {
+                    "text": "No built-in error handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "More verbose code",
+                    "is_correct": true
+                },
+                {
+                    "text": "No HTTP support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Async Behavior",
+            "content": "What is true about Fetch and Axios?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Both are asynchronous",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both return promises",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both support async/await",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are synchronous",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Axios Features",
+            "content": "What advanced features does Axios provide?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Request interceptors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Response interceptors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Timeout handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS injection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling",
+            "content": "What are error handling differences?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Axios catches HTTP errors automatically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fetch requires manual error check",
+                    "is_correct": true
+                },
+                {
+                    "text": "Axios simplifies debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fetch has no error handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for API calls?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Fetch / Axios",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use async/await",
+                    "is_correct": true
+                },
+                {
+                    "text": "Handle errors properly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use interceptors for Axios",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ignore errors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Meaning",
+            "content": "What does REST stand for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Representational State Transfer",
+                    "is_correct": true
+                },
+                {
+                    "text": "Remote Server Transfer",
+                    "is_correct": false
+                },
+                {
+                    "text": "React State Tool",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing Engine System Type",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Purpose",
+            "content": "What is REST API used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Communication between client and server",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database design only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Protocol",
+            "content": "REST APIs typically use which protocol?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HTTP",
+                    "is_correct": true
+                },
+                {
+                    "text": "FTP only",
+                    "is_correct": false
+                },
+                {
+                    "text": "SMTP only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Bluetooth",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Data Format",
+            "content": "What format is commonly used in REST APIs?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JSON",
+                    "is_correct": true
+                },
+                {
+                    "text": "Binary only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Methods",
+            "content": "Which HTTP method is used to update data?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET only",
+                    "is_correct": false
+                },
+                {
+                    "text": "DELETE only",
+                    "is_correct": false
+                },
+                {
+                    "text": "HEAD only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Statelessness",
+            "content": "REST APIs are:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stateless",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stateful only",
+                    "is_correct": false
+                },
+                {
+                    "text": "UI dependent",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database dependent",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Resource Concept",
+            "content": "In REST, what is a resource?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Any data object identified by URL",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only images",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only frontend components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST Constraint",
+            "content": "Which is a REST constraint?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Client-server architecture",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS coupling",
+                    "is_correct": false
+                },
+                {
+                    "text": "UI binding",
+                    "is_correct": false
+                },
+                {
+                    "text": "Local rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Caching in REST",
+            "content": "Why is caching used in REST APIs?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To improve performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase latency",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete data",
+                    "is_correct": false
+                },
+                {
+                    "text": "To change UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Idempotency",
+            "content": "Which HTTP method is idempotent?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST always changes state differently",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only DELETE",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only PATCH",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Features",
+            "content": "What are features of REST APIs?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stateless communication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses HTTP methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses JSON format",
+                    "is_correct": true
+                },
+                {
+                    "text": "Requires CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTTP Methods",
+            "content": "Which are REST HTTP methods?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "DRAW",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Usage",
+            "content": "Where are REST APIs used?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Web apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Mobile apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Components",
+            "content": "What are components of REST?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Client",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server",
+                    "is_correct": true
+                },
+                {
+                    "text": "Resource",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Properties",
+            "content": "Which are REST properties?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Statelessness",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cacheable responses",
+                    "is_correct": true
+                },
+                {
+                    "text": "Client-server separation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Tight coupling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTTP Methods Usage",
+            "content": "Which methods modify data?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "DELETE",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Benefits",
+            "content": "What are benefits of REST APIs?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Simplicity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Platform independence",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS dependency",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST Constraints",
+            "content": "What are REST constraints?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Statelessness",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uniform interface",
+                    "is_correct": true
+                },
+                {
+                    "text": "Layered system",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS coupling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "REST vs SOAP",
+            "content": "What are differences between REST and SOAP?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "REST is lightweight",
+                    "is_correct": true
+                },
+                {
+                    "text": "SOAP is more strict",
+                    "is_correct": true
+                },
+                {
+                    "text": "REST uses JSON",
+                    "is_correct": true
+                },
+                {
+                    "text": "SOAP is CSS based",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are REST best practices?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "REST APIs",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use proper HTTP methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Keep APIs stateless",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use proper resource naming",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store UI state in API",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CRUD Meaning",
+            "content": "What does CRUD stand for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Create, Read, Update, Delete",
+                    "is_correct": true
+                },
+                {
+                    "text": "Connect, Run, Upload, Deploy",
+                    "is_correct": false
+                },
+                {
+                    "text": "Call, Render, Update, Design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Create, Route, Use, Draw",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Create Operation",
+            "content": "Which HTTP method is used for CREATE?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET",
+                    "is_correct": false
+                },
+                {
+                    "text": "DELETE",
+                    "is_correct": false
+                },
+                {
+                    "text": "PATCH",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Read Operation",
+            "content": "Which HTTP method is used for READ?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST",
+                    "is_correct": false
+                },
+                {
+                    "text": "PUT",
+                    "is_correct": false
+                },
+                {
+                    "text": "DELETE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Delete Operation",
+            "content": "Which HTTP method deletes data?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DELETE",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET",
+                    "is_correct": false
+                },
+                {
+                    "text": "POST",
+                    "is_correct": false
+                },
+                {
+                    "text": "PATCH",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Update Operation",
+            "content": "Which HTTP method is used for full update?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET",
+                    "is_correct": false
+                },
+                {
+                    "text": "POST",
+                    "is_correct": false
+                },
+                {
+                    "text": "HEAD",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Partial Update",
+            "content": "Which method is used for partial update?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "PATCH",
+                    "is_correct": true
+                },
+                {
+                    "text": "PUT only",
+                    "is_correct": false
+                },
+                {
+                    "text": "GET only",
+                    "is_correct": false
+                },
+                {
+                    "text": "DELETE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "CRUD Mapping",
+            "content": "Which operation does GET represent?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Read",
+                    "is_correct": true
+                },
+                {
+                    "text": "Create",
+                    "is_correct": false
+                },
+                {
+                    "text": "Update",
+                    "is_correct": false
+                },
+                {
+                    "text": "Delete",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Idempotency",
+            "content": "Which CRUD operations are idempotent?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET, PUT, DELETE",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only POST",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CREATE",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only PATCH",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "REST CRUD Mapping",
+            "content": "Which CRUD operation is NOT safe?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET",
+                    "is_correct": false
+                },
+                {
+                    "text": "HEAD",
+                    "is_correct": false
+                },
+                {
+                    "text": "OPTIONS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Database Impact",
+            "content": "What happens in DELETE operation?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data is removed permanently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data is only updated",
+                    "is_correct": false
+                },
+                {
+                    "text": "Data is created",
+                    "is_correct": false
+                },
+                {
+                    "text": "Data is cached",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CRUD Operations",
+            "content": "Which are CRUD operations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Create",
+                    "is_correct": true
+                },
+                {
+                    "text": "Read",
+                    "is_correct": true
+                },
+                {
+                    "text": "Update",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTTP Mapping",
+            "content": "Which HTTP methods are used in CRUD?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST",
+                    "is_correct": true
+                },
+                {
+                    "text": "PUT",
+                    "is_correct": true
+                },
+                {
+                    "text": "STYLE",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Create Operation",
+            "content": "What are examples of CREATE operations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Adding a user",
+                    "is_correct": true
+                },
+                {
+                    "text": "Posting a comment",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uploading data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting record",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Delete Operation",
+            "content": "What are DELETE operations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Removing data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting user",
+                    "is_correct": true
+                },
+                {
+                    "text": "Clearing records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fetching data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Update Types",
+            "content": "Which are update operations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "PUT full update",
+                    "is_correct": true
+                },
+                {
+                    "text": "PATCH partial update",
+                    "is_correct": true
+                },
+                {
+                    "text": "Modifying record",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting record",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "CRUD Characteristics",
+            "content": "What are characteristics of CRUD?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Database operations",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTTP based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Standard API design",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Read Operation",
+            "content": "What are read operations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fetching data",
+                    "is_correct": true
+                },
+                {
+                    "text": "GET requests",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retrieving records",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "HTTP Safety",
+            "content": "Which CRUD operations are safe?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "GET",
+                    "is_correct": true
+                },
+                {
+                    "text": "HEAD",
+                    "is_correct": true
+                },
+                {
+                    "text": "OPTIONS",
+                    "is_correct": true
+                },
+                {
+                    "text": "POST",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced CRUD",
+            "content": "What are advanced CRUD considerations?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Idempotency",
+                    "is_correct": true
+                },
+                {
+                    "text": "Caching",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are CRUD best practices?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "CRUD Operations",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use correct HTTP methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Follow REST rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Validate input data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store UI state in DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Loading State Purpose",
+            "content": "Why do we use loading states in React API calls?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To show data is being fetched",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To store database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To route pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Handling Purpose",
+            "content": "Why is error handling important in API calls?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To handle API failures gracefully",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "To store cookies",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Loading State Type",
+            "content": "Loading state is usually:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Boolean",
+                    "is_correct": true
+                },
+                {
+                    "text": "Array",
+                    "is_correct": false
+                },
+                {
+                    "text": "Object only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error Type",
+            "content": "What type is commonly used for errors?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "String or object",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS class",
+                    "is_correct": false
+                },
+                {
+                    "text": "Component",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tag",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Try Catch Usage",
+            "content": "Which is used for error handling in async functions?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "try-catch block",
+                    "is_correct": true
+                },
+                {
+                    "text": "if-else only",
+                    "is_correct": false
+                },
+                {
+                    "text": "switch-case only",
+                    "is_correct": false
+                },
+                {
+                    "text": "loop",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Loading UI",
+            "content": "What is commonly shown during loading?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Spinner or loader",
+                    "is_correct": true
+                },
+                {
+                    "text": "Error page only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database table",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Error State",
+            "content": "What does error state usually store?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Error message",
+                    "is_correct": true
+                },
+                {
+                    "text": "User UI theme",
+                    "is_correct": false
+                },
+                {
+                    "text": "API URL only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Async Error Handling",
+            "content": "Where should API errors be handled?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside async/await try-catch",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only in CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in backend DB",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in routing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple States",
+            "content": "What states are commonly used together?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "loading, error, data",
+                    "is_correct": true
+                },
+                {
+                    "text": "css, html, js",
+                    "is_correct": false
+                },
+                {
+                    "text": "router, redux, dom",
+                    "is_correct": false
+                },
+                {
+                    "text": "db, api, server",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "API Failure Case",
+            "content": "What should happen when API fails?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Show error message to user",
+                    "is_correct": true
+                },
+                {
+                    "text": "Crash the app",
+                    "is_correct": false
+                },
+                {
+                    "text": "Hide UI forever",
+                    "is_correct": false
+                },
+                {
+                    "text": "Ignore response",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Loading State Usage",
+            "content": "Where is loading state used?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data fetching",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI rendering feedback",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling",
+            "content": "What are error handling techniques?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "try-catch",
+                    "is_correct": true
+                },
+                {
+                    "text": "error state",
+                    "is_correct": true
+                },
+                {
+                    "text": "error boundary",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS grid",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "UI States",
+            "content": "What are common UI states?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "Error",
+                    "is_correct": true
+                },
+                {
+                    "text": "Success",
+                    "is_correct": true
+                },
+                {
+                    "text": "Font size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Loading Indicators",
+            "content": "What can be loading indicators?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Spinner",
+                    "is_correct": true
+                },
+                {
+                    "text": "Skeleton UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Progress bar",
+                    "is_correct": true
+                },
+                {
+                    "text": "Button click",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling Flow",
+            "content": "What happens in error handling flow?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Catch error",
+                    "is_correct": true
+                },
+                {
+                    "text": "Set error state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Display message",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ignore error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Loading Flow",
+            "content": "What happens during loading state?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Set loading true",
+                    "is_correct": true
+                },
+                {
+                    "text": "Show spinner",
+                    "is_correct": true
+                },
+                {
+                    "text": "Disable UI interaction",
+                    "is_correct": true
+                },
+                {
+                    "text": "Show error immediately",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Combinations",
+            "content": "Which states are commonly used together?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "loading",
+                    "is_correct": true
+                },
+                {
+                    "text": "error",
+                    "is_correct": true
+                },
+                {
+                    "text": "data",
+                    "is_correct": true
+                },
+                {
+                    "text": "cssClass",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Error Handling Strategy",
+            "content": "What are good error handling strategies?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Graceful UI fallback",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retry mechanism",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logging errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Ignoring errors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Handling",
+            "content": "What advanced techniques improve reliability?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Retry API calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "Debouncing requests",
+                    "is_correct": true
+                },
+                {
+                    "text": "Timeout handling",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS animations only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "UX Considerations",
+            "content": "What improves user experience in loading/error handling?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Loading/Error Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Clear error messages",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loading indicators",
+                    "is_correct": true
+                },
+                {
+                    "text": "Retry buttons",
+                    "is_correct": true
+                },
+                {
+                    "text": "Blank screens",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Authentication Meaning",
+            "content": "What is authentication?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Verifying user identity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling UI components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Building database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rendering pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Login Purpose",
+            "content": "Why do we use login in applications?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To verify user identity",
+                    "is_correct": true
+                },
+                {
+                    "text": "To change CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create API routes",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Credentials",
+            "content": "What are user credentials?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Username and password",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML and CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "API and DB",
+                    "is_correct": false
+                },
+                {
+                    "text": "React and Node",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Auth Purpose",
+            "content": "What is the main goal of authentication?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Secure access control",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database scaling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Token Concept",
+            "content": "What is a token in authentication?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A proof of authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "A CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database table",
+                    "is_correct": false
+                },
+                {
+                    "text": "A UI component",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Session Use",
+            "content": "What is a session used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Maintaining user login state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Styling UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating routes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Authentication vs Authorization",
+            "content": "Authentication is different from authorization because:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication verifies identity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Authorization styles UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are same always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Authorization creates DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Purpose",
+            "content": "What is JWT used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Secure authentication token system",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling tool",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database engine",
+                    "is_correct": false
+                },
+                {
+                    "text": "Frontend library",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Token Storage",
+            "content": "Where is token commonly stored in frontend?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LocalStorage or cookies",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tag",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security Risk",
+            "content": "What is a risk in authentication?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Token theft",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS overflow",
+                    "is_correct": false
+                },
+                {
+                    "text": "UI lag",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing delay",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Authentication Basics",
+            "content": "What are authentication elements?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Username",
+                    "is_correct": true
+                },
+                {
+                    "text": "Password",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Login Process",
+            "content": "What happens in login process?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "User enters credentials",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server verifies user",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token is generated",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS is applied",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Authentication Types",
+            "content": "What are authentication types?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Password-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "Session-based",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS-based",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Secure Login",
+            "content": "What improves login security?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Strong password",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTTPS usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Session vs Token",
+            "content": "What are differences in session vs token?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Session stored on server",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token stored on client",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token is stateless",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are CSS based",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Authentication Flow",
+            "content": "What happens in auth flow?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "User login",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server validation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token generation",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Security Measures",
+            "content": "What improves authentication security?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JWT tokens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Password hashing",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTTPS encryption",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Features",
+            "content": "What are features of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stateless authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Signed token",
+                    "is_correct": true
+                },
+                {
+                    "text": "Self-contained data",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS dependent",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Security Risks",
+            "content": "What are authentication risks?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Token theft",
+                    "is_correct": true
+                },
+                {
+                    "text": "Password leakage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Session hijacking",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS breakage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are authentication best practices?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Authentication Basics",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use hashed passwords",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use HTTPS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use secure tokens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store passwords in plain text",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Meaning",
+            "content": "What does JWT stand for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JSON Web Token",
+                    "is_correct": true
+                },
+                {
+                    "text": "Java Web Tool",
+                    "is_correct": false
+                },
+                {
+                    "text": "JavaScript Work Type",
+                    "is_correct": false
+                },
+                {
+                    "text": "Join Web Table",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Purpose",
+            "content": "What is JWT mainly used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication and authorization",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database creation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Format",
+            "content": "JWT is divided into how many parts?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "3 parts",
+                    "is_correct": true
+                },
+                {
+                    "text": "2 parts",
+                    "is_correct": false
+                },
+                {
+                    "text": "4 parts",
+                    "is_correct": false
+                },
+                {
+                    "text": "1 part",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Usage",
+            "content": "Where is JWT mainly used?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Web authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Image processing",
+                    "is_correct": false
+                },
+                {
+                    "text": "File storage only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Structure",
+            "content": "What are the parts of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Header, Payload, Signature",
+                    "is_correct": true
+                },
+                {
+                    "text": "Body, Style, Script",
+                    "is_correct": false
+                },
+                {
+                    "text": "DB, API, UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Route, View, Model",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Storage",
+            "content": "Where is JWT usually stored in frontend?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "LocalStorage or Cookies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database only",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML tags",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Security",
+            "content": "What makes JWT secure?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Digital signature",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS encryption",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML encoding",
+                    "is_correct": false
+                },
+                {
+                    "text": "UI rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Expiry",
+            "content": "What happens when JWT expires?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "User must re-authenticate",
+                    "is_correct": true
+                },
+                {
+                    "text": "App crashes",
+                    "is_correct": false
+                },
+                {
+                    "text": "UI breaks",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database resets",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Signature Role",
+            "content": "What does JWT signature ensure?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Token integrity and authenticity",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI design",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JWT Risk",
+            "content": "What is a risk of JWT misuse?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Token leakage",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS conflict",
+                    "is_correct": false
+                },
+                {
+                    "text": "Slow rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Broken layout",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Basics",
+            "content": "What are characteristics of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Self-contained",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stateless",
+                    "is_correct": true
+                },
+                {
+                    "text": "Secure token format",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS dependent",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Parts",
+            "content": "What are parts of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Header",
+                    "is_correct": true
+                },
+                {
+                    "text": "Payload",
+                    "is_correct": true
+                },
+                {
+                    "text": "Signature",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Usage",
+            "content": "Where is JWT used?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Authentication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Authorization",
+                    "is_correct": true
+                },
+                {
+                    "text": "API security",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Benefits",
+            "content": "What are benefits of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stateless auth",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scalable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Fast verification",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS based rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Structure",
+            "content": "What are components of JWT structure?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Header",
+                    "is_correct": true
+                },
+                {
+                    "text": "Payload",
+                    "is_correct": true
+                },
+                {
+                    "text": "Signature",
+                    "is_correct": true
+                },
+                {
+                    "text": "Router",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Security",
+            "content": "What improves JWT security?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Strong secret key",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTTPS usage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Token expiration",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inline CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Flow",
+            "content": "What happens in JWT authentication flow?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "User logs in",
+                    "is_correct": true
+                },
+                {
+                    "text": "Server generates token",
+                    "is_correct": true
+                },
+                {
+                    "text": "Client stores token",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS updates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Security Risks",
+            "content": "What are risks in JWT usage?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Token theft",
+                    "is_correct": true
+                },
+                {
+                    "text": "XSS attacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Weak secret key",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS bugs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Advantages",
+            "content": "What are advantages of JWT?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No server session storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Scalability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cross-domain support",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS dependency",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JWT Best Practices",
+            "content": "What are JWT best practices?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "JWT",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use expiration time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use secure storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use HTTPS",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store in plain text globally",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Variables Meaning",
+            "content": "What are environment variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Variables used to store configuration data",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling values",
+                    "is_correct": false
+                },
+                {
+                    "text": "React components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Usage",
+            "content": "Why do we use environment variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To store sensitive data safely",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To render pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env File Name",
+            "content": "What is the common file name for env variables in React?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": ".env",
+                    "is_correct": true
+                },
+                {
+                    "text": ".config",
+                    "is_correct": false
+                },
+                {
+                    "text": ".env.json",
+                    "is_correct": false
+                },
+                {
+                    "text": "env.js",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Purpose",
+            "content": "What is the main purpose of env variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hide sensitive config data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Create UI layout",
+                    "is_correct": false
+                },
+                {
+                    "text": "Render images",
+                    "is_correct": false
+                },
+                {
+                    "text": "Handle DOM events",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Env Prefix",
+            "content": "In React, env variables must start with:",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "REACT_APP_",
+                    "is_correct": true
+                },
+                {
+                    "text": "APP_",
+                    "is_correct": false
+                },
+                {
+                    "text": "ENV_",
+                    "is_correct": false
+                },
+                {
+                    "text": "NODE_",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Access",
+            "content": "How do we access env variables in React?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "process.env.VARIABLE_NAME",
+                    "is_correct": true
+                },
+                {
+                    "text": "env.VARIABLE",
+                    "is_correct": false
+                },
+                {
+                    "text": "window.env",
+                    "is_correct": false
+                },
+                {
+                    "text": "document.env",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Security",
+            "content": "Why should env files not be committed publicly?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They may contain sensitive data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They slow down app",
+                    "is_correct": false
+                },
+                {
+                    "text": "They break React",
+                    "is_correct": false
+                },
+                {
+                    "text": "They affect CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Build Time Env",
+            "content": "When are React env variables injected?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "During build time",
+                    "is_correct": true
+                },
+                {
+                    "text": "At runtime in browser always",
+                    "is_correct": false
+                },
+                {
+                    "text": "After deployment only",
+                    "is_correct": false
+                },
+                {
+                    "text": "During CSS compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Env Limitation",
+            "content": "What is a limitation of React env variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are embedded at build time",
+                    "is_correct": true
+                },
+                {
+                    "text": "They change dynamically",
+                    "is_correct": false
+                },
+                {
+                    "text": "They affect backend only",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are CSS related",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security Risk",
+            "content": "What happens if secrets are exposed in env files?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Security breach risk increases",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI breaks",
+                    "is_correct": false
+                },
+                {
+                    "text": "React stops working",
+                    "is_correct": false
+                },
+                {
+                    "text": "Routing fails",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env Basics",
+            "content": "What are env variables used for?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API keys storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Config settings",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database URLs",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env File Usage",
+            "content": "What are env files used in?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Node.js apps",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend services",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI layout design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env Examples",
+            "content": "What can be stored in env variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "API keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database URL",
+                    "is_correct": true
+                },
+                {
+                    "text": "Secret tokens",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS colors",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env Benefits",
+            "content": "What are benefits of env variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Security",
+                    "is_correct": true
+                },
+                {
+                    "text": "Flexibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Environment switching",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Env Rules",
+            "content": "What are rules for env variables in React?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must start with REACT_APP_",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stored in .env file",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used via process.env",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Security Practices",
+            "content": "What are env security practices?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Do not commit .env",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use .gitignore",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hide API keys",
+                    "is_correct": true
+                },
+                {
+                    "text": "Expose keys in frontend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env Access",
+            "content": "How are env variables accessed?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "process.env.KEY",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in JS code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Injected at build time",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used in HTML tags directly",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Env Limitations",
+            "content": "What are limitations of env variables in React?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Not runtime changeable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Public in frontend build",
+                    "is_correct": true
+                },
+                {
+                    "text": "Build-time injection only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used for CSS rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices",
+            "content": "What are best practices for env variables?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Separate dev/prod envs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use secure storage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid hardcoding secrets",
+                    "is_correct": true
+                },
+                {
+                    "text": "Store in UI components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Deployment Usage",
+            "content": "Where are env variables important?",
+            "level": "subunit",
+            "topic_name": "API & Backend",
+            "subtopic_name": "Env Variables",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Production deployment",
+                    "is_correct": true
+                },
+                {
+                    "text": "Staging environment",
+                    "is_correct": true
+                },
+                {
+                    "text": "Development setup",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS layout design",
+                    "is_correct": false
+                }
+            ]
+        }
+    ]
+}

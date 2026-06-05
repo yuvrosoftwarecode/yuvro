@@ -1,0 +1,891 @@
+{
+    "name": "Graphs",
+    "course_short_code": "DSA100",
+    "order_index": 7,
+    "subtopics": [
+        {
+            "name": "Graph Representation and BFS/DFS",
+            "content": "A graph consists of vertices (nodes) and edges. Graphs can be directed or undirected, weighted or unweighted. They are stored as adjacency lists or adjacency matrices. BFS (Breadth-First Search) explores level-by-level and finds shortest paths in unweighted graphs. DFS (Depth-First Search) explores depth-first and is used for cycle detection, topological sort, and connected components.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Graph Representation - Adjacency List vs Matrix",
+                    "video_link": "https://www.youtube.com/watch?v=AfYqN3fGapc",
+                    "ai_context": "How to store graphs in memory using different data structures"
+                },
+                {
+                    "title": "BFS and DFS Graph Traversal",
+                    "video_link": "https://www.youtube.com/watch?v=pcKY4hjDrxk",
+                    "ai_context": "Breadth-first and depth-first search with code examples"
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "BFS vs DFS for Shortest Path",
+            "content": "Which graph traversal algorithm is best suited for finding the shortest path in an unweighted graph?",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "BFS (Breadth-First Search)",
+                    "is_correct": true
+                },
+                {
+                    "text": "DFS (Depth-First Search)",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are equally efficient for shortest path",
+                    "is_correct": false
+                },
+                {
+                    "text": "Neither; only Dijkstra's algorithm works",
+                    "is_correct": false
+                }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Number of Islands",
+            "content": "Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+                    "expected_output": "1"
+                },
+                {
+                    "input": "[[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "[[\"1\",\"1\"],[\"1\",\"1\"]]",
+                    "expected_output": "1"
+                },
+                {
+                    "input": "[[\"1\",\"0\"],[\"1\",\"0\"]]",
+                    "expected_output": "1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\"]]",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "[[\"1\",\"0\",\"1\",\"0\",\"1\"]]",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "[[\"1\"],[\"0\"],[\"1\"],[\"0\"],[\"1\"]]",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+                    "expected_output": "3"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "[[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]",
+                    "expected_output": "3",
+                    "explanation": "There are 3 separate islands, each consisting of a single land cell."
+                }
+            ],
+            "inputFormat": "A 2D JSON list of strings where '1' is land and '0' is water.",
+            "outputFormat": "A single integer representing the number of islands.",
+            "solutions": [
+                {
+                    "title": "DFS - Recursive Flood Fill",
+                    "language": "python",
+                    "code": "import sys, json\ninput_data = sys.stdin.read().strip()\ngrid = json.loads(input_data)\n\ndef numIslands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':\n            return\n        grid[r][c] = '0'\n        dfs(r+1, c)\n        dfs(r-1, c)\n        dfs(r, c+1)\n        dfs(r, c-1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count\n\nprint(numIslands(grid))",
+                    "complexity_analysis": "Time: O(M*N) — visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS Flood Fill - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    static char[][] grid;\n    static int rows, cols;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if(!sc.hasNextLine()) return;\n        String line = sc.nextLine().trim();\n        // Simplified parsing for 2D array representation\n        line = line.substring(1, line.length()-1);\n        List<char[]> list = new ArrayList<>();\n        int i = 0;\n        while(i < line.length()) {\n            if (line.charAt(i) == '[') {\n                int j = line.indexOf(']', i);\n                String row = line.substring(i+1, j);\n                String[] cells = row.split(\",\");\n                char[] r = new char[cells.length];\n                for(int c=0; c<cells.length; c++) r[c] = cells[c].trim().replace(\"\\\"\", \"\").charAt(0);\n                list.add(r); i = j + 1;\n            } else i++;\n        }\n        grid = list.toArray(new char[0][]);\n        if(grid.length == 0) { System.out.println(0); return; }\n        rows = grid.length; cols = grid[0].length;\n        int count = 0;\n        for (int r=0; r<rows; r++) for(int c=0; c<cols; c++) if(grid[r][c]=='1') { count++; dfs(r,c); }\n        System.out.println(count);\n    }\n    static void dfs(int r, int c) {\n        if (r<0 || r>=rows || c<0 || c>=cols || grid[r][c]=='0') return;\n        grid[r][c] = '0'; dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);\n    }\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS Flood Fill - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nchar grid[300][300];\nint rows, cols;\n\nvoid dfs(int r, int c) {\n    if (r<0 || r>=rows || c<0 || c>=cols || grid[r][c]=='0') return;\n    grid[r][c] = '0';\n    dfs(r+1, c); dfs(r-1, c); dfs(r, c+1); dfs(r, c-1);\n}\n\nint main() {\n    char input[50000]; if (!fgets(input, sizeof(input), stdin)) return 0;\n    rows = 0; char *ptr = input;\n    while (*ptr) {\n        if (*ptr == '[') {\n            ptr++; if (*ptr == '[') continue;\n            cols = 0; while (*ptr && *ptr != ']') {\n                if (*ptr == '1' || *ptr == '0') grid[rows][cols++] = *ptr;\n                ptr++;\n            }\n            if (cols > 0) rows++;\n        } ptr++;\n    }\n    if (rows == 0) { printf(\"0\\n\"); return 0; }\n    int count = 0;\n    for (int r = 0; r < rows; r++)\n        for (int c = 0; c < cols; c++)\n            if (grid[r][c] == '1') { count++; dfs(r, c); }\n    printf(\"%d\\n\", count);\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N) stack.",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Imagine the grid as a graph where '1's are nodes and adjacent '1's have edges.",
+                "Use DFS or BFS to 'flood' an entire island once you find a '1', marking all its cells as visited (e.g., by flipping them to '0').",
+                "The number of times you need to start a new traversal from an unvisited '1' is the total number of islands."
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Graph Cycle Detection Algorithm",
+            "content": "Which traversal is most commonly used to detect a cycle in a directed graph?",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "DFS with a recursion stack (visited + in-stack tracking)",
+                    "is_correct": true
+                },
+                {
+                    "text": "BFS with a simple visited set",
+                    "is_correct": false
+                },
+                {
+                    "text": "Binary search on the adjacency matrix",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inorder traversal",
+                    "is_correct": false
+                }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "How will you represent the graph? An adjacency list is usually an efficient choice.",
+                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Flood Fill",
+            "content": "An image is represented by an m x n integer grid image where image[i][j] represents the pixel value of the image.\n\nYou are also given three integers sr, sc, and color. You should perform a flood fill on the image starting from the pixel image[sr][sc].\n\nTo perform a flood fill, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color), and so on. Replace the color of all of the aforementioned pixels with color.\n\n**Constraints:**\n- m == image.length, n == image[i].length\n- 1 <= m, n <= 50\n- 0 <= image[i][j], color < 2^16",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2",
+                    "expected_output": "[[2, 2, 2], [2, 2, 0], [2, 0, 1]]"
+                },
+                {
+                    "input": "[[0,0,0],[0,0,0]]\n0\n0\n0",
+                    "expected_output": "[[0, 0, 0], [0, 0, 0]]"
+                },
+                {
+                    "input": "[[1,1,1],[1,1,0]]\n0\n0\n2",
+                    "expected_output": "[[2, 2, 2], [2, 2, 0]]"
+                },
+                {
+                    "input": "[[1,1],[1,0]]\n1\n0\n2",
+                    "expected_output": "[[2, 2], [2, 0]]"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[0,0,0],[0,1,1]]\n1\n1\n1",
+                    "expected_output": "[[0, 0, 0], [0, 1, 1]]"
+                },
+                {
+                    "input": "[[1,0,1],[0,1,0],[1,0,1]]\n1\n1\n2",
+                    "expected_output": "[[1, 0, 1], [0, 2, 0], [1, 0, 1]]"
+                },
+                {
+                    "input": "[[0,0,0],[0,0,0],[0,0,0]]\n1\n1\n3",
+                    "expected_output": "[[3, 3, 3], [3, 3, 3], [3, 3, 3]]"
+                },
+                {
+                    "input": "[[1,2,3],[4,5,6]]\n0\n0\n7",
+                    "expected_output": "[[7, 2, 3], [4, 5, 6]]"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "DFS - Python",
+                    "language": "python",
+                    "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\nimage = json.loads(lines[0])\nsr, sc, color = int(lines[1]), int(lines[2]), int(lines[3])\noriginal = image[sr][sc]\nif original == color:\n    print(json.dumps(image)); exit()\ndef dfs(r, c):\n    if r<0 or r>=len(image) or c<0 or c>=len(image[0]) or image[r][c]!=original: return\n    image[r][c] = color\n    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1)\ndfs(sr, sc)\nprint(json.dumps(image))",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        String gridLine = sc.nextLine().trim();\n        if (!sc.hasNextLine()) return;\n        int sr = Integer.parseInt(sc.nextLine().trim());\n        if (!sc.hasNextLine()) return;\n        int scVal = Integer.parseInt(sc.nextLine().trim());\n        if (!sc.hasNextLine()) return;\n        int color = Integer.parseInt(sc.nextLine().trim());\n        \n        int[][] image = parse2DArray(gridLine);\n        int oldColor = image[sr][scVal];\n        if (oldColor != color) dfs(image, sr, scVal, oldColor, color);\n        \n        System.out.println(Arrays.deepToString(image));\n    }\n    \n    private static void dfs(int[][] img, int r, int c, int o, int n) {\n        if (r < 0 || r >= img.length || c < 0 || c >= img[0].length || img[r][c] != o) return;\n        img[r][c] = n;\n        dfs(img, r + 1, c, o, n);\n        dfs(img, r - 1, c, o, n);\n        dfs(img, r, c + 1, o, n);\n        dfs(img, r, c - 1, o, n);\n    }\n    \n    private static int[][] parse2DArray(String s) {\n        s = s.substring(1, s.length() - 1);\n        List<int[]> res = new ArrayList<>();\n        int i = 0;\n        while (i < s.length()) {\n            if (s.charAt(i) == '[') {\n                int j = s.indexOf(']', i);\n                String rowStr = s.substring(i + 1, j);\n                String[] parts = rowStr.split(\",\");\n                int[] row = new int[parts.length];\n                for (int k = 0; k < parts.length; k++) row[k] = Integer.parseInt(parts[k].trim());\n                res.add(row);\n                i = j + 1;\n            } else i++;\n        }\n        return res.toArray(new int[0][]);\n    }\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint grid[100][100], rows, cols;\nvoid dfs(int r, int c, int o, int n) {\n    if (r<0||r>=rows||c<0||c>=cols||grid[r][c]!=o) return;\n    grid[r][c] = n; dfs(r+1,c,o,n); dfs(r-1,c,o,n); dfs(r,c+1,o,n); dfs(r,c-1,o,n);\n}\nint main() {\n    char line[10000]; fgets(line, sizeof(line), stdin);\n    int sr, sc, color; scanf(\"%d %d %d\", &sr, &sc, &color);\n    rows = 0; char *ptr = line;\n    while (*ptr) {\n        if (*ptr == '[') {\n            ptr++; if (*ptr == '[') continue;\n            cols = 0; while (*ptr && *ptr != ']') {\n                if (*ptr >= '0' && *ptr <= '9') grid[rows][cols++] = strtol(ptr, &ptr, 10);\n                else ptr++;\n            } if (cols > 0) rows++;\n        } ptr++;\n    }\n    int original = grid[sr][sc];\n    if (original != color) dfs(sr, sc, original, color);\n    printf(\"[\");\n    for (int r=0; r<rows; r++) {\n        printf(\"[\"); for(int c=0; c<cols; c++) printf(\"%d%s\", grid[r][c], c==cols-1?\"\":\", \");\n        printf(\"]%s\", r==rows-1?\"\":\", \");\n    } printf(\"]\\n\"); return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "CPP Solution",
+                    "language": "cpp",
+                    "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <sstream>\n#include <algorithm>\n\nusing namespace std;\n\nvoid dfs(vector<vector<int>>& image, int r, int c, int oldColor, int newColor) {\n    if (r < 0 || r >= image.size() || c < 0 || c >= image[0].size() || image[r][c] != oldColor) return;\n    image[r][c] = newColor;\n    dfs(image, r + 1, c, oldColor, newColor);\n    dfs(image, r - 1, c, oldColor, newColor);\n    dfs(image, r, c + 1, oldColor, newColor);\n    dfs(image, r, c - 1, oldColor, newColor);\n}\n\nint main() {\n    string line, s_r, s_c, s_color;\n    if (!getline(cin, line)) return 0;\n    if (!getline(cin, s_r)) return 0;\n    if (!getline(cin, s_c)) return 0;\n    if (!getline(cin, s_color)) return 0;\n    \n    int sr = stoi(s_r), sc = stoi(s_c), color = stoi(s_color);\n    \n    vector<vector<int>> image;\n    line = line.substr(1, line.length() - 2);\n    int i = 0;\n    while (i < line.length()) {\n        if (line[i] == '[') {\n            int j = line.find(']', i);\n            string rowStr = line.substr(i + 1, j - i - 1);\n            vector<int> row;\n            stringstream ss(rowStr);\n            string val;\n            while (getline(ss, val, ',')) row.push_back(stoi(val));\n            image.push_back(row);\n            i = j + 1;\n        } else i++;\n    }\n    \n    int oldColor = image[sr][sc];\n    if (oldColor != color) dfs(image, sr, sc, oldColor, color);\n    \n    cout << \"[\";\n    for (int r = 0; r < image.size(); r++) {\n        cout << \"[\";\n        for (int c = 0; c < image[r].size(); c++) {\n            cout << image[r][c] << (c == image[r].size() - 1 ? \"\" : \", \");\n        }\n        cout << \"]\" << (r == image.size() - 1 ? \"\" : \", \");\n    }\n    cout << \"]\" << endl;\n    \n    return 0;\n}",
+                    "complexity_analysis": "Refined for correctness.",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "This is a standard traversal problem. Starting from (sr, sc), explore all 4-directional neighbors with the same original color.",
+                "Update each connected pixel to the new color. You can use either recursion (DFS) or a queue (BFS).",
+                "Edge case: If the new color is the same as the original color, return early to avoid an infinite recursion or loop."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Find if Path Exists in Graph",
+            "content": "There is a bi-directional graph with n vertices, where each vertex is labeled from 0 to n - 1. The edges in the graph are represented as a 2D integer array edges, where each edges[i] = [ui, vi] denotes a bi-directional edge between vertex ui and vertex vi.\n\nGiven integers n, source, and destination, return true if there is a valid path from source to destination, or false otherwise.\n\n**Constraints:**\n- 1 <= n <= 2 * 10^5\n- 0 <= edges.length <= 2 * 10^5",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3\n[[0,1],[1,2],[2,0]]\n0\n2",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "6\n[[0,1],[0,2],[3,5],[5,4],[4,3]]\n0\n5",
+                    "expected_output": "False"
+                },
+                {
+                    "input": "1\n[]\n0\n0",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "2\n[[0,1]]\n0\n1",
+                    "expected_output": "True"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10\n[[4,3],[1,4],[4,8],[1,7],[6,4],[4,2],[7,4],[4,0],[0,9],[5,4]]\n5\n9",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "5\n[[0,1],[0,2],[3,4]]\n0\n4",
+                    "expected_output": "False"
+                },
+                {
+                    "input": "4\n[[0,1],[1,2],[2,3]]\n0\n3",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "4\n[[0,1],[2,3]]\n0\n3",
+                    "expected_output": "False"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "BFS - Python",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nn = int(lines[0])\nedges = json.loads(lines[1])\nsrc, dst = int(lines[2]), int(lines[3])\ngraph = defaultdict(list)\nfor u, v in edges:\n    graph[u].append(v); graph[v].append(u)\nvisited = set([src])\nq = deque([src])\nwhile q:\n    node = q.popleft()\n    if node == dst: print('True'); exit()\n    for nb in graph[node]:\n        if nb not in visited: visited.add(nb); q.append(nb)\nprint('False')",
+                    "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Union Find - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint find(int parent[], int i) {\n    if (parent[i] == i) return i;\n    return parent[i] = find(parent, parent[i]);\n}\n\nvoid unionSet(int parent[], int i, int j) {\n    int rootI = find(parent, i);\n    int rootJ = find(parent, j);\n    if (rootI != rootJ) parent[rootI] = rootJ;\n}\n\nint main() {\n    int n, src, dst;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    int *parent = malloc(n * sizeof(int));\n    for (int i = 0; i < n; i++) parent[i] = i;\n    \n    // Read edges line\n    char *edgesLine = malloc(2000000); // 2MB for large edges\n    scanf(\" %[^\\n]\", edgesLine);\n    \n    char *p = edgesLine;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            if (*p == '[') continue;\n            int u = strtol(p, &p, 10);\n            while (*p && (*p < '0' || *p > '9')) p++;\n            if (*p) {\n                int v = strtol(p, &p, 10);\n                unionSet(parent, u, v);\n            }\n        } else p++;\n    }\n    \n    if (scanf(\"%d %d\", &src, &dst) != 2) {\n        // Maybe they were on the same line as edges? No, usually separate lines.\n    }\n    \n    printf(\"%s\\n\", find(parent, src) == find(parent, dst) ? \"True\" : \"False\");\n    free(parent); free(edgesLine);\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(E * alpha(V)). Space: O(V).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "This is a connectivity problem in an undirected graph. BFS, DFS, or Disjoint Set Union (DSU) are all valid approaches.",
+                "For a traversal approach, start from the source and use a visited set to keep track of reachable nodes. Check if the destination is reached.",
+                "DSU is particularly efficient here: 'union' nodes connected by edges and finally check if 'find(source) == find(destination)'."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Course Schedule",
+            "content": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nReturn true if you can finish all courses. Otherwise, return false.\n\n**Constraints:**\n- 1 <= numCourses <= 2000\n- 0 <= prerequisites.length <= 5000",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2\n[[1,0]]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "2\n[[1,0],[0,1]]",
+                    "expected_output": "False"
+                },
+                {
+                    "input": "3\n[[1,0],[2,1]]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "3\n[[1,0],[0,1]]",
+                    "expected_output": "False"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3\n[[0,1],[0,2],[1,2]]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "4\n[[1,0],[2,1],[3,2],[1,3]]",
+                    "expected_output": "False"
+                },
+                {
+                    "input": "1\n[]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "5\n[[1,4],[2,4],[3,1],[3,2]]",
+                    "expected_output": "True"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Topological Sort (Kahn's BFS) - Python",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nnumCourses = int(lines[0])\nprereqs = json.loads(lines[1])\ngraph = defaultdict(list)\nin_degree = [0] * numCourses\nfor a, b in prereqs:\n    graph[b].append(a); in_degree[a] += 1\nq = deque([i for i in range(numCourses) if in_degree[i] == 0])\ncount = 0\nwhile q:\n    node = q.popleft(); count += 1\n    for nb in graph[node]:\n        in_degree[nb] -= 1\n        if in_degree[nb] == 0: q.append(nb)\nprint(count == numCourses)",
+                    "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Kahn's Algorithm - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        int numCourses = Integer.parseInt(sc.nextLine().trim());\n        if (!sc.hasNextLine()) return;\n        String line = sc.nextLine().trim();\n        \n        int[] inDegree = new int[numCourses];\n        Map<Integer, List<Integer>> adj = new HashMap<>();\n        \n        // Parse [[1,0],[0,1]] format\n        if (!line.equals(\"[]\") && line.length() > 2) {\n            // Remove outer brackets\n            String inner = line.substring(1, line.length() - 1);\n            // Find all [a,b] pairs\n            int i = 0;\n            while (i < inner.length()) {\n                if (inner.charAt(i) == '[') {\n                    int j = inner.indexOf(']', i);\n                    String pair = inner.substring(i + 1, j);\n                    String[] parts = pair.split(\",\");\n                    int a = Integer.parseInt(parts[0].trim());\n                    int b = Integer.parseInt(parts[1].trim());\n                    adj.computeIfAbsent(b, k -> new ArrayList<>()).add(a);\n                    inDegree[a]++;\n                    i = j + 1;\n                } else {\n                    i++;\n                }\n            }\n        }\n        \n        Queue<Integer> queue = new LinkedList<>();\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) queue.offer(i);\n        }\n        \n        int count = 0;\n        while (!queue.isEmpty()) {\n            int curr = queue.poll();\n            count++;\n            if (adj.containsKey(curr)) {\n                for (int nb : adj.get(curr)) {\n                    if (--inDegree[nb] == 0) queue.offer(nb);\n                }\n            }\n        }\n        System.out.println(count == numCourses ? \"True\" : \"False\");\n    }\n}",
+                    "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "The problem boils down to detecting a cycle in a directed graph. If there's a cycle, you can't finish all courses.",
+                "Use Kahn's Algorithm (BFS) by tracking the in-degree of each node. Courses with zero in-degree can be taken immediately.",
+                "Alternatively, use DFS with a recursion stack to detect back-edges, which indicate a cycle."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Word Ladder",
+            "content": "A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:\n- Every adjacent pair of words differs by a single letter.\n- Every si for 1 <= i <= k is in wordList.\n\nGiven two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.\n\n**Constraints:**\n- 1 <= beginWord.length <= 10\n- All words have the same length.\n- 1 <= wordList.length <= 5000",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+                    "expected_output": "5"
+                },
+                {
+                    "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "a\nc\n[\"a\",\"b\",\"c\"]",
+                    "expected_output": "2"
+                },
+                {
+                    "input": "talk\ntail\n[\"talk\", \"tall\", \"tail\"]",
+                    "expected_output": "3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "lost\ncost\n[\"most\",\"fist\",\"lost\",\"cost\",\"fish\"]",
+                    "expected_output": "2"
+                },
+                {
+                    "input": "qa\nsq\n[\"si\",\"go\",\"se\",\"cm\",\"so\",\"ph\",\"mt\",\"db\",\"mb\",\"sb\",\"kr\",\"ln\",\"tm\",\"le\",\"av\",\"sm\",\"ar\",\"ci\",\"ca\",\"br\",\"ti\",\"ba\",\"to\",\"ra\",\"fa\",\"no\",\"li\",\"ma\",\"re\",\"sy\",\"sc\",\"sr\",\"st\",\"as\",\"ko\",\"th\",\"yo\",\"ro\",\"do\",\"it\",\"la\",\"an\",\"hy\",\"os\",\"ad\",\"ms\",\"au\",\"rv\",\"py\",\"mo\",\"tu\",\"ty\",\"ti\",\"bi\",\"hp\",\"cb\",\"ic\",\"id\",\"il\",\"ii\",\"it\",\"in\",\"if\",\"im\",\"io\",\"ir\",\"is\",\"it\",\"iu\",\"iv\",\"iw\",\"ix\",\"iy\",\"iz\"]",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "hot\ndog\n[\"hot\",\"dog\"]",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "a\nb\n[\"a\",\"b\"]",
+                    "expected_output": "2"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "BFS - Python",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nbegin = lines[0].strip(); end = lines[1].strip(); words = json.loads(lines[2])\nif end not in words: print(0); exit()\nL = len(begin); all_combo = defaultdict(list)\nfor w in words:\n    for i in range(L): all_combo[w[:i]+'*'+w[i+1:]].append(w)\nq = deque([(begin, 1)]); visited = {begin}\nwhile q:\n    word, level = q.popleft()\n    for i in range(L):\n        pattern = word[:i]+'*'+word[i+1:]\n        for nb in all_combo[pattern]:\n            if nb == end: print(level+1); exit()\n            if nb not in visited: visited.add(nb); q.append((nb, level+1))\nprint(0)",
+                    "complexity_analysis": "Time: O(M^2 * N). Space: O(M^2 * N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "BFS - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String beginWord = sc.nextLine().trim();\n        // Remove quotes if present\n        if (beginWord.startsWith(\"\\\"\") && beginWord.endsWith(\"\\\"\"))\n            beginWord = beginWord.substring(1, beginWord.length() - 1);\n        String endWord = sc.nextLine().trim();\n        if (endWord.startsWith(\"\\\"\") && endWord.endsWith(\"\\\"\"))\n            endWord = endWord.substring(1, endWord.length() - 1);\n        String listLine = sc.nextLine().trim();\n        \n        // Parse word list [\"word1\", \"word2\", ...]\n        List<String> wordList = new ArrayList<>();\n        listLine = listLine.substring(1, listLine.length() - 1); // remove []\n        if (!listLine.isEmpty()) {\n            for (String w : listLine.split(\",\")) {\n                w = w.trim().replace(\"\\\"\", \"\");\n                if (!w.isEmpty()) wordList.add(w);\n            }\n        }\n        \n        Set<String> wordSet = new HashSet<>(wordList);\n        if (!wordSet.contains(endWord)) { System.out.println(0); return; }\n        \n        Queue<String> queue = new LinkedList<>();\n        queue.offer(beginWord);\n        Set<String> visited = new HashSet<>();\n        visited.add(beginWord);\n        int level = 1;\n        \n        while (!queue.isEmpty()) {\n            int size = queue.size();\n            for (int i = 0; i < size; i++) {\n                String word = queue.poll();\n                char[] chars = word.toCharArray();\n                for (int j = 0; j < chars.length; j++) {\n                    char orig = chars[j];\n                    for (char c = 'a'; c <= 'z'; c++) {\n                        if (c == orig) continue;\n                        chars[j] = c;\n                        String next = new String(chars);\n                        if (next.equals(endWord)) { System.out.println(level + 1); return; }\n                        if (wordSet.contains(next) && !visited.contains(next)) {\n                            visited.add(next);\n                            queue.offer(next);\n                        }\n                    }\n                    chars[j] = orig;\n                }\n            }\n            level++;\n        }\n        System.out.println(0);\n    }\n}",
+                    "complexity_analysis": "Time: O(M^2 * N). Space: O(M^2 * N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Finding the shortest path in an unweighted graph (word transformations) makes BFS the ideal candidate.",
+                "To find neighbors of a word, try changing each character 'a'-'z' and check if the new word exists in the dictionary.",
+                "For optimization, you can pre-process the dictionary into a map of patterns (e.g., 'h*t' -> ['hot', 'hit']) to find neighbors in O(L) time."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Pacific Atlantic Water Flow",
+            "content": "There is an m x n rectangular island that borders both the Pacific Ocean and the Atlantic Ocean. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.\n\nThe island receives a lot of rain, and the rain water can flow to neighboring cells directly north, south, east, and west if the neighboring cell's height is less than or equal to the current cell's height. Water can flow from any cell adjacent to an ocean into the ocean.\n\nReturn a 2D list of grid coordinates result where result[i] = [ri, ci] denotes that rain water can flow from cell (ri, ci) to both the Pacific and Atlantic oceans.\n\n**Constraints:**\n- m == heights.length, n == heights[r].length\n- 1 <= m, n <= 200\n- 0 <= heights[r][c] <= 10^5",
+            "level": "topic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+                    "expected_output": "[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]"
+                },
+                {
+                    "input": "[[1]]",
+                    "expected_output": "[[0, 0]]"
+                },
+                {
+                    "input": "[[1,1],[1,1]]",
+                    "expected_output": "[[0, 0], [0, 1], [1, 0], [1, 1]]"
+                },
+                {
+                    "input": "[[10,10,10],[10,1,10],[10,10,10]]",
+                    "expected_output": "[[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]]"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[2,1],[1,2]]",
+                    "expected_output": "[[0, 0], [0, 1], [1, 0], [1, 1]]"
+                },
+                {
+                    "input": "[[1,2,3],[8,9,4],[7,6,5]]",
+                    "expected_output": "[[0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]"
+                },
+                {
+                    "input": "[[1,2,7],[3,4,5]]",
+                    "expected_output": "[[0, 2], [1, 0], [1, 1], [1, 2]]"
+                },
+                {
+                    "input": "[[10],[10]]",
+                    "expected_output": "[[0, 0], [1, 0]]"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "DFS from Oceans - Python",
+                    "language": "python",
+                    "code": "import sys, json\nheights = json.loads(sys.stdin.read().strip())\nif not heights: print([]); exit()\nrows, cols = len(heights), len(heights[0])\npac, atl = set(), set()\ndef dfs(r, c, visit, prev_h):\n    if r<0 or r>=rows or c<0 or c>=cols or (r,c) in visit or heights[r][c]<prev_h: return\n    visit.add((r,c))\n    for dr,dc in [(1,0),(-1,0),(0,1),(0,-1)]: dfs(r+dr,c+dc,visit,heights[r][c])\nfor c in range(cols): dfs(0,c,pac,heights[0][c]); dfs(rows-1,c,atl,heights[rows-1][c])\nfor r in range(rows): dfs(r,0,pac,heights[r][0]); dfs(r,cols-1,atl,heights[r][cols-1])\nresult = sorted([list(x) for x in pac & atl])\nprint(json.dumps(result))",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint H[205][205], rows, cols; int pac[205][205], atl[205][205];\nvoid dfs(int r, int c, int visit[205][205], int ph) {\n    if (r<0||r>=rows||c<0||c>=cols||visit[r][c]||H[r][c]<ph) return;\n    visit[r][c]=1; dfs(r+1,c,visit,H[r][c]); dfs(r-1,c,visit,H[r][c]); dfs(r,c+1,visit,H[r][c]); dfs(r,c-1,visit,H[r][c]);\n}\nint main() {\n    char line[50000]; if(!fgets(line, sizeof(line), stdin)) return 0;\n    rows = 0; char *ptr = line;\n    while (*ptr) {\n        if (*ptr == '[') {\n            ptr++; if (*ptr == '[') continue;\n            cols = 0; while (*ptr && *ptr != ']') {\n                if (*ptr >= '0' && *ptr <= '9') H[rows][cols++] = strtol(ptr, &ptr, 10);\n                else ptr++;\n            } if (cols > 0) rows++;\n        } ptr++;\n    }\n    for(int i=0; i<rows; i++) { dfs(i,0,pac,H[i][0]); dfs(i,cols-1,atl,H[i][cols-1]); }\n    for(int j=0; j<cols; j++) { dfs(0,j,pac,H[0][j]); dfs(rows-1,j,atl,H[rows-1][j]); }\n    printf(\"[\"); int first=1;\n    for(int i=0; i<rows; i++) for(int j=0; j<cols; j++) if(pac[i][j] && atl[i][j]) { printf(\"%s[%d, %d]\", first?\"\":\", \", i, j); first=0; }\n    printf(\"]\\n\"); return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Instead of checking where water from each cell flows (which is O(M*N) per cell), think backwards: where can water from the oceans reach?",
+                "Start one DFS/BFS from all 'Pacific' boundary cells and another from all 'Atlantic' boundary cells, moving ONLY to cells with equal or greater height.",
+                "The cells that are marked as reachable in both traversals are the ones that can flow to both oceans."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Alien Dictionary",
+            "content": "There is a new alien language that uses the English alphabet. However, the order of the letters is unknown to you.\n\nYou are given a list of strings words from the alien language's dictionary, where the strings in words are sorted lexicographically by the rules of this new language.\n\nDerive the order of letters in this language. If the order is invalid, return an empty string. If there are multiple valid orderings, return any of them.\n\n**Constraints:**\n- 1 <= words.length <= 100\n- 1 <= words[i].length <= 100\n- words[i] consists of only lowercase English letters.",
+            "level": "topic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+                    "expected_output": "wertf"
+                },
+                {
+                    "input": "[\"z\",\"x\"]",
+                    "expected_output": "zx"
+                },
+                {
+                    "input": "[\"abc\",\"ab\"]",
+                    "expected_output": ""
+                },
+                {
+                    "input": "[\"z\",\"z\"]",
+                    "expected_output": "z"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[\"z\",\"x\",\"z\"]",
+                    "expected_output": ""
+                },
+                {
+                    "input": "[\"ri\",\"oc\",\"uo\",\"ts\",\"tc\",\"ri\",\"tc\"]",
+                    "expected_output": ""
+                },
+                {
+                    "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\",\"t\"]",
+                    "expected_output": "wertf"
+                },
+                {
+                    "input": "[\"ab\",\"ac\",\"ad\",\"ae\"]",
+                    "expected_output": "abcde"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Topological Sort - Python",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import defaultdict, deque\nwords = json.loads(sys.stdin.read().strip())\nadj = defaultdict(set); in_deg = {c: 0 for w in words for c in w}\nfor i in range(len(words)-1):\n    w1, w2 = words[i], words[i+1]\n    minLen = min(len(w1), len(w2))\n    if len(w1) > len(w2) and w1[:minLen] == w2[:minLen]: print(''); exit()\n    for j in range(minLen):\n        if w1[j] != w2[j]:\n            if w2[j] not in adj[w1[j]]: adj[w1[j]].add(w2[j]); in_deg[w2[j]] += 1\n            break\nq = deque([c for c in in_deg if in_deg[c] == 0]); result = []\nwhile q:\n    c = q.popleft(); result.append(c)\n    for nb in adj[c]:\n        in_deg[nb] -= 1\n        if in_deg[nb] == 0: q.append(nb)\nprint(''.join(result) if len(result) == len(in_deg) else '')",
+                    "complexity_analysis": "Time: O(C). Space: O(1).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "Compare adjacent words in the sorted dictionary to find the first differing characters. This defines a directed edge (e.g., 'abc' before 'abd' means 'c' -> 'd').",
+                "Build a directed graph of all unique characters and perform a Topological Sort (Kahn's or DFS).",
+                "Check for consistency: if there's a cycle (Topological Sort fails) or if a prefix comes AFTER a longer word (e.g., 'abc' after 'abcd'), return an empty string."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Rotting Oranges",
+            "content": "You are given an m x n grid where each cell can have one of three values:\n- 0 representing an empty cell,\n- 1 representing a fresh orange, or\n- 2 representing a rotten orange.\n\nEvery minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.\n\nReturn the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.\n\n**Constraints:**\n- m == grid.length\n- n == grid[i].length\n- 1 <= m, n <= 10\n- grid[i][j] is 0, 1, or 2.",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[2,1,1],[1,1,0],[0,1,1]]",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "[[2,1,1],[0,1,1],[1,0,1]]",
+                    "expected_output": "-1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[1,1,1],[1,1,1],[1,1,1]]",
+                    "expected_output": "-1"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "BFS - Python",
+                    "language": "python",
+                    "code": "import sys, json\nfrom collections import deque\ngrid = json.loads(sys.stdin.read().strip())\nif not grid: print(0); exit()\nrows, cols = len(grid), len(grid[0])\nq = deque(); fresh = 0\nfor r in range(rows):\n    for c in range(cols):\n        if grid[r][c] == 2: q.append((r, c))\n        elif grid[r][c] == 1: fresh += 1\nminutes = 0\nwhile q and fresh > 0:\n    minutes += 1\n    for _ in range(len(q)):\n        r, c = q.popleft()\n        for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:\n            nr, nc = r+dr, c+dc\n            if 0<=nr<rows and 0<=nc<cols and grid[nr][nc] == 1:\n                grid[nr][nc] = 2; fresh -= 1; q.append((nr, nc))\nprint(minutes if fresh == 0 else -1)",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "BFS - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        String line = sc.nextLine().trim();\n        String content = line.substring(1, line.length() - 1).trim();\n        String[] rowsRaw = content.split(\"\\\\],\\\\s*\\\\[\");\n        int R = rowsRaw.length;\n        int C = rowsRaw[0].replace(\"[\", \"\").replace(\"]\", \"\").split(\",\").length;\n        int[][] grid = new int[R][C];\n        Queue<int[]> q = new LinkedList<>();\n        int fresh = 0;\n        for (int i = 0; i < R; i++) {\n            String[] cells = rowsRaw[i].replace(\"[\", \"\").replace(\"]\", \"\").split(\",\");\n            for (int j = 0; j < C; j++) {\n                grid[i][j] = Integer.parseInt(cells[j].trim());\n                if (grid[i][j] == 2) q.offer(new int[]{i, j});\n                else if (grid[i][j] == 1) fresh++;\n            }\n        }\n\n        if (fresh == 0) { System.out.println(0); return; }\n        int minutes = -1;\n        int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        while (!q.isEmpty()) {\n            minutes++;\n            int size = q.size();\n            for (int k = 0; k < size; k++) {\n                int[] curr = q.poll();\n                for (int[] d : dirs) {\n                    int ni = curr[0] + d[0], nj = curr[1] + d[1];\n                    if (ni >= 0 && ni < R && nj >= 0 && nj < C && grid[ni][nj] == 1) {\n                        grid[ni][nj] = 2;\n                        fresh--;\n                        q.offer(new int[]{ni, nj});\n                    }\n                }\n            }\n        }\n        System.out.println(fresh == 0 ? minutes : -1);\n    }\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "This is a multi-source BFS problem. All initially rotten oranges start rotting their neighbors simultaneously.",
+                "Put all rotten oranges in a queue and track the count of fresh oranges. Perform BFS level by level, where each level is 1 minute.",
+                "If the queue becomes empty but fresh oranges still remain, it means some oranges are isolated; return -1."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Redundant Connection",
+            "content": "In this problem, a tree is an undirected graph that is connected and has no cycles.\n\nYou are given a graph that started as a tree with n nodes labeled from 1 to n, with one additional edge added. The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi.\n\nReturn an edge that can be removed so that the resulting graph is a tree of n nodes. If there are multiple answers, return the last one that occurs in the input.\n\n**Constraints:**\n- n == edges.length\n- 3 <= n <= 1000",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[1,2],[1,3],[2,3]]",
+                    "expected_output": "[2, 3]"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[1,2],[2,3],[3,4],[1,4],[1,5]]",
+                    "expected_output": "[1, 4]"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Union Find - Python",
+                    "language": "python",
+                    "code": "import sys, json\nedges = json.loads(sys.stdin.read().strip())\nparent = list(range(len(edges) + 1))\ndef find(i):\n    if parent[i] == i: return i\n    parent[i] = find(parent[i]); return parent[i]\ndef union(i, j):\n    root_i, root_j = find(i), find(j)\n    if root_i != root_j: parent[root_i] = root_j; return True\n    return False\nfor u, v in edges:\n    if not union(u, v): print([u, v]); exit()",
+                    "complexity_analysis": "Time: O(N * alpha(N)). Space: O(N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "A tree with N nodes and N edges must have exactly one cycle. You need to find the edge that completes this cycle.",
+                "Use Disjoint Set Union (DSU) to add edges one by one. For each edge (u, v), check if u and v are already in the same component.",
+                "The first edge you encounter that connects two nodes already in the same component is the one that creates the cycle and should be removed."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Max Area of Island",
+            "content": "You are given an m x n binary matrix grid. An island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.\n\nThe area of an island is the number of cells with a value 1 in the island.\n\nReturn the maximum area of an island in grid. If there is no island, return 0.\n\n**Constraints:**\n- m == grid.length\n- n == grid[i].length\n- 1 <= m, n <= 50",
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]]",
+                    "expected_output": "4"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[[1]]",
+                    "expected_output": "1"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "DFS - Python",
+                    "language": "python",
+                    "code": "import sys, json\ngrid = json.loads(sys.stdin.read().strip())\nif not grid: print(0); exit()\nrows, cols = len(grid), len(grid[0]); visited = set(); max_area = 0\ndef dfs(r, c):\n    if r<0 or r>=rows or c<0 or c>=cols or grid[r][c]==0 or (r,c) in visited: return 0\n    visited.add((r,c))\n    return 1 + dfs(r+1,c) + dfs(r-1,c) + dfs(r,c+1) + dfs(r,c-1)\nfor r in range(rows):\n    for c in range(cols):\n        if grid[r][c] == 1 and (r,c) not in visited: max_area = max(max_area, dfs(r,c))\nprint(max_area)",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "DFS - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#define MAX_SIZE 100\n\nint grid[MAX_SIZE][MAX_SIZE];\nint visited[MAX_SIZE][MAX_SIZE];\nint rows, cols;\n\nint dfs(int r, int c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols || visited[r][c] || grid[r][c] == 0) return 0;\n    visited[r][c] = 1;\n    return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1);\n}\n\nint main() {\n    char input[10000];\n    if (!fgets(input, sizeof(input), stdin)) return 0;\n    \n    rows = 0; cols = 0;\n    char *p = input;\n    while (*p) {\n        if (*p == '[') {\n            p++;\n            if (*p == '[') continue; // Outer bracket\n            int current_cols = 0;\n            while (*p && *p != ']') {\n                if (*p >= '0' && *p <= '9') {\n                    grid[rows][current_cols++] = strtol(p, &p, 10);\n                } else p++;\n            }\n            if (current_cols > 0) {\n                cols = current_cols;\n                rows++;\n            }\n        } else p++;\n    }\n    \n    if (rows == 0) { printf(\"0\\n\"); return 0; }\n    \n    memset(visited, 0, sizeof(visited));\n    int max_area = 0;\n    for (int r = 0; r < rows; r++) {\n        for (int c = 0; c < cols; c++) {\n            if (grid[r][c] == 1 && !visited[r][c]) {\n                int area = dfs(r, c);\n                if (area > max_area) max_area = area;\n            }\n        }\n    }\n    printf(\"%d\\n\", max_area);\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "hints": [
+                "This is similar to 'Number of Islands', but you need to return the size of the largest connected component of '1's.",
+                "Perform a DFS or BFS from every unvisited '1' and count the number of nodes reached during that specific traversal.",
+                "Maintain a global variable to track and update the maximum area found so far."
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Minimum Time to Rot All Fruits",
+            "content": "Given an m×n grid where:\n- 0 represents an empty cell\n- 1 represents a fresh fruit\n- 2 represents a rotten fruit\n\nEvery minute, any fresh fruit adjacent (4-directionally) to a rotten fruit becomes rotten. Return the minimum number of minutes until no fresh fruit remains. If it's impossible, return -1.\n\n**Constraints:**\n- 1 <= m, n <= 10\n- grid[i][j] ∈ {0, 1, 2}",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test",
+                "contest"
+            ],
+            "inputFormat": "First line: two integers m n.\nNext m lines: n space-separated integers (0, 1, or 2).",
+            "outputFormat": "A single integer: minimum minutes, or -1 if impossible.",
+            "examples": [
+                {
+                    "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+                    "expected_output": "4",
+                    "explanation": "Multi-source BFS from all rotten cells; takes 4 minutes."
+                },
+                {
+                    "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+                    "expected_output": "-1",
+                    "explanation": "Bottom-left fresh fruit is isolated — impossible."
+                },
+                {
+                    "input": "1 1\n0",
+                    "expected_output": "0",
+                    "explanation": "No fresh fruits — already 0 minutes."
+                }
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+                    "expected_output": "-1"
+                },
+                {
+                    "input": "1 1\n0",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "1 2\n2 1",
+                    "expected_output": "1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "1 1\n1",
+                    "expected_output": "-1"
+                },
+                {
+                    "input": "3 3\n2 2 2\n2 2 2\n2 2 2",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "3 3\n0 2 2\n2 0 1\n0 0 0",
+                    "expected_output": "1"
+                },
+                {
+                    "input": "1 4\n2 1 1 1",
+                    "expected_output": "3"
+                }
+            ],
+            "hints": [
+                "Use multi-source BFS: start simultaneously from all cells with value 2. Process level by level — each level = 1 minute.",
+                "After BFS, count remaining fresh fruits. If any remain, return -1; otherwise return the last level number.",
+                "Track time via BFS levels (queue holds (row, col, time)). Or use a simple deque with a sentinel / count per level."
+            ],
+            "solutions": [
+                {
+                    "title": "Multi-Source BFS - Python",
+                    "language": "python",
+                    "code": "import sys\nfrom collections import deque\ndata = sys.stdin.read().split()\nidx=0\nm,n = int(data[idx]),int(data[idx+1]); idx+=2\ngrid=[[int(data[idx+i*n+j]) for j in range(n)] for i in range(m)]; idx+=m*n\nq=deque(); fresh=0\nfor i in range(m):\n    for j in range(n):\n        if grid[i][j]==2: q.append((i,j,0))\n        elif grid[i][j]==1: fresh+=1\nif fresh==0: print(0); exit()\ndirs=[(0,1),(0,-1),(1,0),(-1,0)]; t=0\nwhile q:\n    r,c,t=q.popleft()\n    for dr,dc in dirs:\n        nr,nc=r+dr,c+dc\n        if 0<=nr<m and 0<=nc<n and grid[nr][nc]==1:\n            grid[nr][nc]=2; fresh-=1; q.append((nr,nc,t+1))\nprint(t if fresh==0 else -1)",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - JavaScript",
+                    "language": "javascript",
+                    "code": "const data = require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nlet idx=0; const m=data[idx++],n=data[idx++];\nconst grid=[]; for(let i=0;i<m;i++){grid.push(data.slice(idx,idx+n));idx+=n;}\nconst q=[]; let fresh=0;\nfor(let i=0;i<m;i++) for(let j=0;j<n;j++){ if(grid[i][j]===2)q.push([i,j,0]); else if(grid[i][j]===1)fresh++; }\nif(fresh===0){console.log(0);process.exit();}\nconst dirs=[[0,1],[0,-1],[1,0],[-1,0]]; let t=0,head=0;\nwhile(head<q.length){\n  const [r,c,time]=q[head++]; t=time;\n  for(const [dr,dc] of dirs){\n    const nr=r+dr,nc=c+dc;\n    if(nr>=0&&nr<m&&nc>=0&&nc<n&&grid[nr][nc]===1){\n      grid[nr][nc]=2;fresh--;q.push([nr,nc,time+1]);\n    }\n  }\n}\nconsole.log(fresh===0?t:-1);",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - C++",
+                    "language": "cpp",
+                    "code": "#include <iostream>\n#include <queue>\nusing namespace std;\nint main(){\n    int m,n; cin>>m>>n;\n    vector<vector<int>> g(m,vector<int>(n));\n    queue<tuple<int,int,int>> q; int fresh=0;\n    for(int i=0;i<m;i++) for(int j=0;j<n;j++){\n        cin>>g[i][j];\n        if(g[i][j]==2) q.push({i,j,0});\n        else if(g[i][j]==1) fresh++;\n    }\n    if(!fresh){cout<<0<<endl;return 0;}\n    int dirs[4][2]={{0,1},{0,-1},{1,0},{-1,0}},t=0;\n    while(!q.empty()){\n        auto[r,c,time]=q.front();q.pop();t=time;\n        for(auto&d:dirs){\n            int nr=r+d[0],nc=c+d[1];\n            if(nr>=0&&nr<m&&nc>=0&&nc<n&&g[nr][nc]==1){\n                g[nr][nc]=2;fresh--;q.push({nr,nc,time+1});\n            }\n        }\n    }\n    cout<<(fresh==0?t:-1)<<endl; return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#define MAXRC 105\nint grid[MAXRC][MAXRC],qr[MAXRC*MAXRC],qc[MAXRC*MAXRC],qt[MAXRC*MAXRC];\nint main(){\n    int m,n; scanf(\"%d %d\",&m,&n);\n    int head=0,tail=0,fresh=0;\n    for(int i=0;i<m;i++) for(int j=0;j<n;j++){\n        scanf(\"%d\",&grid[i][j]);\n        if(grid[i][j]==2){qr[tail]=i;qc[tail]=j;qt[tail]=0;tail++;}\n        else if(grid[i][j]==1) fresh++;\n    }\n    if(!fresh){printf(\"0\\n\");return 0;}\n    int dr[]={0,0,1,-1},dc[]={1,-1,0,0},t=0;\n    while(head<tail){\n        int r=qr[head],c=qc[head]; t=qt[head]; head++;\n        for(int d=0;d<4;d++){\n            int nr=r+dr[d],nc=c+dc[d];\n            if(nr>=0&&nr<m&&nc>=0&&nc<n&&grid[nr][nc]==1){\n                grid[nr][nc]=2;fresh--;qr[tail]=nr;qc[tail]=nc;qt[tail]=t+1;tail++;\n            }\n        }\n    }\n    printf(\"%d\\n\",fresh==0?t:-1); return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "level": "subtopic",
+            "topic_name": "Graphs",
+            "subtopic_name": "Graph Representation and BFS/DFS"
+        }
+    ]
+}

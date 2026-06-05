@@ -1,0 +1,2381 @@
+{
+  "name": "ML Foundations",
+  "subject_short_code": "AI100",
+  "order_index": 3,
+  "sub_units": [
+    {
+      "name": "ML Overview",
+      "content": "This module provides a detailed exploration of ML Overview, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "ML Overview",
+          "video_link": "https://www.youtube.com/results?search_query=ML%20Overview",
+          "ai_context": "Detailed overview and key concepts of ML Overview"
+        },
+        {
+          "title": "ML Overview",
+          "video_link": "https://www.youtube.com/results?search_query=ML%20Overview",
+          "ai_context": "Detailed overview and key concepts of ML Overview"
+        }
+      ]
+    },
+    {
+      "name": "Supervised Learning",
+      "content": "This module provides a detailed exploration of Supervised Learning, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Supervised Learning",
+          "video_link": "https://www.youtube.com/results?search_query=Supervised%20Learning",
+          "ai_context": "Detailed overview and key concepts of Supervised Learning"
+        },
+        {
+          "title": "Supervised Learning",
+          "video_link": "https://www.youtube.com/results?search_query=Supervised%20Learning",
+          "ai_context": "Detailed overview and key concepts of Supervised Learning"
+        }
+      ]
+    },
+    {
+      "name": "Unsupervised Learning",
+      "content": "This module provides a detailed exploration of Unsupervised Learning, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Unsupervised Learning",
+          "video_link": "https://www.youtube.com/results?search_query=Unsupervised%20Learning",
+          "ai_context": "Detailed overview and key concepts of Unsupervised Learning"
+        },
+        {
+          "title": "Unsupervised Learning",
+          "video_link": "https://www.youtube.com/results?search_query=Unsupervised%20Learning",
+          "ai_context": "Detailed overview and key concepts of Unsupervised Learning"
+        }
+      ]
+    },
+    {
+      "name": "Model Evaluation",
+      "content": "This module provides a detailed exploration of Model Evaluation, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Model Evaluation",
+          "video_link": "https://www.youtube.com/results?search_query=Model%20Evaluation",
+          "ai_context": "Detailed overview and key concepts of Model Evaluation"
+        },
+        {
+          "title": "Model Evaluation",
+          "video_link": "https://www.youtube.com/results?search_query=Model%20Evaluation",
+          "ai_context": "Detailed overview and key concepts of Model Evaluation"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Types of Machine Learning",
+      "content": "Which of the following is a type of machine learning?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Supervised Learning",
+          "is_correct": true
+        },
+        {
+          "text": "Network Learning",
+          "is_correct": false
+        },
+        {
+          "text": "Browser Learning",
+          "is_correct": false
+        },
+        {
+          "text": "Compiler Learning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Pipeline Start",
+      "content": "What is usually the first step in an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection",
+          "is_correct": true
+        },
+        {
+          "text": "Model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Hyperparameter tuning",
+          "is_correct": false
+        },
+        {
+          "text": "Prediction visualization",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Supervised Learning Purpose",
+      "content": "Supervised learning uses:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Only images",
+          "is_correct": false
+        },
+        {
+          "text": "No training data",
+          "is_correct": false
+        },
+        {
+          "text": "Random outputs only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Unsupervised Learning Task",
+      "content": "Clustering is generally associated with:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Unsupervised learning",
+          "is_correct": true
+        },
+        {
+          "text": "Reinforcement learning",
+          "is_correct": false
+        },
+        {
+          "text": "Transfer learning",
+          "is_correct": false
+        },
+        {
+          "text": "Rule-based programming",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Pipeline Preprocessing",
+      "content": "Why is data preprocessing important in an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It improves data quality before training",
+          "is_correct": true
+        },
+        {
+          "text": "It replaces model evaluation",
+          "is_correct": false
+        },
+        {
+          "text": "It removes the need for features",
+          "is_correct": false
+        },
+        {
+          "text": "It creates deployment servers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reinforcement Learning",
+      "content": "Reinforcement learning is based on:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Rewards and penalties",
+          "is_correct": true
+        },
+        {
+          "text": "Labeled datasets only",
+          "is_correct": false
+        },
+        {
+          "text": "Database indexing",
+          "is_correct": false
+        },
+        {
+          "text": "Fixed mathematical formulas only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Train-Test Split Role",
+      "content": "In an ML pipeline, why is train-test splitting performed?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To evaluate model performance on unseen data",
+          "is_correct": true
+        },
+        {
+          "text": "To create duplicate records",
+          "is_correct": false
+        },
+        {
+          "text": "To increase feature count",
+          "is_correct": false
+        },
+        {
+          "text": "To compress datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Pipeline Failure Risk",
+      "content": "What is a likely consequence of skipping preprocessing in an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poor model performance due to noisy or inconsistent data",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic increase in model accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Immediate deployment success",
+          "is_correct": false
+        },
+        {
+          "text": "Elimination of overfitting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Workflow Understanding",
+      "content": "Which sequence best represents a typical machine learning pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection → preprocessing → training → evaluation → deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → preprocessing → training → data collection",
+          "is_correct": false
+        },
+        {
+          "text": "Evaluation → deployment → data collection",
+          "is_correct": false
+        },
+        {
+          "text": "Training → deployment → preprocessing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear Regression Purpose",
+      "content": "Linear Regression is mainly used for:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Predicting continuous values",
+          "is_correct": true
+        },
+        {
+          "text": "Grouping similar items",
+          "is_correct": false
+        },
+        {
+          "text": "Compressing images",
+          "is_correct": false
+        },
+        {
+          "text": "Reducing dimensions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Logistic Regression Use",
+      "content": "Logistic Regression is commonly used for:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Sorting files",
+          "is_correct": false
+        },
+        {
+          "text": "Data compression",
+          "is_correct": false
+        },
+        {
+          "text": "Clustering only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decision Tree Structure",
+      "content": "What is the topmost node in a decision tree called?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Root node",
+          "is_correct": true
+        },
+        {
+          "text": "Leaf node",
+          "is_correct": false
+        },
+        {
+          "text": "Terminal node",
+          "is_correct": false
+        },
+        {
+          "text": "Branch node",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Forest Concept",
+      "content": "Random Forest is based on:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple decision trees",
+          "is_correct": true
+        },
+        {
+          "text": "Only one linear model",
+          "is_correct": false
+        },
+        {
+          "text": "Single clustering algorithm",
+          "is_correct": false
+        },
+        {
+          "text": "Database indexing methods",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Logistic Regression Output",
+      "content": "What does Logistic Regression typically produce before classification?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Probability values",
+          "is_correct": true
+        },
+        {
+          "text": "Images",
+          "is_correct": false
+        },
+        {
+          "text": "Database tables",
+          "is_correct": false
+        },
+        {
+          "text": "Random strings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Random Forest Advantage",
+      "content": "Why does Random Forest often perform better than a single decision tree?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It combines predictions from multiple trees",
+          "is_correct": true
+        },
+        {
+          "text": "It uses fewer features only",
+          "is_correct": false
+        },
+        {
+          "text": "It avoids training",
+          "is_correct": false
+        },
+        {
+          "text": "It removes all noise automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Decision Tree Overfitting",
+      "content": "Decision trees may overfit when:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Trees become very deep and complex",
+          "is_correct": true
+        },
+        {
+          "text": "Datasets are normalized",
+          "is_correct": false
+        },
+        {
+          "text": "Features are selected",
+          "is_correct": false
+        },
+        {
+          "text": "Labels are removed",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Linear vs Logistic Regression",
+      "content": "What is the key difference between Linear Regression and Logistic Regression?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Linear Regression predicts continuous values, while Logistic Regression predicts class probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Both always solve identical problems",
+          "is_correct": false
+        },
+        {
+          "text": "Logistic Regression is only used for clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Linear Regression creates decision trees",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Ensemble Learning Understanding",
+      "content": "Random Forest is considered an ensemble model because it:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combines multiple models to improve predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Uses a single tree repeatedly",
+          "is_correct": false
+        },
+        {
+          "text": "Avoids feature selection",
+          "is_correct": false
+        },
+        {
+          "text": "Works only with image datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "K-Means Purpose",
+      "content": "What is K-Means clustering mainly used for?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Grouping similar data points into clusters",
+          "is_correct": true
+        },
+        {
+          "text": "Predicting numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "Classifying labeled data",
+          "is_correct": false
+        },
+        {
+          "text": "Building APIs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PCA Goal",
+      "content": "What is the primary purpose of PCA?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reduce dimensions while retaining important information",
+          "is_correct": true
+        },
+        {
+          "text": "Increase the number of features",
+          "is_correct": false
+        },
+        {
+          "text": "Generate labels",
+          "is_correct": false
+        },
+        {
+          "text": "Train neural networks",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "K in K-Means",
+      "content": "In K-Means clustering, K represents:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Number of clusters",
+          "is_correct": true
+        },
+        {
+          "text": "Number of features",
+          "is_correct": false
+        },
+        {
+          "text": "Number of labels",
+          "is_correct": false
+        },
+        {
+          "text": "Learning rate",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PCA Components",
+      "content": "PCA transforms data into:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Principal components",
+          "is_correct": true
+        },
+        {
+          "text": "Decision nodes",
+          "is_correct": false
+        },
+        {
+          "text": "Activation functions",
+          "is_correct": false
+        },
+        {
+          "text": "Labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Centroid in K-Means",
+      "content": "What is a centroid in K-Means clustering?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The center point of a cluster",
+          "is_correct": true
+        },
+        {
+          "text": "A data cleaning technique",
+          "is_correct": false
+        },
+        {
+          "text": "The largest feature value",
+          "is_correct": false
+        },
+        {
+          "text": "A supervised learning model",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Why Use PCA",
+      "content": "Why is PCA useful in machine learning?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It reduces complexity and computational cost",
+          "is_correct": true
+        },
+        {
+          "text": "It creates labels automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It increases overfitting",
+          "is_correct": false
+        },
+        {
+          "text": "It replaces datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Elbow Method Purpose",
+      "content": "The elbow method in K-Means is used to:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Select an appropriate number of clusters",
+          "is_correct": true
+        },
+        {
+          "text": "Remove outliers",
+          "is_correct": false
+        },
+        {
+          "text": "Normalize features",
+          "is_correct": false
+        },
+        {
+          "text": "Create principal components",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "K-Means Limitation",
+      "content": "What is a limitation of K-Means clustering?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The number of clusters must often be chosen beforehand",
+          "is_correct": true
+        },
+        {
+          "text": "It requires labeled data",
+          "is_correct": false
+        },
+        {
+          "text": "It cannot process numerical values",
+          "is_correct": false
+        },
+        {
+          "text": "It only works with images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "PCA Variance Concept",
+      "content": "PCA selects principal components based on:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Maximum explained variance",
+          "is_correct": true
+        },
+        {
+          "text": "Alphabetical feature order",
+          "is_correct": false
+        },
+        {
+          "text": "Random feature selection",
+          "is_correct": false
+        },
+        {
+          "text": "Minimum data values",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Accuracy Meaning",
+      "content": "What does accuracy measure in machine learning?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The proportion of correct predictions out of all predictions",
+          "is_correct": true
+        },
+        {
+          "text": "The number of features in a dataset",
+          "is_correct": false
+        },
+        {
+          "text": "The model training speed",
+          "is_correct": false
+        },
+        {
+          "text": "The number of clusters",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Precision Definition",
+      "content": "Precision focuses on:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How many predicted positives are actually correct",
+          "is_correct": true
+        },
+        {
+          "text": "How many actual negatives exist",
+          "is_correct": false
+        },
+        {
+          "text": "Total training time",
+          "is_correct": false
+        },
+        {
+          "text": "Number of features selected",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Recall Definition",
+      "content": "Recall measures:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "How many actual positives were correctly identified",
+          "is_correct": true
+        },
+        {
+          "text": "Number of model parameters",
+          "is_correct": false
+        },
+        {
+          "text": "Amount of missing data",
+          "is_correct": false
+        },
+        {
+          "text": "Training dataset size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cross Validation Purpose",
+      "content": "Why is cross validation used?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To evaluate model performance across multiple data splits",
+          "is_correct": true
+        },
+        {
+          "text": "To increase feature count",
+          "is_correct": false
+        },
+        {
+          "text": "To remove labels",
+          "is_correct": false
+        },
+        {
+          "text": "To create new datasets",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "F1 Score Meaning",
+      "content": "The F1-score combines which two metrics?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Precision and Recall",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy and Loss",
+          "is_correct": false
+        },
+        {
+          "text": "Variance and Bias",
+          "is_correct": false
+        },
+        {
+          "text": "Sensitivity and Specificity",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "K-Fold Cross Validation",
+      "content": "In K-Fold Cross Validation, the dataset is divided into:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "K equal or nearly equal subsets",
+          "is_correct": true
+        },
+        {
+          "text": "Two random groups only",
+          "is_correct": false
+        },
+        {
+          "text": "Training data only",
+          "is_correct": false
+        },
+        {
+          "text": "Feature categories",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Metric Selection",
+      "content": "For imbalanced datasets, relying only on accuracy can be misleading because:",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A model may predict the majority class and still show high accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy always decreases with larger datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Precision cannot be calculated",
+          "is_correct": false
+        },
+        {
+          "text": "Cross validation stops working",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Precision vs Recall",
+      "content": "In disease detection systems, which metric is usually more important to maximize?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Recall",
+          "is_correct": true
+        },
+        {
+          "text": "Training speed",
+          "is_correct": false
+        },
+        {
+          "text": "Dataset size",
+          "is_correct": false
+        },
+        {
+          "text": "Feature count",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cross Validation Advantage",
+      "content": "How does cross validation improve model evaluation?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It reduces dependency on a single train-test split",
+          "is_correct": true
+        },
+        {
+          "text": "It removes the need for testing",
+          "is_correct": false
+        },
+        {
+          "text": "It guarantees perfect accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "It creates additional labels",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Types of Machine Learning",
+      "content": "Which statements correctly describe machine learning types?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Supervised learning uses labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Unsupervised learning finds patterns in unlabeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning has only one type",
+          "is_correct": false
+        },
+        {
+          "text": "Reinforcement learning learns through rewards and penalties",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to ML Pipeline",
+      "content": "Which statements correctly describe an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "An ML pipeline organizes machine learning workflow steps",
+          "is_correct": true
+        },
+        {
+          "text": "Data preprocessing is a part of the ML pipeline",
+          "is_correct": true
+        },
+        {
+          "text": "ML pipelines only include model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Pipelines improve workflow consistency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Supervised vs Unsupervised Learning",
+      "content": "Which statements correctly compare supervised and unsupervised learning?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Supervised learning requires labeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Unsupervised learning works with unlabeled data",
+          "is_correct": true
+        },
+        {
+          "text": "Both approaches require labels in all cases",
+          "is_correct": false
+        },
+        {
+          "text": "Clustering is an unsupervised learning task",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Workflow Components",
+      "content": "Which statements correctly describe machine learning workflow components?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data collection is a step in ML workflow",
+          "is_correct": true
+        },
+        {
+          "text": "Model evaluation is important",
+          "is_correct": true
+        },
+        {
+          "text": "Model training is unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Preprocessing improves data quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Pipeline Stages",
+      "content": "Which statements correctly describe stages of an ML pipeline?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing occurs before model training",
+          "is_correct": true
+        },
+        {
+          "text": "Feature engineering may be part of the pipeline",
+          "is_correct": true
+        },
+        {
+          "text": "Model evaluation should be skipped",
+          "is_correct": false
+        },
+        {
+          "text": "Training and testing are key stages",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Reinforcement Learning",
+      "content": "Which statements correctly describe reinforcement learning?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents learn through interactions with an environment",
+          "is_correct": true
+        },
+        {
+          "text": "Rewards guide learning behavior",
+          "is_correct": true
+        },
+        {
+          "text": "Reinforcement learning always uses labeled datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Trial-and-error learning is involved",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Importance of ML Pipelines",
+      "content": "Which statements correctly describe benefits of ML pipelines?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Pipelines improve reproducibility",
+          "is_correct": true
+        },
+        {
+          "text": "They automate repeated workflow steps",
+          "is_correct": true
+        },
+        {
+          "text": "Pipelines remove the need for preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "Pipelines help organize machine learning tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ML Concepts",
+      "content": "Which statements correctly describe advanced machine learning concepts?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different ML types solve different problem categories",
+          "is_correct": true
+        },
+        {
+          "text": "A structured ML pipeline improves model development",
+          "is_correct": true
+        },
+        {
+          "text": "ML pipelines have no effect on workflow efficiency",
+          "is_correct": false
+        },
+        {
+          "text": "Proper pipelines support scalability and maintenance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Pipeline and Learning Approaches",
+      "content": "Which statements correctly describe ML learning approaches and workflows?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "ML Overview",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model quality depends on both data and workflow design",
+          "is_correct": true
+        },
+        {
+          "text": "Pipeline stages influence overall ML performance",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning models work independently of data quality",
+          "is_correct": false
+        },
+        {
+          "text": "Proper workflow design improves reliability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Linear Regression Basics",
+      "content": "Which statements correctly describe Linear Regression?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Linear Regression predicts continuous values",
+          "is_correct": true
+        },
+        {
+          "text": "It models relationships between variables",
+          "is_correct": true
+        },
+        {
+          "text": "Linear Regression is mainly used for clustering",
+          "is_correct": false
+        },
+        {
+          "text": "House price prediction is a common use case",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Logistic Regression Basics",
+      "content": "Which statements correctly describe Logistic Regression?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Logistic Regression is used for classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "It predicts probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Logistic Regression only predicts continuous values",
+          "is_correct": false
+        },
+        {
+          "text": "Binary classification is a common application",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Decision Tree Fundamentals",
+      "content": "Which statements correctly describe Decision Trees?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Decision Trees split data into branches",
+          "is_correct": true
+        },
+        {
+          "text": "They can perform classification and regression",
+          "is_correct": true
+        },
+        {
+          "text": "Decision Trees cannot handle categorical data",
+          "is_correct": false
+        },
+        {
+          "text": "Nodes and leaves are components of trees",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Random Forest Introduction",
+      "content": "Which statements correctly describe Random Forest?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Random Forest uses multiple decision trees",
+          "is_correct": true
+        },
+        {
+          "text": "It is an ensemble learning method",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest uses only one tree",
+          "is_correct": false
+        },
+        {
+          "text": "It often improves prediction stability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing Regression Models",
+      "content": "Which statements correctly compare Linear Regression and Logistic Regression?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Linear Regression predicts continuous outputs",
+          "is_correct": true
+        },
+        {
+          "text": "Logistic Regression predicts class probabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Both are used only for clustering",
+          "is_correct": false
+        },
+        {
+          "text": "Both belong to supervised learning",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tree-Based Learning Concepts",
+      "content": "Which statements correctly describe tree-based learning methods?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Decision Trees may overfit data",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest reduces variance using multiple trees",
+          "is_correct": true
+        },
+        {
+          "text": "Tree models cannot perform classification",
+          "is_correct": false
+        },
+        {
+          "text": "Random Forest uses bagging concepts",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Selection Concepts",
+      "content": "Which statements correctly describe supervised model selection?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Model choice depends on the problem type",
+          "is_correct": true
+        },
+        {
+          "text": "Regression and classification require different approaches",
+          "is_correct": true
+        },
+        {
+          "text": "One model is always best for every dataset",
+          "is_correct": false
+        },
+        {
+          "text": "Evaluation metrics help compare models",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Supervised Learning Concepts",
+      "content": "Which statements correctly describe advanced supervised learning concepts?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Ensemble methods combine multiple models to improve performance",
+          "is_correct": true
+        },
+        {
+          "text": "Random Forest can improve generalization over a single tree",
+          "is_correct": true
+        },
+        {
+          "text": "Adding complexity always improves performance",
+          "is_correct": false
+        },
+        {
+          "text": "Model performance depends on data quality and algorithm choice",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Supervised Learning Strategy",
+      "content": "Which statements correctly describe supervised learning strategies?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Supervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different supervised algorithms solve different tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Understanding data characteristics helps model selection",
+          "is_correct": true
+        },
+        {
+          "text": "Algorithm choice has no impact on results",
+          "is_correct": false
+        },
+        {
+          "text": "Performance tuning improves predictive quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "K-Means Clustering Basics",
+      "content": "Which statements correctly describe K-Means clustering?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "K-Means is an unsupervised learning algorithm",
+          "is_correct": true
+        },
+        {
+          "text": "It groups similar data points into clusters",
+          "is_correct": true
+        },
+        {
+          "text": "K-Means requires labeled target values",
+          "is_correct": false
+        },
+        {
+          "text": "Centroids represent cluster centers",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PCA Fundamentals",
+      "content": "Which statements correctly describe PCA?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PCA stands for Principal Component Analysis",
+          "is_correct": true
+        },
+        {
+          "text": "PCA helps reduce dimensionality",
+          "is_correct": true
+        },
+        {
+          "text": "PCA increases the number of features",
+          "is_correct": false
+        },
+        {
+          "text": "PCA transforms data into principal components",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Cluster Concepts",
+      "content": "Which statements correctly describe clustering?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clustering groups similar observations",
+          "is_correct": true
+        },
+        {
+          "text": "Clusters are formed based on similarity",
+          "is_correct": true
+        },
+        {
+          "text": "Clustering requires predefined labels",
+          "is_correct": false
+        },
+        {
+          "text": "Customer segmentation is a clustering use case",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PCA Use Cases",
+      "content": "Which statements correctly describe PCA applications?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "PCA can reduce computation time",
+          "is_correct": true
+        },
+        {
+          "text": "PCA may help visualize high-dimensional data",
+          "is_correct": true
+        },
+        {
+          "text": "PCA is used only for classification",
+          "is_correct": false
+        },
+        {
+          "text": "PCA can reduce redundant information",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "K-Means Workflow",
+      "content": "Which statements correctly describe K-Means workflow?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "K value determines the number of clusters",
+          "is_correct": true
+        },
+        {
+          "text": "Centroids are updated iteratively",
+          "is_correct": true
+        },
+        {
+          "text": "K-Means never recalculates cluster centers",
+          "is_correct": false
+        },
+        {
+          "text": "Distance measures influence cluster assignment",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "PCA Concepts and Variance",
+      "content": "Which statements correctly describe PCA concepts?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Principal components capture maximum variance",
+          "is_correct": true
+        },
+        {
+          "text": "PCA creates transformed features",
+          "is_correct": true
+        },
+        {
+          "text": "PCA always preserves all information",
+          "is_correct": false
+        },
+        {
+          "text": "Dimensionality reduction can simplify datasets",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Unsupervised Learning Applications",
+      "content": "Which statements correctly describe unsupervised learning applications?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Clustering can support customer segmentation",
+          "is_correct": true
+        },
+        {
+          "text": "PCA may improve computational efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Unsupervised learning always predicts labels",
+          "is_correct": false
+        },
+        {
+          "text": "Pattern discovery is a common goal",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Clustering and PCA Concepts",
+      "content": "Which statements correctly describe advanced K-Means and PCA concepts?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Poor choice of K can affect clustering quality",
+          "is_correct": true
+        },
+        {
+          "text": "PCA may reduce noise in datasets",
+          "is_correct": true
+        },
+        {
+          "text": "Dimensionality reduction always improves accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "Feature relationships influence PCA output",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Unsupervised Learning Strategies",
+      "content": "Which statements correctly describe unsupervised learning strategies?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Unsupervised Learning",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Preprocessing can influence clustering outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "PCA and clustering are often used together",
+          "is_correct": true
+        },
+        {
+          "text": "Unsupervised learning ignores data structure",
+          "is_correct": false
+        },
+        {
+          "text": "Data representation impacts model performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Accuracy Basics",
+      "content": "Which statements correctly describe accuracy?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Accuracy measures overall correct predictions",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy is commonly used in classification tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy always performs well on imbalanced datasets",
+          "is_correct": false
+        },
+        {
+          "text": "It compares correct predictions with total predictions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Precision and Recall Basics",
+      "content": "Which statements correctly describe precision and recall?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Precision focuses on prediction correctness among positives",
+          "is_correct": true
+        },
+        {
+          "text": "Recall measures how many actual positives are detected",
+          "is_correct": true
+        },
+        {
+          "text": "Precision and recall are identical metrics",
+          "is_correct": false
+        },
+        {
+          "text": "Both metrics are important for classification evaluation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "F1 Score Introduction",
+      "content": "Which statements correctly describe F1-score?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "F1-score combines precision and recall",
+          "is_correct": true
+        },
+        {
+          "text": "F1-score balances two evaluation metrics",
+          "is_correct": true
+        },
+        {
+          "text": "F1-score is used only for regression",
+          "is_correct": false
+        },
+        {
+          "text": "F1-score is useful when class distribution is uneven",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Cross Validation Basics",
+      "content": "Which statements correctly describe cross validation?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cross validation evaluates model performance across multiple splits",
+          "is_correct": true
+        },
+        {
+          "text": "It helps estimate model generalization",
+          "is_correct": true
+        },
+        {
+          "text": "Cross validation uses only one fixed split",
+          "is_correct": false
+        },
+        {
+          "text": "K-Fold is a common cross validation technique",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Evaluation Metric Selection",
+      "content": "Which statements correctly describe choosing evaluation metrics?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different problems require different evaluation metrics",
+          "is_correct": true
+        },
+        {
+          "text": "Imbalanced datasets may require precision and recall",
+          "is_correct": true
+        },
+        {
+          "text": "Accuracy is always the best metric",
+          "is_correct": false
+        },
+        {
+          "text": "Metric selection depends on business goals",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Cross Validation Benefits",
+      "content": "Which statements correctly describe cross validation benefits?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cross validation reduces dependence on one train-test split",
+          "is_correct": true
+        },
+        {
+          "text": "It improves model reliability estimation",
+          "is_correct": true
+        },
+        {
+          "text": "Cross validation guarantees perfect accuracy",
+          "is_correct": false
+        },
+        {
+          "text": "It can reveal model stability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Precision, Recall and F1 Relationships",
+      "content": "Which statements correctly describe relationships among precision, recall, and F1-score?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Improving recall may affect precision",
+          "is_correct": true
+        },
+        {
+          "text": "F1-score balances precision and recall",
+          "is_correct": true
+        },
+        {
+          "text": "Precision and recall are always independent",
+          "is_correct": false
+        },
+        {
+          "text": "Trade-offs often exist between metrics",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Model Evaluation Concepts",
+      "content": "Which statements correctly describe advanced model evaluation concepts?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Cross validation helps assess generalization ability",
+          "is_correct": true
+        },
+        {
+          "text": "Metric selection affects interpretation of model quality",
+          "is_correct": true
+        },
+        {
+          "text": "One metric is sufficient for every ML problem",
+          "is_correct": false
+        },
+        {
+          "text": "Evaluation should align with task objectives",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Evaluation Strategy",
+      "content": "Which statements correctly describe advanced evaluation strategies?",
+      "level": "subtopic",
+      "unit_name": "ML Foundations",
+      "subunit_name": "Model Evaluation",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Using multiple metrics can provide better insights",
+          "is_correct": true
+        },
+        {
+          "text": "Cross validation can identify unstable models",
+          "is_correct": true
+        },
+        {
+          "text": "High accuracy alone always indicates a good model",
+          "is_correct": false
+        },
+        {
+          "text": "Model evaluation supports better model selection",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

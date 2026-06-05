@@ -58,6 +58,9 @@ class Command(BaseCommand):
         # Load jobs
         self.load_jobs_from_json(data)
 
+        # Wire screening questions to Yuvro Round 1
+        self.link_yuvro_round1_questions()
+
         self.stdout.write(
             self.style.SUCCESS(
                 "Successfully loaded all sample companies and jobs from JSON!"
@@ -193,3 +196,42 @@ class Command(BaseCommand):
                 self.stdout.write(
                     f'→ Job already exists: {job_data["title"]} at {company_name}'
                 )
+
+    def link_yuvro_round1_questions(self):
+        """Wire the 5 DSA coding questions to the Yuvro Round 1 job screening config."""
+        try:
+            from course.models import Question
+        except ImportError:
+            self.stdout.write(self.style.WARNING("course app not available, skipping question linking"))
+            return
+
+        job = Job.objects.filter(title="Yuvro Round 1", company__name="Yuvro AI").first()
+        if not job:
+            self.stdout.write(self.style.WARNING("Yuvro Round 1 job not found, skipping question linking"))
+            return
+
+        question_titles = [
+            "Sort an Array of 0s, 1s, and 2s",
+            "Maximum Product Subarray",
+            "Maximum of Minimums for Every Window Size",
+            "Minimum Days to Eat All Fruits",
+            "Minimum Time to Rot All Fruits",
+        ]
+
+        question_ids = []
+        for title in question_titles:
+            q = Question.objects.filter(title=title).first()
+            if q:
+                question_ids.append(str(q.id))
+                self.stdout.write(f"  ✓ Linked question: {title}")
+            else:
+                self.stdout.write(self.style.WARNING(f"  ⚠ Question not found: {title}"))
+
+        if question_ids:
+            job.screening_questions_config = {"coding": question_ids}
+            job.save(update_fields=["screening_questions_config"])
+            self.stdout.write(self.style.SUCCESS(
+                f"✓ Yuvro Round 1: linked {len(question_ids)} coding questions"
+            ))
+        else:
+            self.stdout.write(self.style.WARNING("No questions found to link to Yuvro Round 1"))
