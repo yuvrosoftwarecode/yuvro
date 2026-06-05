@@ -644,7 +644,7 @@
     {
       "company_name": "Yuvro AI",
       "title": "Yuvro Round 1",
-      "description": "Welcome to Yuvro Round 1 — a technical assessment round evaluating your problem-solving ability across core data structures and algorithms topics.\n\n**Topics Covered:**\n- Array manipulation and rearrangement\n- Subarray problems and dynamic programming on arrays\n- Stack-based algorithmic patterns (monotonic stack)\n- Dynamic programming (memoization & optimal substructure)\n- Graph traversal (BFS multi-source)\n\n**Problems:**\n1. Sort an Array of 0s, 1s, and 2s\n2. Maximum Product Subarray\n3. Maximum of Minimums for Every Window Size\n4. Minimum Days to Eat All Fruits\n5. Minimum Time to Rot All Fruits\n\nComplete all 5 problems to advance to the next round.",
+      "description": "Welcome to Yuvro Round 1 — a technical assessment round evaluating your problem-solving ability across core data structures and algorithms topics.",
       "employment_type": "full-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
@@ -653,17 +653,12 @@
         "Remote"
       ],
       "is_remote": true,
-      "min_salary": 600000,
-      "max_salary": 1500000,
+      "min_salary": 120000,
+      "max_salary": 150000,
       "currency": "INR",
       "skills": [
         "Data Structures",
-        "Algorithms",
-        "Python",
-        "C++",
-        "Problem Solving",
-        "Dynamic Programming",
-        "Graphs"
+        "Algorithms"
       ],
       "notice_period": 30,
       "education_level": "bachelor",
