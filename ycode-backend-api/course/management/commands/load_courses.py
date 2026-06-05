@@ -355,6 +355,32 @@ class Command(BaseCommand):
             )
             return
 
+        # Define default marks and duration configs based on ycode-web/src/constants/questionMarksConfig.ts
+        MARKS_CONFIG = {
+            "mcq_single": {"easy": 1, "medium": 2, "hard": 3},
+            "mcq_multiple": {"easy": 1, "medium": 2, "hard": 3},
+            "coding": {"easy": 5, "medium": 10, "hard": 15},
+            "descriptive": {"easy": 5, "medium": 10, "hard": 15},
+            "default": {"easy": 2, "medium": 5, "hard": 8}
+        }
+        
+        DURATION_CONFIG = {
+            "mcq_single": {"easy": 1, "medium": 2, "hard": 3},
+            "mcq_multiple": {"easy": 1, "medium": 2, "hard": 3},
+            "coding": {"easy": 10, "medium": 20, "hard": 30},
+            "descriptive": {"easy": 10, "medium": 20, "hard": 30},
+            "default": {"easy": 5, "medium": 10, "hard": 15}
+        }
+
+        q_type = question_data["type"]
+        difficulty = question_data.get("difficulty", "easy")
+        
+        marks_type_config = MARKS_CONFIG.get(q_type, MARKS_CONFIG["default"])
+        marks = marks_type_config.get(difficulty, marks_type_config.get("easy", 1))
+        
+        duration_type_config = DURATION_CONFIG.get(q_type, DURATION_CONFIG["default"])
+        duration = duration_type_config.get(difficulty, duration_type_config.get("easy", 1))
+
         # Determine question associations based on level
         question_kwargs = {
             "type": question_data["type"],
@@ -363,7 +389,8 @@ class Command(BaseCommand):
             "level": question_data["level"],
             "difficulty": question_data["difficulty"],
             "hints": question_data.get("hints", []),
-            "marks": question_data["marks"],
+            "marks": marks,
+            "duration": duration,
             "categories": question_data["categories"],
             "created_by": instructor,
         }

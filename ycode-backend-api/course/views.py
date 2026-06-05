@@ -1440,7 +1440,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     execution_output=execution_output,
                     evaluation_results=execution_results,
                     plagiarism_data=plagiarism_dict,
-                    marks_obtained=question.marks if is_successful else 0,
+                    marks_obtained=round((total_passed / total_tests) * question.marks, 2) if total_tests > 0 else 0,
                 )
                 basic_count = len(test_cases_basic)
                 custom_count = len(test_cases_custom)

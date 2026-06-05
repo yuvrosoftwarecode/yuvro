@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -161,7 +161,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
 
   useEffect(() => {
-    if (assessment.proctoring_enabled) {
+    if (assessment.proctoring_enabled || assessment.topicId === 'job-assessment') {
       const blockEvent = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
@@ -189,7 +189,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         document.removeEventListener('keydown', blockKeys, { capture: true });
       };
     }
-  }, [assessment.proctoring_enabled]);
+  }, [assessment.proctoring_enabled, assessment.topicId]);
 
   const { logActivity } = useProctoring({
     assessmentId: assessment.id,
@@ -687,6 +687,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
             <div className={isCodeEditorFullscreen ? 'flex-1' : 'h-[500px]'}>
               <CodeEditor
+                key={question.id}
                 initialCode={answers[question.id] || ''}
                 onCodeChange={(code) => handleAnswerChange(question.id, code)}
                 initialLanguage={selectedLanguage}
@@ -704,7 +705,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                   });
                 }}
                 className="h-full border-0 shadow-lg"
-                proctoringEnabled={assessment.proctoring_enabled}
+                proctoringEnabled={assessment.proctoring_enabled || assessment.topicId === 'job-assessment'}
               />
             </div>
           </div>
@@ -790,28 +791,13 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 relative z-30 px-6 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="relative h-10 w-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-              <video
-                ref={videoRef}
-                autoPlay
-                muted
-                playsInline
-                className={`h-full w-full object-cover scale-x-[-1] transition-opacity duration-500 ${videoTrackEnabled ? 'opacity-100' : 'opacity-0'}`}
-              />
-              {!videoTrackEnabled && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-                  <CameraOff className="h-4 w-4 text-slate-500" />
-                </div>
-              )}
-              <div className="absolute bottom-0.5 right-0.5 flex space-x-0.5">
-                {videoTrackEnabled ?
-                  <Camera className="h-1.5 w-1.5 text-green-400" /> :
-                  <CameraOff className="h-1.5 w-1.5 text-red-400" />}
-                {audioTrackEnabled ?
-                  <Mic className="h-1.5 w-1.5 text-green-400" /> :
-                  <MicOff className="h-1.5 w-1.5 text-red-400" />}
-              </div>
-            </div>
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className="hidden"
+            />
             <div>
               <h1 className="text-lg font-bold text-gray-800">{assessment.title}</h1>
               <Badge variant="secondary" className="text-xs font-normal">{assessment.course}</Badge>
@@ -1124,6 +1110,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                         <div className="h-full flex flex-col">
                           <div className="flex-1 overflow-hidden relative">
                             <CodeEditor
+                              key={currentQuestionData.id}
                               initialCode={answers[currentQuestionData.id] || ''}
                               onCodeChange={(code) => handleAnswerChange(currentQuestionData.id, code)}
                               initialLanguage={selectedLanguage}
@@ -1141,6 +1128,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                                 });
                               }}
                               className="h-full border-0"
+                              proctoringEnabled={assessment.proctoring_enabled || assessment.topicId === 'job-assessment'}
                             />
                           </div>
                         </div>

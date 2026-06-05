@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, } from 'react-router-dom';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import './observability/telemetry';
