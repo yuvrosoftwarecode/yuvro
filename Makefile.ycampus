@@ -30,7 +30,7 @@ setup:
 	docker compose -f docker-compose.ycampus.yml up -d --build --wait
 
 	@echo "Loading test data..."
-	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data
 	
 	@echo "✅ YCampus setup complete!"
 	@echo "🌐 Frontend: http://localhost:3001"
@@ -65,24 +65,29 @@ clean:
 	@echo "✅ Cleanup complete!"
 
 reload-data:
-	@echo "🔄 Reloading YCampus test data..."
-	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
+	@echo "🔄 Reloading YCampus fixtures (no clear)..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data
 	@echo "✅ Test data reloaded!"
 
-load-fixtures-data:
-	@echo "🔄 Loading YCampus fixture data..."
+reload-data-clear:
+	@echo "🔄 Reloading YCampus fixtures (with clear)..."
 	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data --clear
+	@echo "✅ Test data cleared and reloaded!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YCampus fixture data (no clear)..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_fixtures_data
 	@echo "✅ YCampus fixture data loaded!"
 
 load-courses:
-	@echo "📚 Loading all production courses..."
-	@for folder in $$(ls ycampus-backend-api/course/fixtures/prod); do \
-		if [ -d "ycampus-backend-api/course/fixtures/prod/$$folder" ]; then \
-			echo "Loading $$folder..."; \
-			docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py load_courses --deploy_env prod --file "$$folder"; \
-		fi \
-	done
-	@echo "✅ All courses loaded!"
+	@echo "📚 Loading YCampus courses (dev)..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py load_courses --deploy_env dev
+	@echo "✅ YCampus courses loaded!"
+
+load-courses-prod:
+	@echo "📚 Loading YCampus courses (prod)..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py load_courses --deploy_env prod
+	@echo "✅ YCampus prod courses loaded!"
 
 # ============================================================================
 # Database

@@ -30,7 +30,7 @@ setup:
 	docker compose -f docker-compose.ycode.yml up -d --build --wait
 
 	@echo "Loading test data..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
 	
 	@echo "✅ YCode setup complete!"
 	@echo "🌐 Frontend: http://localhost:3000"
@@ -65,19 +65,29 @@ clean:
 	@echo "✅ Cleanup complete!"
 
 reload-data:
-	@echo "🔄 Reloading YCode test data..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
+	@echo "🔄 Reloading YCode fixtures (no clear)..."
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
 	@echo "✅ Test data reloaded!"
 
-load-fixtures-data:
-	@echo "🔄 Loading YCode fixture data..."
+reload-data-clear:
+	@echo "🔄 Reloading YCode fixtures (with clear)..."
 	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
+	@echo "✅ Test data cleared and reloaded!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YCode fixture data (no clear)..."
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
 	@echo "✅ YCode fixture data loaded!"
 
 load-courses:
-	@echo "📚 Loading production courses into YCode backend..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py load_prod_courses --clear
-	@echo "✅ Production courses loaded!"
+	@echo "📚 Loading YCode courses (dev)..."
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py load_courses --deploy_env dev
+	@echo "✅ YCode courses loaded!"
+
+load-courses-prod:
+	@echo "📚 Loading YCode courses (prod)..."
+	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py load_courses --deploy_env prod
+	@echo "✅ YCode prod courses loaded!"
 
 # ============================================================================
 # Database
