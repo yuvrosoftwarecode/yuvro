@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
-import AssessmentContent from '@/components/student/AssessmentContent';
+import InternalTestContent from '@/components/student/InternalTestContent';
 
-const StudentAssessment = () => {
+const StudentInternalTest = () => {
   const [searchParams] = useSearchParams();
   
   // Hide layout when in assessment interface, instructions, results, or thankyou view
@@ -18,16 +18,16 @@ const StudentAssessment = () => {
   if (hideLayout) {
     return (
       <div className="min-h-screen bg-background">
-        <AssessmentContent />
+        <InternalTestContent />
       </div>
     );
   }
 
   return (
     <StudentLayout>
-      <AssessmentContent />
+      <InternalTestContent />
     </StudentLayout>
   );
 };
 
-export default StudentAssessment;
+export default StudentInternalTest;

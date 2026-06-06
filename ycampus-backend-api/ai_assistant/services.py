@@ -187,15 +187,20 @@ class AnthropicService(BaseAIService):
                         {"role": msg["role"], "content": msg["content"]}
                     )
 
+            create_params = {
+                "model": self.model_name,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": anthropic_messages,
+                **kwargs,
+            }
+            if system_message:
+                create_params["system"] = system_message
+
             if stream:
                 response = await self.client.messages.create(
-                    model=self.model_name,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    system=system_message,
-                    messages=anthropic_messages,
                     stream=True,
-                    **kwargs,
+                    **create_params,
                 )
                 return {
                     "stream": response,
@@ -203,12 +208,7 @@ class AnthropicService(BaseAIService):
                 }
 
             response = await self.client.messages.create(
-                model=self.model_name,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system=system_message,
-                messages=anthropic_messages,
-                **kwargs,
+                **create_params,
             )
 
             end_time = time.time()
@@ -470,11 +470,11 @@ class InterviewReportGenerator:
     """
 
     def __init__(self):
-        # We'll use Gemini for report generation as it handles large contexts well
-        self.api_key = config("GEMINI_API_KEY", default=None)
+        self.api_key = config("ANTHROPIC_API_KEY", default=None)
         if not self.api_key:
-            raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
-        self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
+            raise AIServiceError("ANTHROPIC_API_KEY not found needed for report generation.")
+        model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
+        self.service = AnthropicService(self.api_key, model_name=model_name)
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
         """

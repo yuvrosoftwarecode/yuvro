@@ -374,7 +374,6 @@ export function usePlacementStats() {
       return {
         pendingCount, 
         liveCount, 
-        totalSelected: backendSelectedCount,
         avgCTC, 
         highestCTC, 
         placementPct, 

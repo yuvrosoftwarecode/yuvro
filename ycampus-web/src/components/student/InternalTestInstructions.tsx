@@ -27,17 +27,18 @@ interface Assessment {
   marks: number;
 }
 
-interface AssessmentInstructionsProps {
+interface InternalTestInstructionsProps {
   assessment: Assessment;
   onStart: () => void;
   onBack: () => void;
 }
 
-const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
+const InternalTestInstructions: React.FC<InternalTestInstructionsProps> = ({
   assessment,
   onStart,
   onBack
 }) => {
+  const isCampus = !window.location.pathname.includes('/student/assessments');
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
 
   const getDifficultyColor = (difficulty: string) => {
@@ -116,7 +117,7 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <CheckCircle className="h-5 w-5 text-primary" />
-            <span>Assessment Instructions</span>
+            <span>{isCampus ? "Internal Test Instructions" : "Assessment Instructions"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -186,7 +187,7 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
               <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5" />
               <div className="text-sm text-orange-800">
                 <p className="font-semibold mb-2">Proctoring Requirements</p>
-                <p>This assessment uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
+                <p>This {isCampus ? "internal test" : "assessment"} uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
               </div>
             </div>
           </div>
@@ -196,7 +197,7 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
               <Camera className="h-5 w-5 text-blue-500 mt-1" />
               <div className="text-sm">
                 <p className="font-semibold">Camera Monitoring</p>
-                <p className="text-muted-foreground">Keep your camera on and face visible throughout the assessment</p>
+                <p className="text-muted-foreground">Keep your camera on and face visible throughout the {isCampus ? "internal test" : "assessment"}</p>
               </div>
             </div>
             
@@ -222,9 +223,9 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
             <ul className="text-sm text-red-700 space-y-1">
               <li>• Switching tabs or opening other applications</li>
               <li>• Using external resources or materials</li>
-              <li>• Communicating with others during the assessment</li>
-              <li>• Taking screenshots or recording the assessment</li>
-              <li>• Leaving the assessment area</li>
+              <li>• Communicating with others during the {isCampus ? "internal test" : "assessment"}</li>
+              <li>• Taking screenshots or recording the {isCampus ? "internal test" : "assessment"}</li>
+              <li>• Leaving the {isCampus ? "test" : "assessment"} area</li>
             </ul>
           </div>
         </CardContent>
@@ -264,10 +265,10 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
       {/* Action Buttons */}
       <div className="flex items-center justify-between pt-4">
         <Button variant="outline" onClick={onBack}>
-          Back to Assessments
+          Back to {isCampus ? "Internal Tests" : "Assessments"}
         </Button>
         <Button onClick={handleStartAssessment} size="lg" className="px-8">
-          Start Assessment
+          Start {isCampus ? "Internal Test" : "Assessment"}
         </Button>
       </div>
 
@@ -281,4 +282,4 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
   );
 };
 
-export default AssessmentInstructions;
+export default InternalTestInstructions;

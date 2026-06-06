@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-// import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,7 @@ const getAccessibleUrl = (url: string | null) => {
 
 const StudentTask: React.FC = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -92,10 +93,12 @@ const StudentTask: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await taskService.getTasks();
-      setTasks(data);
+      const activeProductType = window.location.pathname.includes('/student/assessments') || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
+      const filteredTasks = data.filter(t => !t.subject_details || t.subject_details.product_type === activeProductType);
+      setTasks(filteredTasks);
 
       const submissionMap: Record<string, TaskSubmission> = {};
-      await Promise.all(data.map(async (task) => {
+      await Promise.all(filteredTasks.map(async (task) => {
         const subs = await taskService.getTaskSubmissions(task.id);
         if (subs.length > 0) submissionMap[task.id] = subs[0];
       }));

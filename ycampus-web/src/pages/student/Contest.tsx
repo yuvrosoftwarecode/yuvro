@@ -36,6 +36,14 @@ interface Contest {
   allowLateEntry?: boolean;
 }
 
+const getLocalContestUrl = (contestId?: string | number, isAttempt = false) => {
+  const isCampus = !window.location.pathname.includes('/student/assessments');
+  const prefix = isCampus ? '/student/campus' : '/student/assessments';
+  return contestId 
+    ? (isAttempt ? `${prefix}/contests/${contestId}/attempt` : `${prefix}/contests/${contestId}`)
+    : `${prefix}/contests`;
+};
+
 const ContestPage = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -116,7 +124,7 @@ const ContestPage = () => {
   };
 
   const handleEnter = (contestId: string | number) => {
-    navigate(`/student/contests/${contestId}/attempt`);
+    navigate(getLocalContestUrl(contestId, true));
   };
 
   const getCountdown = (date: Date) => {
@@ -259,7 +267,7 @@ const ContestPage = () => {
                         <span className="flex items-center gap-1.5 text-slate-500"><Calendar className="h-3.5 w-3.5" />{contest.startDate.toLocaleDateString()}</span>
                         <span className="flex items-center gap-1.5 text-slate-900"><Clock className="h-3.5 w-3.5" />{getCountdown(contest.startDate)}</span>
                       </div>
-                      <Button className="w-full bg-slate-900 text-white hover:bg-black rounded-xl" onClick={(e) => { e.stopPropagation(); navigate(`/student/contests/${contest.id}`); }}>
+                      <Button className="w-full bg-slate-900 text-white hover:bg-black rounded-xl" onClick={(e) => { e.stopPropagation(); navigate(getLocalContestUrl(contest.id)); }}>
                         View Contest
                       </Button>
                     </CardContent>
@@ -381,7 +389,7 @@ const ContestPage = () => {
                           </div>
 
                           <div className="col-span-3 flex justify-end">
-                            <Button onClick={(e) => { e.stopPropagation(); navigate(`/student/contests/${contest.id}`); }} size="sm" variant="outline" className="rounded-xl border-gray-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all group-hover:px-6">
+                            <Button onClick={(e) => { e.stopPropagation(); navigate(getLocalContestUrl(contest.id)); }} size="sm" variant="outline" className="rounded-xl border-gray-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all group-hover:px-6">
                               View <ChevronRight className="h-3.5 w-3.5 ml-1" />
                             </Button>
                           </div>

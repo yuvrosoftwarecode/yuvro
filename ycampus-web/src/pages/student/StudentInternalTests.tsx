@@ -59,9 +59,10 @@ const categoryMeta: Record<string, {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-const StudentAssessments = () => {
+const StudentInternalTests = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isCampus = !window.location.pathname.includes('/student/assessments') && user?.college_product_type !== 'assessments';
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,9 +77,8 @@ const StudentAssessments = () => {
       }
       try {
         let data = await fetchSubjectsByCollege(user.college_id);
-        if (user.college_product_type) {
-            data = data.filter(s => s.product_type === user.college_product_type);
-        }
+        const activeProductType = isCampus ? 'campus' : 'assessments';
+        data = data.filter(s => s.product_type === activeProductType);
         // Sort subjects alphabetically
         data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);
@@ -123,7 +123,10 @@ const StudentAssessments = () => {
   }, [subjects]);
 
   const handleCardClick = (subjectId: string | number, subjectDisplayName: string) => {
-    navigate(`/student/assessments/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`);
+    navigate(isCampus 
+      ? `/student/campus/internal-tests/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`
+      : `/student/assessments/${subjectId}?name=${encodeURIComponent(subjectDisplayName)}`
+    );
   };
 
   // Group subjects by category
@@ -152,8 +155,11 @@ const StudentAssessments = () => {
       <div className="space-y-6">
         {/* Header */}
         <PageHeader 
-          title="Subject Assessments" 
-          subtitle="Complete your subject-level assessments to demonstrate your conceptual mastery." 
+          title={isCampus ? "Subject Internal Tests" : "Subject Assessments"} 
+          subtitle={isCampus 
+            ? "Complete your subject-level internal tests to demonstrate your conceptual mastery." 
+            : "Complete your subject-level assessments to demonstrate your conceptual mastery."
+          } 
         />
 
         {/* Subject grid grouped by categories */}
@@ -229,10 +235,10 @@ const StudentAssessments = () => {
                             <div className="mt-1">
                               {hasTests ? (
                                 <p className="text-sm font-medium text-slate-500/80 dark:text-slate-400">
-                                  {count} {count === 1 ? 'assessment' : 'assessments'} available
+                                  {count} {count === 1 ? (isCampus ? 'internal test' : 'assessment') : (isCampus ? 'internal tests' : 'assessments')} available
                                 </p>
                               ) : typeof count === 'number' ? (
-                                <p className="text-sm text-slate-400 dark:text-slate-500">No assessments available</p>
+                                <p className="text-sm text-slate-400 dark:text-slate-500">{isCampus ? 'No internal tests available' : 'No assessments available'}</p>
                               ) : (
                                 <div className="h-3 w-16 bg-slate-200/50 dark:bg-slate-850 animate-pulse rounded mt-1" />
                               )}
@@ -294,10 +300,10 @@ const StudentAssessments = () => {
                           <div className="mt-1">
                             {hasTests ? (
                               <p className="text-sm font-medium text-slate-500/80 dark:text-slate-400">
-                                {count} {count === 1 ? 'assessment' : 'assessments'} available
+                                {count} {count === 1 ? (isCampus ? 'internal test' : 'assessment') : (isCampus ? 'internal tests' : 'assessments')} available
                               </p>
                             ) : typeof count === 'number' ? (
-                              <p className="text-sm text-slate-400 dark:text-slate-500">No assessments available</p>
+                              <p className="text-sm text-slate-400 dark:text-slate-500">{isCampus ? 'No internal tests available' : 'No assessments available'}</p>
                             ) : (
                               <div className="h-3 w-16 bg-slate-200/50 dark:bg-slate-850 animate-pulse rounded mt-1" />
                             )}
@@ -316,4 +322,4 @@ const StudentAssessments = () => {
   );
 };
 
-export default StudentAssessments;
+export default StudentInternalTests;

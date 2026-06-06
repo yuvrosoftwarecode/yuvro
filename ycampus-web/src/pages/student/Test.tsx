@@ -86,9 +86,8 @@ const StudentTest = () => {
       }
       try {
         let data = await fetchSubjectsByCollege(user.college_id);
-        if (user.college_product_type) {
-            data = data.filter(s => s.product_type === user.college_product_type);
-        }
+        const activeProductType = window.location.pathname.includes('/student/assessments') || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
+        data = data.filter(s => s.product_type === activeProductType);
         // Sort subjects alphabetically
         data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
         setSubjects(data);

@@ -13,10 +13,10 @@ import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
 import skillTestService from '@/services/skillTestService';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import AssessmentInstructions from './AssessmentInstructions';
-import AssessmentInterface from './AssessmentInterface';
-import AssessmentResults from './AssessmentResults';
-import AssessmentThankYou from './AssessmentThankYou';
+import InternalTestInstructions from './InternalTestInstructions';
+import InternalTestInterface from './InternalTestInterface';
+import InternalTestResults from './InternalTestResults';
+import InternalTestThankYou from './InternalTestThankYou';
 import PageHeader from '@/components/common/PageHeader';
 
 interface Assessment {
@@ -38,8 +38,9 @@ interface Assessment {
 
 interface AssessmentContentProps {}
 
-const AssessmentContent: React.FC<AssessmentContentProps> = () => {
+const InternalTestContent: React.FC<AssessmentContentProps> = () => {
   const { user } = useAuth();
+  const isCampus = !window.location.pathname.includes('/student/assessments') && user?.college_product_type !== 'assessments';
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -68,10 +69,15 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
         })
       ]);
 
-      setSubjects(subjectsData);
+      const activeProductType = isCampus ? 'campus' : 'assessments';
+      const filteredSubjectsData = subjectsData.filter(s => s.product_type === activeProductType);
 
-      const mappedAssessments: Assessment[] = testsData.map(test => {
-        const subject = subjectsData.find(s => s.id === test.subject);
+      setSubjects(filteredSubjectsData);
+
+      const mappedAssessments: Assessment[] = testsData
+        .filter(test => filteredSubjectsData.some(s => s.id === test.subject))
+        .map(test => {
+          const subject = filteredSubjectsData.find(s => s.id === test.subject);
         
         let totalQuestions = test.total_questions || 0;
         if (totalQuestions === 0 && test.questions_config) {
@@ -130,7 +136,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
       }
     } catch (error) {
       console.error('Failed to load assessment data:', error);
-      toast.error('Failed to load assessments');
+      toast.error(isCampus ? 'Failed to load internal tests' : 'Failed to load assessments');
     } finally {
       setIsLoading(false);
     }
@@ -221,14 +227,16 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading assessments...</p>
+        <p className="text-muted-foreground font-medium animate-pulse">
+          {isCampus ? 'Loading internal tests...' : 'Loading assessments...'}
+        </p>
       </div>
     );
   }
 
   if (currentView === 'instructions' && selectedAssessment) {
     return (
-      <AssessmentInstructions
+      <InternalTestInstructions
         assessment={selectedAssessment as any}
         onStart={handleBeginAssessment}
         onBack={handleBackToList}
@@ -238,7 +246,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
   if (currentView === 'assessment' && selectedAssessment) {
     return (
-      <AssessmentInterface
+      <InternalTestInterface
         assessment={selectedAssessment as any}
         onComplete={handleAssessmentComplete}
         onBack={handleBackToList}
@@ -254,7 +262,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     };
 
     return (
-      <AssessmentThankYou
+      <InternalTestThankYou
         assessment={selectedAssessment as any}
         answeredCount={stats.answeredCount}
         totalQuestions={stats.totalQuestions}
@@ -266,7 +274,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
   if (currentView === 'results' && selectedAssessment) {
     return (
-      <AssessmentResults
+      <InternalTestResults
         assessment={selectedAssessment as any}
         onBackToList={handleBackToList}
         onTryAgain={() => handleStartAssessment(selectedAssessment)}
@@ -277,8 +285,8 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Assessments" 
-        subtitle="Complete your assigned assessments and track your progress" 
+        title={isCampus ? "Internal Tests" : "Assessments"} 
+        subtitle={isCampus ? "Complete your assigned internal tests and track your progress" : "Complete your assigned assessments and track your progress"} 
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
@@ -315,7 +323,9 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
       <div className="space-y-4 pt-4">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-lg font-bold text-[#1a1a1a]">Available Assessments ({statusFilter === 'all' ? 'all' : statusFilter})</h3>
+          <h3 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">
+            {isCampus ? "Available Internal Tests" : "Available Assessments"} ({statusFilter === 'all' ? 'all' : statusFilter})
+          </h3>
         </div>
         
         {filteredAssessments.length === 0 ? (
@@ -323,9 +333,13 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
             <div className="p-4 bg-muted rounded-full mb-4">
               <AlertCircle className="w-8 h-8 text-muted-foreground/40" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-1">No assessments found</h3>
+            <h3 className="text-xl font-bold text-foreground mb-1">
+              {isCampus ? "No internal tests found" : "No assessments found"}
+            </h3>
             <p className="text-muted-foreground text-sm max-w-xs">
-              Check back later or adjust your filters to see newly assigned evaluations.
+              {isCampus
+                ? "Check back later or adjust your filters to see newly assigned tests."
+                : "Check back later or adjust your filters to see newly assigned evaluations."}
             </p>
           </div>
         ) : (
@@ -333,18 +347,18 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
             {filteredAssessments.map((assessment) => (
               <Card 
                 key={assessment.id} 
-                className="hover:shadow-md transition-shadow duration-300 border border-gray-100 bg-card rounded-xl p-6"
+                className="border border-gray-100 bg-card rounded-xl p-5"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex flex-col gap-1">
-                    <CardTitle className="text-xl font-bold leading-tight">
+                    <CardTitle className="text-lg font-bold leading-tight">
                       {assessment.title}
                     </CardTitle>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                       {assessment.course}
                     </p>
                   </div>
-                  <Badge className={cn("rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5", getStatusColor(assessment.status))}>
+                  <Badge className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-medium flex items-center gap-1.5 pointer-events-none", getStatusColor(assessment.status))}>
                     {assessment.status === 'completed' ? (
                       <><CheckCircle className="h-3.5 w-3.5" /> Completed</>
                     ) : (
@@ -353,37 +367,37 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
                   </Badge>
                 </div>
 
-                <div className="space-y-6">
-                  <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+                <div className="space-y-5">
+                  <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
                     {assessment.description || 'No description provided.'}
                   </p>
                   
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm font-medium text-slate-800">
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs font-medium text-slate-800">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-slate-400" />
+                      <Clock className="h-3.5 w-3.5 text-slate-400" />
                       <span>{assessment.duration} mins</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-slate-400" />
+                      <FileText className="h-3.5 w-3.5 text-slate-400" />
                       <span>{assessment.totalQuestions} questions</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4 text-slate-400" />
+                      <BarChart3 className="h-3.5 w-3.5 text-slate-400" />
                       <span>{assessment.marks} marks</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-slate-400" />
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" />
                       <span>Due {assessment.dueDate}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Badge className={cn("rounded-full px-4 py-1 text-xs font-bold", getDifficultyColor(assessment.difficulty))}>
+                    <Badge className={cn("rounded-full px-3 py-0.5 text-[11px] font-bold pointer-events-none", getDifficultyColor(assessment.difficulty))}>
                       {assessment.difficulty}
                     </Badge>
                     
                     {assessment.status === 'completed' && assessment.score !== undefined && (
-                      <Badge className="bg-blue-50 text-slate-700 rounded-full px-3 py-1 text-xs font-medium border-none">
+                      <Badge className="bg-blue-50 text-slate-700 rounded-full px-2.5 py-0.5 text-[11px] font-medium border-none pointer-events-none">
                         Score: {assessment.score}/{assessment.marks}
                       </Badge>
                     )}
@@ -391,18 +405,18 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
                   {assessment.status === 'pending' ? (
                     <Button 
-                      className="w-full bg-black text-white hover:bg-black/90 rounded-lg h-12 text-base font-medium flex items-center justify-center gap-2"
+                      className="w-full bg-black text-white hover:bg-black/90 rounded-lg h-10 text-sm font-medium flex items-center justify-center gap-2"
                       onClick={() => handleStartAssessment(assessment)}
                     >
-                      <Play className="h-5 w-5" /> Start Assessment
+                      <Play className="h-4 w-4" /> Start Assessment
                     </Button>
                   ) : (
                     <Button 
                       variant="outline"
-                      className="w-full border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg h-12 text-base font-medium flex items-center justify-center gap-2"
+                      className="w-full border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg h-10 text-sm font-medium flex items-center justify-center gap-2"
                       onClick={() => handleViewResults(assessment)}
                     >
-                      <BarChart3 className="h-5 w-5" /> View Results
+                      <BarChart3 className="h-4 w-4" /> View Results
                     </Button>
                   )}
                 </div>
@@ -415,4 +429,4 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
   );
 };
 
-export default AssessmentContent;
+export default InternalTestContent;

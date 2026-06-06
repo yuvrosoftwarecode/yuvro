@@ -73,6 +73,12 @@ const SubjectDetail: React.FC = () => {
       try {
         setLoading(true);
         const [sub, rawUnits] = await Promise.all([fetchSubjectById(subjectId), fetchUnitsBySubject(subjectId)]);
+        const isAssessments = window.location.pathname.includes('/student/assessments');
+        if (isAssessments && sub.short_code !== 'DSA100') {
+          toast.error('Unauthorized access');
+          navigate('/student/assessments/notes');
+          return;
+        }
         setSubject(sub);
 
         const mappedContent = await Promise.all(
@@ -177,7 +183,8 @@ const SubjectDetail: React.FC = () => {
   };
 
   const handleBackToNotes = () => {
-    navigate('/student/notes');
+    const isAssessments = window.location.pathname.includes('/student/assessments');
+    navigate(isAssessments ? '/student/assessments/notes' : '/student/notes');
   };
 
   const handleLayoutSelect = (layout: LayoutMode) => {

@@ -55,7 +55,7 @@ interface Question {
   marks: number;
 }
 
-interface AssessmentInterfaceProps {
+interface InternalTestInterfaceProps {
   assessment: Assessment;
   onComplete: (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
@@ -69,7 +69,8 @@ const DEFAULT_CODING_TEMPLATES = [
   '// Write your code here\n',
 ].map((t) => t.trim());
 
-const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, onComplete, onBack }) => {
+const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({ assessment, onComplete, onBack }) => {
+  const isCampus = !window.location.pathname.includes('/student/assessments');
   const { toast } = useToast();
 
   // Questions & submission state
@@ -137,7 +138,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
         }
       } catch (err: any) {
         if (!cancelled) {
-          const msg = err?.message || 'Failed to load assessment questions. Please try again.';
+          const msg = err?.message || `Failed to load ${isCampus ? 'internal test' : 'assessment'} questions. Please try again.`;
           cleanupCamera();
           loadPromiseRef.current = null;
           sessionStorage.setItem('toast_error', msg);
@@ -440,7 +441,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium">Loading your assessment questions...</p>
+        <p className="text-muted-foreground font-medium">Loading your {isCampus ? 'internal test' : 'assessment'} questions...</p>
       </div>
     );
   }
@@ -450,7 +451,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background p-8">
         <div className="text-center space-y-3 max-w-md">
           <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
-          <h2 className="text-xl font-bold">Could Not Load Assessment</h2>
+          <h2 className="text-xl font-bold">Could Not Load {isCampus ? 'Internal Test' : 'Assessment'}</h2>
           <p className="text-muted-foreground">{loadError}</p>
           <Button onClick={onBack}>Go Back</Button>
         </div>
@@ -463,7 +464,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background p-8">
         <div className="text-center space-y-3 max-w-md">
           <h2 className="text-xl font-bold">No Questions Available</h2>
-          <p className="text-muted-foreground">This assessment has no questions assigned yet.</p>
+          <p className="text-muted-foreground">This {isCampus ? 'internal test' : 'assessment'} has no questions assigned yet.</p>
           <Button onClick={onBack}>Go Back</Button>
         </div>
       </div>
@@ -558,7 +559,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Submit Assessment?</AlertDialogTitle>
+                  <AlertDialogTitle>Submit {isCampus ? 'Internal Test' : 'Assessment'}?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Are you sure you want to submit? You won't be able to make changes after submission.
                     <br /><br />
@@ -570,7 +571,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSubmitAssessment}>Submit Assessment</AlertDialogAction>
+                  <AlertDialogAction onClick={handleSubmitAssessment}>Submit {isCampus ? 'Internal Test' : 'Assessment'}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -724,12 +725,12 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
           <AlertDialogHeader>
             <AlertDialogTitle>⚠️ Tab Switch Detected</AlertDialogTitle>
             <AlertDialogDescription>
-              You switched tabs during the assessment. This action has been logged and reported to your faculty.
-              Continuing may lead to assessment termination on further violations.
+              You switched tabs during the {isCampus ? 'internal test' : 'assessment'}. This action has been logged and reported to your faculty.
+              Continuing may lead to {isCampus ? 'internal test' : 'assessment'} termination on further violations.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleContinueAssessment}>Continue Assessment</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleContinueAssessment}>Continue {isCampus ? 'Internal Test' : 'Assessment'}</AlertDialogCancel>
             <AlertDialogAction onClick={handleCancelAssessment}>Submit & Exit</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -739,9 +740,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
       <AlertDialog open={showTabSwitchDialog} onOpenChange={() => {}}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Assessment Ended</AlertDialogTitle>
+            <AlertDialogTitle>{isCampus ? 'Internal Test' : 'Assessment'} Ended</AlertDialogTitle>
             <AlertDialogDescription>
-              The assessment has been automatically submitted due to multiple security violations.
+              The {isCampus ? 'internal test' : 'assessment'} has been automatically submitted due to multiple security violations.
               Your responses up to this point have been recorded and reported.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -754,4 +755,4 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({ assessment, o
   );
 };
 
-export default AssessmentInterface;
+export default InternalTestInterface;

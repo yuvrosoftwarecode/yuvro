@@ -47,7 +47,7 @@ const difficultyConfig: Record<string, { label: string; className: string }> = {
   hard:   { label: 'Hard',   className: 'bg-red-50    text-red-700    border-red-200    dark:bg-red-950/30    dark:text-red-400'   },
 };
 
-const AssessmentCard = ({ test, onAnalytics, onEdit, onDelete, onStatusToggle, isTogglingStatus }: any) => {
+const InternalTestCard = ({ test, onAnalytics, onEdit, onDelete, onStatusToggle, isTogglingStatus }: any) => {
   const isActive = test.publish_status === 'active';
   const diff = difficultyConfig[test.difficulty] ?? difficultyConfig.medium;
 
@@ -179,7 +179,7 @@ const SelectionRequiredPlaceholder = () => (
     </div>
     <p className="text-lg font-semibold text-foreground mb-2">Select a Unit to Continue</p>
     <p className="text-muted-foreground text-sm max-w-xs text-center">
-      Choose Batch → Department → Subject → Section → Unit above to manage assessments.
+      Choose Batch → Department → Subject → Section → Unit above to manage internal tests.
     </p>
   </div>
 );
@@ -188,7 +188,7 @@ const DeleteDialog = ({ open, title, onCancel, onConfirm }: any) => (
   <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
     <AlertDialogContent className="rounded-xl border-border max-w-md">
       <AlertDialogHeader className="space-y-2">
-        <AlertDialogTitle className="text-xl font-bold text-foreground">Delete Assessment?</AlertDialogTitle>
+        <AlertDialogTitle className="text-xl font-bold text-foreground">Delete Internal Test?</AlertDialogTitle>
         <AlertDialogDescription className="text-muted-foreground">
           Are you sure you want to delete <span className="font-semibold text-foreground">"{title}"</span>? This action cannot be undone.
         </AlertDialogDescription>
@@ -203,7 +203,7 @@ const DeleteDialog = ({ open, title, onCancel, onConfirm }: any) => (
 
 // --- Main component ---
 
-const Assessment = () => {
+const FacultyInternalTest = () => {
   const [view, setView] = useState<ViewMode>('list');
   const [testsLoading, setTestsLoading] = useState(false);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -292,7 +292,7 @@ const Assessment = () => {
       setTestsLoading(true);
       const data = await skillTestService.getSkillTestsByUnit(unitId, 'assessment');
       setAssessments(data);
-    } catch (e) { toast({ title: "Error", description: "Failed to load assessments", variant: "destructive" }); }
+    } catch (e) { toast({ title: "Error", description: "Failed to load internal tests", variant: "destructive" }); }
     finally { setTestsLoading(false); }
   };
 
@@ -326,7 +326,7 @@ const Assessment = () => {
   const handleDelete = async (id: string) => {
     try {
       await skillTestService.deleteSkillTest(id);
-      toast({ title: "Deleted", description: "Assessment removed." });
+      toast({ title: "Deleted", description: "Internal test removed." });
       if (selectedUnit) loadAssessments(selectedUnit);
     } catch (e) { toast({ title: "Error", description: "Failed to delete", variant: "destructive" }); }
     finally { setAssessmentToDelete(null); }
@@ -342,12 +342,12 @@ const Assessment = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Assessment Manager</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">Manage and evaluate student competency through Assessments.</p>
+          <h1 className="text-2xl font-bold text-foreground">Internal Test Manager</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">Manage and evaluate student competency through Internal Tests.</p>
         </div>
         <Button onClick={handleCreate} disabled={!selectedUnit}
           className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-10 px-5 font-semibold">
-          <Plus className="h-4 w-4" /> New Assessment
+          <Plus className="h-4 w-4" /> New Internal Test
         </Button>
       </div>
 
@@ -364,12 +364,12 @@ const Assessment = () => {
       </Card>
 
       {testsLoading ? (
-        <LoadingPlaceholder text="Loading assessments…" />
+        <LoadingPlaceholder text="Loading internal tests…" />
       ) : selectedUnit ? (
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-foreground">Available Assessments</h2>
+              <h2 className="text-lg font-semibold text-foreground">Available Internal Tests</h2>
               <Badge variant="secondary" className="font-semibold">{filteredAssessments.length}</Badge>
               {(currentSubjectName || currentUnitName) && (
                 <span className="text-sm text-muted-foreground">
@@ -391,7 +391,7 @@ const Assessment = () => {
           {filteredAssessments.length > 0 ? (
             <div className="grid grid-cols-1 gap-3">
               {filteredAssessments.map((test) => (
-                <AssessmentCard
+                <InternalTestCard
                   key={test.id}
                   test={test}
                   onAnalytics={() => handleAnalytics(test)}
@@ -403,7 +403,7 @@ const Assessment = () => {
               ))}
             </div>
           ) : (
-            <EmptyPlaceholder text="No assessments exist for this unit yet." icon={FileText} />
+            <EmptyPlaceholder text="No internal tests exist for this unit yet." icon={FileText} />
           )}
         </div>
       ) : (
@@ -424,15 +424,15 @@ const Assessment = () => {
         try {
           if (view === 'create') {
             await skillTestService.createSkillTest(payload);
-            toast({ title: 'Created', description: 'Assessment created successfully.' });
+            toast({ title: 'Created', description: 'Internal test created successfully.' });
           } else if (selectedAssessment) {
             await skillTestService.updateSkillTest(selectedAssessment.id, payload);
-            toast({ title: 'Saved', description: 'Assessment updated successfully.' });
+            toast({ title: 'Saved', description: 'Internal test updated successfully.' });
           }
           setView('list');
           if (selectedUnit) loadAssessments(selectedUnit);
         } catch {
-          toast({ title: 'Error', description: 'Failed to save assessment.', variant: 'destructive' });
+          toast({ title: 'Error', description: 'Failed to save internal test.', variant: 'destructive' });
         }
       }}
       onCancel={() => setView('list')}
@@ -511,4 +511,4 @@ const Assessment = () => {
   );
 };
 
-export default Assessment;
+export default FacultyInternalTest;

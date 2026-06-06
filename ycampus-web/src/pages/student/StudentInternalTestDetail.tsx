@@ -29,8 +29,9 @@ interface Course {
   topics: Topic[];
 }
 
-const StudentAssessmentDetail = () => {
+const StudentInternalTestDetail = () => {
   const { user } = useAuth();
+  const isCampus = !window.location.pathname.includes('/student/assessments') && user?.college_product_type !== 'assessments';
   const { subjectId } = useParams<{ subjectId: string }>();
   const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -71,7 +72,7 @@ const StudentAssessmentDetail = () => {
   }, [user?.id]);
 
   const [searchParams] = useSearchParams();
-  const displaySubjectName = searchParams.get('name') ? decodeURIComponent(searchParams.get('name')!) : "Subject Assessment";
+  const displaySubjectName = searchParams.get('name') ? decodeURIComponent(searchParams.get('name')!) : (isCampus ? "Subject Internal Test" : "Subject Assessment");
 
   // Fetch only subject-level assessments (with unit = null)
   useEffect(() => {
@@ -96,7 +97,7 @@ const StudentAssessmentDetail = () => {
   }, [subjectId]);
 
   const handleBackToSubjectList = () => {
-    navigate("/student/assessments");
+    navigate(isCampus ? "/student/campus/internal-tests" : "/student/assessments");
   };
 
   const handleTopicSelect = (topic: Topic) => {
@@ -221,11 +222,11 @@ const StudentAssessmentDetail = () => {
             <h1 className="text-lg font-semibold text-foreground truncate">
               {displaySubjectName}
             </h1>
-            <p className="text-xs text-muted-foreground">Subject-Level Assessments</p>
+            <p className="text-xs text-muted-foreground">{isCampus ? "Subject-Level Internal Tests" : "Subject-Level Assessments"}</p>
           </div>
           {!testsLoading && allTests.length > 0 && (
             <Badge variant="secondary" className="font-semibold shrink-0">
-              {allTests.length} assessment{allTests.length !== 1 ? 's' : ''}
+              {allTests.length} {allTests.length === 1 ? (isCampus ? 'internal test' : 'assessment') : (isCampus ? 'internal tests' : 'assessments')}
             </Badge>
           )}
         </div>
@@ -331,7 +332,7 @@ const StudentAssessmentDetail = () => {
                         ) : (
                           <>
                             <Play className="mr-2 h-4 w-4" />
-                            Start Assessment
+                            {isCampus ? "Start Internal Test" : "Start Assessment"}
                           </>
                         )}
                       </Button>
@@ -347,10 +348,12 @@ const StudentAssessmentDetail = () => {
               <CheckCircle className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-foreground font-semibold mb-1">
-              No assessments available
+              {isCampus ? "No internal tests available" : "No assessments available"}
             </p>
             <p className="text-muted-foreground text-sm max-w-xs">
-              No subject assessments have been published for this subject yet.
+              {isCampus 
+                ? "No subject internal tests have been published for this subject yet."
+                : "No subject assessments have been published for this subject yet."}
             </p>
           </div>
         )}
@@ -359,4 +362,4 @@ const StudentAssessmentDetail = () => {
   );
 };
 
-export default StudentAssessmentDetail;
+export default StudentInternalTestDetail;

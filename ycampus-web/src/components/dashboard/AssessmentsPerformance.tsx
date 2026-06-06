@@ -5,12 +5,18 @@ import { useQuery } from '@tanstack/react-query';
 import { studentDashboardService } from '@/services/studentDashboardService';
 import { useAuth } from '@/contexts/AuthContext';
 
+import { useLocation } from 'react-router-dom';
+
 export function AssessmentsPerformance() {
   const { user } = useAuth();
+  const location = useLocation();
+
+  const isAssessmentsPath = location.pathname.includes('/student/assessments');
+  const effectiveProductType = isAssessmentsPath || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
 
   const { data, isLoading } = useQuery({
-    queryKey: ['assessmentsPerformance', user?.college_product_type],
-    queryFn: () => studentDashboardService.getAssessments(user?.college_product_type)
+    queryKey: ['assessmentsPerformance', effectiveProductType],
+    queryFn: () => studentDashboardService.getAssessments(effectiveProductType)
   });
 
   if (isLoading) {
@@ -38,7 +44,7 @@ export function AssessmentsPerformance() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <ClipboardCheck className="h-5 w-5 text-muted-foreground" />
-            Assessments Performance
+            {effectiveProductType === 'assessments' ? 'Assessments Performance' : 'Internal Tests Performance'}
           </CardTitle>
           <Award className="h-5 w-5 text-muted-foreground" />
         </div>
@@ -77,7 +83,9 @@ export function AssessmentsPerformance() {
         <div className="pt-2 border-t mt-auto">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Last Assessment Performance</span>
+            <span className="text-sm font-medium">
+              {effectiveProductType === 'assessments' ? 'Last Assessment Performance' : 'Last Internal Test Performance'}
+            </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-sm">
             <div className="text-center p-2 rounded bg-muted/30">
@@ -94,7 +102,9 @@ export function AssessmentsPerformance() {
         </div>
 
         <div className="text-xs text-muted-foreground mt-2">
-          Assessments are subject level. Keep aiming for higher scores!
+          {effectiveProductType === 'assessments' 
+            ? 'Assessments are subject level. Keep aiming for higher scores!'
+            : 'Internal tests are subject level. Keep aiming for higher scores!'}
         </div>
       </CardContent>
     </Card>

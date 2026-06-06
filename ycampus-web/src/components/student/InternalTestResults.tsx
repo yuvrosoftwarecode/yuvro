@@ -36,7 +36,7 @@ interface Assessment {
   score?: number;
 }
 
-interface AssessmentResultsProps {
+interface InternalTestResultsProps {
   assessment: Assessment;
   onBackToList: () => void;
   onTryAgain: () => void;
@@ -55,11 +55,12 @@ interface QuestionResult {
   maxPoints: number;
 }
 
-const AssessmentResults: React.FC<AssessmentResultsProps> = ({
+const InternalTestResults: React.FC<InternalTestResultsProps> = ({
   assessment,
   onBackToList,
   onTryAgain,
 }) => {
+  const isCampus = !window.location.pathname.includes('/student/assessments');
   const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'ai_buddy'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'mcq' | 'coding' | 'descriptive'>('all');
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
@@ -220,7 +221,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
     const incorrect = questionResults.filter((q) => !q.isCorrect);
     const focusQuestion = incorrect[0] || questionResults[0];
     return [
-      `Assessment: ${assessment.title}`,
+      `${isCampus ? "Internal Test" : "Assessment"}: ${assessment.title}`,
       `Course: ${assessment.course}`,
       `Score: ${totalScore}/${maxScore} (${percentage}%)`,
       `Correct: ${correctAnswers}/${totalQuestions}`,
@@ -238,7 +239,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
             <div className="flex-1">
                 <Button className="inline-flex items-center gap-2 bg-white text-black hover:bg-slate-100" onClick={onBackToList}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Assessments  
+                    Back to {isCampus ? "Internal Tests" : "Assessments"}  
                 </Button>
             </div>
             <div className="flex-1 text-center">  
@@ -260,7 +261,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BookOpen className="w-5 h-5" />
-                    Assessment Summary
+                    {isCampus ? "Internal Test" : "Assessment"} Summary
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -270,7 +271,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
                       <div className="font-semibold">{assessment.course}</div>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Assessment:</span>
+                      <span className="text-muted-foreground">{isCampus ? "Internal Test" : "Assessment"}:</span>
                       <div className="font-semibold">{assessment.title}</div>
                     </div>
                     <div>
@@ -682,4 +683,4 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   );
 };
 
-export default AssessmentResults;
+export default InternalTestResults;
