@@ -445,6 +445,9 @@ if ! command -v nginx &>/dev/null; then
     sudo apt-get update -q
     sudo apt-get install -y nginx certbot python3-certbot-nginx -q
 fi
+if ! command -v make &>/dev/null; then
+    sudo apt-get install -y make -q
+fi
 sudo mkdir -p /var/www/certbot
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev 2>/dev/null || true

@@ -9,7 +9,7 @@
 .PHONY: help install run stop clean logs status port-forward
 .PHONY: install-ycode install-ycampus install-ylabs run-ycode run-ycampus run-ylabs
 .PHONY: stop-ycode stop-ycampus stop-ylabs clean-ycode clean-ycampus clean-ylabs
-.PHONY: logs-ycode logs-ycampus logs-ylabs load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus
+.PHONY: logs-ycode logs-ycampus logs-ylabs load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
 .PHONY: db-reset
@@ -198,9 +198,11 @@ help:
 	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo "  make logs-ycode         View YCode logs"
 	@echo "  make logs-ycampus       View YCampus logs"
-	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus"
-	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data"
-	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data"
+	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus (no clear)"
+	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data (no clear)"
+	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data (no clear)"
+	@echo "  make load-courses-ycode             Load courses only into YCode"
+	@echo "  make load-courses-ycampus           Load courses only into YCampus"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -658,6 +660,12 @@ setup-fixtures-data-ycode:
 
 setup-fixtures-data-ycampus:
 	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+load-courses-ycode:
+	@$(MAKE) -f Makefile.ycode load-courses
+
+load-courses-ycampus:
+	@$(MAKE) -f Makefile.ycampus load-courses
 
 # ============================================================================
 # Database Commands
