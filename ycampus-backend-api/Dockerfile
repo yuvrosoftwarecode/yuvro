@@ -41,6 +41,7 @@ COPY . .
 RUN mkdir -p /app/staticfiles \
     && SECRET_KEY=build-placeholder \
        DATABASE_URL=sqlite:///tmp/build.db \
+       APP_NAME=ycampus \
        AWS_STORAGE_BUCKET_NAME=build-placeholder \
        AWS_S3_REGION_NAME=ap-south-1 \
        AWS_S3_ENDPOINT_URL= \
