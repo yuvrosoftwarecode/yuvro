@@ -93,35 +93,17 @@ def build_public_url(object_name):
     return _build_unsigned_url(obj, bucket)
 
 
-def _app_prefix():
-    """
-    Prepend the per-app folder for every deployment.
-
-      → "<APP_NAME>/"   (e.g. "ycode/" or "ycampus/")
-
-    APP_NAME is read from the env file. The same prefix is used in local
-    and remote so all envs share a consistent layout:
-
-      local  : yuvro-local/<APP_NAME>/...
-      dev    : yuvro-dev/<APP_NAME>/...
-      prod   : yuvro-prod/<APP_NAME>/...
-    """
-    app_name = (getattr(settings, "APP_NAME", "") or "").strip().strip("/")
-    if not app_name:
-        return ""
-    return f"{app_name}/"
-
-
 def upload_image(*, key, file_obj, replace_extensions=()):
     """
     Save an image via Django's default storage backend.
 
-    The key is relative to the bucket root. For non-local deployments the
-    per-app folder (from APP_NAME) is auto-prepended so callers can use the
-    same key shape across local / dev / staging / prod.
+    The key is relative to the bucket root; the per-app folder (from
+    APP_NAME) is auto-prepended so callers can use the same key shape
+    across local / dev / staging / prod.
 
-      Local : <key>
-      else  : <APP_NAME>/<key>
+      local  : yuvro-local/<APP_NAME>/<key>
+      dev    : yuvro-dev/<APP_NAME>/<key>
+      prod   : yuvro-prod/<APP_NAME>/<key>
 
     If `replace_extensions` is provided, prior objects with the same
     base name but each of those extensions are deleted first — useful
@@ -131,7 +113,8 @@ def upload_image(*, key, file_obj, replace_extensions=()):
     Returns the storage key (not a URL); pass it to build_public_url when
     serializing for clients.
     """
-    full_key = _app_prefix() + key.lstrip("/")
+    app_name = (getattr(settings, "APP_NAME", "") or "").strip().strip("/")
+    full_key = (f"{app_name}/" if app_name else "") + key.lstrip("/")
 
     try:
         if replace_extensions and "." in full_key:
