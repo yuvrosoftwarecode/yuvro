@@ -78,13 +78,8 @@ output "ycampus_db_username" {
 
 # S3 Outputs
 output "app_data_bucket_name" {
-  description = "S3 base bucket (per-env, per-app data lives under <env>/<app>-uploads/)"
+  description = "S3 base bucket (per-env; app data lives under <env>/<app>-uploads/, logs under <env>/logs/)"
   value       = module.s3.base_bucket_name
-}
-
-output "logs_bucket_name" {
-  description = "S3 bucket for logs"
-  value       = module.s3.logs_bucket_name
 }
 
 # IAM Outputs
