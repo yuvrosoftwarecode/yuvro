@@ -125,47 +125,24 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "uploads"
 
-# ----------------------------------------------------------------------------
-# Object Storage (AWS S3 / MinIO)
-# ----------------------------------------------------------------------------
-# STORAGE_BACKEND controls where camera snapshots, file uploads, etc. land:
-#   - "s3"    : AWS S3 (or any S3-compatible store, e.g. MinIO in local)
-#   - "local" : Local filesystem under MEDIA_ROOT (legacy behavior)
-#
-# In all envs we default to "s3" — the difference is the endpoint:
-#   - DEPLOY_TYPE=local  →  AWS_S3_ENDPOINT_URL points at the MinIO container
-#   - dev/staging/prod   →  AWS_S3_ENDPOINT_URL is empty (real AWS S3)
-# Set STORAGE_BACKEND=local to opt out and use the filesystem.
 DEPLOY_TYPE = config("DEPLOY_TYPE", default="docker")
+DEPLOY_ENV = config("DEPLOY_ENV", default="local")
 STORAGE_BACKEND = config("STORAGE_BACKEND", default="s3")
 
-# AWS / S3 settings
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="ycode-uploads")
 AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="us-east-1")
-# MinIO (and other S3-compat) overrides — set in .env.local
 AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL", default="")
-# Path-style addressing is required for MinIO & most S3-compat stores; AWS S3
-# uses virtual-hosted style. Default to path-style for safety with MinIO.
 AWS_S3_ADDRESSING_STYLE = config("AWS_S3_ADDRESSING_STYLE", default="path")
-# Keep object keys private; switch AWS_DEFAULT_ACL to "public-read" if you
-# need unauthenticated GETs (e.g. for direct image embedding).
 AWS_DEFAULT_ACL = config("AWS_DEFAULT_ACL", default=None)
 AWS_QUERYSTRING_AUTH = config("AWS_QUERYSTRING_AUTH", default=True, cast=bool)
 AWS_S3_SIGNATURE_VERSION = config("AWS_S3_SIGNATURE_VERSION", default="s3v4")
-
-# Public-facing URL for objects. This is what gets stored on the model
-# fields (e.g. Profile.profile_image) and what the browser uses to render
-# the image. It can differ from AWS_S3_ENDPOINT_URL when the storage host
-# is on a private docker network but a public port is published on the host.
-# Falls back to AWS_S3_ENDPOINT_URL when not set, so prod (real S3) is unchanged.
 AWS_S3_PUBLIC_ENDPOINT_URL = config(
     "AWS_S3_PUBLIC_ENDPOINT_URL",
     default=AWS_S3_ENDPOINT_URL,
 )
 
-# Default file storage — switched at runtime based on STORAGE_BACKEND.
 if STORAGE_BACKEND == "s3":
     STORAGES = {
         "default": {

@@ -506,13 +506,8 @@ def upload_profile_image(request):
     multipart/form-data:
         image:    file (required, ≤10 MB)
         field:    "profile_image" | "cover_image" | "id_card_image" (default: profile_image)
-
-    The file is written via Django's `default_storage` so it lands on S3 in
-    dev/staging/prod and on the local MinIO container when DEPLOY_TYPE=local.
-    The returned URL is what's already stored on `Profile.<field>`.
     """
     ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
-    # Per-app sub-folder in the shared base bucket (see OpenTofu s3 module).
     APP_FOLDER = "ycampus-uploads"
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
@@ -542,8 +537,6 @@ def upload_profile_image(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Determine extension from the upload's content type, falling back to the
-    # filename's extension. This keeps the object key readable in the bucket.
     content_type = (image_file.content_type or "").lower()
     ext = ALLOWED_CONTENT_TYPES.get(content_type)
     if not ext:
@@ -552,17 +545,9 @@ def upload_profile_image(request):
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    # Object key layout:
-    #   Local (MinIO):    profile/{user_id}/{field}.{ext}
-    #   dev/staging/prod: {env}/{app}-uploads/profile/{user_id}/{field}.{ext}
-    #                     (under a single base bucket; see OpenTofu s3 module)
-    #
-    # "Local" is detected by the presence of AWS_S3_ENDPOINT_URL (MinIO/LocalStack).
-    # In real AWS (dev/staging/prod) the per-env + per-app folder isolates data
-    # in the shared base bucket.
-    deploy_env = getattr(settings, "DEPLOY_ENV", "local") or "local"
-    endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "") or ""
-    is_local_like = bool(endpoint)  # MinIO / LocalStack / any S3-compat
+    deploy_env = settings.DEPLOY_ENV
+    endpoint = settings.AWS_S3_ENDPOINT_URL
+    is_local_like = bool(endpoint)
 
     if is_local_like:
         object_key = f"profile/{request.user.id}/{target_field}.{ext}"
@@ -579,9 +564,6 @@ def upload_profile_image(request):
     try:
         from django.core.files.storage import default_storage
 
-        # Delete any prior object for this user in this folder, regardless
-        # of extension. If the user previously uploaded a .jpg and now
-        # uploads a .png, we want the old .jpg gone too.
         for prior_ext in ("jpg", "jpeg", "png", "webp", "gif"):
             for prefix in cleanup_prefixes:
                 try:
@@ -597,9 +579,6 @@ def upload_profile_image(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    # Store only the object name (not the full URL) on the model. The full
-    # URL is built on the fly by `build_public_url` and exposed via the
-    # serializer (ProfileSerializer adds the *_url read-only fields).
     setattr(profile, target_field, stored_name)
     profile.save(update_fields=[target_field, "updated_at"])
 

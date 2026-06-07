@@ -611,8 +611,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     education = EducationSerializer(many=True, read_only=True)
     certifications = CertificationSerializer(many=True, read_only=True)
 
-    # The DB stores only the object name; on read we expose the full public
-    # URL. The fields are still writable via PATCH for backward compat.
     def _public(self, obj, attr):
         from core.storage import build_public_url
         return build_public_url(getattr(obj, attr, None))

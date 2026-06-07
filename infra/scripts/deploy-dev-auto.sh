@@ -281,12 +281,6 @@ deploy_applications() {
         "$HOME/.ssh/ycode-ec2-github" \
         "ubuntu@$instance_ip:/home/ubuntu/.ssh/github_deploy_key"
 
-    # ── Inject S3 / IAM credentials from OpenTofu into the .env.dev-secrets
-    # ── files. The backends read AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
-    # ── and AWS_STORAGE_BUCKET_NAME at container startup. OpenTofu provisioned
-    # ── a base bucket (`yuvro-${env}-<account_id>`) and an IAM user with
-    # ── scoped S3 permissions; we read both via `tofu output` and write them
-    # ── into the existing secrets file (preserving any user-supplied values).
     print_info "Wiring S3 / IAM credentials from OpenTofu into .env.dev-secrets..."
     cd "$OPENTOFU_DIR"
     S3_BASE_BUCKET="$(tofu output -raw base_bucket_name 2>/dev/null || true)"
@@ -301,8 +295,6 @@ deploy_applications() {
         print_info "S3 IAM user:     $(tofu output -raw app_service_user_name 2>/dev/null || echo 'app-service-user')"
     fi
 
-    # Helper: upsert a KEY=VALUE pair in a .env*-secrets file, appending if
-    # missing. Runs locally before the secrets files are SCP'd to EC2.
     _set_kv() {
         local f="$1" key="$2" value="$3"
         if [ -z "$value" ]; then return 0; fi
@@ -325,16 +317,18 @@ deploy_applications() {
         _set_kv "$local_path" "AWS_SECRET_ACCESS_KEY" "$S3_SECRET_ACCESS_KEY"
     done
 
-    # Also substitute the placeholder in the non-secrets .env.dev files so
-    # the bucket name flows to the running container.
+    # Also upsert the bucket name in the non-secrets .env.dev files so the
+    # value in source matches what OpenTofu provisioned. (The .env.dev file
+    # already has the literal `yuvro-dev` as a sensible default; this
+    # idempotently overrides it with the value OpenTofu reports in case
+    # someone later renames the bucket.)
     for env_file in \
         "ycode-backend-api/.env.dev" \
         "ycampus-backend-api/.env.dev"
     do
         local_path="$SECRETS_DIR/$env_file"
         if [ -f "$local_path" ] && [ -n "$S3_BASE_BUCKET" ]; then
-            sed -i.bak -E "s|^AWS_STORAGE_BUCKET_NAME=__AWS_STORAGE_BUCKET_NAME__$|AWS_STORAGE_BUCKET_NAME=$S3_BASE_BUCKET|" "$local_path"
-            rm -f "$local_path.bak"
+            _set_kv "$local_path" "AWS_STORAGE_BUCKET_NAME" "$S3_BASE_BUCKET"
         fi
     done
 
@@ -489,13 +483,12 @@ DEPLOY_EOF
     print_success "Applications deployed"
     echo ""
 
-    # Summary of the S3 / object-storage configuration that was provisioned.
     if [ -n "$S3_BASE_BUCKET" ]; then
         print_header "Object Storage (S3)"
         print_info "Base bucket (S3):  $S3_BASE_BUCKET"
         print_info "                   https://s3.console.aws.amazon.com/s3/buckets/$S3_BASE_BUCKET"
-        print_info "Per-env layout:   s3://$S3_BASE_BUCKET/dev/ycode-uploads/"
-        print_info "                   s3://$S3_BASE_BUCKET/dev/ycampus-uploads/"
+        print_info "Per-app layout:   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycode-uploads/"
+        print_info "                   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycampus-uploads/"
         if [ -n "$S3_ACCESS_KEY_ID" ]; then
             print_info "IAM access key:   $S3_ACCESS_KEY_ID (scoped to this base bucket)"
         fi

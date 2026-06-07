@@ -103,18 +103,6 @@ resource "aws_iam_instance_profile" "app_service" {
   role = aws_iam_role.app_service.name
 }
 
-# ----------------------------------------------------------------------------
-# IAM user with long-lived access keys.
-#
-# Used by the Dockerized backends in dev/staging/prod to talk to S3. The
-# backends prefer the EC2 instance profile (above) when running on AWS, but
-# they need static access keys when running locally with real AWS S3, in CI,
-# or in any environment where no instance profile is attached.
-#
-# `deploy-dev-auto.sh` reads the access_key_id / secret_access_key outputs
-# from OpenTofu and writes them into the per-backend `.env.dev-secrets`
-# file so the docker compose stack picks them up.
-# ----------------------------------------------------------------------------
 resource "aws_iam_user" "app_service" {
   name = "${var.environment}-app-service-user"
 

@@ -534,11 +534,7 @@ class ProctoringMixin:
         """
         Save a camera snapshot via Django's default storage backend.
 
-        The actual destination depends on STORAGE_BACKEND in settings:
-          - "s3"  → uploaded to AWS S3 (or MinIO when DEPLOY_TYPE=local)
-          - "local" → written to MEDIA_ROOT on the local filesystem
-
-        The relative key is the same in both cases:
+        The relative key is the same regardless of STORAGE_BACKEND:
             {email}/{assessment_type}/{parent}/{exam}/{attempt}/{filename}
         and is what we return so callers can later build a URL via
         `default_storage.url(key)`.
@@ -547,8 +543,6 @@ class ProctoringMixin:
             from django.utils.text import slugify
             from django.core.files.storage import default_storage
 
-            # 1. Assessment Type & Hierarchy
-            # Determine type and hierarchical names (Course/Topic)
             assessment_type = self.submission_model.__name__.replace("Submission", "").lower()
 
             assessment = getattr(submission, self.submission_lookup_field)
@@ -605,8 +599,7 @@ class ProctoringMixin:
             if question_id:
                 filename = f"q{question_id}_{ts}.png"
 
-            # 4. Object Key (relative path) — same shape for S3 and local
-            # {email}/{type}/{parent}/{exam}/{attempt}/{filename}
+            # Object key: {email}/{type}/{parent}/{exam}/{attempt}/{filename}
             email_safe = user.email if user.email else f"user_{user.id}"
 
             key_parts = [email_safe, assessment_type]
@@ -618,9 +611,6 @@ class ProctoringMixin:
 
             object_key = "/".join(key_parts)
 
-            # 5. Save via the configured storage backend.
-            # default_storage.save() handles the S3 upload or local write
-            # transparently and returns the final stored name.
             stored_name = default_storage.save(object_key, file_obj)
 
             return stored_name

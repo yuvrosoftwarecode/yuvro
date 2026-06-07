@@ -1,8 +1,5 @@
 # YCampus Platform Makefile
 
-# Compose files used by every target in this makefile. The yuvro project is
-# included because it owns the shared `yuvro-minio` service and the
-# `yuvro-storage` network that the ycampus backend attaches to.
 COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml
 
 .PHONY: setup dev dev-detached stop restart logs clean reload-data load-courses
