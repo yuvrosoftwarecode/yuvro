@@ -33,7 +33,7 @@ def build_public_url(object_name):
         or "us-east-1"
     )
     addressing = (
-        getattr(settings, "AWS_S3_ADDRESSING_STYLE", "") or "virtual-hosted"
+        getattr(settings, "AWS_S3_ADDRESSING_STYLE", "") or "virtual"
     ).strip().lower()
     key = quote(obj, safe="/")
     if addressing == "path":

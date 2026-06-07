@@ -545,7 +545,6 @@ def upload_profile_image(request):
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    deploy_env = settings.DEPLOY_ENV
     endpoint = settings.AWS_S3_ENDPOINT_URL
     is_local_like = bool(endpoint)
 
@@ -554,11 +553,11 @@ def upload_profile_image(request):
         cleanup_prefixes = [f"profile/{request.user.id}"]
     else:
         object_key = (
-            f"{deploy_env}/{APP_FOLDER}/profile/"
+            f"{APP_FOLDER}/profile/"
             f"{request.user.id}/{target_field}.{ext}"
         )
         cleanup_prefixes = [
-            f"{deploy_env}/{APP_FOLDER}/profile/{request.user.id}"
+            f"{APP_FOLDER}/profile/{request.user.id}"
         ]
 
     try:
