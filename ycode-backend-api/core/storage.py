@@ -95,16 +95,17 @@ def build_public_url(object_name):
 
 def _app_prefix():
     """
-    Prepend the per-app folder for non-local deployments.
+    Prepend the per-app folder for every deployment.
 
-      local  → ""   (so keys land directly in the per-app bucket)
-      else   → "<APP_NAME>/"
+      → "<APP_NAME>/"   (e.g. "ycode/" or "ycampus/")
 
-    APP_NAME is read from the env file (e.g. "ycode-uploads" / "ycampus-uploads").
+    APP_NAME is read from the env file. The same prefix is used in local
+    and remote so all envs share a consistent layout:
+
+      local  : yuvro-local/<APP_NAME>/...
+      dev    : yuvro-dev/<APP_NAME>/...
+      prod   : yuvro-prod/<APP_NAME>/...
     """
-    deploy_env = (getattr(settings, "DEPLOY_ENV", "") or "local").strip().lower()
-    if deploy_env == "local":
-        return ""
     app_name = (getattr(settings, "APP_NAME", "") or "").strip().strip("/")
     if not app_name:
         return ""
