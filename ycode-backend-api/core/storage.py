@@ -40,13 +40,25 @@ def _build_signed_url(obj, bucket):
         or getattr(settings, "AWS_REGION", "")
         or "us-east-1"
     )
-    endpoint_url = getattr(settings, "AWS_S3_ENDPOINT_URL", "") or None
+    custom_endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "") or None
+    addressing = (
+        getattr(settings, "AWS_S3_ADDRESSING_STYLE", "") or "virtual"
+    ).strip().lower()
+    try:
+        from botocore.config import Config
+        boto_config = Config(
+            signature_version="s3v4",
+            s3={"addressing_style": addressing},
+        )
+    except ImportError:
+        boto_config = None
     client = boto3.client(
         "s3",
         region_name=region,
         aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", "") or None,
         aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", "") or None,
-        endpoint_url=endpoint_url,
+        endpoint_url=custom_endpoint or f"https://s3.{region}.amazonaws.com",
+        config=boto_config,
     )
     try:
         return client.generate_presigned_url(
