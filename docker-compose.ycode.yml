@@ -47,6 +47,7 @@ services:
     networks:
       - ycode
       - executor
+      - yuvro-storage
 
   ycode-frontend:
     build:

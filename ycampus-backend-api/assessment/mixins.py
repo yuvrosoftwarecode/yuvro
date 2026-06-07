@@ -320,95 +320,98 @@ class ProctoringMixin:
 
     def _save_snapshot(self, file_obj, user, submission, question_id=None):
         """
-        Save camera snapshot to local uploads folder as requested:
-        uploads/{assessment_type}/{assessment_name}/{attempt_no}/{filename}
+        Save a camera snapshot via Django's default storage backend.
+
+        The actual destination depends on STORAGE_BACKEND in settings:
+          - "s3"  → uploaded to AWS S3 (or MinIO when DEPLOY_TYPE=local)
+          - "local" → written to MEDIA_ROOT on the local filesystem
+
+        The relative key is the same in both cases:
+            {email}/{assessment_type}/{parent}/{exam}/{attempt}/{filename}
+        and is what we return so callers can later build a URL via
+        `default_storage.url(key)`.
         """
         try:
             from django.utils.text import slugify
+            from django.core.files.storage import default_storage
 
-            # 2. Assessment Type & Hierarchy
+            # 1. Assessment Type & Hierarchy
             # Determine type and hierarchical names (Course/Topic)
             assessment_type = self.submission_model.__name__.replace("Submission", "").lower()
-            
-            assessment = getattr(submission, self.submission_lookup_field)
-            
-            # Default values
-            parent_folder = "" # e.g. Course Name or Topic Name
-            exam_folder = "assessment"
-            
-            if assessment_type == "certification": # cleaned type
-                 assessment_type = "certification"
-                 # Hierarchy: certification / course_name / exam_title
-                 if hasattr(assessment, 'course') and assessment.course:
-                      parent_folder = slugify(assessment.course.name)
-                 else:
-                      parent_folder = "general"
-                 exam_folder = slugify(assessment.title)
-                 
-            elif assessment_type == "skilltest": # cleaned type
-                 assessment_type = "skill_test"
-                 # Hierarchy: skill_test / topic_name / test_title
-                 if hasattr(assessment, 'topic') and assessment.topic:
-                      parent_folder = slugify(assessment.topic.name)
-                 elif hasattr(assessment, 'course') and assessment.course:
-                      parent_folder = slugify(assessment.course.name)
-                 else:
-                      parent_folder = "general"
-                 exam_folder = slugify(assessment.title)
-                 
-            elif assessment_type == "mockinterview":
-                 assessment_type = "mock_interview"
-                 # Hierarchy: mock_interview / title (No parent folder requested)
-                 parent_folder = "" 
-                 exam_folder = slugify(assessment.title)
-            
-            else:
-                 # Fallback for any other types
-                 if hasattr(assessment, 'title'):
-                      exam_folder = slugify(assessment.title)
 
-            # 3. Attempt Number
+            assessment = getattr(submission, self.submission_lookup_field)
+
+            # Default values
+            parent_folder = ""  # e.g. Course Name or Topic Name
+            exam_folder = "assessment"
+
+            if assessment_type == "certification":
+                assessment_type = "certification"
+                # Hierarchy: certification / course_name / exam_title
+                if hasattr(assessment, 'course') and assessment.course:
+                    parent_folder = slugify(assessment.course.name)
+                else:
+                    parent_folder = "general"
+                exam_folder = slugify(assessment.title)
+
+            elif assessment_type == "skilltest":
+                assessment_type = "skill_test"
+                # Hierarchy: skill_test / topic_name / test_title
+                if hasattr(assessment, 'topic') and assessment.topic:
+                    parent_folder = slugify(assessment.topic.name)
+                elif hasattr(assessment, 'course') and assessment.course:
+                    parent_folder = slugify(assessment.course.name)
+                else:
+                    parent_folder = "general"
+                exam_folder = slugify(assessment.title)
+
+            elif assessment_type == "mockinterview":
+                assessment_type = "mock_interview"
+                # Hierarchy: mock_interview / title (no parent folder)
+                parent_folder = ""
+                exam_folder = slugify(assessment.title)
+
+            else:
+                # Fallback for any other types
+                if hasattr(assessment, 'title'):
+                    exam_folder = slugify(assessment.title)
+
+            # 2. Attempt Number
             # Count previous submissions to determine attempt number
             lookup_kwargs = {
-                "user": user, 
+                "user": user,
                 self.submission_lookup_field: assessment,
-                "created_at__lte": submission.created_at
+                "created_at__lte": submission.created_at,
             }
             attempt_count = self.submission_model.objects.filter(**lookup_kwargs).count()
-            # If count is 0 (shouldn't happen for existing sub), default to 1
             attempt_count = attempt_count if attempt_count > 0 else 1
             attempt_dir = f"attempt-{attempt_count}"
 
-            # 4. Filename
+            # 3. Filename
             ts = str(int(time.time()))
             filename = f"snapshot_{ts}.png"
             if question_id:
-                 filename = f"q{question_id}_{ts}.png"
+                filename = f"q{question_id}_{ts}.png"
 
-            # Directory Structure
-            # uploads/{email}/{type}/{parent}/{exam}/{attempt}/
+            # 4. Object Key (relative path) — same shape for S3 and local
+            # {email}/{type}/{parent}/{exam}/{attempt}/{filename}
             email_safe = user.email if user.email else f"user_{user.id}"
-            
-            paths_components = ["uploads", email_safe, assessment_type]
+
+            key_parts = [email_safe, assessment_type]
             if parent_folder:
-                 paths_components.append(parent_folder)
-            paths_components.append(exam_folder)
-            paths_components.append(attempt_dir)
-            
-            final_dir = os.path.join(*paths_components)
+                key_parts.append(parent_folder)
+            key_parts.append(exam_folder)
+            key_parts.append(attempt_dir)
+            key_parts.append(filename)
 
-            # Create dirs
-            os.makedirs(final_dir, exist_ok=True)
+            object_key = "/".join(key_parts)
 
-            # Full path
-            full_path = os.path.join(final_dir, filename)
+            # 5. Save via the configured storage backend.
+            # default_storage.save() handles the S3 upload or local write
+            # transparently and returns the final stored name.
+            stored_name = default_storage.save(object_key, file_obj)
 
-            # Write file
-            with open(full_path, "wb+") as destination:
-                for chunk in file_obj.chunks():
-                    destination.write(chunk)
-
-            return full_path
+            return stored_name
         except Exception as e:
             print(f"Error saving snapshot: {e}")
             return None

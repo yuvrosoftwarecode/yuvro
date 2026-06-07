@@ -46,6 +46,7 @@ services:
     networks:
       - ycampus
       - executor
+      - yuvro-storage
 
   ycampus-frontend:
     build:

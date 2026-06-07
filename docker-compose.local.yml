@@ -19,6 +19,11 @@ services:
     volumes:
       - ./ycode-backend-api:/app
       - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
 
   ycode-frontend:
     env_file:
@@ -46,6 +51,11 @@ services:
     volumes:
       - ./ycampus-backend-api:/app
       - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
 
   ycampus-frontend:
     env_file:

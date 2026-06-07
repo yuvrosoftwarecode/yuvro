@@ -465,3 +465,124 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
         updated_profile = serializer.save()
 
         return Response(ProfileSerializer(updated_profile).data)
+
+
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@extend_schema(
+    summary="Upload a profile image",
+    description=(
+        "Uploads a profile image (or cover image / id card image) to object storage "
+        "(S3 / MinIO depending on STORAGE_BACKEND) and saves the resulting URL "
+        "back on the user's profile. Send the file in the `image` field and the "
+        "target field name in `field` (`profile_image` | `cover_image` | "
+        "`id_card_image`). Max size 10 MB."
+    ),
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "image": {"type": "string", "format": "binary"},
+                "field": {
+                    "type": "string",
+                    "enum": ["profile_image", "cover_image", "id_card_image"],
+                },
+            },
+            "required": ["image", "field"],
+        }
+    },
+    responses={200: ProfileSerializer},
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def upload_profile_image(request):
+    """
+    POST /api/auth/profile/upload-image/
+
+    multipart/form-data:
+        image:    file (required, ≤10 MB)
+        field:    "profile_image" | "cover_image" | "id_card_image" (default: profile_image)
+
+    The file is written via Django's `default_storage` so it lands on S3 in
+    dev/staging/prod and on the local MinIO container when DEPLOY_TYPE=local.
+    The returned URL is what's already stored on `Profile.<field>`.
+    """
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
+    ALLOWED_CONTENT_TYPES = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+    }
+    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response(
+            {"error": "No image file provided. Use the 'image' form field."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if image_file.size > MAX_BYTES:
+        return Response(
+            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    target_field = request.data.get("field", "profile_image")
+    if target_field not in ALLOWED_FIELDS:
+        return Response(
+            {"error": f"Invalid field. Must be one of: {', '.join(ALLOWED_FIELDS)}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Determine extension from the upload's content type, falling back to the
+    # filename's extension. This keeps the object key readable in the bucket.
+    content_type = (image_file.content_type or "").lower()
+    ext = ALLOWED_CONTENT_TYPES.get(content_type)
+    if not ext:
+        fallback = os.path.splitext(image_file.name)[1].lstrip(".").lower()
+        ext = fallback or "jpg"
+
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    # Object key: profile/{user_id}/{target_field}.{ext}
+    # All per-user uploads live under profile/{user_id}/, grouped by
+    # purpose (profile_image, cover_image, id_card_image). Each user has
+    # exactly one object per field; re-uploads overwrite by deleting any
+    # prior object at the same path (any extension) first.
+    object_key = f"profile/{request.user.id}/{target_field}.{ext}"
+
+    try:
+        from django.core.files.storage import default_storage
+
+        # Delete any prior object for this user in this folder, regardless
+        # of extension. If the user previously uploaded a .jpg and now
+        # uploads a .png, we want the old .jpg gone too.
+        for prior_ext in ("jpg", "jpeg", "png", "webp", "gif"):
+            try:
+                default_storage.delete(
+                    f"profile/{request.user.id}/{target_field}.{prior_ext}"
+                )
+            except Exception:
+                pass
+
+        stored_name = default_storage.save(object_key, image_file)
+    except Exception as exc:
+        logger.exception("Failed to upload profile image")
+        return Response(
+            {"error": f"Failed to upload image: {exc}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    # Store only the object name (not the full URL) on the model. The full
+    # URL is built on the fly by `build_public_url` and exposed via the
+    # serializer (ProfileSerializer adds the *_url read-only fields).
+    setattr(profile, target_field, stored_name)
+    profile.save(update_fields=[target_field, "updated_at"])
+
+    return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)

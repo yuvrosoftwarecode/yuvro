@@ -575,6 +575,19 @@ class ProfileSerializer(serializers.ModelSerializer):
     education = EducationSerializer(many=True, read_only=True)
     certifications = CertificationSerializer(many=True, read_only=True)
 
+    # The DB stores only the object name; on read we expose the full public
+    # URL. The fields are still writable via PATCH for backward compat
+    # (clients can send an object name; the URLField model field stores it).
+    def _public(self, obj, attr):
+        from core.storage import build_public_url
+        return build_public_url(getattr(obj, attr, None))
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field in ("profile_image", "cover_image", "id_card_image"):
+            data[field] = self._public(instance, field)
+        return data
+
     class Meta:
         model = Profile
         fields = [
