@@ -38,3 +38,7 @@ flake8==7.1.1
 
 # Document Processing
 pypdf==4.3.1
+
+# Object Storage (AWS S3 / MinIO)
+boto3==1.35.36
+django-storages[s3]==1.14.4

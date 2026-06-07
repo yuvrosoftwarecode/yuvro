@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StatusBadge from '@/components/common/StatusBadge';
-import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle, Award, CheckCircle2, XCircle, Code, ShieldAlert, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle, Award, CheckCircle2, XCircle, Code, ShieldAlert, Check, Loader2, Link as LinkIcon } from 'lucide-react';
 import { jobService, Job } from '../../services/jobService';
 import { jobApplicationService, JobApplication } from '../../services/jobApplicationService';
 import RoleSidebar from '../../components/common/RoleSidebar';
@@ -76,6 +76,43 @@ const JobApplicantsContent: React.FC = () => {
   const [inviteEmails, setInviteEmails] = useState('');
   const [isInviting, setIsInviting] = useState(false);
   const [invitingAppId, setInvitingAppId] = useState<string | null>(null);
+  const [copiedAppId, setCopiedAppId] = useState<string | null>(null);
+
+  // Mirrors the URL the backend emails out: {origin}/job-test/{application.id}
+  const buildAssessmentUrl = (applicationId: string) =>
+    `${window.location.origin}/job-test/${applicationId}`;
+
+  const handleCopyAssessmentLink = async (applicationId: string) => {
+    const url = buildAssessmentUrl(applicationId);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedAppId(applicationId);
+      toast.success('Assessment link copied to clipboard');
+      setTimeout(() => {
+        setCopiedAppId(prev => (prev === applicationId ? null : prev));
+      }, 2000);
+    } catch {
+      // Fallback for browsers without clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        setCopiedAppId(applicationId);
+        toast.success('Assessment link copied to clipboard');
+        setTimeout(() => {
+          setCopiedAppId(prev => (prev === applicationId ? null : prev));
+        }, 2000);
+      } catch {
+        toast.error('Failed to copy link');
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  };
 
   const handleSendInvitations = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -534,6 +571,17 @@ const JobApplicantsContent: React.FC = () => {
                                     </button>
                                   </>
                                 )}
+                                <button
+                                  onClick={() => handleCopyAssessmentLink(application.id)}
+                                  title={buildAssessmentUrl(application.id)}
+                                  className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+                                >
+                                  {copiedAppId === application.id ? (
+                                    <Check className="w-3.5 h-3.5 text-green-600" />
+                                  ) : (
+                                    <LinkIcon className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
                               </div>
                             </td>
 
