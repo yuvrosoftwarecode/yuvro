@@ -692,7 +692,6 @@ def upload_profile_image(request):
         field:    "profile_image" | "cover_image" | "id_card_image" (default: profile_image)
     """
     ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
-    APP_FOLDER = "ycode-uploads"
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
         "image/png": "png",
@@ -733,7 +732,6 @@ def upload_profile_image(request):
         from core.storage import upload_image
 
         stored_name = upload_image(
-            app_folder=APP_FOLDER,
             key=f"profile/{request.user.id}/{target_field}.{ext}",
             file_obj=image_file,
             replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),

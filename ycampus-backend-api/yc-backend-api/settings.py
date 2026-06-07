@@ -132,6 +132,7 @@ MEDIA_ROOT = BASE_DIR / "uploads"
 DEPLOY_TYPE = config("DEPLOY_TYPE", default="docker")
 DEPLOY_ENV = config("DEPLOY_ENV", default="local")
 STORAGE_BACKEND = config("STORAGE_BACKEND", default="s3")
+APP_NAME = config("APP_NAME")
 
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")

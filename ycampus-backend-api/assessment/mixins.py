@@ -402,7 +402,6 @@ class ProctoringMixin:
             object_key = "/".join(key_parts)
 
             return upload_image(
-                app_folder="ycampus-uploads",
                 key=object_key,
                 file_obj=file_obj,
             )
