@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import logging
 from urllib.parse import quote, urljoin
 
 from django.conf import settings
+from django.core.files.storage import default_storage
+
+logger = logging.getLogger(__name__)
 
 
 def _build_unsigned_url(obj, bucket):
@@ -87,3 +91,52 @@ def build_public_url(object_name):
         if signed:
             return signed
     return _build_unsigned_url(obj, bucket)
+
+
+def _app_prefix(app_folder):
+    """
+    Prepend the per-app folder for non-local deployments.
+
+      local  → ""   (so keys land directly in the per-app bucket)
+      else   → "<app_folder>/"
+    """
+    deploy_env = (getattr(settings, "DEPLOY_ENV", "") or "local").strip().lower()
+    if deploy_env == "local":
+        return ""
+    return f"{app_folder}/"
+
+
+def upload_image(*, app_folder, key, file_obj, replace_extensions=()):
+    """
+    Save an image via Django's default storage backend.
+
+    The key is relative to the bucket root. For non-local deployments the
+    per-app folder is auto-prepended so callers can use the same key shape
+    across local / dev / staging / prod.
+
+      Local : <key>
+      else  : <app_folder>/<key>
+
+    If `replace_extensions` is provided, prior objects with the same
+    base name but each of those extensions are deleted first — useful
+    for "single image per (key)" semantics (e.g. profile_image.jpg
+    replaces profile_image.png).
+
+    Returns the storage key (not a URL); pass it to build_public_url when
+    serializing for clients.
+    """
+    full_key = _app_prefix(app_folder) + key.lstrip("/")
+
+    try:
+        if replace_extensions and "." in full_key:
+            base, _ = full_key.rsplit(".", 1)
+            for prior_ext in replace_extensions:
+                try:
+                    default_storage.delete(f"{base}.{prior_ext}")
+                except Exception:
+                    pass
+
+        return default_storage.save(full_key, file_obj)
+    except Exception:
+        logger.exception("upload_image failed (key=%s)", full_key)
+        raise

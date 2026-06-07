@@ -545,32 +545,15 @@ def upload_profile_image(request):
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    endpoint = settings.AWS_S3_ENDPOINT_URL
-    is_local_like = bool(endpoint)
-
-    if is_local_like:
-        object_key = f"profile/{request.user.id}/{target_field}.{ext}"
-        cleanup_prefixes = [f"profile/{request.user.id}"]
-    else:
-        object_key = (
-            f"{APP_FOLDER}/profile/"
-            f"{request.user.id}/{target_field}.{ext}"
-        )
-        cleanup_prefixes = [
-            f"{APP_FOLDER}/profile/{request.user.id}"
-        ]
-
     try:
-        from django.core.files.storage import default_storage
+        from core.storage import upload_image
 
-        for prior_ext in ("jpg", "jpeg", "png", "webp", "gif"):
-            for prefix in cleanup_prefixes:
-                try:
-                    default_storage.delete(f"{prefix}/{target_field}.{prior_ext}")
-                except Exception:
-                    pass
-
-        stored_name = default_storage.save(object_key, image_file)
+        stored_name = upload_image(
+            app_folder=APP_FOLDER,
+            key=f"profile/{request.user.id}/{target_field}.{ext}",
+            file_obj=image_file,
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+        )
     except Exception as exc:
         logger.exception("Failed to upload profile image")
         return Response(

@@ -323,13 +323,13 @@ class ProctoringMixin:
         Save a camera snapshot via Django's default storage backend.
 
         The relative key is the same regardless of STORAGE_BACKEND:
-            {email}/{assessment_type}/{parent}/{exam}/{attempt}/{filename}
+            {user_id}/{assessment_type}/{parent}/{exam}/{attempt}/{filename}
         and is what we return so callers can later build a URL via
         `default_storage.url(key)`.
         """
         try:
             from django.utils.text import slugify
-            from django.core.files.storage import default_storage
+            from core.storage import upload_image
 
             # 1. Assessment Type & Hierarchy
             # Determine type and hierarchical names (Course/Topic)
@@ -389,10 +389,10 @@ class ProctoringMixin:
             if question_id:
                 filename = f"q{question_id}_{ts}.png"
 
-            # Object key: {email}/{type}/{parent}/{exam}/{attempt}/{filename}
-            email_safe = user.email if user.email else f"user_{user.id}"
+            # Object key: {user_id}/{type}/{parent}/{exam}/{attempt}/{filename}
+            user_id = str(user.id)
 
-            key_parts = [email_safe, assessment_type]
+            key_parts = [user_id, assessment_type]
             if parent_folder:
                 key_parts.append(parent_folder)
             key_parts.append(exam_folder)
@@ -401,9 +401,11 @@ class ProctoringMixin:
 
             object_key = "/".join(key_parts)
 
-            stored_name = default_storage.save(object_key, file_obj)
-
-            return stored_name
+            return upload_image(
+                app_folder="ycampus-uploads",
+                key=object_key,
+                file_obj=file_obj,
+            )
         except Exception as e:
             print(f"Error saving snapshot: {e}")
             return None
