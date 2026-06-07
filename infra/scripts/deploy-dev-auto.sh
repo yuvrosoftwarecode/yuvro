@@ -283,7 +283,7 @@ deploy_applications() {
 
     print_info "Wiring S3 / IAM credentials from OpenTofu into .env.dev-secrets..."
     cd "$OPENTOFU_DIR"
-    S3_BASE_BUCKET="$(tofu output -raw base_bucket_name 2>/dev/null || true)"
+    S3_BASE_BUCKET="$(tofu output -raw app_data_bucket_name 2>/dev/null || true)"
     S3_ACCESS_KEY_ID="$(tofu output -raw app_service_access_key_id 2>/dev/null || true)"
     S3_SECRET_ACCESS_KEY="$(tofu output -raw app_service_secret_access_key 2>/dev/null || true)"
     cd "$PROJECT_ROOT" >/dev/null
@@ -294,6 +294,9 @@ deploy_applications() {
         print_info "S3 base bucket:  $S3_BASE_BUCKET"
         print_info "S3 IAM user:     $(tofu output -raw app_service_user_name 2>/dev/null || echo 'app-service-user')"
     fi
+
+    # Resolve SECRETS_DIR up front so the _set_kv calls below have a valid path.
+    SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
     _set_kv() {
         local f="$1" key="$2" value="$3"
@@ -334,7 +337,6 @@ deploy_applications() {
 
     # ── Copy secrets files to EC2 ──────────────────────────────────────────
     print_info "Copying .env.dev-secrets files to EC2..."
-    SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
     for secrets_file in \
         "ycode-backend-api/.env.dev-secrets" \

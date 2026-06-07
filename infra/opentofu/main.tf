@@ -116,7 +116,7 @@ module "iam" {
 
   environment = var.environment
   s3_bucket_arns = [
-    module.s3.app_data_bucket_arn,
+    module.s3.base_bucket_arn,
     module.s3.logs_bucket_arn
   ]
 }
