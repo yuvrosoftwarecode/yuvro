@@ -78,8 +78,8 @@ output "ycampus_db_username" {
 
 # S3 Outputs
 output "app_data_bucket_name" {
-  description = "S3 bucket for application data"
-  value       = module.s3.app_data_bucket_name
+  description = "S3 base bucket (per-env, per-app data lives under <env>/<app>-uploads/)"
+  value       = module.s3.base_bucket_name
 }
 
 output "logs_bucket_name" {
@@ -91,6 +91,23 @@ output "logs_bucket_name" {
 output "app_service_role_arn" {
   description = "ARN of IAM role for application services"
   value       = module.iam.app_service_role_arn
+}
+
+output "app_service_user_name" {
+  description = "IAM user name used by the backends to talk to AWS APIs (S3, etc.)"
+  value       = module.iam.app_service_user_name
+}
+
+output "app_service_access_key_id" {
+  description = "Access key id for the app-service IAM user (sensitive — used by deploy-dev-auto.sh)"
+  value       = module.iam.app_service_access_key_id
+  sensitive   = true
+}
+
+output "app_service_secret_access_key" {
+  description = "Secret access key for the app-service IAM user (sensitive — used by deploy-dev-auto.sh)"
+  value       = module.iam.app_service_secret_access_key
+  sensitive   = true
 }
 
 # CloudWatch Outputs

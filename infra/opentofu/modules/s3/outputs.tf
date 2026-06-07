@@ -1,11 +1,11 @@
-output "app_data_bucket_name" {
-  description = "Application data bucket name"
-  value       = aws_s3_bucket.app_data.id
+output "base_bucket_name" {
+  description = "Base bucket name (per-env, per-app data lives under <env>/<app>-uploads/)"
+  value       = aws_s3_bucket.base.id
 }
 
-output "app_data_bucket_arn" {
-  description = "Application data bucket ARN"
-  value       = aws_s3_bucket.app_data.arn
+output "base_bucket_arn" {
+  description = "Base bucket ARN"
+  value       = aws_s3_bucket.base.arn
 }
 
 output "logs_bucket_name" {

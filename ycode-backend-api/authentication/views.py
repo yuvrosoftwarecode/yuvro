@@ -697,6 +697,8 @@ def upload_profile_image(request):
     The returned URL is what's already stored on `Profile.<field>`.
     """
     ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
+    # Per-app sub-folder in the shared base bucket (see OpenTofu s3 module).
+    APP_FOLDER = "ycode-uploads"
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg": "jpg",
         "image/png": "png",
@@ -735,12 +737,29 @@ def upload_profile_image(request):
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    # Object key: profile/{user_id}/{target_field}.{ext}
-    # All per-user uploads live under profile/{user_id}/, grouped by
-    # purpose (profile_image, cover_image, id_card_image). Each user has
-    # exactly one object per field; re-uploads overwrite by deleting any
-    # prior object at the same path (any extension) first.
-    object_key = f"profile/{request.user.id}/{target_field}.{ext}"
+    # Object key layout:
+    #   Local (MinIO):    profile/{user_id}/{field}.{ext}
+    #   dev/staging/prod: {env}/{app}-uploads/profile/{user_id}/{field}.{ext}
+    #                     (under a single base bucket; see OpenTofu s3 module)
+    #
+    # "Local" is detected by the presence of AWS_S3_ENDPOINT_URL (MinIO/LocalStack).
+    # In real AWS (dev/staging/prod) the per-env + per-app folder isolates data
+    # in the shared base bucket.
+    deploy_env = getattr(settings, "DEPLOY_ENV", "local") or "local"
+    endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "") or ""
+    is_local_like = bool(endpoint)  # MinIO / LocalStack / any S3-compat
+
+    if is_local_like:
+        object_key = f"profile/{request.user.id}/{target_field}.{ext}"
+        cleanup_prefixes = [f"profile/{request.user.id}"]
+    else:
+        object_key = (
+            f"{deploy_env}/{self.APP_FOLDER}/profile/"
+            f"{request.user.id}/{target_field}.{ext}"
+        )
+        cleanup_prefixes = [
+            f"{deploy_env}/{self.APP_FOLDER}/profile/{request.user.id}"
+        ]
 
     try:
         from django.core.files.storage import default_storage
@@ -749,12 +768,11 @@ def upload_profile_image(request):
         # of extension. If the user previously uploaded a .jpg and now
         # uploads a .png, we want the old .jpg gone too.
         for prior_ext in ("jpg", "jpeg", "png", "webp", "gif"):
-            try:
-                default_storage.delete(
-                    f"profile/{request.user.id}/{target_field}.{prior_ext}"
-                )
-            except Exception:
-                pass
+            for prefix in cleanup_prefixes:
+                try:
+                    default_storage.delete(f"{prefix}/{target_field}.{prior_ext}")
+                except Exception:
+                    pass
 
         stored_name = default_storage.save(object_key, image_file)
     except Exception as exc:
