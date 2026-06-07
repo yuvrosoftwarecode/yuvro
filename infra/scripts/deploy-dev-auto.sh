@@ -286,13 +286,14 @@ deploy_applications() {
     S3_BASE_BUCKET="$(tofu output -raw app_data_bucket_name 2>/dev/null || true)"
     S3_ACCESS_KEY_ID="$(tofu output -raw app_service_access_key_id 2>/dev/null || true)"
     S3_SECRET_ACCESS_KEY="$(tofu output -raw app_service_secret_access_key 2>/dev/null || true)"
+    S3_IAM_USER_NAME="$(tofu output -raw app_service_user_name 2>/dev/null || true)"
     cd "$PROJECT_ROOT" >/dev/null
 
     if [ -z "$S3_BASE_BUCKET" ] || [ -z "$S3_ACCESS_KEY_ID" ] || [ -z "$S3_SECRET_ACCESS_KEY" ]; then
         print_warning "Could not read S3 outputs from OpenTofu — backends will fall back to .env.dev-secrets (may be empty)."
     else
         print_info "S3 base bucket:  $S3_BASE_BUCKET"
-        print_info "S3 IAM user:     $(tofu output -raw app_service_user_name 2>/dev/null || echo 'app-service-user')"
+        print_info "S3 IAM user:     ${S3_IAM_USER_NAME:-app-service-user}"
     fi
 
     # Resolve SECRETS_DIR up front so the _set_kv calls below have a valid path.

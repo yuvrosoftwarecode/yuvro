@@ -13,14 +13,29 @@ def build_public_url(object_name):
     if obj.startswith(("http://", "https://")):
         return obj
 
+    bucket = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "") or ""
+    if not bucket:
+        return None
+
     public_endpoint = (
         getattr(settings, "AWS_S3_PUBLIC_ENDPOINT_URL", "")
         or getattr(settings, "AWS_S3_ENDPOINT_URL", "")
         or ""
     )
-    bucket = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "") or ""
-    if not public_endpoint or not bucket:
-        return None
 
-    base = public_endpoint.rstrip("/") + "/"
-    return urljoin(base, f"{bucket}/{quote(obj, safe='/')}")
+    if public_endpoint:
+        base = public_endpoint.rstrip("/") + "/"
+        return urljoin(base, f"{bucket}/{quote(obj, safe='/')}")
+
+    region = (
+        getattr(settings, "AWS_S3_REGION_NAME", "")
+        or getattr(settings, "AWS_REGION", "")
+        or "us-east-1"
+    )
+    addressing = (
+        getattr(settings, "AWS_S3_ADDRESSING_STYLE", "") or "virtual-hosted"
+    ).strip().lower()
+    key = quote(obj, safe="/")
+    if addressing == "path":
+        return f"https://s3.{region}.amazonaws.com/{bucket}/{key}"
+    return f"https://{bucket}.s3.{region}.amazonaws.com/{key}"
