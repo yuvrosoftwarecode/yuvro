@@ -50,7 +50,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "base" {
   rule {
     id     = "expire-logs-prefix"
     status = "Enabled"
-    prefix = "logs/"
+    filter {
+      prefix = "logs/"
+    }
 
     expiration {
       days = 90
