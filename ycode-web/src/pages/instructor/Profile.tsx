@@ -420,7 +420,7 @@ const InstructorProfile = () => {
       } else if (field === "cover_image" && updated.cover_image) {
         setCoverPic(updated.cover_image);
       }
-      setProfile((prev) => (prev ? { ...prev, ...updated } : prev));
+      await loadProfile();
       toast.success(
         field === "profile_image"
           ? "Profile picture updated"
