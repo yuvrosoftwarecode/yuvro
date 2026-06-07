@@ -739,11 +739,11 @@ def upload_profile_image(request):
         cleanup_prefixes = [f"profile/{request.user.id}"]
     else:
         object_key = (
-            f"{deploy_env}/{self.APP_FOLDER}/profile/"
+            f"{deploy_env}/{APP_FOLDER}/profile/"
             f"{request.user.id}/{target_field}.{ext}"
         )
         cleanup_prefixes = [
-            f"{deploy_env}/{self.APP_FOLDER}/profile/{request.user.id}"
+            f"{deploy_env}/{APP_FOLDER}/profile/{request.user.id}"
         ]
 
     try:
