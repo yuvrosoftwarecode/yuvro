@@ -42,6 +42,11 @@ services:
       - ./ycode-backend-api/.env.dev
       - path: ./ycode-backend-api/.env.dev-secrets
         required: false
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
@@ -86,6 +91,11 @@ services:
       - ./ycampus-backend-api/.env.dev
       - path: ./ycampus-backend-api/.env.dev-secrets
         required: false
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
     command: >
       sh -c "python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 yc-backend-api.wsgi:application"
