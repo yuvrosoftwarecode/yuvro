@@ -327,6 +327,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         test_cases: basicTestCases,
         test_cases_custom: customMapped,
         problem_title: problemTitle,
+        question_id: problemId,
       });
 
       setOutput(res.output || res.error_message || '');
@@ -337,6 +338,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         status: res.status,
         reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
       if (res.status === 'completed') {
@@ -426,6 +428,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         status: res.status,
         reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
       const passed = res.test_cases_passed ?? 0;
@@ -635,20 +638,55 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         )}
 
                         {/* Failure Banner */}
-                        {executionMetrics && (executionMetrics.status === 'failed' || executionMetrics.status === 'timeout') && (
-                          <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm">
+                        {executionMetrics && executionMetrics.status === 'failed' && (() => {
+                          const warnings: any[] = executionMetrics.performance_warnings || [];
+                          const isResourceLimit = warnings.length > 0;
+                          if (isResourceLimit) {
+                            const w = warnings[0];
+                            const isTLE = w.type === 'Time Limit Exceeded';
+                            return (
+                              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-col mb-4">
+                                <h4 className="text-amber-800 font-bold text-sm flex items-center gap-2">
+                                  <Zap className="h-4 w-4" />
+                                  {isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded'}
+                                </h4>
+                                <p className="text-amber-700 text-xs mt-1">
+                                  {isTLE
+                                    ? `Your output is correct, but execution took ${w.execution_time?.toFixed(2)}s — above the configured time limit. Optimize your algorithm.`
+                                    : `Your output is correct, but used ${(w.memory_usage / 1024)?.toFixed(1)} MB — above the configured memory limit. Reduce memory usage.`
+                                  }
+                                </p>
+                                <p className="text-amber-600 text-[11px] mt-2 font-medium">💡 Tip: Use the AI chat to get optimization hints for your solution.</p>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm mb-4">
+                              <div className="flex">
+                                <div className="flex-shrink-0">
+                                  <XCircle className="h-5 w-5 text-red-500" />
+                                </div>
+                                <div className="ml-3">
+                                  <h3 className="text-sm font-medium text-red-800">Execution Failed</h3>
+                                  <div className="mt-2 text-sm text-red-700">
+                                    <p>{executionMetrics.reason || 'Your code failed to execute within the limits.'}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {executionMetrics && executionMetrics.status === 'timeout' && (
+                          <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm mb-4">
                             <div className="flex">
                               <div className="flex-shrink-0">
                                 <XCircle className="h-5 w-5 text-red-500" />
                               </div>
                               <div className="ml-3">
-                                <h3 className="text-sm font-medium text-red-800">
-                                  {executionMetrics.status === 'timeout' ? 'Execution Timed Out' : 'Execution Failed'}
-                                </h3>
+                                <h3 className="text-sm font-medium text-red-800">Execution Timed Out</h3>
                                 <div className="mt-2 text-sm text-red-700">
-                                  <p>
-                                    {executionMetrics.reason || (executionMetrics.status === 'timeout' ? 'Infinite loop detected or execution timed out.' : 'Your code failed to execute within the limits.')}
-                                  </p>
+                                  <p>{executionMetrics.reason || 'Infinite loop detected or execution timed out.'}</p>
                                 </div>
                               </div>
                             </div>

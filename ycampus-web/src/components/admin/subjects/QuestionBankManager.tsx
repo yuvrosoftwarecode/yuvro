@@ -93,6 +93,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     ],
     test_cases_basic: [{ input: '', expected_output: '', description: '' }],
     test_cases_advanced: [],
+    code_executor_config: { time_limit: 10, memory_limit: 256 },
   });
 
   // Delete confirmation
@@ -243,6 +244,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
+      code_executor_config: { time_limit: 10, memory_limit: 256 },
     });
     setActiveTab('create');
     setEditingQuestion(null);
@@ -270,6 +272,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: question.test_cases_advanced || [],
+      code_executor_config: question.code_executor_config || { time_limit: 10, memory_limit: 256 },
     });
     setActiveTab('create');
   };
@@ -279,6 +282,19 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     if (errors.length > 0) {
       toast.error(errors[0]);
       return;
+    }
+
+    if (formData.type === 'coding' && formData.code_executor_config) {
+      const tl = formData.code_executor_config.time_limit;
+      const ml = formData.code_executor_config.memory_limit;
+      if (!tl || tl < 1 || tl > 60) {
+        toast.error('Time limit must be between 1 and 60 seconds');
+        return;
+      }
+      if (!ml || ml < 16 || ml > 1024) {
+        toast.error('Memory limit must be between 16 and 1024 MB');
+        return;
+      }
     }
 
     setSaving(true);
@@ -941,9 +957,47 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
               {/* Coding Test Cases */}
               {formData.type === 'coding' && (
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-slate-700">Test Cases</Label>
+                <div className="space-y-6">
+                  {/* Resource Limits for Coding Questions */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-slate-700">Time Limit (seconds)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="60"
+                        value={formData.code_executor_config?.time_limit ?? 10}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          code_executor_config: {
+                            ...(prev.code_executor_config || {}),
+                            time_limit: parseInt(e.target.value) || 10
+                          }
+                        }))}
+                        className="bg-white border-slate-300 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-slate-700">Memory Limit (MB)</Label>
+                      <Input
+                        type="number"
+                        min="16"
+                        max="1024"
+                        value={formData.code_executor_config?.memory_limit ?? 256}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          code_executor_config: {
+                            ...(prev.code_executor_config || {}),
+                            memory_limit: parseInt(e.target.value) || 256
+                          }
+                        }))}
+                        className="bg-white border-slate-300 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 transition-all"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-3">
+                    <Label className="text-sm font-medium text-slate-700">Test Cases</Label>
                     {formData.test_cases_basic?.map((testCase, index) => (
                       <div key={index} className="bg-white border rounded-lg p-4 space-y-3">
                         <div className="flex items-center justify-between">
