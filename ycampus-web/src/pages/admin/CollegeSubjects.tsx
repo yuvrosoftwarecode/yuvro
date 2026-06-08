@@ -98,7 +98,10 @@ const CollegeSubjects: React.FC = () => {
             const filteredData = data.filter(s => {
                 const subjectProductType = s.product_type || 'campus';
                 const requiredProductType = collegeDetail?.product_type || 'campus';
-                return subjectProductType === requiredProductType;
+                if (requiredProductType === 'campus') {
+                    return subjectProductType === 'campus' || subjectProductType === 'assessments';
+                }
+                return subjectProductType === 'assessments';
             });
             setAllSubjects(filteredData as Subject[]);
         } catch (err) {
@@ -148,7 +151,10 @@ const CollegeSubjects: React.FC = () => {
             const filteredSubjects = data.filter(s => {
                 const subjectProductType = s.product_type || 'campus';
                 const requiredProductType = collegeDetail?.product_type || 'campus';
-                return subjectProductType === requiredProductType;
+                if (requiredProductType === 'campus') {
+                    return subjectProductType === 'campus' || subjectProductType === 'assessments';
+                }
+                return subjectProductType === 'assessments';
             });
 
             const subjectsToAssign = filteredSubjects.filter(

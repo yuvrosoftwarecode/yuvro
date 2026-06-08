@@ -56,6 +56,9 @@ services:
         - VITE_BACKEND_API_BASE_URL=${YCODE_VITE_BACKEND_API_BASE_URL:-https://backend-code-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCODE_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
+        - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
+        - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
     env_file:
       - ./ycode-web/.env.dev
       - path: ./ycode-web/.env.dev-secrets
@@ -97,6 +100,9 @@ services:
         - VITE_BACKEND_API_BASE_URL=${YCAMPUS_VITE_BACKEND_API_BASE_URL:-https://backend-campus-dev.yuvro.ai/api}
         - VITE_CODE_EXECUTOR_BASE_URL=${YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL:-https://code-executer-dev.yuvro.ai}
         - VITE_GOOGLE_CLIENT_ID=${YCAMPUS_VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
+        - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
+        - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
     env_file:
       - ./ycampus-web/.env.dev
       - path: ./ycampus-web/.env.dev-secrets
@@ -113,6 +119,55 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+
+  # Stub DB for ylabs (uses RDS in dev)
+  ylabs-db:
+    image: alpine
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      timeout: 1s
+      retries: 1
+      start_period: 1s
+
+  # Backend: use production target (gunicorn)
+  ylabs-backend:
+    build:
+      context: ./ylabs-backend-api
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./ylabs-backend-api/.env.dev
+      - path: ./ylabs-backend-api/.env.dev-secrets
+        required: false
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 ylabs-backend-api.wsgi:application"
+
+  # Frontend: dev server (TanStack Start — SSR, no static build)
+  ylabs-frontend:
+    build:
+      context: ./ylabs-web
+      dockerfile: Dockerfile
+      target: development
+      args:
+        - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-labs-dev.yuvro.ai/api}
+        - VITE_GOOGLE_CLIENT_ID=${YLABS_VITE_GOOGLE_CLIENT_ID:-}
+    env_file:
+      - ./ylabs-web/.env.dev
+      - path: ./ylabs-web/.env.dev-secrets
+        required: false
+    ports:
+      - "3002:3000"
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
 # Override executor network - create it locally (not external)
 networks:

@@ -89,6 +89,15 @@
       "website": "https://edutech.com",
       "size": "101-150",
       "location": "Jaipur"
+    },
+    {
+      "name": "Yuvro AI",
+      "description": "Yuvro AI is an AI-powered learning and career platform helping students master data structures, algorithms, and software engineering through interactive coding challenges, mock interviews, and real-world assessments.",
+      "benefits": "Fast learning track, mentorship from senior engineers, real interview experience, and a path to full-time roles based on round performance.",
+      "domain": "ai_education",
+      "website": "https://yuvro.ai",
+      "size": "1-50",
+      "location": "Bangalore"
     }
   ],
   "jobs": [
@@ -99,12 +108,21 @@
       "employment_type": "full-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
-      "locations": ["Bangalore"],
+      "locations": [
+        "Bangalore"
+      ],
       "is_remote": false,
       "min_salary": 600000,
       "max_salary": 1000000,
       "currency": "INR",
-      "skills": ["React", "TypeScript", "Tailwind CSS", "JavaScript", "HTML", "CSS"],
+      "skills": [
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -117,12 +135,21 @@
       "employment_type": "full-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
-      "locations": ["Remote"],
+      "locations": [
+        "Remote"
+      ],
       "is_remote": true,
       "min_salary": 800000,
       "max_salary": 1200000,
       "currency": "INR",
-      "skills": ["Node.js", "React", "MongoDB", "Express.js", "JavaScript", "REST APIs"],
+      "skills": [
+        "Node.js",
+        "React",
+        "MongoDB",
+        "Express.js",
+        "JavaScript",
+        "REST APIs"
+      ],
       "notice_period": 15,
       "education_level": "bachelor",
       "status": "active",
@@ -135,12 +162,21 @@
       "employment_type": "full-time",
       "experience_min_years": 2,
       "experience_max_years": 5,
-      "locations": ["Pune"],
+      "locations": [
+        "Pune"
+      ],
       "is_remote": false,
       "min_salary": 700000,
       "max_salary": 1100000,
       "currency": "INR",
-      "skills": ["Java", "Spring Boot", "MySQL", "Microservices", "REST APIs", "Docker"],
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "MySQL",
+        "Microservices",
+        "REST APIs",
+        "Docker"
+      ],
       "notice_period": 60,
       "education_level": "bachelor",
       "status": "active",
@@ -153,12 +189,21 @@
       "employment_type": "full-time",
       "experience_min_years": 1,
       "experience_max_years": 3,
-      "locations": ["Hyderabad"],
+      "locations": [
+        "Hyderabad"
+      ],
       "is_remote": true,
       "min_salary": 500000,
       "max_salary": 800000,
       "currency": "INR",
-      "skills": ["Figma", "Adobe XD", "Photoshop", "User Research", "Prototyping", "Wireframing"],
+      "skills": [
+        "Figma",
+        "Adobe XD",
+        "Photoshop",
+        "User Research",
+        "Prototyping",
+        "Wireframing"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -171,12 +216,21 @@
       "employment_type": "full-time",
       "experience_min_years": 2,
       "experience_max_years": 4,
-      "locations": ["Chennai"],
+      "locations": [
+        "Chennai"
+      ],
       "is_remote": true,
       "min_salary": 900000,
       "max_salary": 1400000,
       "currency": "INR",
-      "skills": ["AWS", "Docker", "Kubernetes", "Jenkins", "Terraform", "Linux"],
+      "skills": [
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "Jenkins",
+        "Terraform",
+        "Linux"
+      ],
       "notice_period": 45,
       "education_level": "bachelor",
       "status": "active",
@@ -189,12 +243,21 @@
       "employment_type": "full-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
-      "locations": ["Delhi"],
+      "locations": [
+        "Delhi"
+      ],
       "is_remote": false,
       "min_salary": 600000,
       "max_salary": 900000,
       "currency": "INR",
-      "skills": ["Python", "SQL", "Tableau", "Excel", "Statistics", "Data Visualization"],
+      "skills": [
+        "Python",
+        "SQL",
+        "Tableau",
+        "Excel",
+        "Statistics",
+        "Data Visualization"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -207,12 +270,21 @@
       "employment_type": "full-time",
       "experience_min_years": 1,
       "experience_max_years": 3,
-      "locations": ["Gurgaon"],
+      "locations": [
+        "Gurgaon"
+      ],
       "is_remote": true,
       "min_salary": 700000,
       "max_salary": 1100000,
       "currency": "INR",
-      "skills": ["React Native", "Flutter", "JavaScript", "Dart", "iOS", "Android"],
+      "skills": [
+        "React Native",
+        "Flutter",
+        "JavaScript",
+        "Dart",
+        "iOS",
+        "Android"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -225,12 +297,21 @@
       "employment_type": "full-time",
       "experience_min_years": 1,
       "experience_max_years": 4,
-      "locations": ["Noida"],
+      "locations": [
+        "Noida"
+      ],
       "is_remote": false,
       "min_salary": 800000,
       "max_salary": 1300000,
       "currency": "INR",
-      "skills": ["Network Security", "Penetration Testing", "SIEM", "Incident Response", "Risk Assessment", "Compliance"],
+      "skills": [
+        "Network Security",
+        "Penetration Testing",
+        "SIEM",
+        "Incident Response",
+        "Risk Assessment",
+        "Compliance"
+      ],
       "notice_period": 60,
       "education_level": "bachelor",
       "status": "active",
@@ -243,12 +324,21 @@
       "employment_type": "full-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
-      "locations": ["Kochi"],
+      "locations": [
+        "Kochi"
+      ],
       "is_remote": true,
       "min_salary": 500000,
       "max_salary": 800000,
       "currency": "INR",
-      "skills": ["Unity", "C#", "Game Design", "3D Modeling", "Animation", "Mobile Games"],
+      "skills": [
+        "Unity",
+        "C#",
+        "Game Design",
+        "3D Modeling",
+        "Animation",
+        "Mobile Games"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -261,12 +351,21 @@
       "employment_type": "internship",
       "experience_min_years": 0,
       "experience_max_years": 0,
-      "locations": ["Jaipur"],
+      "locations": [
+        "Jaipur"
+      ],
       "is_remote": true,
       "min_salary": 200000,
       "max_salary": 300000,
       "currency": "INR",
-      "skills": ["JavaScript", "Python", "React", "Node.js", "Git", "Problem Solving"],
+      "skills": [
+        "JavaScript",
+        "Python",
+        "React",
+        "Node.js",
+        "Git",
+        "Problem Solving"
+      ],
       "notice_period": 15,
       "education_level": "bachelor",
       "status": "active",
@@ -279,12 +378,21 @@
       "employment_type": "full-time",
       "experience_min_years": 5,
       "experience_max_years": 8,
-      "locations": ["Bangalore"],
+      "locations": [
+        "Bangalore"
+      ],
       "is_remote": true,
       "min_salary": 1500000,
       "max_salary": 2500000,
       "currency": "INR",
-      "skills": ["System Design", "Leadership", "Java", "Python", "Microservices", "Team Management"],
+      "skills": [
+        "System Design",
+        "Leadership",
+        "Java",
+        "Python",
+        "Microservices",
+        "Team Management"
+      ],
       "notice_period": 90,
       "education_level": "bachelor",
       "status": "active",
@@ -297,12 +405,21 @@
       "employment_type": "full-time",
       "experience_min_years": 3,
       "experience_max_years": 6,
-      "locations": ["Mumbai"],
+      "locations": [
+        "Mumbai"
+      ],
       "is_remote": true,
       "min_salary": 1200000,
       "max_salary": 2000000,
       "currency": "INR",
-      "skills": ["Product Strategy", "Agile", "User Research", "Analytics", "Roadmapping", "Stakeholder Management"],
+      "skills": [
+        "Product Strategy",
+        "Agile",
+        "User Research",
+        "Analytics",
+        "Roadmapping",
+        "Stakeholder Management"
+      ],
       "notice_period": 60,
       "education_level": "master",
       "status": "active",
@@ -315,12 +432,21 @@
       "employment_type": "full-time",
       "experience_min_years": 6,
       "experience_max_years": 10,
-      "locations": ["Chennai"],
+      "locations": [
+        "Chennai"
+      ],
       "is_remote": false,
       "min_salary": 2000000,
       "max_salary": 3000000,
       "currency": "INR",
-      "skills": ["AWS", "Azure", "GCP", "Solution Architecture", "Migration", "Enterprise Solutions"],
+      "skills": [
+        "AWS",
+        "Azure",
+        "GCP",
+        "Solution Architecture",
+        "Migration",
+        "Enterprise Solutions"
+      ],
       "notice_period": 90,
       "education_level": "bachelor",
       "status": "active",
@@ -333,12 +459,21 @@
       "employment_type": "full-time",
       "experience_min_years": 2,
       "experience_max_years": 5,
-      "locations": ["Delhi"],
+      "locations": [
+        "Delhi"
+      ],
       "is_remote": true,
       "min_salary": 1200000,
       "max_salary": 1800000,
       "currency": "INR",
-      "skills": ["Python", "TensorFlow", "PyTorch", "Machine Learning", "Deep Learning", "MLOps"],
+      "skills": [
+        "Python",
+        "TensorFlow",
+        "PyTorch",
+        "Machine Learning",
+        "Deep Learning",
+        "MLOps"
+      ],
       "notice_period": 45,
       "education_level": "master",
       "status": "active",
@@ -351,12 +486,21 @@
       "employment_type": "part-time",
       "experience_min_years": 1,
       "experience_max_years": 3,
-      "locations": ["Hyderabad"],
+      "locations": [
+        "Hyderabad"
+      ],
       "is_remote": true,
       "min_salary": 300000,
       "max_salary": 500000,
       "currency": "INR",
-      "skills": ["Digital Marketing", "Content Creation", "SEO", "Social Media", "Analytics", "Campaign Management"],
+      "skills": [
+        "Digital Marketing",
+        "Content Creation",
+        "SEO",
+        "Social Media",
+        "Analytics",
+        "Campaign Management"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -369,12 +513,21 @@
       "employment_type": "contract",
       "experience_min_years": 1,
       "experience_max_years": 4,
-      "locations": ["Pune"],
+      "locations": [
+        "Pune"
+      ],
       "is_remote": false,
       "min_salary": 600000,
       "max_salary": 1000000,
       "currency": "INR",
-      "skills": ["Manual Testing", "Automation Testing", "Selenium", "Test Planning", "Bug Tracking", "API Testing"],
+      "skills": [
+        "Manual Testing",
+        "Automation Testing",
+        "Selenium",
+        "Test Planning",
+        "Bug Tracking",
+        "API Testing"
+      ],
       "notice_period": 30,
       "education_level": "bachelor",
       "status": "active",
@@ -387,12 +540,21 @@
       "employment_type": "full-time",
       "experience_min_years": 2,
       "experience_max_years": 4,
-      "locations": ["Gurgaon"],
+      "locations": [
+        "Gurgaon"
+      ],
       "is_remote": false,
       "min_salary": 800000,
       "max_salary": 1300000,
       "currency": "INR",
-      "skills": ["Swift", "Objective-C", "iOS SDK", "Xcode", "Core Data", "App Store"],
+      "skills": [
+        "Swift",
+        "Objective-C",
+        "iOS SDK",
+        "Xcode",
+        "Core Data",
+        "App Store"
+      ],
       "notice_period": 45,
       "education_level": "bachelor",
       "status": "active",
@@ -405,12 +567,21 @@
       "employment_type": "full-time",
       "experience_min_years": 3,
       "experience_max_years": 7,
-      "locations": ["Noida"],
+      "locations": [
+        "Noida"
+      ],
       "is_remote": true,
       "min_salary": 1100000,
       "max_salary": 1800000,
       "currency": "INR",
-      "skills": ["Security Assessment", "Consulting", "Risk Management", "Compliance", "Client Management", "Technical Writing"],
+      "skills": [
+        "Security Assessment",
+        "Consulting",
+        "Risk Management",
+        "Compliance",
+        "Client Management",
+        "Technical Writing"
+      ],
       "notice_period": 60,
       "education_level": "bachelor",
       "status": "active",
@@ -423,12 +594,21 @@
       "employment_type": "full-time",
       "experience_min_years": 1,
       "experience_max_years": 3,
-      "locations": ["Kochi"],
+      "locations": [
+        "Kochi"
+      ],
       "is_remote": false,
       "min_salary": 400000,
       "max_salary": 700000,
       "currency": "INR",
-      "skills": ["3D Modeling", "Blender", "Maya", "Texturing", "Animation", "Game Art"],
+      "skills": [
+        "3D Modeling",
+        "Blender",
+        "Maya",
+        "Texturing",
+        "Animation",
+        "Game Art"
+      ],
       "notice_period": 30,
       "education_level": "diploma",
       "status": "active",
@@ -441,16 +621,49 @@
       "employment_type": "part-time",
       "experience_min_years": 0,
       "experience_max_years": 2,
-      "locations": ["Jaipur"],
+      "locations": [
+        "Jaipur"
+      ],
       "is_remote": true,
       "min_salary": 250000,
       "max_salary": 400000,
       "currency": "INR",
-      "skills": ["Content Writing", "Technical Writing", "SEO Writing", "Research", "Editing", "Educational Content"],
+      "skills": [
+        "Content Writing",
+        "Technical Writing",
+        "SEO Writing",
+        "Research",
+        "Editing",
+        "Educational Content"
+      ],
       "notice_period": 15,
       "education_level": "bachelor",
       "status": "active",
       "days_ago": 5
+    },
+    {
+      "company_name": "Yuvro AI",
+      "title": "Yuvro Round 1",
+      "description": "Welcome to Yuvro Round 1 — a technical assessment round evaluating your problem-solving ability across core data structures and algorithms topics.",
+      "employment_type": "full-time",
+      "experience_min_years": 0,
+      "experience_max_years": 2,
+      "locations": [
+        "Bangalore",
+        "Remote"
+      ],
+      "is_remote": true,
+      "min_salary": 120000,
+      "max_salary": 150000,
+      "currency": "INR",
+      "skills": [
+        "Data Structures",
+        "Algorithms"
+      ],
+      "notice_period": 30,
+      "education_level": "bachelor",
+      "status": "active",
+      "days_ago": 1
     }
   ]
 }

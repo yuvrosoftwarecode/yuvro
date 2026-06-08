@@ -30,6 +30,7 @@ import {
   ChevronsUpDown,
   Sparkles
 } from 'lucide-react';
+import DeployInfo from './DeployInfo';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SidebarItem {
@@ -351,6 +352,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </button>
+              <DeployInfo collapsed={sidebarCollapsed} visible={profileOpen} />
             </div>
           </div>
         </div>

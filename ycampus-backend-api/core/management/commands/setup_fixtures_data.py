@@ -93,6 +93,10 @@ class Command(BaseCommand):
             call_command("assign_subjects_and_tasks", verbosity=1)
             self.stdout.write("")
 
+            self.stdout.write("🏫 Seeding JNTU college data (subjects, internal tests, announcements, posts)...")
+            call_command("seed_jntu_college_data", verbosity=1)
+            self.stdout.write("")
+
             self.stdout.write(
                 self.style.SUCCESS(
                     "🎉 testing environment setup completed successfully!"
@@ -106,6 +110,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("✓ College data loaded"))
             self.stdout.write(self.style.SUCCESS("✓ AI agents seeded"))
             self.stdout.write(self.style.SUCCESS("✓ Subjects and tasks assigned"))
+            self.stdout.write(self.style.SUCCESS("✓ JNTU college data seeded (internal tests, announcements, posts)"))
             self.stdout.write("")
             self.stdout.write("🚀 You can now start testing the application!")
 

@@ -1,0 +1,3931 @@
+{
+    "name": "React Basics",
+    "course_short_code": "RJS100",
+    "order_index": 1,
+    "subtopics": [
+        {
+            "name": "JSX",
+            "content": "JSX stands for JavaScript XML. It allows us to write HTML in React by converting it into React elements that can be rendered to the DOM. JSX makes it easier to write and add HTML in React.",
+            "order_index": 0,
+            "videos": []
+        },
+        {
+            "name": "Components (Functional/Class)",
+            "content": "Components are the building blocks of any React application. Functional components are simple JavaScript functions that return JSX, while Class components are ES6 classes that extend React.Component. Modern React development primarily uses functional components with hooks.",
+            "order_index": 1,
+            "videos": []
+        },
+        {
+            "name": "Props",
+            "content": "Props (short for properties) are used to pass data from one component to another (primarily from parent to child). They are read-only and help make components reusable and dynamic.",
+            "order_index": 2,
+            "videos": []
+        },
+        {
+            "name": "State",
+            "content": "State is an object that holds information about the component that might change over time. Unlike props, state is managed within the component and can be updated using the useState hook or setState in class components.",
+            "order_index": 3,
+            "videos": []
+        },
+        {
+            "name": "Event Handling",
+            "content": "React events are named using camelCase, such as onClick instead of onclick. Event handlers are passed as functions rather than strings. Understanding how to handle user interactions is fundamental to building interactive UIs.",
+            "order_index": 4,
+            "videos": []
+        },
+        {
+            "name": "Conditional Rendering",
+            "content": "Conditional rendering in React works the same way conditions work in JavaScript. You can use JavaScript operators like if or the ternary operator to create elements representing the current state.",
+            "order_index": 5,
+            "videos": []
+        },
+        {
+            "name": "Lists & Keys",
+            "content": "In React, you can render lists of data using the map() function. Keys help React identify which items have changed, are added, or are removed, giving the elements a stable identity and improving performance.",
+            "order_index": 6,
+            "videos": []
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "What is JSX",
+            "content": "What does JSX stand for in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JavaScript XML",
+                    "is_correct": true
+                },
+                {
+                    "text": "Java Syntax Extension",
+                    "is_correct": false
+                },
+                {
+                    "text": "JavaScript Extra",
+                    "is_correct": false
+                },
+                {
+                    "text": "JSON XML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Purpose",
+            "content": "Why is JSX used in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To write HTML-like syntax in JavaScript",
+                    "is_correct": true
+                },
+                {
+                    "text": "To replace JavaScript completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style CSS only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Return",
+            "content": "What does JSX ultimately compile to?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JavaScript objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML files",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Rule",
+            "content": "What is required in JSX expressions?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must return a single parent element",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must use SQL syntax",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must avoid JavaScript",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must use loops only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Expressions",
+            "content": "How do you embed JavaScript in JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using curly braces {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using %% symbols",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using <script>",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using $$ syntax",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Attributes",
+            "content": "How are attributes written in JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "camelCase naming",
+                    "is_correct": true
+                },
+                {
+                    "text": "all lowercase always",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL format",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only syntax",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX vs HTML",
+            "content": "What is a key difference between JSX and HTML?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JSX uses className instead of class",
+                    "is_correct": true
+                },
+                {
+                    "text": "JSX is pure CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML supports JavaScript expressions",
+                    "is_correct": false
+                },
+                {
+                    "text": "JSX runs on database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Compilation",
+            "content": "What does JSX get compiled into?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React.createElement calls",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "JSON schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Rules",
+            "content": "What is a strict rule of JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must return a single parent element",
+                    "is_correct": true
+                },
+                {
+                    "text": "Must use multiple roots always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must avoid JavaScript entirely",
+                    "is_correct": false
+                },
+                {
+                    "text": "Must use SQL syntax",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JSX Security",
+            "content": "How does JSX handle injection attacks?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It escapes values by default",
+                    "is_correct": true
+                },
+                {
+                    "text": "It allows all scripts",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables security",
+                    "is_correct": false
+                },
+                {
+                    "text": "It uses SQL protection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Features",
+            "content": "Which are features of JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "HTML-like syntax",
+                    "is_correct": true
+                },
+                {
+                    "text": "JavaScript integration",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Usage",
+            "content": "Where is JSX used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React components",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Frontend logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database design",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Rules",
+            "content": "Which are rules of JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Single parent element",
+                    "is_correct": true
+                },
+                {
+                    "text": "JavaScript expressions allowed",
+                    "is_correct": true
+                },
+                {
+                    "text": "CamelCase attributes",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL syntax required",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Benefits",
+            "content": "What are benefits of JSX?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Readable code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster development",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component structure clarity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Expressions",
+            "content": "Which are valid JSX expressions?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "{2 + 2}",
+                    "is_correct": true
+                },
+                {
+                    "text": "{user.name}",
+                    "is_correct": true
+                },
+                {
+                    "text": "{functionCall()}",
+                    "is_correct": true
+                },
+                {
+                    "text": "<if condition>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Attributes",
+            "content": "Which are correct JSX attribute rules?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "className instead of class",
+                    "is_correct": true
+                },
+                {
+                    "text": "camelCase attributes",
+                    "is_correct": true
+                },
+                {
+                    "text": "JS expressions in {}",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL attributes allowed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Compilation",
+            "content": "What does JSX compile into?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React.createElement",
+                    "is_correct": true
+                },
+                {
+                    "text": "JavaScript objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Virtual DOM nodes",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Security",
+            "content": "Which are true about JSX security?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Escapes values automatically",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevents XSS attacks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Safe by default rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Allows raw script injection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX Advanced Rules",
+            "content": "Which are advanced JSX rules?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Must return single root",
+                    "is_correct": true
+                },
+                {
+                    "text": "Supports fragments",
+                    "is_correct": true
+                },
+                {
+                    "text": "Supports expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Requires SQL syntax",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "JSX vs HTML",
+            "content": "What are differences between JSX and HTML?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "JSX",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JSX uses className",
+                    "is_correct": true
+                },
+                {
+                    "text": "JSX supports JS expressions",
+                    "is_correct": true
+                },
+                {
+                    "text": "JSX compiles to JS",
+                    "is_correct": true
+                },
+                {
+                    "text": "HTML runs React logic",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Component",
+            "content": "What is a React component?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A reusable UI building block",
+                    "is_correct": true
+                },
+                {
+                    "text": "A database table",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "A backend API",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Functional Component",
+            "content": "What is a functional component in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A function that returns JSX",
+                    "is_correct": true
+                },
+                {
+                    "text": "A class only",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database function",
+                    "is_correct": false
+                },
+                {
+                    "text": "A CSS module",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Component",
+            "content": "What is required in a class component?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "render() method",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "API endpoint",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Component Reusability",
+            "content": "Why are components used in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reuse UI parts",
+                    "is_correct": true
+                },
+                {
+                    "text": "To store data in DB",
+                    "is_correct": false
+                },
+                {
+                    "text": "To replace JavaScript",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style backend",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Usage",
+            "content": "How do components communicate in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using props",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using SQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State in Class Component",
+            "content": "How is state initialized in class components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside constructor",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside HTML only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Functional vs Class",
+            "content": "Which is a difference between functional and class components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class components use lifecycle methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional components cannot render UI",
+                    "is_correct": false
+                },
+                {
+                    "text": "Class components use SQL",
+                    "is_correct": false
+                },
+                {
+                    "text": "Functional components use database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "React Component Lifecycle",
+            "content": "Which feature is available only in class components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lifecycle methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "JSX rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Props usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Functional Components Power",
+            "content": "What modern feature replaced most class component usage?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "React Hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS modules",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML templates",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Rendering Behavior",
+            "content": "What triggers re-render in React components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State or props change",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS change only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database update only",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML file change",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Types",
+            "content": "Which are types of React components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Functional components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Pure components",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Features",
+            "content": "What are features of React components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reusable UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "Independent logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "Composability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Usage",
+            "content": "What are props used for?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component communication",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Structure",
+            "content": "What are parts of a React component?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JSX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Logic",
+                    "is_correct": true
+                },
+                {
+                    "text": "State",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL schema",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class Component Features",
+            "content": "What are features of class components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lifecycle methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management",
+                    "is_correct": true
+                },
+                {
+                    "text": "render() method",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS only behavior",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Functional Components",
+            "content": "Which are true about functional components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Simple functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Return JSX",
+                    "is_correct": true
+                },
+                {
+                    "text": "Can use hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Require constructor",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Component Communication",
+            "content": "How do components communicate?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props",
+                    "is_correct": true
+                },
+                {
+                    "text": "State lifting",
+                    "is_correct": true
+                },
+                {
+                    "text": "Context API",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL joins",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class vs Functional",
+            "content": "Which differences are correct between class and functional components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class uses lifecycle methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional uses hooks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class uses this keyword",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functional uses SQL",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Rendering",
+            "content": "What triggers component re-render?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props change",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parent re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS change only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Modern React",
+            "content": "Why are functional components preferred today?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Components (Functional/Class)",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hooks support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less boilerplate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL integration",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What are Props",
+            "content": "What are props in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inputs passed to components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database values",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styles only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Flow",
+            "content": "In which direction do props flow?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Top to bottom (parent to child)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child to parent only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Random flow",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database to UI",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Immutability",
+            "content": "Are props mutable inside a component?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "No, props are read-only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Yes, always editable",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in class components",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in CSS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Passing Props",
+            "content": "How are props passed in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "As attributes in components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Through CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Via database tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Destructuring Props",
+            "content": "Why is props destructuring used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To simplify access to props",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete props",
+                    "is_correct": false
+                },
+                {
+                    "text": "To modify database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Default Props",
+            "content": "What are default props used for?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Providing fallback values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting props",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database backup",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS replacement",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Usage",
+            "content": "Where are props commonly used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing data between components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Writing SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend routing",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS animation only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Immutability Reason",
+            "content": "Why are props immutable in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To ensure predictable data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "To allow database updates",
+                    "is_correct": false
+                },
+                {
+                    "text": "To improve CSS rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "To increase API calls",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props vs State",
+            "content": "What is a key difference between props and state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props are passed, state is internal",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props are mutable always",
+                    "is_correct": false
+                },
+                {
+                    "text": "State is passed from parent",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are same",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Props Drilling",
+            "content": "What is props drilling?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Passing props through multiple levels",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deleting props",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database querying",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS inheritance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Features",
+            "content": "Which are features of props?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Read-only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Passed from parent",
+                    "is_correct": true
+                },
+                {
+                    "text": "Used for data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stored in database",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Usage",
+            "content": "Where are props used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component communication",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Backend storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Types",
+            "content": "Which can be passed as props?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Strings",
+                    "is_correct": true
+                },
+                {
+                    "text": "Functions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL tables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Flow",
+            "content": "Which statements are true about props flow?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unidirectional flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Parent to child",
+                    "is_correct": true
+                },
+                {
+                    "text": "Predictable data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child to DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Destructuring",
+            "content": "Which are benefits of props destructuring?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cleaner code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Less repetition",
+                    "is_correct": true
+                },
+                {
+                    "text": "Better readability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database optimization",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Default Props",
+            "content": "What are default props used for?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Fallback values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Prevent undefined values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve UI stability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Replace state",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props vs State",
+            "content": "Which differences are correct between props and state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Props are external",
+                    "is_correct": true
+                },
+                {
+                    "text": "State is internal",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props are immutable",
+                    "is_correct": true
+                },
+                {
+                    "text": "State is passed from parent",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Drilling Issues",
+            "content": "What problems can props drilling cause?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code complexity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Hard maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deep component nesting issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Props Principles",
+            "content": "Which are key principles of props?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unidirectional data flow",
+                    "is_correct": true
+                },
+                {
+                    "text": "Read-only nature",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component reusability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct mutation allowed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Props Usage",
+            "content": "Where are advanced props used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Props",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Higher-order components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Render props pattern",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reusable UI systems",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL query systems",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is State",
+            "content": "What is state in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Internal data of a component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database storage",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend API",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Purpose",
+            "content": "Why is state used in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To manage dynamic data",
+                    "is_correct": true
+                },
+                {
+                    "text": "To store SQL tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "To write CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "To connect servers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Change",
+            "content": "What happens when state changes?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "Page reloads manually",
+                    "is_correct": false
+                },
+                {
+                    "text": "Database resets",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS is deleted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Usage",
+            "content": "Where is state used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside components",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside database only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside HTML only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside CSS files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Hook",
+            "content": "Which hook is used for state in functional components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "useState",
+                    "is_correct": true
+                },
+                {
+                    "text": "useEffect",
+                    "is_correct": false
+                },
+                {
+                    "text": "useContext",
+                    "is_correct": false
+                },
+                {
+                    "text": "useReducer",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Update",
+            "content": "How should state be updated in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using setState or setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct mutation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using SQL update",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using DOM only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State vs Props",
+            "content": "What is a key difference between state and props?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State is internal and mutable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Props are internal and mutable",
+                    "is_correct": false
+                },
+                {
+                    "text": "State comes from parent",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are same",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Re-render",
+            "content": "Why does state update trigger re-render?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reflect updated UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "To restart server",
+                    "is_correct": false
+                },
+                {
+                    "text": "To reset database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To change CSS file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State Immutability",
+            "content": "Why is state treated as immutable?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To ensure predictable updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "To allow direct mutation",
+                    "is_correct": false
+                },
+                {
+                    "text": "To improve SQL performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "To disable rendering",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "State in Class Component",
+            "content": "Where is state defined in class components?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inside constructor",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inside render()",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inside HTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Features",
+            "content": "Which are features of state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Mutable data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Component-specific",
+                    "is_correct": true
+                },
+                {
+                    "text": "Triggers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stored in DB",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Usage",
+            "content": "Where is state used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dynamic content",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Characteristics",
+            "content": "What are characteristics of state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Local to component",
+                    "is_correct": true
+                },
+                {
+                    "text": "Changeable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Causes re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Global DB storage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Updates",
+            "content": "Which are correct ways to update state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "setState",
+                    "is_correct": true
+                },
+                {
+                    "text": "useState updater",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct mutation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "useState Hook",
+            "content": "What does useState provide?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "State variable",
+                    "is_correct": true
+                },
+                {
+                    "text": "Setter function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Initial value",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Behavior",
+            "content": "What happens when state changes?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Component re-renders",
+                    "is_correct": true
+                },
+                {
+                    "text": "UI updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Virtual DOM updates",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database resets",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Rules",
+            "content": "What are rules of state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Should not mutate directly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Should use setter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Triggers re-render",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stored globally always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Problems",
+            "content": "What problems occur with incorrect state usage?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Unexpected UI behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Performance issues",
+                    "is_correct": true
+                },
+                {
+                    "text": "Buggy rendering",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster SQL execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "State Principles",
+            "content": "Which are core principles of state?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Immutability",
+                    "is_correct": true
+                },
+                {
+                    "text": "Local ownership",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reactivity",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct mutation allowed",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced State Concepts",
+            "content": "What are advanced state concepts?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "State",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Lifting state up",
+                    "is_correct": true
+                },
+                {
+                    "text": "Derived state",
+                    "is_correct": true
+                },
+                {
+                    "text": "State management patterns",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS state handling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "What is Event Handling",
+            "content": "What is event handling in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Responding to user actions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database management",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "API creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Click Event",
+            "content": "Which event is triggered when a button is clicked?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "onClick",
+                    "is_correct": true
+                },
+                {
+                    "text": "onHover",
+                    "is_correct": false
+                },
+                {
+                    "text": "onLoad",
+                    "is_correct": false
+                },
+                {
+                    "text": "onSubmitForm",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Naming",
+            "content": "How are React events written?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "camelCase",
+                    "is_correct": true
+                },
+                {
+                    "text": "lowercase only",
+                    "is_correct": false
+                },
+                {
+                    "text": "SQL format",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS style format",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Function",
+            "content": "What is passed to event handlers?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Function",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS file",
+                    "is_correct": false
+                },
+                {
+                    "text": "HTML only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Object",
+            "content": "What does the event object provide?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Information about the event",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database connection",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend routes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Prevent Default",
+            "content": "What does e.preventDefault() do?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Stops default browser action",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deletes event",
+                    "is_correct": false
+                },
+                {
+                    "text": "Reloads page",
+                    "is_correct": false
+                },
+                {
+                    "text": "Stops JS execution",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Binding",
+            "content": "Why do we bind events in React?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To maintain correct 'this' context",
+                    "is_correct": true
+                },
+                {
+                    "text": "To connect database",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style components",
+                    "is_correct": false
+                },
+                {
+                    "text": "To compile JS",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Synthetic Events",
+            "content": "What are React Synthetic Events?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Cross-browser wrapper around native events",
+                    "is_correct": true
+                },
+                {
+                    "text": "Database events",
+                    "is_correct": false
+                },
+                {
+                    "text": "CSS animations",
+                    "is_correct": false
+                },
+                {
+                    "text": "Backend triggers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Event Propagation",
+            "content": "What is event bubbling?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event moves from child to parent",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event stops immediately",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event goes to database",
+                    "is_correct": false
+                },
+                {
+                    "text": "Event deletes DOM",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Arrow Function in Events",
+            "content": "Why are arrow functions used in event handlers?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They preserve lexical this",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are faster SQL queries",
+                    "is_correct": false
+                },
+                {
+                    "text": "They modify DOM directly",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace JSX",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Types",
+            "content": "Which are valid React events?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "onClick",
+                    "is_correct": true
+                },
+                {
+                    "text": "onChange",
+                    "is_correct": true
+                },
+                {
+                    "text": "onSubmit",
+                    "is_correct": true
+                },
+                {
+                    "text": "onSQLQuery",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Features",
+            "content": "What are features of React events?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Synthetic events",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cross-browser compatibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "CamelCase naming",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct SQL support",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Handling Usage",
+            "content": "Where is event handling used?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Forms",
+                    "is_correct": true
+                },
+                {
+                    "text": "Buttons",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inputs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Object",
+            "content": "What does event object contain?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "target",
+                    "is_correct": true
+                },
+                {
+                    "text": "type",
+                    "is_correct": true
+                },
+                {
+                    "text": "value",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Methods",
+            "content": "Which methods are used in event handling?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "preventDefault()",
+                    "is_correct": true
+                },
+                {
+                    "text": "stopPropagation()",
+                    "is_correct": true
+                },
+                {
+                    "text": "event.target",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL.execute()",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Binding",
+            "content": "Why is binding important?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To fix 'this' context",
+                    "is_correct": true
+                },
+                {
+                    "text": "To avoid undefined errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "To maintain scope",
+                    "is_correct": true
+                },
+                {
+                    "text": "To run SQL queries",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Flow",
+            "content": "Which are phases of event flow?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Capturing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Target",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bubbling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Event Concepts",
+            "content": "Which are advanced event concepts?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event delegation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event bubbling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Event capturing",
+                    "is_correct": true
+                },
+                {
+                    "text": "SQL injection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "React Events",
+            "content": "Which are true about React events?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Synthetic events used",
+                    "is_correct": true
+                },
+                {
+                    "text": "Cross-browser support",
+                    "is_correct": true
+                },
+                {
+                    "text": "Uses camelCase",
+                    "is_correct": true
+                },
+                {
+                    "text": "Direct DOM manipulation only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Event Optimization",
+            "content": "Which improve event performance?",
+            "level": "subunit",
+            "topic_name": "React Basics",
+            "subtopic_name": "Event Handling",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Event delegation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid inline handlers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Reuse handlers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple DOM listeners everywhere",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+      "type": "mcq_single",
+      "title": "What is Conditional Rendering",
+      "content": "What is conditional rendering in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Rendering UI based on conditions", "is_correct": true },
+        { "text": "Database rendering", "is_correct": false },
+        { "text": "CSS rendering only", "is_correct": false },
+        { "text": "Backend rendering", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "If Statement",
+      "content": "Which is commonly used for conditional rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "if condition", "is_correct": true },
+        { "text": "SQL query", "is_correct": false },
+        { "text": "CSS rule", "is_correct": false },
+        { "text": "HTML tag only", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Ternary Operator",
+      "content": "Which operator is used for conditional rendering in JSX?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "?:", "is_correct": true },
+        { "text": "&&&", "is_correct": false },
+        { "text": "##", "is_correct": false },
+        { "text": "$$", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Logical AND",
+      "content": "Which operator is used for simple conditional rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "&&", "is_correct": true },
+        { "text": "||=", "is_correct": false },
+        { "text": "===", "is_correct": false },
+        { "text": "%%", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "JSX Condition",
+      "content": "How is condition written inside JSX?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Using {} with expressions", "is_correct": true },
+        { "text": "Using <if> tag", "is_correct": false },
+        { "text": "Using SQL syntax", "is_correct": false },
+        { "text": "Using CSS only", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Conditional Rendering Use",
+      "content": "Where is conditional rendering used most?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Login/logout UI", "is_correct": true },
+        { "text": "Database schema", "is_correct": false },
+        { "text": "Server setup", "is_correct": false },
+        { "text": "CSS file creation", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multiple Conditions",
+      "content": "How do we handle multiple conditions in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "if-else or switch", "is_correct": true },
+        { "text": "SQL joins", "is_correct": false },
+        { "text": "CSS selectors", "is_correct": false },
+        { "text": "HTML only", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Short Circuit Rendering",
+      "content": "What is short-circuit rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Using && for conditional UI", "is_correct": true },
+        { "text": "Using SQL queries", "is_correct": false },
+        { "text": "Using CSS animations", "is_correct": false },
+        { "text": "Using backend logic only", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Null Rendering",
+      "content": "What happens if condition is false in && rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Nothing is rendered", "is_correct": true },
+        { "text": "Error occurs", "is_correct": false },
+        { "text": "Page reloads", "is_correct": false },
+        { "text": "CSS breaks", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Best Practice",
+      "content": "What is best practice for complex conditions?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Use helper functions", "is_correct": true },
+        { "text": "Write everything in JSX", "is_correct": false },
+        { "text": "Use SQL logic", "is_correct": false },
+        { "text": "Avoid conditions", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Conditional Rendering Methods",
+      "content": "Which are ways of conditional rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "if-else", "is_correct": true },
+        { "text": "ternary operator", "is_correct": true },
+        { "text": "logical &&", "is_correct": true },
+        { "text": "SQL conditions", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Use Cases",
+      "content": "Where is conditional rendering used?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Login pages", "is_correct": true },
+        { "text": "Forms validation", "is_correct": true },
+        { "text": "UI toggles", "is_correct": true },
+        { "text": "Database schema", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "JSX Conditions",
+      "content": "Which are valid JSX conditions?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "{condition && <Component />}", "is_correct": true },
+        { "text": "{condition ? A : B}", "is_correct": true },
+        { "text": "if(condition) JSX", "is_correct": false },
+        { "text": "<if></if>", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rendering Behavior",
+      "content": "What affects rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Boolean values", "is_correct": true },
+        { "text": "Expressions", "is_correct": true },
+        { "text": "Conditions", "is_correct": true },
+        { "text": "SQL queries", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Ternary Operator",
+      "content": "What are features of ternary operator?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Inline condition", "is_correct": true },
+        { "text": "Returns two outcomes", "is_correct": true },
+        { "text": "Used in JSX", "is_correct": true },
+        { "text": "Used in SQL joins", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Logical Rendering",
+      "content": "What does && operator do in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Renders component if true", "is_correct": true },
+        { "text": "Skips rendering if false", "is_correct": true },
+        { "text": "Short-circuit behavior", "is_correct": true },
+        { "text": "Executes SQL query", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Complex Conditions",
+      "content": "Which are used for complex conditions?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "switch case", "is_correct": true },
+        { "text": "helper functions", "is_correct": true },
+        { "text": "multiple if-else", "is_correct": true },
+        { "text": "CSS rules", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Rendering",
+      "content": "What are advanced conditional rendering techniques?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Higher-order components", "is_correct": true },
+        { "text": "Render functions", "is_correct": true },
+        { "text": "Conditional hooks usage", "is_correct": true },
+        { "text": "SQL rendering logic", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Performance",
+      "content": "Which improve conditional rendering performance?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Avoid unnecessary renders", "is_correct": true },
+        { "text": "Memoization", "is_correct": true },
+        { "text": "Clean conditions", "is_correct": true },
+        { "text": "Heavy SQL calls", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rendering Issues",
+      "content": "What can cause rendering issues?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Conditional Rendering",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Incorrect conditions", "is_correct": true },
+        { "text": "Undefined values", "is_correct": true },
+        { "text": "Logical errors", "is_correct": true },
+        { "text": "Proper JSX usage", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "What are Lists in React",
+      "content": "What are lists used for in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Rendering multiple elements", "is_correct": true },
+        { "text": "Database storage", "is_correct": false },
+        { "text": "CSS styling", "is_correct": false },
+        { "text": "Backend APIs", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "What is Key",
+      "content": "What is the purpose of a key in React lists?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "To uniquely identify elements", "is_correct": true },
+        { "text": "To style elements", "is_correct": false },
+        { "text": "To store database ID", "is_correct": false },
+        { "text": "To fetch API data", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "List Method",
+      "content": "Which JS method is used to render lists in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "map()", "is_correct": true },
+        { "text": "filter()", "is_correct": false },
+        { "text": "reduce()", "is_correct": false },
+        { "text": "sort()", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Requirement",
+      "content": "Is key required in list rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Yes, for performance and tracking", "is_correct": true },
+        { "text": "No, never required", "is_correct": false },
+        { "text": "Only for CSS", "is_correct": false },
+        { "text": "Only for backend", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Importance",
+      "content": "Why are keys important in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Efficient re-rendering", "is_correct": true },
+        { "text": "Database indexing", "is_correct": false },
+        { "text": "CSS optimization", "is_correct": false },
+        { "text": "API routing", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Value",
+      "content": "What should a key ideally be?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Unique and stable", "is_correct": true },
+        { "text": "Random number", "is_correct": false },
+        { "text": "CSS class", "is_correct": false },
+        { "text": "HTML tag", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Index as Key",
+      "content": "Is using index as key recommended?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Not recommended in dynamic lists", "is_correct": true },
+        { "text": "Always recommended", "is_correct": false },
+        { "text": "Only for CSS", "is_correct": false },
+        { "text": "Only for backend", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Reconciliation",
+      "content": "What does React use keys for internally?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Efficient DOM reconciliation", "is_correct": true },
+        { "text": "Database sync", "is_correct": false },
+        { "text": "CSS rendering", "is_correct": false },
+        { "text": "API calls", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Key Issues",
+      "content": "What happens if keys are not unique?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Rendering bugs may occur", "is_correct": true },
+        { "text": "CSS breaks", "is_correct": false },
+        { "text": "API fails", "is_correct": false },
+        { "text": "Database crashes", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Stable Keys",
+      "content": "Why should keys be stable?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "To maintain component identity", "is_correct": true },
+        { "text": "To improve CSS speed", "is_correct": false },
+        { "text": "To change UI design", "is_correct": false },
+        { "text": "To run SQL faster", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Usage",
+      "content": "Where are lists used in React?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Displaying items", "is_correct": true },
+        { "text": "Rendering arrays", "is_correct": true },
+        { "text": "UI repetition", "is_correct": true },
+        { "text": "Database storage", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Keys Purpose",
+      "content": "What are purposes of keys?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Unique identification", "is_correct": true },
+        { "text": "Efficient updates", "is_correct": true },
+        { "text": "DOM optimization", "is_correct": true },
+        { "text": "CSS styling", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "List Rendering",
+      "content": "Which methods are used in list rendering?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "map()", "is_correct": true },
+        { "text": "filter()", "is_correct": true },
+        { "text": "reduce()", "is_correct": true },
+        { "text": "SQL query", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Usage",
+      "content": "Where are keys used?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "List items", "is_correct": true },
+        { "text": "Dynamic rendering", "is_correct": true },
+        { "text": "Component updates", "is_correct": true },
+        { "text": "Database tables", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Benefits",
+      "content": "What are benefits of keys?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Better performance", "is_correct": true },
+        { "text": "Efficient diffing", "is_correct": true },
+        { "text": "Stable identity", "is_correct": true },
+        { "text": "SQL indexing", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Rules",
+      "content": "What are rules for keys?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Must be unique", "is_correct": true },
+        { "text": "Should be stable", "is_correct": true },
+        { "text": "Avoid index keys", "is_correct": true },
+        { "text": "Can be random every render", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Rendering Behavior",
+      "content": "What improves rendering with keys?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Reconciliation speed", "is_correct": true },
+        { "text": "DOM reuse", "is_correct": true },
+        { "text": "Efficient updates", "is_correct": true },
+        { "text": "CSS rendering", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Problems",
+      "content": "What happens if keys are wrong?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "UI bugs", "is_correct": true },
+        { "text": "Wrong element updates", "is_correct": true },
+        { "text": "Performance issues", "is_correct": true },
+        { "text": "Faster rendering always", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Key Internals",
+      "content": "What does React use keys for internally?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Diff algorithm", "is_correct": true },
+        { "text": "DOM reconciliation", "is_correct": true },
+        { "text": "Efficient updates", "is_correct": true },
+        { "text": "Database indexing", "is_correct": false }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Best Practices",
+      "content": "Which are best practices for keys?",
+      "level": "subunit",
+      "topic_name": "React Basics",
+      "subtopic_name": "Lists & Keys",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        { "text": "Use unique IDs", "is_correct": true },
+        { "text": "Avoid index keys", "is_correct": true },
+        { "text": "Keep keys stable", "is_correct": true },
+        { "text": "Change keys every render", "is_correct": false }
+      ]
+    }
+    ]
+}

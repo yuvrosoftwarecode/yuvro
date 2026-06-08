@@ -51,6 +51,8 @@ from authentication.permissions import (
     CanManageUsers,
 )
 from django.contrib.auth import get_user_model
+from urllib.parse import urlparse
+
 
 User = get_user_model()
 
@@ -273,7 +275,17 @@ class ForgotPasswordView(generics.GenericAPIView):
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uidb64}/{token}"
+        # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
+        origin = request.META.get("HTTP_ORIGIN")
+        if not origin:
+            referer = request.META.get("HTTP_REFERER")
+            if referer:
+                parsed_uri = urlparse(referer)
+                origin = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+        
+        frontend_url = origin.rstrip("/") if origin else settings.FRONTEND_URL
+
+        reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
         send_mail(
             subject="Password Reset Request",
@@ -425,6 +437,7 @@ class UserToggleStatusView(APIView):
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticatedUser]
 
@@ -433,6 +446,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticatedUser]
 
@@ -451,3 +465,101 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
         updated_profile = serializer.save()
 
         return Response(ProfileSerializer(updated_profile).data)
+
+
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@extend_schema(
+    summary="Upload a profile image",
+    description=(
+        "Uploads a profile image (or cover image / id card image) to object storage "
+        "(S3 / MinIO depending on STORAGE_BACKEND) and saves the resulting URL "
+        "back on the user's profile. Send the file in the `image` field and the "
+        "target field name in `field` (`profile_image` | `cover_image` | "
+        "`id_card_image`). Max size 10 MB."
+    ),
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "image": {"type": "string", "format": "binary"},
+                "field": {
+                    "type": "string",
+                    "enum": ["profile_image", "cover_image", "id_card_image"],
+                },
+            },
+            "required": ["image", "field"],
+        }
+    },
+    responses={200: ProfileSerializer},
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def upload_profile_image(request):
+    """
+    POST /api/auth/profile/upload-image/
+
+    multipart/form-data:
+        image:    file (required, ≤10 MB)
+        field:    "profile_image" | "cover_image" | "id_card_image" (default: profile_image)
+    """
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
+    ALLOWED_CONTENT_TYPES = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+    }
+    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response(
+            {"error": "No image file provided. Use the 'image' form field."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if image_file.size > MAX_BYTES:
+        return Response(
+            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    target_field = request.data.get("field", "profile_image")
+    if target_field not in ALLOWED_FIELDS:
+        return Response(
+            {"error": f"Invalid field. Must be one of: {', '.join(ALLOWED_FIELDS)}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    content_type = (image_file.content_type or "").lower()
+    ext = ALLOWED_CONTENT_TYPES.get(content_type)
+    if not ext:
+        fallback = os.path.splitext(image_file.name)[1].lstrip(".").lower()
+        ext = fallback or "jpg"
+
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    try:
+        from core.storage import upload_image
+
+        stored_name = upload_image(
+            key=f"profile/{request.user.id}/{target_field}.{ext}",
+            file_obj=image_file,
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+        )
+    except Exception as exc:
+        logger.exception("Failed to upload profile image")
+        return Response(
+            {"error": f"Failed to upload image: {exc}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    setattr(profile, target_field, stored_name)
+    profile.save(update_fields=[target_field, "updated_at"])
+
+    return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)

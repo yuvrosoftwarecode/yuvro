@@ -8,6 +8,8 @@ import ThankYouScreen from '@/components/student/ThankYouScreen';
 import { Role, InterviewSettings } from '@/types/mockInterview';
 import { mockInterviewService } from '@/services/mockInterviewService';
 
+import { toast } from 'sonner';
+
 type InterviewState = 'library' | 'permission' | 'interview' | 'reports' | 'thank-you';
 
 const StudentMockInterview = () => {
@@ -29,9 +31,17 @@ const StudentMockInterview = () => {
   // Step 2: Permission granted → request actual media stream and start interview
   const handlePermissionConfirmed = async () => {
     if (!selectedRole) return;
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (err) {
+      console.error('Failed to get media permissions:', err);
+      toast.error('Camera and microphone access is required. Please grant permissions and try again.');
+      setState('library');
+      return;
+    }
+
+    try {
       // Start the interview session
       const response = await mockInterviewService.startInterview(
         selectedRole.id,
@@ -56,10 +66,14 @@ const StudentMockInterview = () => {
       setInterviewSessionId(response.interview_session_id);
       setChatSessionId(response.chat_session_id);
       setState('interview');
-    } catch (error) {
-      console.error('Failed to get media permissions or start interview:', error);
-      alert('Camera and microphone access is required. Please grant permissions and try again.');
-      setState('library');
+    } catch (error: any) {
+      console.error('Failed to start interview:', error);
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+      const apiError = error.message || 'Failed to start interview. Please try again.';
+      sessionStorage.setItem('toast_error', apiError);
+      window.location.reload();
     }
   };
 

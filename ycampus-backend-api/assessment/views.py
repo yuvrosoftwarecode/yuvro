@@ -33,6 +33,51 @@ from .serializers import (
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
 
+
+def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
+    """
+    Checks if the user has any active test, assessment, or mock interview submission.
+    Returns the active submission object if found, otherwise None.
+    If excluding_model is provided, we ignore the active submission of that model 
+    if it matches the excluding_assessment_field with excluding_assessment_id.
+    """
+    if not user or not user.is_authenticated or (hasattr(user, 'role') and user.role != 'student'):
+        return None
+
+    from .models import (
+        SkillTestSubmission, ContestSubmission, MockInterviewSubmission,
+        CertificationSubmission, JobTestSubmission
+    )
+    
+    submissions_to_check = [
+        (SkillTestSubmission, 'skill_test_id'),
+        (ContestSubmission, 'contest_id'),
+        (MockInterviewSubmission, 'mock_interview_id'),
+        (CertificationSubmission, 'certification_exam_id'),
+        (JobTestSubmission, 'job_test_id'),
+    ]
+    
+    for model, field in submissions_to_check:
+        try:
+            if model == excluding_model:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).exclude(**{field: excluding_assessment_id}).first()
+            else:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).first()
+                
+            if active:
+                return active
+        except Exception:
+            pass
+            
+    return None
+
+
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     queryset = CertificationExam.objects.all()
     serializer_class = CertificationExamSerializer
@@ -72,6 +117,18 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         exam = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=CertificationSubmission,
+            excluding_assessment_field='certification_exam_id',
+            excluding_assessment_id=exam.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # Check active submission
         submission = CertificationSubmission.objects.filter(
             certification_exam=exam,
@@ -352,6 +409,18 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         contest = self.get_object()
         user = request.user
 
+        active_session = has_active_submission(
+            user,
+            excluding_model=ContestSubmission,
+            excluding_assessment_field='contest_id',
+            excluding_assessment_id=contest.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         submission, created = ContestSubmission.objects.get_or_create(
             contest=contest, 
             user=user,
@@ -534,6 +603,18 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         skill_test = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=SkillTestSubmission,
+            excluding_assessment_field='skill_test_id',
+            excluding_assessment_id=skill_test.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # 1. Check for existing UNFINISHED submission to resume
         submission = SkillTestSubmission.objects.filter(
             skill_test=skill_test,
@@ -982,6 +1063,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         try:
             user = request.user
             mock_interview = self.get_object()
+
+            active_session = has_active_submission(
+                user,
+                excluding_model=MockInterviewSubmission,
+                excluding_assessment_field='mock_interview_id',
+                excluding_assessment_id=mock_interview.id
+            )
+            if active_session:
+                return Response(
+                    {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             experience_level = request.data.get('experience_level', 'Beginner')
             selected_duration = request.data.get('selected_duration')
             resume_file = request.FILES.get('resume')
@@ -1394,9 +1488,44 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         def generate():
             try:
                 logger.info(f"Starting background report generation for session {interview_session.id}")
-                generator = InterviewReportGenerator(interview_session)
+                
+                # Check if report already exists
+                if hasattr(interview_session, "report") and interview_session.report:
+                    logger.info(f"Report already exists for session {interview_session.id}, skipping generation.")
+                    return
+                
+                generator = InterviewReportGenerator()
+                
+                # Prepare conversation text
+                trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
+                messages = interview_session.chat_session.messages.order_by("created_at")
+                conversation_text = ""
+                for msg in messages:
+                    if msg.content.strip() == trigger_text:
+                        continue
+                    role = "Interviewer" if msg.message_type != "user" else "Candidate"
+                    conversation_text += f"{role}: {msg.content}\n\n"
+
+                # Use extracted resume text from context if available
+                resume_text = interview_session.chat_session.context.get("candidate_info", "No resume provided.")
+
                 # Use async_to_sync because generate_report is async
-                async_to_sync(generator.generate_report)()
+                report_data = async_to_sync(generator.generate_report)(
+                    conversation_text, resume_content=resume_text
+                )
+                
+                # Create Report object
+                InterviewReport.objects.create(
+                    interview_session=interview_session,
+                    overall_score=report_data.get("overall_score", 0),
+                    feedback_summary=report_data.get("feedback_summary", ""),
+                    performance_metrics=report_data.get("performance_metrics", {}),
+                    skill_analysis=report_data.get("skill_analysis", {}),
+                    question_analysis=report_data.get("question_analysis", []),
+                    key_takeaways=report_data.get("key_takeaways", {}),
+                    meta_stats=report_data.get("meta_stats", {})
+                )
+                
                 logger.info(f"Background report generation successfully finished for session {interview_session.id}")
             except Exception as e:
                 logger.error(f"Background report generation failed: {str(e)}")

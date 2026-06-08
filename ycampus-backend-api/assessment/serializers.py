@@ -16,6 +16,9 @@ from .models import (
     Certificate,
     PredefinedInterviewQuestion,
 )
+from django.utils import timezone
+from django.utils.timezone import localdate
+
 
 User = get_user_model()
 
@@ -225,6 +228,48 @@ class ContestSerializer(serializers.ModelSerializer):
             "updated_at",
             "is_registered",
         ]
+
+    def validate(self, attrs):
+        
+        start_datetime = attrs.get('start_datetime')
+        end_datetime = attrs.get('end_datetime')
+        registration_start_datetime = attrs.get('registration_start_datetime')
+        registration_end_datetime = attrs.get('registration_end_datetime')
+
+        today = localdate()
+
+        if end_datetime:
+            end_date = end_datetime.date()
+            is_changed = not self.instance or self.instance.end_datetime != end_datetime
+            if is_changed and end_date < today:
+                raise serializers.ValidationError({
+                    "end_datetime": "End Date cannot be yesterday's date or past dates."
+                })
+
+        if registration_end_datetime:
+            reg_end_date = registration_end_datetime.date()
+            is_changed = not self.instance or self.instance.registration_end_datetime != registration_end_datetime
+            if is_changed and reg_end_date < today:
+                raise serializers.ValidationError({
+                    "registration_end_datetime": "Registration End Date cannot be yesterday's date or past dates."
+                })
+
+        start = start_datetime or (self.instance.start_datetime if self.instance else None)
+        end = end_datetime or (self.instance.end_datetime if self.instance else None)
+        reg_start = registration_start_datetime or (self.instance.registration_start_datetime if self.instance else None)
+        reg_end = registration_end_datetime or (self.instance.registration_end_datetime if self.instance else None)
+
+        if start and end and end <= start:
+            raise serializers.ValidationError({
+                "end_datetime": "End Date must be after Start Date."
+            })
+
+        if reg_start and reg_end and reg_end <= reg_start:
+            raise serializers.ValidationError({
+                "registration_end_datetime": "Registration End Date must be after Registration Start Date."
+            })
+
+        return attrs
 
     def get_participants_count(self, obj):
         return obj.contest_submissions.count()

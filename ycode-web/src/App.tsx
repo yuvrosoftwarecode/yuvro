@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, } from 'react-router-dom';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import './observability/telemetry';
@@ -14,6 +16,8 @@ import InstructorDashboard from './pages/instructor/Dashboard';
 import Courses from './pages/instructor/Courses';
 import CourseEdit from './components/instructor/courses/CourseEdit';
 import ResumeBuilder from "./pages/student/ResumeBuilder";
+import ChangePassword from './pages/common/ChangePassword';
+import JobTestAttempt from './pages/student/JobTestAttempt';
 
 
 import Users from './pages/instructor/Users';
@@ -90,6 +94,22 @@ function App() {
               <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
               <Route path="/add-job" element={<AddJob />} />
               <Route path="/student/applications" element={<ApplicationTracker appliedJobs={[]} />} />
+              <Route
+                path="/change-password"
+                element={
+                  <ProtectedRoute allowedRoles={["student", "recruiter", "admin", "instructor", "guest"]}>
+                    <ChangePassword />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/job-test/:applicationId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <JobTestAttempt />
+                  </ProtectedRoute>
+                }
+              />
 
 
               <Route
@@ -717,11 +737,23 @@ function App() {
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
             <Toaster position="top-right" />
+            <ToastNotificationManager />
           </div>
         </Router>
       </AuthProvider>
     </ErrorBoundary>
   );
 }
+
+const ToastNotificationManager = () => {
+  useEffect(() => {
+    const error = sessionStorage.getItem('toast_error');
+    if (error) {
+      toast.error(error);
+      sessionStorage.removeItem('toast_error');
+    }
+  }, []);
+  return null;
+};
 
 export default App;

@@ -281,9 +281,63 @@ deploy_applications() {
         "$HOME/.ssh/ycode-ec2-github" \
         "ubuntu@$instance_ip:/home/ubuntu/.ssh/github_deploy_key"
 
+    print_info "Wiring S3 / IAM credentials from OpenTofu into .env.dev-secrets..."
+    cd "$OPENTOFU_DIR"
+    S3_BASE_BUCKET="$(tofu output -raw app_data_bucket_name 2>/dev/null || true)"
+    S3_ACCESS_KEY_ID="$(tofu output -raw app_service_access_key_id 2>/dev/null || true)"
+    S3_SECRET_ACCESS_KEY="$(tofu output -raw app_service_secret_access_key 2>/dev/null || true)"
+    S3_IAM_USER_NAME="$(tofu output -raw app_service_user_name 2>/dev/null || true)"
+    cd "$PROJECT_ROOT" >/dev/null
+
+    if [ -z "$S3_BASE_BUCKET" ] || [ -z "$S3_ACCESS_KEY_ID" ] || [ -z "$S3_SECRET_ACCESS_KEY" ]; then
+        print_warning "Could not read S3 outputs from OpenTofu — backends will fall back to .env.dev-secrets (may be empty)."
+    else
+        print_info "S3 base bucket:  $S3_BASE_BUCKET"
+        print_info "S3 IAM user:     ${S3_IAM_USER_NAME:-app-service-user}"
+    fi
+
+    # Resolve SECRETS_DIR up front so the _set_kv calls below have a valid path.
+    SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+    _set_kv() {
+        local f="$1" key="$2" value="$3"
+        if [ -z "$value" ]; then return 0; fi
+        if [ ! -f "$f" ]; then touch "$f"; fi
+        if grep -qE "^${key}=" "$f"; then
+            sed -i.bak -E "s|^${key}=.*$|${key}=${value}|" "$f"
+            rm -f "$f.bak"
+        else
+            printf "\n%s=%s\n" "$key" "$value" >> "$f"
+        fi
+    }
+
+    for secrets_file in \
+        "ycode-backend-api/.env.dev-secrets" \
+        "ycampus-backend-api/.env.dev-secrets"
+    do
+        local_path="$SECRETS_DIR/$secrets_file"
+        _set_kv "$local_path" "AWS_STORAGE_BUCKET_NAME" "$S3_BASE_BUCKET"
+        _set_kv "$local_path" "AWS_ACCESS_KEY_ID"     "$S3_ACCESS_KEY_ID"
+        _set_kv "$local_path" "AWS_SECRET_ACCESS_KEY" "$S3_SECRET_ACCESS_KEY"
+    done
+
+    # Also upsert the bucket name in the non-secrets .env.dev files so the
+    # value in source matches what OpenTofu provisioned. (The .env.dev file
+    # already has the literal `yuvro-dev` as a sensible default; this
+    # idempotently overrides it with the value OpenTofu reports in case
+    # someone later renames the bucket.)
+    for env_file in \
+        "ycode-backend-api/.env.dev" \
+        "ycampus-backend-api/.env.dev"
+    do
+        local_path="$SECRETS_DIR/$env_file"
+        if [ -f "$local_path" ] && [ -n "$S3_BASE_BUCKET" ]; then
+            _set_kv "$local_path" "AWS_STORAGE_BUCKET_NAME" "$S3_BASE_BUCKET"
+        fi
+    done
+
     # ── Copy secrets files to EC2 ──────────────────────────────────────────
     print_info "Copying .env.dev-secrets files to EC2..."
-    SECRETS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
     for secrets_file in \
         "ycode-backend-api/.env.dev-secrets" \
@@ -334,20 +388,6 @@ Host github.com
 SSHCONF
 chmod 600 /home/ubuntu/.ssh/config
 
-# Stop any running containers gracefully
-echo "📦 Stopping any existing containers..."
-if [ -d "/home/ubuntu/yuvro" ]; then
-  cd /home/ubuntu/yuvro
-  docker compose \
-    -f docker-compose.yuvro.yml \
-    -f docker-compose.ycode.yml \
-    -f docker-compose.ycampus.yml \
-    -f docker-compose.dev.yml \
-    down --remove-orphans 2>/dev/null || true
-  cd /home/ubuntu
-fi
-echo "✅ Containers stopped"
-
 echo "📦 Cloning/updating repository..."
 cd /home/ubuntu
 if [ -d "yuvro" ]; then
@@ -384,25 +424,36 @@ export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export VITE_GOOGLE_CLIENT_ID="${VITE_GOOGLE_CLIENT_ID_VAL}"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${YCAMPUS_VITE_GOOGLE_CLIENT_ID_VAL}"
 
+# Deploy metadata — baked into the frontend bundle at build time
+export VITE_DEPLOY_COMMIT_SHA=\$(git rev-parse HEAD 2>/dev/null || echo 'unknown')
+export VITE_DEPLOY_BRANCH=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')
+# Read app version from package.json (ycode-web)
+export VITE_DEPLOY_APP_VERSION=\$(python3 -c "import json; print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo '1.0.0')
+
 echo "✓ Build args configured"
 echo "  YCODE_VITE_BACKEND_API_BASE_URL=\$YCODE_VITE_BACKEND_API_BASE_URL"
 echo "  YCAMPUS_VITE_BACKEND_API_BASE_URL=\$YCAMPUS_VITE_BACKEND_API_BASE_URL"
 echo "  VITE_GOOGLE_CLIENT_ID=\${VITE_GOOGLE_CLIENT_ID:0:20}..."
+echo "  VITE_DEPLOY_BRANCH=\$VITE_DEPLOY_BRANCH"
+echo "  VITE_DEPLOY_COMMIT_SHA=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
+echo "  VITE_DEPLOY_APP_VERSION=\$VITE_DEPLOY_APP_VERSION"
 
-echo "📦 Building services (this takes a few minutes on t3.medium)..."
+echo "📦 Building services — old containers stay up during build (zero downtime)..."
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   build 2>&1 | tail -20
 
-echo "📦 Starting services..."
+echo "📦 Stopping old containers and starting new ones..."
 docker network create executor 2>/dev/null || true
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   up -d --force-recreate
 
@@ -411,6 +462,7 @@ docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
+  -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
   ps
 
@@ -433,6 +485,17 @@ DEPLOY_EOF
 
     print_success "Applications deployed"
     echo ""
+
+    if [ -n "$S3_BASE_BUCKET" ]; then
+        print_header "Object Storage (S3)"
+        print_info "Base bucket (S3):  $S3_BASE_BUCKET"
+        print_info "                   https://s3.console.aws.amazon.com/s3/buckets/$S3_BASE_BUCKET"
+        print_info "Per-app layout:   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycode-uploads/"
+        print_info "                   s3://$S3_BASE_BUCKET/${DEPLOY_ENV:-dev}/ycampus-uploads/"
+        if [ -n "$S3_ACCESS_KEY_ID" ]; then
+            print_info "IAM access key:   $S3_ACCESS_KEY_ID (scoped to this base bucket)"
+        fi
+    fi
 }
 
 setup_nginx() {
@@ -446,6 +509,9 @@ set -e
 if ! command -v nginx &>/dev/null; then
     sudo apt-get update -q
     sudo apt-get install -y nginx certbot python3-certbot-nginx -q
+fi
+if ! command -v make &>/dev/null; then
+    sudo apt-get install -y make -q
 fi
 sudo mkdir -p /var/www/certbot
 sudo rm -f /etc/nginx/sites-enabled/default

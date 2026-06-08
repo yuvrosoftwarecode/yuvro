@@ -102,3 +102,52 @@ resource "aws_iam_instance_profile" "app_service" {
   name = "${var.environment}-app-service-profile"
   role = aws_iam_role.app_service.name
 }
+
+resource "aws_iam_user" "app_service" {
+  name = "${var.environment}-app-service-user"
+
+  tags = {
+    Name = "${var.environment}-app-service-user"
+  }
+}
+
+resource "aws_iam_user_policy" "app_service_s3" {
+  name = "${var.environment}-app-service-user-s3"
+  user = aws_iam_user.app_service.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Resource = var.s3_bucket_arns
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:GetObjectVersion",
+          "s3:DeleteObjectVersion"
+        ]
+        Resource = [for arn in var.s3_bucket_arns : "${arn}/*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListAllMyBuckets"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_access_key" "app_service" {
+  user = aws_iam_user.app_service.name
+}

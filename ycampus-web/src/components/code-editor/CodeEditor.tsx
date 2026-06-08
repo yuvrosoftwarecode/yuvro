@@ -665,6 +665,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                             <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
                               <pre className="text-green-400 text-sm whitespace-pre-wrap overflow-auto font-mono leading-relaxed">
                                 {(() => {
+                                  if (executionMetrics?.status === 'security_error' || executionMetrics?.status === 'error') {
+                                    return output || '';
+                                  }
+
                                   // Show console outputs from basic test cases only
                                   if (testResults && testResults.results && Array.isArray(testResults.results)) {
                                     const basicTestResults = testResults.results.filter((result: any) => !result.is_hidden);

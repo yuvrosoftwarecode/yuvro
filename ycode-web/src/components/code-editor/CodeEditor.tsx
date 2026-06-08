@@ -401,9 +401,17 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         toast.error('Code execution failed');
       }
     } catch (err) {
-      console.error('runCode error', err);
-      toast.error('Error running code');
-      setOutput(typeof err === 'string' ? err : err instanceof Error ? err.message : 'Unknown error');
+      const isTle = (err instanceof Error && err.message === 'Time Limit Exceeded') ||
+        (err && typeof err === 'object' && (err as any).status === 400 && (err as any).data?.status === 'tle');
+      if (isTle) {
+        toast.error('Time Limit Exceeded');
+        setOutput('⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.');
+      } else {
+        console.error('runCode error', err);
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error('Error running code');
+        setOutput(errMsg);
+      }
       setShowOutput(true);
     } finally {
       setIsRunning(false);
@@ -466,6 +474,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         });
       }
 
+      setOutput(res.output || res.error_message || '');
       setTestResults(res.test_results ?? null);
       setExecutionMetrics({
         execution_time: res.execution_time,
@@ -492,13 +501,33 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
       } else if (total > 0) {
         toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
       } else {
-        toast.success('Solution submitted successfully');
+        const passed = res.test_cases_passed ?? 0;
+        const total = res.total_test_cases ?? 0;
+        const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
+
+        if (passed === total && total > 0) {
+          toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
+        } else if (total > 0) {
+          toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
+        } else {
+          toast.success('Solution submitted successfully');
+        }
       }
 
       onSubmissionComplete?.(res);
     } catch (err) {
-      console.error('submitSolution error', err);
-      toast.error('Error submitting solution');
+      const isTle = (err instanceof Error && err.message === 'Time Limit Exceeded') ||
+        (err && typeof err === 'object' && (err as any).status === 400 && (err as any).data?.status === 'tle');
+      if (isTle) {
+        toast.error('Time Limit Exceeded');
+        setOutput('⏱ Time Limit Exceeded: Your program exceeded the maximum execution time limit. Please optimize your algorithm or check for infinite loops.');
+      } else {
+        console.error('submitSolution error', err);
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error('Error submitting solution');
+        setOutput(errMsg);
+      }
+      setShowOutput(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -654,6 +683,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                       {/* Console output */}
                       {(output || (testResults && testResults.results)) && (() => {
                         const consoleText = (() => {
+                          if (executionMetrics?.status === 'security_error' || executionMetrics?.status === 'error') {
+                            return output || '';
+                          }
                           if (testResults?.results && Array.isArray(testResults.results)) {
                             const lines = testResults.results
                               .filter((r: any) => !r.is_hidden && r.console_output)

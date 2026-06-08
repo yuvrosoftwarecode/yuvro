@@ -134,13 +134,13 @@ const UnitSelection = ({
                 showProgress={true}
                 overallProgress={subject.progress}
                 onBackToSubjects={onBack}
-                backText="Code Practice"
+                backText="Practice Modules"
             />
 
             <main className="flex-1 overflow-y-auto bg-slate-50/40 custom-scrollbar">
                 <div className="p-6 space-y-8 max-w-7xl mx-auto">
                     {/* Breadcrumbs */}
-                    <nav className="flex items-center gap-2 text-[10px] font-bold   tracking-widest text-muted-foreground mb-4">
+                    <nav className="flex items-center gap-2 text-[10px] font-semibold   tracking-widest text-muted-foreground mb-4">
                         <button onClick={onBack} className="hover:text-primary transition-colors">Practice Modules</button>
                         <ChevronRight className="h-3 w-3" />
                         <span className="text-muted-foreground/80">{subject.name}</span>

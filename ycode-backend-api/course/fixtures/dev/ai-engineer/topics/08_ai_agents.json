@@ -1,0 +1,2381 @@
+{
+  "name": "AI Agents",
+  "subject_short_code": "AI100",
+  "order_index": 8,
+  "sub_units": [
+    {
+      "name": "What are AI Agents?",
+      "content": "This module provides a detailed exploration of What are AI Agents?, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "What are AI Agents?",
+          "video_link": "https://www.youtube.com/results?search_query=What%20are%20AI%20Agents%3F",
+          "ai_context": "Detailed overview and key concepts of What are AI Agents?"
+        },
+        {
+          "title": "What are AI Agents?",
+          "video_link": "https://www.youtube.com/results?search_query=What%20are%20AI%20Agents%3F",
+          "ai_context": "Detailed overview and key concepts of What are AI Agents?"
+        }
+      ]
+    },
+    {
+      "name": "Agent Architecture",
+      "content": "This module provides a detailed exploration of Agent Architecture, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Agent Architecture",
+          "video_link": "https://www.youtube.com/results?search_query=Agent%20Architecture",
+          "ai_context": "Detailed overview and key concepts of Agent Architecture"
+        },
+        {
+          "title": "Agent Architecture",
+          "video_link": "https://www.youtube.com/results?search_query=Agent%20Architecture",
+          "ai_context": "Detailed overview and key concepts of Agent Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Frameworks",
+      "content": "This module provides a detailed exploration of Frameworks, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 2,
+      "videos": [
+        {
+          "title": "Frameworks",
+          "video_link": "https://www.youtube.com/results?search_query=Frameworks",
+          "ai_context": "Detailed overview and key concepts of Frameworks"
+        },
+        {
+          "title": "Frameworks",
+          "video_link": "https://www.youtube.com/results?search_query=Frameworks",
+          "ai_context": "Detailed overview and key concepts of Frameworks"
+        }
+      ]
+    },
+    {
+      "name": "Multi-Agent Systems",
+      "content": "This module provides a detailed exploration of Multi-Agent Systems, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 3,
+      "videos": [
+        {
+          "title": "Multi-Agent Systems",
+          "video_link": "https://www.youtube.com/results?search_query=Multi-Agent%20Systems",
+          "ai_context": "Detailed overview and key concepts of Multi-Agent Systems"
+        },
+        {
+          "title": "Multi-Agent Systems",
+          "video_link": "https://www.youtube.com/results?search_query=Multi-Agent%20Systems",
+          "ai_context": "Detailed overview and key concepts of Multi-Agent Systems"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Definition of AI Agent",
+      "content": "What is an AI agent?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A system that can perceive, decide, and act toward goals",
+          "is_correct": true
+        },
+        {
+          "text": "A computer keyboard",
+          "is_correct": false
+        },
+        {
+          "text": "A database table",
+          "is_correct": false
+        },
+        {
+          "text": "A graphics card",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Chatbot vs Agent",
+      "content": "Which statement best differentiates an AI agent from a chatbot?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "AI agents can take actions and make decisions beyond conversations",
+          "is_correct": true
+        },
+        {
+          "text": "Chatbots can only work offline",
+          "is_correct": false
+        },
+        {
+          "text": "AI agents cannot process text",
+          "is_correct": false
+        },
+        {
+          "text": "Chatbots are always autonomous systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Autonomous System Meaning",
+      "content": "What does autonomous decision-making mean in AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "The system can make decisions with minimal human intervention",
+          "is_correct": true
+        },
+        {
+          "text": "The system avoids all decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "The system only stores data",
+          "is_correct": false
+        },
+        {
+          "text": "The system only processes images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "AI Agent Goal",
+      "content": "What is the primary goal of an AI agent?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To achieve objectives through actions and decisions",
+          "is_correct": true
+        },
+        {
+          "text": "To increase screen brightness",
+          "is_correct": false
+        },
+        {
+          "text": "To replace computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "To compress files only",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Agent Capabilities",
+      "content": "Which capability is commonly associated with AI agents but not basic chatbots?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Planning and executing actions",
+          "is_correct": true
+        },
+        {
+          "text": "Displaying text responses",
+          "is_correct": false
+        },
+        {
+          "text": "Using keyboards",
+          "is_correct": false
+        },
+        {
+          "text": "Opening files manually",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Autonomous Decision Example",
+      "content": "Which scenario best represents an autonomous AI system?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A self-driving system deciding routes and actions automatically",
+          "is_correct": true
+        },
+        {
+          "text": "A calculator performing addition",
+          "is_correct": false
+        },
+        {
+          "text": "A document viewer displaying text",
+          "is_correct": false
+        },
+        {
+          "text": "A keyboard accepting input",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "AI Agent Workflow",
+      "content": "Which sequence best describes how an AI agent typically operates?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Perceive → decide → act",
+          "is_correct": true
+        },
+        {
+          "text": "Train → delete → restart",
+          "is_correct": false
+        },
+        {
+          "text": "Store → compress → print",
+          "is_correct": false
+        },
+        {
+          "text": "Generate → tokenize → shutdown",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Agent vs Chatbot Reasoning",
+      "content": "Why are AI agents considered more advanced than traditional chatbots?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They can reason, plan, and take actions toward goals",
+          "is_correct": true
+        },
+        {
+          "text": "They only generate shorter responses",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "They replace machine learning entirely",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Autonomous System Challenge",
+      "content": "Why can autonomous AI systems be challenging to design?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They must make reliable decisions in changing environments",
+          "is_correct": true
+        },
+        {
+          "text": "They cannot process information",
+          "is_correct": false
+        },
+        {
+          "text": "They do not use AI models",
+          "is_correct": false
+        },
+        {
+          "text": "They only work with static text",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Tools in AI Agents",
+      "content": "Why do AI agents use tools?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To perform actions beyond text generation",
+          "is_correct": true
+        },
+        {
+          "text": "To replace neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "To remove memory from systems",
+          "is_correct": false
+        },
+        {
+          "text": "To increase monitor size",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Memory in AI Agents",
+      "content": "What is the role of memory in AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To store and recall useful information",
+          "is_correct": true
+        },
+        {
+          "text": "To display images only",
+          "is_correct": false
+        },
+        {
+          "text": "To create datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To replace databases",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reasoning Loop Meaning",
+      "content": "What does a reasoning loop help an AI agent do?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Think through steps before taking actions",
+          "is_correct": true
+        },
+        {
+          "text": "Delete training data",
+          "is_correct": false
+        },
+        {
+          "text": "Disable decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "Reduce screen brightness",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tool Example",
+      "content": "Which is an example of a tool used by AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Web search API",
+          "is_correct": true
+        },
+        {
+          "text": "Computer wallpaper",
+          "is_correct": false
+        },
+        {
+          "text": "Mouse pad",
+          "is_correct": false
+        },
+        {
+          "text": "Power cable",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Agent Memory",
+      "content": "Why is memory important for AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "It helps maintain context across interactions",
+          "is_correct": true
+        },
+        {
+          "text": "It removes reasoning abilities",
+          "is_correct": false
+        },
+        {
+          "text": "It disables decision-making",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents tool usage",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reasoning Loop Process",
+      "content": "Which sequence best represents a reasoning loop?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Think → act → observe → repeat",
+          "is_correct": true
+        },
+        {
+          "text": "Delete → train → stop",
+          "is_correct": false
+        },
+        {
+          "text": "Store → compress → print",
+          "is_correct": false
+        },
+        {
+          "text": "Input → shutdown → restart",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Tools and Agent Capability",
+      "content": "How do tools enhance AI agent functionality?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They allow agents to interact with external systems and data",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate memory needs",
+          "is_correct": false
+        },
+        {
+          "text": "They replace machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "They stop autonomous behavior",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Architecture Component Interaction",
+      "content": "How do tools, memory, and reasoning work together in an AI agent?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Memory stores context, reasoning decides actions, and tools execute tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Tools replace reasoning completely",
+          "is_correct": false
+        },
+        {
+          "text": "Memory eliminates the need for tools",
+          "is_correct": false
+        },
+        {
+          "text": "Reasoning only stores information",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Reasoning Loop Challenge",
+      "content": "Why are reasoning loops important in advanced AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They support iterative decision-making for complex tasks",
+          "is_correct": true
+        },
+        {
+          "text": "They remove all external dependencies",
+          "is_correct": false
+        },
+        {
+          "text": "They avoid any planning process",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate user inputs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of LangChain",
+      "content": "What is LangChain primarily used for?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Building applications using LLMs and tools",
+          "is_correct": true
+        },
+        {
+          "text": "Designing computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Creating operating systems",
+          "is_correct": false
+        },
+        {
+          "text": "Editing images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LlamaIndex Purpose",
+      "content": "What is LlamaIndex mainly used for?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Connecting and organizing external data for LLMs",
+          "is_correct": true
+        },
+        {
+          "text": "Building mobile devices",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing neural networks",
+          "is_correct": false
+        },
+        {
+          "text": "Creating datasets manually",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Framework Benefit",
+      "content": "Why are frameworks like LangChain useful?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They simplify development of AI applications",
+          "is_correct": true
+        },
+        {
+          "text": "They remove the need for programming",
+          "is_correct": false
+        },
+        {
+          "text": "They replace databases entirely",
+          "is_correct": false
+        },
+        {
+          "text": "They only work for games",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Common AI Framework Feature",
+      "content": "Which feature is commonly provided by AI agent frameworks?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Integration with tools and external data sources",
+          "is_correct": true
+        },
+        {
+          "text": "Physical robot manufacturing",
+          "is_correct": false
+        },
+        {
+          "text": "Computer hardware repair",
+          "is_correct": false
+        },
+        {
+          "text": "Screen calibration",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LangChain Components",
+      "content": "Which component is often used in LangChain workflows?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Chains connecting multiple operations",
+          "is_correct": true
+        },
+        {
+          "text": "Hardware drivers",
+          "is_correct": false
+        },
+        {
+          "text": "Image processors",
+          "is_correct": false
+        },
+        {
+          "text": "Network switches",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LlamaIndex Data Role",
+      "content": "How does LlamaIndex support AI applications?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "By helping organize and retrieve external information",
+          "is_correct": true
+        },
+        {
+          "text": "By replacing machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "By removing user inputs",
+          "is_correct": false
+        },
+        {
+          "text": "By creating computer hardware",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Framework Selection",
+      "content": "Why might developers use frameworks instead of building AI systems entirely from scratch?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks provide reusable components and reduce development effort",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks eliminate all coding",
+          "is_correct": false
+        },
+        {
+          "text": "Frameworks remove the need for data",
+          "is_correct": false
+        },
+        {
+          "text": "Frameworks only work with robots",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "LangChain vs LlamaIndex",
+      "content": "What is a key difference between LangChain and LlamaIndex?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LangChain focuses on application workflows, while LlamaIndex emphasizes data connection and retrieval",
+          "is_correct": true
+        },
+        {
+          "text": "LangChain only works for images",
+          "is_correct": false
+        },
+        {
+          "text": "LlamaIndex replaces LLMs completely",
+          "is_correct": false
+        },
+        {
+          "text": "Both frameworks are operating systems",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Framework Use in AI Agents",
+      "content": "Why are frameworks important in building advanced AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They help combine models, memory, tools, and data into integrated systems",
+          "is_correct": true
+        },
+        {
+          "text": "They remove all reasoning requirements",
+          "is_correct": false
+        },
+        {
+          "text": "They prevent tool usage",
+          "is_correct": false
+        },
+        {
+          "text": "They only create user interfaces",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Definition of Multi-Agent Systems",
+      "content": "What is a multi-agent system?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "A system where multiple agents work together",
+          "is_correct": true
+        },
+        {
+          "text": "A system with one chatbot only",
+          "is_correct": false
+        },
+        {
+          "text": "A hardware storage device",
+          "is_correct": false
+        },
+        {
+          "text": "A programming language",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Purpose of Collaboration",
+      "content": "Why do agents collaborate in a multi-agent system?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "To solve tasks more efficiently through teamwork",
+          "is_correct": true
+        },
+        {
+          "text": "To eliminate all communication",
+          "is_correct": false
+        },
+        {
+          "text": "To reduce hardware memory",
+          "is_correct": false
+        },
+        {
+          "text": "To remove decision-making",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Use Case Example",
+      "content": "Which is an example use case of a multi-agent system?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autonomous vehicles coordinating traffic decisions",
+          "is_correct": true
+        },
+        {
+          "text": "A basic calculator adding numbers",
+          "is_correct": false
+        },
+        {
+          "text": "A static webpage",
+          "is_correct": false
+        },
+        {
+          "text": "A monitor displaying images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Agent Communication",
+      "content": "In multi-agent systems, communication between agents mainly helps:",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Coordinate actions and share information",
+          "is_correct": true
+        },
+        {
+          "text": "Disable collaboration",
+          "is_correct": false
+        },
+        {
+          "text": "Remove machine learning models",
+          "is_correct": false
+        },
+        {
+          "text": "Prevent decision-making",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Benefit of Specialized Agents",
+      "content": "Why can specialized agents improve multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Different agents can focus on different tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Specialization prevents collaboration",
+          "is_correct": false
+        },
+        {
+          "text": "Agents stop using memory",
+          "is_correct": false
+        },
+        {
+          "text": "Agents no longer need objectives",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Collaborative Workflow",
+      "content": "What usually happens in a collaborative multi-agent workflow?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents divide tasks and exchange information",
+          "is_correct": true
+        },
+        {
+          "text": "Agents avoid interaction entirely",
+          "is_correct": false
+        },
+        {
+          "text": "Only one agent operates at a time",
+          "is_correct": false
+        },
+        {
+          "text": "Agents remove all planning",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world Benefit",
+      "content": "Why are multi-agent systems useful in complex environments?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "They distribute work across multiple decision-makers",
+          "is_correct": true
+        },
+        {
+          "text": "They eliminate the need for coordination",
+          "is_correct": false
+        },
+        {
+          "text": "They only support simple tasks",
+          "is_correct": false
+        },
+        {
+          "text": "They remove all uncertainty",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-Agent System Challenge",
+      "content": "What is a common challenge in multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Coordinating communication and decision-making among agents",
+          "is_correct": true
+        },
+        {
+          "text": "Displaying text on screens",
+          "is_correct": false
+        },
+        {
+          "text": "Creating keyboards",
+          "is_correct": false
+        },
+        {
+          "text": "Converting vectors to images",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Multi-Agent Reasoning",
+      "content": "Why might multi-agent systems outperform a single-agent system for some tasks?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multiple agents can collaborate and leverage specialized capabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Single agents always avoid mistakes",
+          "is_correct": false
+        },
+        {
+          "text": "Multi-agent systems remove all computational needs",
+          "is_correct": false
+        },
+        {
+          "text": "Multiple agents eliminate the need for data",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to AI Agents",
+      "content": "Which statements correctly describe AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "AI agents can perceive information and take actions",
+          "is_correct": true
+        },
+        {
+          "text": "AI agents are designed to achieve specific goals",
+          "is_correct": true
+        },
+        {
+          "text": "AI agents only display static information",
+          "is_correct": false
+        },
+        {
+          "text": "Agents can make decisions based on inputs",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Agent vs Chatbot Basics",
+      "content": "Which statements correctly compare AI agents and chatbots?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Chatbots mainly focus on conversation tasks",
+          "is_correct": true
+        },
+        {
+          "text": "AI agents may perform actions beyond conversations",
+          "is_correct": true
+        },
+        {
+          "text": "Agents and chatbots are always identical systems",
+          "is_correct": false
+        },
+        {
+          "text": "Agents can interact with tools and environments",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Autonomous Decision Systems",
+      "content": "Which statements correctly describe autonomous decision systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autonomous systems can make decisions with limited human intervention",
+          "is_correct": true
+        },
+        {
+          "text": "Decision systems can use data as input",
+          "is_correct": true
+        },
+        {
+          "text": "Autonomous systems never process information",
+          "is_correct": false
+        },
+        {
+          "text": "Automation can support task execution",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "AI Agent Applications",
+      "content": "Which statements correctly describe AI agent applications?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "AI agents can be used in assistants and automation systems",
+          "is_correct": true
+        },
+        {
+          "text": "Agents may interact with external tools",
+          "is_correct": true
+        },
+        {
+          "text": "AI agents are useful only in games",
+          "is_correct": false
+        },
+        {
+          "text": "Agents can support task-oriented workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Agent Capabilities",
+      "content": "Which statements correctly describe AI agent capabilities?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents can combine reasoning and action",
+          "is_correct": true
+        },
+        {
+          "text": "Agents may interact with external systems",
+          "is_correct": true
+        },
+        {
+          "text": "Agents can only answer text questions",
+          "is_correct": false
+        },
+        {
+          "text": "Goal-oriented behavior is important in agents",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Agent vs Chatbot Concepts",
+      "content": "Which statements correctly describe differences between agents and chatbots?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents may execute tasks in addition to conversations",
+          "is_correct": true
+        },
+        {
+          "text": "Chatbots often focus on user interaction",
+          "is_correct": true
+        },
+        {
+          "text": "Every chatbot is a fully autonomous agent",
+          "is_correct": false
+        },
+        {
+          "text": "Agents may involve planning and actions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Autonomous Systems Behavior",
+      "content": "Which statements correctly describe autonomous decision systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autonomous systems may adapt decisions using inputs",
+          "is_correct": true
+        },
+        {
+          "text": "Decision logic can influence actions",
+          "is_correct": true
+        },
+        {
+          "text": "Autonomous systems work without any goals",
+          "is_correct": false
+        },
+        {
+          "text": "Environment information can guide behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced AI Agent Concepts",
+      "content": "Which statements correctly describe advanced AI agent concepts?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Autonomy enables agents to perform tasks with less human intervention",
+          "is_correct": true
+        },
+        {
+          "text": "Decision-making can involve reasoning and planning",
+          "is_correct": true
+        },
+        {
+          "text": "Agents and chatbots always provide identical functionality",
+          "is_correct": false
+        },
+        {
+          "text": "External tools can expand agent capabilities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of AI Agents",
+      "content": "Which statements correctly describe strategic understanding of AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "What are AI Agents?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agent design depends on goals and environments",
+          "is_correct": true
+        },
+        {
+          "text": "Autonomous systems can improve workflow efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Every AI system behaves as an autonomous agent",
+          "is_correct": false
+        },
+        {
+          "text": "Task execution abilities distinguish many agents from chatbots",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "AI Agent Tools Basics",
+      "content": "Which statements correctly describe tools in AI agent architecture?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tools allow agents to perform external actions",
+          "is_correct": true
+        },
+        {
+          "text": "Agents can use tools to access additional information",
+          "is_correct": true
+        },
+        {
+          "text": "Tools are unrelated to agent functionality",
+          "is_correct": false
+        },
+        {
+          "text": "APIs can act as tools for agents",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Memory in AI Agents",
+      "content": "Which statements correctly describe memory in AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Memory helps agents retain useful information",
+          "is_correct": true
+        },
+        {
+          "text": "Past interactions may be stored in memory",
+          "is_correct": true
+        },
+        {
+          "text": "Memory has no role in agent behavior",
+          "is_correct": false
+        },
+        {
+          "text": "Stored context can support future decisions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Reasoning Loop Introduction",
+      "content": "Which statements correctly describe a reasoning loop?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reasoning loops help agents evaluate actions step by step",
+          "is_correct": true
+        },
+        {
+          "text": "Agents may think and act repeatedly during tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Reasoning loops are used only in graphics design",
+          "is_correct": false
+        },
+        {
+          "text": "Decision-making can involve multiple iterations",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Components of Agent Architecture",
+      "content": "Which statements correctly describe AI agent architecture components?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tools, memory, and reasoning can work together",
+          "is_correct": true
+        },
+        {
+          "text": "Agent architecture defines how components interact",
+          "is_correct": true
+        },
+        {
+          "text": "Architecture only stores images",
+          "is_correct": false
+        },
+        {
+          "text": "Multiple components can support agent functionality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Tools and Memory Concepts",
+      "content": "Which statements correctly describe tools and memory usage in AI agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tools can extend an agent's capabilities",
+          "is_correct": true
+        },
+        {
+          "text": "Memory may improve continuity across interactions",
+          "is_correct": true
+        },
+        {
+          "text": "Agents never require external information",
+          "is_correct": false
+        },
+        {
+          "text": "Stored information can influence future actions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Reasoning and Decision Flow",
+      "content": "Which statements correctly describe reasoning loops in agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reasoning loops can support multi-step problem solving",
+          "is_correct": true
+        },
+        {
+          "text": "Agents may repeatedly evaluate actions and outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Reasoning loops prevent decision making",
+          "is_correct": false
+        },
+        {
+          "text": "Planning and execution can be iterative",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Agent Component Interaction",
+      "content": "Which statements correctly describe interaction between architectural components?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Reasoning may use memory and tools together",
+          "is_correct": true
+        },
+        {
+          "text": "Architectural components can support goal completion",
+          "is_correct": true
+        },
+        {
+          "text": "Tools, memory, and reasoning operate independently in all cases",
+          "is_correct": false
+        },
+        {
+          "text": "Component coordination can improve performance",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Agent Architecture Concepts",
+      "content": "Which statements correctly describe advanced AI agent architecture concepts?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Memory systems can improve long-term interaction quality",
+          "is_correct": true
+        },
+        {
+          "text": "Reasoning loops support adaptive decision-making",
+          "is_correct": true
+        },
+        {
+          "text": "Agent tools never affect task execution",
+          "is_correct": false
+        },
+        {
+          "text": "Architectural design influences agent capability",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Agent Architecture",
+      "content": "Which statements correctly describe strategic concepts in agent architecture?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Agent Architecture",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Combining tools, memory, and reasoning improves agent functionality",
+          "is_correct": true
+        },
+        {
+          "text": "Architecture design impacts task effectiveness",
+          "is_correct": true
+        },
+        {
+          "text": "All agents require identical architectural designs",
+          "is_correct": false
+        },
+        {
+          "text": "Component selection depends on system goals",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to LangChain",
+      "content": "Which statements correctly describe LangChain basics?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LangChain helps build applications using LLMs",
+          "is_correct": true
+        },
+        {
+          "text": "LangChain can connect language models with tools",
+          "is_correct": true
+        },
+        {
+          "text": "LangChain is used only for image editing",
+          "is_correct": false
+        },
+        {
+          "text": "Workflows can be created using LangChain components",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to LlamaIndex",
+      "content": "Which statements correctly describe LlamaIndex basics?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "LlamaIndex helps connect data sources with LLMs",
+          "is_correct": true
+        },
+        {
+          "text": "LlamaIndex supports retrieval-based workflows",
+          "is_correct": true
+        },
+        {
+          "text": "LlamaIndex only creates spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "Documents can be indexed for retrieval",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Framework Usage Basics",
+      "content": "Which statements correctly describe AI frameworks?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks simplify AI application development",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks provide reusable components",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks prevent all coding tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Frameworks can improve development efficiency",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "AI Agent Framework Components",
+      "content": "Which statements correctly describe framework capabilities?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks can integrate tools and memory systems",
+          "is_correct": true
+        },
+        {
+          "text": "Agent workflows may use multiple components",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks work without any configuration",
+          "is_correct": false
+        },
+        {
+          "text": "Components can support AI application building",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "LangChain and LlamaIndex Concepts",
+      "content": "Which statements correctly compare LangChain and LlamaIndex?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Both frameworks can support LLM-based applications",
+          "is_correct": true
+        },
+        {
+          "text": "LlamaIndex often focuses on data retrieval workflows",
+          "is_correct": true
+        },
+        {
+          "text": "LangChain and LlamaIndex are identical systems",
+          "is_correct": false
+        },
+        {
+          "text": "Frameworks can simplify AI system development",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Framework Integration Concepts",
+      "content": "Which statements correctly describe framework integration capabilities?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks can connect language models with external tools",
+          "is_correct": true
+        },
+        {
+          "text": "Data pipelines may be integrated with frameworks",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks remove the need for application logic",
+          "is_correct": false
+        },
+        {
+          "text": "Component orchestration can improve workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Agent Workflow Concepts",
+      "content": "Which statements correctly describe AI workflow frameworks?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks can help structure agent workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Reusable components can reduce development effort",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks are unrelated to AI agents",
+          "is_correct": false
+        },
+        {
+          "text": "Workflow design can affect system behavior",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Framework Concepts",
+      "content": "Which statements correctly describe advanced framework concepts?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Framework choice can affect scalability and design",
+          "is_correct": true
+        },
+        {
+          "text": "Integrated tools and retrieval systems support richer applications",
+          "is_correct": true
+        },
+        {
+          "text": "Frameworks guarantee perfect AI outputs",
+          "is_correct": false
+        },
+        {
+          "text": "Framework architecture influences implementation workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of AI Frameworks",
+      "content": "Which statements correctly describe strategic concepts in AI frameworks?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Frameworks",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Frameworks can accelerate AI application development",
+          "is_correct": true
+        },
+        {
+          "text": "Selecting frameworks depends on project needs",
+          "is_correct": true
+        },
+        {
+          "text": "Every framework supports exactly the same features",
+          "is_correct": false
+        },
+        {
+          "text": "Frameworks help organize AI system components",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Multi-Agent Systems",
+      "content": "Which statements correctly describe multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-agent systems involve multiple agents working together",
+          "is_correct": true
+        },
+        {
+          "text": "Agents can cooperate to achieve goals",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-agent systems always contain only one agent",
+          "is_correct": false
+        },
+        {
+          "text": "Different agents may perform different tasks",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Agent Collaboration Basics",
+      "content": "Which statements correctly describe collaboration between agents?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents can share information with each other",
+          "is_correct": true
+        },
+        {
+          "text": "Collaboration may help solve complex tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Agents cannot communicate in collaborative systems",
+          "is_correct": false
+        },
+        {
+          "text": "Tasks may be distributed among agents",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multi-Agent Use Cases",
+      "content": "Which statements correctly describe use cases of multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-agent systems can be used in robotics",
+          "is_correct": true
+        },
+        {
+          "text": "Task automation may involve multiple agents",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-agent systems are used only in video games",
+          "is_correct": false
+        },
+        {
+          "text": "Collaborative workflows are a possible use case",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Role-Based Agents",
+      "content": "Which statements correctly describe role assignment in multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Agents may specialize in different tasks",
+          "is_correct": true
+        },
+        {
+          "text": "Role division can improve efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Every agent must always perform identical tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Specialized roles support collaboration",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Collaboration and Coordination Concepts",
+      "content": "Which statements correctly describe collaboration in multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Coordination helps agents work toward common objectives",
+          "is_correct": true
+        },
+        {
+          "text": "Communication may improve decision-making",
+          "is_correct": true
+        },
+        {
+          "text": "Collaboration prevents agents from sharing information",
+          "is_correct": false
+        },
+        {
+          "text": "Complex workflows can benefit from multiple agents",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Multi-Agent Workflow Concepts",
+      "content": "Which statements correctly describe multi-agent workflows?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Tasks can be split among agents",
+          "is_correct": true
+        },
+        {
+          "text": "Agent outputs may become inputs for other agents",
+          "is_correct": true
+        },
+        {
+          "text": "Multiple agents cannot work on a shared goal",
+          "is_correct": false
+        },
+        {
+          "text": "Workflow design affects collaboration quality",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Use Case Understanding",
+      "content": "Which statements correctly describe practical use cases of multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Customer support systems may use multiple agents",
+          "is_correct": true
+        },
+        {
+          "text": "Research and automation systems can involve collaboration",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-agent systems have no real-world applications",
+          "is_correct": false
+        },
+        {
+          "text": "Distributed problem solving is a common use case",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced Multi-Agent Concepts",
+      "content": "Which statements correctly describe advanced multi-agent system concepts?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Effective collaboration can improve overall system performance",
+          "is_correct": true
+        },
+        {
+          "text": "Task specialization can enhance scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Multi-agent systems eliminate all coordination challenges",
+          "is_correct": false
+        },
+        {
+          "text": "Agent interaction patterns influence outcomes",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of Multi-Agent Systems",
+      "content": "Which statements correctly describe strategic concepts of multi-agent systems?",
+      "level": "subtopic",
+      "unit_name": "AI Agents",
+      "subunit_name": "Multi-Agent Systems",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
+      "mcq_options": [
+        {
+          "text": "Multi-agent systems can handle complex tasks through collaboration",
+          "is_correct": true
+        },
+        {
+          "text": "Role assignment and coordination affect effectiveness",
+          "is_correct": true
+        },
+        {
+          "text": "Increasing the number of agents always improves results",
+          "is_correct": false
+        },
+        {
+          "text": "System design influences collaboration success",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

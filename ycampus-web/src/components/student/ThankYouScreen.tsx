@@ -13,19 +13,17 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({ onComplete }) => {
   const progressValue = ((5 - countdown) / 5) * 100;
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          onComplete();
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (countdown <= 0) {
+      onComplete();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [onComplete]);
+    return () => clearTimeout(timer);
+  }, [countdown, onComplete]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md p-4">

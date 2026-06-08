@@ -1159,11 +1159,13 @@ const AdminSkillTests = () => {
             </CardHeader>
             <CardContent className="pt-5 space-y-4">
               <QuestionBank
-                subjectId={selectedSubject}
-                unitId={selectedUnit || undefined}
-                categories="skill_test"
-                selectedIds={questions.map(q => q.id)}
-                onChange={handleQuestionsChange}
+                mode="selection"
+                selectedQuestions={questions.map(q => q.id)}
+                onQuestionsChange={handleQuestionsChange}
+                subjectFilter={selectedSubject}
+                unitFilter={selectedUnit || undefined}
+                categoryFilter="skill_test"
+                showSplitView={true}
               />
 
               {questions.length > 0 && (

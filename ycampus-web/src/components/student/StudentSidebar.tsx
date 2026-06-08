@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import DeployInfo from '@/components/common/DeployInfo';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -50,35 +51,29 @@ import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 import studentService, { Student } from '@/services/studentService';
 
 const campusMenuItems = [
-  { title: 'Dashboard', url: '/student/dashboard', icon: Home },
-  { title: 'Learning', url: '/student/notes', icon: StickyNote },
-  { title: 'Practice Test', url: '/student/test', icon: ClipboardCheck },
-  { title: 'Task', url: '/student/task', icon: MessageSquare },
-  { title: 'Assessment', url: '/student/assessment', icon: BookOpen },
-  { title: 'Interview Preparation', url: '/student/interview-preparation', icon: Mic },
-  { title: 'AI Interview Planner', url: '/student/ai-interview-planner', icon: BrainCircuit },
-  { title: 'Jobs', url: '/student/jobs', icon: Briefcase },
-  { title: 'Announcements', url: '/student/announcements', icon: Megaphone },
-  { title: 'Community', url: '/student/community', icon: Users },
-  { title: 'Contest', url: '/student/contest', icon: Trophy },
+  { title: 'Dashboard', url: '/student/campus/dashboard', icon: Home },
+  { title: 'Learning', url: '/student/campus/notes', icon: StickyNote },
+  { title: 'Practice Test', url: '/student/campus/test', icon: ClipboardCheck },
+  { title: 'Task', url: '/student/campus/task', icon: MessageSquare },
+  { title: 'Internal tests', url: '/student/campus/internal-test', icon: BookOpen },
+  { title: 'Announcements', url: '/student/campus/announcements', icon: Megaphone },
+  { title: 'Community', url: '/student/campus/community', icon: Users },
+  { title: 'Contest', url: '/student/campus/contest', icon: Trophy },
 ];
 
 const assessmentMenuItems = [
-  { title: 'Dashboard', url: '/student/dashboard', icon: Home },
-  { title: 'Learning', url: '/student/notes', icon: StickyNote },
-  { title: 'Code Practice', url: '/student/code-practice', icon: ClipboardCheck },
-  { title: 'Skill Test', url: '/student/skill-test', icon: BookOpen },
-  { title: 'Assessments', url: '/student/assessments', icon: ClipboardCheck },
-  { title: 'Aptitude & Reasoning', url: '/student/aptitude-reasoning', icon: BrainCircuit },
-  { title: 'Mock Interviews', url: '/student/mock-interview', icon: Mic },
-  { title: 'AI Interview Planner', url: '/student/ai-interview-planner', icon: MessageSquare },
-  { title: 'Jobs', url: '/student/jobs', icon: Briefcase },
-  { title: 'Announcements', url: '/student/announcements', icon: Megaphone },
-  { title: 'Contest', url: '/student/contest', icon: Trophy },
-  { title: 'Leaderboard', url: '/student/leaderboard', icon: Users },
+  { title: 'Dashboard', url: '/student/assessments/dashboard', icon: Home },
+  { title: 'Learning', url: '/student/assessments/notes', icon: StickyNote },
+  { title: 'Code Practice', url: '/student/assessments/code-practice', icon: ClipboardCheck },
+  { title: 'Skill Test', url: '/student/assessments/skill-test', icon: BookOpen },
+  { title: 'Assessments', url: '/student/assessments/assessments', icon: ClipboardCheck },
+  { title: 'Mock Interviews', url: '/student/assessments/mock-interview', icon: Mic },
+  { title: 'AI Interview Planner', url: '/student/assessments/ai-interview-planner', icon: MessageSquare },
+  { title: 'Jobs', url: '/student/assessments/jobs', icon: Briefcase },
 ];
 
 const getConfigKey = (title: string) => {
+  if (title === 'Internal tests') return 'assessment';
   return title.toLowerCase().replace(/[&\s-]+/g, '_');
 };
 
@@ -91,7 +86,14 @@ export function StudentSidebar() {
   const collapsed = state === "collapsed";
   const [profileOpen, setProfileOpen] = useState(false);
   const [studentProfile, setStudentProfile] = useState<Student | null>(null);
-  const [activeToggle, setActiveToggle] = useState<'campus' | 'assessments'>('campus');
+  const navigate = useNavigate();
+  const isAssessmentsPath = location.pathname.includes('/student/assessments');
+  const activeToggle = isAssessmentsPath ? 'assessments' : 'campus';
+
+  const handleToggleClick = (type: 'campus' | 'assessments') => {
+    localStorage.setItem('student_sidebar_active_toggle', type);
+    navigate(`/student/${type}/dashboard`);
+  };
 
   useEffect(() => {
     if (user?.role === 'student' && user?.id) {
@@ -141,7 +143,7 @@ export function StudentSidebar() {
   };
 
   const isActive = (path: string) => {
-    if (path === '/student/dashboard') {
+    if (path === '/student/campus/dashboard' || path === '/student/assessments/dashboard') {
       return currentPath === path;
     }
     return currentPath.startsWith(path);
@@ -160,7 +162,15 @@ export function StudentSidebar() {
 
   const isAssessments = user?.college_product_type === 'assessments';
   const isCampus = user?.college_product_type === 'campus';
-  const rawMenuItems = isAssessments ? assessmentMenuItems : campusMenuItems;
+  
+  // Decide menu items based on toggle selection
+  let rawMenuItems = campusMenuItems;
+  if (isAssessments) {
+    rawMenuItems = assessmentMenuItems;
+  } else if (isCampus) {
+    rawMenuItems = activeToggle === 'campus' ? campusMenuItems : assessmentMenuItems;
+  }
+
   const sidebarConfig = (user as any)?.college_sidebar_config || {};
   const menuItemsToDisplay = rawMenuItems.filter(item => {
     const key = getConfigKey(item.title);
@@ -224,7 +234,7 @@ export function StudentSidebar() {
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
-                onClick={() => setActiveToggle('campus')}
+                onClick={() => handleToggleClick('campus')}
               >
                 <Home className="h-3.5 w-3.5" />
                 Campus
@@ -236,7 +246,7 @@ export function StudentSidebar() {
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
-                onClick={() => setActiveToggle('assessments')}
+                onClick={() => handleToggleClick('assessments')}
               >
                 <ClipboardCheck className="h-3.5 w-3.5" />
                 Assessments
@@ -373,6 +383,7 @@ export function StudentSidebar() {
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </button>
+              <DeployInfo collapsed={collapsed} visible={profileOpen} />
             </div>
           </div>
         </div>

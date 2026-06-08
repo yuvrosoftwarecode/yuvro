@@ -1,0 +1,1330 @@
+{
+  "name": "Introduction to ML Engineering",
+  "subject_short_code": "ML100",
+  "order_index": 0,
+  "sub_units": [
+    {
+      "name": "What is ML Engineering?",
+      "content": "This module provides a detailed exploration of Linear Algebra, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 0,
+      "videos": [
+        {
+          "title": "Linear Algebra",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Algebra",
+          "ai_context": "Detailed overview and key concepts of Linear Algebra"
+        },
+        {
+          "title": "Linear Algebra",
+          "video_link": "https://www.youtube.com/results?search_query=Linear%20Algebra",
+          "ai_context": "Detailed overview and key concepts of Linear Algebra"
+        }
+      ]
+    },
+    {
+      "name": "ML Engineering Workflow",
+      "content": "This module provides a detailed exploration of Probability & Statistics, covering its core principles, practical applications, and best practices within the field of study.",
+      "order_index": 1,
+      "videos": [
+        {
+          "title": "Probability & Statistics",
+          "video_link": "https://www.youtube.com/results?search_query=Probability%20%26%20Statistics",
+          "ai_context": "Detailed overview and key concepts of Probability & Statistics"
+        },
+        {
+          "title": "Probability & Statistics",
+          "video_link": "https://www.youtube.com/results?search_query=Probability%20%26%20Statistics",
+          "ai_context": "Detailed overview and key concepts of Probability & Statistics"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "mcq_single",
+      "title": "Role of an ML Engineer",
+      "content": "What is a primary responsibility of an ML Engineer?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Building and deploying machine learning systems",
+          "is_correct": true
+        },
+        {
+          "text": "Designing computer keyboards",
+          "is_correct": false
+        },
+        {
+          "text": "Creating operating systems only",
+          "is_correct": false
+        },
+        {
+          "text": "Repairing network cables",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Scientist Focus",
+      "content": "Which role mainly focuses on analyzing data and extracting insights?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data Scientist",
+          "is_correct": true
+        },
+        {
+          "text": "Network Administrator",
+          "is_correct": false
+        },
+        {
+          "text": "Graphic Designer",
+          "is_correct": false
+        },
+        {
+          "text": "Database Operator",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Product Lifecycle Step",
+      "content": "Which of the following is part of the ML product lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Model deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Monitor wallpaper selection",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard configuration",
+          "is_correct": false
+        },
+        {
+          "text": "Hardware painting",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Real-world ML Example",
+      "content": "Which is a real-world application of machine learning?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Recommendation systems",
+          "is_correct": true
+        },
+        {
+          "text": "Calculator batteries",
+          "is_correct": false
+        },
+        {
+          "text": "Keyboard stickers",
+          "is_correct": false
+        },
+        {
+          "text": "USB cable testing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "AI Engineer Role",
+      "content": "What does an AI Engineer mainly focus on?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Building broader AI-powered systems and solutions",
+          "is_correct": true
+        },
+        {
+          "text": "Managing office printers",
+          "is_correct": false
+        },
+        {
+          "text": "Designing websites only",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing datasets manually",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Engineering Goal",
+      "content": "What is a major goal of ML Engineering?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Deliver reliable machine learning solutions in production",
+          "is_correct": true
+        },
+        {
+          "text": "Remove all data preprocessing",
+          "is_correct": false
+        },
+        {
+          "text": "Avoid model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Eliminate software systems",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Role Comparison",
+      "content": "How does an ML Engineer differ from a Data Scientist?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers focus more on production systems and deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientists deploy all systems exclusively",
+          "is_correct": false
+        },
+        {
+          "text": "ML Engineers never use data",
+          "is_correct": false
+        },
+        {
+          "text": "Both roles are exactly identical",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Lifecycle Understanding",
+      "content": "Which sequence best represents a simplified ML product lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data collection → training → deployment → monitoring",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → shutdown → delete",
+          "is_correct": false
+        },
+        {
+          "text": "Storage → printing → testing",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring → keyboard setup → networking",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "ML Engineer Responsibility",
+      "content": "Which responsibility is strongly associated with ML Engineers?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Creating scalable pipelines for ML systems",
+          "is_correct": true
+        },
+        {
+          "text": "Manufacturing GPUs",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing operating systems",
+          "is_correct": false
+        },
+        {
+          "text": "Designing mobile wallpapers",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production Challenges",
+      "content": "Why do ML Engineers monitor deployed models?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To track performance and detect issues over time",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently stop predictions",
+          "is_correct": false
+        },
+        {
+          "text": "To remove datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid retraining",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Role Integration Challenge",
+      "content": "Why do ML Engineers need software engineering skills in addition to ML knowledge?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Because ML systems must be scalable, maintainable, and deployable",
+          "is_correct": true
+        },
+        {
+          "text": "Because machine learning removes algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "Because deployment is unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Because software systems do not affect ML products",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production ML Understanding",
+      "content": "What makes ML Engineering different from building ML models in notebooks only?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineering focuses on taking models into reliable real-world production systems",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineering avoids deployment completely",
+          "is_correct": false
+        },
+        {
+          "text": "ML Engineering only uses spreadsheets",
+          "is_correct": false
+        },
+        {
+          "text": "ML Engineering removes monitoring and maintenance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Cross-role Understanding",
+      "content": "In a real-world ML team, why do ML Engineers, Data Scientists, and AI Engineers often collaborate?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Building AI products requires research, modeling, deployment, and system integration",
+          "is_correct": true
+        },
+        {
+          "text": "All three roles perform identical tasks",
+          "is_correct": false
+        },
+        {
+          "text": "Only ML Engineers use data",
+          "is_correct": false
+        },
+        {
+          "text": "Collaboration is unnecessary in AI projects",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Problem Definition Purpose",
+      "content": "What is the first step in an ML engineering workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Problem definition",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring",
+          "is_correct": false
+        },
+        {
+          "text": "Model deletion",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Collection Goal",
+      "content": "Why is data collection important in ML projects?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Models need data to learn patterns",
+          "is_correct": true
+        },
+        {
+          "text": "To avoid machine learning algorithms",
+          "is_correct": false
+        },
+        {
+          "text": "To remove deployment",
+          "is_correct": false
+        },
+        {
+          "text": "To stop monitoring",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Preparation Task",
+      "content": "Which activity belongs to data preparation?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Cleaning missing values",
+          "is_correct": true
+        },
+        {
+          "text": "Creating computer hardware",
+          "is_correct": false
+        },
+        {
+          "text": "Replacing servers",
+          "is_correct": false
+        },
+        {
+          "text": "Changing monitor settings",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Model Development Meaning",
+      "content": "What happens during model development?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Training and evaluating machine learning models",
+          "is_correct": true
+        },
+        {
+          "text": "Installing keyboards",
+          "is_correct": false
+        },
+        {
+          "text": "Deleting datasets",
+          "is_correct": false
+        },
+        {
+          "text": "Removing predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deployment Purpose",
+      "content": "Why is deployment needed in ML engineering?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To make the model available for real-world use",
+          "is_correct": true
+        },
+        {
+          "text": "To permanently stop model usage",
+          "is_correct": false
+        },
+        {
+          "text": "To remove APIs",
+          "is_correct": false
+        },
+        {
+          "text": "To disable predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring Objective",
+      "content": "Why do ML engineers monitor deployed models?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 1,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "To track model performance and detect issues",
+          "is_correct": true
+        },
+        {
+          "text": "To remove prediction outputs",
+          "is_correct": false
+        },
+        {
+          "text": "To eliminate datasets",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid retraining",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Workflow Sequence",
+      "content": "Which sequence correctly represents a simplified ML engineering workflow?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Problem definition → data collection → preparation → model development → deployment → monitoring",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment → monitoring → data collection",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring → hardware setup → prediction",
+          "is_correct": false
+        },
+        {
+          "text": "Data deletion → deployment → testing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Data Preparation Importance",
+      "content": "Why is data preparation crucial before model development?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Poor-quality data can reduce model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Prepared data removes the need for models",
+          "is_correct": false
+        },
+        {
+          "text": "Data preparation eliminates deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Data quality does not affect predictions",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Deployment Challenge",
+      "content": "What is a common challenge after deploying ML models?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Maintaining performance in changing environments",
+          "is_correct": true
+        },
+        {
+          "text": "Removing training data permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Preventing predictions",
+          "is_correct": false
+        },
+        {
+          "text": "Avoiding APIs",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Monitoring Need",
+      "content": "Which issue can monitoring help identify?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Model drift and performance degradation",
+          "is_correct": true
+        },
+        {
+          "text": "Keyboard battery problems",
+          "is_correct": false
+        },
+        {
+          "text": "Screen wallpaper issues",
+          "is_correct": false
+        },
+        {
+          "text": "Hardware color selection",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_single",
+      "title": "Workflow Dependency",
+      "content": "Why is problem definition critical before collecting data?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "It determines what data and success metrics are needed",
+          "is_correct": true
+        },
+        {
+          "text": "It eliminates the need for training",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents model deployment",
+          "is_correct": false
+        },
+        {
+          "text": "It removes monitoring requirements",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Lifecycle Understanding",
+      "content": "Why is ML engineering considered an iterative process?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Models often require retraining and improvements over time",
+          "is_correct": true
+        },
+        {
+          "text": "Models never change after deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Data stays identical forever",
+          "is_correct": false
+        },
+        {
+          "text": "Deployment is always the final step",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "type": "mcq_single",
+      "title": "Production Thinking",
+      "content": "Why do ML Engineers focus on deployment and monitoring in addition to model development?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "hard",
+      "marks": 3,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Because real-world ML systems must remain reliable and useful over time",
+          "is_correct": true
+        },
+        {
+          "text": "Because model training becomes unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Because data collection stops after deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Because monitoring replaces machine learning",
+          "is_correct": false
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to ML Engineering Roles",
+      "content": "Which statements correctly describe ML Engineering roles?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers build and deploy machine learning systems",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientists often focus on data analysis and insights",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineers never work with production systems",
+          "is_correct": false
+        },
+        {
+          "text": "AI Engineers may build AI-powered applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Responsibilities of an ML Engineer",
+      "content": "Which statements correctly describe responsibilities of ML Engineers?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers may deploy and monitor models",
+          "is_correct": true
+        },
+        {
+          "text": "Building scalable ML pipelines can be part of the role",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineers only create presentation slides",
+          "is_correct": false
+        },
+        {
+          "text": "Automation and system optimization may be responsibilities",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Product Lifecycle Basics",
+      "content": "Which statements correctly describe the ML product lifecycle?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data collection can be a stage in the lifecycle",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment may occur after model development",
+          "is_correct": true
+        },
+        {
+          "text": "The lifecycle ends immediately after training",
+          "is_correct": false
+        },
+        {
+          "text": "Monitoring can be part of production workflows",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Real-world ML Applications",
+      "content": "Which statements correctly describe real-world ML applications?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Recommendation systems use machine learning",
+          "is_correct": true
+        },
+        {
+          "text": "Fraud detection can use ML models",
+          "is_correct": true
+        },
+        {
+          "text": "ML has no role in healthcare systems",
+          "is_correct": false
+        },
+        {
+          "text": "Speech recognition is a machine learning application",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Comparing ML Roles",
+      "content": "Which statements correctly compare ML Engineer, Data Scientist, and AI Engineer roles?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers often focus on deployment and scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Data Scientists frequently analyze and interpret data",
+          "is_correct": true
+        },
+        {
+          "text": "All three roles always perform identical tasks",
+          "is_correct": false
+        },
+        {
+          "text": "AI Engineers may integrate AI models into applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding ML Lifecycle Stages",
+      "content": "Which statements correctly describe ML lifecycle stages?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data preprocessing is commonly performed before training",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring helps evaluate production models",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment makes model maintenance unnecessary",
+          "is_correct": false
+        },
+        {
+          "text": "Iteration may be required throughout the lifecycle",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "ML Engineering Workflow Concepts",
+      "content": "Which statements correctly describe ML engineering workflows?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Scalable systems support production environments",
+          "is_correct": true
+        },
+        {
+          "text": "ML Engineers may automate workflows",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning systems never require updates",
+          "is_correct": false
+        },
+        {
+          "text": "Production reliability is important in ML systems",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ML Engineering Concepts",
+      "content": "Which statements correctly describe advanced ML engineering concepts?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers bridge model development and production systems",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring and deployment are key production activities",
+          "is_correct": true
+        },
+        {
+          "text": "ML systems never require lifecycle management",
+          "is_correct": false
+        },
+        {
+          "text": "Scalable design supports real-world ML applications",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of ML Engineering",
+      "content": "Which statements correctly describe strategic ML engineering concepts?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "What is ML Engineering?",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML Engineers support the transition from experiments to production",
+          "is_correct": true
+        },
+        {
+          "text": "Role responsibilities can vary across organizations",
+          "is_correct": true
+        },
+        {
+          "text": "Production ML systems require no operational planning",
+          "is_correct": false
+        },
+        {
+          "text": "Real-world ML solutions often involve multiple stages and teams",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Introduction to Problem Definition",
+      "content": "Which statements correctly describe problem definition in ML workflows?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Problem definition helps identify project goals",
+          "is_correct": true
+        },
+        {
+          "text": "Clearly defining objectives supports model development",
+          "is_correct": true
+        },
+        {
+          "text": "Machine learning projects can skip problem definition",
+          "is_correct": false
+        },
+        {
+          "text": "Understanding requirements helps guide workflow decisions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Collection Basics",
+      "content": "Which statements correctly describe data collection?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data collection gathers information for model training",
+          "is_correct": true
+        },
+        {
+          "text": "Quality data can improve ML outcomes",
+          "is_correct": true
+        },
+        {
+          "text": "Collected data never affects model performance",
+          "is_correct": false
+        },
+        {
+          "text": "Data may come from databases or external sources",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Data Preparation Concepts",
+      "content": "Which statements correctly describe data preparation?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data preparation can include cleaning and preprocessing",
+          "is_correct": true
+        },
+        {
+          "text": "Prepared data may improve model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Raw data always works perfectly without preparation",
+          "is_correct": false
+        },
+        {
+          "text": "Feature engineering can be part of preparation",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Deployment and Monitoring Basics",
+      "content": "Which statements correctly describe deployment and monitoring?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "easy",
+      "marks": 2,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Deployment makes models available for real-world use",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring tracks model behavior after deployment",
+          "is_correct": true
+        },
+        {
+          "text": "Models never require monitoring after deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Production systems can change over time",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Understanding Workflow Stages",
+      "content": "Which statements correctly describe ML workflow stages?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Data preparation often happens before model training",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring helps evaluate production performance",
+          "is_correct": true
+        },
+        {
+          "text": "Workflow stages always occur in a fixed process with no iteration",
+          "is_correct": false
+        },
+        {
+          "text": "Multiple workflow phases support ML development",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Model Development Concepts",
+      "content": "Which statements correctly describe model development?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Model development includes selecting and training algorithms",
+          "is_correct": true
+        },
+        {
+          "text": "Experimentation may improve model performance",
+          "is_correct": true
+        },
+        {
+          "text": "Model development ends all future improvements",
+          "is_correct": false
+        },
+        {
+          "text": "Evaluation can guide model selection decisions",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Monitoring and Lifecycle Concepts",
+      "content": "Which statements correctly describe monitoring in ML workflows?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "medium",
+      "marks": 4,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Monitoring can detect model drift or performance issues",
+          "is_correct": true
+        },
+        {
+          "text": "Performance tracking helps maintain production systems",
+          "is_correct": true
+        },
+        {
+          "text": "Monitoring becomes unnecessary after deployment",
+          "is_correct": false
+        },
+        {
+          "text": "Production environments often require continuous observation",
+          "is_correct": true
+        }
+      ]
+    },
+
+    {
+      "type": "mcq_multiple",
+      "title": "Advanced ML Workflow Concepts",
+      "content": "Which statements correctly describe advanced ML workflow concepts?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "ML workflows often require iterative improvements",
+          "is_correct": true
+        },
+        {
+          "text": "Deployment and monitoring support production readiness",
+          "is_correct": true
+        },
+        {
+          "text": "Once deployed, models never need retraining",
+          "is_correct": false
+        },
+        {
+          "text": "Workflow stages collectively support successful ML systems",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "type": "mcq_multiple",
+      "title": "Strategic Understanding of ML Engineering Workflow",
+      "content": "Which statements correctly describe strategic workflow concepts?",
+      "level": "subtopic",
+      "unit_name": "Introduction to ML Engineering",
+      "subunit_name": "ML Engineering Workflow",
+      "difficulty": "hard",
+      "marks": 6,
+      "categories": ["learn", "skill_test"],
+      "mcq_options": [
+        {
+          "text": "Effective workflows connect development and production systems",
+          "is_correct": true
+        },
+        {
+          "text": "Lifecycle stages can influence ML project success",
+          "is_correct": true
+        },
+        {
+          "text": "Every ML project follows identical workflows",
+          "is_correct": false
+        },
+        {
+          "text": "Continuous monitoring supports long-term model quality",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

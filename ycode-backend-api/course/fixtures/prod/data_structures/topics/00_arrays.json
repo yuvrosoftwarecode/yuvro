@@ -56,13 +56,13 @@
         },
         {
             "name": "Subarray Problems",
-            "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane\u2019s algorithm are commonly used to efficiently solve these problems.",
+            "content": "Subarray problems focus on contiguous segments of an array. Many algorithmic challenges involve finding subarrays with maximum or minimum sums, specific conditions, or certain lengths. Techniques like prefix sums and Kadane’s algorithm are commonly used to efficiently solve these problems.",
             "order_index": 3,
             "videos": [
                 {
                     "title": "Kadane's Algorithm - Maximum Subarray Sum",
                     "video_link": "https://www.youtube.com/watch?v=86CQq3pKSUw",
-                    "ai_context": "Explains Kadane\u2019s algorithm for efficiently finding the maximum subarray sum"
+                    "ai_context": "Explains Kadane’s algorithm for efficiently finding the maximum subarray sum"
                 },
                 {
                     "title": "Prefix Sum Technique Explained",
@@ -8359,8 +8359,8 @@
         },
         {
             "type": "coding",
-            "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum)",
-            "content": "Given an array of integers, find the maximum possible sum of a contiguous subarray using Kadane\u2019s Algorithm.\n\n**Example:**\nInput:\n5\n-2 1 -3 4 -1\nOutput:\n4",
+            "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum)",
+            "content": "Given an array of integers, find the maximum possible sum of a contiguous subarray using Kadane’s Algorithm.\n\n**Example:**\nInput:\n5\n-2 1 -3 4 -1\nOutput:\n4",
             "level": "subtopic",
             "topic_name": "Arrays",
             "subtopic_name": "Subarray Problems",
@@ -8423,14 +8423,14 @@
                 {
                     "input": "5\n-2 1 -3 4 -1",
                     "expected_output": "4",
-                    "explanation": "Kadane\u2019s algorithm finds the maximum sum subarray efficiently."
+                    "explanation": "Kadane’s algorithm finds the maximum sum subarray efficiently."
                 }
             ],
             "inputFormat": "The first line contains integer N.\nThe second line contains N space-separated integers.",
             "outputFormat": "Print the maximum sum of a contiguous subarray.",
             "solutions": [
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - Python",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - Python",
                     "language": "python",
                     "code": "import sys\ninput=sys.stdin.read\nn,*a=map(int,input().split())\ncur=mx=a[0]\nfor x in a[1:]:\n cur=max(x,cur+x)\n mx=max(mx,cur)\nprint(mx)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8438,7 +8438,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - Java",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] a=new int[n];\n  for(int i=0;i<n;i++) a[i]=sc.nextInt();\n  int cur=a[0],max=a[0];\n  for(int i=1;i<n;i++){\n   cur=Math.max(a[i],cur+a[i]);\n   max=Math.max(max,cur);\n  }\n  System.out.print(max);\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8446,7 +8446,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - C++",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n;cin>>n;\n vector<int>a(n);\n for(int i=0;i<n;i++)cin>>a[i];\n int cur=a[0],mx=a[0];\n for(int i=1;i<n;i++){\n  cur=max(a[i],cur+a[i]);\n  mx=max(mx,cur);\n }\n cout<<mx;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -8454,7 +8454,7 @@
                     "approach": "optimal"
                 },
                 {
-                    "title": "Implement Kadane\u2019s Algorithm (Maximum Subarray Sum) - C",
+                    "title": "Implement Kadane’s Algorithm (Maximum Subarray Sum) - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n\nint max(int a, int b) {\n    return a > b ? a : b;\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int a[n];\n    for (int i = 0; i < n; i++)\n        scanf(\"%d\", &a[i]);\n\n    int cur = a[0], mx = a[0];\n\n    for (int i = 1; i < n; i++) {\n        cur = max(a[i], cur + a[i]);\n        mx = max(mx, cur);\n    }\n\n    printf(\"%d\", mx);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
@@ -10545,7 +10545,7 @@
         {
             "type": "coding",
             "title": "Count Pairs With Difference K",
-            "content": "Given an array of integers and an integer K, count the number of pairs (i, j) such that i < j and |arr[i] \u2212 arr[j]| = K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
+            "content": "Given an array of integers and an integer K, count the number of pairs (i, j) such that i < j and |arr[i] − arr[j]| = K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
             "level": "subtopic",
             "topic_name": "Arrays",
             "subtopic_name": "Two Pointer / Sliding Window",

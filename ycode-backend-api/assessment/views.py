@@ -33,6 +33,52 @@ from .serializers import (
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
 
+
+def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
+    """
+    Checks if the user has any active test, assessment, or mock interview submission.
+    Returns the active submission object if found, otherwise None.
+    If excluding_model is provided, we ignore the active submission of that model 
+    if it matches the excluding_assessment_field with excluding_assessment_id.
+    """
+    if not user or not user.is_authenticated or (hasattr(user, 'role') and user.role != 'student'):
+        return None
+
+    from .models import (
+        SkillTestSubmission, ContestSubmission, MockInterviewSubmission,
+        CertificationSubmission, JobTestSubmission
+    )
+    
+    submissions_to_check = [
+        (SkillTestSubmission, 'skill_test_id'),
+        (ContestSubmission, 'contest_id'),
+        (MockInterviewSubmission, 'mock_interview_id'),
+        (CertificationSubmission, 'certification_exam_id'),
+        (JobTestSubmission, 'job_test_id'),
+    ]
+    
+    for model, field in submissions_to_check:
+        try:
+            if model == excluding_model:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).exclude(**{field: excluding_assessment_id}).first()
+            else:
+                active = model.objects.filter(
+                    user=user,
+                    status__in=['started', 'in_progress']
+                ).first()
+                
+            if active:
+                return active
+        except Exception:
+            pass
+            
+    return None
+
+
+from django.shortcuts import render
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     queryset = CertificationExam.objects.all()
     serializer_class = CertificationExamSerializer
@@ -72,6 +118,18 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         exam = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=CertificationSubmission,
+            excluding_assessment_field='certification_exam_id',
+            excluding_assessment_id=exam.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # Check active submission
         submission = CertificationSubmission.objects.filter(
             certification_exam=exam,
@@ -192,6 +250,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         # Check for passing and issue certificate
         passed = False
         certificate_id = None
+        certificate_url = None
         if total_score >= exam.passing_marks:
             passed = True
             # Check if certificate already exists
@@ -203,7 +262,8 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'submission': submission
                 }
             )
-            certificate_id = cert.certificate_id
+            certificate_id = str(cert.id)
+            certificate_url = f"/api/assessment/certificates/{cert.id}/view/"
 
         # --- Gamification: record activity for certification submission ---
         gamification = {}
@@ -218,6 +278,8 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             'score': total_score,
             'passed': passed,
             'certificate_id': certificate_id,
+            'certificate_display_id': cert.display_id if passed else None,
+            'certificate_url': certificate_url,
             'gamification': gamification,
         })
 
@@ -441,6 +503,19 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         
         contest = self.get_object()
         user = request.user
+
+        active_session = has_active_submission(
+            user,
+            excluding_model=ContestSubmission,
+            excluding_assessment_field='contest_id',
+            excluding_assessment_id=contest.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         now = timezone.now()
 
         # Enforce registration before starting
@@ -1094,6 +1169,18 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         skill_test = self.get_object()
         user = request.user
         
+        active_session = has_active_submission(
+            user,
+            excluding_model=SkillTestSubmission,
+            excluding_assessment_field='skill_test_id',
+            excluding_assessment_id=skill_test.id
+        )
+        if active_session:
+            return Response(
+                {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # 1. Check for existing UNFINISHED submission to resume
         submission = SkillTestSubmission.objects.filter(
             skill_test=skill_test,
@@ -1301,6 +1388,18 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         try:
             mock_interview = self.get_object()
             user = request.user
+
+            active_session = has_active_submission(
+                user,
+                excluding_model=MockInterviewSubmission,
+                excluding_assessment_field='mock_interview_id',
+                excluding_assessment_id=mock_interview.id
+            )
+            if active_session:
+                return Response(
+                    {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             # Get user settings
             experience_level = request.data.get('experience_level', MockInterviewSubmission.EXP_LEVEL_BEGINNER)
@@ -1587,5 +1686,52 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         if exam_id:
             qs = qs.filter(certification_exam_id=exam_id)
         return qs
+
+
+class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Certificate.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        from .serializers import CertificateSerializer
+        return CertificateSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'role') and user.role in ['admin', 'instructor']:
+            return Certificate.objects.all()
+        return Certificate.objects.filter(user=user)
+
+    @action(detail=True, methods=['get'], url_path='view', permission_classes=[AllowAny])
+    def view_certificate(self, request, pk=None):
+        cert = get_object_or_404(Certificate, pk=pk)
+        
+        # Calculate percentage
+        percentage = 0
+        score = 0
+        if cert.submission and cert.submission.marks is not None:
+            score = cert.submission.marks
+            if cert.certification_exam and cert.certification_exam.total_marks:
+                percentage = round((score / cert.certification_exam.total_marks) * 100, 1)
+        
+        completion_date = cert.issued_at.strftime('%B %d, %Y')
+        if cert.submission and cert.submission.completed_at:
+            completion_date = cert.submission.completed_at.strftime('%B %d, %Y')
+
+        student_name = f"{cert.user.first_name} {cert.user.last_name}".strip() or cert.user.username
+
+        context = {
+            'student_name': student_name,
+            'exam_title': cert.certification_exam.title if cert.certification_exam else cert.course.name,
+            'course_name': cert.course.name,
+            'score': score,
+            'percentage': percentage,
+            'completion_date': completion_date,
+            'certificate_id': cert.display_id,
+            'issued_at': cert.issued_at.strftime('%B %d, %Y'),
+        }
+        
+        
+        return render(request, 'assessment/certificate.html', context)
 
 

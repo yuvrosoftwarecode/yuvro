@@ -19,6 +19,11 @@ services:
     volumes:
       - ./ycode-backend-api:/app
       - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
 
   ycode-frontend:
     env_file:
@@ -46,6 +51,11 @@ services:
     volumes:
       - ./ycampus-backend-api:/app
       - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
 
   ycampus-frontend:
     env_file:
@@ -56,6 +66,33 @@ services:
       - "3001:3000"
     volumes:
       - ./ycampus-web:/app
+      - /app/node_modules
+
+  # ── YLabs ──────────────────────────────────────────────────────────────────
+  ylabs-db:
+    env_file:
+      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local-secrets
+        required: false
+
+  ylabs-backend:
+    env_file:
+      - ./ylabs-backend-api/.env.local
+      - path: ./ylabs-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ./ylabs-backend-api:/app
+      - /app/venv
+
+  ylabs-frontend:
+    env_file:
+      - ./ylabs-web/.env.local
+      - path: ./ylabs-web/.env.local-secrets
+        required: false
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./ylabs-web:/app
       - /app/node_modules
 
   # ── Code Executor ──────────────────────────────────────────────────────────

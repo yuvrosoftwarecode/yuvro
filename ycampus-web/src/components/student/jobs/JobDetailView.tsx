@@ -12,9 +12,10 @@ interface JobDetailViewProps {
   application?: StudentJobApplication;
   onBack: () => void;
   onApply: () => void;
+  onWithdraw?: (applicationId: string) => void;
 }
 
-export function JobDetailView({ job, isApplied, application, onBack, onApply }: JobDetailViewProps) {
+export function JobDetailView({ job, isApplied, application, onBack, onApply, onWithdraw }: JobDetailViewProps) {
   const formatCTC = (amount: number) => {
     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)} LPA`;
     return `₹${amount.toLocaleString()}`;
@@ -171,6 +172,18 @@ export function JobDetailView({ job, isApplied, application, onBack, onApply }: 
                   <span className="text-muted-foreground">Status</span>
                   <Badge variant="secondary" className="text-[10px] capitalize">{application.status}</Badge>
                 </div>
+                {(application.status === 'applied' || application.status === 'under_review') && onWithdraw && (
+                  <div className="pt-2 border-t mt-2">
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="w-full text-xs" 
+                      onClick={() => onWithdraw(application.id)}
+                    >
+                      Withdraw Application
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

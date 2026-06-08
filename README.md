@@ -11,11 +11,13 @@ cd yuvro
 make install
 make install-ycode
 make install-ycampus
+make install-ylabs
 
 # Only Run ( no build)
 make run
 make run-ycode
 make run-ycampus
+make run-ylabs
 
 # Setup initial fixtures data like users, courses etc
 make setup-fixtures-data
@@ -27,6 +29,7 @@ make setup-fixtures-data-ycode
 make stop
 make stop-ycode 
 make stop-ycampus
+make stop-ylabs
 
 
 # Only delete db volumes
@@ -42,8 +45,11 @@ make clean
 
 YCode frontend: http://localhost:3000/
 YCampus frontend: http://localhost:3001/
+YLabs frontend: http://localhost:3002/
+
 YCode backend health: http://localhost:8000/api/health/
 YCampus backend health: http://localhost:8001/api/health/
+YLabs backend health: http://localhost:8002/api/health/
 Code executor: http://localhost:8009/
 
 YCode Frontend:    https://code-dev.yuvro.ai
@@ -51,6 +57,39 @@ YCampus Frontend:  https://campus-dev.yuvro.ai
 YCode Backend:     https://backend-code-dev.yuvro.ai
 YCampus Backend:   https://backend-campus-dev.yuvro.ai
 Code Executor:     https://code-executer-dev.yuvro.ai
+
+
+
+### Object Storage (S3 / MinIO)
+
+Camera snapshots, profile pictures, cover images, ID cards, and resumes are
+uploaded to S3-compatible object storage. In `DEPLOY_ENV=local` the project
+runs a shared `yuvro-minio` container (S3-compatible); in `dev` / `staging` /
+`prod` the backends talk to real AWS S3.
+
+- **MinIO API (S3)**:      http://localhost:9100
+- **MinIO Web Console**:   http://localhost:9101  (login: `minioadmin` / `minioadmin`)
+- **Buckets (local)**:     `ycode-uploads`, `ycampus-uploads`
+
+Object keys (local + prod) follow the layout:
+
+```
+ycode-uploads/                              # or ycampus-uploads
+└── profile/
+    └── {user-uuid}/
+        ├── profile_image.png              # avatar
+        ├── cover_image.jpg                # cover photo (ycode)
+        └── id_card_image.pdf              # student ID card
+```
+
+The `STORAGE_BACKEND` env var switches between `s3` (default) and `local`
+(legacy filesystem under `MEDIA_ROOT`). In `DEPLOY_ENV=local` the backends
+point at the local `yuvro-minio` container; in `dev`/`staging`/`prod` the
+endpoint is empty and they use real AWS S3. See each backend's
+`.env.<env>` file for the relevant keys (`AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY`, `AWS_STORAGE_BUCKET_NAME`, `AWS_S3_REGION_NAME`,
+optional `AWS_S3_ENDPOINT_URL` for S3-compatible stores).
+
 
 ## 🎯 Core Features
 
@@ -570,6 +609,8 @@ For issues and questions:
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Docker Documentation](https://docs.docker.com/)
+
+
 
 ---
 

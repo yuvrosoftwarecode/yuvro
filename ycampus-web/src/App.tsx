@@ -1,8 +1,10 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -25,7 +27,7 @@ import Revise from "./pages/faculty/Revise";
 import Attendance from "./pages/faculty/Attendance";
 import TakeAttendance from "./pages/faculty/TakeAttendance";
 import Task from "./pages/faculty/Task";
-import Assessment from "./pages/faculty/Assessment";
+import FacultyInternalTest from "./pages/faculty/InternalTest";
 import Reports from "./pages/faculty/Reports";
 import AttendanceReport from "./pages/faculty/AttendanceReport";
 import HODDashboard from "./pages/hod/HODDashboard";
@@ -54,14 +56,16 @@ import PrincipalStudents from "./pages/principal/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentTask from "./pages/student/Task";
 import StudentTest from "./pages/student/Test";
-import StudentAssessment from "./pages/student/Assessment";
+import StudentInternalTest from "./pages/student/InternalTest";
 import StudentMockInterview from "./pages/student/MockInterview";
 import StudentNotes from "./pages/student/Notes";
 import StudentCommunity from "./pages/student/Community";
 import StudentAnnouncements from "./pages/student/Announcements";
 import AIInterviewPlanner from "./pages/student/AIInterviewPlanner";
-import InterviewPreparation from "./pages/student/InterviewPreparation";
+
 import Contest from "./pages/student/Contest";
+import ContestDetail from "./pages/student/ContestDetail";
+import ContestAttempt from "./pages/student/ContestAttempt";
 // MockInterviewSelect replaced by StudentMockInterview
 import StudentJobs from "./pages/student/Jobs";
 import CodePractice from "./pages/student/CodePractice";
@@ -84,8 +88,8 @@ import PlacementCompany from "./pages/placement/Company";
 import PlacementSkillTests from "./pages/placement/SkillTests";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
-import StudentAssessments from "./pages/student/StudentAssessments";
-import StudentAssessmentDetail from "./pages/student/StudentAssessmentDetail";
+import StudentInternalTests from "./pages/student/StudentInternalTests";
+import StudentInternalTestDetail from "./pages/student/StudentInternalTestDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
 import MockInterviewReport from "./pages/student/MockInterviewReport";
 
@@ -104,6 +108,43 @@ import PlannerCompaniesTab from './components/admin/planner/PlannerCompaniesTab'
 import PlannerTopicsTab from './components/admin/planner/PlannerTopicsTab';
 import PlannerRoadmapsTab from './components/admin/planner/PlannerRoadmapsTab';
 import PlannerAnalyticsTab from './components/admin/planner/PlannerAnalyticsTab';
+
+const StudentLegacyRedirect = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  // Determine target context
+  const defaultContext = user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
+  const context = localStorage.getItem('student_sidebar_active_toggle') || defaultContext;
+
+  // Extract the path after /student/
+  const subPath = location.pathname.replace(/^\/student\/?/, '');
+  const cleanPath = subPath.replace(/^(campus|assessments)\//, '');
+
+
+
+  // Special overrides for assessments-only features
+  const isAssessmentsOnly = 
+    subPath.startsWith('jobs') || 
+    subPath.startsWith('ai-interview-planner') || 
+    subPath.startsWith('mock-interview') || 
+    subPath.startsWith('code-practice');
+
+  const targetContext = isAssessmentsOnly ? 'assessments' : context;
+
+  let targetSubPath = subPath;
+  if (targetContext === 'campus') {
+    if (subPath === 'assessment') {
+      targetSubPath = 'internal-test';
+    } else if (subPath === 'assessments') {
+      targetSubPath = 'internal-tests';
+    } else if (subPath.startsWith('assessments/')) {
+      targetSubPath = subPath.replace('assessments/', 'internal-tests/');
+    }
+  }
+
+  return <Navigate to={`/student/${targetContext}/${targetSubPath}${location.search}`} replace />;
+};
 
 const PlacementDashboardWrapper = () => {
   const { user } = useAuth();
@@ -207,7 +248,7 @@ const App = () => (
                       <Route path="dashboard" element={<FacultyDashboard />} />
                       <Route path="syllabus" element={<Syllabus />} />
                       <Route path="revise" element={<Revise />} />
-                      <Route path="assessment" element={<Assessment />} />
+                      <Route path="internal-test" element={<FacultyInternalTest />} />
                       <Route path="attendance" element={<Attendance />} />
                       <Route path="attendance/:assignmentId/take" element={<TakeAttendance />} />
                       <Route path="task" element={<Task />} />
@@ -224,36 +265,92 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <Routes>
-                      <Route path="dashboard" element={<StudentDashboard />} />
-                      <Route path="task" element={<StudentTask />} />
-                      <Route path="contest" element={<Contest />} />
-                      <Route path="contests" element={<Contest />} />
-                      <Route path="notes" element={<StudentNotes />} />
-                      <Route path="notes/:subjectId" element={<SubjectDetail />} />
-                      <Route path="test" element={<StudentTest />} />
-                      <Route path="skill-test" element={<StudentTest />} />
-                      <Route path="assessments" element={<StudentAssessments />} />
-                      <Route path="assessments/:subjectId" element={<StudentAssessmentDetail />} />
-                      <Route path="assessment" element={<StudentAssessment />} />
+                      {/* Legacy student paths redirect to prefixed paths */}
+                      <Route index element={<StudentLegacyRedirect />} />
+                      <Route path="dashboard" element={<StudentLegacyRedirect />} />
+                      <Route path="task" element={<StudentLegacyRedirect />} />
+                      <Route path="contest" element={<StudentLegacyRedirect />} />
+                      <Route path="contest/:contestId" element={<StudentLegacyRedirect />} />
+                      <Route path="contests" element={<StudentLegacyRedirect />} />
+                      <Route path="contests/:contestId" element={<StudentLegacyRedirect />} />
+                      <Route path="contests/:contestId/attempt" element={<StudentLegacyRedirect />} />
+                      <Route path="notes" element={<StudentLegacyRedirect />} />
+                      <Route path="notes/:subjectId" element={<StudentLegacyRedirect />} />
+                      <Route path="test" element={<StudentLegacyRedirect />} />
+                      <Route path="skill-test" element={<StudentLegacyRedirect />} />
+                      <Route path="assessments" element={<StudentLegacyRedirect />} />
+                      <Route path="assessments/:subjectId" element={<StudentLegacyRedirect />} />
+                      <Route path="assessment" element={<StudentLegacyRedirect />} />
+                      <Route path="announcements" element={<StudentLegacyRedirect />} />
+                      <Route path="community" element={<StudentLegacyRedirect />} />
+                      <Route path="subjects/:id" element={<StudentLegacyRedirect />} />
+                      <Route path="test-subjects/:id" element={<StudentLegacyRedirect />} />
+                      <Route path="test/:subjectId" element={<StudentLegacyRedirect />} />
+                      <Route path="skill-test/:subjectId" element={<StudentLegacyRedirect />} />
+                      <Route path="profile" element={<StudentLegacyRedirect />} />
+                      
+                      <Route path="jobs" element={<StudentLegacyRedirect />} />
+                      <Route path="ai-interview-planner" element={<StudentLegacyRedirect />} />
+                      <Route path="mock-interview" element={<StudentLegacyRedirect />} />
+                      <Route path="mock-interview/report/:submissionId" element={<StudentLegacyRedirect />} />
+                      <Route path="mock-interview/report/ml" element={<StudentLegacyRedirect />} />
+                      <Route path="code-practice" element={<StudentLegacyRedirect />} />
+                      <Route path="code-practice/subjects/:subjectId" element={<StudentLegacyRedirect />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId" element={<StudentLegacyRedirect />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId/questions/:problemId" element={<StudentLegacyRedirect />} />
 
-                      <Route path="jobs" element={<StudentJobs />} />
-                      <Route path="announcements" element={<StudentAnnouncements />} />
-                      <Route path="community" element={<StudentCommunity />} />
-                      <Route path="ai-interview-planner" element={<AIInterviewPlanner />} />
-                      <Route path="interview-preparation" element={<InterviewPreparation />} />
-                      <Route path="mock-interview" element={<StudentMockInterview />} />
-                      <Route path="mock-interview/report/:submissionId" element={<MockInterviewReport />} />
-                      <Route path="mock-interview/report/ml" element={<DummyReportScreen />} />
-                      <Route path="code-practice" element={<CodePractice />} />
-                      <Route path="code-practice/subjects/:subjectId" element={<CodePractice />} />
-                      <Route path="code-practice/subjects/:subjectId/units/:unitId" element={<CodePractice />} />
-                      <Route path="code-practice/subjects/:subjectId/units/:unitId/questions/:problemId" element={<CodePractice />} />
-                      <Route path="subjects/:id" element={<SubjectDetail />} />
-                      <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
-                      <Route path="test/:subjectId" element={<TestSubjectDetail />} />
-                      <Route path="skill-test/:subjectId" element={<TestSubjectDetail />} />
+                      {/* Campus/Academic prefix routes */}
+                      <Route path="campus/dashboard" element={<StudentDashboard />} />
+                      <Route path="campus/task" element={<StudentTask />} />
+                      <Route path="campus/contest" element={<Contest />} />
+                      <Route path="campus/contests" element={<Contest />} />
+                      <Route path="campus/contests/:contestId" element={<ContestDetail />} />
+                      <Route path="campus/contests/:contestId/attempt" element={<ContestAttempt />} />
+                      <Route path="campus/notes" element={<StudentNotes />} />
+                      <Route path="campus/notes/:subjectId" element={<SubjectDetail />} />
+                      <Route path="campus/test" element={<StudentTest />} />
+                      <Route path="campus/skill-test" element={<StudentTest />} />
+                      <Route path="campus/internal-tests" element={<StudentInternalTests />} />
+                      <Route path="campus/internal-tests/:subjectId" element={<StudentInternalTestDetail />} />
+                      <Route path="campus/internal-test" element={<StudentInternalTest />} />
+                      <Route path="campus/announcements" element={<StudentAnnouncements />} />
+                      <Route path="campus/community" element={<StudentCommunity />} />
+                      <Route path="campus/subjects/:id" element={<SubjectDetail />} />
+                      <Route path="campus/test-subjects/:id" element={<TestSubjectDetail />} />
+                      <Route path="campus/test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="campus/skill-test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="campus/profile" element={<StudentProfile />} />
 
-                      <Route path="profile" element={<StudentProfile />} />
+                      {/* Assessments prefix routes */}
+                      <Route path="assessments/dashboard" element={<StudentDashboard />} />
+                      <Route path="assessments/task" element={<StudentTask />} />
+                      <Route path="assessments/contest" element={<Contest />} />
+                      <Route path="assessments/contests" element={<Contest />} />
+                      <Route path="assessments/contests/:contestId" element={<ContestDetail />} />
+                      <Route path="assessments/contests/:contestId/attempt" element={<ContestAttempt />} />
+                      <Route path="assessments/notes" element={<StudentNotes />} />
+                      <Route path="assessments/notes/:subjectId" element={<SubjectDetail />} />
+                      <Route path="assessments/test" element={<StudentTest />} />
+                      <Route path="assessments/skill-test" element={<StudentTest />} />
+                      <Route path="assessments/assessments" element={<StudentInternalTests />} />
+                      <Route path="assessments/assessments/:subjectId" element={<StudentInternalTestDetail />} />
+                      <Route path="assessments/assessment" element={<StudentInternalTest />} />
+                      <Route path="assessments/announcements" element={<StudentAnnouncements />} />
+                      <Route path="assessments/community" element={<StudentCommunity />} />
+                      <Route path="assessments/subjects/:id" element={<SubjectDetail />} />
+                      <Route path="assessments/test-subjects/:id" element={<TestSubjectDetail />} />
+                      <Route path="assessments/test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="assessments/skill-test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="assessments/profile" element={<StudentProfile />} />
+                      <Route path="assessments/ai-interview-planner" element={<AIInterviewPlanner />} />
+                      <Route path="assessments/jobs" element={<StudentJobs />} />
+                      <Route path="assessments/mock-interview" element={<StudentMockInterview />} />
+                      <Route path="assessments/mock-interview/report/:submissionId" element={<MockInterviewReport />} />
+                      <Route path="assessments/mock-interview/report/ml" element={<DummyReportScreen />} />
+                      <Route path="assessments/code-practice" element={<CodePractice />} />
+                      <Route path="assessments/code-practice/subjects/:subjectId" element={<CodePractice />} />
+                      <Route path="assessments/code-practice/subjects/:subjectId/units/:unitId" element={<CodePractice />} />
+                      <Route path="assessments/code-practice/subjects/:subjectId/units/:unitId/questions/:problemId" element={<CodePractice />} />
                     </Routes>
                   </ProtectedRoute>
                 }
@@ -348,11 +445,24 @@ const App = () => (
 
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <ToastNotificationManager />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
+
+const ToastNotificationManager = () => {
+  const { toast } = useToast();
+  useEffect(() => {
+    const error = sessionStorage.getItem('toast_error');
+    if (error) {
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+      sessionStorage.removeItem('toast_error');
+    }
+  }, [toast]);
+  return null;
+};
 
 export default App;

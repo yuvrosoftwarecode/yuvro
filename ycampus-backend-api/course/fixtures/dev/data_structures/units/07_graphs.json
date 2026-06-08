@@ -122,7 +122,7 @@
                     "title": "DFS - Recursive Flood Fill",
                     "language": "python",
                     "code": "import sys, json\ninput_data = sys.stdin.read().strip()\ngrid = json.loads(input_data)\n\ndef numIslands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':\n            return\n        grid[r][c] = '0'\n        dfs(r+1, c)\n        dfs(r-1, c)\n        dfs(r, c+1)\n        dfs(r, c-1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count\n\nprint(numIslands(grid))",
-                    "complexity_analysis": "Time: O(M*N) \u2014 visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
+                    "complexity_analysis": "Time: O(M*N) — visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
                     "is_primary": true,
                     "approach": "optimal"
                 },
@@ -777,6 +777,115 @@
                 "Perform a DFS or BFS from every unvisited '1' and count the number of nodes reached during that specific traversal.",
                 "Maintain a global variable to track and update the maximum area found so far."
             ]
+        },
+        {
+            "type": "coding",
+            "title": "Minimum Time to Rot All Fruits",
+            "content": "Given an m×n grid where:\n- 0 represents an empty cell\n- 1 represents a fresh fruit\n- 2 represents a rotten fruit\n\nEvery minute, any fresh fruit adjacent (4-directionally) to a rotten fruit becomes rotten. Return the minimum number of minutes until no fresh fruit remains. If it's impossible, return -1.\n\n**Constraints:**\n- 1 <= m, n <= 10\n- grid[i][j] ∈ {0, 1, 2}",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test",
+                "contest"
+            ],
+            "inputFormat": "First line: two integers m n.\nNext m lines: n space-separated integers (0, 1, or 2).",
+            "outputFormat": "A single integer: minimum minutes, or -1 if impossible.",
+            "examples": [
+                {
+                    "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+                    "expected_output": "4",
+                    "explanation": "Multi-source BFS from all rotten cells; takes 4 minutes."
+                },
+                {
+                    "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+                    "expected_output": "-1",
+                    "explanation": "Bottom-left fresh fruit is isolated — impossible."
+                },
+                {
+                    "input": "1 1\n0",
+                    "expected_output": "0",
+                    "explanation": "No fresh fruits — already 0 minutes."
+                }
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+                    "expected_output": "-1"
+                },
+                {
+                    "input": "1 1\n0",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "1 2\n2 1",
+                    "expected_output": "1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "1 1\n1",
+                    "expected_output": "-1"
+                },
+                {
+                    "input": "3 3\n2 2 2\n2 2 2\n2 2 2",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "3 3\n0 2 2\n2 0 1\n0 0 0",
+                    "expected_output": "1"
+                },
+                {
+                    "input": "1 4\n2 1 1 1",
+                    "expected_output": "3"
+                }
+            ],
+            "hints": [
+                "Use multi-source BFS: start simultaneously from all cells with value 2. Process level by level — each level = 1 minute.",
+                "After BFS, count remaining fresh fruits. If any remain, return -1; otherwise return the last level number.",
+                "Track time via BFS levels (queue holds (row, col, time)). Or use a simple deque with a sentinel / count per level."
+            ],
+            "solutions": [
+                {
+                    "title": "Multi-Source BFS - Python",
+                    "language": "python",
+                    "code": "import sys\nfrom collections import deque\ndata = sys.stdin.read().split()\nidx=0\nm,n = int(data[idx]),int(data[idx+1]); idx+=2\ngrid=[[int(data[idx+i*n+j]) for j in range(n)] for i in range(m)]; idx+=m*n\nq=deque(); fresh=0\nfor i in range(m):\n    for j in range(n):\n        if grid[i][j]==2: q.append((i,j,0))\n        elif grid[i][j]==1: fresh+=1\nif fresh==0: print(0); exit()\ndirs=[(0,1),(0,-1),(1,0),(-1,0)]; t=0\nwhile q:\n    r,c,t=q.popleft()\n    for dr,dc in dirs:\n        nr,nc=r+dr,c+dc\n        if 0<=nr<m and 0<=nc<n and grid[nr][nc]==1:\n            grid[nr][nc]=2; fresh-=1; q.append((nr,nc,t+1))\nprint(t if fresh==0 else -1)",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - JavaScript",
+                    "language": "javascript",
+                    "code": "const data = require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nlet idx=0; const m=data[idx++],n=data[idx++];\nconst grid=[]; for(let i=0;i<m;i++){grid.push(data.slice(idx,idx+n));idx+=n;}\nconst q=[]; let fresh=0;\nfor(let i=0;i<m;i++) for(let j=0;j<n;j++){ if(grid[i][j]===2)q.push([i,j,0]); else if(grid[i][j]===1)fresh++; }\nif(fresh===0){console.log(0);process.exit();}\nconst dirs=[[0,1],[0,-1],[1,0],[-1,0]]; let t=0,head=0;\nwhile(head<q.length){\n  const [r,c,time]=q[head++]; t=time;\n  for(const [dr,dc] of dirs){\n    const nr=r+dr,nc=c+dc;\n    if(nr>=0&&nr<m&&nc>=0&&nc<n&&grid[nr][nc]===1){\n      grid[nr][nc]=2;fresh--;q.push([nr,nc,time+1]);\n    }\n  }\n}\nconsole.log(fresh===0?t:-1);",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - C++",
+                    "language": "cpp",
+                    "code": "#include <iostream>\n#include <queue>\nusing namespace std;\nint main(){\n    int m,n; cin>>m>>n;\n    vector<vector<int>> g(m,vector<int>(n));\n    queue<tuple<int,int,int>> q; int fresh=0;\n    for(int i=0;i<m;i++) for(int j=0;j<n;j++){\n        cin>>g[i][j];\n        if(g[i][j]==2) q.push({i,j,0});\n        else if(g[i][j]==1) fresh++;\n    }\n    if(!fresh){cout<<0<<endl;return 0;}\n    int dirs[4][2]={{0,1},{0,-1},{1,0},{-1,0}},t=0;\n    while(!q.empty()){\n        auto[r,c,time]=q.front();q.pop();t=time;\n        for(auto&d:dirs){\n            int nr=r+d[0],nc=c+d[1];\n            if(nr>=0&&nr<m&&nc>=0&&nc<n&&g[nr][nc]==1){\n                g[nr][nc]=2;fresh--;q.push({nr,nc,time+1});\n            }\n        }\n    }\n    cout<<(fresh==0?t:-1)<<endl; return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Multi-Source BFS - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#define MAXRC 105\nint grid[MAXRC][MAXRC],qr[MAXRC*MAXRC],qc[MAXRC*MAXRC],qt[MAXRC*MAXRC];\nint main(){\n    int m,n; scanf(\"%d %d\",&m,&n);\n    int head=0,tail=0,fresh=0;\n    for(int i=0;i<m;i++) for(int j=0;j<n;j++){\n        scanf(\"%d\",&grid[i][j]);\n        if(grid[i][j]==2){qr[tail]=i;qc[tail]=j;qt[tail]=0;tail++;}\n        else if(grid[i][j]==1) fresh++;\n    }\n    if(!fresh){printf(\"0\\n\");return 0;}\n    int dr[]={0,0,1,-1},dc[]={1,-1,0,0},t=0;\n    while(head<tail){\n        int r=qr[head],c=qc[head]; t=qt[head]; head++;\n        for(int d=0;d<4;d++){\n            int nr=r+dr[d],nc=c+dc[d];\n            if(nr>=0&&nr<m&&nc>=0&&nc<n&&grid[nr][nc]==1){\n                grid[nr][nc]=2;fresh--;qr[tail]=nr;qc[tail]=nc;qt[tail]=t+1;tail++;\n            }\n        }\n    }\n    printf(\"%d\\n\",fresh==0?t:-1); return 0;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "level": "subtopic",
+            "unit_name": "Graphs",
+            "subunit_name": "Graph Representation and BFS/DFS"
         }
     ]
 }

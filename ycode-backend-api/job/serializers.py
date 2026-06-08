@@ -43,6 +43,15 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
+    def validate_name(self, value):
+        name = value.strip()
+        qs = Company.objects.filter(name__iexact=name)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("A company with this name is already registered.")
+        return name
+
 
 class JobSerializer(serializers.ModelSerializer):
     company = CompanySerializer(read_only=True)
@@ -246,6 +255,7 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
             "portfolio_url",
             "available_from",
             "notice_period_days",
+            "screening_responses",
             "created_at",
             "updated_at",
         ]
@@ -564,6 +574,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     education = EducationSerializer(many=True, read_only=True)
     certifications = CertificationSerializer(many=True, read_only=True)
+
+    def _public(self, obj, attr):
+        from core.storage import build_public_url
+        return build_public_url(getattr(obj, attr, None))
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field in ("profile_image", "cover_image", "id_card_image"):
+            data[field] = self._public(instance, field)
+        return data
 
     class Meta:
         model = Profile

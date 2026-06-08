@@ -74,6 +74,13 @@ export default function ContestForm() {
 
   const [collegeOptions, setCollegeOptions] = useState<Option[]>([]);
   const [departmentOptions, setDepartmentOptions] = useState<Option[]>([]);
+  const [minDateTime, setMinDateTime] = useState('');
+
+  useEffect(() => {
+    const date = new Date();
+    const offset = date.getTimezoneOffset() * 60000;
+    setMinDateTime(new Date(date.getTime() - offset).toISOString().slice(0, 16));
+  }, []);
 
   useEffect(() => {
     const fetchSelectOptions = async () => {
@@ -255,6 +262,48 @@ export default function ContestForm() {
       setCurrentFormTab('questions');
       toast.error('Please add at least one question (selected or random) before saving.');
       return;
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Validate End Date
+    if (formData.endDate) {
+      const endDateObj = new Date(formData.endDate);
+      const isDateChanged = !contest || formatDateTimeForInput(contest.endDate) !== formData.endDate;
+      if ((!isEditMode || isDateChanged) && endDateObj < todayStart) {
+        toast.error("End Date cannot be yesterday's date or past dates.");
+        return;
+      }
+    }
+
+    // Validate Registration End Date
+    if (formData.registrationEndDate) {
+      const regEndDateObj = new Date(formData.registrationEndDate);
+      const isRegDateChanged = !contest || formatDateTimeForInput(contest.registrationEndDate || '') !== formData.registrationEndDate;
+      if ((!isEditMode || isRegDateChanged) && regEndDateObj < todayStart) {
+        toast.error("Registration End Date cannot be yesterday's date or past dates.");
+        return;
+      }
+    }
+
+    // Validate Date Ranges
+    if (formData.startDate && formData.endDate) {
+      const startDateObj = new Date(formData.startDate);
+      const endDateObj = new Date(formData.endDate);
+      if (endDateObj <= startDateObj) {
+        toast.error("End Date must be after Start Date.");
+        return;
+      }
+    }
+
+    if (formData.registrationStartDate && formData.registrationEndDate) {
+      const regStartDateObj = new Date(formData.registrationStartDate);
+      const regEndDateObj = new Date(formData.registrationEndDate);
+      if (regEndDateObj <= regStartDateObj) {
+        toast.error("Registration End Date must be after Registration Start Date.");
+        return;
+      }
     }
 
     const payload = {
@@ -484,6 +533,7 @@ export default function ContestForm() {
                             type="datetime-local"
                             value={formData.startDate}
                             onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                            min={isEditMode ? undefined : minDateTime}
                           />
                         </div>
                         <div>
@@ -492,6 +542,7 @@ export default function ContestForm() {
                             type="datetime-local"
                             value={formData.endDate}
                             onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                            min={isEditMode ? undefined : minDateTime}
                           />
                         </div>
                         <div>
@@ -512,6 +563,7 @@ export default function ContestForm() {
                             type="datetime-local"
                             value={formData.registrationStartDate}
                             onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+                            min={isEditMode ? undefined : minDateTime}
                           />
                         </div>
                         <div>
@@ -520,6 +572,7 @@ export default function ContestForm() {
                             type="datetime-local"
                             value={formData.registrationEndDate}
                             onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
+                            min={isEditMode ? undefined : minDateTime}
                           />
                         </div>
                       </div>

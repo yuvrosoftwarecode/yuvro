@@ -22,11 +22,11 @@ const Notes = () => {
       }
       try {
         let data = await fetchSubjectsByCollege(user.college_id);
-        if (user.college_product_type) {
-            data = data.filter(s => s.product_type === user.college_product_type);
-        }
-        if (user.college_product_type === 'assessments') {
-            data = data.filter(s => s.short_code === 'DSA100');
+        const activeProductType = window.location.pathname.includes('/student/assessments') || user?.college_product_type === 'assessments' ? 'assessments' : 'campus';
+        if (activeProductType === 'assessments') {
+          data = data.filter(s => s.product_type === 'assessments' && (s.short_code === 'DSA100' || s.subject_code === 'DSA100'));
+        } else {
+          data = data.filter(s => s.product_type === activeProductType);
         }
         // Sort subjects alphabetically
         data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
@@ -43,7 +43,8 @@ const Notes = () => {
   }, [user]);
 
   const handleCardClick = (subjectId: string | number) => {
-    navigate(`/student/notes/${subjectId}`);
+    const isAssessments = window.location.pathname.includes('/student/assessments');
+    navigate(isAssessments ? `/student/assessments/notes/${subjectId}` : `/student/notes/${subjectId}`);
   };
 
   return (

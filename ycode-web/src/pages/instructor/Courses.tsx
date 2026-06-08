@@ -14,6 +14,7 @@ import {
   fetchCourseInstructors,
   addInstructorToCourse,
   removeInstructorFromCourse,
+  checkCourseName,
   Course,
 } from "@/services/courseService";
 
@@ -22,6 +23,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -90,6 +92,37 @@ const Courses: React.FC = () => {
   const [selectedInstructors, setSelectedInstructors] = useState<string[]>([]); // for Add
   const [editSelectedInstructors, setEditSelectedInstructors] = useState<string[]>([]); // for Edit
   const [editInitialInstructors, setEditInitialInstructors] = useState<string[]>([]); // to compute diff
+
+  // Validation State
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [isValidatingName, setIsValidatingName] = useState(false);
+
+  // Real-time Course Name Validation
+  useEffect(() => {
+    const name = newCourse.name.trim();
+    if (!name) {
+      setNameError(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsValidatingName(true);
+        const { exists } = await checkCourseName(name, editCourseId || undefined);
+        if (exists) {
+          setNameError("A course with this name already exists.");
+        } else {
+          setNameError(null);
+        }
+      } catch (err) {
+        console.error("Failed to check course name", err);
+      } finally {
+        setIsValidatingName(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [newCourse.name, editCourseId]);
 
   // --------------------------------------------------
   // Load Courses
@@ -325,14 +358,14 @@ const Courses: React.FC = () => {
   // --------------------------------------------------
   // RENDER
   // --------------------------------------------------
-  const headerActions = (
+  const headerActions = user?.role === "admin" ? (
     <button
       onClick={() => setIsAddOpen(true)}
       className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
     >
       + Add New Course
     </button>
-  );
+  ) : null;
 
 
 
@@ -516,9 +549,9 @@ const Courses: React.FC = () => {
                   <DialogTitle className="text-xl font-semibold text-white">
                     Create New Course
                   </DialogTitle>
-                  <p className="text-amber-100 text-sm mt-1">
+                  <DialogDescription className="text-amber-100 text-sm mt-1">
                     Add a new course to your curriculum
-                  </p>
+                  </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
@@ -538,8 +571,18 @@ const Courses: React.FC = () => {
                 onChange={(e) =>
                   setNewCourse({ ...newCourse, name: e.target.value })
                 }
-                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                className={`h-11 ${
+                  nameError
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                }`}
               />
+              {isValidatingName && (
+                <p className="text-xs text-blue-500 mt-1">Validating course name...</p>
+              )}
+              {nameError && (
+                <p className="text-xs text-red-500 mt-1">{nameError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -645,7 +688,7 @@ const Courses: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                disabled={saving || !newCourse.name.trim() || !newCourse.category}
+                disabled={saving || !newCourse.name.trim() || !newCourse.category || !!nameError || isValidatingName}
                 onClick={handleCreateCourse}
                 className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
               >
@@ -683,9 +726,9 @@ const Courses: React.FC = () => {
                   <DialogTitle className="text-xl font-semibold text-white">
                     Delete Course
                   </DialogTitle>
-                  <p className="text-red-100 text-sm mt-1">
+                  <DialogDescription className="text-red-100 text-sm mt-1">
                     This action cannot be undone
-                  </p>
+                  </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
@@ -786,9 +829,9 @@ const Courses: React.FC = () => {
                   <DialogTitle className="text-xl font-semibold text-white">
                     Edit Course
                   </DialogTitle>
-                  <p className="text-amber-100 text-sm mt-1">
+                  <DialogDescription className="text-amber-100 text-sm mt-1">
                     Update course information and settings
-                  </p>
+                  </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
@@ -807,8 +850,18 @@ const Courses: React.FC = () => {
                 onChange={(e) =>
                   setNewCourse({ ...newCourse, name: e.target.value })
                 }
-                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                className={`h-11 ${
+                  nameError
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                }`}
               />
+              {isValidatingName && (
+                <p className="text-xs text-blue-500 mt-1">Validating course name...</p>
+              )}
+              {nameError && (
+                <p className="text-xs text-red-500 mt-1">{nameError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -909,7 +962,7 @@ const Courses: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                disabled={saving || !newCourse.name.trim() || !newCourse.category}
+                disabled={saving || !newCourse.name.trim() || !newCourse.category || !!nameError || isValidatingName}
                 onClick={handleUpdateCourse}
                 className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
               >

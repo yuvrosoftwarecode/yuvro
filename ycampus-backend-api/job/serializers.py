@@ -212,13 +212,13 @@ class JobApplicationSerializer(serializers.ModelSerializer):
             logger.info(
                 f"Found existing application: is_applied={existing_app.is_applied}, is_bookmarked={existing_app.is_bookmarked}"
             )
-            if not existing_app.is_applied:
+            if not existing_app.is_applied or existing_app.status == "withdrawn":
                 for key, value in validated_data.items():
                     if key != "applicant":
                         setattr(existing_app, key, value)
                 existing_app.is_applied = True
                 existing_app.applied_at = timezone.now()
-                if existing_app.status == "bookmarked" or existing_app.status is None:
+                if existing_app.status in ["bookmarked", "withdrawn"] or existing_app.status is None:
                     existing_app.status = "under_review"
                 existing_app.save()
 
@@ -610,6 +610,17 @@ class ProfileSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     education = EducationSerializer(many=True, read_only=True)
     certifications = CertificationSerializer(many=True, read_only=True)
+
+    def _public(self, obj, attr):
+        from core.storage import build_public_url
+        return build_public_url(getattr(obj, attr, None))
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field in ("profile_image", "cover_image", "id_card_image"):
+            if field in data:
+                data[field] = self._public(instance, field)
+        return data
 
     class Meta:
         model = Profile

@@ -15,7 +15,7 @@ class Post(models.Model):
         ('MY_BATCH', 'My Batch'),
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='community_posts')
-    content = models.TextField(max_length=1000)
+    content = models.TextField(max_length=5000)
     visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='ENTIRE_COLLEGE')
     tags = models.ManyToManyField(Tag, blank=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='community_posts')

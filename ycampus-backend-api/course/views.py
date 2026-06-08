@@ -1739,14 +1739,17 @@ class SubjectViewSet(viewsets.ModelViewSet):
                     assigned_subject_ids = CollegeSubject.objects.filter(college=college).values_list('subject_id', flat=True)
                     queryset = queryset.filter(id__in=assigned_subject_ids)
                 else:
-                    # For campus, show subjects mapped to their section via SectionSubjectFaculty
+                    # For campus, show subjects mapped to their section via SectionSubjectFaculty (campus subjects)
+                    # OR subjects of product type assessments allocated to their college (assessments subjects)
+                    assigned_assessment_ids = CollegeSubject.objects.filter(college=college, subject__product_type='assessments').values_list('subject_id', flat=True)
+                    
                     if student_profile.section:
                         section_subject_ids = SectionSubjectFaculty.objects.filter(
                             section=student_profile.section
                         ).values_list('semester_subject__subject_id', flat=True)
-                        queryset = queryset.filter(id__in=section_subject_ids)
+                        queryset = queryset.filter(Q(id__in=section_subject_ids) | Q(id__in=assigned_assessment_ids))
                     else:
-                        queryset = queryset.none()
+                        queryset = queryset.filter(id__in=assigned_assessment_ids)
             
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
@@ -1911,17 +1914,18 @@ class UnitViewSet(viewsets.ModelViewSet):
                 if college and college.product_type == 'assessments':
                     # All units are opened by default for assessments product
                     pass 
-                elif profile.section:
-                    # Filter by unlocked status for this student's section
-                    # A Unit is visible if it has at least one unlocked SubUnit
-                    unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                        section=profile.section, is_unlocked=True
-                    ).values_list("sub_unit_id", flat=True)
-                    
-                    # Filter units that have subunits among the unlocked ones
-                    qs = qs.filter(subunits__id__in=unlocked_subunit_ids).distinct()
                 else:
-                    qs = qs.none()
+                    # Filter by unlocked status for this student's section
+                    # EXCEPT for units that belong to an assessments product subject, which are always unlocked by default!
+                    unlocked_subunit_ids = []
+                    if profile.section:
+                        unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                            section=profile.section, is_unlocked=True
+                        ).values_list("sub_unit_id", flat=True)
+                    
+                    qs = qs.filter(
+                        Q(subunits__id__in=unlocked_subunit_ids) | Q(subject__product_type='assessments')
+                    ).distinct()
             else:
                 qs = qs.none()
 
@@ -2038,14 +2042,18 @@ class SubUnitViewSet(viewsets.ModelViewSet):
                 if college and college.product_type == 'assessments':
                     # All subunits are opened by default for assessments product
                     pass
-                elif profile.section:
-                    # Filter by unlocked status for this student's section
-                    unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
-                        section=profile.section, is_unlocked=True
-                    ).values_list("sub_unit_id", flat=True)
-                    qs = qs.filter(id__in=unlocked_subunit_ids)
                 else:
-                    qs = qs.none()
+                    # Filter by unlocked status for this student's section
+                    # EXCEPT for subunits that belong to an assessments product subject, which are always unlocked by default!
+                    unlocked_subunit_ids = []
+                    if profile.section:
+                        unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                            section=profile.section, is_unlocked=True
+                        ).values_list("sub_unit_id", flat=True)
+                    
+                    qs = qs.filter(
+                        Q(id__in=unlocked_subunit_ids) | Q(unit__subject__product_type='assessments')
+                    )
             else:
                 qs = qs.none()
 
@@ -2352,6 +2360,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         question = self.get_object()
+        if question.is_active:
+            return Response(
+                {"error": "This question cannot be deleted because it is active in one or more tests/assessments."},
+                status=400
+            )
         user = request.user
 
         # Get the Subject for permission checking
@@ -2398,13 +2411,18 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             defaults={"subject": sub_unit.unit.subject, "unit": sub_unit.unit},
         )
 
-        progress.is_completed = True
-        progress.progress_percent = 100.0
-        progress.completed_at = timezone.now()
+        progress.is_marked_complete = True
+        new_percent = progress.calculate_progress()
+        if new_percent >= 100:
+            progress.completed_at = timezone.now()
         progress.save()
 
         return Response(
-            {"message": "Marked as complete", "progress": progress.progress_percent}
+            {
+                "message": "Marked as complete",
+                "progress": progress.progress_percent,
+                "is_completed": progress.is_completed,
+            }
         )
 
     @action(detail=False, methods=["post"])
@@ -2426,9 +2444,18 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             defaults={"subject": sub_unit.unit.subject, "unit": sub_unit.unit},
         )
 
-        progress.quiz_score = float(score_percent)
-        progress.quiz_answers = answers or {}
-        progress.is_quiz_completed = is_passed
+        # Track quiz highest score
+        progress.quiz_highest_score = max(progress.quiz_highest_score, float(score_percent))
+
+        # Only store the score and answers if it is the first attempt or a higher score
+        is_first_attempt = not progress.quiz_answers
+        is_better_score = float(score_percent) >= progress.quiz_score
+
+        if is_first_attempt or is_better_score:
+            progress.quiz_score = float(score_percent)
+            progress.quiz_answers = answers or {}
+
+        progress.is_quiz_completed = progress.quiz_highest_score >= 80.0
 
         new_percent = progress.calculate_progress()
         if new_percent >= 100:
@@ -2437,7 +2464,8 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         progress.save()
 
         # Gamification Hook: Quiz
-        if is_passed:
+        if is_passed or progress.is_quiz_completed:
+            from .gamification_service import GamificationService
             GamificationService.record_activity(user, 'quiz')
 
         return Response(
@@ -2797,7 +2825,12 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             for cid, current_sum in course_map.items():
                 if user_to_query.role == "student":
                     student_prof = StudentProfile.objects.filter(user=user_to_query).first()
-                    if student_prof and student_prof.section:
+                    is_assessments_subject = Subject.objects.filter(id=cid, product_type='assessments').exists()
+                    is_assessments_college = student_prof.college and student_prof.college.product_type == 'assessments' if student_prof else False
+                    
+                    if is_assessments_college or is_assessments_subject:
+                        total_subs = SubUnit.objects.filter(unit__subject_id=cid).count()
+                    elif student_prof and student_prof.section:
                         unlocked_sub_ids = SubUnitSectionStatus.objects.filter(
                             section=student_prof.section, is_unlocked=True
                         ).values_list("sub_unit_id", flat=True)
@@ -2989,7 +3022,13 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             # Determine total available subunits and units based on unlocking logic
             if user_to_query.role == "student":
                 student_prof = StudentProfile.objects.filter(user=user_to_query).first()
-                if student_prof and student_prof.section:
+                is_assessments_subject = subject.product_type == 'assessments'
+                is_assessments_college = student_prof.college and student_prof.college.product_type == 'assessments' if student_prof else False
+                
+                if is_assessments_college or is_assessments_subject:
+                    total_subs_qs = SubUnit.objects.filter(unit__subject_id=sid)
+                    total_units_qs = Unit.objects.filter(subject_id=sid)
+                elif student_prof and student_prof.section:
                     unlocked_sub_ids = SubUnitSectionStatus.objects.filter(
                         section=student_prof.section, is_unlocked=True
                     ).values_list("sub_unit_id", flat=True)
@@ -3177,6 +3216,27 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         else:
             user_to_query = user
 
+        # Ensure progress records exist for all subunits of this subject for this user
+        all_subunits = SubUnit.objects.filter(unit__subject_id=subject_id).select_related("unit")
+        existing_sub_unit_ids = set(
+            UserSubjectProgress.objects.filter(
+                user=user_to_query, subject_id=subject_id
+            ).values_list("sub_unit_id", flat=True)
+        )
+
+        missing_subunits = all_subunits.exclude(id__in=existing_sub_unit_ids)
+        if missing_subunits.exists():
+            new_records = [
+                UserSubjectProgress(
+                    user=user_to_query,
+                    subject_id=subject_id,
+                    unit=su.unit,
+                    sub_unit=su,
+                )
+                for su in missing_subunits
+            ]
+            UserSubjectProgress.objects.bulk_create(new_records)
+
         # Updated to use unit__subject_id or sub_unit queries
         progress_qs = (
             UserSubjectProgress.objects.filter(user=user_to_query, subject_id=subject_id)
@@ -3191,7 +3251,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
 
         if updated_records:
             UserSubjectProgress.objects.bulk_update(
-                updated_records, ["progress_percent", "is_completed"]
+                updated_records, ["progress_percent", "is_completed", "is_quiz_completed"]
             )
 
         from .serializers import UserSubjectProgressSerializer

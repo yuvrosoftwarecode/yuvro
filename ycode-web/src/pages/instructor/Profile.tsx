@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/common/DashboardLayout";
@@ -36,6 +36,24 @@ import {
   TrendingUp,
   Phone
 } from "lucide-react";
+
+// Dialogs
+import EditProfileDialog from "@/components/student/profile/EditProfileDialog";
+import AddSkillDialog from "@/components/student/profile/AddSkillDialog";
+import AddExperienceDialog, {
+  ExperienceForm,
+} from "@/components/student/profile/AddExperienceDialog";
+import AddEducationDialog, {
+  EducationForm,
+} from "@/components/student/profile/AddEducationDialog";
+import AddCertificationDialog, {
+  CertificationForm,
+} from "@/components/student/profile/AddCertificationDialog";
+
+import profileService, {
+  Profile as ProfileType,
+} from "@/services/profileService";
+import { toast } from "sonner";
 
 // Types
 interface InstructorProfile {
@@ -228,6 +246,11 @@ const InstructorProfile = () => {
   const [profilePic, setProfilePic] = useState<string>("");
   const [coverPic, setCoverPic] = useState<string>("");
 
+  // Refs so the visible buttons (rather than the label/click target) can
+  // programmatically open the file picker.
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [skillDialogOpen, setSkillDialogOpen] = useState(false);
@@ -242,41 +265,106 @@ const InstructorProfile = () => {
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
   const [editingCertification, setEditingCertification] = useState<Certification | null>(null);
 
-  // Initialize empty profile
-  useEffect(() => {
-    const initializeProfile = () => {
-      const emptyProfile: InstructorProfile = {
-        id: user?.id || '1',
-        full_name: user?.first_name && user?.last_name
-          ? `${user.first_name} ${user.last_name}`
-          : user?.username || '',
-        email: user?.email || '',
-        phone: '',
-        location: '',
-        title: '',
-        about: '',
-        profile_image: '',
-        cover_image: '',
-        date_joined: new Date().toISOString(),
-        specializations: [],
-        education: [],
-        experiences: [],
-        certifications: [],
+  const loadProfile = async () => {
+    try {
+      const response = await profileService.fetchProfileDetail();
+      const mappedProfile: InstructorProfile = {
+        id: response.id,
+        full_name: response.full_name || '',
+        email: response.user?.email || response.email || '',
+        phone: response.phone || '',
+        location: response.location || '',
+        title: response.title || '',
+        about: response.about || '',
+        profile_image: response.profile_image || '',
+        cover_image: response.cover_image || '',
+        date_joined: response.created_at || new Date().toISOString(),
+        specializations: response.skills || [],
+        education: response.education || [],
+        experiences: response.experiences || [],
+        certifications: response.certifications || [],
         links: {
-          linkedin: '',
-          github: '',
-          portfolio: '',
-          email: user?.email || ''
+          linkedin: response.links.linkedin || '',
+          github: response.links.github || '',
+          portfolio: response.links.portfolio || '',
+          email: response.links.email || response.user?.email || ''
         }
       };
-
-      setProfile(emptyProfile);
+      setProfile(mappedProfile);
+      if (response.profile_image) setProfilePic(response.profile_image);
+      if (response.cover_image) setCoverPic(response.cover_image);
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
-    // Simulate API call - replace with actual service call
-    setTimeout(initializeProfile, 500);
-  }, [user]);
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const handleAddExperience = async (exp: ExperienceForm) => {
+    await profileService.addExperience(exp);
+    await loadProfile();
+    setExperienceEditData(null);
+  };
+
+  const handleEditExperience = async (expId: string, data: ExperienceForm) => {
+    await profileService.updateExperience(expId, data);
+    await loadProfile();
+    setExperienceEditData(null);
+  };
+
+  const handleDeleteExperience = async (id: string) => {
+    await profileService.deleteExperience(id);
+    await loadProfile();
+  };
+
+  const handleSaveSkill = async (data: SkillForm) => {
+    if (editingSkill) {
+      await profileService.updateSkill(editingSkill.id, data);
+    } else {
+      await profileService.addSkill(data);
+    }
+    await loadProfile();
+    setEditingSkill(null);
+  };
+
+  const handleDeleteSkill = async (id: string) => {
+    await profileService.deleteSkill(id);
+    await loadProfile();
+  };
+
+  const handleSaveEducation = async (form: EducationForm) => {
+    if (editingEducation) {
+      await profileService.updateEducation(editingEducation.id, form);
+    } else {
+      await profileService.addEducation(form);
+    }
+    await loadProfile();
+    setEditingEducation(null);
+  };
+
+  const handleDeleteEducation = async (id: string) => {
+    await profileService.deleteEducation(id);
+    await loadProfile();
+  };
+
+  const handleSaveCertification = async (data: CertificationForm) => {
+    if (editingCertification) {
+      await profileService.updateCertification(editingCertification.id, data);
+    } else {
+      await profileService.addCertification(data);
+    }
+    await loadProfile();
+    setEditingCertification(null);
+  };
+
+  const handleDeleteCertification = async (id: string) => {
+    await profileService.deleteCertification(id);
+    await loadProfile();
+  };
 
   if (loading) {
 
@@ -312,20 +400,51 @@ const InstructorProfile = () => {
   const suggestions = generateSuggestions(profile);
 
   // Image handlers
-  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageUpload = async (
+    file: File,
+    field: "profile_image" | "cover_image",
+  ) => {
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => setProfilePic(reader.result as string);
+    reader.onloadend = () => {
+      if (field === "profile_image") setProfilePic(reader.result as string);
+      else setCoverPic(reader.result as string);
+    };
     reader.readAsDataURL(file);
+
+    try {
+      const updated = await profileService.uploadProfileImage(file, field);
+      if (field === "profile_image" && updated.profile_image) {
+        setProfilePic(updated.profile_image);
+      } else if (field === "cover_image" && updated.cover_image) {
+        setCoverPic(updated.cover_image);
+      }
+      await loadProfile();
+      toast.success(
+        field === "profile_image"
+          ? "Profile picture updated"
+          : "Cover image updated",
+      );
+    } catch (err) {
+      console.error(`Failed to upload ${field}:`, err);
+      toast.error(
+        `Failed to upload ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`,
+      );
+      await loadProfile();
+    }
   };
 
-  const handleCoverPicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setCoverPic(reader.result as string);
-    reader.readAsDataURL(file);
+    if (file) handleImageUpload(file, "profile_image");
+    e.target.value = "";
+  };
+
+  const handleCoverPicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file, "cover_image");
+    e.target.value = "";
   };
 
   return (
@@ -352,17 +471,20 @@ const InstructorProfile = () => {
                       />
                     )}
                     <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <label>
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={handleCoverPicUpload}
-                        />
-                        <Button size="sm" variant="secondary">
-                          <Upload className="h-4 w-4 mr-2" /> Upload Cover
-                        </Button>
-                      </label>
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleCoverPicChange}
+                      />
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => coverInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" /> Upload Cover
+                      </Button>
                     </div>
                   </div>
 
@@ -380,17 +502,21 @@ const InstructorProfile = () => {
                         </AvatarFallback>
                       )}
                     </Avatar>
-                    <label className="absolute bottom-2 right-2 cursor-pointer">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleProfilePicUpload}
-                      />
-                      <div className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition-colors">
-                        <Upload className="w-4 h-4" />
-                      </div>
-                    </label>
+                    <input
+                      ref={profileInputRef}
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleProfilePicChange}
+                    />
+                    <button
+                      type="button"
+                      className="absolute bottom-2 right-2 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                      onClick={() => profileInputRef.current?.click()}
+                      aria-label="Upload profile picture"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -488,6 +614,7 @@ const InstructorProfile = () => {
                                 size="sm"
                                 variant="ghost"
                                 className="hover:text-destructive"
+                                onClick={() => handleDeleteSkill(skill.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -561,6 +688,7 @@ const InstructorProfile = () => {
                                 variant="ghost"
                                 size="sm"
                                 className="hover:text-destructive"
+                                onClick={() => handleDeleteExperience(exp.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -645,6 +773,7 @@ const InstructorProfile = () => {
                               variant="ghost"
                               size="sm"
                               className="hover:text-destructive"
+                              onClick={() => handleDeleteEducation(edu.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -711,6 +840,7 @@ const InstructorProfile = () => {
                                   size="sm"
                                   variant="ghost"
                                   className="hover:text-destructive"
+                                  onClick={() => handleDeleteCertification(cert.id)}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -898,6 +1028,78 @@ const InstructorProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* UPDATE PROFILE */}
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        profileData={{
+          first_name: profile.full_name?.split(" ")[0] || "",
+          last_name: profile.full_name?.split(" ").slice(1).join(" ") || "",
+          title: profile.title || "",
+          location: profile.location || "",
+          about: profile.about || "",
+          college: null,
+          college_other: null,
+          department: null,
+          github: profile.links.github || "",
+          linkedin: profile.links.linkedin || "",
+          portfolio: profile.links.portfolio || "",
+        }}
+        onSave={async () => {
+          await loadProfile();
+        }}
+      />
+
+      {/* SKILLS */}
+      <AddSkillDialog
+        open={skillDialogOpen}
+        onOpenChange={(open) => {
+          setSkillDialogOpen(open);
+          if (!open) setEditingSkill(null);
+        }}
+        editingData={editingSkill ?? undefined}
+        onSave={handleSaveSkill}
+      />
+
+      {/* EXPERIENCE */}
+      <AddExperienceDialog
+        open={experienceDialogOpen}
+        onOpenChange={(open) => {
+          setExperienceDialogOpen(open);
+          if (!open) setExperienceEditData(null);
+        }}
+        editingData={experienceEditData ?? null}
+        onSave={async (exp) => {
+          if (experienceEditData) {
+            await handleEditExperience(experienceEditData.id, exp);
+          } else {
+            await handleAddExperience(exp);
+          }
+        }}
+      />
+
+      {/* EDUCATION */}
+      <AddEducationDialog
+        open={educationDialogOpen}
+        onOpenChange={(open) => {
+          setEducationDialogOpen(open);
+          if (!open) setEditingEducation(null);
+        }}
+        editingData={editingEducation ?? undefined}
+        onSave={handleSaveEducation}
+      />
+
+      {/* CERTIFICATION */}
+      <AddCertificationDialog
+        open={certificationDialogOpen}
+        onOpenChange={(open) => {
+          setCertificationDialogOpen(open);
+          if (!open) setEditingCertification(null);
+        }}
+        editingData={editingCertification ?? undefined}
+        onSave={handleSaveCertification}
+      />
     </DashboardLayout>
   );
 };

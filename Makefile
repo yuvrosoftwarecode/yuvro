@@ -7,9 +7,9 @@
 #   DEPLOY_TYPE=k8s make install        - Use Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
-.PHONY: install-ycode install-ycampus run-ycode run-ycampus
-.PHONY: stop-ycode stop-ycampus clean-ycode clean-ycampus
-.PHONY: logs-ycode logs-ycampus load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus
+.PHONY: install-ycode install-ycampus install-ylabs run-ycode run-ycampus run-ylabs
+.PHONY: stop-ycode stop-ycampus stop-ylabs clean-ycode clean-ycampus clean-ylabs
+.PHONY: logs-ycode logs-ycampus logs-ylabs load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data-ycode setup-fixtures-data-ycampus load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
 .PHONY: db-reset
@@ -37,7 +37,7 @@ VALID_DEPLOY_ENVS  := local dev staging prod
 VALID_DEPLOY_TYPES := docker k8s
 
 # Services list
-SERVICES := ycode-backend ycampus-backend ycode-frontend ycampus-frontend code-executor
+SERVICES := ycode-backend ycampus-backend ylabs-backend ycode-frontend ycampus-frontend ylabs-frontend code-executor
 
 _validate-deploy:
 	@if ! echo "$(VALID_DEPLOY_ENVS)" | grep -qw "$(DEPLOY_ENV)"; then \
@@ -198,9 +198,11 @@ help:
 	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo "  make logs-ycode         View YCode logs"
 	@echo "  make logs-ycampus       View YCampus logs"
-	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus"
-	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data"
-	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data"
+	@echo "  make setup-fixtures-data            Load fixture data for both YCode and YCampus (no clear)"
+	@echo "  make setup-fixtures-data-ycode      Load YCode fixture data (no clear)"
+	@echo "  make setup-fixtures-data-ycampus    Load YCampus fixture data (no clear)"
+	@echo "  make load-courses-ycode             Load courses only into YCode"
+	@echo "  make load-courses-ycampus           Load courses only into YCampus"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -219,7 +221,7 @@ help:
 ifeq ($(DEPLOY_TYPE),docker)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
-  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml $(ENV_OVERRIDE)
+  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml $(ENV_OVERRIDE)
 endif
 
 install: _validate-deploy
@@ -280,6 +282,8 @@ run: _validate-deploy
 		echo "   YCode Backend:     http://localhost:8000"; \
 		echo "   YCampus Frontend:  http://localhost:3001"; \
 		echo "   YCampus Backend:   http://localhost:8001"; \
+		echo "   YLabs Frontend:    http://localhost:3002"; \
+		echo "   YLabs Backend:     http://localhost:8002"; \
 		echo "   Code Executor:     http://localhost:8009"; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
 		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -656,6 +660,12 @@ setup-fixtures-data-ycode:
 
 setup-fixtures-data-ycampus:
 	@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV)
+
+load-courses-ycode:
+	@$(MAKE) -f Makefile.ycode load-courses
+
+load-courses-ycampus:
+	@$(MAKE) -f Makefile.ycampus load-courses
 
 # ============================================================================
 # Database Commands

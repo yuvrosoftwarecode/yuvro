@@ -24,7 +24,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   }
 
   if (!isAuthenticated && !hasToken) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const redirectPath = location.pathname + location.search;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(redirectPath)}`} replace />;
+  }
+
+  if (user && user.role === 'guest' && location.pathname !== '/change-password') {
+    const redirectPath = location.pathname + location.search;
+    return <Navigate to={`/change-password?redirect=${encodeURIComponent(redirectPath)}`} replace />;
   }
 
   if (allowedEmails.length > 0 && user && user.email) {

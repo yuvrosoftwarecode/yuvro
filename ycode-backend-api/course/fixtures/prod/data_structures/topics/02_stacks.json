@@ -6489,6 +6489,105 @@
                     "is_correct": false
                 }
             ]
+        },
+        {
+            "type": "coding",
+            "title": "Maximum of Minimums for Every Window Size",
+            "content": "Given an array of n integers, for every window size w from 1 to n, find the maximum of the minimum values across all windows of that size.\n\nFormally, for each w, find: max over all i of (min(arr[i..i+w-1]))\n\n**Constraints:**\n- 1 <= n <= 10^5\n- 1 <= arr[i] <= 10^6",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test",
+                "contest"
+            ],
+            "inputFormat": "First line: integer n.\nSecond line: n space-separated integers.",
+            "outputFormat": "n space-separated integers: the maximum of minimums for window sizes 1 to n.",
+            "examples": [
+                {
+                    "input": "7\n10 20 30 50 10 70 30",
+                    "expected_output": "70 30 20 10 10 10 10",
+                    "explanation": "For w=1: max min = 70. For w=2: max min of pairs = 30. etc."
+                }
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "7\n10 20 30 50 10 70 30",
+                    "expected_output": "70 30 20 10 10 10 10"
+                },
+                {
+                    "input": "4\n10 20 30 50",
+                    "expected_output": "50 30 20 10"
+                },
+                {
+                    "input": "3\n3 1 2",
+                    "expected_output": "3 1 1"
+                },
+                {
+                    "input": "1\n5",
+                    "expected_output": "5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5\n1 2 3 4 5",
+                    "expected_output": "5 4 3 2 1"
+                },
+                {
+                    "input": "5\n5 4 3 2 1",
+                    "expected_output": "5 4 3 2 1"
+                },
+                {
+                    "input": "6\n1 3 2 4 5 2",
+                    "expected_output": "5 4 2 2 2 1"
+                },
+                {
+                    "input": "4\n4 4 4 4",
+                    "expected_output": "4 4 4 4"
+                }
+            ],
+            "hints": [
+                "Use a monotonic stack to find, for each element, the span over which it is the minimum — i.e., the left and right boundaries.",
+                "For element at index i, if it is the minimum over a window of size w = right[i] - left[i] - 1, update ans[w] = max(ans[w], arr[i]).",
+                "After filling ans[], propagate: for w from n-1 down to 1, ans[w] = max(ans[w], ans[w+1]) to handle larger windows."
+            ],
+            "solutions": [
+                {
+                    "title": "Monotonic Stack - Python",
+                    "language": "python",
+                    "code": "import sys\ndata = sys.stdin.read().split()\nn = int(data[0]); arr = list(map(int, data[1:n+1]))\nleft  = [-1] * n   # index of nearest smaller on left\nright = [n]  * n   # index of nearest smaller on right\nstack = []\nfor i in range(n):\n    while stack and arr[stack[-1]] >= arr[i]: stack.pop()\n    left[i] = stack[-1] if stack else -1\n    stack.append(i)\nstack = []\nfor i in range(n-1,-1,-1):\n    while stack and arr[stack[-1]] >= arr[i]: stack.pop()\n    right[i] = stack[-1] if stack else n\n    stack.append(i)\nans = [0] * (n + 2)\nfor i in range(n):\n    w = right[i] - left[i] - 1\n    ans[w] = max(ans[w], arr[i])\nfor w in range(n-1, 0, -1):\n    ans[w] = max(ans[w], ans[w+1])\nprint(' '.join(map(str, ans[1:n+1])))",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": true,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - JavaScript",
+                    "language": "javascript",
+                    "code": "const data = require('fs').readFileSync(0,'utf8').trim().split(/\\s+/);\nconst n = parseInt(data[0]);\nconst arr = data.slice(1,n+1).map(Number);\nconst left = new Array(n).fill(-1), right = new Array(n).fill(n);\nlet stack = [];\nfor(let i=0;i<n;i++){ while(stack.length&&arr[stack[stack.length-1]]>=arr[i]) stack.pop(); left[i]=stack.length?stack[stack.length-1]:-1; stack.push(i); }\nstack=[];\nfor(let i=n-1;i>=0;i--){ while(stack.length&&arr[stack[stack.length-1]]>=arr[i]) stack.pop(); right[i]=stack.length?stack[stack.length-1]:n; stack.push(i); }\nconst ans=new Array(n+2).fill(0);\nfor(let i=0;i<n;i++){ const w=right[i]-left[i]-1; ans[w]=Math.max(ans[w],arr[i]); }\nfor(let w=n-1;w>=1;w--) ans[w]=Math.max(ans[w],ans[w+1]);\nconsole.log(ans.slice(1,n+1).join(' '));",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - C++",
+                    "language": "cpp",
+                    "code": "#include <iostream>\n#include <vector>\n#include <stack>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> arr(n); for(int&x:arr) cin>>x;\n    vector<int> L(n,-1),R(n,n);\n    stack<int> st;\n    for(int i=0;i<n;i++){while(!st.empty()&&arr[st.top()]>=arr[i])st.pop();L[i]=st.empty()?-1:st.top();st.push(i);}\n    while(!st.empty())st.pop();\n    for(int i=n-1;i>=0;i--){while(!st.empty()&&arr[st.top()]>=arr[i])st.pop();R[i]=st.empty()?n:st.top();st.push(i);}\n    vector<int> ans(n+2,0);\n    for(int i=0;i<n;i++){int w=R[i]-L[i]-1;ans[w]=max(ans[w],arr[i]);}\n    for(int w=n-1;w>=1;w--) ans[w]=max(ans[w],ans[w+1]);\n    for(int w=1;w<=n;w++) cout<<ans[w]<<(w<n?' ':'\\n');\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                },
+                {
+                    "title": "Monotonic Stack - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n#define MAXN 100005\nint arr[MAXN],L[MAXN],R[MAXN],ans[MAXN],stk[MAXN];\nint main(){\n    int n; scanf(\"%d\",&n);\n    for(int i=0;i<n;i++) scanf(\"%d\",&arr[i]);\n    int top=-1;\n    for(int i=0;i<n;i++){while(top>=0&&arr[stk[top]]>=arr[i])top--;L[i]=top<0?-1:stk[top];stk[++top]=i;}\n    top=-1;\n    for(int i=n-1;i>=0;i--){while(top>=0&&arr[stk[top]]>=arr[i])top--;R[i]=top<0?n:stk[top];stk[++top]=i;}\n    for(int i=0;i<n+2;i++) ans[i]=0;\n    for(int i=0;i<n;i++){int w=R[i]-L[i]-1;if(arr[i]>ans[w])ans[w]=arr[i];}\n    for(int w=n-1;w>=1;w--) if(ans[w+1]>ans[w]) ans[w]=ans[w+1];\n    for(int w=1;w<=n;w++) printf(\"%d%c\",ans[w],w<n?' ':'\\n');\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false,
+                    "approach": "optimal"
+                }
+            ],
+            "level": "subtopic",
+            "topic_name": "Stacks",
+            "subtopic_name": "Monotonic Stack Pattern"
         }
     ]
 }
