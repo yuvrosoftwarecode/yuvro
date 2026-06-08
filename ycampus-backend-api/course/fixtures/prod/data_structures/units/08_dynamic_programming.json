@@ -950,115 +950,11 @@
                 "The number of ways to reach a cell (r, c) is the sum of ways to reach (r-1, c) and (r, c-1).",
                 "Base cases: All cells in the first row and first column have exactly 1 path (since you can only move right or down).",
                 "You can reduce the space complexity from O(M*N) to O(N) by only storing the values of the previous row."
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Minimum Days to Eat All Fruits",
-            "content": "You have n fruits to eat. Each day you can eat some fruits using these operations:\n- Eat 1 fruit\n- If n is divisible by 2, eat n/2 fruits at once\n- If n is divisible by 3, eat 2n/3 fruits at once\n\nReturn the minimum number of days to eat all n fruits.\n\n**Constraints:**\n- 1 <= n <= 2 × 10^9",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "practice",
-                "skill_test",
-                "contest"
             ],
-            "inputFormat": "A single integer n.",
-            "outputFormat": "A single integer: the minimum number of days.",
-            "examples": [
-                {
-                    "input": "10",
-                    "expected_output": "4",
-                    "explanation": "Day1: eat 10%2=0 → go to 5. Day2: eat 1 → 4. Day3: eat half → 2. Day4: eat half → 0. (4 days)"
-                },
-                {
-                    "input": "6",
-                    "expected_output": "3",
-                    "explanation": "Eat 1→5... best: 2/3 of 6=4 → 2 fruits, then halve → 1, then eat last = 3 days."
-                }
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "10",
-                    "expected_output": "4"
-                },
-                {
-                    "input": "6",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "1",
-                    "expected_output": "1"
-                },
-                {
-                    "input": "2",
-                    "expected_output": "2"
-                },
-                {
-                    "input": "3",
-                    "expected_output": "2"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "56",
-                    "expected_output": "6"
-                },
-                {
-                    "input": "1000000000",
-                    "expected_output": "31"
-                },
-                {
-                    "input": "2000000000",
-                    "expected_output": "32"
-                },
-                {
-                    "input": "100",
-                    "expected_output": "8"
-                }
-            ],
-            "hints": [
-                "Think recursively: at any n, you can try making n divisible by 2 (eat n%2 fruits first) or divisible by 3 (eat n%3 fruits first).",
-                "f(n) = 1 + min(n%2 + f(n//2), n%3 + f(n//3)). The n%2 and n%3 represent days needed to 'align' before the big operation.",
-                "Use memoization (dictionary) since many sub-problems repeat. With n up to 2×10^9, but log₂(2×10^9)≈31 levels deep, the recursion depth and unique states are manageable."
-            ],
-            "solutions": [
-                {
-                    "title": "DP with Memoization - Python",
-                    "language": "python",
-                    "code": "import sys\nfrom functools import lru_cache\nn = int(sys.stdin.read().strip())\n@lru_cache(maxsize=None)\ndef dp(x):\n    if x <= 1: return x\n    return 1 + min(x % 2 + dp(x // 2), x % 3 + dp(x // 3))\nprint(dp(n))",
-                    "complexity_analysis": "Time: O(log²N). Space: O(log²N) for memo.",
-                    "is_primary": true,
-                    "approach": "optimal"
-                },
-                {
-                    "title": "DP with Memoization - JavaScript",
-                    "language": "javascript",
-                    "code": "const n = parseInt(require('fs').readFileSync(0,'utf8').trim());\nconst memo = new Map();\nfunction dp(x) {\n  if (x <= 1) return x;\n  if (memo.has(x)) return memo.get(x);\n  const res = 1 + Math.min(x % 2 + dp(Math.floor(x/2)), x % 3 + dp(Math.floor(x/3)));\n  memo.set(x, res);\n  return res;\n}\nconsole.log(dp(n));",
-                    "complexity_analysis": "Time: O(log²N). Space: O(log²N).",
-                    "is_primary": false,
-                    "approach": "optimal"
-                },
-                {
-                    "title": "DP with Memoization - C++",
-                    "language": "cpp",
-                    "code": "#include <iostream>\n#include <unordered_map>\nusing namespace std;\nunordered_map<long long,int> memo;\nint dp(long long x){\n    if(x<=1) return (int)x;\n    auto it=memo.find(x); if(it!=memo.end()) return it->second;\n    int r=1+min((int)(x%2)+dp(x/2),(int)(x%3)+dp(x/3));\n    return memo[x]=r;\n}\nint main(){\n    long long n; cin>>n; cout<<dp(n)<<endl; return 0;\n}",
-                    "complexity_analysis": "Time: O(log²N). Space: O(log²N).",
-                    "is_primary": false,
-                    "approach": "optimal"
-                },
-                {
-                    "title": "DP with Memoization - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <stdlib.h>\n// BFS/DP via hash map (simplified with iterative BFS for C)\n// Use BFS on states reachable from n\n#include <string.h>\n#define MAXSTATES 200005\ntypedef struct { long long key; int val; } Entry;\nEntry table[MAXSTATES]; int tsize=0;\nint lookup(long long k){for(int i=0;i<tsize;i++) if(table[i].key==k) return table[i].val; return -1;}\nvoid store(long long k,int v){table[tsize].key=k;table[tsize++].val=v;}\nint dp(long long x){\n    if(x<=1) return (int)x;\n    int c=lookup(x); if(c!=-1) return c;\n    int r=1+(x%2+dp(x/2)<x%3+dp(x/3)?x%2+dp(x/2):x%3+dp(x/3));\n    store(x,r); return r;\n}\nint main(){\n    long long n; scanf(\"%lld\",&n); printf(\"%d\\n\",dp(n)); return 0;\n}",
-                    "complexity_analysis": "Time: O(log²N). Space: O(log²N).",
-                    "is_primary": false,
-                    "approach": "optimal"
-                }
-            ],
-            "level": "subtopic",
-            "unit_name": "Dynamic Programming",
-            "subunit_name": "Memoization and Tabulation"
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

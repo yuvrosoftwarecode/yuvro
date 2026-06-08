@@ -393,8 +393,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         const passed = res.test_results?.passed ?? 0;
         const total = res.test_results?.total ?? 0;
         toast.success(`Passed ${passed} of ${total} tests`);
-      } else if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
-        toast.error('Time Limit Exceeded');
+      } else if (res.status === 'timeout') {
+        toast.error('Execution Timed Out');
+      } else if (res.status === 'failed' && (res as any).performance_warnings?.length > 0) {
+        toast.warning('Executed: Output correct but performance limits exceeded');
       } else {
         toast.error('Code execution failed');
       }
@@ -483,8 +485,21 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         performance_warnings: (res as any).performance_warnings || [],
       });
 
-      if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
-        toast.error('Time Limit Exceeded');
+      const passed = res.test_cases_passed ?? 0;
+      const total = res.total_test_cases ?? 0;
+      const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
+      const hasResourceWarning = ((res as any).performance_warnings || []).length > 0;
+
+      if (res.status === 'timeout') {
+          toast.error('Submission Failed: Execution Timed Out');
+      } else if (res.status === 'failed' && !hasResourceWarning && res.reason) {
+          toast.error(`Submission Failed: ${res.reason}`);
+      } else if (res.status === 'failed' && hasResourceWarning) {
+          toast.warning(`Submitted: Output correct but performance limits exceeded`);
+      } else if (passed === total && total > 0) {
+        toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
+      } else if (total > 0) {
+        toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
       } else {
         const passed = res.test_cases_passed ?? 0;
         const total = res.total_test_cases ?? 0;

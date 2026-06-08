@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/common/DashboardLayout";
@@ -199,6 +199,13 @@ const Profile = () => {
 
   const [gamificationStats, setGamificationStats] = useState<any>(null);
 
+  // Refs so the visible buttons (rather than the label/click target) can
+  // programmatically open the file picker. This is more reliable than
+  // relying on the label/click-event association, which can be flaky when
+  // the click target is a complex shadcn Button component.
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
   // Fetch profile
   useEffect(() => {
     loadProfile();
@@ -241,20 +248,56 @@ const Profile = () => {
   /* -------------------------------------------- *
    * IMAGE HANDLERS
    * -------------------------------------------- */
+  const uploadImage = async (
+    file: File,
+    field: "profile_image" | "cover_image",
+  ) => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image too large. Max size is 10 MB.");
+      return;
+    }
+    // Optimistic preview so the UI feels instant
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (field === "profile_image") setProfilePic(reader.result as string);
+      else setCoverPic(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const updated = await profileService.uploadProfileImage(file, field);
+      // Replace the data: URL with the real S3/MinIO URL from the server
+      if (field === "profile_image" && updated.profile_image) {
+        setProfilePic(updated.profile_image);
+      } else if (field === "cover_image" && updated.cover_image) {
+        setCoverPic(updated.cover_image);
+      }
+      // Keep the full profile in sync for downstream consumers
+      setProfile(updated);
+      toast.success(
+        field === "profile_image"
+          ? "Profile picture updated"
+          : "Cover image updated",
+      );
+    } catch (err) {
+      console.error(`Failed to upload ${field}:`, err);
+      toast.error(`Failed to upload ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`);
+      // Roll back optimistic preview by reloading from the server
+      await loadProfile();
+    }
+  };
+
   const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setProfilePic(reader.result as string);
-    reader.readAsDataURL(file);
+    if (file) uploadImage(file, "profile_image");
+    // Reset the input so picking the same file again still fires onChange
+    e.target.value = "";
   };
 
   const handleCoverPicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setCoverPic(reader.result as string);
-    reader.readAsDataURL(file);
+    if (file) uploadImage(file, "cover_image");
+    e.target.value = "";
   };
 
   /* -------------------------------------------- *
@@ -383,7 +426,10 @@ const Profile = () => {
             <Card className="border-0 shadow-lg ring-1 ring-black/5 overflow-hidden">
               <div className="relative">
                 {/* COVER */}
-                <div className="h-56 bg-gradient-to-r from-orange-400/80 via-rose-400/80 to-purple-500/80 backdrop-blur-md relative group">
+                <div
+                  className="h-56 bg-gradient-to-r from-orange-400/80 via-rose-400/80 to-purple-500/80 backdrop-blur-md relative group cursor-pointer"
+                  onClick={() => coverInputRef.current?.click()}
+                >
                   {coverPic && (
                     <img
                       src={coverPic}
@@ -391,23 +437,33 @@ const Profile = () => {
                       alt="Cover"
                     />
                   )}
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <label>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleCoverPicUpload}
-                      />
-                      <Button size="sm" variant="secondary" className="shadow-sm">
-                        <Upload className="h-4 w-4 mr-2" /> Upload Cover
-                      </Button>
-                    </label>
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="shadow-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        coverInputRef.current?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4 mr-2" /> Upload Cover
+                    </Button>
                   </div>
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleCoverPicUpload}
+                  />
                 </div>
 
                 {/* PROFILE PIC */}
-                <div className="absolute -bottom-16 left-8">
+                <div
+                  className="absolute -bottom-16 left-8 group/avatar cursor-pointer"
+                  onClick={() => profileInputRef.current?.click()}
+                >
                   <Avatar className="h-36 w-36 border-4 border-background shadow-xl">
                     {profilePic ? (
                       <AvatarImage src={profilePic} alt="Profile" />
@@ -420,6 +476,19 @@ const Profile = () => {
                       </AvatarFallback>
                     )}
                   </Avatar>
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity pointer-events-none">
+                    <div className="flex flex-col items-center text-white">
+                      <Upload className="h-6 w-6" />
+                      <span className="text-xs font-medium mt-1">Change</span>
+                    </div>
+                  </div>
+                  <input
+                    ref={profileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleProfilePicUpload}
+                  />
                 </div>
               </div>
 

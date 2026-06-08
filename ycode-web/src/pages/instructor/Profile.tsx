@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/common/DashboardLayout";
@@ -246,6 +246,11 @@ const InstructorProfile = () => {
   const [profilePic, setProfilePic] = useState<string>("");
   const [coverPic, setCoverPic] = useState<string>("");
 
+  // Refs so the visible buttons (rather than the label/click target) can
+  // programmatically open the file picker.
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [skillDialogOpen, setSkillDialogOpen] = useState(false);
@@ -395,20 +400,51 @@ const InstructorProfile = () => {
   const suggestions = generateSuggestions(profile);
 
   // Image handlers
-  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageUpload = async (
+    file: File,
+    field: "profile_image" | "cover_image",
+  ) => {
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => setProfilePic(reader.result as string);
+    reader.onloadend = () => {
+      if (field === "profile_image") setProfilePic(reader.result as string);
+      else setCoverPic(reader.result as string);
+    };
     reader.readAsDataURL(file);
+
+    try {
+      const updated = await profileService.uploadProfileImage(file, field);
+      if (field === "profile_image" && updated.profile_image) {
+        setProfilePic(updated.profile_image);
+      } else if (field === "cover_image" && updated.cover_image) {
+        setCoverPic(updated.cover_image);
+      }
+      await loadProfile();
+      toast.success(
+        field === "profile_image"
+          ? "Profile picture updated"
+          : "Cover image updated",
+      );
+    } catch (err) {
+      console.error(`Failed to upload ${field}:`, err);
+      toast.error(
+        `Failed to upload ${field === "profile_image" ? "profile picture" : "cover image"}. Please try again.`,
+      );
+      await loadProfile();
+    }
   };
 
-  const handleCoverPicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setCoverPic(reader.result as string);
-    reader.readAsDataURL(file);
+    if (file) handleImageUpload(file, "profile_image");
+    e.target.value = "";
+  };
+
+  const handleCoverPicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file, "cover_image");
+    e.target.value = "";
   };
 
   return (
@@ -435,17 +471,20 @@ const InstructorProfile = () => {
                       />
                     )}
                     <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <label>
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={handleCoverPicUpload}
-                        />
-                        <Button size="sm" variant="secondary">
-                          <Upload className="h-4 w-4 mr-2" /> Upload Cover
-                        </Button>
-                      </label>
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleCoverPicChange}
+                      />
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => coverInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" /> Upload Cover
+                      </Button>
                     </div>
                   </div>
 
@@ -463,17 +502,21 @@ const InstructorProfile = () => {
                         </AvatarFallback>
                       )}
                     </Avatar>
-                    <label className="absolute bottom-2 right-2 cursor-pointer">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleProfilePicUpload}
-                      />
-                      <div className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition-colors">
-                        <Upload className="w-4 h-4" />
-                      </div>
-                    </label>
+                    <input
+                      ref={profileInputRef}
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleProfilePicChange}
+                    />
+                    <button
+                      type="button"
+                      className="absolute bottom-2 right-2 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                      onClick={() => profileInputRef.current?.click()}
+                      aria-label="Upload profile picture"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 

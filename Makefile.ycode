@@ -1,5 +1,7 @@
 # YCode Platform Makefile
 
+COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml
+
 .PHONY: setup dev dev-detached stop restart logs clean reload-data load-courses
 .PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
 .PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
@@ -23,14 +25,14 @@ setup:
 	@docker network create executor 2>/dev/null || true
 
 	@echo "Stopping existing YCode containers (preserving volumes)..."
-	docker compose -f docker-compose.ycode.yml down
+	docker compose $(COMPOSE_FILES) down
 	@sleep 2
 
 	@echo "Building and starting YCode services..."
-	docker compose -f docker-compose.ycode.yml up -d --build --wait
+	docker compose $(COMPOSE_FILES) up -d --build --wait
 
 	@echo "Loading test data..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py setup_fixtures_data
 	
 	@echo "✅ YCode setup complete!"
 	@echo "🌐 Frontend: http://localhost:3000"
@@ -41,52 +43,52 @@ setup:
 # ============================================================================
 
 dev:
-	docker compose -f docker-compose.ycode.yml up --remove-orphans
+	docker compose $(COMPOSE_FILES) up --remove-orphans
 
 dev-detached:
-	docker compose -f docker-compose.ycode.yml up -d --remove-orphans
+	docker compose $(COMPOSE_FILES) up -d --remove-orphans
 
 stop:
-	docker compose -f docker-compose.ycode.yml down
+	docker compose $(COMPOSE_FILES) down
 
 restart:
-	docker compose -f docker-compose.ycode.yml restart
+	docker compose $(COMPOSE_FILES) restart
 
 logs:
 	@if [ "$(SERVICE)" = "" ]; then \
-		docker compose -f docker-compose.ycode.yml logs -f; \
+		docker compose $(COMPOSE_FILES) logs -f; \
 	else \
-		docker compose -f docker-compose.ycode.yml logs -f $(SERVICE); \
+		docker compose $(COMPOSE_FILES) logs -f $(SERVICE); \
 	fi
 
 clean:
 	@echo "🧹 Cleaning YCode containers and volumes..."
-	docker compose -f docker-compose.ycode.yml down -v --remove-orphans
+	docker compose $(COMPOSE_FILES) down -v --remove-orphans
 	@echo "✅ Cleanup complete!"
 
 reload-data:
 	@echo "🔄 Reloading YCode fixtures (no clear)..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py setup_fixtures_data
 	@echo "✅ Test data reloaded!"
 
 reload-data-clear:
 	@echo "🔄 Reloading YCode fixtures (with clear)..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data --clear
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py setup_fixtures_data --clear
 	@echo "✅ Test data cleared and reloaded!"
 
 load-fixtures-data:
 	@echo "🔄 Loading YCode fixture data (no clear)..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py setup_fixtures_data
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py setup_fixtures_data
 	@echo "✅ YCode fixture data loaded!"
 
 load-courses:
 	@echo "📚 Loading YCode courses (dev)..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py load_courses --deploy_env dev
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py load_courses --deploy_env dev
 	@echo "✅ YCode courses loaded!"
 
 load-courses-prod:
 	@echo "📚 Loading YCode courses (prod)..."
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py load_courses --deploy_env prod
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py load_courses --deploy_env prod
 	@echo "✅ YCode prod courses loaded!"
 
 # ============================================================================
@@ -94,21 +96,21 @@ load-courses-prod:
 # ============================================================================
 
 db-shell:
-	docker compose -f docker-compose.ycode.yml exec ycode-db psql -U postgres -d ycode_backend_db
+	docker compose $(COMPOSE_FILES) exec ycode-db psql -U postgres -d ycode_backend_db
 
 db-migrate:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py migrate
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py migrate
 
 db-makemigrations:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py makemigrations
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py makemigrations
 
 db-createsuperuser:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py createsuperuser
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py createsuperuser
 
 db-reset:
 	@echo "🔄 Resetting database..."
-	docker compose -f docker-compose.ycode.yml down ycode-db -v
-	docker compose -f docker-compose.ycode.yml up -d ycode-db
+	docker compose $(COMPOSE_FILES) down ycode-db -v
+	docker compose $(COMPOSE_FILES) up -d ycode-db
 	@echo "✅ Database reset complete!"
 
 # ============================================================================
@@ -116,53 +118,53 @@ db-reset:
 # ============================================================================
 
 backend-shell:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py shell
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py shell
 
 backend-test:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend python manage.py test
+	docker compose $(COMPOSE_FILES) exec ycode-backend python manage.py test
 
 backend-format:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend black . --check --diff
+	docker compose $(COMPOSE_FILES) exec ycode-backend black . --check --diff
 
 backend-format-fix:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend black .
+	docker compose $(COMPOSE_FILES) exec ycode-backend black .
 
 backend-lint:
-	docker compose -f docker-compose.ycode.yml exec ycode-backend flake8 .
+	docker compose $(COMPOSE_FILES) exec ycode-backend flake8 .
 
 backend-install:
 	@if [ "$(PKG)" = "" ]; then \
 		echo "Usage: make -f Makefile.ycode backend-install PKG=package-name"; \
 		exit 1; \
 	fi
-	docker compose -f docker-compose.ycode.yml exec ycode-backend pip install $(PKG)
-	docker compose -f docker-compose.ycode.yml exec ycode-backend pip freeze > ycode-backend-api/requirements.txt
+	docker compose $(COMPOSE_FILES) exec ycode-backend pip install $(PKG)
+	docker compose $(COMPOSE_FILES) exec ycode-backend pip freeze > ycode-backend-api/requirements.txt
 
 # ============================================================================
 # Frontend
 # ============================================================================
 
 frontend-shell:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend sh
+	docker compose $(COMPOSE_FILES) exec ycode-frontend sh
 
 frontend-test:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm test -- --run
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm test -- --run
 
 frontend-test-watch:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm test
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm test
 
 frontend-format:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm run format:check
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm run format:check
 
 frontend-format-fix:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm run format
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm run format
 
 frontend-lint:
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm run lint
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm run lint
 
 frontend-install:
 	@if [ "$(PKG)" = "" ]; then \
 		echo "Usage: make -f Makefile.ycode frontend-install PKG=package-name"; \
 		exit 1; \
 	fi
-	docker compose -f docker-compose.ycode.yml exec ycode-frontend npm install $(PKG)
+	docker compose $(COMPOSE_FILES) exec ycode-frontend npm install $(PKG)

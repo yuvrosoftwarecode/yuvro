@@ -611,6 +611,17 @@ class ProfileSerializer(serializers.ModelSerializer):
     education = EducationSerializer(many=True, read_only=True)
     certifications = CertificationSerializer(many=True, read_only=True)
 
+    def _public(self, obj, attr):
+        from core.storage import build_public_url
+        return build_public_url(getattr(obj, attr, None))
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field in ("profile_image", "cover_image", "id_card_image"):
+            if field in data:
+                data[field] = self._public(instance, field)
+        return data
+
     class Meta:
         model = Profile
         fields = [

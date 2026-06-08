@@ -63,6 +63,12 @@ coverage/
 Thumbs.db
 Desktop.ini
 
+# OpenTofu / Terraform plan files (regenerated on every apply; not source)
+infra/opentofu/tfplan
+infra/opentofu/tfplan.*
+*.tfplan
+*.tfplan.json
+
 # Optional: add more as needed for your workflow
 .kiro/*
 

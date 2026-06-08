@@ -19,6 +19,11 @@ urlpatterns = [
     ),
     path("profile/", views.UserProfileView.as_view(), name="user_profile"),
     path("profile/detail/", views.ProfileDetailView.as_view(), name="profile_detail"),
+    path(
+        "profile/upload-image/",
+        views.upload_profile_image,
+        name="profile_upload_image",
+    ),
     path("user/", views.user_info_view, name="user_info"),
     path(
         "forgot-password/", views.ForgotPasswordView.as_view(), name="forgot_password"
