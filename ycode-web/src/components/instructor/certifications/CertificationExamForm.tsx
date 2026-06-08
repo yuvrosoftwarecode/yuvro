@@ -10,6 +10,7 @@ import QuestionBank from '@/components/common/QuestionBank';
 import { getCertificationExam, createCertificationExam, updateCertificationExam, CertificationExam } from '@/services/certificationService';
 import courseService, { Course, TopicBasic } from '@/services/courseService';
 import { fetchQuestionById } from '@/services/questionService';
+import ProctoringSettingsCard from '../shared/ProctoringSettingsCard';
 
 export default function CertificationExamForm() {
     const navigate = useNavigate();
@@ -49,6 +50,8 @@ export default function CertificationExamForm() {
         passing_marks: 60,
         max_attempts: 3,
         enable_proctoring: false,
+        tab_switch_threshold: 3,
+        violation_threshold: 5,
         publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
         course: courseIdFromUrl || '',
         start_datetime: '',
@@ -135,6 +138,8 @@ export default function CertificationExamForm() {
                 passing_marks: data.passing_marks,
                 max_attempts: data.max_attempts || 3,
                 enable_proctoring: data.enable_proctoring || false,
+                tab_switch_threshold: data.tab_switch_threshold ?? 3,
+                violation_threshold: data.violation_threshold ?? 5,
                 publish_status: data.publish_status,
                 course: String(data.course),
                 start_datetime: data.start_datetime ? new Date(data.start_datetime).toISOString().slice(0, 16) : '',
@@ -222,6 +227,8 @@ export default function CertificationExamForm() {
             passing_marks: formData.passing_marks,
             max_attempts: formData.max_attempts,
             enable_proctoring: formData.enable_proctoring,
+            tab_switch_threshold: formData.tab_switch_threshold,
+            violation_threshold: formData.violation_threshold,
             publish_status: formData.publish_status,
             course: formData.course,
             start_datetime: formData.start_datetime,
@@ -453,18 +460,15 @@ export default function CertificationExamForm() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center mt-2">
-                                        <input
-                                            type="checkbox"
-                                            id="enable_proctoring"
-                                            checked={formData.enable_proctoring}
-                                            onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
-                                            Enable Proctoring (Camera, Tab monitoring)
-                                        </label>
-                                    </div>
+                                    <ProctoringSettingsCard
+                                        enableProctoring={formData.enable_proctoring}
+                                        onEnableProctoringChange={(val) => setFormData({ ...formData, enable_proctoring: val })}
+                                        tabSwitchThreshold={formData.tab_switch_threshold}
+                                        onTabSwitchThresholdChange={(val) => setFormData({ ...formData, tab_switch_threshold: val })}
+                                        violationThreshold={formData.violation_threshold}
+                                        onViolationThresholdChange={(val) => setFormData({ ...formData, violation_threshold: val })}
+                                        className="mt-4"
+                                    />
                                 </CardContent>
                             </Card>
                         </TabsContent>

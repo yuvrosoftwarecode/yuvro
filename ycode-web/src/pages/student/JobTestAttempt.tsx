@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AssessmentInterface from '@/components/student/AssessmentInterface';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import { toast } from 'sonner';
 import { CheckCircle2, ArrowRight, BookOpen, Clock, AlertTriangle, Loader2 } from 'lucide-react';
+import ProctoringGate from '@/components/student/ProctoringGate';
 
 interface QuestionData {
   id: string;
@@ -21,6 +22,11 @@ interface StartTestResponse {
   job_title: string;
   company_name: string;
   questions: QuestionData[];
+  enable_proctoring?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
+  violation_count?: number;
+  tab_switch_count?: number;
 }
 
 export default function JobTestAttempt() {
@@ -37,66 +43,13 @@ export default function JobTestAttempt() {
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [duration, setDuration] = useState(60);
   
-  const proctoringEvents = useRef<any[]>([]);
-
-  useEffect(() => {
-    if (!isStarted || isSubmitted) return;
-
-    // 1. Tab visibility changes
-    const handleVisibilityChange = () => {
-      proctoringEvents.current.push({
-        activity_type: document.hidden ? 'tab_switched_away' : 'tab_switched_back',
-        timestamp: new Date().toISOString(),
-        meta_data: { type: document.hidden ? 'hidden' : 'visible' }
-      });
-    };
-
-    // 2. Window focus/blur
-    const handleBlur = () => {
-      proctoringEvents.current.push({
-        activity_type: 'window_blur',
-        timestamp: new Date().toISOString()
-      });
-    };
-    const handleFocus = () => {
-      proctoringEvents.current.push({
-        activity_type: 'window_focus',
-        timestamp: new Date().toISOString()
-      });
-    };
-
-    // 3. Copy & paste detection
-    const handleCopy = () => {
-      const selectedText = window.getSelection()?.toString() || '';
-      proctoringEvents.current.push({
-        activity_type: 'copy_detected',
-        timestamp: new Date().toISOString(),
-        meta_data: { key: 'Ctrl+C', copied_text: selectedText }
-      });
-    };
-    const handlePaste = (e: ClipboardEvent) => {
-      const pastedText = e.clipboardData?.getData('text') || '';
-      proctoringEvents.current.push({
-        activity_type: 'paste_detected',
-        timestamp: new Date().toISOString(),
-        meta_data: { key: 'Ctrl+V', pasted_text: pastedText }
-      });
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('paste', handlePaste);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('copy', handleCopy);
-      document.removeEventListener('paste', handlePaste);
-    };
-  }, [isStarted, isSubmitted]);
+  const [proctoringEnabled, setProctoringEnabled] = useState(false);
+  const [tabSwitchThreshold, setTabSwitchThreshold] = useState(3);
+  const [violationThreshold, setViolationThreshold] = useState(5);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [initialViolations, setInitialViolations] = useState(0);
+  const [initialTabSwitches, setInitialTabSwitches] = useState(0);
 
   useEffect(() => {
     const fetchTestData = async () => {
@@ -106,6 +59,11 @@ export default function JobTestAttempt() {
         setJobTitle(data.job_title);
         setCompanyName(data.company_name);
         setQuestions(data.questions);
+        setProctoringEnabled(!!data.enable_proctoring);
+        setTabSwitchThreshold(data.tab_switch_threshold ?? 3);
+        setViolationThreshold(data.violation_threshold ?? 5);
+        setInitialViolations(data.violation_count ?? 0);
+        setInitialTabSwitches(data.tab_switch_count ?? 0);
         
         // Calculate total duration (sum of question durations or default to 60)
         const totalDuration = data.questions.reduce((acc, q) => acc + (q.duration || 1), 0);
@@ -134,7 +92,7 @@ export default function JobTestAttempt() {
     try {
       await restApiAuthUtil.post(`/jobs/applications/${applicationId}/submit-test/`, {
         responses: answers,
-        proctoring_events: proctoringEvents.current
+        proctoring_events: [] // Live logged to backend, no need to resubmit
       });
       toast.success('Job Assessment submitted successfully!');
       setIsSubmitted(true);
@@ -247,7 +205,7 @@ export default function JobTestAttempt() {
               <li>Ensure you have a stable internet connection.</li>
               <li>Once you click start, the timer cannot be paused.</li>
               <li>Switching tabs or minimizing the browser may flag your submission.</li>
-              <li>No assessment results or scores will be shown to you after completion.</li>
+              {proctoringEnabled && <li>This exam is monitored using your webcam and microphone.</li>}
             </ul>
           </div>
 
@@ -263,6 +221,18 @@ export default function JobTestAttempt() {
     );
   }
 
+  if (proctoringEnabled && !gatePassed) {
+    return (
+      <ProctoringGate
+        onReady={(stream) => {
+          setCameraStream(stream);
+          setGatePassed(true);
+        }}
+        onCancel={() => navigate('/')}
+      />
+    );
+  }
+
   return (
     <AssessmentInterface
       assessment={{
@@ -272,7 +242,11 @@ export default function JobTestAttempt() {
         duration: duration,
         totalQuestions: questions.length,
         topicId: 'job-assessment',
-        proctoring_enabled: false,
+        proctoring_enabled: proctoringEnabled,
+        tab_switch_threshold: tabSwitchThreshold,
+        violation_threshold: violationThreshold,
+        initial_violations: initialViolations,
+        initial_tab_switches: initialTabSwitches,
       }}
       questions={questions}
       submissionId={applicationId || ''}
@@ -283,7 +257,8 @@ export default function JobTestAttempt() {
           navigate('/');
         }
       }}
-      assessmentType="skill-tests"
+      assessmentType="job-tests"
+      preExamCameraStream={cameraStream}
     />
   );
 }

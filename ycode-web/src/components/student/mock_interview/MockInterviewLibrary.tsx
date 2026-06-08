@@ -8,10 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Play, Star, Clock, Users } from 'lucide-react';
-import PermissionDialog from './PermissionDialog';
-import InterviewScreen from './InterviewScreen';
-import ThankYouScreen from './ThankYouScreen';
-import ReportsScreen from './ReportsScreen';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
 
 import { Role, InterviewSettings } from '@/types/mockInterview';
@@ -31,9 +27,6 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   const [selectedDuration, setSelectedDuration] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-  // States removed: showInterviewScreen, showThankYouScreen, showReportsScreen
-
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -95,23 +88,9 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     setAgreeToTerms(false);
   };
 
-  const handleProceedWithInterview = () => {
-    setShowPermissionDialog(false);
-    handleStartInterview(); // Call start interview when confirmed
-  };
-
-  const handleCancelInterview = () => {
-    setShowPermissionDialog(false);
-  };
-
   const handleStartInterview = async () => {
     // NOTE: In this refactor, we no longer start the media stream HERE.
     // We navigate to the room page which handles the stream per the plan.
-    // However, the original code had permission dialog flow.
-    // We should keep the flow: Select Role -> Modal -> Permission/Start -> Navigate
-
-    // The previous implementation of handleProceedWithInterview called setShowInterviewScreen(true).
-    // Now we will navigate.
 
     if (!selectedRole) return;
 
@@ -138,11 +117,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
       return;
     }
     setShowModal(false);
-
-    // Slight delay to allow modal to close animation
-    setTimeout(() => {
-      setShowPermissionDialog(true);
-    }, 100);
+    handleStartInterview();
   };
 
   return (
@@ -201,12 +176,6 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             <DialogHeader className="p-6 border-b border-slate-100/50 bg-gradient-to-r from-slate-50/50 to-white flex-shrink-0">
               <div className="flex items-center gap-3 mb-1">
                 <div className={`p-2 rounded-lg ${selectedRole?.iconBg?.split(" ")[0] || 'bg-slate-100'}`}>
-                  {/* Extract just the bg color class from the composed string if possible, or just use iconBg if it works as wrapper class */}
-                  {/* Actually iconBg is now "bg-blue-500 p-2 rounded-lg". So we can just use it on the wrapper div? 
-                       But selectedRole.icon is the <Icon>. 
-                       The current modal code wraps it in a div with iconBg. 
-                       If I use existing iconBg which includes p-2 rounded-lg, I should just apply it.
-                   */}
                   {selectedRole?.icon}
                 </div>
                 <div>
@@ -368,13 +337,6 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
 
           </DialogContent>
         </Dialog>
-
-        {/* Permission Dialog */}
-        <PermissionDialog
-          open={showPermissionDialog}
-          onConfirm={handleProceedWithInterview}
-          onCancel={handleCancelInterview}
-        />
       </div>
     </div>
   );

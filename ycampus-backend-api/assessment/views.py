@@ -185,11 +185,19 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         random.shuffle(questions_to_send)
         
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+        
         return Response({
             'submission_id': submission.id,
             'status': submission.status,
             'duration': exam.duration,
-            'questions': questions_to_send
+            'questions': questions_to_send,
+            # Uniform proctoring config
+            'enable_proctoring': getattr(exam, 'enable_proctoring', False),
+            'tab_switch_threshold': getattr(exam, 'tab_switch_threshold', 3),
+            'violation_threshold': getattr(exam, 'violation_threshold', 5),
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
         })
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -216,28 +224,34 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         total_score = 0
         
         # Calculate score (reusing simplified logic for now)
-        question_ids = answers.keys()
+        all_question_ids = request.data.get('all_question_ids', []) or []
+        question_ids = list(set(list(answers.keys()) + all_question_ids))
         db_questions = Question.objects.filter(id__in=question_ids)
         q_map = {str(q.id): q for q in db_questions}
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
-        for q_id, user_ans in answers.items():
+        for q_id in question_ids:
             if q_id not in q_map: continue
             question = q_map[q_id]
+            user_ans = answers.get(q_id)
             
             is_correct = False
             marks_obtained = 0
             
-            if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    marks_obtained = question.marks
-                    is_correct = True
-            elif question.type == 'mcq_multiple':
-                 correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                 user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
-                 if correct_opts == user_opts and correct_opts:
-                     marks_obtained = question.marks
-                     is_correct = True
+            if user_ans is not None:
+                if question.type == 'mcq_single':
+                    correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
+                    if correct_opt and user_ans == correct_opt['text']:
+                        marks_obtained = question.marks
+                        is_correct = True
+                elif question.type == 'mcq_multiple':
+                     correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
+                     user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
+                     if correct_opts == user_opts and correct_opts:
+                         marks_obtained = question.marks
+                         is_correct = True
             
             CertificationQuestionActivity.objects.update_or_create(
                 certification_submission=submission,
@@ -248,7 +262,8 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'is_final_answer': True,
                     'is_correct': is_correct,
                     'marks_obtained': marks_obtained,
-                    'auto_graded': True
+                    'auto_graded': True,
+                    'total_question_time': time_spent.get(str(q_id), 0)
                 }
             )
             total_score += marks_obtained
@@ -460,17 +475,33 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         random.shuffle(questions_to_send)
 
-        return Response({ 'submission_id': submission.id, 'duration': contest.duration, 'questions': questions_to_send})
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
+        return Response({
+            'submission_id': submission.id,
+            'duration': contest.duration,
+            'questions': questions_to_send,
+            # Uniform proctoring config
+            'enable_proctoring': getattr(contest, 'enable_proctoring', False),
+            'tab_switch_threshold': getattr(contest, 'tab_switch_threshold', 3),
+            'violation_threshold': getattr(contest, 'violation_threshold', 5),
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
+        })
 
     @action(detail=True, methods=['post'], permission_classes= [permissions.IsAuthenticated])
     def submit(self, request, pk=None):
         contest = self.get_object()
         submission_id = request.data.get('submission_id')
         answers = request.data.get('answers', {})
+        all_question_ids = request.data.get('all_question_ids', []) or []
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
-        submission = get_object_or_404(ContestSubmission, id=submission_id, user=request.user)
+        submission = get_object_or_404(ContestSubmission, id=submission_id, user=request.user, contest=contest)
 
-        if submission.status == ContestSubmission.STATUS_COMPLETED:
+        if submission.status in [ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_EVALUATED]:
             return Response({'error': 'Submission already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
         submission.answer_data = answers
@@ -478,25 +509,50 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         submission.submitted_at = timezone.now()
         
         total_score = 0
-        question_ids = answers.keys()
+        
+        # Merge all_question_ids with answers.keys() to ensure we process everything
+        question_ids = list(set(list(answers.keys()) + all_question_ids))
         db_questions = Question.objects.filter(id__in=question_ids)
         q_map = {str(q.id): q for q in db_questions}
         
-        for q_id, user_ans in answers.items():
+        for q_id in question_ids:
             if q_id not in q_map:
                 continue
             question = q_map[q_id]
+            user_ans = answers.get(q_id)
             
-            if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    total_score += question.marks
+            is_correct = False
+            marks_obtained = 0
             
-            elif question.type == 'mcq_multiple':
-                correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans])
-                if correct_opts == user_opts:
-                    total_score += question.marks
+            if user_ans is not None:
+                if question.type == 'mcq_single':
+                    correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
+                    if correct_opt and user_ans == correct_opt['text']:
+                        marks_obtained = question.marks
+                        is_correct = True
+                
+                elif question.type == 'mcq_multiple':
+                    correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
+                    user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
+                    if correct_opts == user_opts and correct_opts:
+                        marks_obtained = question.marks
+                        is_correct = True
+            
+            # Create or update activity
+            ContestQuestionActivity.objects.update_or_create(
+                contest_submission=submission,
+                question=question,
+                defaults={
+                    'user': request.user,
+                    'answer_data': user_ans if isinstance(user_ans, dict) else {'answer': user_ans},
+                    'is_final_answer': True,
+                    'is_correct': is_correct,
+                    'marks_obtained': marks_obtained,
+                    'auto_graded': True if question.type in ['mcq_single', 'mcq_multiple'] else False,
+                    'total_question_time': time_spent.get(str(q_id), 0),
+                }
+            )
+            total_score += marks_obtained
                     
         submission.marks = total_score
         submission.save()
@@ -703,12 +759,20 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         # Shuffle final list
         random.shuffle(questions_to_send)
         
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
         # 2. Return Response
         return Response({
             'submission_id': str(submission.id),
             'status': submission.status,
             'duration': skill_test.duration,
-            'questions': [{**q, 'id': str(q['id'])} for q in questions_to_send]
+            'questions': [{**q, 'id': str(q['id'])} for q in questions_to_send],
+            # Uniform proctoring config
+            'enable_proctoring': getattr(skill_test, 'enable_proctoring', False),
+            'tab_switch_threshold': getattr(skill_test, 'tab_switch_threshold', 3),
+            'violation_threshold': getattr(skill_test, 'violation_threshold', 5),
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
         })
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -718,6 +782,9 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         answers = request.data.get('answers', {})
         explanations = request.data.get('explanations', {})
         all_question_ids = request.data.get('all_question_ids', [])
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
         submission = get_object_or_404(
             SkillTestSubmission,
@@ -787,7 +854,8 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'is_final_answer': True,
                     'is_correct': is_correct,
                     'marks_obtained': marks_obtained,
-                    'auto_graded': True if question.type in ['mcq_single', 'mcq_multiple'] else False
+                    'auto_graded': True if question.type in ['mcq_single', 'mcq_multiple'] else False,
+                    'total_question_time': time_spent.get(str(q_id), 0)
                 }
             )
             total_score += marks_obtained

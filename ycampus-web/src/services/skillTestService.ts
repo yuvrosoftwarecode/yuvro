@@ -80,6 +80,8 @@ export interface StartTestResponse {
   status: string;
   duration: number;
   questions: any[]; // Using any[] for now, ideally strictly typed
+  violation_count?: number;
+  tab_switch_count?: number;
 }
 
 export interface SubmitTestResponse {
@@ -163,7 +165,7 @@ export const startSkillTest = async (testId: string): Promise<StartTestResponse>
   }
 };
 
-export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[], time_spent?: number): Promise<SubmitTestResponse> => {
+export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[], time_spent?: number | Record<string, number>): Promise<SubmitTestResponse> => {
   try {
     const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/submit/`, {
       submission_id: submissionId,

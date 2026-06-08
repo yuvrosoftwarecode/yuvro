@@ -16,6 +16,7 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Camera,
+  CameraOff,
   AlertTriangle,
   X,
   Eye,
@@ -89,6 +90,12 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [questionPage, setQuestionPage] = useState(0);
+  const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({});
+  const currentQuestionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    currentQuestionIdRef.current = questions[currentQuestion]?.id || null;
+  }, [currentQuestion, questions]);
 
   // Backend state
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -222,24 +229,54 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
     enabled: !!submissionId, // We enable proctoring once the test has officially started/resumed
     submissionId: submissionId,
     questionId: questions[currentQuestion]?.id,
+    mediaStream: streamRef.current,
     onViolation: handleProctoringViolation
   });
 
+  const prevQuestionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (submissionId && questions.length > 0 && questions[currentQuestion]?.id) {
+      const newQId = questions[currentQuestion].id;
+      const prevQId = prevQuestionIdRef.current;
+
+      if (prevQId && prevQId !== newQId) {
+        logActivity('question_left', { question_id: prevQId });
+      }
+
+      logActivity('question_viewed', { question_id: newQId });
+      prevQuestionIdRef.current = newQId;
+    }
+  }, [currentQuestion, questions, submissionId, logActivity]);
+
   // Rebind stream
   useEffect(() => {
-    if (!hasMediaAccess || !streamRef.current || !videoRef.current) return;
-    const video = videoRef.current;
-    if (video.srcObject !== streamRef.current) video.srcObject = streamRef.current;
-    video.play().catch(() => {
-      window.setTimeout(() => { video.play().catch(console.error); }, 150);
-    });
-  }, [hasMediaAccess]);
+    if (hasMediaAccess && streamRef.current && videoRef.current) {
+      const video = videoRef.current;
+      if (video.srcObject !== streamRef.current) {
+        console.log('useProctoring [ycampus-web]: Rebinding video stream to HTML element');
+        video.srcObject = streamRef.current;
+        video.play().catch(() => {
+          window.setTimeout(() => { video.play().catch(console.error); }, 150);
+        });
+      }
+    }
+  });
 
   // Timer
   useEffect(() => {
     if (isLoadingTest || questions.length === 0) return;
     if (timeLeft <= 0) { handleSubmitTest(); return; }
-    const timer = setInterval(() => { setTimeLeft(prev => prev - 1); }, 1000);
+    const timer = setInterval(() => { 
+      setTimeLeft(prev => prev - 1); 
+      const activeQId = currentQuestionIdRef.current;
+      if (activeQId) {
+        setQuestionTimes(prev => ({
+          ...prev,
+          [activeQId]: (prev[activeQId] || 0) + 1
+        }));
+      }
+    }, 1000);
     return () => clearInterval(timer);
   }, [timeLeft, isLoadingTest, questions.length]);
 
@@ -279,7 +316,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
     if (submissionId) {
       try {
         const all_question_ids = questions.map(q => q.id);
-        await submitSkillTest(topic.id, submissionId, answers, explanations, all_question_ids, timeSpent);
+        await submitSkillTest(topic.id, submissionId, answers, explanations, all_question_ids, questionTimes);
       } catch (err) {
         console.error('Error submitting test to backend:', err);
         // Still complete locally even if network call fails
@@ -526,19 +563,39 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            {/* Video Monitor */}
-            <div className="relative bg-black rounded-lg overflow-hidden h-20 w-36">
-              {hasMediaAccess && streamRef.current ? (
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white text-xs">
-                  <div className="text-center">
-                    <Camera className="h-4 w-4 mx-auto mb-1 opacity-50" />
-                    <p className="text-[10px]">Camera Not Available</p>
+            {submissionId && (
+              <div className="fixed top-20 left-4 z-[9999] w-32 h-24 sm:w-40 sm:h-30 rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 flex items-center justify-center group transition-all duration-300 hover:scale-[1.03]">
+                {hasMediaAccess ? (
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover scale-x-[-1]"
+                    />
+                    <div className="absolute top-2 left-2 bg-emerald-500/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md backdrop-blur-sm animate-pulse">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      LIVE
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-2 text-slate-400">
+                    <CameraOff className="h-6 w-6 mb-1 text-rose-500" />
+                    <span className="text-[9px] font-bold">No Camera Access</span>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
+            {!submissionId && (
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="hidden"
+              />
+            )}
             <div>
               <h1 className="text-xl font-bold">{topic.name}</h1>
               <Badge variant="outline">{course.name}</Badge>

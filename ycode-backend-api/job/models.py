@@ -85,6 +85,16 @@ class Job(BaseModel):
     screening_questions_config = models.JSONField(default=dict, blank=True)
     screening_questions_random_config = models.JSONField(default=dict, blank=True)
 
+    enable_proctoring = models.BooleanField(default=False)
+    tab_switch_threshold = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of tab switches before auto-submit is triggered (0 = disabled)",
+    )
+    violation_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Total number of violations before auto-submit is triggered (0 = disabled)",
+    )
+
     def __str__(self):
         return f"{self.title} at {self.company.name}"
 

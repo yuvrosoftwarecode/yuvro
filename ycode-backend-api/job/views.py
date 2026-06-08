@@ -806,11 +806,25 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                 "duration": q.duration,
             })
 
+        # Calculate existing violations and tab switches
+        screening_responses = application.screening_responses or {}
+        sub_violations = len(screening_responses.get("proctoring_events", []))
+        tab_switch_count = sum(
+            1 for e in screening_responses.get("general_events", [])
+            if e.get("activity_type") == "tab_switched"
+        )
+        violation_count = sub_violations + tab_switch_count
+
         return Response({
             "application_id": application.id,
             "job_title": job.title,
             "company_name": job.company.name,
             "questions": questions_data,
+            "enable_proctoring": getattr(job, "enable_proctoring", False),
+            "tab_switch_threshold": getattr(job, "tab_switch_threshold", 3),
+            "violation_threshold": getattr(job, "violation_threshold", 5),
+            "violation_count": violation_count,
+            "tab_switch_count": tab_switch_count,
         })
 
     @action(detail=True, methods=["post"])
@@ -915,12 +929,19 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                     "pending_review": True
                 }
 
-        proctoring_events = request.data.get("proctoring_events", [])
+        proctoring_events = request.data.get("proctoring_events", []) or []
 
-        # Preserve invited_at if it exists
+        # Preserve invited_at, live-logged proctoring/general events if they exist
         invited_at = None
+        existing_proctoring = []
+        existing_general = []
         if application.screening_responses and isinstance(application.screening_responses, dict):
             invited_at = application.screening_responses.get("invited_at")
+            existing_proctoring = application.screening_responses.get("proctoring_events", []) or []
+            existing_general = application.screening_responses.get("general_events", []) or []
+
+        # Merge live-logged events with any submitted on completion
+        merged_proctoring = existing_proctoring + [e for e in proctoring_events if e not in existing_proctoring]
 
         # Save responses and score details
         application.screening_responses = {
@@ -928,7 +949,8 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             "graded_results": graded_results,
             "score": marks_obtained,
             "total_marks": total_marks,
-            "proctoring_events": proctoring_events,
+            "proctoring_events": merged_proctoring,
+            "general_events": existing_general,
             "submitted_at": timezone.now().isoformat()
         }
         if invited_at:

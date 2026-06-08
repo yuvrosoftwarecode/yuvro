@@ -40,6 +40,14 @@ class BaseAssessmentModel(BaseModel):
     total_marks = models.IntegerField(default=100)
     passing_marks = models.IntegerField(default=60)
     enable_proctoring = models.BooleanField(default=False)
+    tab_switch_threshold = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of tab switches before auto-submit is triggered (0 = disabled)",
+    )
+    violation_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Total number of violations before auto-submit is triggered (0 = disabled)",
+    )
     total_attempts = models.PositiveIntegerField(
         default=0, help_text="Total number of attempts made"
     )
@@ -138,11 +146,6 @@ class Contest(BaseAssessmentModel):
     
     # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
-    proctoring_techniques = models.JSONField(
-        default=list, 
-        blank=True, 
-        help_text="e.g. ['webcam', 'tab_switch', 'full_screen']"
-    )
 
     class Meta:
         ordering = ["-start_datetime"]
@@ -263,6 +266,21 @@ class MockInterview(BaseModel):
 
     publish_status = models.CharField(
         max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
+    )
+
+    # Proctoring — Mock interviews are always proctored
+    enable_proctoring = models.BooleanField(
+        default=True,
+        editable=False,
+        help_text="Mock interviews are always fully proctored. This cannot be disabled.",
+    )
+    tab_switch_threshold = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of tab switches before auto-submit (0 = disabled)",
+    )
+    violation_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Total violations before auto-submit (0 = disabled)",
     )
 
     class Meta:
@@ -435,6 +453,7 @@ class JobTestSubmission(BaseUserSubmission):
 class BaseQuestionActivity(BaseTimestampedModel):
     QUESTION_ACTIVITY_TYPES = [
         ("question_viewed", "Question Viewed"),
+        ("question_left", "Question Left"),
         ("answer_started", "Answer Started"),
         ("answer_changed", "Answer Changed"),
         ("answer_submitted", "Answer Submitted"),
@@ -462,6 +481,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
     PROCTORING_ACTIVITY_TYPES = [
         ("copy_detected", "Copy Action Detected"),
         ("paste_detected", "Paste Action Detected"),
+        ("cut_detected", "Cut Action Detected"),
         ("right_click_detected", "Right Click Detected"),
         ("keyboard_shortcut", "Keyboard Shortcut Used"),
         ("camera_enabled", "Camera Enabled"),

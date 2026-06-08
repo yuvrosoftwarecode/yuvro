@@ -32,6 +32,12 @@ from .serializers import (
     MockInterviewSubmissionSerializer,
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
+from job.models import JobApplication
+import os
+import time
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 
 
 def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
@@ -183,11 +189,19 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         random.shuffle(questions_to_send)
         
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+        
         return Response({
             'submission_id': submission.id,
             'status': submission.status,
             'duration': exam.duration,
-            'questions': questions_to_send
+            'questions': questions_to_send,
+            # Uniform proctoring config
+            'enable_proctoring': exam.enable_proctoring,
+            'tab_switch_threshold': exam.tab_switch_threshold,
+            'violation_threshold': exam.violation_threshold,
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
         })
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -214,13 +228,18 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         total_score = 0
         
         # Calculate score (reusing simplified logic for now)
-        question_ids = answers.keys()
+        all_question_ids = request.data.get('all_question_ids', [])
+        question_ids = list(set(list(answers.keys()) + all_question_ids))
         db_questions = Question.objects.filter(id__in=question_ids)
         q_map = {str(q.id): q for q in db_questions}
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
-        for q_id, user_ans in answers.items():
+        for q_id in question_ids:
             if q_id not in q_map: continue
             question = q_map[q_id]
+            user_ans = answers.get(q_id)
             
             is_correct, marks_obtained = question.grade_answer(user_ans)
             # Check for hints/solutions/AI usage penalty
@@ -232,7 +251,9 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'answer_data': {'answer': user_ans},
                     'is_final_answer': True,
                     'is_correct': is_correct,
-                    'auto_graded': question.is_auto_gradable
+                    'marks_obtained': marks_obtained,
+                    'auto_graded': question.is_auto_gradable,
+                    'total_question_time': time_spent.get(str(q_id), 0)
                 }
             )
             
@@ -555,12 +576,19 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         # Use shared helper for question fetching
         questions_to_send = self._fetch_questions_for_assessment(contest)
 
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
         return Response({
             'submission_id': submission.id, 
             'duration': actual_duration,
             'questions': questions_to_send,
             'is_late_entry': submission.is_late_entry,
+            # Uniform proctoring config
             'enable_proctoring': contest.enable_proctoring,
+            'tab_switch_threshold': contest.tab_switch_threshold,
+            'violation_threshold': contest.violation_threshold,
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
         })
 
     @action(detail=True, methods=['post'], permission_classes= [permissions.IsAuthenticated])
@@ -568,7 +596,9 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         contest = self.get_object()
         submission_id = request.data.get('submission_id')
         answers = request.data.get('answers', {})
-        time_spent = request.data.get('time_spent', {})  # {question_id: seconds}
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
         # Validate submission belongs to THIS contest and this user
         submission = get_object_or_404(ContestSubmission, id=submission_id, user=request.user, contest=contest)
@@ -615,7 +645,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                     'is_correct': is_correct,
                     'marks_obtained': marks_obtained,
                     'auto_graded': True,
-                    'total_question_time': time_spent.get(q_id, 0),
+                    'total_question_time': time_spent.get(str(q_id), 0),
                 }
             )
 
@@ -1254,12 +1284,20 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         # Shuffle final list
         random.shuffle(questions_to_send)
         
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
         # 2. Return Response
         return Response({
             'submission_id': submission.id,
             'status': submission.status,
             'duration': skill_test.duration,
-            'questions': questions_to_send
+            'questions': questions_to_send,
+            # Uniform proctoring config
+            'enable_proctoring': skill_test.enable_proctoring,
+            'tab_switch_threshold': skill_test.tab_switch_threshold,
+            'violation_threshold': skill_test.violation_threshold,
+            'violation_count': total_violations,
+            'tab_switch_count': tab_switch_count,
         })
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -1269,6 +1307,9 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         answers = request.data.get('answers', {})
         explanations = request.data.get('explanations', {})
         all_question_ids = request.data.get('all_question_ids', [])
+        time_spent = request.data.get('time_spent', {}) or {}
+        if not isinstance(time_spent, dict):
+            time_spent = {}
 
         submission = get_object_or_404(
             SkillTestSubmission,
@@ -1313,7 +1354,8 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'is_final_answer': True,
                     'is_correct': is_correct,
                     'marks_obtained': marks_obtained,
-                    'auto_graded': question.is_auto_gradable
+                    'auto_graded': question.is_auto_gradable,
+                    'total_question_time': time_spent.get(str(q_id), 0)
                 }
             )
             
@@ -1590,7 +1632,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     'voice_speed': mock_interview.voice_speed,
                     'interviewer_name': mock_interview.interviewer_name,
                     'interviewer_voice_id': mock_interview.interviewer_voice_id
-                }
+                },
+                # Uniform proctoring config
+                'enable_proctoring': mock_interview.enable_proctoring,
+                'tab_switch_threshold': getattr(mock_interview, 'tab_switch_threshold', 3),
+                'violation_threshold': getattr(mock_interview, 'violation_threshold', 5),
             })
         except Exception as e:
             traceback.print_exc()
@@ -1733,5 +1779,132 @@ class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
         
         
         return render(request, 'assessment/certificate.html', context)
+
+
+class JobTestViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=["post"], url_path="log-activity")
+    def log_activity(self, request, pk=None):
+        
+
+        application = get_object_or_404(JobApplication, id=pk)
+        
+        # Check permissions
+        if application.applicant != request.user:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+            
+        activity_type = request.data.get("activity_type")
+        meta_data = request.data.get("meta_data", {})
+        timestamp = request.data.get("timestamp") or timezone.now().isoformat()
+        
+        if not activity_type:
+            return Response({"error": "activity_type is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        event = {
+            "timestamp": timestamp,
+            "activity_type": activity_type,
+            "meta_data": meta_data,
+        }
+        
+        # Handle camera snapshot
+        image_file = request.FILES.get("snapshot")
+        if image_file:
+            try:
+                from core.storage import upload_image
+                user_id = str(request.user.id)
+                company_name = slugify(application.job.company.name) if application.job.company else "general"
+                exam_folder = slugify(application.job.title)
+                attempt_dir = "attempt-1"
+                ts = str(int(time.time()))
+                filename = f"snapshot_{ts}.png"
+                object_key = f"{user_id}/job_test/{company_name}/{exam_folder}/{attempt_dir}/{filename}"
+                uploaded_path = upload_image(key=object_key, file_obj=image_file)
+                event["image_path"] = uploaded_path
+            except Exception as e:
+                logger.error(f"Error saving job assessment snapshot: {e}")
+                
+        # Initialize screening_responses structure if needed
+        if not isinstance(application.screening_responses, dict):
+            application.screening_responses = {}
+        if "proctoring_events" not in application.screening_responses:
+            application.screening_responses["proctoring_events"] = []
+        if "general_events" not in application.screening_responses:
+            application.screening_responses["general_events"] = []
+            
+        proctoring_types = [
+            "copy_detected",
+            "paste_detected",
+            "cut_detected",
+            "right_click_detected",
+            "keyboard_shortcut",
+            "face_not_detected",
+            "multiple_faces_detected",
+            "face_recognition_failed",
+            "suspicious_movement",
+            "audio_anomaly",
+            "suspicious_activity",
+            "device_change",
+            "external_monitor",
+        ]
+        
+        is_proctoring = (
+            activity_type in proctoring_types
+            or activity_type == "snapshot"
+            or image_file
+        )
+        non_violation_types = ["snapshot", "camera_enabled", "camera_disabled"]
+        is_violation = is_proctoring and (activity_type not in non_violation_types)
+        
+        if is_violation:
+            application.screening_responses["proctoring_events"].append(event)
+        else:
+            application.screening_responses["general_events"].append(event)
+            
+        application.save(update_fields=["screening_responses"])
+        
+        # Check thresholds
+        auto_submitted = False
+        
+        # 1. Tab switch threshold
+        tab_switch_count = sum(
+            1 for e in application.screening_responses.get("general_events", [])
+            if e.get("activity_type") == "tab_switched"
+        )
+        job = application.job
+        tab_threshold = getattr(job, "tab_switch_threshold", 3)
+        
+        if (
+            tab_threshold > 0
+            and tab_switch_count >= tab_threshold
+            and application.status != "screening_test_completed"
+        ):
+            application.status = "screening_test_completed"
+            application.save(update_fields=["status"])
+            auto_submitted = True
+            
+        # 2. Total violations threshold
+        total_violations = len(application.screening_responses.get("proctoring_events", []))
+        violation_threshold = getattr(job, "violation_threshold", 5)
+        
+        if (
+            violation_threshold > 0
+            and total_violations >= violation_threshold
+            and application.status != "screening_test_completed"
+        ):
+            application.status = "screening_test_completed"
+            application.save(update_fields=["status"])
+            auto_submitted = True
+            
+        return Response({
+            "status": "auto_submitted" if auto_submitted else "logged",
+            "scope": "submission",
+            "tab_switch_count": tab_switch_count,
+            "total_submission_violations": total_violations + tab_switch_count,
+            "total_violations": total_violations + tab_switch_count,
+            "auto_submitted": auto_submitted,
+            "auto_submit_reason": "threshold_exceeded" if auto_submitted else None,
+        })
+
 
 

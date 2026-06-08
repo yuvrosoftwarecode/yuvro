@@ -9,6 +9,7 @@ import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
 import DashboardLayout from "@/components/common/DashboardLayout";
+import ProctoringGate from "@/components/student/ProctoringGate";
 
 import {
   fetchCourses,
@@ -129,6 +130,13 @@ const SkillTest: React.FC = () => {
   const [loadingView, setLoadingView] = useState(true);
   const [hideNavigation, setHideNavigation] = useState(false);
   const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
+  const [tabSwitchThreshold, setTabSwitchThreshold] = useState(3);
+  const [violationThreshold, setViolationThreshold] = useState(5);
+  const [gateActive, setGateActive] = useState(false);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [initialViolations, setInitialViolations] = useState(0);
+  const [initialTabSwitches, setInitialTabSwitches] = useState(0);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -236,6 +244,11 @@ const SkillTest: React.FC = () => {
       const response = await startSkillTest(testId);
       setQuestions(response.questions);
       setCurrentSubmissionId(response.submission_id);
+      // Read proctoring thresholds from API response
+      setTabSwitchThreshold(response.tab_switch_threshold ?? 3);
+      setViolationThreshold(response.violation_threshold ?? 5);
+      setInitialViolations(response.violation_count ?? 0);
+      setInitialTabSwitches(response.tab_switch_count ?? 0);
       setCurrentView("test");
       setHideNavigation(true);
     } catch (error: any) {
@@ -267,6 +280,9 @@ const SkillTest: React.FC = () => {
   const handleBackToTests = () => {
     setCurrentView("tests");
     setHideNavigation(false);
+    setGatePassed(false);
+    setGateActive(false);
+    setCameraStream(null);
     navigate(`/student/courses/${courseId}/skill-tests`);
   };
 
@@ -305,6 +321,23 @@ const SkillTest: React.FC = () => {
     );
   }
 
+  if (gateActive && !gatePassed && selectedTest) {
+    return (
+      <ProctoringGate
+        onReady={(stream) => {
+          setCameraStream(stream);
+          setGatePassed(true);
+          setGateActive(false);
+          handleBeginTest(selectedTest.id);
+        }}
+        onCancel={() => {
+          setGateActive(false);
+          setCurrentView("instructions");
+        }}
+      />
+    );
+  }
+
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
       <DashboardLayout hideHeader={true} hideFooter={true}>
@@ -318,10 +351,14 @@ const SkillTest: React.FC = () => {
             difficulty: selectedTest.difficulty,
             description: selectedTest.description || "",
             marks: selectedTest.totalMarks,
+            enable_proctoring: selectedTest.enable_proctoring,
           }}
-          onStart={(screenStream?: MediaStream) => {
-            setActiveScreenStream(screenStream || null);
-            handleBeginTest(selectedTest.id);
+          onStart={() => {
+            if (selectedTest.enable_proctoring) {
+              setGateActive(true);
+            } else {
+              handleBeginTest(selectedTest.id);
+            }
           }}
           onBack={handleBackToTests}
         />
@@ -340,12 +377,18 @@ const SkillTest: React.FC = () => {
           totalQuestions: selectedTest.totalQuestions,
           topicId: selectedTopic.id,
           proctoring_enabled: selectedTest.enable_proctoring,
+          tab_switch_threshold: tabSwitchThreshold,
+          violation_threshold: violationThreshold,
+          initial_violations: initialViolations,
+          initial_tab_switches: initialTabSwitches,
         }}
         questions={questions}
         submissionId={currentSubmissionId || ""}
         onComplete={handleTestComplete}
         onBack={handleBackToInstructions}
         screenStream={activeScreenStream}
+        assessmentType="skill-tests"
+        preExamCameraStream={cameraStream}
       />
     );
   }
