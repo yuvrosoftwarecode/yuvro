@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Editor from "@monaco-editor/react";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
@@ -54,11 +55,29 @@ casts, and use String methods (length, charAt, substring).
 
 Run with: \`javac Main.java && java Main\``;
 
-const FILE_LIST = ["Main.java", "MainTest.java", "README.md"] as const;
-type FileName = typeof FILE_LIST[number];
+type FileName = string;
+
+const EXECUTOR_URL = import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009";
+const GITHUB_REPO = "MSLekha25/Weather_and_Air_Quality_Monitor";
+
+type GitNode = {
+  path: string;
+  mode: string;
+  type: "blob" | "tree";
+  sha: string;
+  size?: number;
+  url: string;
+};
+
+type TreeNode = {
+  name: string;
+  path: string;
+  type: "blob" | "tree";
+  children?: TreeNode[];
+};
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
-type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal";
+type BottomTab = "output" | "errors" | "tests" | "quality" | "terminal";
 
 function TicketEditor() {
   const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId" });
@@ -69,18 +88,19 @@ function TicketEditor() {
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [activeFile, setActiveFile] = useState<FileName>("Main.java");
+  const [mainView, setMainView] = useState<"code" | "preview">("code");
+  const [activeFile, setActiveFile] = useState<string>("");
+  const [openFiles, setOpenFiles] = useState<string[]>([]);
   const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
   const [hintLevel, setHintLevel] = useState(2);
   const [elapsed, setElapsed] = useState(0);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [showProgress, setShowProgress] = useState(true);
-  const [files, setFiles] = useState<Record<FileName, string>>({
-    "Main.java": STARTER_MAIN,
-    "MainTest.java": STARTER_TEST,
-    "README.md": STARTER_README,
-  });
-  const [dirty, setDirty] = useState<Record<FileName, boolean>>({ "Main.java": false, "MainTest.java": false, "README.md": false });
+  const [files, setFiles] = useState<Record<string, string>>({});
+  const [dirty, setDirty] = useState<Record<string, boolean>>({});
+
+  const [repoTree, setRepoTree] = useState<TreeNode[]>([]);
+  const [isLoadingTree, setIsLoadingTree] = useState(true);
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [tests, setTests] = useState<TestResult[]>([
@@ -100,6 +120,81 @@ function TicketEditor() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    async function fetchTree() {
+      setIsLoadingTree(true);
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`);
+        const data = await res.json();
+        if (data.tree) {
+          const root: TreeNode[] = [];
+          const map = new Map<string, TreeNode[]>();
+          map.set("", root);
+          
+          for (const item of data.tree as GitNode[]) {
+            const parts = item.path.split("/");
+            const name = parts.pop()!;
+            const parentPath = parts.join("/");
+            
+            const node: TreeNode = {
+              name,
+              path: item.path,
+              type: item.type,
+              ...(item.type === "tree" ? { children: [] } : {})
+            };
+            
+            if (!map.has(parentPath)) {
+              map.set(parentPath, []);
+            }
+            map.get(parentPath)!.push(node);
+            if (item.type === "tree") {
+              map.set(item.path, node.children!);
+            }
+          }
+          
+          const sortNodes = (nodes: TreeNode[]) => {
+            nodes.sort((a, b) => {
+              if (a.type !== b.type) return a.type === "tree" ? -1 : 1;
+              return a.name.localeCompare(b.name);
+            });
+            for (const node of nodes) {
+              if (node.children) sortNodes(node.children);
+            }
+          };
+          sortNodes(root);
+          setRepoTree(root);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast("Failed to fetch repository tree");
+      } finally {
+        setIsLoadingTree(false);
+      }
+    }
+    fetchTree();
+  }, []);
+
+  async function handleFileClick(path: string) {
+    if (!openFiles.includes(path)) {
+      setOpenFiles(prev => [...prev, path]);
+    }
+    setActiveFile(path);
+    
+    if (!(path in files)) {
+      setFiles(prev => ({ ...prev, [path]: "// Loading..." }));
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`);
+        const data = await res.json();
+        if (data.content) {
+          const text = decodeURIComponent(escape(atob(data.content)));
+          setFiles(prev => ({ ...prev, [path]: text }));
+        }
+      } catch (e) {
+        setFiles(prev => ({ ...prev, [path]: "// Error loading file content" }));
+      }
+    }
+  }
+
   // Keyboard: Ctrl/Cmd+Enter to run
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -114,11 +209,12 @@ function TicketEditor() {
   const allPass = testsRan && passed === tests.length;
   const timeStr = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
 
-  const code = files[activeFile];
+  const code = files[activeFile] || "";
 
   // Simple compile-state heuristic based on Main.java code
   const compileState: "ok" | "warn" | "err" = useMemo(() => {
-    const m = files["Main.java"];
+    const m = files["Main.java"] || "";
+    if (!m) return "ok";
     if (!/class\s+\w+/.test(m) || !/public\s+static\s+void\s+main/.test(m)) return "err";
     if (/\bcastedDouble\b/.test(m) && !/println.*castedDouble|System\.out.*castedDouble/.test(m)) return "warn";
     return "ok";
@@ -129,74 +225,153 @@ function TicketEditor() {
     setTimeout(() => setToast(null), 2200);
   }
 
-  function handleRun() {
+  async function handleRun() {
     setRunning(true);
     setBottomTab("output");
-    setOutput("$ javac Main.java\n$ java Main\n…running…\n");
-    setTimeout(() => {
-      const m = files["Main.java"];
-      if (compileState === "err") {
-        setOutput("$ javac Main.java\n❌ Main.java:1: error: class or main method missing\n1 error");
+    setOutput("Running code on remote executor...\n");
+    
+    try {
+      const res = await fetch(`${EXECUTOR_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: files[activeFile] || "",
+          language: lab.slug,
+          input: "",
+          timeout: 10
+        })
+      });
+      const data = await res.json();
+      
+      let outStr = "";
+      if (data.status === "compilation_error") {
+        outStr = `❌ Compilation Error:\n${data.error}`;
+        setBottomTab("errors");
+      } else if (!data.success) {
+        outStr = `❌ Runtime Error:\n${data.error}\n\nOutput:\n${data.output}`;
         setBottomTab("errors");
       } else {
-        // crude simulation of expected printlns
-        const out: string[] = [];
-        const re = /System\.out\.println\("([^"]*)"\s*\+\s*([^)]+)\)/g;
-        let match;
-        const ctx: Record<string, string> = {
-          integerValue: "42", pi: "3.14", isJavaFun: "true", greeting: "Hello Java",
-        };
-        while ((match = re.exec(m))) {
-          const label = match[1];
-          let val = match[2].trim();
-          if (val.endsWith(".length()")) val = String(("Hello Java").length);
-          else if (val.endsWith(".charAt(0)")) val = "H";
-          else val = ctx[val] ?? val;
-          out.push(label + val);
-        }
-        setOutput("$ javac Main.java\n$ java Main\n" + out.join("\n") + "\n\n✓ Program ran successfully (1.2s)");
+        outStr = `${data.output}\n\n✓ Program ran successfully (${(data.execution_time || 0).toFixed(2)}s)`;
       }
+      setOutput(outStr);
+    } catch (err: any) {
+      setOutput(`❌ Execution failed: ${err.message}`);
+      setBottomTab("errors");
+    } finally {
       setRunning(false);
-    }, 700);
+    }
   }
 
-  function handleRunTests() {
+  async function handleRunTests() {
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
-    setTimeout(() => {
-      const m = files["Main.java"];
-      const next: TestResult[] = [
-        { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
-        { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
-        { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
-        { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
-        { name: "Test 5 · Output Format", pass: /printf\(/.test(m), time: "11ms", expected: '"Result: 42"', got: '"Result42"' },
-      ];
-      setTests(next);
+    setTestsRan(false);
+    
+    const isJava101 = lab.slug === "java" && ticketId === "JAVA-101";
+    const m = files["Main.java"] || files[activeFile] || "";
+    const syntaxTests: TestResult[] = isJava101 ? [
+      { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
+      { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
+      { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
+      { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
+    ] : [];
+    
+    try {
+      const res = await fetch(`${EXECUTOR_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: m,
+          language: lab.slug,
+          input: "",
+          timeout: 10
+        })
+      });
+      const data = await res.json();
+      
+      let expectedOut = "";
+      if (isJava101) {
+        expectedOut = `Integer: 42\nDouble: 3.14\nBoolean: true\nString: Hello Java\nLength: 10\nCharacter at index 0: H`;
+      }
+      
+      const pass = isJava101 
+        ? data.success && data.output.trim() === expectedOut.trim()
+        : data.success;
+      
+      const execTest: TestResult = {
+        name: isJava101 ? "Test 5 · Output Format" : "Execution completed successfully",
+        pass: pass,
+        time: `${((data.execution_time || 0) * 1000).toFixed(0)}ms`,
+        expected: isJava101 ? expectedOut : undefined,
+        got: data.success ? data.output.trim() || "No output" : `Error:\n${data.error.trim()}`
+      };
+      
+      setTests([...syntaxTests, execTest]);
+    } catch (e: any) {
+      setTests([...syntaxTests, { name: "Test 5 · Output Format", pass: false, time: "0ms", got: `Error: ${e.message}` }]);
+    } finally {
       setTestsRan(true);
-    }, 600);
+    }
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
-    setTimeout(() => {
-      const m = files["Main.java"];
-      const next: TestResult[] = [
-        { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
-        { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
-        { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
-        { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
-        { name: "Test 5 · Output Format", pass: /System\.out\.println/.test(m) || /printf\(/.test(m), time: "11ms" },
-      ];
-      setTests(next);
+    setTestsRan(false);
+    
+    const isJava101 = lab.slug === "java" && ticketId === "JAVA-101";
+    const m = files["Main.java"] || files[activeFile] || "";
+    const syntaxTests: TestResult[] = isJava101 ? [
+      { name: "Test 1 · Variables Declaration", pass: /int\s+\w+\s*=/.test(m) && /double\s+\w+\s*=/.test(m), time: "12ms" },
+      { name: "Test 2 · Type Casting (implicit)", pass: /double\s+\w+\s*=\s*\w+\s*;/.test(m), time: "8ms" },
+      { name: "Test 3 · Type Casting (explicit)", pass: /\(int\)\s*\w/.test(m), time: "9ms" },
+      { name: "Test 4 · String Operations", pass: /\.length\(\)/.test(m) && /\.charAt\(/.test(m), time: "7ms" },
+    ] : [];
+    
+    try {
+      const res = await fetch(`${EXECUTOR_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: m,
+          language: lab.slug,
+          input: "",
+          timeout: 10
+        })
+      });
+      const data = await res.json();
+      
+      let expectedOut = "";
+      if (isJava101) {
+        expectedOut = `Integer: 42\nDouble: 3.14\nBoolean: true\nString: Hello Java\nLength: 10\nCharacter at index 0: H`;
+      }
+      
+      const pass = isJava101 
+        ? data.success && data.output.trim() === expectedOut.trim()
+        : data.success;
+      
+      const execTest: TestResult = {
+        name: isJava101 ? "Test 5 · Output Format" : "Execution completed successfully",
+        pass: pass,
+        time: `${((data.execution_time || 0) * 1000).toFixed(0)}ms`,
+        expected: isJava101 ? expectedOut : undefined,
+        got: data.success ? data.output.trim() || "No output" : `Error:\n${data.error.trim()}`
+      };
+      
+      const nextTests = [...syntaxTests, execTest];
+      setTests(nextTests);
       setTestsRan(true);
-      if (next.every((t) => t.pass)) {
+      
+      if (nextTests.every((t) => t.pass)) {
         navigate({ to: "/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId } });
       } else {
         showToast("Fix failing tests before submitting");
       }
-    }, 600);
+    } catch (e: any) {
+      setTests([...syntaxTests, { name: "Test 5 · Output Format", pass: false, time: "0ms", got: `Error: ${e.message}` }]);
+      setTestsRan(true);
+      showToast("Fix failing tests before submitting");
+    }
   }
 
   function handleSave() {
@@ -272,6 +447,18 @@ function TicketEditor() {
         {savedAt && <span className="text-success inline-flex items-center gap-1"><Check className="h-3 w-3" />Saved {savedAt}</span>}
 
         <div className="ml-auto flex items-center gap-1.5">
+          <div className="flex bg-muted p-0.5 rounded-md border mr-2">
+            <button 
+              onClick={() => setMainView("code")} 
+              className={`px-3 py-1 rounded-sm text-xs font-medium transition-colors ${mainView === "code" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              Code
+            </button>
+            <button 
+              onClick={() => setMainView("preview")} 
+              className={`px-3 py-1 rounded-sm text-xs font-medium transition-colors ${mainView === "preview" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              Preview
+            </button>
+          </div>
           <button onClick={() => setTab("hints")} className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent"><HelpCircle className="h-3 w-3" />Hints</button>
           <button onClick={() => showToast("Issue reported · #4821")} className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent"><Flag className="h-3 w-3" />Report</button>
           <button onClick={() => showToast("Feedback submitted")} className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent"><MessageSquare className="h-3 w-3" />Feedback</button>
@@ -344,31 +531,38 @@ function TicketEditor() {
             {/* File tree */}
             <div className="hidden lg:flex w-52 flex-col border-r bg-editor-panel text-xs">
               <div className="px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">Explorer</div>
-              <div className="px-2 space-y-0.5">
-                <TreeFolder label={ticket.id.toLowerCase()} open>
-                  <TreeFolder label="src" open>
-                    <TreeFile name="Main.java" active={activeFile === "Main.java"} onClick={() => setActiveFile("Main.java")} modified={dirty["Main.java"]} />
-                  </TreeFolder>
-                  <TreeFolder label="tests" open>
-                    <TreeFile name="MainTest.java" onClick={() => setActiveFile("MainTest.java")} active={activeFile === "MainTest.java"} modified={dirty["MainTest.java"]} />
-                  </TreeFolder>
-                  <TreeFile name="README.md" onClick={() => setActiveFile("README.md")} active={activeFile === "README.md"} modified={dirty["README.md"]} />
-                  <TreeFile name="pom.xml" onClick={() => showToast("Read-only file")} />
-                </TreeFolder>
+              <div className="flex-1 overflow-auto scrollbar-thin px-2 space-y-0.5 pb-2">
+                {isLoadingTree ? (
+                  <div className="p-4 text-muted-foreground text-center animate-pulse">Loading repo...</div>
+                ) : (
+                  <GitTree nodes={repoTree} active={activeFile} dirty={dirty} onFileClick={handleFileClick} />
+                )}
               </div>
               <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
-                <div className="flex items-center gap-1"><GitBranch className="h-3 w-3" /> main</div>
+                <div className="flex items-center gap-1"><GitBranch className="h-3 w-3" /> master</div>
               </div>
             </div>
 
             <div className="flex flex-1 min-w-0 flex-col">
-              {/* Tabs row */}
+              {mainView === "preview" ? (
+                <div className="flex-1 bg-muted/20 relative">
+                  <PreviewView files={files} lab={lab} activeFile={activeFile} />
+                </div>
+              ) : (
+                <>
+                  {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
-                {FILE_LIST.map((f) => (
+                {openFiles.map((f) => (
                   <button key={f} onClick={() => setActiveFile(f)}
                     className={`flex items-center gap-2 border-r px-3 py-2 whitespace-nowrap ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                    <FileCode2 className="h-3 w-3" />{f}
+                    <FileCode2 className="h-3 w-3" />{f.split("/").pop()}
                     {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
+                    <span onClick={(e) => {
+                      e.stopPropagation();
+                      const next = openFiles.filter(p => p !== f);
+                      setOpenFiles(next);
+                      if (activeFile === f) setActiveFile(next[0] || "");
+                    }} className="ml-1 hover:bg-accent rounded p-0.5 w-4 h-4 flex items-center justify-center">×</span>
                   </button>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
@@ -381,10 +575,35 @@ function TicketEditor() {
                 </div>
               </div>
 
-              {/* Editor + minimap */}
-              <div className="flex flex-1 min-h-0">
-                <CodeEditor code={code} onChange={updateCode} language={activeFile.endsWith(".md") ? "md" : "java"} />
-                <Minimap code={code} />
+              {/* Editor */}
+              <div className="flex flex-1 min-h-0 relative">
+                <Editor
+                  height="100%"
+                  language={
+                    activeFile.endsWith(".md") ? "markdown" :
+                    activeFile.endsWith(".java") ? "java" :
+                    activeFile.endsWith(".py") ? "python" :
+                    activeFile.endsWith(".html") ? "html" :
+                    activeFile.endsWith(".js") || activeFile.endsWith(".jsx") ? "javascript" :
+                    activeFile.endsWith(".ts") || activeFile.endsWith(".tsx") ? "typescript" :
+                    activeFile.endsWith(".css") ? "css" :
+                    activeFile.endsWith(".json") ? "json" :
+                    activeFile.endsWith(".yml") || activeFile.endsWith(".yaml") ? "yaml" :
+                    "plaintext"
+                  }
+                  theme={theme === "dark" ? "vs-dark" : "light"}
+                  value={code}
+                  onChange={(v) => updateCode(v || "")}
+                  options={{
+                    minimap: { enabled: true },
+                    fontSize: 13,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+                    padding: { top: 16 },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                  }}
+                  loading={<div className="flex items-center justify-center h-full w-full text-muted-foreground animate-pulse text-sm">Loading editor...</div>}
+                />
               </div>
 
               {/* Bottom panel */}
@@ -392,10 +611,9 @@ function TicketEditor() {
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    { k: "errors", label: "Errors", icon: AlertTriangle },
                     { k: "tests", label: `Tests${testsRan ? ` (${passed}/${tests.length})` : ""}`, icon: CheckCircle2 },
+                    { k: "errors", label: "Errors", icon: AlertTriangle },
                     { k: "quality", label: "Quality", icon: Gauge },
-                    { k: "preview", label: "Preview", icon: Globe },
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                   ].map((t) => (
                     <button key={t.k} onClick={() => setBottomTab(t.k as BottomTab)}
@@ -413,10 +631,11 @@ function TicketEditor() {
                   {bottomTab === "output" && <OutputView output={output} />}
                   {bottomTab === "errors" && <ErrorsView state={compileState} />}
                   {bottomTab === "quality" && <QualityView code={code} />}
-                  {bottomTab === "preview" && <PreviewView />}
                   {bottomTab === "terminal" && <TerminalView />}
                 </div>
               </div>
+              </>
+            )}
             </div>
 
             {/* Live progress */}
@@ -480,59 +699,6 @@ function TicketEditor() {
   );
 }
 
-/* ---------- Editor ---------- */
-
-function CodeEditor({ code, onChange, language }: { code: string; onChange: (v: string) => void; language: "java" | "md" }) {
-  const taRef = useRef<HTMLTextAreaElement>(null);
-  const preRef = useRef<HTMLPreElement>(null);
-  const lines = code.split("\n");
-
-  const syncScroll = () => {
-    if (preRef.current && taRef.current) {
-      preRef.current.scrollTop = taRef.current.scrollTop;
-      preRef.current.scrollLeft = taRef.current.scrollLeft;
-    }
-  };
-
-  // Tab indent
-  const onKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      const ta = e.currentTarget;
-      const s = ta.selectionStart, en = ta.selectionEnd;
-      const v = ta.value;
-      const next = v.slice(0, s) + "    " + v.slice(en);
-      onChange(next);
-      requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + 4; });
-    }
-  };
-
-  return (
-    <div className="relative flex flex-1 min-w-0 overflow-hidden bg-editor-bg font-mono text-[13px] leading-6">
-      <div aria-hidden className="select-none px-3 py-3 text-right text-editor-gutter border-r border-editor-line/40 bg-editor-panel/40">
-        {lines.map((_, i) => <div key={i} className="h-6">{i + 1}</div>)}
-      </div>
-      <div className="relative flex-1 min-w-0">
-        <pre ref={preRef} aria-hidden
-          className="pointer-events-none absolute inset-0 overflow-auto whitespace-pre py-3 px-3 scrollbar-thin">
-          {lines.map((l, i) => (
-            <div key={i} className="h-6" dangerouslySetInnerHTML={{ __html: language === "java" ? (highlight(l) || "&nbsp;") : escapeHtml(l) || "&nbsp;" }} />
-          ))}
-        </pre>
-        <textarea
-          ref={taRef}
-          value={code}
-          onChange={(e) => onChange(e.target.value)}
-          onScroll={syncScroll}
-          onKeyDown={onKey}
-          spellCheck={false}
-          className="absolute inset-0 w-full h-full resize-none overflow-auto whitespace-pre py-3 px-3 bg-transparent text-transparent caret-foreground outline-none scrollbar-thin selection:bg-primary/30"
-          style={{ caretColor: "var(--foreground)" }}
-        />
-      </div>
-    </div>
-  );
-}
 
 /* ---------- Subviews ---------- */
 
@@ -568,10 +734,14 @@ function TestsView({ tests, ran, onRun }: { tests: TestResult[]; ran: boolean; o
             <span className={t.pass ? "" : "text-destructive"}>{t.name}</span>
             <span className="ml-auto text-muted-foreground">{t.time}</span>
           </div>
-          {!t.pass && t.expected && (
-            <div className="ml-5 mt-1 rounded border border-destructive/30 bg-destructive/5 p-1.5 text-[11px] text-destructive/90">
-              <div>Expected: <span className="text-success">{t.expected}</span></div>
-              <div>Got:      <span className="text-destructive">{t.got}</span></div>
+          {t.got && (
+            <div className={`ml-5 mt-1 rounded border p-1.5 text-[11px] ${
+              !t.pass 
+                ? "border-destructive/30 bg-destructive/5 text-destructive/90"
+                : "border-border bg-accent/50 text-muted-foreground"
+            }`}>
+              {t.expected && <div>Expected: <span className={!t.pass ? "text-success" : "text-foreground"}>{t.expected}</span></div>}
+              <div>{t.expected ? "Got:      " : "Output:\n"}<span className={!t.pass ? "text-destructive" : "text-foreground whitespace-pre-wrap font-mono"}>{t.got}</span></div>
             </div>
           )}
         </div>
@@ -644,20 +814,51 @@ function QualityView({ code }: { code: string }) {
   );
 }
 
-function PreviewView() {
+function PreviewView({ files, lab, activeFile }: { files: Record<string, string>; lab: typeof labs[number]; activeFile: string }) {
+  const isHtmlActive = activeFile?.endsWith(".html");
+  
+  if (lab.slug !== "ui" && !isHtmlActive) {
+    return (
+      <div className="flex h-full items-center justify-center text-muted-foreground font-mono">
+        Live preview is not applicable for {lab.name}. Check the Console tab for execution output.
+      </div>
+    );
+  }
+
+  const html = isHtmlActive ? (files[activeFile] || "") : (files["index.html"] || "<h1>No HTML file selected/found</h1>");
+  const css = files["styles.css"] || Object.entries(files).find(([k]) => k.endsWith(".css"))?.[1] || "";
+  const js = files["script.js"] || Object.entries(files).find(([k]) => k.endsWith(".js"))?.[1] || "";
+
+  const interceptScript = `
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a');
+      if (a) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('submit', (e) => {
+      e.preventDefault();
+    });
+  `;
+
+  const srcDoc = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>${css}</style>
+      </head>
+      <body>
+        ${html}
+        <script>${js}</script>
+        <script>${interceptScript}</script>
+      </body>
+    </html>
+  `;
+
   return (
     <div className="flex h-full gap-2">
-      <div className="flex-1 rounded border bg-white text-black p-3">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500">Live preview</div>
-        <h2 className="mt-1 text-lg font-semibold">Hello Java</h2>
-        <p className="text-sm text-gray-600">Length: 10 · Char[0]: H</p>
-        <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-xs text-white">Run sample</button>
-      </div>
-      <div className="w-40 space-y-1 text-[11px] text-muted-foreground">
-        <div className="font-semibold text-foreground">Responsive</div>
-        {["Mobile 375", "Tablet 768", "Desktop 1280"].map((d) => (
-          <button key={d} className="block w-full rounded border px-2 py-1 text-left hover:bg-accent">{d}</button>
-        ))}
+      <div className="flex-1 rounded border bg-white overflow-hidden relative">
+        <iframe title="preview" srcDoc={srcDoc} className="w-full h-full border-0 absolute inset-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
       </div>
     </div>
   );
@@ -690,16 +891,7 @@ function ProgressTile({ icon: Icon, label, value, tone, pct }: { icon: typeof Za
   );
 }
 
-function Minimap({ code }: { code: string }) {
-  const lines = code.split("\n");
-  return (
-    <div className="hidden xl:block w-16 border-l bg-editor-bg/60 p-1 overflow-hidden">
-      {lines.map((l, i) => (
-        <div key={i} className="h-[3px] mb-[1px] rounded-sm" style={{ width: `${Math.min(100, l.trim().length * 2.2)}%`, background: "color-mix(in oklab, var(--muted-foreground) 35%, transparent)" }} />
-      ))}
-    </div>
-  );
-}
+
 
 function ProblemPanel({ ticket }: { ticket: typeof tickets[number] }) {
   return (
@@ -848,6 +1040,31 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+function GitTree({ nodes, active, dirty, onFileClick }: { nodes: TreeNode[], active: string, dirty: Record<string, boolean>, onFileClick: (path: string) => void }) {
+  return (
+    <>
+      {nodes.map(node => {
+        if (node.type === "tree") {
+          return (
+            <TreeFolder key={node.path} label={node.name} open={false}>
+              <GitTree nodes={node.children || []} active={active} dirty={dirty} onFileClick={onFileClick} />
+            </TreeFolder>
+          );
+        }
+        return (
+          <TreeFile 
+            key={node.path} 
+            name={node.name} 
+            active={active === node.path} 
+            modified={dirty[node.path]} 
+            onClick={() => onFileClick(node.path)} 
+          />
+        );
+      })}
+    </>
+  );
+}
+
 function TreeFolder({ label, open: defaultOpen = false, children }: { label: string; open?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -870,17 +1087,3 @@ function TreeFile({ name, active, modified, onClick }: { name: string; active?: 
   );
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
-}
-
-function highlight(line: string): string {
-  let h = escapeHtml(line);
-  h = h.replace(/(\/\/.*$)/g, '<span style="color:var(--syntax-comment)">$1</span>');
-  h = h.replace(/(&quot;.*?&quot;|".*?")/g, '<span style="color:var(--syntax-string)">$1</span>');
-  h = h.replace(/\b(public|class|static|void|int|double|boolean|String|char|long|float|byte|short|return|if|else|for|while|new|true|false|null|import)\b/g,
-    '<span style="color:var(--syntax-keyword)">$1</span>');
-  h = h.replace(/\b(\d+\.?\d*)\b/g, '<span style="color:var(--syntax-number)">$1</span>');
-  h = h.replace(/\b([a-zA-Z_][\w]*)(?=\()/g, '<span style="color:var(--syntax-fn)">$1</span>');
-  return h;
-}
