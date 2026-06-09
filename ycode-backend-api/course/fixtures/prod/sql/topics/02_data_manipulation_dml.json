@@ -46,16 +46,31 @@
       "title": "Purpose of INSERT INTO",
       "content": "What is the main purpose of the INSERT INTO statement in SQL?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To add new records into a table", "is_correct": true},
-        {"text": "To delete rows from a table", "is_correct": false},
-        {"text": "To modify existing data", "is_correct": false},
-        {"text": "To create a database", "is_correct": false}
+        {
+          "text": "To add new records into a table",
+          "is_correct": true
+        },
+        {
+          "text": "To delete rows from a table",
+          "is_correct": false
+        },
+        {
+          "text": "To modify existing data",
+          "is_correct": false
+        },
+        {
+          "text": "To create a database",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -63,16 +78,31 @@
       "title": "Basic INSERT Syntax",
       "content": "Which SQL keyword is used to add records into a table?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "INSERT INTO", "is_correct": true},
-        {"text": "ADD ROW", "is_correct": false},
-        {"text": "CREATE ROW", "is_correct": false},
-        {"text": "UPDATE INTO", "is_correct": false}
+        {
+          "text": "INSERT INTO",
+          "is_correct": true
+        },
+        {
+          "text": "ADD ROW",
+          "is_correct": false
+        },
+        {
+          "text": "CREATE ROW",
+          "is_correct": false
+        },
+        {
+          "text": "UPDATE INTO",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -80,16 +110,31 @@
       "title": "Column Order",
       "content": "When inserting values without specifying column names, what must be followed carefully?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The exact table column order", "is_correct": true},
-        {"text": "Alphabetical order", "is_correct": false},
-        {"text": "Primary key order only", "is_correct": false},
-        {"text": "Random order", "is_correct": false}
+        {
+          "text": "The exact table column order",
+          "is_correct": true
+        },
+        {
+          "text": "Alphabetical order",
+          "is_correct": false
+        },
+        {
+          "text": "Primary key order only",
+          "is_correct": false
+        },
+        {
+          "text": "Random order",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -97,34 +142,63 @@
       "title": "Multiple Row Insert",
       "content": "Can SQL INSERT INTO insert multiple rows in a single query?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Yes", "is_correct": true},
-        {"text": "No", "is_correct": false},
-        {"text": "Only in NoSQL", "is_correct": false},
-        {"text": "Only with ALTER TABLE", "is_correct": false}
+        {
+          "text": "Yes",
+          "is_correct": true
+        },
+        {
+          "text": "No",
+          "is_correct": false
+        },
+        {
+          "text": "Only in NoSQL",
+          "is_correct": false
+        },
+        {
+          "text": "Only with ALTER TABLE",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "E-commerce Scenario",
       "content": "An e-commerce application inserts a new product into the products table but skips the NOT NULL product_name field. What is most likely to happen?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The insertion fails with an error", "is_correct": true},
-        {"text": "The row inserts successfully", "is_correct": false},
-        {"text": "The table gets deleted", "is_correct": false},
-        {"text": "SQL ignores the missing field automatically", "is_correct": false}
+        {
+          "text": "The insertion fails with an error",
+          "is_correct": true
+        },
+        {
+          "text": "The row inserts successfully",
+          "is_correct": false
+        },
+        {
+          "text": "The table gets deleted",
+          "is_correct": false
+        },
+        {
+          "text": "SQL ignores the missing field automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -132,16 +206,31 @@
       "title": "Student Database Scenario",
       "content": "A developer inserts student data into a table but provides values in the wrong order. What issue may occur?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Incorrect data may enter wrong columns", "is_correct": true},
-        {"text": "Indexes are removed automatically", "is_correct": false},
-        {"text": "The database becomes normalized", "is_correct": false},
-        {"text": "Foreign keys disappear", "is_correct": false}
+        {
+          "text": "Incorrect data may enter wrong columns",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are removed automatically",
+          "is_correct": false
+        },
+        {
+          "text": "The database becomes normalized",
+          "is_correct": false
+        },
+        {
+          "text": "Foreign keys disappear",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -149,34 +238,63 @@
       "title": "Banking Application Scenario",
       "content": "A banking system inserts a duplicate value into a PRIMARY KEY column while creating a new account. What happens?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The insertion is rejected", "is_correct": true},
-        {"text": "The duplicate overwrites existing data", "is_correct": false},
-        {"text": "The table is truncated", "is_correct": false},
-        {"text": "A new database is created", "is_correct": false}
+        {
+          "text": "The insertion is rejected",
+          "is_correct": true
+        },
+        {
+          "text": "The duplicate overwrites existing data",
+          "is_correct": false
+        },
+        {
+          "text": "The table is truncated",
+          "is_correct": false
+        },
+        {
+          "text": "A new database is created",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Data Integrity",
       "content": "Why is specifying column names in INSERT INTO considered a good practice?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It reduces chances of inserting data into wrong columns", "is_correct": true},
-        {"text": "It automatically deletes duplicates", "is_correct": false},
-        {"text": "It disables constraints", "is_correct": false},
-        {"text": "It removes foreign keys", "is_correct": false}
+        {
+          "text": "It reduces chances of inserting data into wrong columns",
+          "is_correct": true
+        },
+        {
+          "text": "It automatically deletes duplicates",
+          "is_correct": false
+        },
+        {
+          "text": "It disables constraints",
+          "is_correct": false
+        },
+        {
+          "text": "It removes foreign keys",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -184,16 +302,31 @@
       "title": "Bulk Insert Performance",
       "content": "Why are multi-row INSERT statements often preferred in production systems?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They reduce database round trips", "is_correct": true},
-        {"text": "They remove primary keys", "is_correct": false},
-        {"text": "They disable normalization", "is_correct": false},
-        {"text": "They automatically create indexes", "is_correct": false}
+        {
+          "text": "They reduce database round trips",
+          "is_correct": true
+        },
+        {
+          "text": "They remove primary keys",
+          "is_correct": false
+        },
+        {
+          "text": "They disable normalization",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically create indexes",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -201,16 +334,31 @@
       "title": "Constraint-aware Insert",
       "content": "What is the main reason INSERT operations may fail in well-designed databases?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Constraint violations", "is_correct": true},
-        {"text": "Using SELECT statements", "is_correct": false},
-        {"text": "Having too many tables", "is_correct": false},
-        {"text": "Database normalization", "is_correct": false}
+        {
+          "text": "Constraint violations",
+          "is_correct": true
+        },
+        {
+          "text": "Using SELECT statements",
+          "is_correct": false
+        },
+        {
+          "text": "Having too many tables",
+          "is_correct": false
+        },
+        {
+          "text": "Database normalization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -218,16 +366,31 @@
       "title": "INSERT INTO Features",
       "content": "Which statements are true about INSERT INTO?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Used to add new rows", "is_correct": true},
-        {"text": "Can insert multiple records", "is_correct": true},
-        {"text": "Works with specified column names", "is_correct": true},
-        {"text": "Deletes existing rows", "is_correct": false}
+        {
+          "text": "Used to add new rows",
+          "is_correct": true
+        },
+        {
+          "text": "Can insert multiple records",
+          "is_correct": true
+        },
+        {
+          "text": "Works with specified column names",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes existing rows",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -235,16 +398,31 @@
       "title": "Valid INSERT Practices",
       "content": "Which are considered good practices while inserting data?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Specify column names", "is_correct": true},
-        {"text": "Match data types correctly", "is_correct": true},
-        {"text": "Validate mandatory fields", "is_correct": true},
-        {"text": "Ignore constraints", "is_correct": false}
+        {
+          "text": "Specify column names",
+          "is_correct": true
+        },
+        {
+          "text": "Match data types correctly",
+          "is_correct": true
+        },
+        {
+          "text": "Validate mandatory fields",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -252,16 +430,31 @@
       "title": "INSERT Errors",
       "content": "Which situations can cause INSERT INTO queries to fail?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Duplicate PRIMARY KEY values", "is_correct": true},
-        {"text": "NULL in NOT NULL columns", "is_correct": true},
-        {"text": "Invalid FOREIGN KEY references", "is_correct": true},
-        {"text": "Correct valid data", "is_correct": false}
+        {
+          "text": "Duplicate PRIMARY KEY values",
+          "is_correct": true
+        },
+        {
+          "text": "NULL in NOT NULL columns",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid FOREIGN KEY references",
+          "is_correct": true
+        },
+        {
+          "text": "Correct valid data",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -269,34 +462,63 @@
       "title": "Data Types in INSERT",
       "content": "Which points are important while inserting data into tables?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Data types should match column definitions", "is_correct": true},
-        {"text": "Date values should follow valid formats", "is_correct": true},
-        {"text": "String values are usually enclosed in quotes", "is_correct": true},
-        {"text": "Column names are optional in every case", "is_correct": false}
+        {
+          "text": "Data types should match column definitions",
+          "is_correct": true
+        },
+        {
+          "text": "Date values should follow valid formats",
+          "is_correct": true
+        },
+        {
+          "text": "String values are usually enclosed in quotes",
+          "is_correct": true
+        },
+        {
+          "text": "Column names are optional in every case",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Hospital System Scenario",
       "content": "A hospital system inserts patient records daily. Which practices help maintain data quality?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Using constraints", "is_correct": true},
-        {"text": "Validating required fields", "is_correct": true},
-        {"text": "Using proper column mapping", "is_correct": true},
-        {"text": "Ignoring duplicate IDs", "is_correct": false}
+        {
+          "text": "Using constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Validating required fields",
+          "is_correct": true
+        },
+        {
+          "text": "Using proper column mapping",
+          "is_correct": true
+        },
+        {
+          "text": "Ignoring duplicate IDs",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -304,16 +526,31 @@
       "title": "Production Database Scenario",
       "content": "Why do enterprise applications often use parameterized INSERT queries?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Improve security", "is_correct": true},
-        {"text": "Prevent SQL injection", "is_correct": true},
-        {"text": "Handle dynamic user input safely", "is_correct": true},
-        {"text": "Automatically normalize databases", "is_correct": false}
+        {
+          "text": "Improve security",
+          "is_correct": true
+        },
+        {
+          "text": "Prevent SQL injection",
+          "is_correct": true
+        },
+        {
+          "text": "Handle dynamic user input safely",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically normalize databases",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -321,34 +558,63 @@
       "title": "Multi-row Insert Benefits",
       "content": "Why are multi-row INSERT statements useful?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Reduce query execution overhead", "is_correct": true},
-        {"text": "Improve insertion efficiency", "is_correct": true},
-        {"text": "Reduce database calls", "is_correct": true},
-        {"text": "Automatically create relationships", "is_correct": false}
+        {
+          "text": "Reduce query execution overhead",
+          "is_correct": true
+        },
+        {
+          "text": "Improve insertion efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "Reduce database calls",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically create relationships",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced INSERT Concepts",
       "content": "Which statements are true regarding INSERT operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Constraints are checked during insertion", "is_correct": true},
-        {"text": "Wrong column mapping may corrupt logical data", "is_correct": true},
-        {"text": "Bulk inserts can improve performance", "is_correct": true},
-        {"text": "INSERT statements bypass all validations", "is_correct": false}
+        {
+          "text": "Constraints are checked during insertion",
+          "is_correct": true
+        },
+        {
+          "text": "Wrong column mapping may corrupt logical data",
+          "is_correct": true
+        },
+        {
+          "text": "Bulk inserts can improve performance",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT statements bypass all validations",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -356,16 +622,31 @@
       "title": "Data Integrity Risks",
       "content": "Which issues can occur because of poor INSERT practices?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Data inconsistency", "is_correct": true},
-        {"text": "Invalid relationships", "is_correct": true},
-        {"text": "Constraint violations", "is_correct": true},
-        {"text": "Automatic indexing optimization", "is_correct": false}
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid relationships",
+          "is_correct": true
+        },
+        {
+          "text": "Constraint violations",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic indexing optimization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -373,33 +654,63 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding INSERT INTO?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Data (INSERT INTO)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "INSERT INTO adds new records", "is_correct": true},
-        {"text": "Column names help avoid data mismatch", "is_correct": true},
-        {"text": "Constraints can reject invalid inserts", "is_correct": true},
-        {"text": "INSERT INTO modifies existing rows automatically", "is_correct": false}
+        {
+          "text": "INSERT INTO adds new records",
+          "is_correct": true
+        },
+        {
+          "text": "Column names help avoid data mismatch",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints can reject invalid inserts",
+          "is_correct": true
+        },
+        {
+          "text": "INSERT INTO modifies existing rows automatically",
+          "is_correct": false
+        }
       ]
     },
-     {
+    {
       "type": "mcq_single",
       "title": "Purpose of Multi-row Insert",
       "content": "Why is inserting multiple rows in a single query commonly used?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To insert many records efficiently", "is_correct": true},
-        {"text": "To delete multiple rows", "is_correct": false},
-        {"text": "To normalize tables", "is_correct": false},
-        {"text": "To create indexes", "is_correct": false}
+        {
+          "text": "To insert many records efficiently",
+          "is_correct": true
+        },
+        {
+          "text": "To delete multiple rows",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize tables",
+          "is_correct": false
+        },
+        {
+          "text": "To create indexes",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -407,16 +718,31 @@
       "title": "Single Query Benefit",
       "content": "What is a key advantage of inserting multiple rows using one INSERT statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Fewer database calls", "is_correct": true},
-        {"text": "Automatic deletion of duplicates", "is_correct": false},
-        {"text": "Creates relationships automatically", "is_correct": false},
-        {"text": "Disables constraints", "is_correct": false}
+        {
+          "text": "Fewer database calls",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic deletion of duplicates",
+          "is_correct": false
+        },
+        {
+          "text": "Creates relationships automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Disables constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -424,16 +750,31 @@
       "title": "INSERT Syntax",
       "content": "Which SQL statement is used to insert multiple rows?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "INSERT INTO", "is_correct": true},
-        {"text": "MULTI INSERT", "is_correct": false},
-        {"text": "ADD MULTIPLE", "is_correct": false},
-        {"text": "INSERT ALL ROWS", "is_correct": false}
+        {
+          "text": "INSERT INTO",
+          "is_correct": true
+        },
+        {
+          "text": "MULTI INSERT",
+          "is_correct": false
+        },
+        {
+          "text": "ADD MULTIPLE",
+          "is_correct": false
+        },
+        {
+          "text": "INSERT ALL ROWS",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -441,34 +782,63 @@
       "title": "Data Consistency",
       "content": "While inserting multiple rows, what must remain consistent across all rows?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Column structure and value order", "is_correct": true},
-        {"text": "Database name", "is_correct": false},
-        {"text": "Table color", "is_correct": false},
-        {"text": "Primary key type only", "is_correct": false}
+        {
+          "text": "Column structure and value order",
+          "is_correct": true
+        },
+        {
+          "text": "Database name",
+          "is_correct": false
+        },
+        {
+          "text": "Table color",
+          "is_correct": false
+        },
+        {
+          "text": "Primary key type only",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "School Management Scenario",
       "content": "A school system inserts 500 student records one by one instead of using a multi-row INSERT query. What is the main disadvantage?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Higher database overhead and slower performance", "is_correct": true},
-        {"text": "Primary keys stop working", "is_correct": false},
-        {"text": "Tables get normalized automatically", "is_correct": false},
-        {"text": "Constraints are removed", "is_correct": false}
+        {
+          "text": "Higher database overhead and slower performance",
+          "is_correct": true
+        },
+        {
+          "text": "Primary keys stop working",
+          "is_correct": false
+        },
+        {
+          "text": "Tables get normalized automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Constraints are removed",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -476,16 +846,31 @@
       "title": "E-commerce Upload Scenario",
       "content": "An e-commerce admin uploads thousands of products using a single multi-row INSERT statement. Why is this approach preferred?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It improves insertion efficiency", "is_correct": true},
-        {"text": "It removes foreign keys", "is_correct": false},
-        {"text": "It disables constraints", "is_correct": false},
-        {"text": "It converts SQL to NoSQL", "is_correct": false}
+        {
+          "text": "It improves insertion efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "It removes foreign keys",
+          "is_correct": false
+        },
+        {
+          "text": "It disables constraints",
+          "is_correct": false
+        },
+        {
+          "text": "It converts SQL to NoSQL",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -493,34 +878,63 @@
       "title": "Constraint Violation Scenario",
       "content": "A multi-row INSERT query contains one row with a duplicate PRIMARY KEY value. What is most likely to happen?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The query may fail due to constraint violation", "is_correct": true},
-        {"text": "SQL automatically ignores duplicates always", "is_correct": false},
-        {"text": "The table gets deleted", "is_correct": false},
-        {"text": "Foreign keys are disabled", "is_correct": false}
+        {
+          "text": "The query may fail due to constraint violation",
+          "is_correct": true
+        },
+        {
+          "text": "SQL automatically ignores duplicates always",
+          "is_correct": false
+        },
+        {
+          "text": "The table gets deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Foreign keys are disabled",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Batch Processing",
       "content": "Why do enterprise systems often use batch inserts?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To reduce execution overhead and improve scalability", "is_correct": true},
-        {"text": "To disable normalization", "is_correct": false},
-        {"text": "To bypass constraints permanently", "is_correct": false},
-        {"text": "To avoid using tables", "is_correct": false}
+        {
+          "text": "To reduce execution overhead and improve scalability",
+          "is_correct": true
+        },
+        {
+          "text": "To disable normalization",
+          "is_correct": false
+        },
+        {
+          "text": "To bypass constraints permanently",
+          "is_correct": false
+        },
+        {
+          "text": "To avoid using tables",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -528,16 +942,31 @@
       "title": "Transaction Reliability",
       "content": "Why are transactions important during large multi-row insert operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They help maintain data consistency during failures", "is_correct": true},
-        {"text": "They automatically normalize data", "is_correct": false},
-        {"text": "They remove duplicate tables", "is_correct": false},
-        {"text": "They disable indexing", "is_correct": false}
+        {
+          "text": "They help maintain data consistency during failures",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically normalize data",
+          "is_correct": false
+        },
+        {
+          "text": "They remove duplicate tables",
+          "is_correct": false
+        },
+        {
+          "text": "They disable indexing",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -545,16 +974,31 @@
       "title": "Performance Optimization",
       "content": "What is the biggest performance advantage of inserting multiple rows in one statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Reduced communication between application and database", "is_correct": true},
-        {"text": "Automatic creation of indexes", "is_correct": false},
-        {"text": "Removal of foreign key checks", "is_correct": false},
-        {"text": "Automatic table partitioning", "is_correct": false}
+        {
+          "text": "Reduced communication between application and database",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic creation of indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Removal of foreign key checks",
+          "is_correct": false
+        },
+        {
+          "text": "Automatic table partitioning",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -562,16 +1006,31 @@
       "title": "Advantages of Multi-row Insert",
       "content": "Which are advantages of inserting multiple rows in one query?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Improves performance", "is_correct": true},
-        {"text": "Reduces database calls", "is_correct": true},
-        {"text": "Saves execution time", "is_correct": true},
-        {"text": "Deletes duplicates automatically", "is_correct": false}
+        {
+          "text": "Improves performance",
+          "is_correct": true
+        },
+        {
+          "text": "Reduces database calls",
+          "is_correct": true
+        },
+        {
+          "text": "Saves execution time",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes duplicates automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -579,16 +1038,31 @@
       "title": "Valid Insert Practices",
       "content": "Which practices are important while inserting multiple rows?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Maintain correct column order", "is_correct": true},
-        {"text": "Validate constraints", "is_correct": true},
-        {"text": "Match data types properly", "is_correct": true},
-        {"text": "Ignore mandatory fields", "is_correct": false}
+        {
+          "text": "Maintain correct column order",
+          "is_correct": true
+        },
+        {
+          "text": "Validate constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Match data types properly",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore mandatory fields",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -596,16 +1070,31 @@
       "title": "Possible Insert Failures",
       "content": "Which issues may cause a multi-row INSERT query to fail?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Duplicate PRIMARY KEY values", "is_correct": true},
-        {"text": "Invalid FOREIGN KEY references", "is_correct": true},
-        {"text": "NULL in NOT NULL columns", "is_correct": true},
-        {"text": "Correctly formatted data", "is_correct": false}
+        {
+          "text": "Duplicate PRIMARY KEY values",
+          "is_correct": true
+        },
+        {
+          "text": "Invalid FOREIGN KEY references",
+          "is_correct": true
+        },
+        {
+          "text": "NULL in NOT NULL columns",
+          "is_correct": true
+        },
+        {
+          "text": "Correctly formatted data",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -613,34 +1102,63 @@
       "title": "Real-world Usage",
       "content": "Where are multi-row INSERT statements commonly used?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Bulk product uploads", "is_correct": true},
-        {"text": "CSV data imports", "is_correct": true},
-        {"text": "Migration scripts", "is_correct": true},
-        {"text": "Database deletion", "is_correct": false}
+        {
+          "text": "Bulk product uploads",
+          "is_correct": true
+        },
+        {
+          "text": "CSV data imports",
+          "is_correct": true
+        },
+        {
+          "text": "Migration scripts",
+          "is_correct": true
+        },
+        {
+          "text": "Database deletion",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Startup Analytics Scenario",
       "content": "A startup imports millions of analytics records daily. Why would they prefer batch inserts?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Better performance", "is_correct": true},
-        {"text": "Reduced network overhead", "is_correct": true},
-        {"text": "Improved scalability", "is_correct": true},
-        {"text": "Automatic normalization", "is_correct": false}
+        {
+          "text": "Better performance",
+          "is_correct": true
+        },
+        {
+          "text": "Reduced network overhead",
+          "is_correct": true
+        },
+        {
+          "text": "Improved scalability",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -648,16 +1166,31 @@
       "title": "Transaction Handling",
       "content": "Why are transactions useful during large multi-row inserts?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Prevent partial data insertion", "is_correct": true},
-        {"text": "Maintain consistency", "is_correct": true},
-        {"text": "Allow rollback on failure", "is_correct": true},
-        {"text": "Remove constraints automatically", "is_correct": false}
+        {
+          "text": "Prevent partial data insertion",
+          "is_correct": true
+        },
+        {
+          "text": "Maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Allow rollback on failure",
+          "is_correct": true
+        },
+        {
+          "text": "Remove constraints automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -665,34 +1198,63 @@
       "title": "Data Integrity Scenario",
       "content": "Which practices help maintain integrity during multi-row inserts?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Using constraints", "is_correct": true},
-        {"text": "Validating imported data", "is_correct": true},
-        {"text": "Using transactions", "is_correct": true},
-        {"text": "Ignoring duplicate keys", "is_correct": false}
+        {
+          "text": "Using constraints",
+          "is_correct": true
+        },
+        {
+          "text": "Validating imported data",
+          "is_correct": true
+        },
+        {
+          "text": "Using transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Ignoring duplicate keys",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced Insert Concepts",
       "content": "Which statements are true regarding multi-row INSERT operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Batch inserts reduce database communication overhead", "is_correct": true},
-        {"text": "Constraint checks still apply during bulk inserts", "is_correct": true},
-        {"text": "Transactions improve reliability", "is_correct": true},
-        {"text": "Bulk inserts automatically remove duplicates", "is_correct": false}
+        {
+          "text": "Batch inserts reduce database communication overhead",
+          "is_correct": true
+        },
+        {
+          "text": "Constraint checks still apply during bulk inserts",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions improve reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Bulk inserts automatically remove duplicates",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -700,16 +1262,31 @@
       "title": "Production Risks",
       "content": "Which problems can occur during poorly managed bulk insert operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Constraint violations", "is_correct": true},
-        {"text": "Partial data insertion", "is_correct": true},
-        {"text": "Performance bottlenecks", "is_correct": true},
-        {"text": "Automatic denormalization", "is_correct": false}
+        {
+          "text": "Constraint violations",
+          "is_correct": true
+        },
+        {
+          "text": "Partial data insertion",
+          "is_correct": true
+        },
+        {
+          "text": "Performance bottlenecks",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic denormalization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -717,16 +1294,31 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding multi-row INSERT statements?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Inserting Multiple Rows",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They improve insertion efficiency", "is_correct": true},
-        {"text": "They reduce database round trips", "is_correct": true},
-        {"text": "Constraints are still enforced", "is_correct": true},
-        {"text": "They bypass data validation rules", "is_correct": false}
+        {
+          "text": "They improve insertion efficiency",
+          "is_correct": true
+        },
+        {
+          "text": "They reduce database round trips",
+          "is_correct": true
+        },
+        {
+          "text": "Constraints are still enforced",
+          "is_correct": true
+        },
+        {
+          "text": "They bypass data validation rules",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -734,16 +1326,31 @@
       "title": "Purpose of UPDATE",
       "content": "What is the primary purpose of the SQL UPDATE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To modify existing records in a table", "is_correct": true},
-        {"text": "To delete records permanently", "is_correct": false},
-        {"text": "To create new tables", "is_correct": false},
-        {"text": "To insert databases", "is_correct": false}
+        {
+          "text": "To modify existing records in a table",
+          "is_correct": true
+        },
+        {
+          "text": "To delete records permanently",
+          "is_correct": false
+        },
+        {
+          "text": "To create new tables",
+          "is_correct": false
+        },
+        {
+          "text": "To insert databases",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -751,16 +1358,31 @@
       "title": "WHERE Clause Importance",
       "content": "Why is the WHERE clause commonly used with UPDATE statements?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To target specific rows", "is_correct": true},
-        {"text": "To create indexes", "is_correct": false},
-        {"text": "To normalize tables", "is_correct": false},
-        {"text": "To delete constraints", "is_correct": false}
+        {
+          "text": "To target specific rows",
+          "is_correct": true
+        },
+        {
+          "text": "To create indexes",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize tables",
+          "is_correct": false
+        },
+        {
+          "text": "To delete constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -768,16 +1390,31 @@
       "title": "Missing WHERE Clause",
       "content": "What happens if an UPDATE query is executed without a WHERE clause?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "All rows may get updated", "is_correct": true},
-        {"text": "Only one row updates", "is_correct": false},
-        {"text": "The table gets deleted", "is_correct": false},
-        {"text": "Nothing happens", "is_correct": false}
+        {
+          "text": "All rows may get updated",
+          "is_correct": true
+        },
+        {
+          "text": "Only one row updates",
+          "is_correct": false
+        },
+        {
+          "text": "The table gets deleted",
+          "is_correct": false
+        },
+        {
+          "text": "Nothing happens",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -785,34 +1422,63 @@
       "title": "Column Modification",
       "content": "Which SQL keyword is used to specify new values in an UPDATE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "SET", "is_correct": true},
-        {"text": "VALUES", "is_correct": false},
-        {"text": "MODIFY", "is_correct": false},
-        {"text": "CHANGE", "is_correct": false}
+        {
+          "text": "SET",
+          "is_correct": true
+        },
+        {
+          "text": "VALUES",
+          "is_correct": false
+        },
+        {
+          "text": "MODIFY",
+          "is_correct": false
+        },
+        {
+          "text": "CHANGE",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Banking System Scenario",
       "content": "A banking employee accidentally runs an UPDATE query without a WHERE clause on the customer_balance column. What is the biggest risk?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "All customer balances may be modified", "is_correct": true},
-        {"text": "The database server shuts down", "is_correct": false},
-        {"text": "Primary keys are removed", "is_correct": false},
-        {"text": "Indexes are automatically rebuilt", "is_correct": false}
+        {
+          "text": "All customer balances may be modified",
+          "is_correct": true
+        },
+        {
+          "text": "The database server shuts down",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys are removed",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are automatically rebuilt",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -820,16 +1486,31 @@
       "title": "E-commerce Scenario",
       "content": "An e-commerce company updates product prices during a sale. Why is using a WHERE condition important?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To update only selected products", "is_correct": true},
-        {"text": "To remove duplicate rows", "is_correct": false},
-        {"text": "To create foreign keys", "is_correct": false},
-        {"text": "To truncate tables", "is_correct": false}
+        {
+          "text": "To update only selected products",
+          "is_correct": true
+        },
+        {
+          "text": "To remove duplicate rows",
+          "is_correct": false
+        },
+        {
+          "text": "To create foreign keys",
+          "is_correct": false
+        },
+        {
+          "text": "To truncate tables",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -837,34 +1518,63 @@
       "title": "HR System Scenario",
       "content": "An HR system updates employee salaries based on department IDs. What type of operation is this?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Conditional update", "is_correct": true},
-        {"text": "Normalization", "is_correct": false},
-        {"text": "Schema migration", "is_correct": false},
-        {"text": "Constraint deletion", "is_correct": false}
+        {
+          "text": "Conditional update",
+          "is_correct": true
+        },
+        {
+          "text": "Normalization",
+          "is_correct": false
+        },
+        {
+          "text": "Schema migration",
+          "is_correct": false
+        },
+        {
+          "text": "Constraint deletion",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Production Safety",
       "content": "Why do developers often run a SELECT query before executing a large UPDATE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To verify which rows will be affected", "is_correct": true},
-        {"text": "To disable indexes", "is_correct": false},
-        {"text": "To remove constraints", "is_correct": false},
-        {"text": "To normalize the database", "is_correct": false}
+        {
+          "text": "To verify which rows will be affected",
+          "is_correct": true
+        },
+        {
+          "text": "To disable indexes",
+          "is_correct": false
+        },
+        {
+          "text": "To remove constraints",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize the database",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -872,16 +1582,31 @@
       "title": "Transaction Reliability",
       "content": "Why are transactions important during bulk UPDATE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They allow rollback if something goes wrong", "is_correct": true},
-        {"text": "They automatically create new tables", "is_correct": false},
-        {"text": "They remove foreign keys", "is_correct": false},
-        {"text": "They disable constraints permanently", "is_correct": false}
+        {
+          "text": "They allow rollback if something goes wrong",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically create new tables",
+          "is_correct": false
+        },
+        {
+          "text": "They remove foreign keys",
+          "is_correct": false
+        },
+        {
+          "text": "They disable constraints permanently",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -889,16 +1614,31 @@
       "title": "Performance Optimization",
       "content": "Why can updating large numbers of rows impact database performance?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Large updates may lock rows and consume resources", "is_correct": true},
-        {"text": "UPDATE automatically deletes indexes", "is_correct": false},
-        {"text": "Tables become permanently read-only", "is_correct": false},
-        {"text": "Primary keys stop functioning", "is_correct": false}
+        {
+          "text": "Large updates may lock rows and consume resources",
+          "is_correct": true
+        },
+        {
+          "text": "UPDATE automatically deletes indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Tables become permanently read-only",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys stop functioning",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -906,16 +1646,31 @@
       "title": "UPDATE Statement Features",
       "content": "Which statements are true about the UPDATE command?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It modifies existing records", "is_correct": true},
-        {"text": "It commonly uses SET", "is_correct": true},
-        {"text": "It can use WHERE conditions", "is_correct": true},
-        {"text": "It creates new databases", "is_correct": false}
+        {
+          "text": "It modifies existing records",
+          "is_correct": true
+        },
+        {
+          "text": "It commonly uses SET",
+          "is_correct": true
+        },
+        {
+          "text": "It can use WHERE conditions",
+          "is_correct": true
+        },
+        {
+          "text": "It creates new databases",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -923,16 +1678,31 @@
       "title": "Risks of UPDATE",
       "content": "Which issues can occur due to incorrect UPDATE queries?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Accidental modification of all rows", "is_correct": true},
-        {"text": "Incorrect data values", "is_correct": true},
-        {"text": "Data inconsistency", "is_correct": true},
-        {"text": "Automatic normalization", "is_correct": false}
+        {
+          "text": "Accidental modification of all rows",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect data values",
+          "is_correct": true
+        },
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -940,16 +1710,31 @@
       "title": "Good UPDATE Practices",
       "content": "Which are considered good practices while using UPDATE?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Use WHERE clauses carefully", "is_correct": true},
-        {"text": "Backup important data", "is_correct": true},
-        {"text": "Verify affected rows first", "is_correct": true},
-        {"text": "Ignore constraints", "is_correct": false}
+        {
+          "text": "Use WHERE clauses carefully",
+          "is_correct": true
+        },
+        {
+          "text": "Backup important data",
+          "is_correct": true
+        },
+        {
+          "text": "Verify affected rows first",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -957,34 +1742,63 @@
       "title": "SET Clause Usage",
       "content": "What can the SET clause do in an UPDATE query?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Change column values", "is_correct": true},
-        {"text": "Modify multiple columns", "is_correct": true},
-        {"text": "Assign new data", "is_correct": true},
-        {"text": "Delete tables", "is_correct": false}
+        {
+          "text": "Change column values",
+          "is_correct": true
+        },
+        {
+          "text": "Modify multiple columns",
+          "is_correct": true
+        },
+        {
+          "text": "Assign new data",
+          "is_correct": true
+        },
+        {
+          "text": "Delete tables",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Retail Application Scenario",
       "content": "A retail company updates inventory quantities every hour. Which practices improve reliability?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Using transactions", "is_correct": true},
-        {"text": "Testing WHERE conditions", "is_correct": true},
-        {"text": "Backing up critical data", "is_correct": true},
-        {"text": "Disabling constraints permanently", "is_correct": false}
+        {
+          "text": "Using transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Testing WHERE conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Backing up critical data",
+          "is_correct": true
+        },
+        {
+          "text": "Disabling constraints permanently",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -992,16 +1806,31 @@
       "title": "Bulk Update Scenario",
       "content": "Why can bulk UPDATE operations be risky in production systems?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Large numbers of rows may be affected", "is_correct": true},
-        {"text": "Incorrect conditions may corrupt data", "is_correct": true},
-        {"text": "Performance may degrade temporarily", "is_correct": true},
-        {"text": "Foreign keys disappear automatically", "is_correct": false}
+        {
+          "text": "Large numbers of rows may be affected",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect conditions may corrupt data",
+          "is_correct": true
+        },
+        {
+          "text": "Performance may degrade temporarily",
+          "is_correct": true
+        },
+        {
+          "text": "Foreign keys disappear automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1009,34 +1838,63 @@
       "title": "Enterprise System Practices",
       "content": "Why do enterprise applications often use transactions with UPDATE statements?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Support rollback", "is_correct": true},
-        {"text": "Maintain consistency", "is_correct": true},
-        {"text": "Prevent partial updates", "is_correct": true},
-        {"text": "Automatically normalize data", "is_correct": false}
+        {
+          "text": "Support rollback",
+          "is_correct": true
+        },
+        {
+          "text": "Maintain consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Prevent partial updates",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically normalize data",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced UPDATE Concepts",
       "content": "Which statements are true regarding UPDATE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "UPDATE queries can affect multiple rows", "is_correct": true},
-        {"text": "Transactions improve reliability", "is_correct": true},
-        {"text": "Incorrect WHERE conditions can damage data", "is_correct": true},
-        {"text": "UPDATE bypasses constraints automatically", "is_correct": false}
+        {
+          "text": "UPDATE queries can affect multiple rows",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions improve reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect WHERE conditions can damage data",
+          "is_correct": true
+        },
+        {
+          "text": "UPDATE bypasses constraints automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1044,16 +1902,31 @@
       "title": "Production Risks",
       "content": "Which problems can occur during poorly planned UPDATE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Data inconsistency", "is_correct": true},
-        {"text": "Accidental mass updates", "is_correct": true},
-        {"text": "Performance bottlenecks", "is_correct": true},
-        {"text": "Automatic schema redesign", "is_correct": false}
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Accidental mass updates",
+          "is_correct": true
+        },
+        {
+          "text": "Performance bottlenecks",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic schema redesign",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1061,33 +1934,63 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding the UPDATE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Updating Data (UPDATE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "UPDATE modifies existing records", "is_correct": true},
-        {"text": "WHERE controls which rows are updated", "is_correct": true},
-        {"text": "SET assigns new values", "is_correct": true},
-        {"text": "UPDATE creates new tables automatically", "is_correct": false}
+        {
+          "text": "UPDATE modifies existing records",
+          "is_correct": true
+        },
+        {
+          "text": "WHERE controls which rows are updated",
+          "is_correct": true
+        },
+        {
+          "text": "SET assigns new values",
+          "is_correct": true
+        },
+        {
+          "text": "UPDATE creates new tables automatically",
+          "is_correct": false
+        }
       ]
     },
-     {
+    {
       "type": "mcq_single",
       "title": "Purpose of DELETE",
       "content": "What is the main purpose of the SQL DELETE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To remove records from a table", "is_correct": true},
-        {"text": "To create new tables", "is_correct": false},
-        {"text": "To modify existing records", "is_correct": false},
-        {"text": "To create indexes", "is_correct": false}
+        {
+          "text": "To remove records from a table",
+          "is_correct": true
+        },
+        {
+          "text": "To create new tables",
+          "is_correct": false
+        },
+        {
+          "text": "To modify existing records",
+          "is_correct": false
+        },
+        {
+          "text": "To create indexes",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1095,16 +1998,31 @@
       "title": "WHERE Clause in DELETE",
       "content": "Why is the WHERE clause commonly used with DELETE statements?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To delete specific rows only", "is_correct": true},
-        {"text": "To create relationships", "is_correct": false},
-        {"text": "To normalize the database", "is_correct": false},
-        {"text": "To insert new rows", "is_correct": false}
+        {
+          "text": "To delete specific rows only",
+          "is_correct": true
+        },
+        {
+          "text": "To create relationships",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize the database",
+          "is_correct": false
+        },
+        {
+          "text": "To insert new rows",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1112,16 +2030,31 @@
       "title": "DELETE Without WHERE",
       "content": "What happens if a DELETE statement is executed without a WHERE clause?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "All rows in the table may be deleted", "is_correct": true},
-        {"text": "Only one row is deleted", "is_correct": false},
-        {"text": "The table structure is removed", "is_correct": false},
-        {"text": "Nothing happens", "is_correct": false}
+        {
+          "text": "All rows in the table may be deleted",
+          "is_correct": true
+        },
+        {
+          "text": "Only one row is deleted",
+          "is_correct": false
+        },
+        {
+          "text": "The table structure is removed",
+          "is_correct": false
+        },
+        {
+          "text": "Nothing happens",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1129,34 +2062,63 @@
       "title": "DELETE Command Category",
       "content": "Which SQL category does the DELETE statement belong to?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "DML", "is_correct": true},
-        {"text": "DDL", "is_correct": false},
-        {"text": "DCL", "is_correct": false},
-        {"text": "TCL", "is_correct": false}
+        {
+          "text": "DML",
+          "is_correct": true
+        },
+        {
+          "text": "DDL",
+          "is_correct": false
+        },
+        {
+          "text": "DCL",
+          "is_correct": false
+        },
+        {
+          "text": "TCL",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Banking Scenario",
       "content": "A banking employee accidentally executes a DELETE query without a WHERE clause on the transactions table. What is the biggest risk?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "All transaction records may be removed", "is_correct": true},
-        {"text": "Primary keys are recreated", "is_correct": false},
-        {"text": "Indexes are optimized automatically", "is_correct": false},
-        {"text": "Tables become normalized", "is_correct": false}
+        {
+          "text": "All transaction records may be removed",
+          "is_correct": true
+        },
+        {
+          "text": "Primary keys are recreated",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are optimized automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Tables become normalized",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1164,16 +2126,31 @@
       "title": "E-commerce Cleanup Scenario",
       "content": "An e-commerce company deletes discontinued products using a WHERE condition. Why is the condition important?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To remove only targeted products", "is_correct": true},
-        {"text": "To create new product categories", "is_correct": false},
-        {"text": "To disable constraints", "is_correct": false},
-        {"text": "To insert duplicate records", "is_correct": false}
+        {
+          "text": "To remove only targeted products",
+          "is_correct": true
+        },
+        {
+          "text": "To create new product categories",
+          "is_correct": false
+        },
+        {
+          "text": "To disable constraints",
+          "is_correct": false
+        },
+        {
+          "text": "To insert duplicate records",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1181,34 +2158,63 @@
       "title": "Foreign Key Scenario",
       "content": "A developer tries to delete a parent record that is referenced by child records through a FOREIGN KEY. What may happen?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The delete operation may fail due to referential integrity", "is_correct": true},
-        {"text": "All child tables are automatically dropped", "is_correct": false},
-        {"text": "Indexes are deleted permanently", "is_correct": false},
-        {"text": "Normalization is removed", "is_correct": false}
+        {
+          "text": "The delete operation may fail due to referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "All child tables are automatically dropped",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes are deleted permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Normalization is removed",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Production Safety",
       "content": "Why do developers often execute a SELECT query before running a DELETE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To verify which rows will be deleted", "is_correct": true},
-        {"text": "To automatically create backups", "is_correct": false},
-        {"text": "To remove indexes", "is_correct": false},
-        {"text": "To normalize the table", "is_correct": false}
+        {
+          "text": "To verify which rows will be deleted",
+          "is_correct": true
+        },
+        {
+          "text": "To automatically create backups",
+          "is_correct": false
+        },
+        {
+          "text": "To remove indexes",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize the table",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1216,16 +2222,31 @@
       "title": "Transaction Management",
       "content": "Why are transactions important during large DELETE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They allow rollback if accidental deletions occur", "is_correct": true},
-        {"text": "They permanently disable constraints", "is_correct": false},
-        {"text": "They automatically recreate deleted data", "is_correct": false},
-        {"text": "They create indexes automatically", "is_correct": false}
+        {
+          "text": "They allow rollback if accidental deletions occur",
+          "is_correct": true
+        },
+        {
+          "text": "They permanently disable constraints",
+          "is_correct": false
+        },
+        {
+          "text": "They automatically recreate deleted data",
+          "is_correct": false
+        },
+        {
+          "text": "They create indexes automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1233,16 +2254,31 @@
       "title": "Performance Impact",
       "content": "Why can deleting millions of rows affect database performance?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Large deletes consume resources and may lock rows", "is_correct": true},
-        {"text": "DELETE automatically removes the database", "is_correct": false},
-        {"text": "Primary keys stop functioning permanently", "is_correct": false},
-        {"text": "Indexes cannot exist after DELETE", "is_correct": false}
+        {
+          "text": "Large deletes consume resources and may lock rows",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE automatically removes the database",
+          "is_correct": false
+        },
+        {
+          "text": "Primary keys stop functioning permanently",
+          "is_correct": false
+        },
+        {
+          "text": "Indexes cannot exist after DELETE",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1250,16 +2286,31 @@
       "title": "DELETE Statement Features",
       "content": "Which statements are true about the DELETE command?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It removes records from tables", "is_correct": true},
-        {"text": "It can use WHERE conditions", "is_correct": true},
-        {"text": "It belongs to DML", "is_correct": true},
-        {"text": "It creates databases", "is_correct": false}
+        {
+          "text": "It removes records from tables",
+          "is_correct": true
+        },
+        {
+          "text": "It can use WHERE conditions",
+          "is_correct": true
+        },
+        {
+          "text": "It belongs to DML",
+          "is_correct": true
+        },
+        {
+          "text": "It creates databases",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1267,16 +2318,31 @@
       "title": "DELETE Risks",
       "content": "Which risks are associated with incorrect DELETE statements?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Accidental data loss", "is_correct": true},
-        {"text": "Deleting all rows unintentionally", "is_correct": true},
-        {"text": "Breaking relationships between tables", "is_correct": true},
-        {"text": "Automatic normalization", "is_correct": false}
+        {
+          "text": "Accidental data loss",
+          "is_correct": true
+        },
+        {
+          "text": "Deleting all rows unintentionally",
+          "is_correct": true
+        },
+        {
+          "text": "Breaking relationships between tables",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic normalization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1284,16 +2350,31 @@
       "title": "Good DELETE Practices",
       "content": "Which are considered good practices before executing DELETE queries?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Use WHERE clauses carefully", "is_correct": true},
-        {"text": "Backup important data", "is_correct": true},
-        {"text": "Verify affected rows using SELECT", "is_correct": true},
-        {"text": "Ignore foreign key constraints", "is_correct": false}
+        {
+          "text": "Use WHERE clauses carefully",
+          "is_correct": true
+        },
+        {
+          "text": "Backup important data",
+          "is_correct": true
+        },
+        {
+          "text": "Verify affected rows using SELECT",
+          "is_correct": true
+        },
+        {
+          "text": "Ignore foreign key constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1301,34 +2382,63 @@
       "title": "DELETE Operations",
       "content": "Which tasks can be performed using DELETE?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Delete specific rows", "is_correct": true},
-        {"text": "Delete all rows from a table", "is_correct": true},
-        {"text": "Remove outdated records", "is_correct": true},
-        {"text": "Create relationships automatically", "is_correct": false}
+        {
+          "text": "Delete specific rows",
+          "is_correct": true
+        },
+        {
+          "text": "Delete all rows from a table",
+          "is_correct": true
+        },
+        {
+          "text": "Remove outdated records",
+          "is_correct": true
+        },
+        {
+          "text": "Create relationships automatically",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Healthcare System Scenario",
       "content": "A healthcare system deletes old appointment records periodically. Which practices help maintain reliability?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Using transactions", "is_correct": true},
-        {"text": "Testing WHERE conditions", "is_correct": true},
-        {"text": "Backing up sensitive data", "is_correct": true},
-        {"text": "Disabling constraints permanently", "is_correct": false}
+        {
+          "text": "Using transactions",
+          "is_correct": true
+        },
+        {
+          "text": "Testing WHERE conditions",
+          "is_correct": true
+        },
+        {
+          "text": "Backing up sensitive data",
+          "is_correct": true
+        },
+        {
+          "text": "Disabling constraints permanently",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1336,16 +2446,31 @@
       "title": "Foreign Key Protection",
       "content": "Why are FOREIGN KEY constraints important during DELETE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Prevent orphan records", "is_correct": true},
-        {"text": "Maintain referential integrity", "is_correct": true},
-        {"text": "Protect related data", "is_correct": true},
-        {"text": "Automatically normalize databases", "is_correct": false}
+        {
+          "text": "Prevent orphan records",
+          "is_correct": true
+        },
+        {
+          "text": "Maintain referential integrity",
+          "is_correct": true
+        },
+        {
+          "text": "Protect related data",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically normalize databases",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1353,34 +2478,63 @@
       "title": "Bulk DELETE Scenario",
       "content": "Why can bulk DELETE operations be risky in production systems?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Large amounts of data may be lost", "is_correct": true},
-        {"text": "Incorrect conditions may remove valid records", "is_correct": true},
-        {"text": "Performance may temporarily degrade", "is_correct": true},
-        {"text": "Indexes are automatically removed forever", "is_correct": false}
+        {
+          "text": "Large amounts of data may be lost",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect conditions may remove valid records",
+          "is_correct": true
+        },
+        {
+          "text": "Performance may temporarily degrade",
+          "is_correct": true
+        },
+        {
+          "text": "Indexes are automatically removed forever",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced DELETE Concepts",
       "content": "Which statements are true regarding DELETE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "DELETE can affect multiple rows", "is_correct": true},
-        {"text": "Transactions improve safety during deletes", "is_correct": true},
-        {"text": "Incorrect WHERE clauses can cause severe data loss", "is_correct": true},
-        {"text": "DELETE bypasses referential integrity automatically", "is_correct": false}
+        {
+          "text": "DELETE can affect multiple rows",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions improve safety during deletes",
+          "is_correct": true
+        },
+        {
+          "text": "Incorrect WHERE clauses can cause severe data loss",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE bypasses referential integrity automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1388,16 +2542,31 @@
       "title": "Production Risks",
       "content": "Which issues may occur during poorly managed DELETE operations?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Accidental data loss", "is_correct": true},
-        {"text": "Broken relationships between tables", "is_correct": true},
-        {"text": "Performance bottlenecks", "is_correct": true},
-        {"text": "Automatic schema redesign", "is_correct": false}
+        {
+          "text": "Accidental data loss",
+          "is_correct": true
+        },
+        {
+          "text": "Broken relationships between tables",
+          "is_correct": true
+        },
+        {
+          "text": "Performance bottlenecks",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic schema redesign",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1405,16 +2574,31 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding the DELETE statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Deleting Data (DELETE)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "DELETE removes records from tables", "is_correct": true},
-        {"text": "WHERE controls which rows are deleted", "is_correct": true},
-        {"text": "DELETE belongs to DML", "is_correct": true},
-        {"text": "DELETE automatically removes table structure", "is_correct": false}
+        {
+          "text": "DELETE removes records from tables",
+          "is_correct": true
+        },
+        {
+          "text": "WHERE controls which rows are deleted",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE belongs to DML",
+          "is_correct": true
+        },
+        {
+          "text": "DELETE automatically removes table structure",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1422,16 +2606,31 @@
       "title": "Purpose of Transactions",
       "content": "What is the main purpose of transactions in SQL?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To ensure data consistency during operations", "is_correct": true},
-        {"text": "To create databases automatically", "is_correct": false},
-        {"text": "To remove tables permanently", "is_correct": false},
-        {"text": "To normalize data", "is_correct": false}
+        {
+          "text": "To ensure data consistency during operations",
+          "is_correct": true
+        },
+        {
+          "text": "To create databases automatically",
+          "is_correct": false
+        },
+        {
+          "text": "To remove tables permanently",
+          "is_correct": false
+        },
+        {
+          "text": "To normalize data",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1439,16 +2638,31 @@
       "title": "COMMIT Usage",
       "content": "What does the COMMIT statement do in a transaction?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Saves changes permanently", "is_correct": true},
-        {"text": "Deletes all records", "is_correct": false},
-        {"text": "Creates a backup automatically", "is_correct": false},
-        {"text": "Removes constraints", "is_correct": false}
+        {
+          "text": "Saves changes permanently",
+          "is_correct": true
+        },
+        {
+          "text": "Deletes all records",
+          "is_correct": false
+        },
+        {
+          "text": "Creates a backup automatically",
+          "is_correct": false
+        },
+        {
+          "text": "Removes constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1456,16 +2670,31 @@
       "title": "ROLLBACK Purpose",
       "content": "What is the purpose of the ROLLBACK statement?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Undo changes made during a transaction", "is_correct": true},
-        {"text": "Create new rows", "is_correct": false},
-        {"text": "Optimize indexes", "is_correct": false},
-        {"text": "Delete database schemas", "is_correct": false}
+        {
+          "text": "Undo changes made during a transaction",
+          "is_correct": true
+        },
+        {
+          "text": "Create new rows",
+          "is_correct": false
+        },
+        {
+          "text": "Optimize indexes",
+          "is_correct": false
+        },
+        {
+          "text": "Delete database schemas",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1473,34 +2702,63 @@
       "title": "Transaction Operations",
       "content": "Which SQL operations are commonly controlled using transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "INSERT, UPDATE, DELETE", "is_correct": true},
-        {"text": "Only CREATE DATABASE", "is_correct": false},
-        {"text": "Only DROP TABLE", "is_correct": false},
-        {"text": "Only SELECT", "is_correct": false}
+        {
+          "text": "INSERT, UPDATE, DELETE",
+          "is_correct": true
+        },
+        {
+          "text": "Only CREATE DATABASE",
+          "is_correct": false
+        },
+        {
+          "text": "Only DROP TABLE",
+          "is_correct": false
+        },
+        {
+          "text": "Only SELECT",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Online Banking Scenario",
       "content": "In an online banking system, money is deducted from one account and added to another. Why are transactions important here?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Both operations should succeed together", "is_correct": true},
-        {"text": "Transactions improve internet speed", "is_correct": false},
-        {"text": "Transactions delete duplicate accounts", "is_correct": false},
-        {"text": "Transactions remove primary keys", "is_correct": false}
+        {
+          "text": "Both operations should succeed together",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions improve internet speed",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions delete duplicate accounts",
+          "is_correct": false
+        },
+        {
+          "text": "Transactions remove primary keys",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1508,16 +2766,31 @@
       "title": "E-commerce Order Scenario",
       "content": "An e-commerce system decreases product stock after payment confirmation. What is the benefit of using transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Prevents partial updates if a failure occurs", "is_correct": true},
-        {"text": "Automatically creates tables", "is_correct": false},
-        {"text": "Removes all duplicate products", "is_correct": false},
-        {"text": "Converts SQL into NoSQL", "is_correct": false}
+        {
+          "text": "Prevents partial updates if a failure occurs",
+          "is_correct": true
+        },
+        {
+          "text": "Automatically creates tables",
+          "is_correct": false
+        },
+        {
+          "text": "Removes all duplicate products",
+          "is_correct": false
+        },
+        {
+          "text": "Converts SQL into NoSQL",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1525,34 +2798,63 @@
       "title": "Hospital System Scenario",
       "content": "A hospital management system updates patient details and billing records together. Why should both actions be part of a transaction?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To maintain consistent and reliable data", "is_correct": true},
-        {"text": "To disable constraints", "is_correct": false},
-        {"text": "To improve screen brightness", "is_correct": false},
-        {"text": "To remove foreign keys", "is_correct": false}
+        {
+          "text": "To maintain consistent and reliable data",
+          "is_correct": true
+        },
+        {
+          "text": "To disable constraints",
+          "is_correct": false
+        },
+        {
+          "text": "To improve screen brightness",
+          "is_correct": false
+        },
+        {
+          "text": "To remove foreign keys",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Failure Recovery",
       "content": "Why are transactions critical in enterprise systems handling financial data?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They help recover safely from failures", "is_correct": true},
-        {"text": "They automatically remove all bugs", "is_correct": false},
-        {"text": "They eliminate indexing permanently", "is_correct": false},
-        {"text": "They normalize all tables automatically", "is_correct": false}
+        {
+          "text": "They help recover safely from failures",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically remove all bugs",
+          "is_correct": false
+        },
+        {
+          "text": "They eliminate indexing permanently",
+          "is_correct": false
+        },
+        {
+          "text": "They normalize all tables automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1560,16 +2862,31 @@
       "title": "Data Consistency",
       "content": "Why is COMMIT usually executed only after all transaction steps complete successfully?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To ensure incomplete operations are not permanently saved", "is_correct": true},
-        {"text": "To disable rollback permanently", "is_correct": false},
-        {"text": "To recreate indexes automatically", "is_correct": false},
-        {"text": "To bypass constraints", "is_correct": false}
+        {
+          "text": "To ensure incomplete operations are not permanently saved",
+          "is_correct": true
+        },
+        {
+          "text": "To disable rollback permanently",
+          "is_correct": false
+        },
+        {
+          "text": "To recreate indexes automatically",
+          "is_correct": false
+        },
+        {
+          "text": "To bypass constraints",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1577,16 +2894,31 @@
       "title": "Concurrent Systems",
       "content": "Why are transactions especially important in systems where many users modify data simultaneously?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They help maintain consistency and reliability", "is_correct": true},
-        {"text": "They automatically remove duplicate users", "is_correct": false},
-        {"text": "They disable SQL queries", "is_correct": false},
-        {"text": "They delete unused tables automatically", "is_correct": false}
+        {
+          "text": "They help maintain consistency and reliability",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically remove duplicate users",
+          "is_correct": false
+        },
+        {
+          "text": "They disable SQL queries",
+          "is_correct": false
+        },
+        {
+          "text": "They delete unused tables automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1594,16 +2926,31 @@
       "title": "Transaction Features",
       "content": "Which statements are true about SQL transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Transactions help maintain data consistency", "is_correct": true},
-        {"text": "Transactions can contain multiple SQL operations", "is_correct": true},
-        {"text": "Transactions use COMMIT and ROLLBACK", "is_correct": true},
-        {"text": "Transactions are used only for SELECT queries", "is_correct": false}
+        {
+          "text": "Transactions help maintain data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions can contain multiple SQL operations",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions use COMMIT and ROLLBACK",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions are used only for SELECT queries",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1611,16 +2958,31 @@
       "title": "COMMIT and ROLLBACK",
       "content": "Which statements about COMMIT and ROLLBACK are correct?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "COMMIT permanently saves changes", "is_correct": true},
-        {"text": "ROLLBACK can undo changes", "is_correct": true},
-        {"text": "Both are used in transaction management", "is_correct": true},
-        {"text": "COMMIT deletes records automatically", "is_correct": false}
+        {
+          "text": "COMMIT permanently saves changes",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK can undo changes",
+          "is_correct": true
+        },
+        {
+          "text": "Both are used in transaction management",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT deletes records automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1628,16 +2990,31 @@
       "title": "Transaction Use Cases",
       "content": "In which situations are transactions commonly used?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Bank transfers", "is_correct": true},
-        {"text": "Order processing systems", "is_correct": true},
-        {"text": "Inventory management", "is_correct": true},
-        {"text": "Changing monitor brightness", "is_correct": false}
+        {
+          "text": "Bank transfers",
+          "is_correct": true
+        },
+        {
+          "text": "Order processing systems",
+          "is_correct": true
+        },
+        {
+          "text": "Inventory management",
+          "is_correct": true
+        },
+        {
+          "text": "Changing monitor brightness",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1645,34 +3022,63 @@
       "title": "Benefits of Transactions",
       "content": "Which are benefits of using transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Improved reliability", "is_correct": true},
-        {"text": "Data consistency", "is_correct": true},
-        {"text": "Safe recovery from failures", "is_correct": true},
-        {"text": "Automatic database deletion", "is_correct": false}
+        {
+          "text": "Improved reliability",
+          "is_correct": true
+        },
+        {
+          "text": "Data consistency",
+          "is_correct": true
+        },
+        {
+          "text": "Safe recovery from failures",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic database deletion",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "ATM Transaction Scenario",
       "content": "An ATM transaction deducts money but fails before cash is dispensed. Why is ROLLBACK useful here?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It can restore the original balance", "is_correct": true},
-        {"text": "It prevents inconsistent account data", "is_correct": true},
-        {"text": "It helps recover from incomplete operations", "is_correct": true},
-        {"text": "It permanently deletes transaction logs", "is_correct": false}
+        {
+          "text": "It can restore the original balance",
+          "is_correct": true
+        },
+        {
+          "text": "It prevents inconsistent account data",
+          "is_correct": true
+        },
+        {
+          "text": "It helps recover from incomplete operations",
+          "is_correct": true
+        },
+        {
+          "text": "It permanently deletes transaction logs",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1680,16 +3086,31 @@
       "title": "Online Shopping Scenario",
       "content": "Why are transactions important during online order processing?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Payment and stock updates should stay synchronized", "is_correct": true},
-        {"text": "Partial failures should not corrupt data", "is_correct": true},
-        {"text": "Consistency across operations is important", "is_correct": true},
-        {"text": "Transactions automatically create new products", "is_correct": false}
+        {
+          "text": "Payment and stock updates should stay synchronized",
+          "is_correct": true
+        },
+        {
+          "text": "Partial failures should not corrupt data",
+          "is_correct": true
+        },
+        {
+          "text": "Consistency across operations is important",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions automatically create new products",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1697,34 +3118,63 @@
       "title": "Enterprise Application Scenario",
       "content": "Why do enterprise systems heavily rely on transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To maintain data integrity", "is_correct": true},
-        {"text": "To recover safely from failures", "is_correct": true},
-        {"text": "To support reliable multi-step operations", "is_correct": true},
-        {"text": "To automatically normalize all tables", "is_correct": false}
+        {
+          "text": "To maintain data integrity",
+          "is_correct": true
+        },
+        {
+          "text": "To recover safely from failures",
+          "is_correct": true
+        },
+        {
+          "text": "To support reliable multi-step operations",
+          "is_correct": true
+        },
+        {
+          "text": "To automatically normalize all tables",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced Transaction Concepts",
       "content": "Which statements are true regarding transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Transactions improve reliability in concurrent systems", "is_correct": true},
-        {"text": "ROLLBACK helps recover from failed operations", "is_correct": true},
-        {"text": "COMMIT permanently stores successful changes", "is_correct": true},
-        {"text": "Transactions automatically remove all duplicate data", "is_correct": false}
+        {
+          "text": "Transactions improve reliability in concurrent systems",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK helps recover from failed operations",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT permanently stores successful changes",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions automatically remove all duplicate data",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1732,16 +3182,31 @@
       "title": "Production Risks Without Transactions",
       "content": "Which problems may occur if transactions are not used properly?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Partial updates", "is_correct": true},
-        {"text": "Inconsistent records", "is_correct": true},
-        {"text": "Data corruption during failures", "is_correct": true},
-        {"text": "Automatic schema redesign", "is_correct": false}
+        {
+          "text": "Partial updates",
+          "is_correct": true
+        },
+        {
+          "text": "Inconsistent records",
+          "is_correct": true
+        },
+        {
+          "text": "Data corruption during failures",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic schema redesign",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1749,33 +3214,63 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding SQL transactions?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Transactions intro (basic idea while modifying data)",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Transactions can include multiple operations", "is_correct": true},
-        {"text": "COMMIT saves changes permanently", "is_correct": true},
-        {"text": "ROLLBACK can undo pending changes", "is_correct": true},
-        {"text": "Transactions are useful only for SELECT statements", "is_correct": false}
+        {
+          "text": "Transactions can include multiple operations",
+          "is_correct": true
+        },
+        {
+          "text": "COMMIT saves changes permanently",
+          "is_correct": true
+        },
+        {
+          "text": "ROLLBACK can undo pending changes",
+          "is_correct": true
+        },
+        {
+          "text": "Transactions are useful only for SELECT statements",
+          "is_correct": false
+        }
       ]
     },
-   {
+    {
       "type": "mcq_single",
       "title": "Meaning of NULL",
       "content": "In SQL, what does NULL represent?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Missing or unknown data", "is_correct": true},
-        {"text": "Zero value", "is_correct": false},
-        {"text": "Empty string only", "is_correct": false},
-        {"text": "A deleted record", "is_correct": false}
+        {
+          "text": "Missing or unknown data",
+          "is_correct": true
+        },
+        {
+          "text": "Zero value",
+          "is_correct": false
+        },
+        {
+          "text": "Empty string only",
+          "is_correct": false
+        },
+        {
+          "text": "A deleted record",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1783,16 +3278,31 @@
       "title": "Checking NULL",
       "content": "Which SQL operator is used to check for NULL values?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "IS NULL", "is_correct": true},
-        {"text": "= NULL", "is_correct": false},
-        {"text": "== NULL", "is_correct": false},
-        {"text": "LIKE NULL", "is_correct": false}
+        {
+          "text": "IS NULL",
+          "is_correct": true
+        },
+        {
+          "text": "= NULL",
+          "is_correct": false
+        },
+        {
+          "text": "== NULL",
+          "is_correct": false
+        },
+        {
+          "text": "LIKE NULL",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1800,16 +3310,31 @@
       "title": "NOT NULL Constraint",
       "content": "What is the purpose of the NOT NULL constraint?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Prevent NULL values in a column", "is_correct": true},
-        {"text": "Delete duplicate values", "is_correct": false},
-        {"text": "Create foreign keys", "is_correct": false},
-        {"text": "Automatically insert default values", "is_correct": false}
+        {
+          "text": "Prevent NULL values in a column",
+          "is_correct": true
+        },
+        {
+          "text": "Delete duplicate values",
+          "is_correct": false
+        },
+        {
+          "text": "Create foreign keys",
+          "is_correct": false
+        },
+        {
+          "text": "Automatically insert default values",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1817,34 +3342,63 @@
       "title": "NULL Comparison",
       "content": "Why is '= NULL' not used to compare NULL values in SQL?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "NULL requires IS NULL or IS NOT NULL", "is_correct": true},
-        {"text": "NULL is treated as zero", "is_correct": false},
-        {"text": "SQL automatically converts NULL to text", "is_correct": false},
-        {"text": "Comparison operators are disabled for NULL", "is_correct": false}
+        {
+          "text": "NULL requires IS NULL or IS NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is treated as zero",
+          "is_correct": false
+        },
+        {
+          "text": "SQL automatically converts NULL to text",
+          "is_correct": false
+        },
+        {
+          "text": "Comparison operators are disabled for NULL",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Hospital Database Scenario",
       "content": "A hospital database stores patient emergency contact numbers, but some patients did not provide them. What is the best way to store this missing information?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Store NULL values", "is_correct": true},
-        {"text": "Store 0", "is_correct": false},
-        {"text": "Delete the patient record", "is_correct": false},
-        {"text": "Store random phone numbers", "is_correct": false}
+        {
+          "text": "Store NULL values",
+          "is_correct": true
+        },
+        {
+          "text": "Store 0",
+          "is_correct": false
+        },
+        {
+          "text": "Delete the patient record",
+          "is_correct": false
+        },
+        {
+          "text": "Store random phone numbers",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1852,16 +3406,31 @@
       "title": "E-commerce Scenario",
       "content": "An e-commerce website searches for products where discount_price is NULL. What does this most likely indicate?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The product has no discount assigned", "is_correct": true},
-        {"text": "The product is deleted", "is_correct": false},
-        {"text": "The product has zero stock", "is_correct": false},
-        {"text": "The product is duplicated", "is_correct": false}
+        {
+          "text": "The product has no discount assigned",
+          "is_correct": true
+        },
+        {
+          "text": "The product is deleted",
+          "is_correct": false
+        },
+        {
+          "text": "The product has zero stock",
+          "is_correct": false
+        },
+        {
+          "text": "The product is duplicated",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1869,34 +3438,63 @@
       "title": "HR System Scenario",
       "content": "An HR system stores employee resignation dates. Active employees have NULL in this column. Why?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "The resignation date is unknown or not applicable", "is_correct": true},
-        {"text": "Employees are deleted from the system", "is_correct": false},
-        {"text": "The table is corrupted", "is_correct": false},
-        {"text": "The database is offline", "is_correct": false}
+        {
+          "text": "The resignation date is unknown or not applicable",
+          "is_correct": true
+        },
+        {
+          "text": "Employees are deleted from the system",
+          "is_correct": false
+        },
+        {
+          "text": "The table is corrupted",
+          "is_correct": false
+        },
+        {
+          "text": "The database is offline",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_single",
       "title": "Production Data Quality",
       "content": "Why can excessive NULL values become problematic in large production databases?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "They may complicate queries and reporting", "is_correct": true},
-        {"text": "They automatically delete indexes", "is_correct": false},
-        {"text": "They remove all constraints", "is_correct": false},
-        {"text": "They convert SQL into NoSQL", "is_correct": false}
+        {
+          "text": "They may complicate queries and reporting",
+          "is_correct": true
+        },
+        {
+          "text": "They automatically delete indexes",
+          "is_correct": false
+        },
+        {
+          "text": "They remove all constraints",
+          "is_correct": false
+        },
+        {
+          "text": "They convert SQL into NoSQL",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1904,16 +3502,31 @@
       "title": "NULL Logic",
       "content": "Why is NULL often treated differently from regular values in SQL?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It represents unknown or missing information", "is_correct": true},
-        {"text": "It is equal to every value", "is_correct": false},
-        {"text": "It always behaves like zero", "is_correct": false},
-        {"text": "It disables queries automatically", "is_correct": false}
+        {
+          "text": "It represents unknown or missing information",
+          "is_correct": true
+        },
+        {
+          "text": "It is equal to every value",
+          "is_correct": false
+        },
+        {
+          "text": "It always behaves like zero",
+          "is_correct": false
+        },
+        {
+          "text": "It disables queries automatically",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1921,16 +3534,31 @@
       "title": "Database Design Consideration",
       "content": "Why should developers carefully decide whether a column can contain NULL values?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "It affects data integrity and business logic", "is_correct": true},
-        {"text": "It removes primary keys automatically", "is_correct": false},
-        {"text": "It disables normalization", "is_correct": false},
-        {"text": "It prevents SQL execution", "is_correct": false}
+        {
+          "text": "It affects data integrity and business logic",
+          "is_correct": true
+        },
+        {
+          "text": "It removes primary keys automatically",
+          "is_correct": false
+        },
+        {
+          "text": "It disables normalization",
+          "is_correct": false
+        },
+        {
+          "text": "It prevents SQL execution",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1938,16 +3566,31 @@
       "title": "Understanding NULL",
       "content": "Which statements about NULL are correct?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "NULL represents missing data", "is_correct": true},
-        {"text": "NULL is not the same as zero", "is_correct": true},
-        {"text": "NULL is not the same as an empty string", "is_correct": true},
-        {"text": "NULL always means false", "is_correct": false}
+        {
+          "text": "NULL represents missing data",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is not the same as zero",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is not the same as an empty string",
+          "is_correct": true
+        },
+        {
+          "text": "NULL always means false",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1955,16 +3598,31 @@
       "title": "Checking NULL Values",
       "content": "Which SQL operations are commonly used with NULL values?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "IS NULL", "is_correct": true},
-        {"text": "IS NOT NULL", "is_correct": true},
-        {"text": "NOT NULL constraint", "is_correct": true},
-        {"text": "= NULL", "is_correct": false}
+        {
+          "text": "IS NULL",
+          "is_correct": true
+        },
+        {
+          "text": "IS NOT NULL",
+          "is_correct": true
+        },
+        {
+          "text": "NOT NULL constraint",
+          "is_correct": true
+        },
+        {
+          "text": "= NULL",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1972,16 +3630,31 @@
       "title": "NOT NULL Constraint Usage",
       "content": "Which columns are commonly defined using NOT NULL constraints?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Primary keys", "is_correct": true},
-        {"text": "Required user information", "is_correct": true},
-        {"text": "Mandatory transaction details", "is_correct": true},
-        {"text": "Optional comments always", "is_correct": false}
+        {
+          "text": "Primary keys",
+          "is_correct": true
+        },
+        {
+          "text": "Required user information",
+          "is_correct": true
+        },
+        {
+          "text": "Mandatory transaction details",
+          "is_correct": true
+        },
+        {
+          "text": "Optional comments always",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -1989,34 +3662,63 @@
       "title": "NULL Handling Practices",
       "content": "Which are good practices while handling NULL values?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "easy",
       "marks": 1,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Use NOT NULL where necessary", "is_correct": true},
-        {"text": "Handle NULL checks carefully in queries", "is_correct": true},
-        {"text": "Validate business requirements", "is_correct": true},
-        {"text": "Treat NULL exactly like zero", "is_correct": false}
+        {
+          "text": "Use NOT NULL where necessary",
+          "is_correct": true
+        },
+        {
+          "text": "Handle NULL checks carefully in queries",
+          "is_correct": true
+        },
+        {
+          "text": "Validate business requirements",
+          "is_correct": true
+        },
+        {
+          "text": "Treat NULL exactly like zero",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Banking Application Scenario",
       "content": "A banking system allows NULL values for secondary phone numbers. Why might this design be useful?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Not every customer has a secondary number", "is_correct": true},
-        {"text": "The field may be optional", "is_correct": true},
-        {"text": "NULL can represent unavailable information", "is_correct": true},
-        {"text": "NULL improves internet speed", "is_correct": false}
+        {
+          "text": "Not every customer has a secondary number",
+          "is_correct": true
+        },
+        {
+          "text": "The field may be optional",
+          "is_correct": true
+        },
+        {
+          "text": "NULL can represent unavailable information",
+          "is_correct": true
+        },
+        {
+          "text": "NULL improves internet speed",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -2024,16 +3726,31 @@
       "title": "Reporting Scenario",
       "content": "Why can NULL values affect reporting and analytics?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Missing values may impact calculations", "is_correct": true},
-        {"text": "Reports may produce incomplete results", "is_correct": true},
-        {"text": "Queries may require special NULL handling", "is_correct": true},
-        {"text": "NULL automatically fixes duplicate data", "is_correct": false}
+        {
+          "text": "Missing values may impact calculations",
+          "is_correct": true
+        },
+        {
+          "text": "Reports may produce incomplete results",
+          "is_correct": true
+        },
+        {
+          "text": "Queries may require special NULL handling",
+          "is_correct": true
+        },
+        {
+          "text": "NULL automatically fixes duplicate data",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -2041,34 +3758,63 @@
       "title": "Enterprise Design Scenario",
       "content": "Why do enterprise systems carefully decide where NULL values are allowed?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "medium",
       "marks": 2,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "To maintain data quality", "is_correct": true},
-        {"text": "To match business rules", "is_correct": true},
-        {"text": "To avoid inconsistent records", "is_correct": true},
-        {"text": "To automatically normalize data", "is_correct": false}
+        {
+          "text": "To maintain data quality",
+          "is_correct": true
+        },
+        {
+          "text": "To match business rules",
+          "is_correct": true
+        },
+        {
+          "text": "To avoid inconsistent records",
+          "is_correct": true
+        },
+        {
+          "text": "To automatically normalize data",
+          "is_correct": false
+        }
       ]
     },
-
     {
       "type": "mcq_multiple",
       "title": "Advanced NULL Concepts",
       "content": "Which statements are true regarding NULL handling in SQL?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "NULL represents unknown or missing information", "is_correct": true},
-        {"text": "NULL requires special comparison operators", "is_correct": true},
-        {"text": "Improper NULL handling can affect reporting accuracy", "is_correct": true},
-        {"text": "NULL always behaves like zero", "is_correct": false}
+        {
+          "text": "NULL represents unknown or missing information",
+          "is_correct": true
+        },
+        {
+          "text": "NULL requires special comparison operators",
+          "is_correct": true
+        },
+        {
+          "text": "Improper NULL handling can affect reporting accuracy",
+          "is_correct": true
+        },
+        {
+          "text": "NULL always behaves like zero",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -2076,16 +3822,31 @@
       "title": "Production Risks",
       "content": "Which issues can occur because of poor NULL handling?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "Incorrect reports", "is_correct": true},
-        {"text": "Data inconsistency", "is_correct": true},
-        {"text": "Unexpected query results", "is_correct": true},
-        {"text": "Automatic schema optimization", "is_correct": false}
+        {
+          "text": "Incorrect reports",
+          "is_correct": true
+        },
+        {
+          "text": "Data inconsistency",
+          "is_correct": true
+        },
+        {
+          "text": "Unexpected query results",
+          "is_correct": true
+        },
+        {
+          "text": "Automatic schema optimization",
+          "is_correct": false
+        }
       ]
     },
     {
@@ -2093,16 +3854,31 @@
       "title": "Concept Trap",
       "content": "Which statements are correct regarding NULL values?",
       "level": "subtopic",
-      "topic_name": "Data Manipulation (DML)",
+      "topic_name": "Data Manipulation & DML",
       "subtopic_name": "Handling NULL values in data",
       "difficulty": "hard",
       "marks": 3,
-      "categories": ["learn", "skill_test"],
+      "categories": [
+        "learn",
+        "skill_test"
+      ],
       "mcq_options": [
-        {"text": "NULL is different from zero", "is_correct": true},
-        {"text": "NULL is different from an empty string", "is_correct": true},
-        {"text": "IS NULL is used to check NULL values", "is_correct": true},
-        {"text": "NULL is equal to every missing value", "is_correct": false}
+        {
+          "text": "NULL is different from zero",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is different from an empty string",
+          "is_correct": true
+        },
+        {
+          "text": "IS NULL is used to check NULL values",
+          "is_correct": true
+        },
+        {
+          "text": "NULL is equal to every missing value",
+          "is_correct": false
+        }
       ]
     }
   ]

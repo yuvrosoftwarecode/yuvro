@@ -1,10 +1,10 @@
 {
-    "subjects": [
+    "courses": [
         {
             "short_code": "HTMLCSS100",
-            "subject_name": "HTML & CSS",
-            "category": "web_development",
-            "instructor_email": "[EMAIL_ADDRESS]"
+            "name": "HTML & CSS",
+            "category": "fundamentals",
+            "instructor_email": "admin@yuvro.com"
         }
     ]
 }

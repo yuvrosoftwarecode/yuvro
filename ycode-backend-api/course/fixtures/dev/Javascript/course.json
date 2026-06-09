@@ -1,10 +1,10 @@
 {
-    "subjects": [
+    "courses": [
         {
             "short_code": "JS100",
-            "subject_name": "Javascript",
+            "name": "Javascript",
             "category": "fundamentals",
-            "instructor_email": "[EMAIL_ADDRESS]"
+            "instructor_email": "admin@yuvro.com"
         }
     ]
 }

@@ -46,7 +46,7 @@
       "videos": []
     },
     {
-      "name": "Data Types (INT, VARCHAR, DATE, etc.)",
+      "name": "Data Types",
       "content": "Data types define the kind of data a column can store. Common types include INT for whole numbers, VARCHAR for strings, DATE for dates, and DECIMAL for precise numbers. Correct data type selection ensures data integrity and performance.",
       "order_index": 4,
       "videos": []
