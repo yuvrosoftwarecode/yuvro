@@ -75,7 +75,8 @@ class CourseViewSet(viewsets.ModelViewSet):
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
                 distinct=True
-            )
+            ),
+            topic_count=Count('topics', distinct=True)
         )
 
         if self.request.user.is_authenticated:

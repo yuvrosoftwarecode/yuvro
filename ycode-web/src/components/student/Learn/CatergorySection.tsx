@@ -27,7 +27,7 @@ const CategorySection: React.FC<Props> = ({ title, icon, courses, progressMap, o
               id={c.id}
               name={c.name}
               category={c.category}
-              topicCount={c.topics?.length || 0}
+              topicCount={c.topic_count || c.topics?.length || 0}
               progress={progress}
               onStartLearning={onStartLearning}
             />

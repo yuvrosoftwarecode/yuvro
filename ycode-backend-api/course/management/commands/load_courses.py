@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from course.models import Course, Topic, Subtopic, Video, Question, QuestionSolution
-from assessment.models import SkillTest, Contest
+from assessment.models import SkillTest, Contest, CertificationExam
 
 User = get_user_model()
 
@@ -128,7 +128,7 @@ class Command(BaseCommand):
         """Ensure instructor/admin users exist before loading course data."""
         users_path = (
             Path(os.path.dirname(__file__))
-            / f"../../../../authentication/fixtures/{deploy_env}/test_users_data.json"
+            / f"../../../authentication/fixtures/{deploy_env}/test_users_data.json"
         )
         data = self._load_json(users_path)
         if not data:
@@ -177,8 +177,39 @@ class Command(BaseCommand):
             if instructor and instructor not in course.instructors.all():
                 course.instructors.add(instructor)
 
+            questions_to_create = []
+            questions_to_update = []
+            solutions_to_create = []
+            solutions_to_update = []
+            
+            existing_questions = {
+                (q.title, q.course_id, q.topic_id): q 
+                for q in Question.objects.filter(course=course)
+            }
+            existing_solutions = {
+                (s.question_id, s.title): s
+                for s in QuestionSolution.objects.filter(question__course=course)
+            }
+
+            certs_created = 0
+            certs_synced = 0
+            # Auto-generate 3 Certification Exams per Course
+            creator = instructor or User.objects.filter(role="admin").first()
+            if creator:
+                c_c, c_s = self._auto_generate_skill_tests(
+                    course=course,
+                    topic=None,
+                    creator=creator,
+                    title_template="{course} - {difficulty} Certification Exam",
+                    is_certification=True
+                )
+                certs_created += c_c
+                certs_synced += c_s
+
             topic_map = {}
             subtopic_map = {}
+            skill_tests_created = 0
+            skill_tests_synced = 0
 
             for topic_data in course_data.get("topics", []):
                 topic, _ = Topic.objects.update_or_create(
@@ -191,6 +222,17 @@ class Command(BaseCommand):
                 )
                 topic.refresh_from_db()
                 topic_map[topic_data["name"]] = topic
+                
+                # Auto-generate 3 Skill Tests per Topic
+                if creator:
+                    st_c, st_s = self._auto_generate_skill_tests(
+                        course=course,
+                        topic=topic,
+                        creator=creator,
+                        title_template="{topic} - {difficulty} Skill Test"
+                    )
+                    skill_tests_created += st_c
+                    skill_tests_synced += st_s
 
                 for st_data in topic_data.get("subtopics", []):
                     subtopic, _ = Subtopic.objects.update_or_create(
@@ -220,13 +262,29 @@ class Command(BaseCommand):
             creator = instructor or User.objects.filter(role="admin").first()
             if creator:
                 for q_data in course_data.get("questions", []):
-                    self._create_question(q_data, course, topic_map, subtopic_map, creator)
+                    self._create_question(q_data, course, topic_map, subtopic_map, creator, questions_to_create, questions_to_update, solutions_to_create, solutions_to_update, existing_questions, existing_solutions)
             else:
                 self.stdout.write(self.style.WARNING(
                     f"No instructor/admin for {course.short_code}, skipping questions"
                 ))
 
-    def _create_question(self, q_data, course, topic_map, subtopic_map, creator,
+            if questions_to_create:
+                Question.objects.bulk_create(questions_to_create, batch_size=500)
+            if questions_to_update:
+                update_fields = ["type", "content", "level", "difficulty", "marks", "duration", "categories", "hints", "created_by", "subtopic", "mcq_options", "test_cases_basic", "test_cases_advanced"]
+                Question.objects.bulk_update(questions_to_update, update_fields, batch_size=500)
+                
+            if solutions_to_create:
+                QuestionSolution.objects.bulk_create(solutions_to_create, batch_size=500)
+            if solutions_to_update:
+                update_fields = ["language", "code", "complexity_analysis", "is_primary"]
+                QuestionSolution.objects.bulk_update(solutions_to_update, update_fields, batch_size=500)
+
+            self.stdout.write(f"✓ Loaded course fully: {course.name} ({len(questions_to_create)} created, {len(questions_to_update)} synced questions)")
+            self.stdout.write(f"  → Certifications: {certs_created} created, {certs_synced} synced")
+            self.stdout.write(f"  → Skill Tests: {skill_tests_created} created, {skill_tests_synced} synced")
+
+    def _create_question(self, q_data, course, topic_map, subtopic_map, creator, q_create, q_update, sol_create, sol_update, existing_q, existing_sol,
                          default_topic_name=None):
         """Create a question. If topic/subtopic refs are missing, falls back to
         default_topic_name (the topic file's own name) at topic level."""
@@ -307,63 +365,107 @@ class Command(BaseCommand):
             kwargs["test_cases_basic"] = q_data.get("test_cases_basic", [])
             kwargs["test_cases_advanced"] = q_data.get("test_cases_advanced", [])
 
-        q_obj, created = Question.objects.update_or_create(
-            title=kwargs["title"],
-            course=kwargs.get("course"),
-            topic=kwargs.get("topic"),
-            defaults=kwargs,
-        )
-        self.stdout.write(f'    {"✓" if created else "→"} {"Created" if created else "Synced"}: {q_data["title"][:60]}')
+        q_key = (kwargs["title"], kwargs.get("course").id if kwargs.get("course") else None, kwargs.get("topic").id if kwargs.get("topic") else None)
+        q_obj = existing_q.get(q_key)
+
+        if q_obj:
+            for k, v in kwargs.items():
+                setattr(q_obj, k, v)
+            q_update.append(q_obj)
+        else:
+            import uuid
+            q_obj = Question(id=uuid.uuid4(), **kwargs)
+            existing_q[q_key] = q_obj
+            q_create.append(q_obj)
 
         for sol in q_data.get("solutions", []):
-            QuestionSolution.objects.update_or_create(
-                question=q_obj,
-                title=sol.get("title", ""),
-                defaults={
-                    "language": sol.get("language", "python"),
-                    "code": sol.get("code", ""),
-                    "complexity_analysis": sol.get("complexity_analysis", ""),
-                    "is_primary": sol.get("is_primary", False),
-                },
-            )
+            sol_title = sol.get("title", "")
+            sol_key = (q_obj.id, sol_title)
+            sol_kwargs = {
+                "language": sol.get("language", "python"),
+                "code": sol.get("code", ""),
+                "complexity_analysis": sol.get("complexity_analysis", ""),
+                "is_primary": sol.get("is_primary", False),
+            }
+            
+            s_obj = existing_sol.get(sol_key)
+            if s_obj:
+                for k, v in sol_kwargs.items():
+                    setattr(s_obj, k, v)
+                sol_update.append(s_obj)
+            else:
+                import uuid
+                s_obj = QuestionSolution(id=uuid.uuid4(), question=q_obj, title=sol_title, **sol_kwargs)
+                existing_sol[sol_key] = s_obj
+                sol_create.append(s_obj)
 
     # ── Assessments ───────────────────────────────────────────────────────────
+
+    def _auto_generate_skill_tests(self, course, topic, creator, title_template, is_certification=False):
+        """Auto-generates 3 levels of skill tests/certifications (Easy, Medium, Hard)."""
+        configs = [
+            {
+                "difficulty": "easy",
+                "duration": 30 if not topic else 20,
+                "total_marks": 20 if not topic else 15,
+                "questions_random_config": { "mcq_single": 10, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+            },
+            {
+                "difficulty": "medium",
+                "duration": 45 if not topic else 30,
+                "total_marks": 30 if not topic else 20,
+                "questions_random_config": { "mcq_single": 15, "mcq_multiple": 5, "coding": 0, "descriptive": 0 }
+            },
+            {
+                "difficulty": "hard",
+                "duration": 60 if not topic else 45,
+                "total_marks": 50 if not topic else 25,
+                "questions_random_config": { "mcq_single": 15, "mcq_multiple": 10, "coding": 0, "descriptive": 0 }
+            }
+        ]
+
+        created_count = 0
+        synced_count = 0
+
+        for config in configs:
+            diff = config["difficulty"]
+            name = title_template.format(
+                course=course.name,
+                topic=topic.name if topic else "",
+                difficulty=diff.title()
+            )
+            
+            model_class = CertificationExam if is_certification else SkillTest
+            lookup_kwargs = { "title": name, "course": course }
+            if not is_certification:
+                lookup_kwargs["topic"] = topic
+
+            _, created = model_class.objects.update_or_create(
+                **lookup_kwargs,
+                defaults={
+                    "description": f"Automated {diff} assessment for {topic.name if topic else course.name}",
+                    "instructions": "Please complete all questions within the time limit.",
+                    "difficulty": diff,
+                    "duration": config["duration"],
+                    "total_marks": config["total_marks"],
+                    "passing_marks": int(config["total_marks"] * 0.6), # 60% passing
+                    "questions_random_config": config["questions_random_config"],
+                    "publish_status": "active",
+                    "created_by": creator,
+                }
+            )
+            if created:
+                created_count += 1
+            else:
+                synced_count += 1
+
+        return created_count, synced_count
 
     def _load_assessments(self, data):
         course_map = {c.short_code: c for c in Course.objects.all()}
         assessments = data.get("assessments", {})
 
-        for st_data in assessments.get("skill_tests", []):
-            course = course_map.get(st_data.get("course_short_code"))
-            if not course:
-                continue
-            creator = course.instructors.first() or User.objects.filter(role="admin").first()
-            if not creator:
-                continue
-            question_ids = [
-                str(q) for q in
-                Question.objects.filter(course=course).values_list("id", flat=True)[:8]
-            ]
-            SkillTest.objects.get_or_create(
-                title=st_data["title"],
-                course=course,
-                defaults={
-                    "description": st_data["description"],
-                    "instructions": st_data["instructions"],
-                    "difficulty": st_data["difficulty"],
-                    "duration": st_data["duration"],
-                    "total_marks": st_data["total_marks"],
-                    "passing_marks": st_data["passing_marks"],
-                    "questions_config": {
-                        "mcq_single": question_ids[:2],
-                        "mcq_multiple": question_ids[2:4],
-                        "coding": question_ids[4:6],
-                        "descriptive": question_ids[6:8],
-                    },
-                    "publish_status": st_data["publish_status"],
-                    "created_by": creator,
-                },
-            )
+        # Skill tests are now auto-generated in _load_courses()
 
         for contest_data in assessments.get("contests", []):
             course = course_map.get(contest_data.get("course_short_code"))
