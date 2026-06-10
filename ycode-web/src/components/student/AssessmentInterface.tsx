@@ -133,8 +133,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
   const [showExamples, setShowExamples] = useState(false);
   const [cameraAlert, setCameraAlert] = useState(false);
-  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
-  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [showNavigationDialog, setShowNavigationDialog] = useState(false);
   const [showFullscreenDialog, setShowFullscreenDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
@@ -167,88 +165,23 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({});
 
   const [violationCount, setViolationCount] = useState(assessment.initial_violations ?? 0);
-  const [showWarningDialog, setShowWarningDialog] = useState(false);
-  const [warningMessage, setWarningMessage] = useState('');
 
   const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
-    const thresholdTab = assessment.tab_switch_threshold ?? 3;
-    const thresholdViol = assessment.violation_threshold ?? 5;
-
     if (type === 'tab_switch') {
-      setTabSwitchCount(prev => {
-        const nextCount = prev + 1;
-        if (thresholdTab > 0 && nextCount >= thresholdTab) {
-          toast.error('🚨 Assessment auto-submitted due to excessive tab switching.');
-          handleSubmitAssessment();
-        } else if (thresholdTab > 0 && nextCount === Math.ceil(thresholdTab / 2)) {
-          setWarningMessage(`You have switched tabs ${nextCount} time(s). If you reach ${thresholdTab} tab switches, your assessment will be automatically submitted.`);
-          setShowWarningDialog(true);
-        }
-        return nextCount;
-      });
-      setViolationCount(prev => {
-        const nextCount = prev + 1;
-        if (thresholdViol > 0 && nextCount >= thresholdViol) {
-          toast.error('🚨 Assessment auto-submitted due to excessive violations.');
-          handleSubmitAssessment();
-        }
-        return nextCount;
-      });
-      setTabSwitchAlert(true);
-    } else if (type === 'forbidden_platform') {
-      toast.error(`Forbidden platform detected: ${data?.platform}. Assessment will be aborted.`);
-      setTimeout(() => { handleSubmitAssessment(); }, 2000);
+      setTabSwitchCount(prev => prev + 1);
+      setViolationCount(prev => prev + 1);
     } else if (type === 'fullscreen_exit') {
       setShowFullscreenDialog(true);
-    } else if (type === 'screen_share_stopped') {
-      toast.error('Screen sharing was stopped. Assessment will be aborted for violation.');
-      setTimeout(() => { handleSubmitAssessment(); }, 2000);
-    } else if (type === 'face_not_detected') {
-      setViolationCount(prev => {
-        const nextCount = prev + 1;
-        if (thresholdViol > 0 && nextCount >= thresholdViol) {
-          toast.error('🚨 Assessment auto-submitted due to excessive violations.');
-          handleSubmitAssessment();
-        } else if (thresholdViol > 0 && nextCount === Math.ceil(thresholdViol / 2)) {
-          setWarningMessage(`You have accumulated ${nextCount} violations. If you reach ${thresholdViol} total violations, your assessment will be automatically submitted.`);
-          setShowWarningDialog(true);
-        }
-        return nextCount;
-      });
-      toast.warning('⚠️ Face not detected. Please ensure your face is visible to the camera.');
-    } else if (type === 'multiple_faces_detected') {
-      setViolationCount(prev => {
-        const nextCount = prev + 1;
-        if (thresholdViol > 0 && nextCount >= thresholdViol) {
-          toast.error('🚨 Assessment auto-submitted due to excessive violations.');
-          handleSubmitAssessment();
-        } else if (thresholdViol > 0 && nextCount === Math.ceil(thresholdViol / 2)) {
-          setWarningMessage(`You have accumulated ${nextCount} violations. If you reach ${thresholdViol} total violations, your assessment will be automatically submitted.`);
-          setShowWarningDialog(true);
-        }
-        return nextCount;
-      });
-      toast.error(`🚨 Multiple faces detected (${data?.count ?? 2}). Only you should be visible.`);
-    } else if (['copy_detected', 'paste_detected', 'cut_detected', 'right_click_detected', 'keyboard_shortcut'].includes(type)) {
-      setViolationCount(prev => {
-        const nextCount = prev + 1;
-        if (thresholdViol > 0 && nextCount >= thresholdViol) {
-          toast.error('🚨 Assessment auto-submitted due to excessive violations.');
-          handleSubmitAssessment();
-        } else if (thresholdViol > 0 && nextCount === Math.ceil(thresholdViol / 2)) {
-          setWarningMessage(`You have accumulated ${nextCount} violations. If you reach ${thresholdViol} total violations, your assessment will be automatically submitted.`);
-          setShowWarningDialog(true);
-        }
-        return nextCount;
-      });
-      const prettyName = type.replace('_detected', '').replace('_', ' ');
-      toast.warning(`⚠️ Action blocked (${prettyName}). This violation has been logged.`);
-    } else if (type === 'auto_submitted') {
-      toast.error('🚨 Assessment auto-submitted due to excessive violations.');
-      handleSubmitAssessment();
+    } else if (
+      type === 'face_not_detected' ||
+      type === 'multiple_faces_detected' ||
+      ['copy_detected', 'paste_detected', 'cut_detected', 'right_click_detected', 'keyboard_shortcut'].includes(type) ||
+      type === 'forbidden_platform' ||
+      type === 'screen_share_stopped'
+    ) {
+      setViolationCount(prev => prev + 1);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assessment.tab_switch_threshold, assessment.violation_threshold]);
+  }, []);
 
   useEffect(() => {
     if (assessment.proctoring_enabled && screenStream) {
@@ -873,40 +806,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         )}
       </div>
 
-      <div className="flex justify-center">
-        {tabSwitchAlert && (
-          <Alert className="m-4 w-[60%] border-orange-200 bg-orange-50">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>Tab switching detected! ({tabSwitchCount} violations)</span>
-              <Button variant="ghost" size="sm" onClick={() => setTabSwitchAlert(false)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {showWarningDialog && (
-          <div className="fixed inset-0 z-[100] bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-orange-100 dark:border-slate-800 text-center animate-in fade-in zoom-in duration-200">
-              <div className="w-16 h-16 rounded-full bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center text-orange-500 mx-auto mb-5 border border-orange-100 dark:border-orange-900/30">
-                <AlertTriangle className="h-7 w-7 animate-bounce" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">Proctoring Warning</h3>
-              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-8">
-                {warningMessage}
-              </p>
-              <Button
-                onClick={() => setShowWarningDialog(false)}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-orange-500/20 active:scale-[0.98]"
-              >
-                I Understand, Resume Exam
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
       <div className="absolute inset-x-0 top-0 h-1 z-50 overflow-hidden pointer-events-none">
         <div
           className="h-full bg-emerald-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
@@ -1373,19 +1272,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </div>
 
       </div>
-      <AlertDialog open={showTabSwitchDialog} onOpenChange={() => { }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Assessment Terminated</AlertDialogTitle>
-            <AlertDialogDescription>
-              Too many tab switches. Your responses are recorded.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleSubmitAssessment}>Finish</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <AlertDialog open={showNavigationDialog} onOpenChange={setShowNavigationDialog}>
         <AlertDialogContent>
@@ -1402,7 +1288,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showFullscreenDialog && !showWarningDialog} onOpenChange={() => { }}>
+      <AlertDialog open={showFullscreenDialog} onOpenChange={() => { }}>
         <AlertDialogContent className="border-0 rounded-2xl max-w-md bg-white shadow-2xl p-0 overflow-hidden shadow-red-500/10">
           <div className="h-1.5 bg-gradient-to-r from-red-600 to-rose-400 w-full" />
           <div className="p-8">

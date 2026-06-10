@@ -73,47 +73,7 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
                         </div>
                     </div>
 
-                    {/* Auto-submit thresholds */}
-                    {!alwaysEnabled && (
-                        <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <Label htmlFor="tab-switch-threshold" className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                                    Auto-submit after tab switches
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        id="tab-switch-threshold"
-                                        type="number"
-                                        min={0}
-                                        max={20}
-                                        value={tabSwitchThreshold}
-                                        onChange={(e) => onTabSwitchThresholdChange?.(Number(e.target.value))}
-                                        className="h-8 text-sm w-full"
-                                    />
-                                    <span className="text-xs text-muted-foreground whitespace-nowrap">switches</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">0 = disabled</p>
-                            </div>
-                            <div>
-                                <Label htmlFor="violation-threshold" className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                                    Auto-submit after total violations
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        id="violation-threshold"
-                                        type="number"
-                                        min={0}
-                                        max={50}
-                                        value={violationThreshold}
-                                        onChange={(e) => onViolationThresholdChange?.(Number(e.target.value))}
-                                        className="h-8 text-sm w-full"
-                                    />
-                                    <span className="text-xs text-muted-foreground whitespace-nowrap">violations</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">0 = disabled</p>
-                            </div>
-                        </div>
-                    )}
+
                 </>
             )}
 

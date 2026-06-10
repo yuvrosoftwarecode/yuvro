@@ -31,6 +31,8 @@ interface ProctoringEvent {
         copied_text?: string;
         pasted_text?: string;
         cut_text?: string;
+        selected_text?: string;
+        method?: string;
         key?: string;
         platform?: string;
         db_level?: number;
@@ -131,10 +133,13 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
 
         const violationTypes = [
             'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
-            'copy_detected', 'paste_detected', 'cut_detected', 'face_not_detected', 
-            'multiple_faces_detected', 'audio_anomaly', 'audio_anomaly_detected', 
-            'violation', 'keyboard_shortcut', 'right_click_detected', 
-            'forbidden_platform_detected', 'fullscreen_exit', 'suspicious_activity'
+            'new_tab_detected', 'new_window_detected', 'face_not_detected', 
+            'multiple_faces_detected', 'face_recognition_failed', 'violation_critical',
+            'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected',
+            'copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected',
+            'right_click_detected', 'screenshot_detected', 'keyboard_shortcut',
+            'suspicious_movement', 'audio_anomaly', 'audio_anomaly_detected',
+            'network_disconnected', 'network_connected', 'violation_warning', 'violation'
         ];
 
         uniqueEvents.forEach(e => {
@@ -624,18 +629,20 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                             ) : (
                                 <div className="relative border-l border-border pl-6 ml-3 space-y-6">
                                     {riskAnalysis.violations.map((event, idx) => {
+                                        const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+                                        const isCritical = criticalTypes.some(vt => event.activity_type.includes(vt));
+
                                         let icon = AlertTriangle;
-                                        let color = 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400';
+                                        let color = isCritical 
+                                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400' 
+                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400';
                                         
                                         if (event.activity_type.includes('face')) {
                                             icon = Eye;
-                                            color = 'bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400';
-                                        } else if (event.activity_type.includes('tab_switched') || event.activity_type.includes('focus_lost')) {
+                                        } else if (event.activity_type.includes('tab_switched') || event.activity_type.includes('focus_lost') || event.activity_type.includes('window')) {
                                             icon = Maximize;
-                                            color = 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400';
-                                        } else if (event.activity_type.includes('copy') || event.activity_type.includes('paste')) {
+                                        } else if (event.activity_type.includes('copy') || event.activity_type.includes('paste') || event.activity_type.includes('cut')) {
                                             icon = FileText;
-                                            color = 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400';
                                         }
 
                                         const IconComponent = icon;
@@ -647,11 +654,16 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                     <IconComponent className="h-3.5 w-3.5" />
                                                 </div>
 
-                                                <div className="p-4 rounded-lg border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
+                                                <div className={`p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow ${isCritical ? 'border-rose-200 dark:border-rose-900/50' : 'border-border'}`}>
                                                     <div className="flex justify-between items-start mb-2">
-                                                        <span className="font-bold text-sm text-foreground capitalize">
-                                                            {event.activity_type?.replace(/_/g, ' ') || ''}
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`font-bold text-sm capitalize ${isCritical ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}`}>
+                                                                {event.activity_type?.replace(/_/g, ' ') || ''}
+                                                            </span>
+                                                            <Badge variant={isCritical ? 'destructive' : 'outline'} className="text-[10px] h-4 px-1 py-0 uppercase">
+                                                                {isCritical ? 'Critical' : 'General'}
+                                                            </Badge>
+                                                        </div>
                                                         <span className="text-[10px] text-muted-foreground">
                                                             {formatEventTime(event.timestamp)}
                                                         </span>
@@ -659,6 +671,9 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
 
                                                     {/* Meta detail description */}
                                                     <div className="text-xs text-muted-foreground space-y-1">
+                                                        {event.meta_data?.method && (
+                                                            <div><strong>Method:</strong> <Badge variant="secondary" className="text-[10px] h-4 py-0 px-1 ml-1">{event.meta_data.method}</Badge></div>
+                                                        )}
                                                         {event.meta_data?.platform && (
                                                             <div><strong>Platform/Browser:</strong> {event.meta_data.platform}</div>
                                                         )}
@@ -673,6 +688,16 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                         {event.meta_data?.pasted_text && (
                                                             <div className="bg-muted/40 p-2 border rounded font-mono text-[11px] truncate max-w-full">
                                                                 <strong>Text Pasted:</strong> "{event.meta_data.pasted_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.cut_text && (
+                                                            <div className="bg-muted/40 p-2 border rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Cut:</strong> "{event.meta_data.cut_text}"
+                                                            </div>
+                                                        )}
+                                                        {event.meta_data?.selected_text && (
+                                                            <div className="bg-muted/40 p-2 border rounded font-mono text-[11px] truncate max-w-full">
+                                                                <strong>Text Selected:</strong> "{event.meta_data.selected_text}"
                                                             </div>
                                                         )}
                                                         {event.meta_data?.db_level !== undefined && (

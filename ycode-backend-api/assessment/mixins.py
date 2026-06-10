@@ -134,6 +134,41 @@ class ProctoringMixin:
         None  # Field name in QuestionActivity model linking to Submission
     )
 
+    CRITICAL_VIOLATION_TYPES = [
+        "new_tab_detected",
+        "new_window_detected",
+        "devtools_opened",
+        "camera_disabled",
+        "microphone_disabled",
+        "face_not_detected",
+        "multiple_faces_detected",
+        "face_recognition_failed",
+        "violation_critical",
+        "manual_flag",
+        "suspicious_activity",
+        "device_change",
+        "external_monitor",
+    ]
+
+    GENERAL_VIOLATION_TYPES = [
+        "copy_detected",
+        "paste_detected",
+        "cut_detected",
+        "select_all_detected",
+        "right_click_detected",
+        "keyboard_shortcut",
+        "screenshot_detected",
+        "camera_enabled",
+        "microphone_enabled",
+        "screen_share_started",
+        "screen_share_ended",
+        "suspicious_movement",
+        "audio_anomaly",
+        "network_disconnection",
+        "network_reconnection",
+        "violation_warning",
+    ]
+
     @action(
         detail=True,
         methods=["post"],
@@ -259,25 +294,11 @@ class ProctoringMixin:
                 self._check_plagiarism(qa_record, request)
 
         # 2. Violation Logic
-        # Explicit violation types from requirements
-        violation_types = [
-            "copy_detected",
-            "paste_detected",
-            "cut_detected",
-            "right_click_detected",
-            "keyboard_shortcut",
-            "face_not_detected",
-            "multiple_faces_detected",
-            "face_recognition_failed",
-            "suspicious_movement",
-            "audio_anomaly",
-            "suspicious_activity",
-            "device_change",
-            "external_monitor",
-        ]
-
-        if activity_type in violation_types:
+        if activity_type in self.CRITICAL_VIOLATION_TYPES:
             qa_record.violation_count += 1
+            qa_record.has_violations = True
+            qa_record_updated = True
+        elif activity_type in self.GENERAL_VIOLATION_TYPES:
             qa_record.has_violations = True
             qa_record_updated = True
 
@@ -324,26 +345,6 @@ class ProctoringMixin:
         auto_submitted = False
         total_violations, tab_switch_count = self._get_submission_stats(submission)
 
-        assessment = getattr(submission, self.submission_lookup_field)
-        v_threshold = getattr(assessment, 'violation_threshold', 5)
-
-        if (
-            v_threshold > 0
-            and total_violations >= v_threshold
-            and submission.status not in [
-                getattr(submission.__class__, 'STATUS_SUBMITTED', 'submitted'),
-                getattr(submission.__class__, 'STATUS_COMPLETED', 'completed'),
-                getattr(submission.__class__, 'STATUS_EVALUATED', 'evaluated'),
-            ]
-        ):
-            submission.status = getattr(submission.__class__, 'STATUS_SUBMITTED', 'submitted')
-            submission.submitted_at = timezone.now()
-            submission.save(update_fields=['status', 'submitted_at'])
-            auto_submitted = True
-            logger.warning(
-                f"Auto-submitted submission {submission.id} — total_violations={total_violations} >= threshold={v_threshold}"
-            )
-
         return Response(
             {
                 'status': 'logged',
@@ -351,7 +352,7 @@ class ProctoringMixin:
                 'tab_switch_count': tab_switch_count,
                 'total_violations': total_violations,
                 'auto_submitted': auto_submitted,
-                'auto_submit_reason': 'violation_threshold_exceeded' if auto_submitted else None,
+                'auto_submit_reason': None,
             },
             status=status.HTTP_200_OK,
         )
@@ -556,11 +557,11 @@ class ProctoringMixin:
             event["image_path"] = image_path
 
         # Define non-violation events that shouldn't be counted as proctoring violations
-        proctoring_types = dict(BaseQuestionActivity.PROCTORING_ACTIVITY_TYPES).keys()
         non_violation_types = ["snapshot", "camera_enabled", "camera_disabled"]
 
         is_proctoring = (
-            activity_type in proctoring_types
+            activity_type in self.CRITICAL_VIOLATION_TYPES
+            or activity_type in self.GENERAL_VIOLATION_TYPES
             or activity_type == "snapshot"
             or bool(image_path)
         )
@@ -574,33 +575,8 @@ class ProctoringMixin:
 
         submission.save()
 
-        # --- Tab-switch threshold auto-submit ---
+        # --- Auto-submit enforcement ---
         auto_submitted = False
-        assessment = getattr(submission, self.submission_lookup_field)
-
-        if activity_type == 'tab_switched':
-            tab_switch_count = sum(
-                1 for e in submission.general_events
-                if e.get('activity_type') == 'tab_switched'
-            )
-            tab_threshold = getattr(assessment, 'tab_switch_threshold', 3)
-
-            if (
-                tab_threshold > 0
-                and tab_switch_count >= tab_threshold
-                and submission.status not in [
-                    getattr(submission.__class__, 'STATUS_SUBMITTED', 'submitted'),
-                    getattr(submission.__class__, 'STATUS_COMPLETED', 'completed'),
-                    getattr(submission.__class__, 'STATUS_EVALUATED', 'evaluated'),
-                ]
-            ):
-                submission.status = getattr(submission.__class__, 'STATUS_SUBMITTED', 'submitted')
-                submission.submitted_at = timezone.now()
-                submission.save(update_fields=['status', 'submitted_at'])
-                auto_submitted = True
-                logger.warning(
-                    f"Auto-submitted submission {submission.id} — tab_switches={tab_switch_count} >= threshold={tab_threshold}"
-                )
 
         # Count total violations and tab switches using the helper
         total_violations, tab_switch_count = self._get_submission_stats(submission)
@@ -613,7 +589,7 @@ class ProctoringMixin:
                 'total_submission_violations': total_violations,
                 'total_violations': total_violations,
                 'auto_submitted': auto_submitted,
-                'auto_submit_reason': 'tab_switch_threshold_exceeded' if auto_submitted else None,
+                'auto_submit_reason': None,
             },
             status=status.HTTP_200_OK,
         )
@@ -640,7 +616,7 @@ class ProctoringMixin:
             **{submission_field_name: submission}
         ).aggregate(total=Sum('violation_count'))['total'] or 0
         
-        sub_violations = len(submission.proctoring_events or [])
+        sub_violations = sum(1 for e in (submission.proctoring_events or []) if e.get('activity_type') in self.CRITICAL_VIOLATION_TYPES)
         
         sub_tab_switches = sum(1 for e in (submission.general_events or []) if e.get('activity_type') == 'tab_switched')
         

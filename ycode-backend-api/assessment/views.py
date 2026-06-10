@@ -1914,53 +1914,47 @@ class JobTestViewSet(viewsets.ViewSet):
                         qa_record.violation_count += 1
                         qa_record.has_violations = True
                         qa_updated = True
+                    elif activity_type in ["question_viewed", "question_left", "answer_started", "answer_changed", "answer_submitted"]:
+                        # Record as navigation event
+                        if not hasattr(qa_record, 'question_activities') or not isinstance(qa_record.question_activities, list):
+                            qa_record.question_activities = []
+                        qa_record.question_activities.append(event)
+                        qa_updated = True
+                        
+                        if activity_type == 'question_left':
+                            last_viewed = next((visit for visit in reversed(qa_record.question_activities) if visit.get('activity_type') == 'question_viewed'), None)
+                            if last_viewed:
+                                try:
+                                    from datetime import datetime
+                                    view_time = datetime.fromisoformat(last_viewed['timestamp'].replace('Z', '+00:00'))
+                                    leave_time = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                                    duration_seconds = (leave_time - view_time).total_seconds()
+                                    if duration_seconds > 0:
+                                        qa_record.total_question_time += int(duration_seconds)
+                                except Exception as e:
+                                    logger.error(f"Error calculating time: {e}")
                         
                     if qa_updated:
                         qa_record.save()
                 except JobTestQuestionActivity.DoesNotExist:
                     pass
         
-        # Check thresholds
-        auto_submitted = False
-        
-        # 1. Tab switch threshold
+        # Threshold checks removed as per requirement to not auto-submit
+            
         tab_switch_count = sum(
             1 for e in application.screening_responses.get("general_events", [])
             if e.get("activity_type") == "tab_switched"
         )
-        job = application.job
-        tab_threshold = getattr(job, "tab_switch_threshold", 3)
-        
-        if (
-            tab_threshold > 0
-            and tab_switch_count >= tab_threshold
-            and application.status != "screening_test_completed"
-        ):
-            application.status = "screening_test_completed"
-            application.save(update_fields=["status"])
-            auto_submitted = True
-            
-        # 2. Total violations threshold
         total_violations = len(application.screening_responses.get("proctoring_events", []))
-        violation_threshold = getattr(job, "violation_threshold", 5)
-        
-        if (
-            violation_threshold > 0
-            and total_violations >= violation_threshold
-            and application.status != "screening_test_completed"
-        ):
-            application.status = "screening_test_completed"
-            application.save(update_fields=["status"])
-            auto_submitted = True
             
         return Response({
-            "status": "auto_submitted" if auto_submitted else "logged",
+            "status": "logged",
             "scope": "submission",
             "tab_switch_count": tab_switch_count,
             "total_submission_violations": total_violations + tab_switch_count,
             "total_violations": total_violations + tab_switch_count,
-            "auto_submitted": auto_submitted,
-            "auto_submit_reason": "threshold_exceeded" if auto_submitted else None,
+            "auto_submitted": False,
+            "auto_submit_reason": None,
         })
 
     @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])

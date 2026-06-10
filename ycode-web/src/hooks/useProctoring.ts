@@ -40,6 +40,8 @@ export const useProctoring = ({
     useEffect(() => { onAutoSubmitRef.current = onAutoSubmit; }, [onAutoSubmit]);
     useEffect(() => { questionIdRef.current = questionId; }, [questionId]);
 
+    const shortcutAttemptRef = useRef<string | null>(null);
+
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
         if (!enabled) return null;
@@ -128,13 +130,15 @@ export const useProctoring = ({
                 const ta = document.activeElement;
                 selectedText = ta.value.substring(ta.selectionStart, ta.selectionEnd);
             }
-            logActivity('copy_detected', { copied_text: selectedText });
+            const method = shortcutAttemptRef.current === 'c' ? 'keyboard_shortcut' : 'direct';
+            logActivity('copy_detected', { method, copied_text: selectedText });
             onViolationRef.current?.('copy_detected');
         };
         const handlePaste = (e: ClipboardEvent) => {
             e.preventDefault();
             const pastedText = e.clipboardData?.getData('text') || '';
-            logActivity('paste_detected', { pasted_text: pastedText });
+            const method = shortcutAttemptRef.current === 'v' ? 'keyboard_shortcut' : 'direct';
+            logActivity('paste_detected', { method, pasted_text: pastedText });
             onViolationRef.current?.('paste_detected');
         };
         const handleCut = (e: ClipboardEvent) => {
@@ -144,12 +148,13 @@ export const useProctoring = ({
                 const ta = document.activeElement;
                 selectedText = ta.value.substring(ta.selectionStart, ta.selectionEnd);
             }
-            logActivity('cut_detected', { cut_text: selectedText });
+            const method = shortcutAttemptRef.current === 'x' ? 'keyboard_shortcut' : 'direct';
+            logActivity('cut_detected', { method, cut_text: selectedText });
             onViolationRef.current?.('cut_detected');
         };
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
-            logActivity('right_click_detected', { x: e.clientX, y: e.clientY });
+            logActivity('right_click_detected', { method: 'direct', x: e.clientX, y: e.clientY });
             onViolationRef.current?.('right_click_detected');
         };
         const handleDrag = (e: DragEvent) => { e.preventDefault(); };
@@ -229,31 +234,66 @@ export const useProctoring = ({
             const fKeys = ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
             if (fKeys.includes(key)) {
                 blocked = true;
-                description = `${e.key} blocked`;
+                if (key === 'f12') {
+                    logActivity('devtools_opened', { key: e.key, description: 'F12 DevTools blocked' });
+                    onViolationRef.current?.('devtools_opened');
+                } else {
+                    description = `${e.key} blocked`;
+                }
             }
 
             // ── Cmd+Option+I/J/C (Mac DevTools — Chrome, Safari, Edge) ───────
             if (meta && alt && ['i','j','c'].includes(key)) {
                 blocked = true;
-                description = `Cmd+Option+${key.toUpperCase()} — DevTools (Mac)`;
+                logActivity('devtools_opened', { key: `Cmd+Option+${key.toUpperCase()}`, description: 'DevTools (Mac)' });
+                onViolationRef.current?.('devtools_opened');
             }
 
             // ── Cmd+Shift+I/J/C (Mac — Firefox DevTools) ──────────────────────
             if (meta && shift && ['i','j','c'].includes(key)) {
                 blocked = true;
-                description = `Cmd+Shift+${key.toUpperCase()} — DevTools (Mac Firefox)`;
+                logActivity('devtools_opened', { key: `Cmd+Shift+${key.toUpperCase()}`, description: 'DevTools (Mac Firefox)' });
+                onViolationRef.current?.('devtools_opened');
             }
 
             // ── Ctrl+Shift+I/J/C/K/E/S/M (Windows/Linux DevTools) ─────────────
             if (ctrl && shift && ['i','j','c','k','e','s','m'].includes(key)) {
                 blocked = true;
-                description = `Ctrl+Shift+${key.toUpperCase()} — DevTools`;
+                logActivity('devtools_opened', { key: `Ctrl+Shift+${key.toUpperCase()}`, description: 'DevTools' });
+                onViolationRef.current?.('devtools_opened');
+            }
+
+            // ── New Tab (Ctrl/Cmd + T) ────────────────────────────────────────
+            if (ctrlOrMeta && key === 't') {
+                blocked = true;
+                logActivity('new_tab_detected', { key: `Ctrl/Cmd+T`, description: 'New tab blocked' });
+                onViolationRef.current?.('new_tab_detected');
+            }
+
+            // ── New Window (Ctrl/Cmd + N) ─────────────────────────────────────
+            if (ctrlOrMeta && key === 'n') {
+                blocked = true;
+                logActivity('new_window_detected', { key: `Ctrl/Cmd+N`, description: 'New window blocked' });
+                onViolationRef.current?.('new_window_detected');
+            }
+
+            // ── Screenshots (Mac: Cmd+Shift+3/4/5) ────────────────────────────
+            if (meta && shift && ['3','4','5'].includes(key)) {
+                logActivity('screenshot_detected', { key: `Cmd+Shift+${key}`, description: 'Screenshot attempt' });
+                onViolationRef.current?.('screenshot_detected');
+            }
+
+            // ── PrintScreen ────────────────────────────────────────────────────
+            if (key === 'printscreen') {
+                logActivity('screenshot_detected', { key: 'PrintScreen', description: 'Screenshot attempt' });
+                onViolationRef.current?.('screenshot_detected');
             }
 
             // ── Ctrl+U / Cmd+U (View Source) ───────────────────────────────────
             if (ctrlOrMeta && key === 'u') {
                 blocked = true;
-                description = 'View Source blocked';
+                logActivity('devtools_opened', { key: 'Ctrl/Cmd+U', description: 'View Source blocked' });
+                onViolationRef.current?.('devtools_opened');
             }
 
             // ── Ctrl+R / Cmd+R (Reload) ────────────────────────────────────────
@@ -269,27 +309,38 @@ export const useProctoring = ({
             }
 
             // ── Ctrl+C/V/X/A/P/S (Copy, Paste, Cut, Select all, Print, Save) ───
-            if (ctrlOrMeta && !shift && ['c','v','x','a','p','s'].includes(key)) {
+            if (ctrlOrMeta && !shift && ['c','v','x'].includes(key)) {
+                shortcutAttemptRef.current = key;
+                setTimeout(() => { shortcutAttemptRef.current = null; }, 100);
+                // Do NOT set blocked = true here, let it bubble to the native clipboard events
+            } else if (ctrlOrMeta && !shift && ['a','p','s'].includes(key)) {
                 blocked = true;
-                description = `Ctrl+${key.toUpperCase()} blocked`;
-            }
-
-            // ── PrintScreen ────────────────────────────────────────────────────
-            if (e.key === 'PrintScreen') {
-                // Can't fully block but log it
-                logActivity('keyboard_shortcut', { key: 'PrintScreen', description: 'Screenshot attempt' });
-                onViolationRef.current?.('keyboard_shortcut');
+                
+                if (key === 'a') {
+                    let selectedText = window.getSelection()?.toString() || '';
+                    if (!selectedText && document.activeElement instanceof HTMLTextAreaElement) {
+                        const ta = document.activeElement;
+                        selectedText = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+                    }
+                    logActivity('select_all_detected', { method: 'keyboard_shortcut', key: 'Ctrl/Cmd+A', selected_text: selectedText });
+                    onViolationRef.current?.('select_all_detected');
+                } else {
+                    description = `Ctrl+${key.toUpperCase()} blocked`;
+                }
             }
 
             // ── Alt+Tab ───────────────────────────────────────────────────────
             if (alt && key === 'tab') {
-                logActivity('keyboard_shortcut', { key: 'Alt+Tab', description: 'App switch attempt' });
-                onViolationRef.current?.('keyboard_shortcut');
+                logActivity('window_blur', { key: 'Alt+Tab', description: 'App switch attempt' });
+                onViolationRef.current?.('window_blur');
             }
 
             if (blocked) {
                 e.preventDefault();
                 e.stopPropagation();
+            }
+
+            if (blocked && description) {
                 logActivity('keyboard_shortcut', { key: e.key, description });
                 onViolationRef.current?.('keyboard_shortcut');
             }
