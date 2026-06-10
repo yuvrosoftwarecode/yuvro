@@ -39,7 +39,7 @@ class BaseAssessmentModel(BaseModel):
     duration = models.IntegerField(default=60, help_text="Duration in minutes")
     total_marks = models.IntegerField(default=100)
     passing_marks = models.IntegerField(default=60)
-    enable_proctoring = models.BooleanField(default=False)
+    enable_proctoring = models.BooleanField(default=True)
     tab_switch_threshold = models.PositiveIntegerField(
         default=3,
         help_text="Number of tab switches before auto-submit is triggered (0 = disabled)",
@@ -304,8 +304,9 @@ class JobTest(BaseAssessmentModel):
         (TYPE_DOMAIN_SPECIFIC, "Domain Specific"),
     ]
 
-    company_name = models.CharField(max_length=255)
-    position_title = models.CharField(max_length=255)
+    job = models.OneToOneField("job.Job", on_delete=models.CASCADE, related_name="job_test", null=True, blank=True)
+    company_name = models.CharField(max_length=255, blank=True)
+    position_title = models.CharField(max_length=255, blank=True)
     start_datetime = models.DateTimeField(null=True, blank=True)
     end_datetime = models.DateTimeField(null=True, blank=True)
 
@@ -440,6 +441,9 @@ class MockInterviewSubmission(BaseUserSubmission):
 class JobTestSubmission(BaseUserSubmission):
     job_test = models.ForeignKey(
         JobTest, on_delete=models.CASCADE, related_name="job_test_submissions"
+    )
+    application = models.OneToOneField(
+        "job.JobApplication", on_delete=models.CASCADE, related_name="job_test_submission", null=True, blank=True
     )
 
     class Meta:

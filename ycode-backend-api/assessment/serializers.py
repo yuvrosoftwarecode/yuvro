@@ -8,7 +8,7 @@ from .models import (
     ContestSubmission,
     MockInterviewSubmission,
     JobTestSubmission, SkillTestSubmission,
-    SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity,
+    SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity, JobTestQuestionActivity,
     CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate,
     ContestRegistration
 )
@@ -867,9 +867,73 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+class JobTestQuestionActivitySerializer(serializers.ModelSerializer):
+    question_title = serializers.CharField(source="question.title", read_only=True)
+    question_type = serializers.CharField(source="question.type", read_only=True)
+    question_content = serializers.CharField(source="question.content", read_only=True)
+    mcq_options = serializers.JSONField(source="question.mcq_options", read_only=True)
+    marks = serializers.FloatField(source="question.marks", read_only=True)
+    test_cases_basic = serializers.JSONField(
+        source="question.test_cases_basic", read_only=True
+    )
+    solutions = QuestionSolutionSerializer(
+        source="question.solutions", many=True, read_only=True
+    )
+
+    class Meta:
+        model = JobTestQuestionActivity
+        fields = [
+            "id",
+            "question",
+            "question_title",
+            "question_type",
+            "question_content",
+            "mcq_options",
+            "marks",
+            "test_cases_basic",
+            "solutions",
+            "question_activities",
+            "navigation_activities",
+            "proctoring_activities",
+            "camera_snapshots",
+            "alert_priority",
+            "answer_data",
+            "is_final_answer",
+            "marks_obtained",
+            "is_correct",
+            "total_question_time",
+            "violation_count",
+            "has_violations",
+            "created_at",
+            "updated_at",
+        ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        # Build URLs for camera_snapshots
+        snapshots = data.get("camera_snapshots")
+        if snapshots and isinstance(snapshots, list):
+            for snap in snapshots:
+                if isinstance(snap, dict) and snap.get("image_path"):
+                    snap["image_path"] = build_public_url(snap["image_path"])
+                    
+        # Build URLs for proctoring_activities
+        activities = data.get("proctoring_activities")
+        if activities and isinstance(activities, list):
+            for act in activities:
+                if isinstance(act, dict) and act.get("image_path"):
+                    act["image_path"] = build_public_url(act["image_path"])
+                    
+        return data
+
+
 class JobTestSubmissionSerializer(serializers.ModelSerializer):
     job_test_title = serializers.CharField(source="job_test.title", read_only=True)
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
+    question_activities = JobTestQuestionActivitySerializer(
+        source="job_test_question_activities", many=True, read_only=True
+    )
 
     total_violations = serializers.SerializerMethodField()
     tab_switch_count = serializers.SerializerMethodField()
@@ -913,9 +977,9 @@ class JobTestSubmissionSerializer(serializers.ModelSerializer):
             "marks",
             "proctoring_events",
             "general_events",
-            "browser_info",
             "ip_address",
             "user_agent",
+            "question_activities",
             "created_at",
             "updated_at",
             "total_violations",

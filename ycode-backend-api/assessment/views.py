@@ -1257,29 +1257,41 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            # Expected format: {'mcq_single': 10, 'coding': 2}
+            # Expected format: {'mcq_single': 10, 'coding': 2} or {'mcq_single': {'easy': 2, 'medium': 3, 'hard': 0}}
             
             # Get IDs already selected to avoid duplicates
             existing_ids = [q['id'] for q in questions_to_send]
             
-            for q_type, count in skill_test.questions_random_config.items():
-                if count > 0:
-                    q_filter = Q(type=q_type)
-                    
-                    if skill_test.topic:
-                        # Include questions linked to subtopics of this topic OR directly to the topic
-                        q_filter &= (Q(subtopic__topic=skill_test.topic) | Q(topic=skill_test.topic))
-                    elif skill_test.course:
-                        q_filter &= Q(course=skill_test.course)
+            for q_type, config in skill_test.questions_random_config.items():
+                if isinstance(config, dict):
+                    difficulty_counts = config
+                elif isinstance(config, int) or (isinstance(config, str) and config.isdigit()):
+                    difficulty_counts = {None: int(config)}
+                else:
+                    continue
+                
+                for diff, count in difficulty_counts.items():
+                    if isinstance(count, int) and count > 0:
+                        q_filter = Q(type=q_type)
                         
-                    # Fetch candidate questions directly with randomization limit in DBMS
-                    selected = list(Question.objects.filter(
-                        q_filter
-                    ).exclude(id__in=existing_ids).order_by('?')[:count].values(
-                        'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
-                    ))
-                    
-                    questions_to_send.extend(selected)
+                        if diff is not None:
+                            q_filter &= Q(difficulty=diff)
+                            
+                        if skill_test.topic:
+                            # Include questions linked to subtopics of this topic OR directly to the topic
+                            q_filter &= (Q(subtopic__topic=skill_test.topic) | Q(topic=skill_test.topic))
+                        elif skill_test.course:
+                            q_filter &= Q(course=skill_test.course)
+                            
+                        # Fetch candidate questions directly with randomization limit in DBMS
+                        selected = list(Question.objects.filter(
+                            q_filter
+                        ).exclude(id__in=existing_ids).order_by('?')[:count].values(
+                            'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                        ))
+                        
+                        questions_to_send.extend(selected)
+                        existing_ids.extend([q['id'] for q in selected])
                     
         # Shuffle final list
         random.shuffle(questions_to_send)
@@ -1862,6 +1874,51 @@ class JobTestViewSet(viewsets.ViewSet):
             application.screening_responses["general_events"].append(event)
             
         application.save(update_fields=["screening_responses"])
+
+        # Also update JobTestSubmission and JobTestQuestionActivity
+        from assessment.models import JobTestSubmission, JobTestQuestionActivity
+        submission = JobTestSubmission.objects.filter(application=application).first()
+        if not submission and application.job and hasattr(application.job, 'job_test'):
+            submission = JobTestSubmission.objects.filter(user=application.applicant, job_test=application.job.job_test).first()
+
+        if submission:
+            if not isinstance(submission.proctoring_events, list):
+                submission.proctoring_events = []
+            if not isinstance(submission.general_events, list):
+                submission.general_events = []
+            
+            if is_violation:
+                submission.proctoring_events.append(event)
+            else:
+                submission.general_events.append(event)
+            submission.save(update_fields=["proctoring_events", "general_events"])
+
+            # Handle question level activity if applicable
+            question_id = request.data.get("question_id")
+            if question_id:
+                try:
+                    qa_record = JobTestQuestionActivity.objects.get(
+                        job_test_submission=submission, 
+                        question_id=question_id
+                    )
+                    qa_updated = False
+                    if activity_type == "snapshot" and image_file:
+                        if not isinstance(qa_record.camera_snapshots, list):
+                            qa_record.camera_snapshots = []
+                        qa_record.camera_snapshots.append(event)
+                        qa_updated = True
+                    elif activity_type in proctoring_types:
+                        if not isinstance(qa_record.proctoring_activities, list):
+                            qa_record.proctoring_activities = []
+                        qa_record.proctoring_activities.append(event)
+                        qa_record.violation_count += 1
+                        qa_record.has_violations = True
+                        qa_updated = True
+                        
+                    if qa_updated:
+                        qa_record.save()
+                except JobTestQuestionActivity.DoesNotExist:
+                    pass
         
         # Check thresholds
         auto_submitted = False
@@ -1905,6 +1962,22 @@ class JobTestViewSet(viewsets.ViewSet):
             "auto_submitted": auto_submitted,
             "auto_submit_reason": "threshold_exceeded" if auto_submitted else None,
         })
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def submission(self, request, pk=None):
+        application = get_object_or_404(JobApplication, id=pk)
+        
+        user = request.user
+        if not (user.is_staff or (hasattr(user, 'role') and user.role in ['admin', 'recruiter'])) and application.applicant != user:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+            
+        submission = JobTestSubmission.objects.filter(application=application).first()
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        from .serializers import JobTestSubmissionSerializer
+        serializer = JobTestSubmissionSerializer(submission)
+        return Response({"submission": serializer.data})
 
 
 

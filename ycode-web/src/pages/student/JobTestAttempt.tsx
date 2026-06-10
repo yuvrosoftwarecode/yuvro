@@ -34,8 +34,7 @@ export default function JobTestAttempt() {
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isStarted, setIsStarted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
   const [jobTitle, setJobTitle] = useState('');
@@ -79,9 +78,7 @@ export default function JobTestAttempt() {
     fetchTestData();
   }, [applicationId]);
 
-  const handleStart = () => {
-    setIsStarted(true);
-  };
+
 
   const handleSubmit = async (
     assessmentId: string,
@@ -99,6 +96,7 @@ export default function JobTestAttempt() {
     } catch (err: any) {
       console.error('Error submitting test:', err);
       toast.error(err.response?.data?.error || 'Failed to submit assessment. Please try again.');
+      throw err;
     }
   };
 
@@ -162,64 +160,6 @@ export default function JobTestAttempt() {
     );
   }
 
-  if (!isStarted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-        <div className="w-full max-w-2xl bg-white shadow-xl shadow-orange-500/5 rounded-2xl p-10 border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-orange-600" />
-          
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-lg border border-orange-100">
-              Y
-            </div>
-            <span className="text-slate-800 text-xl font-bold tracking-tight">Yuvro Assessment</span>
-          </div>
-
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-            Job Assessment Instructions
-          </h2>
-          <p className="text-slate-500 text-sm mb-8">
-            You are attempting the assessment for <strong>{jobTitle}</strong> at <strong>{companyName}</strong>.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-              <Clock className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="block font-semibold text-slate-800 text-sm">Duration</span>
-                <span className="text-slate-500 text-xs">{duration} minutes total</span>
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-              <BookOpen className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="block font-semibold text-slate-800 text-sm">Questions</span>
-                <span className="text-slate-500 text-xs">{questions.length} question(s)</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-10 text-sm text-slate-600 leading-relaxed space-y-3">
-            <p className="font-semibold text-slate-800">Please review the rules before starting:</p>
-            <ul className="list-disc pl-5 space-y-1.5 text-slate-500">
-              <li>Ensure you have a stable internet connection.</li>
-              <li>Once you click start, the timer cannot be paused.</li>
-              <li>Switching tabs or minimizing the browser may flag your submission.</li>
-              {proctoringEnabled && <li>This exam is monitored using your webcam and microphone.</li>}
-            </ul>
-          </div>
-
-          <button
-            onClick={handleStart}
-            className="w-full py-3.5 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.99]"
-          >
-            Start Job Assessment
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (proctoringEnabled && !gatePassed) {
     return (

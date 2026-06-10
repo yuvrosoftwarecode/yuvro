@@ -554,6 +554,8 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     } catch (err) {
       toast.error("Failed to submit assessment. Please try again.");
       console.error("Submit error", err);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 

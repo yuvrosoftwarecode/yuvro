@@ -87,6 +87,10 @@ export const jobApplicationService = {
 
     async getApplication(applicationId: string): Promise<JobApplication> {
         return restApiAuthUtil.get(`/jobs/applications/${applicationId}/`);
+    },
+
+    async getTestSubmission(applicationId: string): Promise<any> {
+        return restApiAuthUtil.get(`/assessment/job-tests/${applicationId}/submission/`);
     }
 };
 

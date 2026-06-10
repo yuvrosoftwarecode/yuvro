@@ -75,9 +75,10 @@ const Jobs: React.FC = () => {
     skills: [] as string[],
     notice_period: undefined as number | undefined,
     education_level: "any" as const,
-    status: "draft" as const,
+    status: "active" as "active" | "draft" | "paused" | "closed" | "rejected",
     posted_at: undefined as string | undefined,
     expires_at: undefined as string | undefined,
+    enable_proctoring: true,
   });
 
 
@@ -232,9 +233,10 @@ const Jobs: React.FC = () => {
       skills: [],
       notice_period: undefined,
       education_level: "any",
-      status: "draft",
+      status: "active",
       posted_at: undefined,
       expires_at: undefined,
+      enable_proctoring: true,
     });
     setSelectedQuestions([]);
     setSelectedQuestionsByType({
@@ -272,6 +274,7 @@ const Jobs: React.FC = () => {
       status: "draft",
       posted_at: undefined,
       expires_at: undefined,
+      enable_proctoring: job.enable_proctoring ?? true,
     });
 
     const allQuestions = [
@@ -320,6 +323,7 @@ const Jobs: React.FC = () => {
       status: job.status as "draft",
       posted_at: job.posted_at,
       expires_at: job.expires_at,
+      enable_proctoring: job.enable_proctoring ?? true,
     });
 
     const allQuestions = [

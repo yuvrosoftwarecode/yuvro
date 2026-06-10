@@ -61,6 +61,7 @@ interface Submission {
     question_activities?: QuestionActivity[];
     skill_test_title?: string;
     exam_title?: string;
+    job_test_title?: string;
 }
 
 interface ProctoringSessionViewerProps {
@@ -215,9 +216,17 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
 
     const getImageUrl = (imgUrl: string | undefined) => {
         if (!imgUrl) return '';
-        if (imgUrl.startsWith('http')) return imgUrl;
+        
+        let processedUrl = imgUrl;
+        
+        // Handle local docker minio URLs rewriting them to localhost so the browser can reach them
+        if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/')) {
+            processedUrl = processedUrl.replace('minio:9000', 'localhost:9000').replace('http://minio/', 'http://localhost:9000/');
+        }
 
-        let cleanPath = imgUrl?.replace(/\\/g, '/');
+        if (processedUrl.startsWith('http')) return processedUrl;
+
+        let cleanPath = processedUrl?.replace(/\\/g, '/');
         if (cleanPath.startsWith('uploads/')) {
             cleanPath = cleanPath.substring('uploads/'.length);
         } else if (cleanPath.startsWith('/uploads/')) {
@@ -387,9 +396,9 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                             <span className="text-muted-foreground">Fullname:</span>
                                             <span className="font-semibold">{submission.user_name}</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Test Title:</span>
-                                            <span className="font-semibold truncate max-w-[200px]">{submission.skill_test_title || submission.exam_title || 'Assessment'}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-gray-500">Test:</span>
+                                            <span className="font-semibold truncate max-w-[200px]">{submission.skill_test_title || submission.exam_title || submission.job_test_title || 'Assessment'}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Status:</span>

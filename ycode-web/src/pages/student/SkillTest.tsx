@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import SkillTestDashboard from "@/components/student/skill-test/SkillTestDashboard";
 import TopicSidebar from "@/components/common/CourseSidebar";
 import TestCards from "@/components/student/skill-test/TestCards";
-import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
 import DashboardLayout from "@/components/common/DashboardLayout";
@@ -61,7 +60,6 @@ interface TestStats {
 type View =
   | "courses"
   | "tests"
-  | "instructions"
   | "test"
   | "results";
 
@@ -167,7 +165,9 @@ const SkillTest: React.FC = () => {
               if (isResultsRoute) {
                 setCurrentView("results");
               } else {
-                setCurrentView("instructions");
+                // If they land directly on a test URL, redirect to tests list to properly initialize state
+                navigate(`/student/courses/${courseId}/skill-tests`);
+                setCurrentView("tests");
               }
             } else {
               setCurrentView("tests");
@@ -234,8 +234,13 @@ const SkillTest: React.FC = () => {
 
   const handleStartTest = (test: Test) => {
     setSelectedTest(test);
-    setCurrentView("instructions");
+    setGatePassed(false);
     navigate(`/student/courses/${courseId}/skill-tests/${test.id}`);
+    if (test.enable_proctoring) {
+      setGateActive(true);
+    } else {
+      handleBeginTest(test.id);
+    }
   };
 
   const handleBeginTest = async (testId: string) => {
@@ -273,7 +278,7 @@ const SkillTest: React.FC = () => {
   };
 
   const handleBackToInstructions = () => {
-    setCurrentView("instructions");
+    setCurrentView("tests");
     setHideNavigation(false);
   };
 
@@ -299,13 +304,18 @@ const SkillTest: React.FC = () => {
     navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
   };
 
-  const handleViewAllResults = () => {
-    navigate("/student/skill-test/results");
+  const handleViewAllResults = (test: Test) => {
+    handleViewResult(test);
   };
 
   const handleRetakeTest = () => {
     if (selectedTest) {
-      handleBeginTest(selectedTest.id);
+      if (selectedTest.enable_proctoring) {
+        setGatePassed(false);
+        setGateActive(true);
+      } else {
+        handleBeginTest(selectedTest.id);
+      }
     }
   };
 
@@ -332,39 +342,13 @@ const SkillTest: React.FC = () => {
         }}
         onCancel={() => {
           setGateActive(false);
-          setCurrentView("instructions");
+          setCurrentView("tests");
+          navigate(`/student/courses/${courseId}/skill-tests`);
         }}
       />
     );
   }
 
-  if (currentView === "instructions" && selectedTest && selectedTopic) {
-    return (
-      <DashboardLayout hideHeader={true} hideFooter={true}>
-        <TestInstructions
-          test={{
-            id: selectedTest.id,
-            title: selectedTest.title,
-            course: selectedCourse?.name || "",
-            duration: selectedTest.duration,
-            totalQuestions: selectedTest.totalQuestions,
-            difficulty: selectedTest.difficulty,
-            description: selectedTest.description || "",
-            marks: selectedTest.totalMarks,
-            enable_proctoring: selectedTest.enable_proctoring,
-          }}
-          onStart={() => {
-            if (selectedTest.enable_proctoring) {
-              setGateActive(true);
-            } else {
-              handleBeginTest(selectedTest.id);
-            }
-          }}
-          onBack={handleBackToTests}
-        />
-      </DashboardLayout>
-    );
-  }
 
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
