@@ -212,6 +212,11 @@ class Command(BaseCommand):
             if not instructor:
                 instructor = User.objects.filter(role="admin").first() or User.objects.filter(is_superuser=True).first() or User.objects.first()
 
+            subject_assessments_created = 0
+            subject_assessments_synced = 0
+            skill_tests_created = 0
+            skill_tests_synced = 0
+
             questions_to_create = []
             questions_to_update = []
             solutions_to_create = []
@@ -279,7 +284,9 @@ class Command(BaseCommand):
                         }
                     )
                     if st_created:
-                        self.stdout.write(f"    ✓ Auto-generated subject assessment: {st.title}")
+                        subject_assessments_created += 1
+                    else:
+                        subject_assessments_synced += 1
 
             unit_map = {}
             subunit_map = {}
@@ -294,9 +301,6 @@ class Command(BaseCommand):
                     defaults={"order_index": unit_data.get("order_index", 0)},
                 )
                 unit_map[unit_data["name"]] = unit
-
-                if unit_created:
-                    self.stdout.write(f"    ✓ Created unit: {unit.name}")
 
                 if subject.product_type == "assessments":
                     # Auto-generate 4 standard MCQ-only Skill Tests for each unit
@@ -360,7 +364,9 @@ class Command(BaseCommand):
                             }
                         )
                         if st_created:
-                            self.stdout.write(f"      ✓ Auto-generated skill test: {st.title}")
+                            skill_tests_created += 1
+                        else:
+                            skill_tests_synced += 1
 
                 # Support both old "subtopics" and new "sub_units" keys
                 subunits_data = unit_data.get("sub_units", unit_data.get("subtopics", []))
@@ -376,9 +382,6 @@ class Command(BaseCommand):
                     )
                     subunit_map[f"{unit_data['name']}::{subunit_data['name']}"] = subunit
 
-                    if su_created:
-                        self.stdout.write(f"      ✓ Created subunit: {subunit.name}")
-
                     for video_data in subunit_data.get("videos", []):
                         video, v_created = Video.objects.get_or_create(
                             sub_unit=subunit,
@@ -388,8 +391,6 @@ class Command(BaseCommand):
                                 "ai_context": video_data.get("ai_context", ""),
                             },
                         )
-                        if v_created:
-                            self.stdout.write(f"        ✓ Created video: {video.title}")
 
                     # Load questions at subunit level
                     for question_data in subunit_data.get("questions", []):
@@ -416,7 +417,9 @@ class Command(BaseCommand):
                 update_fields = ["language", "code", "complexity_analysis", "is_primary"]
                 QuestionSolution.objects.bulk_update(solutions_to_update, update_fields, batch_size=500)
 
-            self.stdout.write(f"✓ Loaded subject: {subject.subject_name} ({len(questions_to_create)} created, {len(questions_to_update)} synced questions)")
+            self.stdout.write(f"✓ Loaded subject fully: {subject.subject_name} ({len(questions_to_create)} created, {len(questions_to_update)} synced questions)")
+            self.stdout.write(f"  → Subject Assessments: {subject_assessments_created} created, {subject_assessments_synced} synced")
+            self.stdout.write(f"  → Skill Tests: {skill_tests_created} created, {skill_tests_synced} synced")
 
     def _create_question(self, question_data, subject, unit_map, subunit_map, instructor, q_create, q_update, sol_create, sol_update, existing_q, existing_sol):
         """Create or sync a question"""
