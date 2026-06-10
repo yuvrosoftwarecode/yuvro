@@ -141,6 +141,20 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
             for act in activities:
                 if isinstance(act, dict) and act.get("image_path"):
                     act["image_path"] = build_public_url(act["image_path"])
+
+        # Build URLs for navigation_activities
+        nav_activities = data.get("navigation_activities")
+        if nav_activities and isinstance(nav_activities, list):
+            for act in nav_activities:
+                if isinstance(act, dict) and act.get("image_path"):
+                    act["image_path"] = build_public_url(act["image_path"])
+
+        # Build URLs for question_activities
+        q_activities = data.get("question_activities")
+        if q_activities and isinstance(q_activities, list):
+            for act in q_activities:
+                if isinstance(act, dict) and act.get("image_path"):
+                    act["image_path"] = build_public_url(act["image_path"])
                     
         return data
 

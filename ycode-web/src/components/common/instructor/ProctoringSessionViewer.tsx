@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { 
     Clock, 
     AlertTriangle, 
@@ -21,6 +23,7 @@ import {
     ShieldCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
 import { StatsCard } from '@/components/common/StatsCard';
 
 interface ProctoringEvent {
@@ -46,6 +49,9 @@ interface QuestionActivity {
     total_question_time: number;
     is_correct?: boolean;
     violation_count?: number;
+    question_content?: string;
+    mcq_options?: any;
+    answer_data?: any;
     navigation_activities?: ProctoringEvent[];
     proctoring_activities?: ProctoringEvent[];
     question_activities?: ProctoringEvent[];
@@ -71,9 +77,93 @@ interface ProctoringSessionViewerProps {
     title?: string;
 }
 
+const getImageUrl = (imgUrl: string | undefined) => {
+    if (!imgUrl) return '';
+    
+    let processedUrl = imgUrl;
+    
+    if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/')) {
+        processedUrl = processedUrl.replace('minio:9000', 'localhost:9000').replace('http://minio/', 'http://localhost:9000/');
+    }
+
+    if (processedUrl.startsWith('http')) return processedUrl;
+
+    let cleanPath = processedUrl?.replace(/\\/g, '/');
+    if (cleanPath.startsWith('uploads/')) {
+        cleanPath = cleanPath.substring('uploads/'.length);
+    } else if (cleanPath.startsWith('/uploads/')) {
+        cleanPath = cleanPath.substring('/uploads/'.length);
+    }
+
+    if (cleanPath.startsWith('/')) {
+        cleanPath = cleanPath.substring(1);
+    }
+
+    const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api')?.replace(/\/$/, '');
+    const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
+    return `${rootUrl}/media/${cleanPath}`;
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        const log = data.log;
+        const severity = data.severity;
+        const isSnapshot = data.isSnapshot;
+        
+        const isPureSnapshot = isSnapshot && (!log.activity_type || log.activity_type === 'snapshot');
+        
+        return (
+            <div className="bg-card p-3 rounded-lg shadow-xl border border-border max-w-[240px]">
+                <div className="font-mono text-[10px] text-muted-foreground mb-2">{label}</div>
+                <div className="flex items-center gap-2 mb-3">
+                    <div className={`w-2 h-2 rounded-full ${severity === 2 ? 'bg-rose-500' : severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                    <span className="font-bold text-sm">{data.severityName}</span>
+                </div>
+                
+                <div className="space-y-3">
+                    {/* Render text details if there is an activity type (and it's not just a standalone snapshot without other meaning) */}
+                    {!isPureSnapshot && log.activity_type && (
+                        <div className="space-y-1">
+                            <span className="font-semibold capitalize text-xs text-foreground block">
+                                {log.activity_type.replace(/_/g, ' ')}
+                            </span>
+                            {log.meta_data && Object.keys(log.meta_data).length > 0 && (
+                                <div className="mt-2 space-y-1 pt-2 border-t border-border/50">
+                                    {log.meta_data.key && (
+                                        <div className="text-[10px] truncate"><span className="text-muted-foreground">Key:</span> <kbd className="px-1 border bg-muted font-mono rounded">{log.meta_data.key}</kbd></div>
+                                    )}
+                                    {log.meta_data.copied_text && (
+                                        <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-muted-foreground">Copy:</span> "{log.meta_data.copied_text}"</div>
+                                    )}
+                                    {log.meta_data.pasted_text && (
+                                        <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-muted-foreground">Paste:</span> "{log.meta_data.pasted_text}"</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Render Image if exists */}
+                    {isSnapshot && (
+                        <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-border/50' : ''}`}>
+                            <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                                <Camera className="h-3 w-3" /> Snapshot Captured
+                            </div>
+                            <img src={getImageUrl(log.image_path)} alt="Snapshot" className="w-full object-cover bg-black rounded" />
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
+
 const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submission, title }) => {
     const navigate = useNavigate();
     const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
+    const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
 
     // Escape listener for Lightbox
     useEffect(() => {
@@ -208,44 +298,35 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             colorClass = 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800/40';
         }
 
+        let normalCount = 0;
+        let generalCount = 0;
+        let criticalCount = 0;
+        const cTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+        const gTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit'];
+
+        violations.forEach(v => {
+            const isC = cTypes.some(vt => v.activity_type?.includes(vt));
+            const isG = gTypes.some(vt => v.activity_type?.includes(vt));
+            if (isC) criticalCount++;
+            else if (isG) generalCount++;
+            else normalCount++;
+        });
+
         return {
             score,
             level,
             colorScheme,
             colorClass,
             details,
+            normalCount,
+            generalCount,
+            criticalCount,
             violations: violations.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
             systemLogs: systemLogs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
         };
     }, [submission]);
 
-    const getImageUrl = (imgUrl: string | undefined) => {
-        if (!imgUrl) return '';
-        
-        let processedUrl = imgUrl;
-        
-        // Handle local docker minio URLs rewriting them to localhost so the browser can reach them
-        if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/')) {
-            processedUrl = processedUrl.replace('minio:9000', 'localhost:9000').replace('http://minio/', 'http://localhost:9000/');
-        }
 
-        if (processedUrl.startsWith('http')) return processedUrl;
-
-        let cleanPath = processedUrl?.replace(/\\/g, '/');
-        if (cleanPath.startsWith('uploads/')) {
-            cleanPath = cleanPath.substring('uploads/'.length);
-        } else if (cleanPath.startsWith('/uploads/')) {
-            cleanPath = cleanPath.substring('/uploads/'.length);
-        }
-
-        if (cleanPath.startsWith('/')) {
-            cleanPath = cleanPath.substring(1);
-        }
-
-        const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api')?.replace(/\/$/, '');
-        const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
-        return `${rootUrl}/media/${cleanPath}`;
-    };
 
     // Gather snapshots
     const snapshots = React.useMemo(() => {
@@ -309,13 +390,20 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                     className="border-2"
                 />
 
-                <StatsCard
-                    label="Total Violations"
-                    value={totalViolations}
-                    icon={AlertTriangle}
-                    colorScheme={totalViolations > 0 ? 'orange' : 'green'}
-                    size="md"
-                />
+                <div className="flex flex-col bg-card border border-border shadow-sm rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-muted-foreground">Total Violations</span>
+                        <div className={`p-2 rounded-lg ${totalViolations > 0 ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
+                            <AlertTriangle className="h-5 w-5" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-foreground mb-2">{totalViolations}</div>
+                    <div className="flex items-center gap-3 text-xs mt-auto pt-2 border-t text-muted-foreground">
+                        <div className="flex items-center gap-1" title="Normal"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>{riskAnalysis.normalCount}</div>
+                        <div className="flex items-center gap-1" title="General"><div className="w-2 h-2 rounded-full bg-amber-500"></div>{riskAnalysis.generalCount}</div>
+                        <div className="flex items-center gap-1" title="Critical"><div className="w-2 h-2 rounded-full bg-rose-500"></div>{riskAnalysis.criticalCount}</div>
+                    </div>
+                </div>
 
                 <StatsCard
                     label="Submitted At"
@@ -507,104 +595,225 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                             {questionActivities.length === 0 ? (
                                 <div className="text-center py-8 text-muted-foreground">No question activity data recorded.</div>
                             ) : (
-                                questionActivities.map((activity, index) => {
-                                    const qEvents = [
-                                        ...(activity.navigation_activities || []),
-                                        ...(activity.proctoring_activities || []),
-                                        ...(activity.question_activities || [])
-                                    ].filter(log => !['snapshot', 'camera_enabled', 'camera_disabled'].includes(log.activity_type))
-                                     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                                <div className="space-y-6">
+                                    {/* Horizontal Question Selector */}
+                                    <ScrollArea className="w-full whitespace-nowrap rounded-md border border-border bg-card shadow-sm p-2">
+                                        <div className="flex w-max space-x-2 p-1">
+                                            {questionActivities.map((activity, index) => (
+                                                <button
+                                                    key={activity.id}
+                                                    onClick={() => setSelectedQuestionIndex(index)}
+                                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                                        selectedQuestionIndex === index 
+                                                            ? 'bg-primary text-primary-foreground shadow-sm' 
+                                                            : 'hover:bg-muted text-muted-foreground'
+                                                    }`}
+                                                >
+                                                    <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] shadow-sm ${selectedQuestionIndex === index ? 'bg-primary-foreground text-primary border-none' : 'bg-background text-foreground border'}`}>
+                                                        {index + 1}
+                                                    </span>
+                                                    Q{index + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <ScrollBar orientation="horizontal" />
+                                    </ScrollArea>
 
-                                    return (
-                                        <div key={activity.id} className="border border-border rounded-lg p-5 bg-card hover:shadow-sm transition-all duration-200">
-                                            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b">
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="font-bold text-base text-foreground">
-                                                            Q{index + 1}: {activity.question_title}
-                                                        </span>
-                                                        <Badge variant="outline" className="text-[10px] uppercase font-semibold">
-                                                            {activity.question_type}
-                                                        </Badge>
+                                    {/* Selected Question Details */}
+                                    {(() => {
+                                        const activity = questionActivities[selectedQuestionIndex];
+                                        if (!activity) return null;
+
+                                        // Merge events and allow 'snapshot'
+                                        const qEvents = [
+                                            ...(activity.navigation_activities || []),
+                                            ...(activity.proctoring_activities || []),
+                                            ...(activity.question_activities || []),
+                                            ...(activity.camera_snapshots || []) // Include snapshots!
+                                        ].filter(log => !['camera_enabled', 'camera_disabled'].includes(log.activity_type || ''))
+                                         .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+                                        return (
+                                            <div className="border border-border rounded-lg p-5 bg-card shadow-sm transition-all duration-200">
+                                                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="font-bold text-base text-foreground">
+                                                                Q{selectedQuestionIndex + 1}: {activity.question_title}
+                                                            </span>
+                                                            <Badge variant="outline" className="text-[10px] uppercase font-semibold">
+                                                                {activity.question_type}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <Clock className="h-3.5 w-3.5" />
+                                                                Time Spent: {Math.floor((activity.total_question_time || 0) / 60)}m {(activity.total_question_time || 0) % 60}s
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <Eye className="h-3.5 w-3.5" />
+                                                                Visits: {(activity.question_activities || []).filter(log => log.activity_type === 'question_viewed').length}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
-                                                        <div className="flex items-center gap-1.5">
-                                                            <Clock className="h-3.5 w-3.5" />
-                                                            Time Spent: {Math.floor((activity.total_question_time || 0) / 60)}m {(activity.total_question_time || 0) % 60}s
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5">
-                                                            <Eye className="h-3.5 w-3.5" />
-                                                            Visits: {(activity.question_activities || []).filter(log => log.activity_type === 'question_viewed').length}
-                                                        </div>
+                                                    <div>
+                                                        {activity.is_correct ? (
+                                                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400">Correct</Badge>
+                                                        ) : activity.is_correct === false ? (
+                                                            <Badge className="bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400">Incorrect</Badge>
+                                                        ) : (
+                                                            <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">Ungraded</Badge>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    {activity.is_correct ? (
-                                                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400">Correct</Badge>
-                                                    ) : activity.is_correct === false ? (
-                                                        <Badge className="bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400">Incorrect</Badge>
+
+                                                {/* Question Content & Responses */}
+                                                <div className="mb-6 space-y-4 text-sm bg-muted/10 p-4 rounded-lg border border-border">
+                                                    {activity.question_content && (
+                                                        <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: activity.question_content }} />
+                                                    )}
+                                                    
+                                                    {activity.question_type === 'mcq_single' || activity.question_type === 'mcq_multiple' ? (
+                                                        <div className="mt-4">
+                                                            <div className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Options</div>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                {Array.isArray(activity.mcq_options) ? activity.mcq_options.map((opt: any, i: number) => {
+                                                                    const optText = opt.text || opt.content || '';
+                                                                    let ans = activity.answer_data;
+                                                                    if (ans && typeof ans === 'object') {
+                                                                        ans = ans.answer !== undefined ? ans.answer : ans;
+                                                                    }
+                                                                    const isSelected = Array.isArray(ans) 
+                                                                        ? ans.includes(optText) 
+                                                                        : ans === optText;
+                                                                    const isCorrect = opt.is_correct;
+                                                                return (
+                                                                    <div key={opt.id || i} className={`p-2 rounded border flex items-center gap-2 ${isSelected ? (isCorrect ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-rose-50 border-rose-200 dark:bg-rose-900/20 dark:border-rose-800') : (isCorrect ? 'bg-emerald-50/50 border-emerald-200/50 dark:bg-emerald-900/10 dark:border-emerald-900/50' : 'bg-background')}`}>
+                                                                        <div className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center ${isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'}`}>
+                                                                            {isSelected && <div className="w-1.5 h-1.5 bg-primary-foreground rounded-full" />}
+                                                                        </div>
+                                                                        <span dangerouslySetInnerHTML={{ __html: opt.content || opt.text || '' }} className="flex-1" />
+                                                                        {isCorrect && <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200 ml-2">Correct Answer</Badge>}
+                                                                        {isSelected && !isCorrect && <Badge variant="outline" className="text-rose-600 bg-rose-50 border-rose-200 ml-2">Selected</Badge>}
+                                                                    </div>
+                                                                );
+                                                            }) : (
+                                                                <div className="text-muted-foreground italic col-span-2">Options data not available</div>
+                                                            )}
+                                                            </div>
+                                                        </div>
+                                                    ) : activity.question_type === 'coding' ? (
+                                                        <div className="space-y-2 mt-4">
+                                                            <div className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Submitted Code</div>
+                                                            <pre className="p-3 bg-zinc-950 text-zinc-50 rounded-md overflow-x-auto text-xs font-mono">
+                                                                <code>{activity.answer_data?.code || activity.answer_data || 'No code submitted'}</code>
+                                                            </pre>
+                                                        </div>
+                                                    ) : activity.question_type === 'subjective' ? (
+                                                        <div className="space-y-2 mt-4">
+                                                            <div className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Submitted Answer</div>
+                                                            <div className="p-3 bg-background border rounded-md whitespace-pre-wrap">
+                                                                {activity.answer_data || 'No answer submitted'}
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+
+                                                <div className="bg-muted/30 rounded-lg p-4 text-sm border overflow-hidden">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h5 className="font-semibold text-foreground flex items-center gap-2">
+                                                            <Activity className="h-4 w-4 text-muted-foreground" /> Question Action Timeline
+                                                        </h5>
+                                                        <div className="flex items-center gap-4 text-xs">
+                                                            <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Normal</div>
+                                                            <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-amber-500"></div> General</div>
+                                                            <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-rose-500"></div> Critical</div>
+                                                        </div>
+                                                    </div>
+                                                    {qEvents.length === 0 ? (
+                                                        <div className="text-muted-foreground italic text-xs">No anomalies or navigation events recorded for this question.</div>
                                                     ) : (
-                                                        <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">Ungraded</Badge>
+                                                        <ScrollArea className="w-full pb-4">
+                                                            <div style={{ width: Math.max(800, qEvents.length * 80), height: 350 }}>
+                                                                <ResponsiveContainer width="100%" height="100%">
+                                                                    <AreaChart 
+                                                                        data={qEvents.map((log) => {
+                                                                            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+                                                                            const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit'];
+                                                                            
+                                                                            const isC = criticalTypes.some(vt => log.activity_type?.includes(vt));
+                                                                            const isG = generalTypes.some(vt => log.activity_type?.includes(vt));
+                                                                            const isV = isC || isG || log.activity_type?.includes('violation') || log.activity_type?.includes('detected') || log.activity_type?.includes('lost');
+                                                                            const isS = !!log.image_path;
+                                                                            const severity = isC ? 2 : (isG || isV) ? 1 : 0;
+                                                                            const isPureSnapshot = isS && (!log.activity_type || log.activity_type === 'snapshot');
+                                                                            
+                                                                            return {
+                                                                                name: formatEventTime(log.timestamp),
+                                                                                severity: severity,
+                                                                                severityName: isPureSnapshot ? 'Snapshot' : severity === 2 ? 'Critical' : severity === 1 ? 'General' : 'Normal',
+                                                                                log: log,
+                                                                                isSnapshot: isS
+                                                                            };
+                                                                        })} 
+                                                                        margin={{ top: 20, right: 30, left: 10, bottom: 0 }}
+                                                                    >
+                                                                        <defs>
+                                                                            <linearGradient id="colorSeverity" x1="0" y1="1" x2="0" y2="0">
+                                                                                <stop offset="0%" stopColor="#10b981" stopOpacity={0.15}/>
+                                                                                <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.15}/>
+                                                                                <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.15}/>
+                                                                            </linearGradient>
+                                                                            <linearGradient id="colorStroke" x1="0" y1="1" x2="0" y2="0">
+                                                                                <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
+                                                                                <stop offset="50%" stopColor="#f59e0b" stopOpacity={1}/>
+                                                                                <stop offset="100%" stopColor="#f43f5e" stopOpacity={1}/>
+                                                                            </linearGradient>
+                                                                        </defs>
+                                                                        <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="hsl(var(--muted-foreground))" />
+                                                                        <YAxis 
+                                                                            domain={[0, 2.2]} 
+                                                                            ticks={[0, 1, 2]} 
+                                                                            tickFormatter={(value) => value === 0 ? 'Normal' : value === 1 ? 'General' : value === 2 ? 'Critical' : ''}
+                                                                            tick={{ fontSize: 10, fontWeight: 600 }}
+                                                                            width={60}
+                                                                            stroke="none"
+                                                                        />
+                                                                        <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                                                                        
+                                                                        {/* Horizontal reference lines for each level */}
+                                                                        <ReferenceLine y={2} stroke="#f43f5e" strokeDasharray="3 3" strokeOpacity={0.4} />
+                                                                        <ReferenceLine y={1} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.4} />
+                                                                        <ReferenceLine y={0} stroke="#10b981" strokeDasharray="3 3" strokeOpacity={0.4} />
+
+                                                                        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                                                                        
+                                                                        <Area 
+                                                                            type="monotone" 
+                                                                            dataKey="severity" 
+                                                                            stroke="url(#colorStroke)" 
+                                                                            fillOpacity={1} 
+                                                                            fill="url(#colorSeverity)" 
+                                                                            strokeWidth={2}
+                                                                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'white' }}
+                                                                            dot={(props) => {
+                                                                                const { cx, cy, payload } = props;
+                                                                                if (!cx || !cy) return null;
+                                                                                const fill = payload.severity === 2 ? '#f43f5e' : payload.severity === 1 ? '#f59e0b' : '#10b981';
+                                                                                return <circle key={`dot-${payload.name}-${cx}`} cx={cx} cy={cy} r={4} fill={fill} stroke="white" strokeWidth={1.5} />;
+                                                                            }}
+                                                                        />
+                                                                    </AreaChart>
+                                                                </ResponsiveContainer>
+                                                            </div>
+                                                            <ScrollBar orientation="horizontal" />
+                                                        </ScrollArea>
                                                     )}
                                                 </div>
                                             </div>
-
-                                            <div className="mt-4 bg-muted/30 rounded-lg p-4 text-sm border">
-                                                <h5 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                                                    <List className="h-4 w-4 text-muted-foreground" /> Question Action Log
-                                                </h5>
-                                                {qEvents.length === 0 ? (
-                                                    <div className="text-muted-foreground italic text-xs">No anomalies or navigation events recorded for this question.</div>
-                                                ) : (
-                                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                                                        {qEvents.map((log, i) => {
-                                                            const isViol = log.activity_type.includes('violation') || log.activity_type.includes('detected') || log.activity_type.includes('lost');
-                                                            return (
-                                                                <div 
-                                                                    key={i} 
-                                                                    className={`flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 px-3 rounded-md border border-transparent transition-colors text-xs ${
-                                                                        isViol 
-                                                                            ? 'bg-rose-50/50 text-rose-700 border-rose-100 dark:bg-rose-950/10 dark:text-rose-400 dark:border-rose-900/20' 
-                                                                            : 'bg-card text-muted-foreground border-border'
-                                                                    }`}
-                                                                >
-                                                                    <span className="font-medium capitalize mb-1 sm:mb-0">
-                                                                        {log.activity_type?.replace(/_/g, ' ') || ''}
-                                                                    </span>
-                                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-right">
-                                                                        {log.meta_data?.key && (
-                                                                            <span className="px-1.5 py-0.5 rounded bg-muted border font-mono text-[10px]">
-                                                                                Key: {log.meta_data.key}
-                                                                            </span>
-                                                                        )}
-                                                                        {log.meta_data?.platform && (
-                                                                            <span className="px-1.5 py-0.5 rounded bg-red-100/50 dark:bg-red-950/20 border border-red-200/40 text-red-600 dark:text-red-400 text-[10px]">
-                                                                                {log.meta_data.platform}
-                                                                            </span>
-                                                                        )}
-                                                                        {log.meta_data?.copied_text && (
-                                                                            <span className="px-1.5 py-0.5 rounded bg-muted border text-[10px] truncate max-w-[200px]" title={log.meta_data.copied_text}>
-                                                                                Copy: "{log.meta_data.copied_text}"
-                                                                            </span>
-                                                                        )}
-                                                                        {log.meta_data?.pasted_text && (
-                                                                            <span className="px-1.5 py-0.5 rounded bg-muted border text-[10px] truncate max-w-[200px]" title={log.meta_data.pasted_text}>
-                                                                                Paste: "{log.meta_data.pasted_text}"
-                                                                            </span>
-                                                                        )}
-                                                                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                                                                            {formatEventTime(log.timestamp)}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })
+                                        );
+                                    })()}
+                                </div>
                             )}
                         </CardContent>
                     </Card>

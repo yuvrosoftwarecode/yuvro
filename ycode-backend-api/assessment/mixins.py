@@ -182,6 +182,12 @@ class ProctoringMixin:
         # 1. Get Payload Data
         activity_type = request.data.get("activity_type")
         meta_data = request.data.get("meta_data", {})
+        if isinstance(meta_data, str):
+            try:
+                import json
+                meta_data = json.loads(meta_data)
+            except Exception:
+                pass
         question_id = request.data.get("question_id")
         timestamp = request.data.get("timestamp") or timezone.now().isoformat()
 
@@ -316,26 +322,22 @@ class ProctoringMixin:
         navigation_types = dict(BaseQuestionActivity.NAVIGATION_ACTIVITY_TYPES).keys()
         question_types = dict(BaseQuestionActivity.QUESTION_ACTIVITY_TYPES).keys()
 
-        if activity_type in proctoring_types:
+        # Handle Camera Snapshot
+        if image_path:
+            event["image_path"] = image_path
+
+        # Add to appropriate array based on type
+        if activity_type == 'snapshot':
+            qa_record.camera_snapshots.append(event)
+            qa_record_updated = True
+        elif activity_type in proctoring_types:
             qa_record.proctoring_activities.append(event)
             qa_record_updated = True
-
         elif activity_type in navigation_types:
             qa_record.navigation_activities.append(event)
             qa_record_updated = True
-
         elif activity_type in question_types:
             qa_record.question_activities.append(event)
-            qa_record_updated = True
-
-        # Handle Camera Snapshot
-        if image_path:
-            snap_event = {
-                "timestamp": timestamp,
-                "image_path": image_path,
-                "meta_data": meta_data,
-            }
-            qa_record.camera_snapshots.append(snap_event)
             qa_record_updated = True
 
         if qa_record_updated:

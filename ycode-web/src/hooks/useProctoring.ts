@@ -41,6 +41,8 @@ export const useProctoring = ({
     useEffect(() => { questionIdRef.current = questionId; }, [questionId]);
 
     const shortcutAttemptRef = useRef<string | null>(null);
+    const captureFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
+    const hasInitializedRef = useRef(false);
 
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
@@ -49,14 +51,36 @@ export const useProctoring = ({
         try {
             const url = `/assessment/${assessmentType}/${assessmentId}/log-activity/`;
             const activeQuestionId = metaData.question_id || questionIdRef.current;
-            const payload = {
-                activity_type: activityType,
-                meta_data: metaData,
-                timestamp: new Date().toISOString(),
-                ...(activeQuestionId && { question_id: activeQuestionId }),
-            };
+            const timestamp = new Date().toISOString();
+            
+            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+            const isCritical = criticalTypes.some(vt => activityType.includes(vt));
+            
+            let blob: Blob | null = null;
+            if (isCritical && captureFrameRef.current) {
+                blob = await captureFrameRef.current();
+            }
 
-            const response = await restApiAuthUtil.post(url, payload) as any;
+            let response;
+            if (blob) {
+                const formData = new FormData();
+                formData.append('activity_type', activityType);
+                formData.append('meta_data', JSON.stringify(metaData));
+                formData.append('timestamp', timestamp);
+                if (activeQuestionId) formData.append('question_id', activeQuestionId);
+                formData.append('snapshot', blob, 'snapshot.png');
+                
+                response = await restApiAuthUtil.post(url, formData) as any;
+            } else {
+                const payload = {
+                    activity_type: activityType,
+                    meta_data: metaData,
+                    timestamp: timestamp,
+                    ...(activeQuestionId && { question_id: activeQuestionId }),
+                };
+                response = await restApiAuthUtil.post(url, payload) as any;
+            }
+
             const data = response;
 
             // Backend signals auto-submit (threshold exceeded)
@@ -389,62 +413,64 @@ export const useProctoring = ({
 
         const canvas = document.createElement('canvas');
 
+        // Expose a raw capture function for critical violations
+        captureFrameRef.current = async (): Promise<Blob | null> => {
+            return new Promise((resolve) => {
+                if (!isActive || !video.srcObject) return resolve(null);
+                if (video.readyState < 2) return resolve(null);
+                
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return resolve(null);
+                
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png');
+            });
+        };
+
         // ── Snapshot uploader ─────────────────────────────────────────────────
         const takeAndUploadSnapshot = async (stream: MediaStream) => {
             if (!stream.active || !isActive) return;
-            console.log('useProctoring [ycode-web]: takeAndUploadSnapshot starting...');
             try {
                 if (video.srcObject !== stream) {
                     video.srcObject = stream;
-                    // Let autoPlay handle playback
                 }
 
-                const captureFrame = () => {
-                    if (!isActive || !stream.active) return;
-                    if (video.readyState < 2) return;
+                const captureAndUpload = async () => {
+                    const blob = await captureFrameRef.current?.();
+                    if (!blob || !isActive) return;
 
-                    canvas.width = video.videoWidth || 640;
-                    canvas.height = video.videoHeight || 480;
+                    const formData = new FormData();
+                    formData.append('snapshot', blob, 'snapshot.png');
+                    formData.append('activity_type', 'snapshot');
+                    formData.append('timestamp', new Date().toISOString());
+                    const activeQId = questionIdRef.current;
+                    if (activeQId) formData.append('question_id', activeQId);
 
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) return;
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    console.log('useProctoring [ycode-web]: Frame captured on canvas, converting to blob...');
-
-                    canvas.toBlob(async (blob) => {
-                        if (!blob || !isActive) return;
-                        console.log('useProctoring [ycode-web]: Blob generated successfully, uploading...', { size: blob.size });
-
-                        const formData = new FormData();
-                        formData.append('snapshot', blob, 'snapshot.png');
-                        formData.append('activity_type', 'snapshot');
-                        formData.append('timestamp', new Date().toISOString());
-                        const activeQId = questionIdRef.current;
-                        if (activeQId) formData.append('question_id', activeQId);
-
-                        const url = `/assessment/${assessmentType}/${assessmentId}/log-activity/`;
-                        try {
-                            const response = await restApiAuthUtil.post(url, formData) as any;
-                            console.log('useProctoring [ycode-web]: Snapshot successfully uploaded to backend:', response);
-                            toast.success('Proctoring Snapshot Captured', {
-                                duration: 1500,
-                                position: 'top-center',
-                                id: 'snapshot-toast',
-                            });
-                            if (response?.status === 'auto_submitted' || response?.auto_submitted === true) {
-                                onAutoSubmitRef.current?.();
-                            }
-                        } catch (err) {
-                            console.error('useProctoring [ycode-web]: Snapshot upload failed:', err);
+                    const url = `/assessment/${assessmentType}/${assessmentId}/log-activity/`;
+                    try {
+                        const response = await restApiAuthUtil.post(url, formData) as any;
+                        toast.success('Proctoring Snapshot Captured', {
+                            duration: 1500,
+                            position: 'top-center',
+                            id: 'snapshot-toast',
+                        });
+                        if (response?.status === 'auto_submitted' || response?.auto_submitted === true) {
+                            onAutoSubmitRef.current?.();
                         }
-                    }, 'image/png');
+                    } catch (err) {
+                        console.error('Snapshot upload failed:', err);
+                    }
                 };
 
                 if (video.readyState >= 2) {
-                    captureFrame();
+                    captureAndUpload();
                 } else {
                     const onDataLoaded = () => {
-                        captureFrame();
+                        captureAndUpload();
                         video.removeEventListener('loadeddata', onDataLoaded);
                         video.removeEventListener('canplay', onDataLoaded);
                     };
@@ -452,7 +478,7 @@ export const useProctoring = ({
                     video.addEventListener('canplay', onDataLoaded);
                 }
             } catch (err) {
-                console.error('useProctoring [ycode-web]: Snapshot capture error:', err);
+                console.error('Snapshot capture error:', err);
             }
         };
 
@@ -517,8 +543,11 @@ export const useProctoring = ({
                         started = true;
                         // Let autoPlay handle playback
 
-                        // First snapshot immediately
-                        await takeAndUploadSnapshot(streamToUse!);
+                        // First snapshot immediately (only once per instance to avoid StrictMode double-fire)
+                        if (!hasInitializedRef.current) {
+                            hasInitializedRef.current = true;
+                            await takeAndUploadSnapshot(streamToUse!);
+                        }
 
                         // Then every 30 seconds
                         clearInterval(snapshotIntervalId);
@@ -556,6 +585,7 @@ export const useProctoring = ({
 
         return () => {
             isActive = false;
+            captureFrameRef.current = null;
             clearInterval(snapshotIntervalId);
             if (internalStream) internalStream.getTracks().forEach(t => t.stop());
             video.srcObject = null;

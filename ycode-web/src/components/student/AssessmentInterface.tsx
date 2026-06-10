@@ -224,7 +224,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       const newQId = currentQuestionData.id;
       const prevQId = prevQuestionIdRef.current;
       
-      if (prevQId && prevQId !== newQId) {
+      if (prevQId === newQId) return;
+      
+      if (prevQId) {
         logActivity('question_left', { question_id: prevQId });
       }
       
