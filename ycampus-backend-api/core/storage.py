@@ -129,3 +129,23 @@ def upload_image(*, key, file_obj, replace_extensions=()):
     except Exception:
         logger.exception("upload_image failed (key=%s)", full_key)
         raise
+
+
+def upload_file(*, key, file_obj):
+    """
+    Save a file via Django's default storage backend.
+
+    The key is relative to the bucket root; the per-app folder (from
+    APP_NAME) is auto-prepended.
+
+    Returns the storage key (not a URL); pass it to build_public_url when
+    serializing for clients.
+    """
+    app_name = (getattr(settings, "APP_NAME", "") or "").strip().strip("/")
+    full_key = (f"{app_name}/" if app_name else "") + key.lstrip("/")
+
+    try:
+        return default_storage.save(full_key, file_obj)
+    except Exception:
+        logger.exception("upload_file failed (key=%s)", full_key)
+        raise

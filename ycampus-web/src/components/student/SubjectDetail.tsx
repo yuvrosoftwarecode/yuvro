@@ -8,6 +8,8 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  Download,
+  FileText,
   HelpCircle,
   Info,
   Layout,
@@ -17,10 +19,12 @@ import {
   Sparkles,
   StickyNote,
   Video as VideoIcon,
+  Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DocPreviewDialog } from './DocPreviewDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CustomContentSidebar from './CustomContentSidebar.tsx';
 import type { ContentItem } from './CustomContentSidebar.tsx';
@@ -30,12 +34,14 @@ import StudentVideos, { type LayoutMode } from './StudentVideos.tsx';
 import {
   Subject,
   SubUnit,
+  SubUnitDocument,
   fetchNotesBySubUnit,
   fetchSubjectById,
   fetchSubUnitsByUnit,
   fetchUnitsBySubject,
   fetchUserSubjectProgress,
   markSubUnitVideoWatched,
+  fetchSubUnitDocuments,
 } from '@/services/subjectService';
 import { fetchRandomQuestions } from '@/services/questionService';
 
@@ -47,7 +53,7 @@ const SubjectDetail: React.FC = () => {
   const [contentData, setContentData] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'quizzes'>('materials');
+  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'quizzes' | 'docs'>('materials');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedTopicTitle, setSelectedTopicTitle] = useState('');
 
@@ -66,6 +72,29 @@ const SubjectDetail: React.FC = () => {
 
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [code, setCode] = useState('');
+
+  // Docs dialog state
+  const [subUnitDocs, setSubUnitDocs] = useState<SubUnitDocument[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+
+  // File preview states
+  const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState<string>('');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const FILE_ICON_MAP: Record<string, string> = {
+    pdf: '📄',
+    doc: '📝',
+    docx: '📝',
+    ppt: '📊',
+    pptx: '📊',
+    zip: '🗜️',
+  };
+
+  const getFileIcon = (name: string) => {
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    return FILE_ICON_MAP[ext] || '📁';
+  };
 
   useEffect(() => {
     const loadSubjectData = async () => {
@@ -163,6 +192,14 @@ const SubjectDetail: React.FC = () => {
         } else if (activeTab === 'quizzes') {
           const questions = await fetchRandomQuestions({ sub_unit: selectedTopic, level: 'subunit', type: 'mcq_single' });
           setTopicQuestions(questions);
+        } else if (activeTab === 'docs') {
+          setDocsLoading(true);
+          try {
+            const data = await fetchSubUnitDocuments(selectedTopic);
+            setSubUnitDocs(data);
+          } finally {
+            setDocsLoading(false);
+          }
         }
       } catch (error) {
         console.error('Failed to load content for tab', activeTab, error);
@@ -238,7 +275,7 @@ const SubjectDetail: React.FC = () => {
         code={code}
         onCodeChange={setCode}
         backendQuestions={mappedQuestions}
-        subunitId={selectedTopic}
+        subunitId={selectedTopic || ''}
         onQuizComplete={loadProgress}
         highestScore={selectedTopic ? quizHighestScoreMap[selectedTopic] : 0}
       />
@@ -298,7 +335,90 @@ const SubjectDetail: React.FC = () => {
       );
     }
 
+    if (activeTab === 'docs') {
+      return (
+        <div className="p-6 max-w-2xl mx-auto w-full">
+          <div className="mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-gray-900">Course Documents</h2>
+          </div>
+          {renderDocsContent()}
+        </div>
+      );
+    }
+
     return <div className="p-6">{renderQuizContent()}</div>;
+  };
+
+  const handleViewDocument = (url: string | null, name: string) => {
+    if (!url) {
+      toast.error('Document link not available');
+      return;
+    }
+    setPreviewFileUrl(url);
+    setPreviewFileName(name);
+    setIsPreviewOpen(true);
+  };
+
+  const renderDocsContent = () => {
+    if (docsLoading) {
+      return (
+        <div className="flex justify-center items-center h-[300px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      );
+    }
+    if (subUnitDocs.length === 0) {
+      return (
+        <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border min-h-[300px] flex flex-col items-center justify-center">
+          <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
+          <p>No documents uploaded for this topic yet.</p>
+        </div>
+      );
+    }
+    return (
+      <ul className="space-y-3">
+        {subUnitDocs.map((doc) => (
+          <li
+            key={doc.id}
+            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <span className="text-2xl flex-shrink-0">{getFileIcon(doc.file_name)}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">{doc.file_name}</p>
+              {doc.uploaded_by_name && (
+                <p className="text-xs text-muted-foreground">Uploaded by {doc.uploaded_by_name}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {doc.download_url ? (
+                <>
+                  <Button
+                    onClick={() => handleViewDocument(doc.download_url, doc.file_name)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white hover:bg-black transition-colors"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    View
+                  </Button>
+                  <a
+                    href={doc.download_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={doc.file_name}
+                    className="flex items-center justify-center p-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-colors"
+                    title="Download"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">No link</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   const tabItems = [
@@ -306,6 +426,7 @@ const SubjectDetail: React.FC = () => {
     { key: 'materials', label: 'Materials', icon: <BookOpen className="w-4 h-4" /> },
     { key: 'my-notes', label: 'My Notes', icon: <StickyNote className="w-4 h-4" /> },
     { key: 'quizzes', label: 'Quiz', icon: <HelpCircle className="w-4 h-4" /> },
+    { key: 'docs', label: 'Docs', icon: <FileText className="w-4 h-4" /> },
   ] as const;
 
   return (
@@ -532,6 +653,12 @@ const SubjectDetail: React.FC = () => {
           </>
         )}
       </div>
+      <DocPreviewDialog
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        fileUrl={previewFileUrl}
+        fileName={previewFileName}
+      />
     </div>
   );
 };

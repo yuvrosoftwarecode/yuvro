@@ -5,6 +5,10 @@ from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from core.models import Section
+from core.storage import upload_file
+from django.core.files.storage import default_storage
+import logging
 import os
 import re
 import requests
@@ -23,6 +27,7 @@ from .models import (
     Subject,
     Unit,
     SubUnit,
+    SubUnitDocument,
     Video,
     Question,
     UserSubjectProgress,
@@ -52,6 +57,7 @@ from .serializers import (
     UnitBasicSerializer,
     SubUnitSerializer,
     VideoSerializer,
+    SubUnitDocumentSerializer,
     QuestionSerializer,
     UserSubjectProgressSerializer,
     StudentCodePracticeSerializer,
@@ -2178,6 +2184,168 @@ class VideoViewSet(viewsets.ModelViewSet):
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
+
+
+class SubUnitDocumentViewSet(viewsets.ViewSet):
+    """
+    ViewSet to handle document upload, listing, download-URL generation,
+    and deletion for sub-unit documents.
+
+    Routes:
+      POST   /subunit-documents/upload/       – faculty uploads a file
+      GET    /subunit-documents/?sub_unit=<id> – list docs for a sub-unit
+      DELETE /subunit-documents/<id>/         – faculty deletes a doc
+    """
+
+    permission_classes = [IsAuthenticatedUser]
+
+    ALLOWED_MIME_TYPES = {
+        "application/pdf": "pdf",
+        "application/msword": "doc",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/vnd.ms-powerpoint": "ppt",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+        "application/zip": "zip",
+        "application/x-zip-compressed": "zip",
+        "application/octet-stream": None,  # use extension fallback
+    }
+    ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "ppt", "pptx", "zip"}
+
+    # ------------------------------------------------------------------ #
+    #  helpers
+    # ------------------------------------------------------------------ #
+
+    def _assert_faculty(self, user):
+        if not user.can_manage_content():
+            return Response({"error": "Only faculty / admins can manage documents."}, status=403)
+        return None
+
+    def _resolve_extension(self, file_obj):
+        """Return the validated file extension or None."""
+        content_type = (file_obj.content_type or "").lower().split(";")[0].strip()
+        ext = self.ALLOWED_MIME_TYPES.get(content_type)
+        if ext is None:
+            # Try to get from filename
+            ext = os.path.splitext(file_obj.name)[1].lstrip(".").lower() or None
+        if ext not in self.ALLOWED_EXTENSIONS:
+            return None, Response(
+                {"error": f"Unsupported file type. Allowed: {', '.join(sorted(self.ALLOWED_EXTENSIONS))}"},
+                status=400,
+            )
+        return ext, None
+
+    # ------------------------------------------------------------------ #
+    #  upload
+    # ------------------------------------------------------------------ #
+
+    @action(detail=False, methods=["post"], url_path="upload")
+    def upload(self, request):
+        """Faculty uploads a document for a sub-unit."""
+        err = self._assert_faculty(request.user)
+        if err:
+            return err
+
+        sub_unit_id = request.data.get("sub_unit")
+        if not sub_unit_id:
+            return Response({"error": "`sub_unit` is required."}, status=400)
+
+        section_id = request.data.get("section")
+        if not section_id:
+            return Response({"error": "`section` is required."}, status=400)
+
+        sub_unit = get_object_or_404(SubUnit, id=sub_unit_id)
+        
+        section = get_object_or_404(Section, id=section_id)
+
+        file_obj = request.FILES.get("file")
+        if not file_obj:
+            return Response({"error": "`file` is required."}, status=400)
+
+        ext, err_resp = self._resolve_extension(file_obj)
+        if err_resp:
+            return err_resp
+
+        # Sanitise original filename (keep base, swap extension)
+        original_base = os.path.splitext(file_obj.name)[0]
+        # strip unsafe chars but keep unicode letters/digits/spaces/hyphens
+        safe_base = re.sub(r"[^\w\s\-]", "_", original_base).strip()
+        safe_name = f"{safe_base}.{ext}"
+
+        storage_key = f"subunit-documents/{sub_unit_id}/{section_id}/{safe_name}"
+
+        try:
+            
+            stored_key = upload_file(key=storage_key, file_obj=file_obj)
+        except Exception as exc:
+            
+            logging.getLogger(__name__).exception("Failed to upload sub-unit document")
+            return Response({"error": f"Storage upload failed: {exc}"}, status=500)
+
+        doc = SubUnitDocument.objects.create(
+            sub_unit=sub_unit,
+            section=section,
+            file_name=safe_name,
+            file_key=stored_key,
+            uploaded_by=request.user,
+        )
+
+        serializer = SubUnitDocumentSerializer(doc, context={"request": request})
+        return Response(serializer.data, status=201)
+
+    # ------------------------------------------------------------------ #
+    #  list
+    # ------------------------------------------------------------------ #
+
+    def list(self, request):
+        """Return all documents for a given sub_unit and section."""
+        sub_unit_id = request.query_params.get("sub_unit")
+        if not sub_unit_id:
+            return Response({"error": "`sub_unit` query param is required."}, status=400)
+
+        sub_unit = get_object_or_404(SubUnit, id=sub_unit_id)
+        
+        user = request.user
+        if getattr(user, 'role', None) == 'student':
+            student_profile = getattr(user, 'student_profile', None)
+            if not student_profile or not student_profile.section:
+                return Response([])
+            docs = SubUnitDocument.objects.filter(
+                sub_unit=sub_unit,
+                section=student_profile.section
+            ).order_by("created_at")
+        else:
+            section_id = request.query_params.get("section")
+            if not section_id:
+                return Response({"error": "`section` query param is required for faculty/admin."}, status=400)
+            docs = SubUnitDocument.objects.filter(
+                sub_unit=sub_unit,
+                section_id=section_id
+            ).order_by("created_at")
+
+        serializer = SubUnitDocumentSerializer(docs, many=True, context={"request": request})
+        return Response(serializer.data)
+
+    # ------------------------------------------------------------------ #
+    #  delete
+    # ------------------------------------------------------------------ #
+
+    def destroy(self, request, pk=None):
+        """Faculty deletes a document record (and the storage object)."""
+        err = self._assert_faculty(request.user)
+        if err:
+            return err
+
+        doc = get_object_or_404(SubUnitDocument, pk=pk)
+
+        # Best-effort delete from storage
+        try:
+            if default_storage.exists(doc.file_key):
+                default_storage.delete(doc.file_key)
+        except Exception:
+            pass  # Don't block deletion if storage clean-up fails
+
+        doc.delete()
+        return Response(status=204)
 
 
 

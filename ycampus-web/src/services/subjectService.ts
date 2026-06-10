@@ -781,3 +781,47 @@ export interface FacultyStats {
 export async function fetchFacultyStats(params?: { subject_id?: string; department_id?: string; section_id?: string }): Promise<FacultyStats> {
   return restApiAuthUtil.get<FacultyStats>('/core/faculty/stats/', { params });
 }
+
+// ─── Sub-Unit Documents ───────────────────────────────────────────────────────
+
+export interface SubUnitDocument {
+  id: string;
+  sub_unit: string;
+  file_name: string;
+  file_key: string;
+  download_url: string | null;
+  uploaded_by_name: string | null;
+  created_at: string;
+}
+
+/**
+ * Fetch all documents for a sub-unit (students + faculty).
+ */
+export async function fetchSubUnitDocuments(subUnitId: string, sectionId?: string): Promise<SubUnitDocument[]> {
+  return restApiAuthUtil.get<SubUnitDocument[]>('/course/subunit-documents/', {
+    params: {
+      sub_unit: subUnitId,
+      ...(sectionId ? { section: sectionId } : {}),
+    },
+  });
+}
+
+/**
+ * Upload a document for a sub-unit (faculty only).
+ * `file` must be a PDF, DOC/DOCX, PPT/PPTX, or ZIP file.
+ */
+export async function uploadSubUnitDocument(subUnitId: string, file: File, sectionId: string): Promise<SubUnitDocument> {
+  const formData = new FormData();
+  formData.append('sub_unit', subUnitId);
+  formData.append('section', sectionId);
+  formData.append('file', file);
+  return restApiAuthUtil.post<SubUnitDocument>('/course/subunit-documents/upload/', formData);
+}
+
+/**
+ * Delete a sub-unit document (faculty only).
+ */
+export async function deleteSubUnitDocument(documentId: string): Promise<void> {
+  return restApiAuthUtil.delete(`/course/subunit-documents/${documentId}/`);
+}
+

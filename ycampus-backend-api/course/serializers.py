@@ -16,8 +16,10 @@ from .models import (
     SemesterSubject,
     SectionSubjectFaculty,
     SubUnitSectionStatus,
+    SubUnitDocument,
 )
 from .gamification_models import UserGamificationProfile
+from core.storage import build_public_url
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -234,16 +236,38 @@ class SubUnitSectionStatusSerializer(serializers.ModelSerializer):
         fields = ["id", "section", "sub_unit", "is_unlocked", "unlocked_at"]
 
 
+class SubUnitDocumentSerializer(serializers.ModelSerializer):
+    download_url = serializers.SerializerMethodField()
+    uploaded_by_name = serializers.CharField(source="uploaded_by.get_full_name", read_only=True)
+
+    class Meta:
+        model = SubUnitDocument
+        fields = [
+            "id",
+            "sub_unit",
+            "file_name",
+            "file_key",
+            "download_url",
+            "uploaded_by_name",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def get_download_url(self, obj):
+        return build_public_url(obj.file_key)
+
+
 class SubUnitSerializer(serializers.ModelSerializer):
     """
     Serializer for SubUnit model.
     """
 
     is_unlocked = serializers.SerializerMethodField()
+    documents = SubUnitDocumentSerializer(many=True, read_only=True)
 
     class Meta:
         model = SubUnit
-        fields = ["id", "unit", "name", "content", "order_index", "created_at", "is_unlocked"]
+        fields = ["id", "unit", "name", "content", "order_index", "created_at", "is_unlocked", "documents"]
         read_only_fields = ["id", "created_at"]
 
     def validate_video_url(self, value):

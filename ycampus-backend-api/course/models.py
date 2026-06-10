@@ -147,6 +147,22 @@ class SubUnitSectionStatus(models.Model):
         return f"{self.section.name} - {self.sub_unit.name} ({'Unlocked' if self.is_unlocked else 'Locked'})"
 
 
+class SubUnitDocument(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sub_unit = models.ForeignKey(SubUnit, on_delete=models.CASCADE, related_name="documents")
+    section = models.ForeignKey("core.Section", on_delete=models.CASCADE, related_name="subunit_documents", null=True, blank=True)
+    file_name = models.CharField(max_length=255)
+    file_key = models.CharField(max_length=512)
+    created_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.file_name} ({self.sub_unit.name})"
+
+
 class Video(models.Model):
     """
     Video model representing video content associated with a subunit.

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import FacultyLayout from '@/components/layouts/FacultyLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { BookOpen, CheckCircle, Search, Loader2, Sparkles, ChevronDown, ChevronRight, Lock, Unlock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BookOpen, CheckCircle, Search, Loader2, Sparkles, ChevronDown, ChevronRight, Lock, Unlock, Upload, FileText, Trash2, Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import subjectService, { SectionSubjectFaculty, UnitBasic, SubUnit } from '@/services/subjectService';
+import subjectService, { SectionSubjectFaculty, UnitBasic, SubUnit, SubUnitDocument, fetchSubUnitDocuments, uploadSubUnitDocument, deleteSubUnitDocument } from '@/services/subjectService';
 
 interface UnitWithExpansion extends UnitBasic {
   subUnits: (SubUnit & { is_unlocked?: boolean })[];
@@ -30,6 +31,13 @@ const Syllabus = () => {
   const [units, setUnits] = useState<UnitWithExpansion[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [subUnitToConfirm, setSubUnitToConfirm] = useState<{ subUnit: SubUnit; is_unlocked: boolean } | null>(null);
+
+  // Document management state
+  const [docsDialogSubUnit, setDocsDialogSubUnit] = useState<SubUnit | null>(null);
+  const [docs, setDocs] = useState<SubUnitDocument[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { toast } = useToast();
 
@@ -224,6 +232,78 @@ const Syllabus = () => {
     } finally {
       setSubUnitToConfirm(null);
     }
+  };
+
+  // Open docs dialog for an unlocked sub-unit
+  const handleOpenDocs = async (su: SubUnit, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDocsDialogSubUnit(su);
+    setDocs([]);
+    setDocsLoading(true);
+    try {
+      const sectionAssignment = uniqueSections.find(s => s.id === selectedSection);
+      const sectionId = sectionAssignment?.sectionId;
+      if (!sectionId) {
+        toast({ title: 'Error', description: 'No section selected.', variant: 'destructive' });
+        setDocsLoading(false);
+        return;
+      }
+      const data = await fetchSubUnitDocuments(su.id, sectionId);
+      setDocs(data);
+    } catch {
+      toast({ title: 'Error', description: 'Failed to load documents', variant: 'destructive' });
+    } finally {
+      setDocsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!docsDialogSubUnit) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const sectionAssignment = uniqueSections.find(s => s.id === selectedSection);
+    const sectionId = sectionAssignment?.sectionId;
+    if (!sectionId) {
+      toast({ title: 'Error', description: 'No section selected.', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const newDoc = await uploadSubUnitDocument(docsDialogSubUnit.id, file, sectionId);
+      setDocs((prev) => [...prev, newDoc]);
+      toast({ title: 'Uploaded', description: `${file.name} uploaded successfully.` });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err?.response?.data?.error || 'Could not upload file.', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteDoc = async (docId: string, docName: string) => {
+    try {
+      await deleteSubUnitDocument(docId);
+      setDocs((prev) => prev.filter((d) => d.id !== docId));
+      toast({ title: 'Deleted', description: `${docName} removed.` });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to delete document.', variant: 'destructive' });
+    }
+  };
+
+  const FILE_ICON_MAP: Record<string, string> = {
+    pdf: '📄',
+    doc: '📝',
+    docx: '📝',
+    ppt: '📊',
+    pptx: '📊',
+    zip: '🗜️',
+  };
+
+  const getFileIcon = (name: string) => {
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    return FILE_ICON_MAP[ext] || '📁';
   };
 
   const filteredUnits = units.filter(unit =>
@@ -423,6 +503,19 @@ const Syllabus = () => {
                                   >
                                     {su.is_unlocked ? 'Unlocked' : 'Locked'}
                                   </Badge>
+
+                                  {/* Upload Docs button — only for unlocked sub-units */}
+                                  {su.is_unlocked && (
+                                    <Button
+                                      onClick={(e) => handleOpenDocs(su, e)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 px-3 rounded-lg font-bold border-blue-200 text-blue-700 hover:bg-blue-50 transition-all duration-300"
+                                    >
+                                      <FileText className="w-3.5 h-3.5 mr-1.5" />
+                                      Docs
+                                    </Button>
+                                  )}
                                   
                                   <Button
                                     onClick={(e) => {
@@ -488,6 +581,90 @@ const Syllabus = () => {
             </div>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Document Management Dialog */}
+        <Dialog open={!!docsDialogSubUnit} onOpenChange={(open) => !open && setDocsDialogSubUnit(null)}>
+          <DialogContent className="max-w-lg rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                Documents — <span className="text-blue-700 truncate max-w-[240px]">{docsDialogSubUnit?.name}</span>
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="p-6 space-y-4">
+              {/* Upload button */}
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">PDF, DOC, DOCX, PPT, PPTX, ZIP</p>
+                <Button
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="h-8 px-4 rounded-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Upload className="w-3.5 h-3.5 mr-1.5" />}
+                  {uploading ? 'Uploading…' : 'Upload File'}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
+                  onChange={handleFileUpload}
+                />
+              </div>
+
+              {/* File list */}
+              {docsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+                </div>
+              ) : docs.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground text-sm border border-dashed border-gray-200 rounded-xl">
+                  No documents uploaded yet.
+                </div>
+              ) : (
+                <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {docs.map((doc) => (
+                    <li
+                      key={doc.id}
+                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 group"
+                    >
+                      <span className="text-xl flex-shrink-0">{getFileIcon(doc.file_name)}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{doc.file_name}</p>
+                        {doc.uploaded_by_name && (
+                          <p className="text-xs text-muted-foreground">by {doc.uploaded_by_name}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {doc.download_url && (
+                          <a
+                            href={doc.download_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download={doc.file_name}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title="Download"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => handleDeleteDoc(doc.id, doc.file_name)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </FacultyLayout>
   );
