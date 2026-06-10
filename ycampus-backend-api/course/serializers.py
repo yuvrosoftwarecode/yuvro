@@ -76,8 +76,9 @@ class DepartmentSerializer(serializers.ModelSerializer):
     def get_hod_details(self, obj):
         try:
             from core.serializers import HODProfileSerializer
-            if hasattr(obj, 'hod'):
-                return HODProfileSerializer(obj.hod, context=self.context).data
+            hod_profile = obj.hods.first()
+            if hod_profile:
+                return HODProfileSerializer(hod_profile, context=self.context).data
         except Exception:
             pass
         return None
