@@ -212,6 +212,25 @@ class Command(BaseCommand):
             if not instructor:
                 instructor = User.objects.filter(role="admin").first() or User.objects.filter(is_superuser=True).first() or User.objects.first()
 
+            subject_assessments_created = 0
+            subject_assessments_synced = 0
+            skill_tests_created = 0
+            skill_tests_synced = 0
+
+            questions_to_create = []
+            questions_to_update = []
+            solutions_to_create = []
+            solutions_to_update = []
+            
+            existing_questions = {
+                (q.title, q.subject_id, q.unit_id): q 
+                for q in Question.objects.filter(subject=subject)
+            }
+            existing_solutions = {
+                (s.question_id, s.title): s
+                for s in QuestionSolution.objects.filter(question__subject=subject)
+            }
+
             if subject.product_type == "assessments":
                 # Auto-generate 3 subject-level Assessments (1 Easy, 1 Medium, 1 Hard)
                 assessments_config = [
@@ -265,7 +284,9 @@ class Command(BaseCommand):
                         }
                     )
                     if st_created:
-                        self.stdout.write(f"    ✓ Auto-generated subject assessment: {st.title}")
+                        subject_assessments_created += 1
+                    else:
+                        subject_assessments_synced += 1
 
             unit_map = {}
             subunit_map = {}
@@ -280,9 +301,6 @@ class Command(BaseCommand):
                     defaults={"order_index": unit_data.get("order_index", 0)},
                 )
                 unit_map[unit_data["name"]] = unit
-
-                if unit_created:
-                    self.stdout.write(f"    ✓ Created unit: {unit.name}")
 
                 if subject.product_type == "assessments":
                     # Auto-generate 4 standard MCQ-only Skill Tests for each unit
@@ -346,7 +364,9 @@ class Command(BaseCommand):
                             }
                         )
                         if st_created:
-                            self.stdout.write(f"      ✓ Auto-generated skill test: {st.title}")
+                            skill_tests_created += 1
+                        else:
+                            skill_tests_synced += 1
 
                 # Support both old "subtopics" and new "sub_units" keys
                 subunits_data = unit_data.get("sub_units", unit_data.get("subtopics", []))
@@ -362,9 +382,6 @@ class Command(BaseCommand):
                     )
                     subunit_map[f"{unit_data['name']}::{subunit_data['name']}"] = subunit
 
-                    if su_created:
-                        self.stdout.write(f"      ✓ Created subunit: {subunit.name}")
-
                     for video_data in subunit_data.get("videos", []):
                         video, v_created = Video.objects.get_or_create(
                             sub_unit=subunit,
@@ -374,25 +391,37 @@ class Command(BaseCommand):
                                 "ai_context": video_data.get("ai_context", ""),
                             },
                         )
-                        if v_created:
-                            self.stdout.write(f"        ✓ Created video: {video.title}")
 
                     # Load questions at subunit level
                     for question_data in subunit_data.get("questions", []):
-                        self._create_question(question_data, subject, unit_map, subunit_map, instructor)
+                        self._create_question(question_data, subject, unit_map, subunit_map, instructor, questions_to_create, questions_to_update, solutions_to_create, solutions_to_update, existing_questions, existing_solutions)
 
                 # Load questions at unit level
                 for question_data in unit_data.get("questions", []):
-                    self._create_question(question_data, subject, unit_map, subunit_map, instructor)
+                    self._create_question(question_data, subject, unit_map, subunit_map, instructor, questions_to_create, questions_to_update, solutions_to_create, solutions_to_update, existing_questions, existing_solutions)
 
             # Load questions associated with this subject
             questions_data = subject_data.get("questions", [])
             for question_data in questions_data:
-                self._create_question(question_data, subject, unit_map, subunit_map, instructor)
+                self._create_question(question_data, subject, unit_map, subunit_map, instructor, questions_to_create, questions_to_update, solutions_to_create, solutions_to_update, existing_questions, existing_solutions)
 
-            self.stdout.write(f"✓ Loaded subject: {subject.subject_name}")
+            if questions_to_create:
+                Question.objects.bulk_create(questions_to_create, batch_size=500)
+            if questions_to_update:
+                update_fields = ["type", "content", "level", "difficulty", "marks", "duration", "categories", "hints", "created_by", "sub_unit", "mcq_options", "test_cases_basic", "test_cases_advanced"]
+                Question.objects.bulk_update(questions_to_update, update_fields, batch_size=500)
+                
+            if solutions_to_create:
+                QuestionSolution.objects.bulk_create(solutions_to_create, batch_size=500)
+            if solutions_to_update:
+                update_fields = ["language", "code", "complexity_analysis", "is_primary"]
+                QuestionSolution.objects.bulk_update(solutions_to_update, update_fields, batch_size=500)
 
-    def _create_question(self, question_data, subject, unit_map, subunit_map, instructor):
+            self.stdout.write(f"✓ Loaded subject fully: {subject.subject_name} ({len(questions_to_create)} created, {len(questions_to_update)} synced questions)")
+            self.stdout.write(f"  → Subject Assessments: {subject_assessments_created} created, {subject_assessments_synced} synced")
+            self.stdout.write(f"  → Skill Tests: {skill_tests_created} created, {skill_tests_synced} synced")
+
+    def _create_question(self, question_data, subject, unit_map, subunit_map, instructor, q_create, q_update, sol_create, sol_update, existing_q, existing_sol):
         """Create or sync a question"""
         if not instructor:
             instructor = User.objects.filter(role="admin").first()
@@ -478,26 +507,41 @@ class Command(BaseCommand):
             kwargs["test_cases_basic"] = question_data.get("test_cases_basic", [])
             kwargs["test_cases_advanced"] = question_data.get("test_cases_advanced", [])
 
-        q_obj, q_created = Question.objects.update_or_create(
-            title=kwargs["title"],
-            subject=kwargs.get("subject"),
-            unit=kwargs.get("unit"),
-            defaults=kwargs,
-        )
-        status = "✓ Created" if q_created else "→ Synced"
-        self.stdout.write(f'        {status} question: {question_data["title"][:50]}')
+        q_key = (kwargs["title"], kwargs.get("subject").id if kwargs.get("subject") else None, kwargs.get("unit").id if kwargs.get("unit") else None)
+        q_obj = existing_q.get(q_key)
+        q_created = False
+
+        if q_obj:
+            for k, v in kwargs.items():
+                setattr(q_obj, k, v)
+            q_update.append(q_obj)
+        else:
+            import uuid
+            q_obj = Question(id=uuid.uuid4(), **kwargs)
+            existing_q[q_key] = q_obj
+            q_create.append(q_obj)
+            q_created = True
 
         for sol_data in question_data.get("solutions", []):
-            QuestionSolution.objects.update_or_create(
-                question=q_obj,
-                title=sol_data.get("title", ""),
-                defaults={
-                    "language": sol_data.get("language", "python"),
-                    "code": sol_data.get("code", ""),
-                    "complexity_analysis": sol_data.get("complexity_analysis", ""),
-                    "is_primary": sol_data.get("is_primary", False),
-                },
-            )
+            sol_title = sol_data.get("title", "")
+            sol_key = (q_obj.id, sol_title)
+            sol_kwargs = {
+                "language": sol_data.get("language", "python"),
+                "code": sol_data.get("code", ""),
+                "complexity_analysis": sol_data.get("complexity_analysis", ""),
+                "is_primary": sol_data.get("is_primary", False),
+            }
+            
+            s_obj = existing_sol.get(sol_key)
+            if s_obj:
+                for k, v in sol_kwargs.items():
+                    setattr(s_obj, k, v)
+                sol_update.append(s_obj)
+            else:
+                import uuid
+                s_obj = QuestionSolution(id=uuid.uuid4(), question=q_obj, title=sol_title, **sol_kwargs)
+                existing_sol[sol_key] = s_obj
+                sol_create.append(s_obj)
 
     def load_assessments_from_json(self, data):
         """Load skill tests and contests"""

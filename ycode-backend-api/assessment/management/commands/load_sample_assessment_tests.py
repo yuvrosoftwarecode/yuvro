@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from assessment.models import SkillTest, Contest, MockInterview, JobTest
+from assessment.models import SkillTest, Contest, MockInterview, JobTest, CertificationExam
 from course.models import Course, Topic, Question
 
 User = get_user_model()
@@ -47,6 +47,7 @@ class Command(BaseCommand):
             MockInterview.objects.all().delete()
             Contest.objects.all().delete()
             SkillTest.objects.all().delete()
+            CertificationExam.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing assessment data cleared."))
 
         # Determine fixtures directory based on deploy_env
@@ -70,14 +71,8 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"Error reading JSON from {path}: {e}"))
                 return {}
 
-        self.stdout.write(f"\nAttempting to load skill tests from {primary_skill_file}...")
-        
-        skill_data = _load_json(primary_skill_file)
-        if skill_data:
-            try:
-                self.load_skill_tests_from_json(skill_data)
-            except Exception as e:
-                self.stdout.write(self.style.ERROR(f"\nFailed while loading from JSON: {str(e)}"))
+        # Note: Skill tests are now auto-generated in load_courses.py
+        # We bypass loading them from a hardcoded JSON file.
 
         # Below we still load the original contests and mocks
         contests_file = fixtures_dir / "sample_assessment_contests_data.json"

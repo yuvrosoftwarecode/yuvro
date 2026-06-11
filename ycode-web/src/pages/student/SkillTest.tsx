@@ -141,6 +141,7 @@ const SkillTest: React.FC = () => {
             ...course,
             icon: config.Icon,
             iconBg: config.bg,
+            topicCount: course.topic_count || 0,
           };
         });
         setCourses(coursesWithConfig);

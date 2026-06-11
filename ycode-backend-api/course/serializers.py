@@ -109,12 +109,14 @@ class CourseSerializer(serializers.ModelSerializer):
             "total_problems",
             "solved_problems",
             "progress_percentage",
+            "topic_count",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
     total_problems = serializers.IntegerField(read_only=True)
     solved_problems = serializers.IntegerField(read_only=True)
     progress_percentage = serializers.FloatField(read_only=True)
+    topic_count = serializers.IntegerField(read_only=True)
 
     def get_instructors(self, obj):
         return CourseInstructorSerializer(obj.course_instructors.all(), many=True).data
@@ -170,6 +172,7 @@ class CourseBasicSerializer(serializers.ModelSerializer):
             "progress_percentage",
             "total_score",
             "ai_help_used",
+            "topic_count",
         ]
 
     total_problems = serializers.IntegerField(read_only=True)
@@ -177,6 +180,7 @@ class CourseBasicSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
     total_score = serializers.FloatField(read_only=True)
     ai_help_used = serializers.IntegerField(read_only=True)
+    topic_count = serializers.IntegerField(read_only=True)
 
     def validate_name(self, value):
         name = value.strip()
