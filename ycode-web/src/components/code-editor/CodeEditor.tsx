@@ -375,6 +375,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         test_cases: basicTestCases,
         test_cases_custom: customMapped,
         problem_title: problemTitle,
+        question_id: problemId,
       });
 
       setOutput(res.output || res.error_message || '');
@@ -383,15 +384,19 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
       if (res.status === 'completed') {
         const passed = res.test_results?.passed ?? 0;
         const total = res.test_results?.total ?? 0;
         toast.success(`Passed ${passed} of ${total} tests`);
-      } else if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
-        toast.error('Time Limit Exceeded');
+      } else if (res.status === 'timeout') {
+        toast.error('Execution Timed Out');
+      } else if (res.status === 'failed' && (res as any).performance_warnings?.length > 0) {
+        toast.warning('Executed: Output correct but performance limits exceeded');
       } else {
         toast.error('Code execution failed');
       }
@@ -475,11 +480,26 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
-      if (res.status === 'timeout' || res.error_message === 'Time Limit Exceeded') {
-        toast.error('Time Limit Exceeded');
+      const passed = res.test_cases_passed ?? 0;
+      const total = res.total_test_cases ?? 0;
+      const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
+      const hasResourceWarning = ((res as any).performance_warnings || []).length > 0;
+
+      if (res.status === 'timeout') {
+          toast.error('Submission Failed: Execution Timed Out');
+      } else if (res.status === 'failed' && !hasResourceWarning && res.reason) {
+          toast.error(`Submission Failed: ${res.reason}`);
+      } else if (res.status === 'failed' && hasResourceWarning) {
+          toast.warning(`Submitted: Output correct but performance limits exceeded`);
+      } else if (passed === total && total > 0) {
+        toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
+      } else if (total > 0) {
+        toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
       } else {
         const passed = res.test_cases_passed ?? 0;
         const total = res.total_test_cases ?? 0;
@@ -623,6 +643,43 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     {/* ── Scrollable content ── */}
                     <div className="flex-1 overflow-auto p-4 space-y-4">
 
+                      {/* Failure / Resource-Limit Banner */}
+                      {executionMetrics && executionMetrics.status === 'timeout' && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col mb-4">
+                          <h4 className="text-red-800 font-bold text-sm">Execution Timed Out</h4>
+                          <p className="text-red-700 text-xs mt-1">Infinite loop detected or execution timed out.</p>
+                        </div>
+                      )}
+                      {executionMetrics && executionMetrics.status === 'failed' && (() => {
+                        const warnings: any[] = executionMetrics.performance_warnings || [];
+                        const isResourceLimit = warnings.length > 0;
+                        if (isResourceLimit) {
+                          const w = warnings[0];
+                          const isTLE = w.type === 'Time Limit Exceeded';
+                          return (
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-col mb-4">
+                              <h4 className="text-amber-800 font-bold text-sm flex items-center gap-2">
+                                <Zap className="h-4 w-4" />
+                                {isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded'}
+                              </h4>
+                              <p className="text-amber-700 text-xs mt-1">
+                                {isTLE
+                                  ? `Your output is correct, but execution took ${w.execution_time?.toFixed(2)}s — above the configured time limit. Optimize your algorithm.`
+                                  : `Your output is correct, but used ${w.memory_usage?.toFixed(1)} MB — above the configured memory limit. Reduce memory usage.`
+                                }
+                              </p>
+                              <p className="text-amber-600 text-[11px] mt-2 font-medium">💡 Tip: Use the AI chat to get optimization hints for your solution.</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex flex-col mb-4">
+                            <h4 className="text-red-800 font-bold text-sm">Execution Failed</h4>
+                            <p className="text-red-700 text-xs mt-1">{executionMetrics.reason || 'Your code failed to execute within the limits.'}</p>
+                          </div>
+                        );
+                      })()}
+
                       {/* Console output */}
                       {(output || (testResults && testResults.results)) && (() => {
                         const consoleText = (() => {
@@ -655,16 +712,35 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                             if (isHidden) return null;
                             const n = result.test_case_number || idx + 1;
                             const passed = result.passed;
+                            const errMsg: string = result.error_message || result.error || '';
+                            const isResourceLimitWarn = passed && (errMsg === 'Time Limit Exceeded' || errMsg === 'Memory Limit Exceeded');
+                            const rowColor = isResourceLimitWarn
+                              ? 'border-amber-200 bg-amber-50/40'
+                              : passed ? 'border-green-100 bg-green-50/40' : 'border-red-100 bg-red-50/30';
+                            const labelColor = isResourceLimitWarn
+                              ? 'text-amber-600'
+                              : passed ? 'text-green-600' : 'text-red-500';
+                            const label = isResourceLimitWarn
+                              ? (errMsg === 'Time Limit Exceeded' ? 'Passed (TLE)' : 'Passed (MLE)')
+                              : passed ? 'Passed' : 'Failed';
                             return (
-                              <div key={idx} className={`rounded-xl border overflow-hidden ${passed ? 'border-green-100 bg-green-50/40' : 'border-red-100 bg-red-50/30'
-                                }`}>
+                              <div key={idx} className={`rounded-xl border overflow-hidden ${rowColor}`}>
                                 {/* Row header */}
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                   <div className="flex items-center gap-2">
-                                    {passed
-                                      ? <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                      : <XCircle className="h-4 w-4 text-red-500" />}
+                                    {isResourceLimitWarn
+                                      ? <Zap className="h-4 w-4 text-amber-500" />
+                                      : passed
+                                        ? <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                        : <XCircle className="h-4 w-4 text-red-500" />}
                                     <span className="text-sm font-bold text-gray-800">Case #{n}</span>
+                                    {(result.execution_time > 0 || result.memory_usage > 0) && (
+                                      <span className="text-[10px] text-gray-400 font-mono">
+                                        {result.execution_time > 0 && `${(result.execution_time * 1000).toFixed(0)}ms`}
+                                        {result.execution_time > 0 && result.memory_usage > 0 && ' · '}
+                                        {result.memory_usage > 0 && `${result.memory_usage.toFixed(1)}MB`}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="flex items-center gap-3">
                                     {!passed && (
@@ -682,8 +758,22 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                         <Sparkles className="h-3 w-3 mr-1" /> Ask AI
                                       </Button>
                                     )}
-                                    <span className={`text-[11px] font-black uppercase tracking-widest ${passed ? 'text-green-600' : 'text-red-500'
-                                      }`}>{passed ? 'Passed' : 'Failed'}</span>
+                                    {isResourceLimitWarn && (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 px-3 text-[11px] font-bold text-amber-600 hover:bg-amber-50"
+                                        onClick={() => {
+                                          if (onToggleAiChat && !isAiChatOpen) onToggleAiChat();
+                                          window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
+                                            detail: { prompt: `My solution gives the correct output but exceeds the ${errMsg === 'Time Limit Exceeded' ? 'time' : 'memory'} limit (took ${result.execution_time?.toFixed(2)}s, used ${result.memory_usage?.toFixed(1)}MB). Help me optimize it.` }
+                                          }));
+                                        }}
+                                      >
+                                        <Sparkles className="h-3 w-3 mr-1" /> Optimize
+                                      </Button>
+                                    )}
+                                    <span className={`text-[11px] font-black uppercase tracking-widest ${labelColor}`}>{label}</span>
                                   </div>
                                 </div>
 
@@ -700,20 +790,19 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                     </div>
                                     <div className="pt-3">
                                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Output</p>
-                                      <pre className={`text-xs font-mono border rounded-lg p-3 overflow-x-auto ${passed ? 'bg-green-50 border-green-100 text-green-800' : 'bg-red-50 border-red-100 text-red-700'
-                                        }`}>{result.actual_output}</pre>
+                                      <pre className={`text-xs font-mono border rounded-lg p-3 overflow-x-auto ${isResourceLimitWarn ? 'bg-amber-50 border-amber-100 text-amber-800' : passed ? 'bg-green-50 border-green-100 text-green-800' : 'bg-red-50 border-red-100 text-red-700'}`}>{result.actual_output}</pre>
                                     </div>
-                                    {result.error_message && result.error_message !== 'N/A' && (
+                                    {!passed && errMsg && errMsg !== 'N/A' && (
                                       <div className="md:col-span-3">
                                         <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Error</p>
-                                        <pre className="text-xs font-mono bg-red-50 border border-red-100 rounded-lg p-3 overflow-x-auto text-red-700 whitespace-pre-wrap">{result.error_message}</pre>
+                                        <pre className="text-xs font-mono bg-red-50 border border-red-100 rounded-lg p-3 overflow-x-auto text-red-700 whitespace-pre-wrap">{errMsg}</pre>
                                         <div className="mt-2 flex justify-end">
                                           <Button size="sm" variant="ghost"
                                             className="h-7 px-3 text-[11px] font-bold text-saffron-600 hover:bg-saffron-50"
                                             onClick={() => {
                                               if (onToggleAiChat && !isAiChatOpen) onToggleAiChat();
                                               window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
-                                                detail: { prompt: `Explain this error:\n${result.error_message}` }
+                                                detail: { prompt: `Explain this error:\n${errMsg}` }
                                               }));
                                             }}
                                           >

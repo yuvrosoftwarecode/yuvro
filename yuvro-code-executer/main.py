@@ -90,6 +90,8 @@ class CodeExecutionWithTestsRequest(BaseModel):
     test_cases_advanced: Optional[List[TestCase]] = []
     test_cases_custom: Optional[List[TestCase]] = []
     timeout: int = 10
+    time_limit: Optional[float] = None
+    memory_limit: Optional[float] = None
 
 class ExecutionResult(BaseModel):
     success: bool
@@ -1020,15 +1022,30 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     mem_task = asyncio.create_task(
                         process.communicate(input=input_data.encode())
                     )
-                    memory_usage = 0
-                    try:
-                        ps_proc = psutil.Process(process.pid)
-                        memory_usage = ps_proc.memory_info().rss / 1024 / 1024
-                    except Exception:
-                        pass
+                    
+                    # Background task to poll for peak memory usage
+                    async def track_peak_memory(pid):
+                        max_mem = 0
+                        try:
+                            ps_proc = psutil.Process(pid)
+                            # Poll while process is alive
+                            while process.returncode is None:
+                                try:
+                                    mem = ps_proc.memory_info().rss / 1024 / 1024
+                                    if mem > max_mem:
+                                        max_mem = mem
+                                except Exception:
+                                    pass
+                                await asyncio.sleep(0.05)
+                        except Exception:
+                            pass
+                        return max_mem
+                        
+                    monitor_task = asyncio.create_task(track_peak_memory(process.pid))
 
                     stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
                     execution_time = time.time() - start_time
+                    memory_usage = await monitor_task
 
 
                     actual_output = stdout.decode().strip()
@@ -1036,6 +1053,27 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     expected_output = test_case.expected_output.strip()
                     
                     passed = actual_output == expected_output
+                    error_msg = stderr.decode() if not passed and not console_output else ""
+
+                    # If output is correct but limits exceeded, keep passed=True but
+                    # inject a structured warning into the console output and set error_msg.
+                    if passed and request.time_limit is not None and execution_time > request.time_limit:
+                        error_msg = "Time Limit Exceeded"
+                        limit_warning = json.dumps({
+                            "status": "failed",
+                            "reason": "Time Limit Exceeded",
+                            "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds. Execution took {execution_time:.2f}s."
+                        })
+                        console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
+                    elif passed and request.memory_limit is not None and memory_usage > request.memory_limit:
+                        error_msg = "Memory Limit Exceeded"
+                        limit_warning = json.dumps({
+                            "status": "failed",
+                            "reason": "Memory Limit Exceeded",
+                            "message": f"Program execution exceeded the configured memory limit of {request.memory_limit} MB. Used {memory_usage:.2f} MB."
+                        })
+                        console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
+
                     if passed: passed_count += 1
                     
                     test_results.append(TestResult(
@@ -1043,7 +1081,7 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         input=test_case.input,
                         expected_output=expected_output,
                         actual_output=actual_output,
-                        error=stderr.decode() if not passed and not console_output else "",
+                        error=error_msg,
                         execution_time=execution_time,
                         memory_usage=memory_usage,
                         console_output=console_output
@@ -1067,13 +1105,14 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     )
 
             # Determine basic_result (first test or summary)
+            has_timeout = any(t.error == 'Timeout' for t in test_results)
             basic_result = ExecutionResult(
                 success=passed_count == len(all_test_cases),
                 output=test_results[0].actual_output if test_results else "",
                 error="",
                 execution_time=sum(t.execution_time for t in test_results) * 1000,  # convert to ms
                 memory_usage=max((t.memory_usage for t in test_results), default=0),
-                status='completed'
+                status='timeout' if has_timeout else 'completed'
             )
 
             # Separate results by type

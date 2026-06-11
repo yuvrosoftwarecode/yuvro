@@ -99,6 +99,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     ],
     test_cases_basic: [{ input: '', expected_output: '', description: '' }],
     test_cases_advanced: [],
+    code_executor_config: { time_limit: 10, memory_limit: 256 },
   });
 
   // Solutions Management
@@ -292,6 +293,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: question.test_cases_advanced || [],
+      code_executor_config: question.code_executor_config || { time_limit: 10, memory_limit: 256 },
     });
 
     // Fetch solutions
@@ -322,11 +324,34 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     setSaving(true);
     try {
       let savedQuestion: Question;
+      
+      // Ensure 'learn' category is present for subtopic questions
+      const dataToSave = { ...formData };
+      if (dataToSave.level === 'subtopic' && !dataToSave.categories.includes('learn')) {
+        dataToSave.categories = [...dataToSave.categories, 'learn'];
+      }
+
+      // Validate code_executor_config for coding questions
+      if (dataToSave.type === 'coding' && dataToSave.code_executor_config) {
+        const tl = dataToSave.code_executor_config.time_limit;
+        const ml = dataToSave.code_executor_config.memory_limit;
+        if (!tl || isNaN(tl) || tl <= 0 || tl > 300) {
+          toast.error('Time Limit must be between 0.1 and 300 seconds');
+          setSaving(false);
+          return;
+        }
+        if (!ml || isNaN(ml) || ml <= 0 || ml > 4096) {
+          toast.error('Memory Limit must be between 1 and 4096 MB');
+          setSaving(false);
+          return;
+        }
+      }
+
       if (editingQuestion) {
-        savedQuestion = await updateQuestion(editingQuestion.id, formData);
+        savedQuestion = await updateQuestion(editingQuestion.id, dataToSave);
         toast.success('Question updated successfully');
       } else {
-        savedQuestion = await createQuestion(formData);
+        savedQuestion = await createQuestion(dataToSave);
         toast.success('Question created successfully');
       }
 
@@ -975,6 +1000,60 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   {!editingQuestion && (
                     <p className="text-xs text-slate-400 mt-1.5">The question will be saved first, then you can add test cases.</p>
                   )}
+                  
+                  {/* Execution Limits */}
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <h4 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                      <Code className="w-4 h-4 text-blue-600" />
+                      Execution Limits
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="time_limit" className="text-xs text-slate-600">Time Limit (seconds)</Label>
+                        <Input
+                          id="time_limit"
+                          type="number"
+                          step="0.1"
+                          min="0.1"
+                          max="300"
+                          value={formData.code_executor_config?.time_limit ?? 10}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setFormData({
+                              ...formData,
+                              code_executor_config: {
+                                time_limit: isNaN(val) ? 10 : val,
+                                memory_limit: formData.code_executor_config?.memory_limit ?? 256,
+                              }
+                            });
+                          }}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="memory_limit" className="text-xs text-slate-600">Memory Limit (MB)</Label>
+                        <Input
+                          id="memory_limit"
+                          type="number"
+                          step="1"
+                          min="1"
+                          max="4096"
+                          value={formData.code_executor_config?.memory_limit ?? 256}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            setFormData({
+                              ...formData,
+                              code_executor_config: {
+                                time_limit: formData.code_executor_config?.time_limit ?? 10,
+                                memory_limit: isNaN(val) ? 256 : val,
+                              }
+                            });
+                          }}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

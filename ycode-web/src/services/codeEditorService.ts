@@ -13,6 +13,7 @@ export interface CodeSubmission {
   verdict?: string;
   output: string;
   error_message: string;
+  reason?: string;
   execution_time: number;
   memory_usage: number;
   test_cases_passed: number;
@@ -60,6 +61,7 @@ export interface ExecutionResult extends CodeSubmission {
       expected_output: string;
       actual_output: string;
       error: string;
+      error_message?: string;
       execution_time: number;
     }>;
   };
@@ -84,9 +86,25 @@ class CodeEditorService {
     language: string;
     test_cases: any[];
     test_cases_custom?: any[];
-    problem_title?: string
+    problem_title?: string;
+    question_id?: string;
   }): Promise<ExecutionResult> {
     try {
+      let timeLimit = 10;
+      let memoryLimit = 256;
+
+      if (request.question_id && request.question_id !== 'practice') {
+        try {
+          const response = await restApiAuthUtil.get(`/course/questions/${request.question_id}/`);
+          const q = response.data;
+          if (q && q.code_executor_config) {
+            timeLimit = q.code_executor_config.time_limit || 10;
+            memoryLimit = q.code_executor_config.memory_limit || 256;
+          }
+        } catch (e) {
+          console.warn('Could not fetch question config for runCode', e);
+        }
+      }
       const data: any = await restApiUtilCodeExecuter.post('/execute-with-tests', {
         code: request.code,
         language: request.language,
@@ -101,7 +119,9 @@ class CodeEditorService {
           expected_output: tc.expected_output || '',
           weight: 1
         })),
-        timeout: 10
+        timeout: timeLimit + 5,
+        time_limit: timeLimit,
+        memory_limit: memoryLimit
       });
 
       // The code-executer returns TLE as a 200 with { status: 'tle' } in the body.
@@ -112,6 +132,33 @@ class CodeEditorService {
 
       const executionResult = data.execution_result || {};
       const testResults = data.test_results || [];
+      const firstTestError = testResults.find((result: any) => result?.error)?.error || '';
+
+      let statusVal: any = executionResult.success ? 'completed' : 'error';
+      let reasonVal: string | undefined = undefined;
+      const performance_warnings: any[] = [];
+
+      if (executionResult.status === 'timeout') {
+          statusVal = 'timeout';
+          reasonVal = 'Infinite loop detected or execution timed out.';
+      } else {
+          for (const r of testResults) {
+              if (r.passed && (r.error === 'Time Limit Exceeded' || r.error === 'Memory Limit Exceeded')) {
+                  statusVal = 'failed';
+                  performance_warnings.push({
+                      type: r.error,
+                      execution_time: r.execution_time,
+                      memory_usage: r.memory_usage
+                  });
+              } else if (!r.passed && (r.error === 'Time Limit Exceeded' || r.error === 'Memory Limit Exceeded')) {
+                  statusVal = 'failed';
+                  reasonVal = r.error === 'Time Limit Exceeded'
+                      ? `Time Limit Exceeded. Solution took ${r.execution_time?.toFixed(2) || 0}s, which exceeds the limit.`
+                      : `Memory Limit Exceeded. Solution used ${r.memory_usage?.toFixed(2) || 0}MB, which exceeds the limit.`;
+                  break;
+              }
+          }
+      }
 
       return {
         id: 0,
@@ -120,9 +167,10 @@ class CodeEditorService {
         problem_description: '',
         code: request.code,
         language: request.language,
-        status: executionResult.success ? 'completed' : 'error',
+        status: statusVal,
+        reason: reasonVal,
         output: executionResult.output || '',
-        error_message: executionResult.error || '',
+        error_message: executionResult.error || firstTestError || '',
         execution_time: executionResult.execution_time || 0,
         memory_usage: executionResult.memory_usage || 0,
         test_cases_passed: data.total_passed || 0,
@@ -146,8 +194,9 @@ class CodeEditorService {
           })),
           success: executionResult.success || false
         },
-        plagiarism_flagged: false
-      };
+        plagiarism_flagged: false,
+        performance_warnings: performance_warnings
+      } as any;
     } catch (error) {
       // Re-throw TLE as-is so CodeEditor can handle it with the correct UI.
       if (isTleError(error)) throw error;
@@ -229,6 +278,7 @@ class CodeEditorService {
         code: response.code || request.code,
         language: response.language || request.language,
         status: response.status || 'completed',
+        reason: response.reason || undefined,
         output: response.output || response.execution_output || '',
         error_message: response.error_message || '',
         execution_time: response.execution_time || 0,

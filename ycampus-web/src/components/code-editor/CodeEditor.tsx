@@ -327,6 +327,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         test_cases: basicTestCases,
         test_cases_custom: customMapped,
         problem_title: problemTitle,
+        question_id: problemId,
       });
 
       setOutput(res.output || res.error_message || '');
@@ -335,13 +336,17 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
       if (res.status === 'completed') {
         const passed = res.test_results?.passed ?? 0;
         const total = res.test_results?.total ?? 0;
         toast.success(`Passed ${passed} of ${total} tests`);
+      } else if (res.status === 'timeout') {
+        toast.error('Execution Timed Out');
       } else {
         toast.error('Code execution failed');
       }
@@ -421,14 +426,20 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         execution_time: res.execution_time,
         memory_usage: res.memory_usage,
         status: res.status,
+        reason: res.reason,
         plagiarism_score: res.plagiarism_score,
+        performance_warnings: (res as any).performance_warnings || [],
       });
 
       const passed = res.test_cases_passed ?? 0;
       const total = res.total_test_cases ?? 0;
       const passRate = total ? ((passed / total) * 100).toFixed(1) : '0.0';
 
-      if (passed === total && total > 0) {
+      if (res.status === 'timeout') {
+          toast.error('Submission Failed: Execution Timed Out');
+      } else if (res.status === 'failed' && res.reason) {
+          toast.error(`Submission Failed: ${res.reason}`);
+      } else if (passed === total && total > 0) {
         toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
       } else if (total > 0) {
         toast.success(`Solution submitted: ${passed}/${total} test cases passed (${passRate}%)`);
@@ -622,6 +633,62 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Failure Banner */}
+                        {executionMetrics && executionMetrics.status === 'failed' && (() => {
+                          const warnings: any[] = executionMetrics.performance_warnings || [];
+                          const isResourceLimit = warnings.length > 0;
+                          if (isResourceLimit) {
+                            const w = warnings[0];
+                            const isTLE = w.type === 'Time Limit Exceeded';
+                            return (
+                              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-col mb-4">
+                                <h4 className="text-amber-800 font-bold text-sm flex items-center gap-2">
+                                  <Zap className="h-4 w-4" />
+                                  {isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded'}
+                                </h4>
+                                <p className="text-amber-700 text-xs mt-1">
+                                  {isTLE
+                                    ? `Your output is correct, but execution took ${w.execution_time?.toFixed(2)}s — above the configured time limit. Optimize your algorithm.`
+                                    : `Your output is correct, but used ${(w.memory_usage / 1024)?.toFixed(1)} MB — above the configured memory limit. Reduce memory usage.`
+                                  }
+                                </p>
+                                <p className="text-amber-600 text-[11px] mt-2 font-medium">💡 Tip: Use the AI chat to get optimization hints for your solution.</p>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm mb-4">
+                              <div className="flex">
+                                <div className="flex-shrink-0">
+                                  <XCircle className="h-5 w-5 text-red-500" />
+                                </div>
+                                <div className="ml-3">
+                                  <h3 className="text-sm font-medium text-red-800">Execution Failed</h3>
+                                  <div className="mt-2 text-sm text-red-700">
+                                    <p>{executionMetrics.reason || 'Your code failed to execute within the limits.'}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {executionMetrics && executionMetrics.status === 'timeout' && (
+                          <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 shadow-sm mb-4">
+                            <div className="flex">
+                              <div className="flex-shrink-0">
+                                <XCircle className="h-5 w-5 text-red-500" />
+                              </div>
+                              <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">Execution Timed Out</h3>
+                                <div className="mt-2 text-sm text-red-700">
+                                  <p>{executionMetrics.reason || 'Infinite loop detected or execution timed out.'}</p>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}

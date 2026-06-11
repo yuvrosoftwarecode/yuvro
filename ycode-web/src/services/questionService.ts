@@ -24,6 +24,10 @@ export interface Question {
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
+  code_executor_config?: {
+    time_limit: number;
+    memory_limit: number;
+  };
 
   created_by: string;
   created_at: string;
@@ -52,6 +56,10 @@ export interface CreateQuestionData {
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
+  code_executor_config?: {
+    time_limit: number;
+    memory_limit: number;
+  };
 }
 
 export interface UpdateQuestionData extends Partial<CreateQuestionData> { }
