@@ -229,13 +229,15 @@ const CodePractice = () => {
     setCurrentView('insights');
   };
 
+  const isFixedLayout = currentView === 'problem' || currentView === 'topics';
+
   return (
     <DashboardLayout
       hideHeader={true}
       hideFooter={true}
-      contentClassName="h-full flex flex-col overflow-hidden"
+      contentClassName={`h-full flex flex-col ${isFixedLayout ? 'overflow-hidden' : ''}`}
     >
-      <div className="flex-1 flex flex-col transition-all duration-300 ease-in-out overflow-hidden">
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isFixedLayout ? 'overflow-hidden' : ''}`}>
         {isHydrating ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
