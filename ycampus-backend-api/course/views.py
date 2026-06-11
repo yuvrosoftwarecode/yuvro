@@ -13,7 +13,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists, Avg
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsCollegeManagementAdmin
+from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsCollegeManagementAdmin, IsCollegeManagementOrHOD
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
@@ -1816,7 +1816,7 @@ class SemesterSubjectViewSet(viewsets.ModelViewSet):
     """
     queryset = SemesterSubject.objects.all()
     serializer_class = SemesterSubjectSerializer
-    permission_classes = [IsCollegeManagementAdmin]
+    permission_classes = [IsCollegeManagementOrHOD]
     filterset_fields = ["semester"]
 
     def get_queryset(self):
@@ -1857,7 +1857,7 @@ class SectionSubjectFacultyViewSet(viewsets.ModelViewSet):
         if user.role == "faculty":
             # For faculty, only show their own assignments
             qs = qs.filter(faculty__user=user)
-        elif user.role not in ["admin", "college_admin", "principal"]:
+        elif user.role not in ["admin", "college_admin", "principal", "hod"]:
             # Other roles (like students) should not see assignments at all through this viewset
             # Unless they need it for something else? For now, restrict.
             return SectionSubjectFaculty.objects.none()

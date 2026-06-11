@@ -286,3 +286,19 @@ class IsCollegeManagementAdmin(BasePermission):
             and request.user.is_authenticated
             and request.user.role in ["admin", "college_admin", "principal"]
         )
+
+class IsCollegeManagementOrHOD(BasePermission):
+    """
+    Permission class that allows access to:
+    - Administrators (Platform Admins)
+    - College Admins
+    - Principals
+    - HODs
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in ["admin", "college_admin", "principal", "hod"]
+        )
