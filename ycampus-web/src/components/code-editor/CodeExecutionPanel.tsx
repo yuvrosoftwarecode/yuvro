@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import MonacoCodeEditor from './MonacoCodeEditor';
 import ExecutionResults from './ExecutionResults';
 import TestCaseViewer from './TestCaseViewer';
@@ -29,6 +31,7 @@ export interface CodeExecutionPanelProps {
   mode?: 'practice' | 'exam' | 'learn' | 'editor';
   className?: string;
   editorHeight?: string;
+  readOnly?: boolean;
 }
 
 const LANGUAGE_OPTIONS = [
@@ -100,11 +103,12 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
   onLanguageChange,
   showSubmitButton = true,
   showRunButton = true,
-  showTestCases = true,
+  showTestCases = false,
   allowCustomTestCases = false,
   mode = 'practice',
   className = '',
-  editorHeight = '500px'
+  editorHeight = '500px',
+  readOnly = false
 }) => {
   const [code, setCode] = useState(initialCode || '');
   const [language, setLanguage] = useState('python');
@@ -314,21 +318,10 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
 
           <div className="flex space-x-2">
             {showRunButton && (
-              <button
-                onClick={handleExecute}
-                disabled={isExecuting}
-                className={`
-                  px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center space-x-2
-                  ${isExecuting
-                    ? 'bg-white text-slate-400 cursor-not-allowed'
-                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
-                  }
-                `}
-                title="Test your code with visible test cases for debugging"
-              >
-                <span>{isExecuting ? 'Running...' : 'Run Code'}</span>
-                {!isExecuting && <span className="text-lg leading-none">▶</span>}
-              </button>
+              <Button size="sm" variant="ghost" onClick={handleExecute} disabled={isExecuting}>
+                <Play className="h-3 w-3 mr-1" />
+                {isExecuting ? 'Running...' : 'Run Code'}
+              </Button>
             )}
 
             {showSubmitButton && (
@@ -402,7 +395,7 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
             onChange={handleCodeChange}
             language={language}
             height={editorHeight}
-            onShowExamples={() => setShowExamples(true)}
+            readOnly={readOnly}
           />
         )}
 
