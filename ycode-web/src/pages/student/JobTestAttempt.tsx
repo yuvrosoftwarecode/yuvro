@@ -47,6 +47,9 @@ export default function JobTestAttempt() {
   const [violationThreshold, setViolationThreshold] = useState(5);
   const [gatePassed, setGatePassed] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
   const [initialViolations, setInitialViolations] = useState(0);
   const [initialTabSwitches, setInitialTabSwitches] = useState(0);
 
@@ -164,8 +167,11 @@ export default function JobTestAttempt() {
   if (proctoringEnabled && !gatePassed) {
     return (
       <ProctoringGate
-        onReady={(stream) => {
-          setCameraStream(stream);
+        onReady={(data) => {
+          setCameraStream(data.cameraStream);
+          setScreenStream(data.screenStream);
+          setPhotoBlob(data.photoBlob);
+          setScreenshotBlob(data.screenshotBlob);
           setGatePassed(true);
         }}
         onCancel={() => navigate('/')}
@@ -199,6 +205,9 @@ export default function JobTestAttempt() {
       }}
       assessmentType="job-tests"
       preExamCameraStream={cameraStream}
+      screenStream={screenStream}
+      preExamPhotoBlob={photoBlob}
+      preExamScreenshotBlob={screenshotBlob}
     />
   );
 }

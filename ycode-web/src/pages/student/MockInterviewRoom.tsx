@@ -46,9 +46,9 @@ const MockInterviewRoom = () => {
     if (!mediaStream) {
         return (
             <ProctoringGate
-                onReady={(stream) => {
-                    streamRef.current = stream;
-                    setMediaStream(stream);
+                onReady={(data) => {
+                    streamRef.current = data.cameraStream;
+                    setMediaStream(data.cameraStream);
                 }}
                 onCancel={handleExit}
             />

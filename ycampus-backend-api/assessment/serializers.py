@@ -137,6 +137,8 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
             for snap in snapshots:
                 if isinstance(snap, dict) and snap.get("image_path"):
                     snap["image_path"] = build_public_url(snap["image_path"])
+                if isinstance(snap, dict) and snap.get("screen_path"):
+                    snap["screen_path"] = build_public_url(snap["screen_path"])
                     
         # Build URLs for proctoring_activities
         activities = data.get("proctoring_activities")
@@ -144,6 +146,8 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
             for act in activities:
                 if isinstance(act, dict) and act.get("image_path"):
                     act["image_path"] = build_public_url(act["image_path"])
+                if isinstance(act, dict) and act.get("screen_path"):
+                    act["screen_path"] = build_public_url(act["screen_path"])
                     
         return data
 
@@ -213,12 +217,16 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
             for e in events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         
         gen_events = data.get("general_events")
         if gen_events and isinstance(gen_events, list):
             for e in gen_events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         return data
 
     class Meta:
@@ -605,12 +613,16 @@ class ContestSubmissionSerializer(serializers.ModelSerializer):
             for e in events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         
         gen_events = data.get("general_events")
         if gen_events and isinstance(gen_events, list):
             for e in gen_events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         return data
 
     class Meta:
@@ -686,6 +698,8 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
             for snap in snapshots:
                 if isinstance(snap, dict) and snap.get("image_path"):
                     snap["image_path"] = build_public_url(snap["image_path"])
+                if isinstance(snap, dict) and snap.get("screen_path"):
+                    snap["screen_path"] = build_public_url(snap["screen_path"])
                     
         # Build URLs for proctoring_activities
         activities = data.get("proctoring_activities")
@@ -693,6 +707,8 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
             for act in activities:
                 if isinstance(act, dict) and act.get("image_path"):
                     act["image_path"] = build_public_url(act["image_path"])
+                if isinstance(act, dict) and act.get("screen_path"):
+                    act["screen_path"] = build_public_url(act["screen_path"])
                     
         return data
 
@@ -734,12 +750,16 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
             for e in events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         
         gen_events = data.get("general_events")
         if gen_events and isinstance(gen_events, list):
             for e in gen_events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         return data
 
     class Meta:
@@ -884,12 +904,16 @@ class JobTestSubmissionSerializer(serializers.ModelSerializer):
             for e in events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         
         gen_events = data.get("general_events")
         if gen_events and isinstance(gen_events, list):
             for e in gen_events:
                 if isinstance(e, dict) and e.get("image_path"):
                     e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
         return data
 
     class Meta:

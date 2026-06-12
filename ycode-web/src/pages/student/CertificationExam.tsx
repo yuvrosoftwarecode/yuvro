@@ -51,6 +51,16 @@ const CertificationExam: React.FC = () => {
     const [submissionId, setSubmissionId] = useState<string | null>(null);
     const [gatePassed, setGatePassed] = useState(false);
     const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+    const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+    const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+    const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+            if (screenStream) screenStream.getTracks().forEach(t => t.stop());
+        };
+    }, [cameraStream, screenStream]);
 
     useEffect(() => {
         const fetchExam = async () => {
@@ -254,8 +264,11 @@ const CertificationExam: React.FC = () => {
     if (assessment.proctoring_enabled && !gatePassed) {
         return (
             <ProctoringGate
-                onReady={(stream) => {
-                    setCameraStream(stream);
+                onReady={(data) => {
+                    setCameraStream(data.cameraStream);
+                    setScreenStream(data.screenStream);
+                    setPhotoBlob(data.photoBlob);
+                    setScreenshotBlob(data.screenshotBlob);
                     setGatePassed(true);
                 }}
                 onCancel={() => navigate('/student/certifications')}
@@ -273,6 +286,9 @@ const CertificationExam: React.FC = () => {
             onSubmit={handleSubmit}
             assessmentType="certification-exams"
             preExamCameraStream={cameraStream}
+            screenStream={screenStream}
+            preExamPhotoBlob={photoBlob}
+            preExamScreenshotBlob={screenshotBlob}
         />
     );
 };

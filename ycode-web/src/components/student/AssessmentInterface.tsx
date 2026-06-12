@@ -41,6 +41,7 @@ import CodeEditor from '@/components/code-editor/CodeEditor';
 import { submitSkillTest } from "@/services/skillTestService";
 import { toast } from "sonner";
 import { useProctoring } from '@/hooks/useProctoring';
+import ProctoringGate, { ProctoringData } from '@/components/student/ProctoringGate';
 
 interface Assessment {
   id: string;
@@ -78,6 +79,8 @@ interface AssessmentInterfaceProps {
   assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews' | 'job-tests';
   screenStream?: MediaStream | null;
   preExamCameraStream?: MediaStream | null;
+  preExamPhotoBlob?: Blob | null;
+  preExamScreenshotBlob?: Blob | null;
 }
 
 const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
@@ -89,7 +92,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   onSubmit,
   assessmentType = 'skill-tests',
   screenStream,
-  preExamCameraStream
+  preExamCameraStream,
+  preExamPhotoBlob,
+  preExamScreenshotBlob
 }) => {
   const [questions, setQuestions] = useState<Question[]>(() => {
     const order: Record<string, number> = {
@@ -144,7 +149,16 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
-  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+
+  const [missingPermissions, setMissingPermissions] = useState<{ camera?: boolean, mic?: boolean, screen?: boolean } | null>(null);
+  const reproctorAttemptsRef = useRef(0);
+  const handleSubmitAssessmentRef = useRef<(() => Promise<void>) | null>(null);
+  const logActivityRef = useRef<any>(null);
+  const isRequestingPermissionRef = useRef(false);
+  const [currentCameraStream, setCurrentCameraStream] = useState<MediaStream | null>(preExamCameraStream || null);
+  const [currentScreenStream, setCurrentScreenStream] = useState<MediaStream | null>(screenStream || null);
+
+  const mediaStream = assessment.proctoring_enabled ? currentCameraStream : null;
 
   const [questionPage, setQuestionPage] = useState(0);
   const [tabSwitchCount, setTabSwitchCount] = useState(assessment.initial_tab_switches ?? 0);
@@ -171,7 +185,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       setTabSwitchCount(prev => prev + 1);
       setViolationCount(prev => prev + 1);
     } else if (type === 'fullscreen_exit') {
-      setShowFullscreenDialog(true);
+      if (!isRequestingPermissionRef.current) {
+        setShowFullscreenDialog(true);
+      }
     } else if (
       type === 'face_not_detected' ||
       type === 'multiple_faces_detected' ||
@@ -184,11 +200,20 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   }, []);
 
   useEffect(() => {
-    if (assessment.proctoring_enabled && screenStream) {
-      const videoTrack = screenStream.getVideoTracks()[0];
+    if (assessment.proctoring_enabled && currentScreenStream) {
+      const videoTrack = currentScreenStream.getVideoTracks()[0];
       if (videoTrack) {
         const handleEnded = () => {
-          handleProctoringViolation('screen_share_stopped');
+          reproctorAttemptsRef.current += 1;
+          if (reproctorAttemptsRef.current > 1) {
+            logActivityRef.current?.('repeated_permission_loss', { severity: 'critical' });
+            handleProctoringViolation('repeated_permission_loss');
+            handleSubmitAssessmentRef.current?.();
+          } else {
+            logActivityRef.current?.('screen_share_stopped', { severity: 'critical' });
+            handleProctoringViolation('screen_share_stopped');
+            setMissingPermissions(prev => ({ ...prev, screen: true }));
+          }
         };
         videoTrack.addEventListener('ended', handleEnded);
         return () => {
@@ -196,7 +221,39 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         };
       }
     }
-  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
+  }, [assessment.proctoring_enabled, currentScreenStream, handleProctoringViolation]);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled && currentCameraStream) {
+      const handleEnded = (kind: string) => {
+        reproctorAttemptsRef.current += 1;
+        if (reproctorAttemptsRef.current > 1) {
+          logActivityRef.current?.('repeated_permission_loss', { severity: 'critical' });
+          handleProctoringViolation('repeated_permission_loss');
+          handleSubmitAssessmentRef.current?.();
+        } else {
+          logActivityRef.current?.(kind === 'video' ? 'camera_stopped' : 'mic_stopped', { severity: 'critical' });
+          handleProctoringViolation(kind === 'video' ? 'camera_stopped' : 'mic_stopped');
+          setMissingPermissions(prev => ({ ...prev, [kind === 'video' ? 'camera' : 'mic']: true }));
+        }
+      };
+      
+      const tracks = currentCameraStream.getTracks();
+      const listeners = new Map<MediaStreamTrack, () => void>();
+      
+      tracks.forEach(track => {
+        const listener = () => handleEnded(track.kind);
+        listeners.set(track, listener);
+        track.addEventListener('ended', listener);
+      });
+      return () => {
+        tracks.forEach(track => {
+          const listener = listeners.get(track);
+          if (listener) track.removeEventListener('ended', listener);
+        });
+      };
+    }
+  }, [assessment.proctoring_enabled, currentCameraStream, handleProctoringViolation]);
 
 
 
@@ -208,9 +265,31 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     enabled: assessment.proctoring_enabled ?? false,
     questionId: proctoringQuestionId,
     mediaStream: mediaStream,
+    screenStream: currentScreenStream,
     onViolation: handleProctoringViolation,
     onAutoSubmit: () => handleProctoringViolation('auto_submitted'),
+    pauseFullscreenChecks: () => isRequestingPermissionRef.current,
   });
+
+  useEffect(() => {
+    logActivityRef.current = logActivity;
+  }, [logActivity]);
+
+  const initialBlobsUploadedRef = useRef(false);
+  useEffect(() => {
+    if (assessment.proctoring_enabled && !initialBlobsUploadedRef.current) {
+      initialBlobsUploadedRef.current = true;
+      const uploadInitialBlobs = async () => {
+        if (preExamPhotoBlob) {
+          await logActivity('passport_photo_captured', { source: 'proctoring_gate' }, preExamPhotoBlob);
+        }
+        if (preExamScreenshotBlob) {
+          await logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, preExamScreenshotBlob);
+        }
+      };
+      uploadInitialBlobs();
+    }
+  }, [assessment.proctoring_enabled, preExamPhotoBlob, preExamScreenshotBlob, logActivity]);
 
   const currentQuestionIdRef = useRef<string | null>(null);
   const prevQuestionIdRef = useRef<string | null>(null);
@@ -269,10 +348,14 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   }, [isDragging]);
 
 
-  const screenStreamRef = useRef(screenStream);
+  const screenStreamRef = useRef(currentScreenStream);
   useEffect(() => {
-    screenStreamRef.current = screenStream;
-  }, [screenStream]);
+    screenStreamRef.current = currentScreenStream;
+  }, [currentScreenStream]);
+
+  useEffect(() => {
+    streamRef.current = currentCameraStream;
+  }, [currentCameraStream]);
 
   // Centralized camera cleanup function
   const cleanupCamera = React.useCallback(() => {
@@ -284,7 +367,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         console.log('Camera/microphone track stopped:', track.kind);
       });
       streamRef.current = null;
-      setMediaStream(null);
+      setCurrentCameraStream(null);
       setVideoTrackEnabled(false);
       setAudioTrackEnabled(false);
       console.log('Camera cleanup completed');
@@ -292,13 +375,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('No stream to cleanup');
     }
 
-    if (screenStreamRef.current) {
-      console.log('Stopping screen share tracks...');
-      screenStreamRef.current.getTracks().forEach(track => {
-        track.stop();
-        console.log('Screen share track stopped:', track.kind);
-      });
-    }
+    // Do NOT stop screen share tracks here because the screen stream is passed from the parent 
+    // and stopping it here breaks React Strict Mode remounts.
+    // if (screenStreamRef.current) { ... }
   }, []);
 
   useEffect(() => {
@@ -313,15 +392,15 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
           return tracks.length > 0 && tracks.every(track => track.readyState === 'live');
         };
 
-        const stream = isStreamActive(preExamCameraStream)
-          ? preExamCameraStream!
+        const stream = isStreamActive(currentCameraStream)
+          ? currentCameraStream!
           : await navigator.mediaDevices.getUserMedia({
               video: true,
               audio: true
             });
 
         streamRef.current = stream;
-        setMediaStream(stream);
+        setCurrentCameraStream(stream);
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);
@@ -335,7 +414,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       } catch (err) {
         console.error('Media init error', err);
         setHasMediaAccess(false);
-        setMediaStream(null);
+        setCurrentCameraStream(null);
         setVideoTrackEnabled(false);
         setAudioTrackEnabled(false);
         setCameraAlert(true);
@@ -347,15 +426,15 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     return () => {
       cleanupCamera();
     };
-  }, [assessment.proctoring_enabled, cleanupCamera, preExamCameraStream]);
+  }, [assessment.proctoring_enabled, cleanupCamera]);
 
   // Rebind stream
   useEffect(() => {
-    if (hasMediaAccess && mediaStream && videoRef.current) {
+    if (hasMediaAccess && currentCameraStream && videoRef.current) {
       const video = videoRef.current;
-      if (video.srcObject !== mediaStream) {
+      if (video.srcObject !== currentCameraStream) {
         console.log('useProctoring [ycode-web]: Rebinding video stream to HTML element');
-        video.srcObject = mediaStream;
+        video.srcObject = currentCameraStream;
         video.play().catch(() => {
           window.setTimeout(() => { video.play().catch(console.error); }, 150);
         });
@@ -440,6 +519,10 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     cleanupCamera();
     onBack();
   };
+
+  useEffect(() => {
+    handleSubmitAssessmentRef.current = handleSubmitAssessment;
+  });
 
   const handleSubmitAssessment = async () => {
     if (isSubmittingRef.current) return;
@@ -788,6 +871,72 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col">
+      <AlertDialog open={!!missingPermissions}>
+        <AlertDialogContent className="max-w-md bg-white border-none shadow-2xl p-0 overflow-hidden ring-0 outline-none">
+          <div className="p-8 relative">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-bold text-center text-slate-800">
+                Permission Lost
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center text-slate-600 mt-2">
+                <div className="mb-4 text-base">
+                  Your <strong className="text-red-500">{missingPermissions?.camera ? 'Camera' : missingPermissions?.mic ? 'Microphone' : 'Screen Share'}</strong> was disconnected or stopped.
+                </div>
+                <div className="font-semibold text-slate-800 p-4 bg-amber-50 rounded-lg text-sm border border-amber-200">
+                  ⚠️ This is your final warning. If this happens again, your test will be automatically submitted without warning.
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-8 flex flex-col gap-3">
+              <Button 
+                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-base"
+                onClick={async () => {
+                  try {
+                    isRequestingPermissionRef.current = true;
+                    if (missingPermissions?.screen) {
+                      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                      setCurrentScreenStream(stream);
+                    } else {
+                      const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: videoTrackEnabled, 
+                        audio: audioTrackEnabled 
+                      });
+                      setCurrentCameraStream(stream);
+                    }
+                    
+                    try {
+                      if (!document.fullscreenElement) {
+                        await document.documentElement.requestFullscreen();
+                      }
+                    } catch (fsErr) {
+                      console.warn("Could not automatically restore fullscreen", fsErr);
+                    }
+                    
+                    setTimeout(() => {
+                      isRequestingPermissionRef.current = false;
+                    }, 500);
+
+                    setMissingPermissions(null);
+                    logActivity(
+                      missingPermissions?.screen ? 'screen_share_re_enabled' : 
+                      missingPermissions?.camera ? 'camera_re_enabled' : 'mic_re_enabled', 
+                      { severity: 'normal' }
+                    );
+                  } catch (e) {
+                    isRequestingPermissionRef.current = false;
+                    console.error("Failed to re-enable permission", e);
+                  }
+                }}
+              >
+                Re-enable {missingPermissions?.camera ? 'Camera' : missingPermissions?.mic ? 'Microphone' : 'Screen Share'}
+              </Button>
+            </AlertDialogFooter>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex justify-center">
         {cameraAlert && (

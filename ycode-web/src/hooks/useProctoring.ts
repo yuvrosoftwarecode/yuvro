@@ -14,10 +14,12 @@ interface ProctoringConfig {
     enabled: boolean;
     questionId?: string;
     mediaStream?: MediaStream | null;
+    screenStream?: MediaStream | null;
     tabSwitchThreshold?: number;
     violationThreshold?: number;
     onViolation?: (type: string, data?: any) => void;
     onAutoSubmit?: () => void;
+    pauseFullscreenChecks?: () => boolean;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -27,8 +29,10 @@ export const useProctoring = ({
     enabled,
     questionId,
     mediaStream,
+    screenStream,
     onViolation,
     onAutoSubmit,
+    pauseFullscreenChecks,
 }: ProctoringConfig) => {
 
     // Refs so callbacks never go stale
@@ -39,13 +43,17 @@ export const useProctoring = ({
     useEffect(() => { onViolationRef.current = onViolation; }, [onViolation]);
     useEffect(() => { onAutoSubmitRef.current = onAutoSubmit; }, [onAutoSubmit]);
     useEffect(() => { questionIdRef.current = questionId; }, [questionId]);
+    
+    const pauseFsRef = useRef(pauseFullscreenChecks);
+    useEffect(() => { pauseFsRef.current = pauseFullscreenChecks; }, [pauseFullscreenChecks]);
 
     const shortcutAttemptRef = useRef<string | null>(null);
     const captureFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
+    const captureScreenFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
     const hasInitializedRef = useRef(false);
 
     // ── Core logActivity ──────────────────────────────────────────────────────
-    const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
+    const logActivity = useCallback(async (activityType: string, metaData: any = {}, explicitBlob?: Blob | null) => {
         if (!enabled) return null;
 
         try {
@@ -53,22 +61,35 @@ export const useProctoring = ({
             const activeQuestionId = metaData.question_id || questionIdRef.current;
             const timestamp = new Date().toISOString();
             
-            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
             const isCritical = criticalTypes.some(vt => activityType.includes(vt));
             
-            let blob: Blob | null = null;
-            if (isCritical && captureFrameRef.current) {
+            let blob: Blob | null = explicitBlob || null;
+            let screenBlob: Blob | null = null;
+            if (!blob && isCritical && captureFrameRef.current) {
                 blob = await captureFrameRef.current();
             }
+            if (!explicitBlob && isCritical && captureScreenFrameRef.current) {
+                screenBlob = await captureScreenFrameRef.current();
+            }
+
+            const submissionLevelTypes = ['passport_photo_captured', 'initial_screenshot_captured'];
+            const shouldSendQuestionId = activeQuestionId && !submissionLevelTypes.includes(activityType);
 
             let response;
-            if (blob) {
+            if (blob || screenBlob) {
                 const formData = new FormData();
                 formData.append('activity_type', activityType);
                 formData.append('meta_data', JSON.stringify(metaData));
                 formData.append('timestamp', timestamp);
-                if (activeQuestionId) formData.append('question_id', activeQuestionId);
-                formData.append('snapshot', blob, 'snapshot.png');
+                if (shouldSendQuestionId) formData.append('question_id', activeQuestionId);
+                
+                if (blob) {
+                    formData.append('snapshot', blob, 'snapshot.png');
+                }
+                if (screenBlob) {
+                    formData.append('screenshot', screenBlob, 'screenshot.png');
+                }
                 
                 response = await restApiAuthUtil.post(url, formData) as any;
             } else {
@@ -76,7 +97,7 @@ export const useProctoring = ({
                     activity_type: activityType,
                     meta_data: metaData,
                     timestamp: timestamp,
-                    ...(activeQuestionId && { question_id: activeQuestionId }),
+                    ...(shouldSendQuestionId && { question_id: activeQuestionId }),
                 };
                 response = await restApiAuthUtil.post(url, payload) as any;
             }
@@ -207,6 +228,7 @@ export const useProctoring = ({
         if (!enabled) return;
 
         const handleFullscreenChange = () => {
+            if (pauseFsRef.current?.()) return;
             if (!document.fullscreenElement) {
                 logActivity('fullscreen_exit');
                 onViolationRef.current?.('fullscreen_exit');
@@ -217,6 +239,7 @@ export const useProctoring = ({
 
         // Initial check after 2s (allow page to settle)
         const initTimeout = setTimeout(() => {
+            if (pauseFsRef.current?.()) return;
             if (!document.fullscreenElement) {
                 logActivity('fullscreen_exit', { trigger: 'initial_check' });
                 onViolationRef.current?.('fullscreen_exit');
@@ -225,6 +248,7 @@ export const useProctoring = ({
 
         // Periodic check every 3s
         const pollInterval = setInterval(() => {
+            if (pauseFsRef.current?.()) return;
             if (!document.fullscreenElement) {
                 logActivity('fullscreen_exit', { trigger: 'interval_check' });
                 onViolationRef.current?.('fullscreen_exit');
@@ -411,6 +435,18 @@ export const useProctoring = ({
         video.style.pointerEvents = 'none';
         document.body.appendChild(video);
 
+        const screenVideo = document.createElement('video');
+        screenVideo.muted = true;
+        screenVideo.playsInline = true;
+        screenVideo.style.position = 'fixed';
+        screenVideo.style.top = '0';
+        screenVideo.style.left = '-9999px';
+        screenVideo.style.width = '1px';
+        screenVideo.style.height = '1px';
+        screenVideo.style.opacity = '0';
+        screenVideo.style.pointerEvents = 'none';
+        document.body.appendChild(screenVideo);
+
         const canvas = document.createElement('canvas');
 
         // Expose a raw capture function for critical violations
@@ -425,6 +461,23 @@ export const useProctoring = ({
                 if (!ctx) return resolve(null);
                 
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/png');
+            });
+        };
+
+        captureScreenFrameRef.current = async (): Promise<Blob | null> => {
+            return new Promise((resolve) => {
+                if (!isActive || !screenVideo.srcObject) return resolve(null);
+                if (screenVideo.readyState < 2) return resolve(null);
+                
+                canvas.width = screenVideo.videoWidth || 1280;
+                canvas.height = screenVideo.videoHeight || 720;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return resolve(null);
+                
+                ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
                 canvas.toBlob((blob) => {
                     resolve(blob);
                 }, 'image/png');
@@ -567,6 +620,12 @@ export const useProctoring = ({
                     video.onloadedmetadata = startCapture;
                     video.srcObject = streamToUse;
 
+                    if (screenStream) {
+                        screenVideo.autoplay = true;
+                        screenVideo.srcObject = screenStream;
+                        // Let autoplay handle playback. We don't strictly need to wait for loadedmetadata for screenVideo to initialize the camera capture loop.
+                    }
+
                     // Fallback in case metadata is already loaded
                     if (video.readyState >= 1) {
                         startCapture();
@@ -586,14 +645,19 @@ export const useProctoring = ({
         return () => {
             isActive = false;
             captureFrameRef.current = null;
+            captureScreenFrameRef.current = null;
             clearInterval(snapshotIntervalId);
             if (internalStream) internalStream.getTracks().forEach(t => t.stop());
             video.srcObject = null;
+            screenVideo.srcObject = null;
             if (video.parentNode) {
                 video.parentNode.removeChild(video);
             }
+            if (screenVideo.parentNode) {
+                screenVideo.parentNode.removeChild(screenVideo);
+            }
         };
-    }, [assessmentId, assessmentType, enabled, mediaStream, logActivity]);
+    }, [assessmentId, assessmentType, enabled, mediaStream, screenStream, logActivity]);
 
     return { logActivity };
 };

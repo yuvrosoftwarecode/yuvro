@@ -213,24 +213,32 @@ class ProctoringMixin:
                 {"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        # 3. Handle Camera Snapshot if present in FILES
+        # 3. Handle Camera Snapshot and Screenshot if present in FILES
         image_file = request.FILES.get("snapshot")
+        screen_file = request.FILES.get("screenshot")
+        
         image_path = None
         if image_file:
             image_path = self._save_snapshot(
-                image_file, request.user, submission, question_id
+                image_file, request.user, submission, question_id, activity_type=activity_type
+            )
+            
+        screen_path = None
+        if screen_file:
+            screen_path = self._save_snapshot(
+                screen_file, request.user, submission, question_id, activity_type=activity_type, prefix_override="screenshot"
             )
 
         # 4. Log to Submission level (global timeline)
         submission_response = self._handle_submission_activity(
-            submission, request, activity_type, meta_data, timestamp, image_path
+            submission, request, activity_type, meta_data, timestamp, image_path, screen_path
         )
 
         # 5. If question_id, also log to Question level
         if question_id:
             submission.refresh_from_db() # Ensure we have latest violation count/state
             question_response = self._handle_question_activity(
-                submission, request, activity_type, meta_data, question_id, timestamp, image_path
+                submission, request, activity_type, meta_data, question_id, timestamp, image_path, screen_path
             )
             
             # Merge both responses
@@ -253,7 +261,7 @@ class ProctoringMixin:
         return submission_response
 
     def _handle_question_activity(
-        self, submission, request, activity_type, meta_data, question_id, timestamp, image_path=None
+        self, submission, request, activity_type, meta_data, question_id, timestamp, image_path=None, screen_path=None
     ):
         submission_field_name = self._get_submission_field_name()
 
@@ -322,9 +330,11 @@ class ProctoringMixin:
         navigation_types = dict(BaseQuestionActivity.NAVIGATION_ACTIVITY_TYPES).keys()
         question_types = dict(BaseQuestionActivity.QUESTION_ACTIVITY_TYPES).keys()
 
-        # Handle Camera Snapshot
+        # Handle Camera Snapshot and Screenshot
         if image_path:
             event["image_path"] = image_path
+        if screen_path:
+            event["screen_path"] = screen_path
 
         # Add to appropriate array based on type
         if activity_type == 'snapshot':
@@ -546,7 +556,7 @@ class ProctoringMixin:
             print(f"Plagiarism check failed: {e}")
 
     def _handle_submission_activity(
-        self, submission, request, activity_type, meta_data, timestamp, image_path=None
+        self, submission, request, activity_type, meta_data, timestamp, image_path=None, screen_path=None
     ):
         event = {
             "timestamp": timestamp,
@@ -557,6 +567,9 @@ class ProctoringMixin:
         # Handle Camera Snapshot for Submission Level
         if image_path:
             event["image_path"] = image_path
+            
+        if screen_path:
+            event["screen_path"] = screen_path
 
         # Define non-violation events that shouldn't be counted as proctoring violations
         non_violation_types = ["snapshot", "camera_enabled", "camera_disabled"]
@@ -632,7 +645,7 @@ class ProctoringMixin:
         return total_violations, tab_switch_count
 
 
-    def _save_snapshot(self, file_obj, user, submission, question_id=None):
+    def _save_snapshot(self, file_obj, user, submission, question_id=None, activity_type=None, prefix_override=None):
         """
         Save a camera snapshot via Django's default storage backend.
 
@@ -695,10 +708,17 @@ class ProctoringMixin:
             attempt_dir = f"attempt-{attempt_count}"
 
             # 3. Filename
-            ts = str(int(time.time()))
-            filename = f"snapshot_{ts}.png"
+            prefix = prefix_override or "snapshot"
+            if not prefix_override:
+                if activity_type == "passport_photo_captured":
+                    prefix = "passport"
+                elif activity_type == "initial_screenshot_captured":
+                    prefix = "screen_share"
+                
+            ts = str(int(time.time() * 1000))
+            filename = f"{prefix}_{ts}.png"
             if question_id:
-                filename = f"q{question_id}_{ts}.png"
+                filename = f"q{question_id}_{prefix}_{ts}.png"
 
             # Object key: {user_id}/{type}/{parent}/{exam}/{attempt}/{filename}
             user_id = str(user.id)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,7 +21,8 @@ import {
     XCircle, 
     AlertCircle,
     Eye,
-    ShieldCheck
+    ShieldCheck,
+    X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
@@ -30,6 +32,7 @@ interface ProctoringEvent {
     activity_type: string;
     timestamp: string;
     image_path?: string;
+    screen_path?: string;
     meta_data?: {
         copied_text?: string;
         pasted_text?: string;
@@ -40,6 +43,8 @@ interface ProctoringEvent {
         platform?: string;
         db_level?: number;
     };
+    question_title?: string;
+    question_no?: string;
 }
 
 interface QuestionActivity {
@@ -104,56 +109,79 @@ const getImageUrl = (imgUrl: string | undefined) => {
     return `${rootUrl}/media/${cleanPath}`;
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-        const data = payload[0].payload;
-        const log = data.log;
-        const severity = data.severity;
-        const isSnapshot = data.isSnapshot;
-        
-        const isPureSnapshot = isSnapshot && (!log.activity_type || log.activity_type === 'snapshot');
-        
-        return (
-            <div className="bg-card p-3 rounded-lg shadow-xl border border-border max-w-[240px]">
-                <div className="font-mono text-[10px] text-muted-foreground mb-2">{label}</div>
-                <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-2 h-2 rounded-full ${severity === 2 ? 'bg-rose-500' : severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                    <span className="font-bold text-sm">{data.severityName}</span>
+const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
+    const log = data.log;
+    const severity = data.severity;
+    const isSnapshot = data.isSnapshot;
+    
+    const isPureSnapshot = isSnapshot && (!log.activity_type || log.activity_type === 'snapshot');
+    
+    return (
+        <div className="space-y-3">
+            {label && <div className="font-mono text-[10px] text-muted-foreground mb-1">{label}</div>}
+            {data?.time && label !== data.time && <div className="font-mono text-[10px] text-muted-foreground mb-2">{data.time}</div>}
+            {log.question_no && (
+                <div className="text-xs text-muted-foreground font-medium mb-2 border-b border-border/50 pb-2">
+                    <span className="font-semibold text-foreground">Question:</span> {log.question_no}
                 </div>
-                
-                <div className="space-y-3">
-                    {/* Render text details if there is an activity type (and it's not just a standalone snapshot without other meaning) */}
-                    {!isPureSnapshot && log.activity_type && (
-                        <div className="space-y-1">
-                            <span className="font-semibold capitalize text-xs text-foreground block">
-                                {log.activity_type.replace(/_/g, ' ')}
-                            </span>
-                            {log.meta_data && Object.keys(log.meta_data).length > 0 && (
-                                <div className="mt-2 space-y-1 pt-2 border-t border-border/50">
-                                    {log.meta_data.key && (
-                                        <div className="text-[10px] truncate"><span className="text-muted-foreground">Key:</span> <kbd className="px-1 border bg-muted font-mono rounded">{log.meta_data.key}</kbd></div>
-                                    )}
-                                    {log.meta_data.copied_text && (
-                                        <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-muted-foreground">Copy:</span> "{log.meta_data.copied_text}"</div>
-                                    )}
-                                    {log.meta_data.pasted_text && (
-                                        <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-muted-foreground">Paste:</span> "{log.meta_data.pasted_text}"</div>
-                                    )}
-                                </div>
+            )}
+            <div className="flex items-center gap-2 mb-3">
+                <div className={`w-2 h-2 rounded-full ${severity === 2 ? 'bg-rose-500' : severity === 1 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                <span className="font-bold text-sm">{data.severityName}</span>
+            </div>
+            
+            {!isPureSnapshot && log.activity_type && (
+                <div className="space-y-1">
+                    <span className="font-semibold capitalize text-xs text-foreground block">
+                        {log.activity_type.replace(/_/g, ' ')}
+                    </span>
+                    {log.meta_data && Object.keys(log.meta_data).length > 0 && (
+                        <div className="mt-2 space-y-1 pt-2 border-t border-border/50">
+                            {log.meta_data.key && (
+                                <div className="text-[10px] truncate"><span className="text-muted-foreground">Key:</span> <kbd className="px-1 border bg-muted font-mono rounded">{log.meta_data.key}</kbd></div>
+                            )}
+                            {log.meta_data.copied_text && (
+                                <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-muted-foreground">Copy:</span> "{log.meta_data.copied_text}"</div>
+                            )}
+                            {log.meta_data.pasted_text && (
+                                <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-muted-foreground">Paste:</span> "{log.meta_data.pasted_text}"</div>
                             )}
                         </div>
                     )}
-
-                    {/* Render Image if exists */}
-                    {isSnapshot && (
-                        <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-border/50' : ''}`}>
-                            <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                                <Camera className="h-3 w-3" /> Snapshot Captured
-                            </div>
-                            <img src={getImageUrl(log.image_path)} alt="Snapshot" className="w-full object-cover bg-black rounded" />
-                        </div>
-                    )}
                 </div>
+            )}
+
+            {(log.image_path || log.screen_path) && (
+                <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-border/50' : ''}`}>
+                    <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                        <Camera className="h-3 w-3" /> Snapshot Captured
+                    </div>
+                    <div className={`grid ${log.image_path && log.screen_path ? 'grid-cols-2 gap-2' : 'grid-cols-1'}`}>
+                        {log.image_path && (
+                            <div className="space-y-1">
+                                <span className="text-[10px] text-muted-foreground">Camera</span>
+                                <img src={getImageUrl(log.image_path)} alt="Camera Snapshot" className="w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setActiveLightboxImg?.(getImageUrl(log.image_path))} />
+                            </div>
+                        )}
+                        {log.screen_path && (
+                            <div className="space-y-1">
+                                <span className="text-[10px] text-muted-foreground">Screen</span>
+                                <img src={getImageUrl(log.screen_path)} alt="Screen Snapshot" className="w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setActiveLightboxImg?.(getImageUrl(log.screen_path))} />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-card p-3 rounded-lg shadow-xl border border-border max-w-[240px]">
+                <CustomTooltipContent data={data} label={label} />
             </div>
         );
     }
@@ -163,9 +191,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submission, title }) => {
     const navigate = useNavigate();
     const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
+    const [frozenLog, setFrozenLog] = useState<any>(null);
     const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
 
-    // Escape listener for Lightbox
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -176,7 +204,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Format Timestamp safely
     const formatEventTime = (timestampStr: string) => {
         try {
             const date = new Date(timestampStr);
@@ -187,7 +214,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
         }
     };
 
-    // Calculate Risk Score and categorize events
     const riskAnalysis = React.useMemo(() => {
         let score = 0;
         const details: { type: string; count: number; points: number }[] = [];
@@ -197,7 +223,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             eventCounts[type] = (eventCounts[type] || 0) + 1;
         };
 
-        // Gather all events
         const allEvents: ProctoringEvent[] = [];
         if (submission.proctoring_events) {
             allEvents.push(...submission.proctoring_events);
@@ -206,18 +231,32 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             allEvents.push(...submission.general_events);
         }
         if (submission.question_activities) {
-            submission.question_activities.forEach(q => {
-                if (q.navigation_activities) allEvents.push(...q.navigation_activities);
-                if (q.proctoring_activities) allEvents.push(...q.proctoring_activities);
+            submission.question_activities.forEach((q, index) => {
+                const qNo = `Q${index + 1}`;
+                if (q.navigation_activities) allEvents.push(...q.navigation_activities.map(e => ({ ...e, question_title: q.question_title, question_no: qNo })));
+                if (q.proctoring_activities) allEvents.push(...q.proctoring_activities.map(e => ({ ...e, question_title: q.question_title, question_no: qNo })));
+                if (q.camera_snapshots) allEvents.push(...q.camera_snapshots.map(e => ({ ...e, question_title: q.question_title, question_no: qNo })));
             });
         }
 
-        // Deduplicate events by type and timestamp
+        allEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        
+        let currentQNo = '';
+        let currentQTitle = '';
+        allEvents.forEach(e => {
+            if (e.question_no) {
+                currentQNo = e.question_no;
+                currentQTitle = e.question_title || '';
+            } else if (currentQNo) {
+                e.question_no = currentQNo;
+                e.question_title = currentQTitle;
+            }
+        });
+
         const uniqueEvents = allEvents.filter((event, index, self) =>
             self.findIndex(e => e.activity_type === event.activity_type && e.timestamp === event.timestamp) === index
         );
 
-        // Map events to violations vs system logs
         const violations: ProctoringEvent[] = [];
         const systemLogs: ProctoringEvent[] = [];
 
@@ -248,7 +287,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             }
         });
 
-        // Add standard system logs (network, camera, session, focus)
         uniqueEvents.forEach(e => {
             const type = e.activity_type;
             if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
@@ -258,7 +296,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             }
         });
 
-        // Compute Risk Score
         Object.entries(eventCounts).forEach(([type, count]) => {
             let weight = 1;
             if (type.includes('face_not_detected') || type.includes('no_face_detected')) {
@@ -322,99 +359,144 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
             generalCount,
             criticalCount,
             violations: violations.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
-            systemLogs: systemLogs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+            systemLogs: systemLogs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+            uniqueEvents: uniqueEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
         };
     }, [submission]);
 
-
-
-    // Gather snapshots
-    const snapshots = React.useMemo(() => {
+    const allImages = React.useMemo(() => {
         const allSnapshots: ProctoringEvent[] = [];
-        if (submission.proctoring_events) {
-            allSnapshots.push(...submission.proctoring_events);
-        }
-        if (submission.general_events) {
-            allSnapshots.push(...submission.general_events);
-        }
+        if (submission.proctoring_events) allSnapshots.push(...submission.proctoring_events);
+        if (submission.general_events) allSnapshots.push(...submission.general_events);
         if (submission.question_activities) {
             submission.question_activities.forEach(q => {
-                if (q.camera_snapshots) {
-                    allSnapshots.push(...q.camera_snapshots);
-                }
+                if (q.camera_snapshots) allSnapshots.push(...q.camera_snapshots);
+                if (q.proctoring_activities) allSnapshots.push(...q.proctoring_activities);
             });
         }
 
-        const seenPaths = new Set<string>();
-        const uniqueSnapshots: ProctoringEvent[] = [];
+        const uniqueItems: { type: 'camera' | 'screen', path: string, event: ProctoringEvent }[] = [];
         allSnapshots.forEach(e => {
-            if (e.image_path && !seenPaths.has(e.image_path)) {
-                seenPaths.add(e.image_path);
-                uniqueSnapshots.push(e);
-            }
+            if (e.image_path) uniqueItems.push({ type: 'camera', path: e.image_path, event: e });
+            if (e.screen_path) uniqueItems.push({ type: 'screen', path: e.screen_path, event: e });
         });
-
-        return uniqueSnapshots
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        return uniqueItems.sort((a, b) => new Date(a.event.timestamp).getTime() - new Date(b.event.timestamp).getTime());
     }, [submission]);
+
+    const passportPhotos = allImages.filter(i => i.event.activity_type === 'passport_photo_captured').map(i => i.event);
+    const initialScreenshots = allImages.filter(i => i.event.activity_type === 'initial_screenshot_captured').map(i => i.event);
+    const generalSnapshots = allImages.filter(i => i.event.activity_type !== 'passport_photo_captured' && i.event.activity_type !== 'initial_screenshot_captured');
+
+    const latestPassport = passportPhotos.length > 0 ? passportPhotos[0] : null;
+    const latestScreenshot = initialScreenshots.length > 0 ? initialScreenshots[0] : null;
 
     const totalViolations = riskAnalysis.violations.length;
     const questionActivities = submission.question_activities || [];
 
     return (
         <div className="px-6 py-6 space-y-6">
-            {/* Overview Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-                <StatsCard
-                    label="Total Score"
-                    value={submission.marks !== null ? `${submission.marks}` : '-'}
-                    icon={Trophy}
-                    colorScheme="amber"
-                    size="md"
-                />
-
-                <StatsCard
-                    label="Submission Status"
-                    value={submission?.status?.replace('_', ' ') || ''}
-                    icon={Activity}
-                    colorScheme="blue"
-                    size="md"
-                />
-
-                <StatsCard
-                    label="Risk Level"
-                    value={riskAnalysis.level}
-                    icon={riskAnalysis.level === 'Clean' ? ShieldCheck : ShieldAlert}
-                    colorScheme={riskAnalysis.colorScheme}
-                    size="md"
-                    className="border-2"
-                />
-
-                <div className="flex flex-col bg-card border border-border shadow-sm rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-muted-foreground">Total Violations</span>
-                        <div className={`p-2 rounded-lg ${totalViolations > 0 ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
-                            <AlertTriangle className="h-5 w-5" />
+            {/* Unified Top Banner */}
+            <div className="bg-white border border-border/40 shadow-sm rounded-2xl flex flex-col xl:flex-row overflow-hidden">
+                {/* Left Side: Stats Grid */}
+                <div className="flex-1 flex flex-col p-6 xl:p-8 border-b xl:border-b-0 xl:border-r border-border/40">
+                    {/* Row 1 */}
+                    <div className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-border/40">
+                        {/* Score */}
+                        <div className="flex items-center gap-4 flex-1">
+                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-50 text-orange-500">
+                                <Trophy className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold tracking-tight text-slate-900">{submission.marks !== null ? `${submission.marks}` : '-'}</p>
+                                <p className="text-sm font-medium text-slate-500">Total Score</p>
+                            </div>
+                        </div>
+                        <div className="hidden sm:block w-px bg-border/40 self-stretch" />
+                        {/* Status */}
+                        <div className="flex items-center gap-4 flex-1">
+                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 text-blue-500">
+                                <Activity className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xl font-bold tracking-tight text-slate-900 capitalize">{submission?.status?.replace('_', ' ') || ''}</p>
+                                <p className="text-sm font-medium text-slate-500">Submission Status</p>
+                            </div>
+                        </div>
+                        <div className="hidden sm:block w-px bg-border/40 self-stretch" />
+                        {/* Risk Level */}
+                        <div className="flex items-center gap-4 flex-1">
+                            <div className={`flex items-center justify-center w-14 h-14 rounded-full ${riskAnalysis.level === 'Clean' ? 'bg-green-50 text-green-500' : 'bg-rose-50 text-rose-500'}`}>
+                                {riskAnalysis.level === 'Clean' ? <ShieldCheck className="w-6 h-6" /> : <ShieldAlert className="w-6 h-6" />}
+                            </div>
+                            <div>
+                                <p className="text-xl font-bold tracking-tight text-slate-900 capitalize">{riskAnalysis.level}</p>
+                                <p className="text-sm font-medium text-slate-500">Risk Level</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="text-2xl font-bold text-foreground mb-2">{totalViolations}</div>
-                    <div className="flex items-center gap-3 text-xs mt-auto pt-2 border-t text-muted-foreground">
-                        <div className="flex items-center gap-1" title="Normal"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>{riskAnalysis.normalCount}</div>
-                        <div className="flex items-center gap-1" title="General"><div className="w-2 h-2 rounded-full bg-amber-500"></div>{riskAnalysis.generalCount}</div>
-                        <div className="flex items-center gap-1" title="Critical"><div className="w-2 h-2 rounded-full bg-rose-500"></div>{riskAnalysis.criticalCount}</div>
+                    {/* Row 2 */}
+                    <div className="flex flex-col sm:flex-row gap-6 pt-6">
+                        {/* Violations */}
+                        <div className="flex gap-4 flex-1">
+                            <div className={`flex items-center justify-center w-14 h-14 rounded-full ${totalViolations > 0 ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'}`}>
+                                <AlertTriangle className="w-6 h-6" />
+                            </div>
+                            <div className="flex flex-col justify-center">
+                                <p className="text-2xl font-bold tracking-tight text-slate-900">{totalViolations}</p>
+                                <p className="text-sm font-medium text-slate-500 mb-2">Total Violations</p>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 font-medium"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>{riskAnalysis.normalCount}</div>
+                                    <div className="flex items-center gap-1.5 font-medium"><div className="w-2 h-2 rounded-full bg-amber-500"></div>{riskAnalysis.generalCount}</div>
+                                    <div className="flex items-center gap-1.5 font-medium"><div className="w-2 h-2 rounded-full bg-rose-500"></div>{riskAnalysis.criticalCount}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="hidden sm:block w-px bg-border/40 self-stretch" />
+                        {/* Submitted At */}
+                        <div className="flex items-center gap-4 flex-1">
+                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-purple-50 text-purple-500">
+                                <Clock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xl font-bold tracking-tight text-slate-900">{submission.submitted_at ? format(new Date(submission.submitted_at), 'MMM d, h:mm a') : '-'}</p>
+                                <p className="text-sm font-bold text-purple-600 mt-0.5">Submitted At</p>
+                            </div>
+                        </div>
+                        <div className="hidden sm:block flex-1" /> {/* Empty div to balance flex spacing on row 2 if needed, though matching the screenshot it's fine */}
                     </div>
                 </div>
 
-                <StatsCard
-                    label="Submitted At"
-                    value={submission.submitted_at ? format(new Date(submission.submitted_at), 'MMM d, h:mm a') : '-'}
-                    icon={Clock}
-                    colorScheme="purple"
-                    size="md"
-                />
+                {/* Right Side: Identity */}
+                {(latestPassport || latestScreenshot) && (
+                    <div className="flex gap-6 items-center justify-center p-6 xl:p-8 shrink-0 bg-white">
+                        {latestPassport && (
+                            <div className="flex flex-col items-center gap-3">
+                                <div 
+                                    className="w-32 h-40 sm:w-36 sm:h-44 rounded-xl overflow-hidden ring-1 ring-emerald-400 p-0.5 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => setActiveLightboxImg(latestPassport.image_path || null)}
+                                    title="View Passport Photo"
+                                >
+                                    <img src={getImageUrl(latestPassport.image_path)} className="w-full h-full object-cover rounded-lg" alt="Passport" />
+                                </div>
+                                <span className="text-[11px] font-bold tracking-wider text-emerald-600 uppercase bg-emerald-50 px-4 py-1.5 rounded-md">Passport</span>
+                            </div>
+                        )}
+                        {latestScreenshot && (
+                            <div className="flex flex-col items-center gap-3">
+                                <div 
+                                    className="w-44 h-40 sm:w-56 sm:h-44 rounded-xl overflow-hidden ring-1 ring-blue-400 p-0.5 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => setActiveLightboxImg(latestScreenshot.image_path || latestScreenshot.screen_path || null)}
+                                    title="View Screen Check"
+                                >
+                                    <img src={getImageUrl(latestScreenshot.image_path || latestScreenshot.screen_path)} className="w-full h-full object-cover rounded-lg" alt="Screen" />
+                                </div>
+                                <span className="text-[11px] font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-4 py-1.5 rounded-md">Screen Check</span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
-            {/* Detailed Tabs Container */}
             <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="grid grid-cols-4 w-full md:w-[650px] mb-6">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -430,9 +512,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                     <TabsTrigger value="system">System & Network</TabsTrigger>
                 </TabsList>
 
-                {/* 1. Overview Tab */}
                 <TabsContent value="overview" className="space-y-6">
-                    {/* Risk Score details card */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Card className="md:col-span-1 border border-border shadow-sm">
                             <CardHeader>
@@ -474,7 +554,6 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                             </CardContent>
                         </Card>
 
-                        {/* Quick Stats info card */}
                         <Card className="md:col-span-2 border border-border shadow-sm">
                             <CardHeader>
                                 <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -508,7 +587,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Camera Status:</span>
                                             <span className="font-semibold flex items-center gap-1">
-                                                {snapshots.length > 0 ? (
+                                                {allImages.length > 0 ? (
                                                     <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
                                                         <Camera className="h-3.5 w-3.5" /> Camera Captured
                                                     </span>
@@ -525,61 +604,255 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                         </div>
                                     </div>
                                 </div>
+                                
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Proctoring Snapshots Section */}
-                    <Card className="border border-border shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-base font-semibold flex items-center gap-2">
-                                <Camera className="h-5 w-5 text-muted-foreground" />
-                                Proctoring Snapshots ({snapshots.length})
-                            </CardTitle>
+                    {/* Overall Session Timeline */}
+                    <Card className="border border-border shadow-sm mt-6">
+                        <CardHeader className="pb-3 border-b border-border/40 mb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                    <Activity className="h-5 w-5 text-muted-foreground" />
+                                    Overall Test Timeline
+                                </CardTitle>
+                                <div className="flex items-center gap-4 text-xs">
+                                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Normal</div>
+                                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-amber-500"></div> General</div>
+                                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-rose-500"></div> Critical</div>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent>
-                            {snapshots.length === 0 ? (
-                                <div className="text-center py-10 text-muted-foreground italic bg-gray-50 dark:bg-card/50 border border-dashed rounded-lg">
-                                    No snapshots were recorded for this assessment.
-                                </div>
+                            {riskAnalysis.uniqueEvents.length === 0 ? (
+                                <div className="text-muted-foreground italic text-xs py-4 text-center">No proctoring events recorded for this session.</div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                    {snapshots.map((event, i) => {
-                                        const imgUrl = getImageUrl(event.image_path);
-                                        return (
-                                            <div 
-                                                key={`snap-${i}`} 
-                                                className="group relative border border-border rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
-                                                onClick={() => setActiveLightboxImg(imgUrl)}
+                                <ScrollArea className="w-full pb-4">
+                                    <div className="relative" style={{ width: Math.max(800, riskAnalysis.uniqueEvents.length * 60), height: 450 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart 
+                                                onClick={(e) => {
+                                                    if (e && e.activePayload && e.activeCoordinate) {
+                                                        setFrozenLog({ 
+                                                            data: e.activePayload[0].payload, 
+                                                            label: e.activeLabel,
+                                                            x: e.activeCoordinate.x,
+                                                            y: e.activeCoordinate.y
+                                                        });
+                                                    } else {
+                                                        setFrozenLog(null);
+                                                    }
+                                                }}
+                                                data={riskAnalysis.uniqueEvents.map((log) => {
+                                                    const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+                                                    const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit', 'passport_photo_captured', 'initial_screenshot_captured'];
+                                                    
+                                                    const isC = criticalTypes.some(vt => log.activity_type?.includes(vt));
+                                                    const isG = generalTypes.some(vt => log.activity_type?.includes(vt));
+                                                    const isV = isC || isG || log.activity_type?.includes('violation') || log.activity_type?.includes('detected') || log.activity_type?.includes('lost');
+                                                    const isS = !!log.image_path || !!log.screen_path;
+                                                    const severity = isC ? 2 : (isG || isV) ? 1 : 0;
+                                                    const isPureSnapshot = isS && (!log.activity_type || log.activity_type === 'snapshot');
+                                                    
+                                                    return {
+                                                        name: log.question_no || formatEventTime(log.timestamp),
+                                                        time: formatEventTime(log.timestamp),
+                                                        severity: severity,
+                                                        severityName: isPureSnapshot ? 'Snapshot' : severity === 2 ? 'Critical' : severity === 1 ? 'General' : 'Normal',
+                                                        log: log,
+                                                        isSnapshot: isS
+                                                    };
+                                                })} 
+                                                margin={{ top: 20, right: 30, left: 10, bottom: 0 }}
                                             >
-                                                <div className="aspect-video w-full relative">
-                                                    <img
-                                                        src={imgUrl}
-                                                        alt={`Snapshot ${i + 1}`}
-                                                        className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
-                                                        }}
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
-                                                        <Eye className="h-6 w-6 text-white" />
-                                                    </div>
-                                                </div>
-                                                <div className="bg-card text-card-foreground text-[10px] p-2 flex justify-between items-center border-t">
-                                                    <span className="font-medium">{formatEventTime(event.timestamp)}</span>
-                                                    {event.activity_type !== 'snapshot' && event.activity_type && (
-                                                        <Badge variant="destructive" className="h-4 px-1 py-0 text-[8px] capitalize">
-                                                            {event.activity_type?.replace(/_/g, ' ')}
-                                                        </Badge>
-                                                    )}
+                                                <defs>
+                                                    <linearGradient id="colorSeverityOverall" x1="0" y1="1" x2="0" y2="0">
+                                                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.15}/>
+                                                        <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.15}/>
+                                                        <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.15}/>
+                                                    </linearGradient>
+                                                    <linearGradient id="colorStrokeOverall" x1="0" y1="1" x2="0" y2="0">
+                                                        <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
+                                                        <stop offset="50%" stopColor="#f59e0b" stopOpacity={1}/>
+                                                        <stop offset="100%" stopColor="#f43f5e" stopOpacity={1}/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="hsl(var(--muted-foreground))" />
+                                                <YAxis 
+                                                    domain={[0, 2.2]} 
+                                                    ticks={[0, 1, 2]} 
+                                                    tickFormatter={(value) => value === 0 ? 'Normal' : value === 1 ? 'General' : value === 2 ? 'Critical' : ''}
+                                                    tick={{ fontSize: 10, fontWeight: 600 }}
+                                                    width={60}
+                                                    stroke="none"
+                                                />
+                                                <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                                                
+                                                {/* Horizontal reference lines for each level */}
+                                                <ReferenceLine y={2} stroke="#f43f5e" strokeDasharray="3 3" strokeOpacity={0.4} />
+                                                <ReferenceLine y={1} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.4} />
+                                                <ReferenceLine y={0} stroke="#10b981" strokeDasharray="3 3" strokeOpacity={0.4} />
+
+                                                <Tooltip 
+                                                    content={(props: any) => {
+                                                        if (frozenLog) return null;
+                                                        return <CustomTooltip {...props} />;
+                                                    }} 
+                                                    cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} 
+                                                />
+                                                
+                                                <Area 
+                                                    type="monotone" 
+                                                    dataKey="severity" 
+                                                    stroke="url(#colorStrokeOverall)" 
+                                                    fillOpacity={1} 
+                                                    fill="url(#colorSeverityOverall)" 
+                                                    strokeWidth={2}
+                                                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'white', cursor: 'pointer' }}
+                                                    dot={(props) => {
+                                                        const { cx, cy, payload } = props;
+                                                        if (!cx || !cy) return null;
+                                                        const fill = payload.severity === 2 ? '#f43f5e' : payload.severity === 1 ? '#f59e0b' : '#10b981';
+                                                        return <circle key={`dot-overall-${payload.name}-${cx}`} cx={cx} cy={cy} r={4} fill={fill} stroke="white" strokeWidth={1.5} />;
+                                                    }}
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                        {frozenLog && (
+                                            <div 
+                                                className="absolute z-30 pointer-events-auto"
+                                                style={{ left: frozenLog.x, top: frozenLog.y }}
+                                            >
+                                                {/* Tooltip positioned smartly based on space available */}
+                                                <div 
+                                                    className={`relative -translate-x-1/2 ${frozenLog.y < 225 ? 'translate-y-4' : '-translate-y-[calc(100%+20px)]'} bg-card/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-border max-w-[240px]`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="absolute top-1 right-1 h-5 w-5 rounded-full hover:bg-muted text-muted-foreground" 
+                                                        onClick={(e) => { e.stopPropagation(); setFrozenLog(null); }}
+                                                    >
+                                                        <X className="h-3.5 w-3.5"/>
+                                                    </Button>
+                                                    <CustomTooltipContent data={frozenLog.data} label={frozenLog.label} setActiveLightboxImg={setActiveLightboxImg} />
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
+                                        )}
+                                    </div>
+                                    <ScrollBar orientation="horizontal" />
+                                </ScrollArea>
                             )}
                         </CardContent>
                     </Card>
+
+                    {/* Proctoring Snapshots Section */}
+                    <Tabs defaultValue="camera" className="w-full mt-6">
+                        <Card className="border border-border shadow-sm">
+                            <CardHeader className="pb-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                        <Camera className="h-5 w-5 text-muted-foreground" />
+                                        Proctoring Images
+                                    </CardTitle>
+                                    <TabsList className="grid grid-cols-2 w-full sm:w-[300px]">
+                                        <TabsTrigger value="camera">Camera ({generalSnapshots.filter(s => s.type === 'camera').length})</TabsTrigger>
+                                        <TabsTrigger value="screen">Screen ({generalSnapshots.filter(s => s.type === 'screen').length})</TabsTrigger>
+                                    </TabsList>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <TabsContent value="camera" className="mt-0 space-y-0">
+                                    {generalSnapshots.filter(i => i.type === 'camera').length === 0 ? (
+                                        <div className="text-center py-10 text-muted-foreground italic bg-gray-50 dark:bg-card/50 border border-dashed rounded-lg">
+                                            No camera snapshots were recorded.
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                            {generalSnapshots.filter(i => i.type === 'camera').map((item, i) => {
+                                                const event = item.event;
+                                                const imgUrl = getImageUrl(item.path);
+                                                return (
+                                                    <div 
+                                                        key={`cam-${i}`} 
+                                                        className="group relative border border-border rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        onClick={() => setActiveLightboxImg(imgUrl)}
+                                                    >
+                                                        <div className="aspect-video w-full relative">
+                                                            <img
+                                                                src={imgUrl}
+                                                                alt={`Camera Snapshot ${i + 1}`}
+                                                                className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
+                                                                }}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
+                                                                <Eye className="h-6 w-6 text-white" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-card text-card-foreground text-[10px] p-2 flex justify-between items-center border-t">
+                                                            <span className="font-medium">{formatEventTime(event.timestamp)}</span>
+                                                            {event.activity_type !== 'snapshot' && event.activity_type && (
+                                                                <Badge variant="destructive" className="h-4 px-1 py-0 text-[8px] capitalize">
+                                                                    {event.activity_type?.replace(/_/g, ' ')}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </TabsContent>
+                                <TabsContent value="screen" className="mt-0 space-y-0">
+                                    {generalSnapshots.filter(i => i.type === 'screen').length === 0 ? (
+                                        <div className="text-center py-10 text-muted-foreground italic bg-gray-50 dark:bg-card/50 border border-dashed rounded-lg">
+                                            No screen share screenshots were recorded.
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                            {generalSnapshots.filter(i => i.type === 'screen').map((item, i) => {
+                                                const event = item.event;
+                                                const imgUrl = getImageUrl(item.path);
+                                                return (
+                                                    <div 
+                                                        key={`scr-${i}`} 
+                                                        className="group relative border border-border rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        onClick={() => setActiveLightboxImg(imgUrl)}
+                                                    >
+                                                        <div className="aspect-video w-full relative">
+                                                            <img
+                                                                src={imgUrl}
+                                                                alt={`Screen Snapshot ${i + 1}`}
+                                                                className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
+                                                                }}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
+                                                                <Eye className="h-6 w-6 text-white" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-card text-card-foreground text-[10px] p-2 flex justify-between items-center border-t">
+                                                            <span className="font-medium">{formatEventTime(event.timestamp)}</span>
+                                                            {event.activity_type !== 'snapshot' && event.activity_type && (
+                                                                <Badge variant="destructive" className="h-4 px-1 py-0 text-[8px] capitalize">
+                                                                    {event.activity_type?.replace(/_/g, ' ')}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </TabsContent>
+                            </CardContent>
+                        </Card>
+                    </Tabs>
                 </TabsContent>
 
                 {/* 2. Question Breakdown Tab */}
@@ -734,17 +1007,29 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                         <div className="text-muted-foreground italic text-xs">No anomalies or navigation events recorded for this question.</div>
                                                     ) : (
                                                         <ScrollArea className="w-full pb-4">
-                                                            <div style={{ width: Math.max(800, qEvents.length * 80), height: 350 }}>
+                                                            <div className="relative" style={{ width: Math.max(800, qEvents.length * 80), height: 450 }}>
                                                                 <ResponsiveContainer width="100%" height="100%">
                                                                     <AreaChart 
+                                                                        onClick={(e) => {
+                                                                            if (e && e.activePayload && e.activeCoordinate) {
+                                                                                setFrozenLog({ 
+                                                                                    data: e.activePayload[0].payload, 
+                                                                                    label: e.activeLabel,
+                                                                                    x: e.activeCoordinate.x,
+                                                                                    y: e.activeCoordinate.y
+                                                                                });
+                                                                            } else {
+                                                                                setFrozenLog(null);
+                                                                            }
+                                                                        }}
                                                                         data={qEvents.map((log) => {
-                                                                            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
-                                                                            const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit'];
+                                                                            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+                                                                            const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit', 'passport_photo_captured', 'initial_screenshot_captured'];
                                                                             
                                                                             const isC = criticalTypes.some(vt => log.activity_type?.includes(vt));
                                                                             const isG = generalTypes.some(vt => log.activity_type?.includes(vt));
                                                                             const isV = isC || isG || log.activity_type?.includes('violation') || log.activity_type?.includes('detected') || log.activity_type?.includes('lost');
-                                                                            const isS = !!log.image_path;
+                                                                            const isS = !!log.image_path || !!log.screen_path;
                                                                             const severity = isC ? 2 : (isG || isV) ? 1 : 0;
                                                                             const isPureSnapshot = isS && (!log.activity_type || log.activity_type === 'snapshot');
                                                                             
@@ -786,7 +1071,13 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                                         <ReferenceLine y={1} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.4} />
                                                                         <ReferenceLine y={0} stroke="#10b981" strokeDasharray="3 3" strokeOpacity={0.4} />
 
-                                                                        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                                                                        <Tooltip 
+                                                                            content={(props: any) => {
+                                                                                if (frozenLog) return null;
+                                                                                return <CustomTooltip {...props} />;
+                                                                            }} 
+                                                                            cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} 
+                                                                        />
                                                                         
                                                                         <Area 
                                                                             type="monotone" 
@@ -795,7 +1086,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                                             fillOpacity={1} 
                                                                             fill="url(#colorSeverity)" 
                                                                             strokeWidth={2}
-                                                                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'white' }}
+                                                                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'white', cursor: 'pointer' }}
                                                                             dot={(props) => {
                                                                                 const { cx, cy, payload } = props;
                                                                                 if (!cx || !cy) return null;
@@ -805,6 +1096,28 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                                         />
                                                                     </AreaChart>
                                                                 </ResponsiveContainer>
+                                                                {frozenLog && (
+                                                                    <div 
+                                                                        className="absolute z-30 pointer-events-auto"
+                                                                        style={{ left: frozenLog.x, top: frozenLog.y }}
+                                                                    >
+                                                                        {/* Tooltip positioned smartly based on space available */}
+                                                                        <div 
+                                                                            className={`relative -translate-x-1/2 ${frozenLog.y < 225 ? 'translate-y-4' : '-translate-y-[calc(100%+20px)]'} bg-card/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-border max-w-[240px]`}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="absolute top-1 right-1 h-5 w-5 rounded-full hover:bg-muted text-muted-foreground" 
+                                                                                onClick={(e) => { e.stopPropagation(); setFrozenLog(null); }}
+                                                                            >
+                                                                                <X className="h-3.5 w-3.5"/>
+                                                                            </Button>
+                                                                            <CustomTooltipContent data={frozenLog.data} label={frozenLog.label} setActiveLightboxImg={setActiveLightboxImg} />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <ScrollBar orientation="horizontal" />
                                                         </ScrollArea>
@@ -838,7 +1151,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                             ) : (
                                 <div className="relative border-l border-border pl-6 ml-3 space-y-6">
                                     {riskAnalysis.violations.map((event, idx) => {
-                                        const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected'];
+                                        const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
                                         const isCritical = criticalTypes.some(vt => event.activity_type.includes(vt));
 
                                         let icon = AlertTriangle;
@@ -1001,6 +1314,8 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                     </div>
                 </div>
             )}
+
+
         </div>
     );
 };
