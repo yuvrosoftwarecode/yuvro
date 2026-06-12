@@ -252,6 +252,15 @@ class TaskSubmissionHistorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.file and getattr(instance.file, 'name', None):
+            from core.storage import build_public_url
+            public_url = build_public_url(instance.file.name)
+            if public_url:
+                ret['file'] = public_url
+        return ret
+
 class TaskSubmissionSerializer(serializers.ModelSerializer):
     student_details = StudentProfileSerializer(source="student", read_only=True)
     comments = TaskCommentSerializer(many=True, read_only=True)
@@ -267,6 +276,15 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
             "created_at", "updated_at"
         ]
         read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at", "attempt_number", "reviewed_at", "reviewed_by", "history"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.file and getattr(instance.file, 'name', None):
+            from core.storage import build_public_url
+            public_url = build_public_url(instance.file.name)
+            if public_url:
+                ret['file'] = public_url
+        return ret
 
 class TaskSerializer(serializers.ModelSerializer):
     faculty_details = serializers.SerializerMethodField()

@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { BookOpen, CheckCircle, Search, Loader2, Sparkles, ChevronDown, ChevronRight, Lock, Unlock } from 'lucide-react';
+import { BookOpen, CheckCircle, Search, Loader2, Sparkles, ChevronDown, ChevronRight, Lock, Unlock, Paperclip, FolderOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import subjectService, { SectionSubjectFaculty, UnitBasic, SubUnit } from '@/services/subjectService';
+import AttachmentHistoryModal from '@/components/faculty/AttachmentHistoryModal';
+import SyllabusAttachModal from '@/components/faculty/SyllabusAttachModal';
 
 interface UnitWithExpansion extends UnitBasic {
   subUnits: (SubUnit & { is_unlocked?: boolean })[];
@@ -30,7 +32,16 @@ const Syllabus = () => {
   const [units, setUnits] = useState<UnitWithExpansion[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [subUnitToConfirm, setSubUnitToConfirm] = useState<{ subUnit: SubUnit; is_unlocked: boolean } | null>(null);
-  
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Unit / Sub-Unit / Subject attachment target
+  const [attachTarget, setAttachTarget] = useState<{
+    type: 'subject' | 'unit' | 'subunit';
+    label: string;
+    unitId?: string;
+    subUnitId?: string;
+  } | null>(null);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,18 +64,19 @@ const Syllabus = () => {
     }
   };
 
-  // 1. Batch filter
+  // 1. Batch filter — deduplicate by NAME (each Batch record = dept+year, same year → same name)
   const uniqueBatches = useMemo(() => {
-    const batches = new Set<string>();
+    const names = new Set<string>();
     allAssignments.forEach(a => {
-      if (a.semester_subject_details?.batch_name) {
-        batches.add(a.semester_subject_details.batch_name);
-      }
+      const name = a.semester_subject_details?.batch_name;
+      if (name) names.add(name);
     });
-    return Array.from(batches).sort();
+    return Array.from(names)
+      .sort()
+      .map(name => ({ id: name, name })); // id === name (the year range string)
   }, [allAssignments]);
 
-  // 2. Department filter
+  // 2. Department filter — filter by batch_name to get ALL depts for that year
   const uniqueDepartments = useMemo(() => {
     if (!selectedBatch) return [];
     const depts = new Map<string, string>();
@@ -241,9 +253,19 @@ const Syllabus = () => {
             </div>
             <p className="text-muted-foreground">Manage and track unit/sub-unit coverage for your assigned sections.</p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-medium animate-pulse">
-            <Sparkles className="w-3 h-3" />
-            Live Coverage Tracking
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-medium animate-pulse">
+              <Sparkles className="w-3 h-3" />
+              Live Coverage Tracking
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setHistoryOpen(true)}
+              className="h-9 px-4 rounded-xl font-semibold text-sm border-gray-200 hover:border-primary/40 hover:bg-primary/5 active:scale-95 transition-all"
+            >
+              <FolderOpen className="w-4 h-4 mr-1.5 text-amber-500" />
+              Attachment History
+            </Button>
           </div>
         </div>
 
@@ -264,7 +286,7 @@ const Syllabus = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {uniqueBatches.map(batch => (
-                      <SelectItem key={batch} value={batch}>{batch}</SelectItem>
+                      <SelectItem key={batch.id} value={batch.id}>{batch.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -347,14 +369,28 @@ const Syllabus = () => {
                 </Badge>
               )}
             </h3>
-            <div className="relative w-full max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search units or sub-units..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-white border-gray-200 shadow-none"
-              />
+            <div className="flex items-center gap-3">
+              {selectedBatch && selectedDepartment && selectedSubject && selectedSection && (
+                <Button
+                  onClick={() => setAttachTarget({
+                    type: 'subject',
+                    label: `General Attachment`,
+                  })}
+                  className="h-9 px-4 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20 active:scale-95 transition-all"
+                >
+                  <Paperclip className="w-4 h-4 mr-1.5" />
+                  Add Attachment
+                </Button>
+              )}
+              <div className="relative w-full max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search units or sub-units..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 bg-white border-gray-200 shadow-none"
+                />
+              </div>
             </div>
           </div>
 
@@ -394,7 +430,25 @@ const Syllabus = () => {
                             <p className="text-xs text-muted-foreground">{unit.subUnits.length || '...'} Sub-units</p>
                           </div>
                         </div>
-                        {unit.isLoadingSubUnits && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                        <div className="flex items-center gap-2">
+                          {unit.isLoadingSubUnits && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-3 rounded-lg text-xs font-semibold border-gray-200 hover:border-primary/40 hover:bg-primary/5 transition-all"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAttachTarget({
+                                type: 'unit',
+                                label: `Unit ${unit.order_index + 1}: ${unit.name}`,
+                                unitId: unit.id,
+                              });
+                            }}
+                          >
+                            <Paperclip className="w-3 h-3 mr-1" />
+                            Attach
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
 
@@ -412,7 +466,26 @@ const Syllabus = () => {
                                   </p>
                                 </div>
                                 
-                                <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3">
+                                  {/* Attach button — placed first, before badge */}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 px-3 rounded-lg text-xs font-semibold border-gray-200 hover:border-primary/40 hover:bg-primary/5 transition-all"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setAttachTarget({
+                                        type: 'subunit',
+                                        label: su.name,
+                                        unitId: unit.id,
+                                        subUnitId: su.id,
+                                      });
+                                    }}
+                                  >
+                                    <Paperclip className="w-3 h-3 mr-1" />
+                                    Attach
+                                  </Button>
+
                                   <Badge 
                                     variant={su.is_unlocked ? 'default' : 'outline'}
                                     className={`rounded-full px-3 py-0.5 text-[10px] font-bold tracking-wider transition-all duration-300 ${
@@ -488,6 +561,48 @@ const Syllabus = () => {
             </div>
           </AlertDialogContent>
         </AlertDialog>
+        <div className="mt-8 opacity-0 pointer-events-none"></div>
+
+        {/* Attachment Modals */}
+        <AttachmentHistoryModal
+          open={historyOpen}
+          onClose={() => setHistoryOpen(false)}
+          batches={uniqueBatches}
+          allAssignments={allAssignments}
+        />
+
+        {/* Unit / Sub-Unit Attach Modal */}
+        {attachTarget && (() => {
+          // Resolve the batch UUID from allAssignments using the selected batch name
+          const assignment = allAssignments.find(a =>
+            a.semester_subject_details?.batch_name === selectedBatch &&
+            String(a.semester_subject_details?.department_id) === selectedDepartment &&
+            String(a.semester_subject_details?.subject_details?.id) === selectedSubject
+          );
+          const batchId = assignment?.semester_subject_details?.batch_id ||
+                          allAssignments.find(a => a.semester_subject_details?.batch_name === selectedBatch)
+                            ?.semester_subject_details?.batch_id || selectedBatch;
+          const sectionAssignment = uniqueSections.find(s => s.id === selectedSection);
+          const sectionId = sectionAssignment?.sectionId || selectedSection;
+
+          return (
+            <SyllabusAttachModal
+              open={!!attachTarget}
+              onClose={() => setAttachTarget(null)}
+              onSuccess={() => setHistoryOpen(true)}
+              context={{
+                type: attachTarget.type,
+                label: attachTarget.label,
+                unitId: attachTarget.unitId,
+                subUnitId: attachTarget.subUnitId,
+                subjectId: selectedSubject,
+                batchId,
+                departmentId: selectedDepartment,
+                sectionId,
+              }}
+            />
+          );
+        })()}
       </div>
     </FacultyLayout>
   );
