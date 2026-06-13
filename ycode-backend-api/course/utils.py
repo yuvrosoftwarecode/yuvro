@@ -70,12 +70,12 @@ class CodeExecutionUtil:
             "test_cases_advanced": test_cases_advanced,
             "test_cases_custom": test_cases_custom,
             "timeout": time_limit + 5,
-            "time_limit": time_limit,
+            "time_limit": 60, # Passed generous limit to bypass executor's hard kill
             "memory_limit": memory_limit,
         }
 
         executor_response = requests.post(
-            f"{service_url}/execute-with-tests", json=payload, timeout=15
+            f"{service_url}/execute-with-tests", json=payload, timeout=time_limit + 10
         )
         response_data = executor_response.json()
 
@@ -89,6 +89,18 @@ class CodeExecutionUtil:
         total_tests = response_data.get("total_tests", 0)
         total_passed = response_data.get("total_passed", 0)
 
+        basic_results = response_data.get("basic_results", [])
+        advanced_results = response_data.get("advanced_results", [])
+        custom_results = response_data.get("custom_results", [])
+
+        # Post-execution TLE comparison: if the executor didn't hard-kill the process,
+        # we manually compare the actual execution time against the performance time limit.
+        for r in (basic_results + advanced_results + custom_results):
+            if r.get("passed") and r.get("execution_time", 0) > time_limit:
+                r["error"] = "Time Limit Exceeded"
+                current_console = r.get("console_output", "")
+                r["console_output"] = (current_console + "\n" if current_console else "") + f"Time Limit Exceeded. Solution took {r.get('execution_time', 0):.2f}s, which exceeds the limit."
+
         test_results = {
             "passed": total_passed,
             "total": total_tests,
@@ -100,9 +112,9 @@ class CodeExecutionUtil:
 
         execution_results = {
             "execution_result": exec_res,
-            "basic_results": response_data.get("basic_results", []),
-            "advanced_results": response_data.get("advanced_results", []),
-            "custom_results": response_data.get("custom_results", []),
+            "basic_results": basic_results,
+            "advanced_results": advanced_results,
+            "custom_results": custom_results,
             "test_results": test_results,
         }
 
