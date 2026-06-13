@@ -13,6 +13,9 @@ interface ProctoringConfig {
 export const useProctoring = ({ assessmentId, assessmentType, enabled, submissionId, questionId, mediaStream, onViolation }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
     const lastActiveRef = useRef<number>(Date.now());
     const hasEnteredFullscreen = useRef<boolean>(false);
+    const questionIdRef = useRef(questionId);
+
+    useEffect(() => { questionIdRef.current = questionId; }, [questionId]);
 
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
         if (!enabled || (assessmentType === 'skill-tests' && !submissionId)) return;
@@ -20,12 +23,13 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
         try {
             // Dynamic URL based on assessment type
             const url = `/assessment/${assessmentType}/${assessmentId}/log-activity/`;
+            const activeQuestionId = metaData.question_id || questionIdRef.current;
 
             const payload = {
                 activity_type: activityType,
                 meta_data: metaData,
                 timestamp: new Date().toISOString(),
-                ...(questionId && { question_id: questionId })
+                ...(activeQuestionId && { question_id: activeQuestionId })
             };
 
             await restApiAuthUtil.post(url, payload);
@@ -33,7 +37,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
             console.error('Proctoring log error:', error);
             // Fail silently to not disrupt user exam
         }
-    }, [assessmentId, assessmentType, enabled, questionId]);
+    }, [assessmentId, assessmentType, enabled, submissionId]);
 
     // 1. Visibility Change (Tab Switch)
     useEffect(() => {
@@ -229,10 +233,20 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
         let intervalId: NodeJS.Timeout;
         const video = document.createElement('video');
         video.muted = true; // Essential to prevent audio feedback/repeating sound
+        video.style.position = 'fixed';
+        video.style.top = '0';
+        video.style.left = '-9999px';
+        video.style.width = '1px';
+        video.style.height = '1px';
+        video.style.opacity = '0';
+        video.style.pointerEvents = 'none';
+        document.body.appendChild(video);
+
         const canvas = document.createElement('canvas');
 
         const takeAndUploadSnapshot = async (currentStream: MediaStream) => {
             if (!currentStream.active || !isActive || (assessmentType === 'skill-tests' && !submissionId)) return;
+            console.log('useProctoring [ycampus-web]: takeAndUploadSnapshot starting...');
 
             try {
                 if (video.paused || video.ended || video.srcObject !== currentStream) {
@@ -240,51 +254,66 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
                     await video.play().catch(() => { });
                 }
 
-                if (video.readyState < 3) {
-                    return; // Wait for HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
-                }
+                const captureFrame = () => {
+                    if (!isActive || !currentStream.active) return;
+                    if (video.readyState < 2) return;
 
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
+                    canvas.width = video.videoWidth || 640;
+                    canvas.height = video.videoHeight || 480;
 
-                // Basic black-frame or zero-size check
-                if (canvas.width < 10 || canvas.height < 10) return;
+                    if (canvas.width < 10 || canvas.height < 10) return;
 
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        console.log('useProctoring [ycampus-web]: Frame captured on canvas, converting to blob...');
 
-                    canvas.toBlob(async (blob) => {
-                        if (blob && isActive) {
-                            const formData = new FormData();
-                            formData.append('snapshot', blob, 'snapshot.png');
-                            formData.append('activity_type', 'snapshot');
-                            formData.append('timestamp', new Date().toISOString());
-                            if (questionId) {
-                                formData.append('question_id', questionId);
+                        canvas.toBlob(async (blob) => {
+                            if (blob && isActive) {
+                                console.log('useProctoring [ycampus-web]: Blob generated successfully, uploading...', { size: blob.size });
+                                const formData = new FormData();
+                                formData.append('snapshot', blob, 'snapshot.png');
+                                formData.append('activity_type', 'snapshot');
+                                formData.append('timestamp', new Date().toISOString());
+                                const activeQId = questionIdRef.current;
+                                if (activeQId) {
+                                    formData.append('question_id', activeQId);
+                                }
+
+                                const url = `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001/api'}/assessment/${assessmentType}/${assessmentId}/log-activity/`;
+                                const token = restApiAuthUtil.getAuthToken();
+
+                                try {
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        body: formData
+                                    });
+                                    const resJson = await response.json().catch(() => ({}));
+                                    console.log('useProctoring [ycampus-web]: Snapshot successfully uploaded to backend:', resJson);
+                                } catch (err) {
+                                    console.error('useProctoring [ycampus-web]: Snapshot upload failed', err);
+                                }
                             }
+                        }, 'image/png');
+                    }
+                };
 
-                            const url = `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001/api'}/assessment/${assessmentType}/${assessmentId}/log-activity/`;
-                            
-                            // YCampus accesses token through restApiAuthUtil correctly
-                            const token = restApiAuthUtil.getAuthToken();
-
-                            try {
-                                await fetch(url, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: formData
-                                });
-                            } catch (err) {
-                                console.error('Snapshot upload failed', err);
-                            }
-                        }
-                    }, 'image/png');
+                if (video.readyState >= 2) {
+                    captureFrame();
+                } else {
+                    const onDataLoaded = () => {
+                        captureFrame();
+                        video.removeEventListener('loadeddata', onDataLoaded);
+                        video.removeEventListener('canplay', onDataLoaded);
+                    };
+                    video.addEventListener('loadeddata', onDataLoaded);
+                    video.addEventListener('canplay', onDataLoaded);
                 }
             } catch (err) {
-                console.error('Snapshot capture error', err);
+                console.error('useProctoring [ycampus-web]: Snapshot capture error:', err);
             }
         };
 
@@ -305,19 +334,35 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
                 if (streamToUse && isActive) {
                     logActivity('camera_enabled');
                     const s = streamToUse;
-                    video.srcObject = s;
-                    video.onloadedmetadata = async () => {
-                        if (isActive) {
+
+                    let started = false;
+                    const startCapture = async () => {
+                        if (started || !isActive) return;
+                        started = true;
+                        try {
                             await video.play().catch(() => { });
-                            takeAndUploadSnapshot(s);
-                        }
+                        } catch (e) {}
+                        
+                        takeAndUploadSnapshot(s);
+
+                        clearInterval(intervalId);
+                        intervalId = setInterval(() => {
+                            if (s && s.active && isActive) {
+                                takeAndUploadSnapshot(s);
+                            }
+                        }, 15000); // 15 seconds snapshot
                     };
 
-                    intervalId = setInterval(() => {
-                        if (s && s.active && isActive) {
-                            takeAndUploadSnapshot(s);
-                        }
-                    }, 15000); // 15 seconds snapshot
+                    video.autoplay = true;
+                    video.muted = true;
+                    video.playsInline = true;
+
+                    video.onloadedmetadata = startCapture;
+                    video.srcObject = s;
+
+                    if (video.readyState >= 1) {
+                        startCapture();
+                    }
                 }
 
             } catch (err) {
@@ -343,6 +388,9 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, submissio
                 internalStream.getTracks().forEach(track => track.stop());
             }
             video.srcObject = null;
+            if (video.parentNode) {
+                video.parentNode.removeChild(video);
+            }
         };
     }, [assessmentId, assessmentType, enabled, logActivity, mediaStream]);
 

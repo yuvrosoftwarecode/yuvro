@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StatusBadge from '@/components/common/StatusBadge';
 import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle, Award, CheckCircle2, XCircle, Code, ShieldAlert, Check, Loader2, Link as LinkIcon } from 'lucide-react';
+import ProctoringSessionViewer from '../../components/common/instructor/ProctoringSessionViewer';
 import { jobService, Job } from '../../services/jobService';
 import { jobApplicationService, JobApplication } from '../../services/jobApplicationService';
 import RoleSidebar from '../../components/common/RoleSidebar';
@@ -77,6 +78,9 @@ const JobApplicantsContent: React.FC = () => {
   const [isInviting, setIsInviting] = useState(false);
   const [invitingAppId, setInvitingAppId] = useState<string | null>(null);
   const [copiedAppId, setCopiedAppId] = useState<string | null>(null);
+
+  const [showProctoringViewer, setShowProctoringViewer] = useState(false);
+  const [testSubmission, setTestSubmission] = useState<any>(null);
 
   // Mirrors the URL the backend emails out: {origin}/job-test/{application.id}
   const buildAssessmentUrl = (applicationId: string) =>
@@ -177,6 +181,18 @@ const JobApplicantsContent: React.FC = () => {
     }
   };
 
+  const fetchSubmissionData = async (applicationId: string) => {
+    try {
+      // Create an endpoint in backend to fetch job test submission details for this application
+      // Using jobApplicationService to fetch the test_submission
+      const response = await jobApplicationService.getTestSubmission(applicationId);
+      setTestSubmission(response.submission);
+    } catch (error) {
+      console.error('Error fetching test submission:', error);
+      toast.error('Failed to load test submission details');
+    }
+  };
+
   const handleStatusUpdate = async (applicationId: string, newStatus: string) => {
     try {
       await jobApplicationService.updateApplicationStatus(applicationId, newStatus);
@@ -270,9 +286,35 @@ const JobApplicantsContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex overflow-hidden">
         <RoleSidebar />
-        <div className="flex-1">
+      {showProctoringViewer && selectedApplication ? (
+        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50">
+          <RoleHeader
+            title={`${selectedApplication.applicant_name || 'Candidate'} - Analytics`}
+            subtitle={job?.title || 'Job Test'}
+            actions={
+              <button onClick={() => setShowProctoringViewer(false)} className="flex items-center gap-2 px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </button>
+            }
+          />
+          <div className="flex-1 overflow-y-auto p-6 relative">
+            <div className="max-w-7xl mx-auto h-full">
+              {testSubmission ? (
+                <ProctoringSessionViewer submission={testSubmission} />
+              ) : (
+                <div className="flex items-center justify-center h-full min-h-[300px]">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                  <span className="ml-3 text-gray-500">Loading session details...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 h-screen overflow-y-auto">
           <RoleHeader
             title={`Applicants for ${job?.title || 'Job'}`}
             subtitle={`${job?.company?.name || 'Company'} • ${filteredApplications.length} applications`}
@@ -608,19 +650,36 @@ const JobApplicantsContent: React.FC = () => {
                             </td>
 
                             {/* Actions column */}
-                            <td className="px-6 py-4 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <div className="flex items-center space-x-2">
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setSelectedApplication(application);
-                                    setActiveTab('info');
                                     setShowApplicationModal(true);
                                   }}
-                                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100 shadow-sm cursor-pointer"
+                                  className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100 shadow-sm"
                                   title="View Details"
                                 >
                                   <Eye className="h-4 w-4" />
                                 </button>
+                                {(application.status === 'screening_test_completed' || 
+                                  (application.screening_responses && 
+                                   application.screening_responses.score !== undefined)) && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedApplication(application);
+                                      setTestSubmission(null);
+                                      setShowProctoringViewer(true);
+                                      fetchSubmissionData(application.id);
+                                    }}
+                                    className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors border border-transparent hover:border-orange-100 shadow-sm"
+                                    title="View Assessment"
+                                  >
+                                    <Award className="h-4 w-4" />
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => {
                                     const email = application.applicant_email;
@@ -647,6 +706,7 @@ const JobApplicantsContent: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       {/* Application Details Modal */}

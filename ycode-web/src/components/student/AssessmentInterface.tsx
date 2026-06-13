@@ -41,6 +41,7 @@ import CodeEditor from '@/components/code-editor/CodeEditor';
 import { submitSkillTest } from "@/services/skillTestService";
 import { toast } from "sonner";
 import { useProctoring } from '@/hooks/useProctoring';
+import ProctoringGate, { ProctoringData } from '@/components/student/ProctoringGate';
 
 interface Assessment {
   id: string;
@@ -50,6 +51,10 @@ interface Assessment {
   totalQuestions: number;
   topicId: string;
   proctoring_enabled?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
+  initial_violations?: number;
+  initial_tab_switches?: number;
 }
 
 interface Question {
@@ -70,9 +75,12 @@ interface AssessmentInterfaceProps {
   submissionId: string;
   onComplete: (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
-  onSubmit?: (assessmentId: string, submissionId: string, answers: any, explanations: any, q_ids: string[]) => Promise<any>;
-  assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews';
+  onSubmit?: (assessmentId: string, submissionId: string, answers: any, explanations: any, q_ids: string[], timeSpent?: Record<string, number>) => Promise<any>;
+  assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews' | 'job-tests';
   screenStream?: MediaStream | null;
+  preExamCameraStream?: MediaStream | null;
+  preExamPhotoBlob?: Blob | null;
+  preExamScreenshotBlob?: Blob | null;
 }
 
 const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
@@ -83,7 +91,10 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   onBack,
   onSubmit,
   assessmentType = 'skill-tests',
-  screenStream
+  screenStream,
+  preExamCameraStream,
+  preExamPhotoBlob,
+  preExamScreenshotBlob
 }) => {
   const [questions, setQuestions] = useState<Question[]>(() => {
     const order: Record<string, number> = {
@@ -111,6 +122,47 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
 
+  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
+  const [viewed, setViewed] = useState<Set<string>>(new Set());
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('python');
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(40); // % width
+  const [isDragging, setIsDragging] = useState(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+
+  const startDrag = () => setIsDragging(true);
+  const stopDrag = () => setIsDragging(false);
+
+  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
+  const [showExamples, setShowExamples] = useState(false);
+  const [cameraAlert, setCameraAlert] = useState(false);
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
+  const [showFullscreenDialog, setShowFullscreenDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
+  const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const isSubmittingRef = useRef(false);
+  const [hasMediaAccess, setHasMediaAccess] = useState(true);
+  const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
+  const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
+
+  const [missingPermissions, setMissingPermissions] = useState<{ camera?: boolean, mic?: boolean, screen?: boolean } | null>(null);
+  const reproctorAttemptsRef = useRef(0);
+  const handleSubmitAssessmentRef = useRef<(() => Promise<void>) | null>(null);
+  const logActivityRef = useRef<any>(null);
+  const isRequestingPermissionRef = useRef(false);
+  const [currentCameraStream, setCurrentCameraStream] = useState<MediaStream | null>(preExamCameraStream || null);
+  const [currentScreenStream, setCurrentScreenStream] = useState<MediaStream | null>(screenStream || null);
+
+  const mediaStream = assessment.proctoring_enabled ? currentCameraStream : null;
+
+  const [questionPage, setQuestionPage] = useState(0);
+  const [tabSwitchCount, setTabSwitchCount] = useState(assessment.initial_tab_switches ?? 0);
+
   const currentQuestionData = questions[currentQuestion];
 
   useEffect(() => {
@@ -123,34 +175,45 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     }
   }, [currentQuestionData?.id]);
 
-  const isCodingQuestion = currentQuestionData?.type === 'coding';
-  const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
+  const proctoringQuestionId = currentQuestionData?.id;
+  const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({});
+
+  const [violationCount, setViolationCount] = useState(assessment.initial_violations ?? 0);
 
   const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
     if (type === 'tab_switch') {
       setTabSwitchCount(prev => prev + 1);
-      setTabSwitchAlert(true);
-    } else if (type === 'forbidden_platform') {
-      toast.error(`Forbidden platform detected: ${data?.platform}. Assessment will be aborted.`);
-      setTimeout(() => {
-        handleSubmitAssessment();
-      }, 2000);
+      setViolationCount(prev => prev + 1);
     } else if (type === 'fullscreen_exit') {
-      setShowFullscreenDialog(true);
-    } else if (type === 'screen_share_stopped') {
-      toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
-      setTimeout(() => {
-        handleSubmitAssessment();
-      }, 2000);
+      if (!isRequestingPermissionRef.current) {
+        setShowFullscreenDialog(true);
+      }
+    } else if (
+      type === 'face_not_detected' ||
+      type === 'multiple_faces_detected' ||
+      ['copy_detected', 'paste_detected', 'cut_detected', 'right_click_detected', 'keyboard_shortcut'].includes(type) ||
+      type === 'forbidden_platform' ||
+      type === 'screen_share_stopped'
+    ) {
+      setViolationCount(prev => prev + 1);
     }
   }, []);
 
   useEffect(() => {
-    if (assessment.proctoring_enabled && screenStream) {
-      const videoTrack = screenStream.getVideoTracks()[0];
+    if (assessment.proctoring_enabled && currentScreenStream) {
+      const videoTrack = currentScreenStream.getVideoTracks()[0];
       if (videoTrack) {
         const handleEnded = () => {
-          handleProctoringViolation('screen_share_stopped');
+          reproctorAttemptsRef.current += 1;
+          if (reproctorAttemptsRef.current > 1) {
+            logActivityRef.current?.('repeated_permission_loss', { severity: 'critical' });
+            handleProctoringViolation('repeated_permission_loss');
+            handleSubmitAssessmentRef.current?.();
+          } else {
+            logActivityRef.current?.('screen_share_stopped', { severity: 'critical' });
+            handleProctoringViolation('screen_share_stopped');
+            setMissingPermissions(prev => ({ ...prev, screen: true }));
+          }
         };
         videoTrack.addEventListener('ended', handleEnded);
         return () => {
@@ -158,67 +221,100 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         };
       }
     }
-  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
+  }, [assessment.proctoring_enabled, currentScreenStream, handleProctoringViolation]);
 
   useEffect(() => {
-    if (assessment.proctoring_enabled || assessment.topicId === 'job-assessment') {
-      const blockEvent = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-      
-      const blockKeys = (e: KeyboardEvent) => {
-        if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x'].includes(e.key.toLowerCase())) {
-          e.preventDefault();
-          e.stopPropagation();
+    if (assessment.proctoring_enabled && currentCameraStream) {
+      const handleEnded = (kind: string) => {
+        reproctorAttemptsRef.current += 1;
+        if (reproctorAttemptsRef.current > 1) {
+          logActivityRef.current?.('repeated_permission_loss', { severity: 'critical' });
+          handleProctoringViolation('repeated_permission_loss');
+          handleSubmitAssessmentRef.current?.();
+        } else {
+          logActivityRef.current?.(kind === 'video' ? 'camera_stopped' : 'mic_stopped', { severity: 'critical' });
+          handleProctoringViolation(kind === 'video' ? 'camera_stopped' : 'mic_stopped');
+          setMissingPermissions(prev => ({ ...prev, [kind === 'video' ? 'camera' : 'mic']: true }));
         }
       };
-
-      // Use capture phase to intercept events before they reach Monaco or other elements
-      document.addEventListener('copy', blockEvent, { capture: true });
-      document.addEventListener('paste', blockEvent, { capture: true });
-      document.addEventListener('cut', blockEvent, { capture: true });
-      document.addEventListener('contextmenu', blockEvent, { capture: true });
-      document.addEventListener('keydown', blockKeys, { capture: true });
-
+      
+      const tracks = currentCameraStream.getTracks();
+      const listeners = new Map<MediaStreamTrack, () => void>();
+      
+      tracks.forEach(track => {
+        const listener = () => handleEnded(track.kind);
+        listeners.set(track, listener);
+        track.addEventListener('ended', listener);
+      });
       return () => {
-        document.removeEventListener('copy', blockEvent, { capture: true });
-        document.removeEventListener('paste', blockEvent, { capture: true });
-        document.removeEventListener('cut', blockEvent, { capture: true });
-        document.removeEventListener('contextmenu', blockEvent, { capture: true });
-        document.removeEventListener('keydown', blockKeys, { capture: true });
+        tracks.forEach(track => {
+          const listener = listeners.get(track);
+          if (listener) track.removeEventListener('ended', listener);
+        });
       };
     }
-  }, [assessment.proctoring_enabled, assessment.topicId]);
+  }, [assessment.proctoring_enabled, currentCameraStream, handleProctoringViolation]);
 
+
+
+  // Single unified useProctoring hook — handles both submission-level and question-level
+  // (passing questionId for coding questions scopes logs to question activity)
   const { logActivity } = useProctoring({
     assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: assessment.proctoring_enabled ?? true,
-    questionId: undefined,
-    onViolation: handleProctoringViolation
+    assessmentType: assessmentType as any,
+    enabled: assessment.proctoring_enabled ?? false,
+    questionId: proctoringQuestionId,
+    mediaStream: mediaStream,
+    screenStream: currentScreenStream,
+    onViolation: handleProctoringViolation,
+    onAutoSubmit: () => handleProctoringViolation('auto_submitted'),
+    pauseFullscreenChecks: () => isRequestingPermissionRef.current,
   });
 
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: isCodingQuestion,
-    questionId: proctoringQuestionId
-  });
+  useEffect(() => {
+    logActivityRef.current = logActivity;
+  }, [logActivity]);
 
-  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
-  const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('python');
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  // Custom resize state for coding split view
-  const [leftPanelWidth, setLeftPanelWidth] = useState(40); // % width
-  const [isDragging, setIsDragging] = useState(false);
-  const splitContainerRef = useRef<HTMLDivElement>(null);
+  const initialBlobsUploadedRef = useRef(false);
+  useEffect(() => {
+    if (assessment.proctoring_enabled && !initialBlobsUploadedRef.current) {
+      initialBlobsUploadedRef.current = true;
+      const uploadInitialBlobs = async () => {
+        if (preExamPhotoBlob) {
+          await logActivity('passport_photo_captured', { source: 'proctoring_gate' }, preExamPhotoBlob);
+        }
+        if (preExamScreenshotBlob) {
+          await logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, preExamScreenshotBlob);
+        }
+      };
+      uploadInitialBlobs();
+    }
+  }, [assessment.proctoring_enabled, preExamPhotoBlob, preExamScreenshotBlob, logActivity]);
 
-  const startDrag = () => setIsDragging(true);
-  const stopDrag = () => setIsDragging(false);
+  const currentQuestionIdRef = useRef<string | null>(null);
+  const prevQuestionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    currentQuestionIdRef.current = currentQuestionData?.id || null;
+  }, [currentQuestionData?.id]);
+
+  useEffect(() => {
+    if (currentQuestionData?.id) {
+      const newQId = currentQuestionData.id;
+      const prevQId = prevQuestionIdRef.current;
+      
+      if (prevQId === newQId) return;
+      
+      if (prevQId) {
+        logActivity('question_left', { question_id: prevQId });
+      }
+      
+      logActivity('question_viewed', { question_id: newQId });
+      prevQuestionIdRef.current = newQId;
+    }
+  }, [currentQuestionData?.id, logActivity]);
+
+
 
   const onDrag = (e: MouseEvent) => {
     if (!isDragging || !splitContainerRef.current) return;
@@ -250,25 +346,16 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       window.removeEventListener('mouseup', stopDrag);
     };
   }, [isDragging]);
-  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
-  const [showExamples, setShowExamples] = useState(false);
-  const [cameraAlert, setCameraAlert] = useState(false);
-  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
-  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
-  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
-  const [showFullscreenDialog, setShowFullscreenDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
-  const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const isSubmittingRef = useRef(false);
-  const [hasMediaAccess, setHasMediaAccess] = useState(true);
-  const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
-  const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
 
-  const [questionPage, setQuestionPage] = useState(0);
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const screenStreamRef = useRef(currentScreenStream);
+  useEffect(() => {
+    screenStreamRef.current = currentScreenStream;
+  }, [currentScreenStream]);
+
+  useEffect(() => {
+    streamRef.current = currentCameraStream;
+  }, [currentCameraStream]);
 
   // Centralized camera cleanup function
   const cleanupCamera = React.useCallback(() => {
@@ -280,6 +367,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         console.log('Camera/microphone track stopped:', track.kind);
       });
       streamRef.current = null;
+      setCurrentCameraStream(null);
       setVideoTrackEnabled(false);
       setAudioTrackEnabled(false);
       console.log('Camera cleanup completed');
@@ -287,24 +375,32 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('No stream to cleanup');
     }
 
-    if (screenStream) {
-      console.log('Stopping screen share tracks...');
-      screenStream.getTracks().forEach(track => {
-        track.stop();
-        console.log('Screen share track stopped:', track.kind);
-      });
-    }
-  }, [screenStream]);
+    // Do NOT stop screen share tracks here because the screen stream is passed from the parent 
+    // and stopping it here breaks React Strict Mode remounts.
+    // if (screenStreamRef.current) { ... }
+  }, []);
 
   useEffect(() => {
+    // Only request camera/mic when proctoring is actually enabled
+    if (!assessment.proctoring_enabled) return;
+
     const initializeMedia = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true
-        });
+        const isStreamActive = (s: MediaStream | null | undefined) => {
+          if (!s || !s.active) return false;
+          const tracks = s.getTracks();
+          return tracks.length > 0 && tracks.every(track => track.readyState === 'live');
+        };
+
+        const stream = isStreamActive(currentCameraStream)
+          ? currentCameraStream!
+          : await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: true
+            });
 
         streamRef.current = stream;
+        setCurrentCameraStream(stream);
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);
@@ -312,12 +408,13 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(console.error);
+          // Let autoPlay handle the playback to prevent AbortError
         }
 
       } catch (err) {
-        console.error("Media init error", err);
+        console.error('Media init error', err);
         setHasMediaAccess(false);
+        setCurrentCameraStream(null);
         setVideoTrackEnabled(false);
         setAudioTrackEnabled(false);
         setCameraAlert(true);
@@ -327,10 +424,23 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     initializeMedia();
 
     return () => {
-      console.log('AssessmentInterface component unmounting - cleaning up camera');
       cleanupCamera();
     };
-  }, [cleanupCamera]);
+  }, [assessment.proctoring_enabled, cleanupCamera]);
+
+  // Rebind stream
+  useEffect(() => {
+    if (hasMediaAccess && currentCameraStream && videoRef.current) {
+      const video = videoRef.current;
+      if (video.srcObject !== currentCameraStream) {
+        console.log('useProctoring [ycode-web]: Rebinding video stream to HTML element');
+        video.srcObject = currentCameraStream;
+        video.play().catch(() => {
+          window.setTimeout(() => { video.play().catch(console.error); }, 150);
+        });
+      }
+    }
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -343,6 +453,14 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         }
         return prev - 1;
       });
+
+      const activeQId = currentQuestionIdRef.current;
+      if (activeQId) {
+        setQuestionTimes(prev => ({
+          ...prev,
+          [activeQId]: (prev[activeQId] || 0) + 1
+        }));
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -402,6 +520,10 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     onBack();
   };
 
+  useEffect(() => {
+    handleSubmitAssessmentRef.current = handleSubmitAssessment;
+  });
+
   const handleSubmitAssessment = async () => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
@@ -434,9 +556,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       const loadingToast = toast.loading("Submitting assessment...");
 
       if (onSubmit) {
-        await onSubmit(assessment.id, submissionId, answers, explanations, q_ids);
+        await onSubmit(assessment.id, submissionId, answers, explanations, q_ids, questionTimes);
       } else {
-        await submitSkillTest(assessment.id, submissionId, answers, explanations, q_ids);
+        await submitSkillTest(assessment.id, submissionId, answers, explanations, q_ids, questionTimes);
       }
 
       toast.dismiss(loadingToast);
@@ -450,6 +572,8 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     } catch (err) {
       toast.error("Failed to submit assessment. Please try again.");
       console.error("Submit error", err);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -747,6 +871,72 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex flex-col">
+      <AlertDialog open={!!missingPermissions}>
+        <AlertDialogContent className="max-w-md bg-white border-none shadow-2xl p-0 overflow-hidden ring-0 outline-none">
+          <div className="p-8 relative">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-bold text-center text-slate-800">
+                Permission Lost
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center text-slate-600 mt-2">
+                <div className="mb-4 text-base">
+                  Your <strong className="text-red-500">{missingPermissions?.camera ? 'Camera' : missingPermissions?.mic ? 'Microphone' : 'Screen Share'}</strong> was disconnected or stopped.
+                </div>
+                <div className="font-semibold text-slate-800 p-4 bg-amber-50 rounded-lg text-sm border border-amber-200">
+                  ⚠️ This is your final warning. If this happens again, your test will be automatically submitted without warning.
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-8 flex flex-col gap-3">
+              <Button 
+                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-base"
+                onClick={async () => {
+                  try {
+                    isRequestingPermissionRef.current = true;
+                    if (missingPermissions?.screen) {
+                      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                      setCurrentScreenStream(stream);
+                    } else {
+                      const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: videoTrackEnabled, 
+                        audio: audioTrackEnabled 
+                      });
+                      setCurrentCameraStream(stream);
+                    }
+                    
+                    try {
+                      if (!document.fullscreenElement) {
+                        await document.documentElement.requestFullscreen();
+                      }
+                    } catch (fsErr) {
+                      console.warn("Could not automatically restore fullscreen", fsErr);
+                    }
+                    
+                    setTimeout(() => {
+                      isRequestingPermissionRef.current = false;
+                    }, 500);
+
+                    setMissingPermissions(null);
+                    logActivity(
+                      missingPermissions?.screen ? 'screen_share_re_enabled' : 
+                      missingPermissions?.camera ? 'camera_re_enabled' : 'mic_re_enabled', 
+                      { severity: 'normal' }
+                    );
+                  } catch (e) {
+                    isRequestingPermissionRef.current = false;
+                    console.error("Failed to re-enable permission", e);
+                  }
+                }}
+              >
+                Re-enable {missingPermissions?.camera ? 'Camera' : missingPermissions?.mic ? 'Microphone' : 'Screen Share'}
+              </Button>
+            </AlertDialogFooter>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex justify-center">
         {cameraAlert && (
@@ -767,20 +957,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         )}
       </div>
 
-      <div className="flex justify-center">
-        {tabSwitchAlert && (
-          <Alert className="m-4 w-[60%] border-orange-200 bg-orange-50">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>Tab switching detected! ({tabSwitchCount} violations)</span>
-              <Button variant="ghost" size="sm" onClick={() => setTabSwitchAlert(false)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
-
       <div className="absolute inset-x-0 top-0 h-1 z-50 overflow-hidden pointer-events-none">
         <div
           className="h-full bg-emerald-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
@@ -791,13 +967,39 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 relative z-30 px-6 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              className="hidden"
-            />
+            {assessment.proctoring_enabled && (
+              <div className="fixed top-20 left-4 z-[9999] w-32 h-24 sm:w-40 sm:h-30 rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 flex items-center justify-center group transition-all duration-300 hover:scale-[1.03]">
+                {hasMediaAccess ? (
+                  <>
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover scale-x-[-1]"
+                    />
+                    <div className="absolute top-2 left-2 bg-emerald-500/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md backdrop-blur-sm animate-pulse">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      LIVE
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-2 text-slate-400">
+                    <CameraOff className="h-6 w-6 mb-1 text-rose-500" />
+                    <span className="text-[9px] font-bold">No Camera Access</span>
+                  </div>
+                )}
+              </div>
+            )}
+            {!assessment.proctoring_enabled && (
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="hidden"
+              />
+            )}
             <div>
               <h1 className="text-lg font-bold text-gray-800">{assessment.title}</h1>
               <Badge variant="secondary" className="text-xs font-normal">{assessment.course}</Badge>
@@ -964,8 +1166,18 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
                   {/* Proctoring Section */}
                   <div className="mt-6 border-t pt-6">
-                    <h4 className="flex items-center text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
-                      <Shield className="h-3 w-3 mr-1.5" /> Proctoring
+                    <h4 className="flex items-center justify-between text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
+                      <span className="flex items-center"><Shield className="h-3 w-3 mr-1.5" /> Proctoring</span>
+                      {/* Live violation counter badge */}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        violationCount === 0
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : violationCount < 3
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700'
+                      }`}>
+                        {violationCount === 0 ? 'Clean' : `${violationCount} Violation${violationCount > 1 ? 's' : ''}`}
+                      </span>
                     </h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
@@ -984,6 +1196,18 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                         <span className="text-muted-foreground">Tab Switches</span>
                         <Badge variant="outline" className={tabSwitchCount > 0 ? "bg-red-100 text-red-700 border-red-200" : "bg-emerald-100 text-emerald-700 border-emerald-200"}>
                           {tabSwitchCount}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
+                        <span className="text-muted-foreground">Total Violations</span>
+                        <Badge variant="outline" className={
+                          violationCount === 0
+                            ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                            : violationCount < 3
+                              ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                              : 'bg-red-100 text-red-700 border-red-200'
+                        }>
+                          {violationCount}
                         </Badge>
                       </div>
                     </div>
@@ -1199,19 +1423,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </div>
 
       </div>
-      <AlertDialog open={showTabSwitchDialog} onOpenChange={() => { }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Assessment Terminated</AlertDialogTitle>
-            <AlertDialogDescription>
-              Too many tab switches. Your responses are recorded.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleSubmitAssessment}>Finish</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <AlertDialog open={showNavigationDialog} onOpenChange={setShowNavigationDialog}>
         <AlertDialogContent>

@@ -27,6 +27,16 @@ interface TopicSidebarProps {
   overallProgress?: number;
 }
 
+const renderIcon = (icon: any) => {
+  if (!icon) return <BookOpen className="w-5 h-5" />;
+  if (React.isValidElement(icon)) return icon;
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && '$$typeof' in icon)) {
+    const IconComponent = icon as React.ComponentType<any>;
+    return <IconComponent className="w-5 h-5" />;
+  }
+  return icon;
+};
+
 const TopicSidebar = ({
   course,
   selectedTopic,
@@ -57,7 +67,7 @@ const TopicSidebar = ({
               <ChevronRight className="w-4 h-4" />
             </button>
             <div className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-xl shrink-0 text-gray-600" title={course.name}>
-              {course.icon || <BookOpen className="w-5 h-5" />}
+              {renderIcon(course.icon)}
             </div>
             <div className="flex flex-col items-center gap-3 w-full px-2">
               {course.topics.map((topic) => {
@@ -90,7 +100,7 @@ const TopicSidebar = ({
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 flex items-center justify-center bg-gray-100/80 text-gray-600 rounded-lg shrink-0">
-                  {course.icon || <BookOpen className="w-5 h-5" />}
+                  {renderIcon(course.icon)}
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
               </div>

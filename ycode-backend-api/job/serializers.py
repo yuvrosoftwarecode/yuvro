@@ -85,6 +85,9 @@ class JobSerializer(serializers.ModelSerializer):
             "updated_at",
             "screening_questions_config",
             "screening_questions_random_config",
+            "enable_proctoring",
+            "tab_switch_threshold",
+            "violation_threshold",
         ]
         read_only_fields = ["created_at", "updated_at"]
 

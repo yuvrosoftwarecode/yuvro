@@ -43,7 +43,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["clear"]:
             self.stdout.write("Clearing existing assessment data...")
-            JobTest.objects.all().delete()
             MockInterview.objects.all().delete()
             Contest.objects.all().delete()
             SkillTest.objects.all().delete()

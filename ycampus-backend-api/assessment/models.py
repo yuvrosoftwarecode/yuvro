@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from core.models import BaseModel, BaseTimestampedModel
 from course.models import Question
+import random
+import string
 
 User = get_user_model()
 
@@ -383,6 +385,7 @@ class JobTestSubmission(BaseUserSubmission):
 class BaseQuestionActivity(BaseTimestampedModel):
     QUESTION_ACTIVITY_TYPES = [
         ("question_viewed", "Question Viewed"),
+        ("question_left", "Question Left"),
         ("answer_started", "Answer Started"),
         ("answer_changed", "Answer Changed"),
         ("answer_submitted", "Answer Submitted"),
@@ -410,6 +413,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
     PROCTORING_ACTIVITY_TYPES = [
         ("copy_detected", "Copy Action Detected"),
         ("paste_detected", "Paste Action Detected"),
+        ("cut_detected", "Cut Action Detected"),
         ("right_click_detected", "Right Click Detected"),
         ("keyboard_shortcut", "Keyboard Shortcut Used"),
         ("camera_enabled", "Camera Enabled"),
@@ -675,8 +679,7 @@ class Certificate(BaseTimestampedModel):
     def save(self, *args, **kwargs):
         if not self.certificate_id:
             # Generate a simple unique ID: YUVRO-YYYY-RANDOM
-            import random
-            import string
+            
             year = timezone.now().year
             rand_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
             self.certificate_id = f"YUVRO-{year}-{rand_str}"

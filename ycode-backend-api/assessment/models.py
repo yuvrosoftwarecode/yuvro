@@ -39,7 +39,15 @@ class BaseAssessmentModel(BaseModel):
     duration = models.IntegerField(default=60, help_text="Duration in minutes")
     total_marks = models.IntegerField(default=100)
     passing_marks = models.IntegerField(default=60)
-    enable_proctoring = models.BooleanField(default=False)
+    enable_proctoring = models.BooleanField(default=True)
+    tab_switch_threshold = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of tab switches before auto-submit is triggered (0 = disabled)",
+    )
+    violation_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Total number of violations before auto-submit is triggered (0 = disabled)",
+    )
     total_attempts = models.PositiveIntegerField(
         default=0, help_text="Total number of attempts made"
     )
@@ -138,11 +146,6 @@ class Contest(BaseAssessmentModel):
     
     # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
-    proctoring_techniques = models.JSONField(
-        default=list, 
-        blank=True, 
-        help_text="e.g. ['webcam', 'tab_switch', 'full_screen']"
-    )
 
     class Meta:
         ordering = ["-start_datetime"]
@@ -265,6 +268,21 @@ class MockInterview(BaseModel):
         max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
     )
 
+    # Proctoring — Mock interviews are always proctored
+    enable_proctoring = models.BooleanField(
+        default=True,
+        editable=False,
+        help_text="Mock interviews are always fully proctored. This cannot be disabled.",
+    )
+    tab_switch_threshold = models.PositiveIntegerField(
+        default=3,
+        help_text="Number of tab switches before auto-submit (0 = disabled)",
+    )
+    violation_threshold = models.PositiveIntegerField(
+        default=5,
+        help_text="Total violations before auto-submit (0 = disabled)",
+    )
+
     class Meta:
         ordering = ["-created_at"]
 
@@ -286,8 +304,9 @@ class JobTest(BaseAssessmentModel):
         (TYPE_DOMAIN_SPECIFIC, "Domain Specific"),
     ]
 
-    company_name = models.CharField(max_length=255)
-    position_title = models.CharField(max_length=255)
+    job = models.OneToOneField("job.Job", on_delete=models.CASCADE, related_name="job_test", null=True, blank=True)
+    company_name = models.CharField(max_length=255, blank=True)
+    position_title = models.CharField(max_length=255, blank=True)
     start_datetime = models.DateTimeField(null=True, blank=True)
     end_datetime = models.DateTimeField(null=True, blank=True)
 
@@ -423,6 +442,9 @@ class JobTestSubmission(BaseUserSubmission):
     job_test = models.ForeignKey(
         JobTest, on_delete=models.CASCADE, related_name="job_test_submissions"
     )
+    application = models.OneToOneField(
+        "job.JobApplication", on_delete=models.CASCADE, related_name="job_test_submission", null=True, blank=True
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -435,6 +457,7 @@ class JobTestSubmission(BaseUserSubmission):
 class BaseQuestionActivity(BaseTimestampedModel):
     QUESTION_ACTIVITY_TYPES = [
         ("question_viewed", "Question Viewed"),
+        ("question_left", "Question Left"),
         ("answer_started", "Answer Started"),
         ("answer_changed", "Answer Changed"),
         ("answer_submitted", "Answer Submitted"),
@@ -460,29 +483,35 @@ class BaseQuestionActivity(BaseTimestampedModel):
     ]
 
     PROCTORING_ACTIVITY_TYPES = [
-        ("copy_detected", "Copy Action Detected"),
-        ("paste_detected", "Paste Action Detected"),
-        ("right_click_detected", "Right Click Detected"),
-        ("keyboard_shortcut", "Keyboard Shortcut Used"),
-        ("camera_enabled", "Camera Enabled"),
-        ("camera_disabled", "Camera Disabled"),
-        ("microphone_enabled", "Microphone Enabled"),
-        ("microphone_disabled", "Microphone Disabled"),
-        ("screen_share_started", "Screen Share Started"),
-        ("screen_share_ended", "Screen Share Ended"),
-        ("face_not_detected", "Face Not Detected"),
-        ("multiple_faces_detected", "Multiple Faces Detected"),
-        ("face_recognition_failed", "Face Recognition Failed"),
-        ("suspicious_movement", "Suspicious Movement"),
-        ("audio_anomaly", "Audio Anomaly Detected"),
-        ("network_disconnection", "Network Disconnected"),
-        ("network_reconnection", "Network Reconnected"),
-        ("violation_warning", "Violation Warning Issued"),
-        ("violation_critical", "Critical Violation"),
-        ("manual_flag", "Manually Flagged by Proctor"),
-        ("suspicious_activity", "Suspicious Activity"),
-        ("device_change", "Device Change Detected"),
-        ("external_monitor", "External Monitor Detected"),
+        ("copy_detected", "Copy Action Detected (General)"),
+        ("paste_detected", "Paste Action Detected (General)"),
+        ("cut_detected", "Cut Action Detected (General)"),
+        ("select_all_detected", "Select All Detected (General)"),
+        ("right_click_detected", "Right Click Detected (General)"),
+        ("screenshot_detected", "Screenshot Detected (General)"),
+        ("new_tab_detected", "New Tab Detected (Critical)"),
+        ("new_window_detected", "New Window Detected (Critical)"),
+        ("devtools_opened", "Developer Tools Opened (Critical)"),
+        ("keyboard_shortcut", "Keyboard Shortcut Used (General)"),
+        ("camera_enabled", "Camera Enabled (General)"),
+        ("camera_disabled", "Camera Disabled (Critical)"),
+        ("microphone_enabled", "Microphone Enabled (General)"),
+        ("microphone_disabled", "Microphone Disabled (Critical)"),
+        ("screen_share_started", "Screen Share Started (General)"),
+        ("screen_share_ended", "Screen Share Ended (General)"),
+        ("face_not_detected", "Face Not Detected (Critical)"),
+        ("multiple_faces_detected", "Multiple Faces Detected (Critical)"),
+        ("face_recognition_failed", "Face Recognition Failed (Critical)"),
+        ("suspicious_movement", "Suspicious Movement (General)"),
+        ("audio_anomaly", "Audio Anomaly Detected (General)"),
+        ("network_disconnection", "Network Disconnected (General)"),
+        ("network_reconnection", "Network Reconnected (General)"),
+        ("violation_warning", "Violation Warning Issued (General)"),
+        ("violation_critical", "Critical Violation (Critical)"),
+        ("manual_flag", "Manually Flagged by Proctor (Critical)"),
+        ("suspicious_activity", "Suspicious Activity (Critical)"),
+        ("device_change", "Device Change Detected (Critical)"),
+        ("external_monitor", "External Monitor Detected (Critical)"),
     ]
 
     ALERT_PRIORITY_LEVELS = [
