@@ -15,9 +15,11 @@ from .models import (
     CertificationQuestionActivity,
     Certificate,
     PredefinedInterviewQuestion,
+    UserInterviewProgress,
 )
 from django.utils import timezone
 from django.utils.timezone import localdate
+from core.storage import build_public_url
 
 
 User = get_user_model()
@@ -125,6 +127,30 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        
+        # Build URLs for camera_snapshots
+        snapshots = data.get("camera_snapshots")
+        if snapshots and isinstance(snapshots, list):
+            for snap in snapshots:
+                if isinstance(snap, dict) and snap.get("image_path"):
+                    snap["image_path"] = build_public_url(snap["image_path"])
+                if isinstance(snap, dict) and snap.get("screen_path"):
+                    snap["screen_path"] = build_public_url(snap["screen_path"])
+                    
+        # Build URLs for proctoring_activities
+        activities = data.get("proctoring_activities")
+        if activities and isinstance(activities, list):
+            for act in activities:
+                if isinstance(act, dict) and act.get("image_path"):
+                    act["image_path"] = build_public_url(act["image_path"])
+                if isinstance(act, dict) and act.get("screen_path"):
+                    act["screen_path"] = build_public_url(act["screen_path"])
+                    
+        return data
+
 
 class CertificateSerializer(serializers.ModelSerializer):
     subject_name = serializers.CharField(source="subject.name", read_only=True)
@@ -153,6 +179,9 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
     )
     certificate = CertificateSerializer(read_only=True)
 
+    total_violations = serializers.SerializerMethodField()
+    tab_switch_count = serializers.SerializerMethodField()
+
     def get_attempt_number(self, obj):
         # Calculate attempt number based on creation time for this user/exam
         return CertificationSubmission.objects.filter(
@@ -160,6 +189,45 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
             user=obj.user,
             created_at__lte=obj.created_at
         ).count()
+
+    def get_total_violations(self, obj):
+        q_violations = sum(qa.violation_count or 0 for qa in obj.certification_question_activities.all())
+        sub_violations = len(obj.proctoring_events or [])
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        
+        q_tab_switches = 0
+        for qa in obj.certification_question_activities.all():
+            q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+            
+        tab_switch_count = q_tab_switches + sub_tab_switches
+        return q_violations + sub_violations + sub_tab_switches
+
+    def get_tab_switch_count(self, obj):
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        q_tab_switches = 0
+        for qa in obj.certification_question_activities.all():
+            q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+        return q_tab_switches + sub_tab_switches
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        events = data.get("proctoring_events")
+        if events and isinstance(events, list):
+            for e in events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        
+        gen_events = data.get("general_events")
+        if gen_events and isinstance(gen_events, list):
+            for e in gen_events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        return data
 
     class Meta:
         model = CertificationSubmission
@@ -176,6 +244,7 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
             "completed_at",
             "marks",
             "proctoring_events",
+            "general_events",
             "browser_info",
             "ip_address",
             "user_agent",
@@ -184,6 +253,8 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
             "created_at",
             "attempt_number",
             "updated_at",
+            "total_violations",
+            "tab_switch_count",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -450,7 +521,7 @@ class MockInterviewSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return None
         
-        from .models import UserInterviewProgress
+        
         progress = UserInterviewProgress.objects.filter(user=request.user, mock_interview=obj).first()
         if not progress:
             return {"completed_count": 0, "is_master": False}
@@ -506,6 +577,54 @@ class ContestSubmissionSerializer(serializers.ModelSerializer):
     contest_title = serializers.CharField(source="contest.title", read_only=True)
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
 
+    total_violations = serializers.SerializerMethodField()
+    tab_switch_count = serializers.SerializerMethodField()
+
+    def get_total_violations(self, obj):
+        # In ycampus, Contest doesn't have contest_question_activities because ContestSubmission doesn't have it?
+        # Wait, ContestSubmission has contest_question_activities. Let's make sure it is handled safely:
+        q_activities = getattr(obj, "contest_question_activities", None)
+        q_violations = sum(qa.violation_count or 0 for qa in q_activities.all()) if q_activities else 0
+        sub_violations = len(obj.proctoring_events or [])
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        
+        q_tab_switches = 0
+        if q_activities:
+            for qa in q_activities.all():
+                q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+            
+        tab_switch_count = q_tab_switches + sub_tab_switches
+        return q_violations + sub_violations + sub_tab_switches
+
+    def get_tab_switch_count(self, obj):
+        q_activities = getattr(obj, "contest_question_activities", None)
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        q_tab_switches = 0
+        if q_activities:
+            for qa in q_activities.all():
+                q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+        return q_tab_switches + sub_tab_switches
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        events = data.get("proctoring_events")
+        if events and isinstance(events, list):
+            for e in events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        
+        gen_events = data.get("general_events")
+        if gen_events and isinstance(gen_events, list):
+            for e in gen_events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        return data
+
     class Meta:
         model = ContestSubmission
         fields = [
@@ -520,11 +639,14 @@ class ContestSubmissionSerializer(serializers.ModelSerializer):
             "completed_at",
             "marks",
             "proctoring_events",
+            "general_events",
             "browser_info",
             "ip_address",
             "user_agent",
             "created_at",
             "updated_at",
+            "total_violations",
+            "tab_switch_count",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -566,6 +688,30 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        
+        # Build URLs for camera_snapshots
+        snapshots = data.get("camera_snapshots")
+        if snapshots and isinstance(snapshots, list):
+            for snap in snapshots:
+                if isinstance(snap, dict) and snap.get("image_path"):
+                    snap["image_path"] = build_public_url(snap["image_path"])
+                if isinstance(snap, dict) and snap.get("screen_path"):
+                    snap["screen_path"] = build_public_url(snap["screen_path"])
+                    
+        # Build URLs for proctoring_activities
+        activities = data.get("proctoring_activities")
+        if activities and isinstance(activities, list):
+            for act in activities:
+                if isinstance(act, dict) and act.get("image_path"):
+                    act["image_path"] = build_public_url(act["image_path"])
+                if isinstance(act, dict) and act.get("screen_path"):
+                    act["screen_path"] = build_public_url(act["screen_path"])
+                    
+        return data
+
 
 class SkillTestSubmissionSerializer(serializers.ModelSerializer):
     skill_test_title = serializers.CharField(source="skill_test.title", read_only=True)
@@ -575,9 +721,46 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
         source="skill_test_question_activities", many=True, read_only=True
     )
     total_violations = serializers.SerializerMethodField()
+    tab_switch_count = serializers.SerializerMethodField()
 
     def get_total_violations(self, obj):
-        return sum((activity.violation_count or 0) for activity in obj.skill_test_question_activities.all())
+        q_violations = sum(qa.violation_count or 0 for qa in obj.skill_test_question_activities.all())
+        sub_violations = len(obj.proctoring_events or [])
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        
+        q_tab_switches = 0
+        for qa in obj.skill_test_question_activities.all():
+            q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+            
+        tab_switch_count = q_tab_switches + sub_tab_switches
+        return q_violations + sub_violations + sub_tab_switches
+
+    def get_tab_switch_count(self, obj):
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        q_tab_switches = 0
+        for qa in obj.skill_test_question_activities.all():
+            q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+        return q_tab_switches + sub_tab_switches
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        events = data.get("proctoring_events")
+        if events and isinstance(events, list):
+            for e in events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        
+        gen_events = data.get("general_events")
+        if gen_events and isinstance(gen_events, list):
+            for e in gen_events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        return data
 
     class Meta:
         model = SkillTestSubmission
@@ -594,13 +777,15 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
             "completed_at",
             "marks",
             "proctoring_events",
+            "general_events",
             "browser_info",
             "ip_address",
             "user_agent",
             "question_activities",
-            "total_violations",
             "created_at",
             "updated_at",
+            "total_violations",
+            "tab_switch_count",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -700,6 +885,37 @@ class JobTestSubmissionSerializer(serializers.ModelSerializer):
     job_test_title = serializers.CharField(source="job_test.title", read_only=True)
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
 
+    total_violations = serializers.SerializerMethodField()
+    tab_switch_count = serializers.SerializerMethodField()
+
+    def get_total_violations(self, obj):
+        sub_violations = len(obj.proctoring_events or [])
+        sub_tab_switches = sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+        return sub_violations + sub_tab_switches
+
+    def get_tab_switch_count(self, obj):
+        return sum(1 for e in (obj.general_events or []) if e.get('activity_type') == 'tab_switched')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        events = data.get("proctoring_events")
+        if events and isinstance(events, list):
+            for e in events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        
+        gen_events = data.get("general_events")
+        if gen_events and isinstance(gen_events, list):
+            for e in gen_events:
+                if isinstance(e, dict) and e.get("image_path"):
+                    e["image_path"] = build_public_url(e["image_path"])
+                if isinstance(e, dict) and e.get("screen_path"):
+                    e["screen_path"] = build_public_url(e["screen_path"])
+        return data
+
     class Meta:
         model = JobTestSubmission
         fields = [
@@ -714,10 +930,13 @@ class JobTestSubmissionSerializer(serializers.ModelSerializer):
             "completed_at",
             "marks",
             "proctoring_events",
+            "general_events",
             "browser_info",
             "ip_address",
             "user_agent",
             "created_at",
             "updated_at",
+            "total_violations",
+            "tab_switch_count",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]

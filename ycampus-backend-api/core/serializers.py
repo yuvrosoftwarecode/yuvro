@@ -254,9 +254,11 @@ class TaskSubmissionHistorySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        
-        if instance.file:
-            ret['file'] = build_public_url(instance.file.name)
+        if instance.file and getattr(instance.file, 'name', None):
+            from core.storage import build_public_url
+            public_url = build_public_url(instance.file.name)
+            if public_url:
+                ret['file'] = public_url
         return ret
 
 class TaskSubmissionSerializer(serializers.ModelSerializer):
@@ -277,9 +279,11 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        
-        if instance.file:
-            ret['file'] = build_public_url(instance.file.name)
+        if instance.file and getattr(instance.file, 'name', None):
+            from core.storage import build_public_url
+            public_url = build_public_url(instance.file.name)
+            if public_url:
+                ret['file'] = public_url
         return ret
 
 class TaskSerializer(serializers.ModelSerializer):

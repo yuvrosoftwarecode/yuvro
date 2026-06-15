@@ -518,7 +518,18 @@ class JobViewSet(viewsets.ModelViewSet):
                 applicant=user
             )
 
-            # Record invitation time
+            # Record invitation time in JobTestSubmission
+            if hasattr(job, 'job_test'):
+                from assessment.models import JobTestSubmission
+                sub, _ = JobTestSubmission.objects.get_or_create(
+                    user=user,
+                    job_test=job.job_test,
+                    defaults={"application": application}
+                )
+                if not sub.application:
+                    sub.application = application
+                    sub.save()
+                    
             if not application.screening_responses:
                 application.screening_responses = {}
             application.screening_responses["invited_at"] = timezone.now().isoformat()
@@ -728,19 +739,40 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             )
 
         job = application.job
+        if not hasattr(job, 'job_test'):
+            return Response({"error": "No assessment configured for this job."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        job_test = job.job_test
         
-        if not application.screening_responses:
-            application.screening_responses = {}
+        from assessment.models import JobTestSubmission, JobTestQuestionActivity
+        submission, created = JobTestSubmission.objects.get_or_create(
+            user=request.user,
+            job_test=job_test,
+            defaults={"application": application}
+        )
+        
+        if not submission.application:
+            submission.application = application
+            submission.save()
             
-        if "started_at" not in application.screening_responses:
-            application.screening_responses["started_at"] = timezone.now().isoformat()
-            application.save()
+        if submission.status in ["submitted", "completed", "evaluated"]:
+            return Response(
+                {"error": "You have already completed this job assessment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
-        question_ids = application.screening_responses.get("question_ids", [])
+        if submission.status == "started":
+            submission.status = "in_progress"
+            submission.started_at = timezone.now()
+            submission.save()
+            
+        # Get existing activities to know which questions are assigned
+        activities = JobTestQuestionActivity.objects.filter(job_test_submission=submission)
+        question_ids = list(activities.values_list("question_id", flat=True))
         
         if not question_ids:
-            # Check screening_questions_random_config first
-            random_config = job.screening_questions_random_config or {}
+            # Check random config first
+            random_config = job_test.questions_random_config or {}
             has_random_config = any(
                 int(random_config.get(qtype, 0) or 0) > 0 
                 for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]
@@ -763,23 +795,27 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                         if all_ids:
                             sample_size = min(len(all_ids), count)
                             selected_ids = random.sample(all_ids, sample_size)
-                            question_ids.extend([str(qid) for qid in selected_ids])
+                            question_ids.extend(selected_ids)
             else:
-                # Use static screening_questions_config
-                static_config = job.screening_questions_config or {}
+                # Use static config
+                static_config = job_test.questions_config or {}
                 for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
                     ids = static_config.get(qtype, [])
                     if isinstance(ids, list):
-                        question_ids.extend(ids)
+                        question_ids.extend([int(i) if str(i).isdigit() else i for i in ids])
                         
-            # Save the generated question IDs so they are persistent for this applicant
-            application.screening_responses["question_ids"] = question_ids
-            application.save()
+            # Create Question Activities
+            questions_to_create = Question.objects.filter(id__in=question_ids)
+            for q in questions_to_create:
+                JobTestQuestionActivity.objects.create(
+                    job_test_submission=submission,
+                    question=q,
+                    user=request.user
+                )
 
         from course.models import Question
         questions = Question.objects.filter(id__in=question_ids)
 
-        # Order questions as they are in the config lists if possible, or just default ordering
         # Clean mcq_options to not expose correct answers to prevent cheating
         questions_data = []
         for q in questions:
@@ -806,11 +842,24 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                 "duration": q.duration,
             })
 
+        # Calculate existing violations and tab switches
+        sub_violations = len(submission.proctoring_events) if submission.proctoring_events else 0
+        tab_switch_count = sum(
+            1 for e in (submission.general_events or [])
+            if e.get("activity_type") == "tab_switched"
+        )
+        violation_count = sub_violations + tab_switch_count
+
         return Response({
             "application_id": application.id,
             "job_title": job.title,
             "company_name": job.company.name,
             "questions": questions_data,
+            "enable_proctoring": job_test.enable_proctoring,
+            "tab_switch_threshold": job_test.tab_switch_threshold,
+            "violation_threshold": job_test.violation_threshold,
+            "violation_count": violation_count,
+            "tab_switch_count": tab_switch_count,
         })
 
     @action(detail=True, methods=["post"])
@@ -833,38 +882,48 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        job = application.job
+        if not hasattr(job, 'job_test'):
+            return Response({"error": "No assessment configured for this job."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from assessment.models import JobTestSubmission, JobTestQuestionActivity
+        try:
+            submission = JobTestSubmission.objects.get(user=request.user, job_test=job.job_test)
+        except JobTestSubmission.DoesNotExist:
+            return Response({"error": "Assessment not started."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if submission.status in ["submitted", "completed", "evaluated"]:
+            return Response(
+                {"error": "You have already completed this job assessment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         responses = request.data.get("responses", {})
         
-        job = application.job
+        # Load questions from activities
+        activities = JobTestQuestionActivity.objects.filter(job_test_submission=submission)
         
-        # Load from persisted screening_responses if present
-        question_ids = []
-        if application.screening_responses and isinstance(application.screening_responses, dict):
-            question_ids = application.screening_responses.get("question_ids", [])
-            
-        if not question_ids:
-            # Fallback if not saved
-            config = job.screening_questions_config or {}
-            for qtype in ["mcq_single", "mcq_multiple", "coding", "descriptive"]:
-                ids = config.get(qtype, [])
-                if isinstance(ids, list):
-                    question_ids.extend(ids)
-
-        from course.models import Question
-        questions = Question.objects.filter(id__in=question_ids)
-
         total_marks = 0
         marks_obtained = 0
         graded_results = {}
 
-        for q in questions:
+        for activity in activities:
+            q = activity.question
             total_marks += q.marks
             user_ans = responses.get(str(q.id))
+            
+            # Save user answer
+            activity.answer_data = {"user_answer": user_ans}
             
             if q.is_auto_gradable:
                 is_correct, score = q.grade_answer(user_ans)
                 if is_correct:
                     marks_obtained += score
+                activity.is_correct = is_correct
+                activity.marks_obtained = score
+                activity.auto_graded = True
+                activity.save()
+                
                 graded_results[str(q.id)] = {
                     "question_title": q.title,
                     "question_content": q.content,
@@ -878,20 +937,18 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                 from course.models import StudentCodePractice
                 query = StudentCodePractice.objects.filter(user=request.user, question=q)
                 
-                started_at_str = application.screening_responses.get("started_at") if application.screening_responses else None
-                if started_at_str:
-                    try:
-                        from django.utils.dateparse import parse_datetime
-                        started_at = parse_datetime(started_at_str)
-                        if started_at:
-                            query = query.filter(created_at__gte=started_at)
-                    except Exception:
-                        pass
+                if submission.started_at:
+                    query = query.filter(created_at__gte=submission.started_at)
                 sub = query.order_by("-created_at").first()
                 score = sub.marks_obtained if sub and sub.marks_obtained is not None else 0
                 is_correct = (score >= q.marks) if q.marks > 0 else (score > 0)
                 
                 marks_obtained += score
+                activity.is_correct = is_correct
+                activity.marks_obtained = score
+                activity.auto_graded = True
+                activity.save()
+                
                 graded_results[str(q.id)] = {
                     "question_title": q.title,
                     "question_content": q.content,
@@ -902,8 +959,9 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                     "user_answer": user_ans,
                 }
             else:
-                # Descriptive which cannot be auto-graded immediately via grade_answer
-                # Set as pending manual review
+                # Descriptive
+                activity.auto_graded = False
+                activity.save()
                 graded_results[str(q.id)] = {
                     "question_title": q.title,
                     "question_content": q.content,
@@ -915,32 +973,56 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
                     "pending_review": True
                 }
 
-        proctoring_events = request.data.get("proctoring_events", [])
+        proctoring_events = request.data.get("proctoring_events", []) or []
 
-        # Preserve invited_at if it exists
-        invited_at = None
-        if application.screening_responses and isinstance(application.screening_responses, dict):
-            invited_at = application.screening_responses.get("invited_at")
+        # Merge live-logged events with any submitted on completion
+        existing_proctoring = submission.proctoring_events or []
+        merged_proctoring = existing_proctoring + [e for e in proctoring_events if e not in existing_proctoring]
 
-        # Save responses and score details
-        application.screening_responses = {
-            "answers": responses,
-            "graded_results": graded_results,
-            "score": marks_obtained,
-            "total_marks": total_marks,
-            "proctoring_events": proctoring_events,
-            "submitted_at": timezone.now().isoformat()
-        }
-        if invited_at:
-            application.screening_responses["invited_at"] = invited_at
+        # Save responses and score details to submission
+        submission.proctoring_events = merged_proctoring
+        submission.marks = marks_obtained
+        submission.status = "submitted"
+        submission.submitted_at = timezone.now()
+        submission.save()
+
+        # Update JobApplication
+        if not application.screening_responses:
+            application.screening_responses = {}
+        application.screening_responses["submitted_at"] = timezone.now().isoformat()
+        application.screening_responses["score"] = marks_obtained
+        application.screening_responses["total_marks"] = total_marks
+
         application.status = "screening_test_completed"
         application.is_applied = True
-        application.applied_at = timezone.now()
+        if not application.applied_at:
+            application.applied_at = timezone.now()
         application.save()
 
         return Response({
             "message": "Job Assessment submitted successfully. Thank you!"
         }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["get"])
+    def test_submission(self, request, pk=None):
+        application = self.get_object()
+        from assessment.models import JobTestSubmission
+        from assessment.serializers import JobTestSubmissionSerializer
+
+        submission = JobTestSubmission.objects.filter(application=application).first()
+        if not submission:
+            # Fallback to checking by user and job_test just in case
+            if application.job.job_test:
+                submission = JobTestSubmission.objects.filter(
+                    user=application.applicant, 
+                    job_test=application.job.job_test
+                ).first()
+
+        if not submission:
+            return Response({"error": "No test submission found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = JobTestSubmissionSerializer(submission)
+        return Response(serializer.data)
 
 
 class SocialLinksUpdateView(generics.UpdateAPIView):

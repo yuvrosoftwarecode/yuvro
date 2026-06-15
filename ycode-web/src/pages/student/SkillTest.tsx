@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import SkillTestDashboard from "@/components/student/skill-test/SkillTestDashboard";
 import TopicSidebar from "@/components/common/CourseSidebar";
 import TestCards from "@/components/student/skill-test/TestCards";
-import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
 import DashboardLayout from "@/components/common/DashboardLayout";
+import ProctoringGate from "@/components/student/ProctoringGate";
 
 import {
   fetchCourses,
@@ -60,7 +60,6 @@ interface TestStats {
 type View =
   | "courses"
   | "tests"
-  | "instructions"
   | "test"
   | "results";
 
@@ -129,6 +128,15 @@ const SkillTest: React.FC = () => {
   const [loadingView, setLoadingView] = useState(true);
   const [hideNavigation, setHideNavigation] = useState(false);
   const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
+  const [tabSwitchThreshold, setTabSwitchThreshold] = useState(3);
+  const [violationThreshold, setViolationThreshold] = useState(5);
+  const [gateActive, setGateActive] = useState(false);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
+  const [initialViolations, setInitialViolations] = useState(0);
+  const [initialTabSwitches, setInitialTabSwitches] = useState(0);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -159,7 +167,9 @@ const SkillTest: React.FC = () => {
               if (isResultsRoute) {
                 setCurrentView("results");
               } else {
-                setCurrentView("instructions");
+                // If they land directly on a test URL, redirect to tests list to properly initialize state
+                navigate(`/student/courses/${courseId}/skill-tests`);
+                setCurrentView("tests");
               }
             } else {
               setCurrentView("tests");
@@ -226,8 +236,13 @@ const SkillTest: React.FC = () => {
 
   const handleStartTest = (test: Test) => {
     setSelectedTest(test);
-    setCurrentView("instructions");
+    setGatePassed(false);
     navigate(`/student/courses/${courseId}/skill-tests/${test.id}`);
+    if (test.enable_proctoring) {
+      setGateActive(true);
+    } else {
+      handleBeginTest(test.id);
+    }
   };
 
   const handleBeginTest = async (testId: string) => {
@@ -236,6 +251,11 @@ const SkillTest: React.FC = () => {
       const response = await startSkillTest(testId);
       setQuestions(response.questions);
       setCurrentSubmissionId(response.submission_id);
+      // Read proctoring thresholds from API response
+      setTabSwitchThreshold(response.tab_switch_threshold ?? 3);
+      setViolationThreshold(response.violation_threshold ?? 5);
+      setInitialViolations(response.violation_count ?? 0);
+      setInitialTabSwitches(response.tab_switch_count ?? 0);
       setCurrentView("test");
       setHideNavigation(true);
     } catch (error: any) {
@@ -260,13 +280,16 @@ const SkillTest: React.FC = () => {
   };
 
   const handleBackToInstructions = () => {
-    setCurrentView("instructions");
+    setCurrentView("tests");
     setHideNavigation(false);
   };
 
   const handleBackToTests = () => {
     setCurrentView("tests");
     setHideNavigation(false);
+    setGatePassed(false);
+    setGateActive(false);
+    setCameraStream(null);
     navigate(`/student/courses/${courseId}/skill-tests`);
   };
 
@@ -283,13 +306,18 @@ const SkillTest: React.FC = () => {
     navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
   };
 
-  const handleViewAllResults = () => {
-    navigate("/student/skill-test/results");
+  const handleViewAllResults = (test: Test) => {
+    handleViewResult(test);
   };
 
   const handleRetakeTest = () => {
     if (selectedTest) {
-      handleBeginTest(selectedTest.id);
+      if (selectedTest.enable_proctoring) {
+        setGatePassed(false);
+        setGateActive(true);
+      } else {
+        handleBeginTest(selectedTest.id);
+      }
     }
   };
 
@@ -305,29 +333,27 @@ const SkillTest: React.FC = () => {
     );
   }
 
-  if (currentView === "instructions" && selectedTest && selectedTopic) {
+  if (gateActive && !gatePassed && selectedTest) {
     return (
-      <DashboardLayout hideHeader={true} hideFooter={true}>
-        <TestInstructions
-          test={{
-            id: selectedTest.id,
-            title: selectedTest.title,
-            course: selectedCourse?.name || "",
-            duration: selectedTest.duration,
-            totalQuestions: selectedTest.totalQuestions,
-            difficulty: selectedTest.difficulty,
-            description: selectedTest.description || "",
-            marks: selectedTest.totalMarks,
-          }}
-          onStart={(screenStream?: MediaStream) => {
-            setActiveScreenStream(screenStream || null);
-            handleBeginTest(selectedTest.id);
-          }}
-          onBack={handleBackToTests}
-        />
-      </DashboardLayout>
+      <ProctoringGate
+        onReady={(data) => {
+          setCameraStream(data.cameraStream);
+          setActiveScreenStream(data.screenStream);
+          setPhotoBlob(data.photoBlob);
+          setScreenshotBlob(data.screenshotBlob);
+          setGatePassed(true);
+          setGateActive(false);
+          handleBeginTest(selectedTest.id);
+        }}
+        onCancel={() => {
+          setGateActive(false);
+          setCurrentView("tests");
+          navigate(`/student/courses/${courseId}/skill-tests`);
+        }}
+      />
     );
   }
+
 
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
@@ -340,12 +366,20 @@ const SkillTest: React.FC = () => {
           totalQuestions: selectedTest.totalQuestions,
           topicId: selectedTopic.id,
           proctoring_enabled: selectedTest.enable_proctoring,
+          tab_switch_threshold: tabSwitchThreshold,
+          violation_threshold: violationThreshold,
+          initial_violations: initialViolations,
+          initial_tab_switches: initialTabSwitches,
         }}
         questions={questions}
         submissionId={currentSubmissionId || ""}
         onComplete={handleTestComplete}
         onBack={handleBackToInstructions}
         screenStream={activeScreenStream}
+        assessmentType="skill-tests"
+        preExamCameraStream={cameraStream}
+        preExamPhotoBlob={photoBlob}
+        preExamScreenshotBlob={screenshotBlob}
       />
     );
   }

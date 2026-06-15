@@ -76,8 +76,9 @@ class DepartmentSerializer(serializers.ModelSerializer):
     def get_hod_details(self, obj):
         try:
             from core.serializers import HODProfileSerializer
-            if hasattr(obj, 'hod'):
-                return HODProfileSerializer(obj.hod, context=self.context).data
+            hod_profile = obj.hods.first()
+            if hod_profile:
+                return HODProfileSerializer(hod_profile, context=self.context).data
         except Exception:
             pass
         return None
@@ -626,6 +627,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "mcq_options",
             "test_cases_basic",
             "test_cases_advanced",
+            "code_executor_config",
+            "solutions",
             "created_at",
             "updated_at",
             "created_by",
@@ -865,3 +868,58 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = ["id", "content", "sub_unit", "user", "created_at", "updated_at"]
         read_only_fields = ["id", "user", "created_at", "updated_at"]
+
+from .models import Attachment
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
+    subject_name = serializers.CharField(source="subject.subject_name", read_only=True)
+    department_details = DepartmentBasicSerializer(source="departments", many=True, read_only=True)
+    section_details = SectionBasicSerializer(source="sections", many=True, read_only=True)
+    uploaded_by_name = serializers.CharField(source="uploaded_by.username", read_only=True)
+
+    # Unit / Sub-Unit association (read-only name fields for display)
+    unit_name = serializers.CharField(source="unit.name", read_only=True, allow_null=True, default=None)
+    sub_unit_name = serializers.CharField(source="sub_unit.name", read_only=True, allow_null=True, default=None)
+
+    # These are auto-populated server-side from the uploaded file; not required from the client
+    file_name = serializers.CharField(required=False, allow_blank=True, default="")
+    file_type = serializers.CharField(required=False, allow_blank=True, default="")
+    file_size = serializers.IntegerField(required=False, default=0)
+
+    class Meta:
+        model = Attachment
+        fields = [
+            "id",
+            "file_name",
+            "file",
+            "file_type",
+            "file_size",
+            "batch",
+            "batch_name",
+            "departments",
+            "department_details",
+            "subject",
+            "subject_name",
+            "sections",
+            "section_details",
+            "unit",
+            "unit_name",
+            "sub_unit",
+            "sub_unit_name",
+            "uploaded_by",
+            "uploaded_by_name",
+            "created_at",
+            "updated_at"
+        ]
+        read_only_fields = ["id", "uploaded_by", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.file and getattr(instance.file, 'name', None):
+            from core.storage import build_public_url
+            public_url = build_public_url(instance.file.name)
+            if public_url:
+                ret['file'] = public_url
+        return ret
+

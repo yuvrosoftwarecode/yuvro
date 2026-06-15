@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertTriangle, List, Trophy, Activity } from 'lucide-react';
+import { Clock, AlertTriangle, List, Trophy, Activity, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { StatsCard } from '@/components/common/StatsCard';
 
@@ -131,9 +131,10 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                 <span className="font-bold text-gray-900">Q{index + 1}: {activity.question_title}</span>
                                                 <Badge variant="outline" className="text-xs uppercase bg-gray-50">{activity.question_type}</Badge>
                                             </div>
-                                            <div className="text-sm text-gray-500">
-                                                Time Spent: {Math.floor((activity.total_question_time || 0) / 60)}m {(activity.total_question_time || 0) % 60}s
-                                            </div>
+                                             <div className="text-sm text-gray-500 flex items-center gap-4">
+                                                 <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Time Spent: {Math.floor((activity.total_question_time || 0) / 60)}m {(activity.total_question_time || 0) % 60}s</span>
+                                                 <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> Visits: {(activity.question_activities || []).filter(log => log.activity_type === 'question_viewed').length}</span>
+                                             </div>
                                         </div>
                                         <div>
                                             {activity.is_correct ? (
@@ -151,8 +152,8 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                             <List className="h-4 w-4" /> Activity Log
                                         </h5>
                                         <div className="space-y-1 max-h-40 overflow-y-auto pr-2">
-                                            {[...(activity.navigation_activities || []), ...(activity.proctoring_activities || [])]
-                                                .filter(log => log.activity_type && !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(log.activity_type))
+                                             {[...(activity.navigation_activities || []), ...(activity.proctoring_activities || []), ...(activity.question_activities || [])]
+                                                 .filter(log => log.activity_type && !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(log.activity_type))
                                                 .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
                                                 .map((log, i) => (
                                                     <div key={i} className={`flex items-center justify-between py-1.5 px-3 rounded-md mb-1 ${
@@ -279,7 +280,16 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                     });
                                 }
 
-                                const snapshotsToRender = allSnapshots
+                                const seenPaths = new Set<string>();
+                                const uniqueSnapshots: ProctoringEvent[] = [];
+                                allSnapshots.forEach(e => {
+                                    if (e.image_path && !seenPaths.has(e.image_path)) {
+                                        seenPaths.add(e.image_path);
+                                        uniqueSnapshots.push(e);
+                                    }
+                                });
+
+                                const snapshotsToRender = uniqueSnapshots
                                     .filter(e => e.image_path || e.activity_type === 'snapshot' || e.activity_type === 'periodic_snapshot')
                                     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 

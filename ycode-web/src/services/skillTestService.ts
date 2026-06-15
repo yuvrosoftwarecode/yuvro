@@ -11,6 +11,8 @@ export interface SkillTest {
   passing_marks: number;
   passing_percentage?: number;
   enable_proctoring: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
   max_attempts: number;
   questions_config: {
     mcq_single: string[];
@@ -44,6 +46,8 @@ export interface CreateSkillTestData {
   passing_marks?: number;
   passing_percentage?: number;
   enable_proctoring?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
   max_attempts?: number;
   questions_config?: {
     mcq_single: string[];
@@ -77,6 +81,11 @@ export interface StartTestResponse {
   status: string;
   duration: number;
   questions: any[]; // Using any[] for now, ideally strictly typed
+  enable_proctoring?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
+  violation_count?: number;
+  tab_switch_count?: number;
 }
 
 export interface SubmitTestResponse {
@@ -160,13 +169,14 @@ export const startSkillTest = async (testId: string): Promise<StartTestResponse>
   }
 };
 
-export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[]): Promise<SubmitTestResponse> => {
+export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[], timeSpent?: Record<string, number>): Promise<SubmitTestResponse> => {
   try {
     const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/submit/`, {
       submission_id: submissionId,
       answers,
       explanations,
-      all_question_ids
+      all_question_ids,
+      time_spent: timeSpent
     });
     return response as SubmitTestResponse;
   } catch (error) {

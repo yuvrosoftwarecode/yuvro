@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AssessmentInterface from '@/components/student/AssessmentInterface';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import { toast } from 'sonner';
 import { CheckCircle2, ArrowRight, BookOpen, Clock, AlertTriangle, Loader2 } from 'lucide-react';
+import ProctoringGate from '@/components/student/ProctoringGate';
 
 interface QuestionData {
   id: string;
@@ -21,6 +22,11 @@ interface StartTestResponse {
   job_title: string;
   company_name: string;
   questions: QuestionData[];
+  enable_proctoring?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
+  violation_count?: number;
+  tab_switch_count?: number;
 }
 
 export default function JobTestAttempt() {
@@ -28,8 +34,7 @@ export default function JobTestAttempt() {
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isStarted, setIsStarted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
   const [jobTitle, setJobTitle] = useState('');
@@ -37,66 +42,16 @@ export default function JobTestAttempt() {
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [duration, setDuration] = useState(60);
   
-  const proctoringEvents = useRef<any[]>([]);
-
-  useEffect(() => {
-    if (!isStarted || isSubmitted) return;
-
-    // 1. Tab visibility changes
-    const handleVisibilityChange = () => {
-      proctoringEvents.current.push({
-        activity_type: document.hidden ? 'tab_switched_away' : 'tab_switched_back',
-        timestamp: new Date().toISOString(),
-        meta_data: { type: document.hidden ? 'hidden' : 'visible' }
-      });
-    };
-
-    // 2. Window focus/blur
-    const handleBlur = () => {
-      proctoringEvents.current.push({
-        activity_type: 'window_blur',
-        timestamp: new Date().toISOString()
-      });
-    };
-    const handleFocus = () => {
-      proctoringEvents.current.push({
-        activity_type: 'window_focus',
-        timestamp: new Date().toISOString()
-      });
-    };
-
-    // 3. Copy & paste detection
-    const handleCopy = () => {
-      const selectedText = window.getSelection()?.toString() || '';
-      proctoringEvents.current.push({
-        activity_type: 'copy_detected',
-        timestamp: new Date().toISOString(),
-        meta_data: { key: 'Ctrl+C', copied_text: selectedText }
-      });
-    };
-    const handlePaste = (e: ClipboardEvent) => {
-      const pastedText = e.clipboardData?.getData('text') || '';
-      proctoringEvents.current.push({
-        activity_type: 'paste_detected',
-        timestamp: new Date().toISOString(),
-        meta_data: { key: 'Ctrl+V', pasted_text: pastedText }
-      });
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('paste', handlePaste);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('copy', handleCopy);
-      document.removeEventListener('paste', handlePaste);
-    };
-  }, [isStarted, isSubmitted]);
+  const [proctoringEnabled, setProctoringEnabled] = useState(false);
+  const [tabSwitchThreshold, setTabSwitchThreshold] = useState(3);
+  const [violationThreshold, setViolationThreshold] = useState(5);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
+  const [initialViolations, setInitialViolations] = useState(0);
+  const [initialTabSwitches, setInitialTabSwitches] = useState(0);
 
   useEffect(() => {
     const fetchTestData = async () => {
@@ -106,6 +61,11 @@ export default function JobTestAttempt() {
         setJobTitle(data.job_title);
         setCompanyName(data.company_name);
         setQuestions(data.questions);
+        setProctoringEnabled(!!data.enable_proctoring);
+        setTabSwitchThreshold(data.tab_switch_threshold ?? 3);
+        setViolationThreshold(data.violation_threshold ?? 5);
+        setInitialViolations(data.violation_count ?? 0);
+        setInitialTabSwitches(data.tab_switch_count ?? 0);
         
         // Calculate total duration (sum of question durations or default to 60)
         const totalDuration = data.questions.reduce((acc, q) => acc + (q.duration || 1), 0);
@@ -121,9 +81,7 @@ export default function JobTestAttempt() {
     fetchTestData();
   }, [applicationId]);
 
-  const handleStart = () => {
-    setIsStarted(true);
-  };
+
 
   const handleSubmit = async (
     assessmentId: string,
@@ -134,13 +92,14 @@ export default function JobTestAttempt() {
     try {
       await restApiAuthUtil.post(`/jobs/applications/${applicationId}/submit-test/`, {
         responses: answers,
-        proctoring_events: proctoringEvents.current
+        proctoring_events: [] // Live logged to backend, no need to resubmit
       });
       toast.success('Job Assessment submitted successfully!');
       setIsSubmitted(true);
     } catch (err: any) {
       console.error('Error submitting test:', err);
       toast.error(err.response?.data?.error || 'Failed to submit assessment. Please try again.');
+      throw err;
     }
   };
 
@@ -204,62 +163,19 @@ export default function JobTestAttempt() {
     );
   }
 
-  if (!isStarted) {
+
+  if (proctoringEnabled && !gatePassed) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-        <div className="w-full max-w-2xl bg-white shadow-xl shadow-orange-500/5 rounded-2xl p-10 border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-orange-600" />
-          
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-lg border border-orange-100">
-              Y
-            </div>
-            <span className="text-slate-800 text-xl font-bold tracking-tight">Yuvro Assessment</span>
-          </div>
-
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-            Job Assessment Instructions
-          </h2>
-          <p className="text-slate-500 text-sm mb-8">
-            You are attempting the assessment for <strong>{jobTitle}</strong> at <strong>{companyName}</strong>.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-              <Clock className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="block font-semibold text-slate-800 text-sm">Duration</span>
-                <span className="text-slate-500 text-xs">{duration} minutes total</span>
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-              <BookOpen className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="block font-semibold text-slate-800 text-sm">Questions</span>
-                <span className="text-slate-500 text-xs">{questions.length} question(s)</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-10 text-sm text-slate-600 leading-relaxed space-y-3">
-            <p className="font-semibold text-slate-800">Please review the rules before starting:</p>
-            <ul className="list-disc pl-5 space-y-1.5 text-slate-500">
-              <li>Ensure you have a stable internet connection.</li>
-              <li>Once you click start, the timer cannot be paused.</li>
-              <li>Switching tabs or minimizing the browser may flag your submission.</li>
-              <li>No assessment results or scores will be shown to you after completion.</li>
-            </ul>
-          </div>
-
-          <button
-            onClick={handleStart}
-            className="w-full py-3.5 rounded-xl text-base font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.99]"
-          >
-            Start Job Assessment
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      <ProctoringGate
+        onReady={(data) => {
+          setCameraStream(data.cameraStream);
+          setScreenStream(data.screenStream);
+          setPhotoBlob(data.photoBlob);
+          setScreenshotBlob(data.screenshotBlob);
+          setGatePassed(true);
+        }}
+        onCancel={() => navigate('/')}
+      />
     );
   }
 
@@ -272,7 +188,11 @@ export default function JobTestAttempt() {
         duration: duration,
         totalQuestions: questions.length,
         topicId: 'job-assessment',
-        proctoring_enabled: false,
+        proctoring_enabled: proctoringEnabled,
+        tab_switch_threshold: tabSwitchThreshold,
+        violation_threshold: violationThreshold,
+        initial_violations: initialViolations,
+        initial_tab_switches: initialTabSwitches,
       }}
       questions={questions}
       submissionId={applicationId || ''}
@@ -283,7 +203,11 @@ export default function JobTestAttempt() {
           navigate('/');
         }
       }}
-      assessmentType="skill-tests"
+      assessmentType="job-tests"
+      preExamCameraStream={cameraStream}
+      screenStream={screenStream}
+      preExamPhotoBlob={photoBlob}
+      preExamScreenshotBlob={screenshotBlob}
     />
   );
 }

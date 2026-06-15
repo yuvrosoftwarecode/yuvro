@@ -190,14 +190,16 @@ const CodePractice = () => {
   const handleViewAnalytics = () => setCurrentView('analytics');
   const handleViewInsights = () => setCurrentView('insights');
 
+  const isFixedLayout = currentView === 'units' || currentView === 'problem';
+
   return (
     <StudentLayout
       noPadding={true}
       hideSidebar={currentView === 'units' || currentView === 'problem'}
     >
-      <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
+      <div className={`flex-1 flex flex-col min-h-0 bg-background ${isFixedLayout ? 'overflow-hidden' : ''} relative h-full`}>
         <div className="flex-1 flex flex-col min-h-0 w-full h-full">
-          <div className="flex-1 transition-all duration-300 flex flex-col min-h-0 h-full">
+          <div className={`flex-1 transition-all duration-300 flex flex-col min-h-0 h-full ${isFixedLayout ? 'overflow-hidden' : ''}`}>
             {isHydrating ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />

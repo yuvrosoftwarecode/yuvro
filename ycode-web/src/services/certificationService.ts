@@ -13,6 +13,8 @@ export interface CertificationExam {
     passing_marks: number;
     max_attempts: number;
     enable_proctoring?: boolean;
+    tab_switch_threshold?: number;
+    violation_threshold?: number;
     questions_config?: any;
     questions_random_config?: any;
     is_active?: boolean; // Deprecated, use publish_status

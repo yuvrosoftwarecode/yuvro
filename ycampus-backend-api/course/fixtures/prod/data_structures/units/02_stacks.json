@@ -133,12 +133,16 @@
                 "Use a stack to store opening brackets as you encounter them.",
                 "When you see a closing bracket, check if it matches the bracket at the top of the stack.",
                 "A valid string will result in an empty stack after processing all characters."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Baseball Game Score Calculation",
-            "content": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 → score list: [5]\n2 → score list: [5,2]\nC → remove last score → [5]\nD → double previous score → [5,10]\n+ → sum of last two scores → [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] → remove 4 → [5,-2]\nDouble previous → [5,-2,-4]\nAdd 9 → [5,-2,-4,9]\nSum last two → [5,-2,-4,9,5]\nSum last two → [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.",
+            "content": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 \u2192 score list: [5]\n2 \u2192 score list: [5,2]\nC \u2192 remove last score \u2192 [5]\nD \u2192 double previous score \u2192 [5,10]\n+ \u2192 sum of last two scores \u2192 [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] \u2192 remove 4 \u2192 [5,-2]\nDouble previous \u2192 [5,-2,-4]\nAdd 9 \u2192 [5,-2,-4,9]\nSum last two \u2192 [5,-2,-4,9,5]\nSum last two \u2192 [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -193,12 +197,12 @@
                 {
                     "input": "[\"5\",\"2\",\"C\",\"D\",\"+\"]",
                     "expected_output": "30",
-                    "explanation": "Scores evolve as [5] → [5,2] → [5] → [5,10] → [5,10,15]. The total sum is 30."
+                    "explanation": "Scores evolve as [5] \u2192 [5,2] \u2192 [5] \u2192 [5,10] \u2192 [5,10,15]. The total sum is 30."
                 },
                 {
                     "input": "[\"1\",\"2\",\"+\",\"D\"]",
                     "expected_output": "12",
-                    "explanation": "Scores evolve as [1] → [1,2] → [1,2,3] → [1,2,3,6]. Total = 12."
+                    "explanation": "Scores evolve as [1] \u2192 [1,2] \u2192 [1,2,3] \u2192 [1,2,3,6]. Total = 12."
                 }
             ],
             "inputFormat": "A single line containing a JSON list of strings representing operations.",
@@ -237,7 +241,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -341,12 +349,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Remove All Adjacent Duplicates in a given String",
-            "content": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" → remove \"bb\" → \"aaca\" → remove \"aa\" → \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" → remove \"xx\" → \"azzy\" → remove \"zz\" → \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.",
+            "content": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" \u2192 remove \"bb\" \u2192 \"aaca\" \u2192 remove \"aa\" \u2192 \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" \u2192 remove \"xx\" \u2192 \"azzy\" \u2192 remove \"zz\" \u2192 \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -401,12 +413,12 @@
                 {
                     "input": "abbaca",
                     "expected_output": "ca",
-                    "explanation": "Remove 'bb' → 'aaca'. Then remove 'aa' → 'ca'."
+                    "explanation": "Remove 'bb' \u2192 'aaca'. Then remove 'aa' \u2192 'ca'."
                 },
                 {
                     "input": "azxxzy",
                     "expected_output": "ay",
-                    "explanation": "Remove 'xx' → 'azzy'. Then remove 'zz' → 'ay'."
+                    "explanation": "Remove 'xx' \u2192 'azzy'. Then remove 'zz' \u2192 'ay'."
                 }
             ],
             "inputFormat": "A single line containing the string s consisting of lowercase English letters.",
@@ -445,12 +457,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Validate Stack Sequences",
-            "content": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 → Push 2 → Push 3 → Push 4 → Pop 4 → Push 5 → Pop 5 → Pop 3 → Pop 2 → Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.",
+            "content": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 \u2192 Push 2 \u2192 Push 3 \u2192 Push 4 \u2192 Pop 4 \u2192 Push 5 \u2192 Pop 5 \u2192 Pop 3 \u2192 Pop 2 \u2192 Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -549,7 +565,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -653,12 +673,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Build Target Array Using Stack Operations",
-            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 → Push → stack = [1]\nRead 2 → Push then Pop → stack = [1]\nRead 3 → Push → stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100",
+            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 \u2192 Push \u2192 stack = [1]\nRead 2 \u2192 Push then Pop \u2192 stack = [1]\nRead 3 \u2192 Push \u2192 stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -757,12 +781,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Text Editor with Undo Operation",
-            "content": "Design a simple text editor that supports the following operations:\n\n1. append W → Append string W to the end of the current text.\n2. delete k → Delete the last k characters from the text.\n3. print k → Print the k-th character of the text.\n4. undo → Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc",
+            "content": "Design a simple text editor that supports the following operations:\n\n1. append W \u2192 Append string W to the end of the current text.\n2. delete k \u2192 Delete the last k characters from the text.\n3. print k \u2192 Print the k-th character of the text.\n4. undo \u2192 Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -856,12 +884,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack of Plates with Capacity Limit",
-            "content": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) → Push value into the leftmost stack that is not full.\npop() → Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) → Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.",
+            "content": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) \u2192 Push value into the leftmost stack that is not full.\npop() \u2192 Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) \u2192 Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -948,12 +980,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack that Pops Most Frequent Element",
-            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Add element x.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.",
+            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Add element x.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Basics",
@@ -1047,12 +1083,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Implementing a Stack Using Queues",
-            "content": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element of the stack.\ntop() → Return the top element without removing it.\nempty() → Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.",
+            "content": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element of the stack.\ntop() \u2192 Return the top element without removing it.\nempty() \u2192 Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1146,12 +1186,16 @@
                 "In a 'Push efficient' approach, you can simply append to one queue.",
                 "For a 'Pop efficient' approach, you'll need to move elements between two queues during the push operation.",
                 "Remember that a stack is LIFO while a queue is FIFO; you need to reverse the order using two queues."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Building a Target Array Using Stack Operations",
-            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush → Push the number into the stack.\nPop → Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.",
+            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush \u2192 Push the number into the stack.\nPop \u2192 Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1245,12 +1289,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Simulating Folder Navigation Logs",
-            "content": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" → Move to parent folder.\n\"./\" → Stay in current folder.\n\"x/\" → Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.",
+            "content": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" \u2192 Move to parent folder.\n\"./\" \u2192 Stay in current folder.\n\"x/\" \u2192 Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1344,7 +1392,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1443,12 +1495,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Designing a Stack with Minimum Retrieval",
-            "content": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove the top element.\ntop() → Return the top element.\ngetMin() → Return the minimum element in the stack.\n\nAll operations must run in O(1) time.",
+            "content": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove the top element.\ntop() \u2192 Return the top element.\ngetMin() \u2192 Return the minimum element in the stack.\n\nAll operations must run in O(1) time.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1542,12 +1598,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack with Increment Operation",
-            "content": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) → Push element x.\npop() → Remove the top element.\nincrement(k,val) → Increment bottom k elements by val.\n\nReturn values for pop operations.",
+            "content": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) \u2192 Push element x.\npop() \u2192 Remove the top element.\nincrement(k,val) \u2192 Increment bottom k elements by val.\n\nReturn values for pop operations.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1641,12 +1701,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack Supporting Maximum Element Retrieval",
-            "content": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element.\ntop() → Return the top element without removing it.\npeekMax() → Return the maximum element in the stack.\npopMax() → Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.",
+            "content": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element.\ntop() \u2192 Return the top element without removing it.\npeekMax() \u2192 Return the maximum element in the stack.\npopMax() \u2192 Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1740,12 +1804,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack that Removes Most Frequent Element",
-            "content": "Design a stack that supports push and pop operations.\n\npush(x) → Push element x.\npop() → Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.",
+            "content": "Design a stack that supports push and pop operations.\n\npush(x) \u2192 Push element x.\npop() \u2192 Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Implementations",
@@ -1839,7 +1907,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1938,7 +2010,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2034,12 +2110,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Maximum Element in a Stack",
-            "content": "You are given a stack that supports the following operations:\n\n1 x → Push element x onto the stack.\n2 → Pop the top element.\n3 → Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 ≤ number of queries ≤ 10^5\n- -10^9 ≤ x ≤ 10^9",
+            "content": "You are given a stack that supports the following operations:\n\n1 x \u2192 Push element x onto the stack.\n2 \u2192 Pop the top element.\n3 \u2192 Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 \u2264 number of queries \u2264 10^5\n- -10^9 \u2264 x \u2264 10^9",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Design Problems",
@@ -2117,12 +2197,16 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Online Stock Span Calculator",
-            "content": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) → Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 ≤ price ≤ 10^5\n- At most 10^4 calls will be made.",
+            "content": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) \u2192 Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 \u2264 price \u2264 10^5\n- At most 10^4 calls will be made.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Design Problems",
@@ -2177,7 +2261,7 @@
                 {
                     "input": "[100,80,60,70,60,75,85]",
                     "expected_output": "[1,1,1,2,1,4,6]",
-                    "explanation": "Span is calculated based on consecutive days where price ≤ today's price."
+                    "explanation": "Span is calculated based on consecutive days where price \u2264 today's price."
                 }
             ],
             "inputFormat": "A list of stock prices.",
@@ -2200,7 +2284,11 @@
                 "Use a monotonic stack to store indices of prices in decreasing order.",
                 "For each price, pop elements from the stack that are smaller or equal; the span is current index minus top of stack.",
                 "This ensures you find the 'nearest greater element' on the left in O(N) time."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2296,7 +2384,11 @@
                 "RPN (Reverse Polish Notation) is another name for postfix notation.",
                 "Use a stack to hold operands and pop them whenever you encounter an operator.",
                 "Be careful with the order of operands during Division and Subtraction (the second popped is the left operand)."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2389,12 +2481,16 @@
                 "This problem involves nested structures, which is a classic use case for a stack.",
                 "Push the current string and the current repeat count onto the stack when you see '['.",
                 "When you see ']', pop the count and the previous string to reconstruct the decoded part."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Stack that Removes the Most Frequent Element",
-            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
+            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Stack Design Problems",
@@ -2492,7 +2588,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2575,7 +2675,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2674,7 +2778,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2773,7 +2881,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2872,7 +2984,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2971,7 +3087,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3070,7 +3190,11 @@
                 "Think about how the score doubles for nested parentheses: '(()' vs '()'.",
                 "Use a stack to keep track of the total score at different nesting levels.",
                 "Alternatively, observe that score only increases at '()' based on its current nesting depth (2^depth)."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3169,7 +3293,11 @@
                 "A stack is essential here to handle the precedence of operations and parentheses.",
                 "Store the results and the signs (+1 or -1) before a parenthesis on the stack.",
                 "Maintain a 'current result' and 'current sign' and update them as you process each character."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3268,7 +3396,11 @@
                 "XML tags follow a LIFO structure: the last tag opened must be the first one closed.",
                 "Extract the tag names and use a stack to push opening tags and pop them for corresponding closing tags.",
                 "Remember to handle self-closing tags or tags with attributes if the problem requires it."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3367,7 +3499,11 @@
                 "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
                 "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
                 "Store indices in the stack to easily map the result back to the original array position."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3466,7 +3602,11 @@
                 "Think about which element was added most recently and how it affects the current step.",
                 "A stack (Last-In-First-Out) is often useful for matching pairs or reversing sequences.",
                 "Consider using a monotonic stack if you need to find the nearest smaller or larger neighbor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3565,7 +3705,11 @@
                 "A building has an ocean view if all buildings to its right are shorter than it.",
                 "Traverse from right to left while keeping track of the maximum height seen so far.",
                 "Alternatively, use a monotonic stack to find buildings that aren't blocked by any taller buildings to their right."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3664,7 +3808,11 @@
                 "Each element 'e' will be removed if there is an element to its left that is larger than 'e'.",
                 "The time it takes to remove 'e' depends on how many elements between it and the larger element were removed before it.",
                 "Use a monotonic stack to keep track of elements and the time required for their removal."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3763,7 +3911,11 @@
                 "This is exactly the 'Next Greater Element' problem applied to temperature data.",
                 "Use a monotonic stack to find the next day with a warmer temperature.",
                 "The result for each day is the difference between the current index and the index of the next warmer day."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3862,7 +4014,11 @@
                 "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
                 "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
                 "Store indices in the stack to easily map the result back to the original array position."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -3961,7 +4117,11 @@
                 "Range of a subarray is (max - min). Sum of ranges = Sum(max of all subarrays) - Sum(min of all subarrays).",
                 "Calculate 'Sum of Subarray Minimums' and 'Sum of Subarray Maximums' independently using monotonic stacks.",
                 "Remember that the result is the difference between these two sums."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4060,7 +4220,11 @@
                 "For each bar, find the width of the rectangle by identifying the nearest smaller bars to its left and right.",
                 "Use a monotonic increasing stack to store indices; calculate area when a bar is popped.",
                 "The width is calculated as (current_index - new_stack_top - 1)."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -4159,12 +4323,16 @@
                 "Water traps in 'valleys' between taller columns.",
                 "A stack approach involves keeping bars in decreasing order to identify these valleys.",
                 "When you find a bar taller than the stack top, water trapped is bounded by the current bar and the bar below the top."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Sum of Subarray Minimums",
-            "content": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] → 3\n[1] → 1\n[2] → 2\n[4] → 4\n[3,1] → 1\n[1,2] → 1\n[2,4] → 2\n[3,1,2] → 1\n[1,2,4] → 1\n[3,1,2,4] → 1\nTotal = 17",
+            "content": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] \u2192 3\n[1] \u2192 1\n[2] \u2192 2\n[4] \u2192 4\n[3,1] \u2192 1\n[1,2] \u2192 1\n[2,4] \u2192 2\n[3,1,2] \u2192 1\n[1,2,4] \u2192 1\n[3,1,2,4] \u2192 1\nTotal = 17",
             "level": "subtopic",
             "unit_name": "Stacks",
             "subunit_name": "Monotonic Stack Pattern",
@@ -4258,7 +4426,11 @@
                 "For each element, calculate how many subarrays it acts as the minimum value.",
                 "This depends on finding the distance to the 'nearest smaller' elements on BOTH left and right.",
                 "The total contribution of an element is: arr[i] * (distance_to_left_smaller) * (distance_to_right_smaller)."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "mcq_single",

@@ -48,7 +48,7 @@ from .serializers import (
     AnnouncementSerializer,
     UniversitySerializer,
 )
-from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
+from authentication.permissions import IsCollegeManagementAdmin, IsCollegeManagementOrHOD, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
 
 
@@ -76,7 +76,6 @@ class IsCollegeAdminOrPrincipal(permissions.BasePermission):
             "college_admin",
             "principal",
         ]
-
 
 class IsCollegeManagementOrFaculty(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -493,7 +492,7 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
 class FacultyProfileViewSet(viewsets.ModelViewSet):
     queryset = FacultyProfile.objects.all()
     serializer_class = FacultyProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrHOD]
     filterset_fields = ["college", "department"]
 
     @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
@@ -571,8 +570,8 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
-        # If user is a College Admin or Principal, filter by their college
-        if user.role in ["college_admin", "principal"]:
+        # If user is a College Admin, Principal or HOD, filter by their college
+        if user.role in ["college_admin", "principal", "hod"]:
             college = user.college
             if college:
                 return queryset.filter(college=college)

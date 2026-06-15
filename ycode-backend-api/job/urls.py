@@ -76,6 +76,11 @@ urlpatterns = [
         name="application-submit-test",
     ),
     path(
+        "applications/<uuid:pk>/test_submission/",
+        JobApplicationViewSet.as_view({"get": "test_submission"}),
+        name="application-test-submission",
+    ),
+    path(
         "applications/<uuid:pk>/",
         JobApplicationViewSet.as_view(
             {

@@ -28,6 +28,8 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
   const [shortAnswer, setShortAnswer] = useState('');
   const [codingSolution, setCodingSolution] = useState('');
   const [trueFalseAnswer, setTrueFalseAnswer] = useState<boolean | null>(null);
+  const [timeLimit, setTimeLimit] = useState<number>(10);
+  const [memoryLimit, setMemoryLimit] = useState<number>(256);
 
   // Populate form with initial data when editing
   useEffect(() => {
@@ -51,6 +53,10 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
         setShortAnswer(initialData.correctAnswer as string);
       } else if (initialData.type === 'coding') {
         setCodingSolution(initialData.correctAnswer as string);
+        if (initialData.code_executor_config) {
+          setTimeLimit(initialData.code_executor_config.time_limit || 10);
+          setMemoryLimit(initialData.code_executor_config.memory_limit || 256);
+        }
       } else if (initialData.type === 'true-false') {
         setTrueFalseAnswer(initialData.correctAnswer === 'true');
       }
@@ -114,6 +120,10 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
       correctAnswer: finalCorrectAnswer,
       marks,
       isMultipleAnswer: questionType === 'mcq' ? isMultipleAnswer : undefined,
+      code_executor_config: questionType === 'coding' ? {
+        time_limit: timeLimit,
+        memory_limit: memoryLimit
+      } : undefined
     };
 
     onSave(question);
@@ -131,6 +141,8 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
     setShortAnswer('');
     setCodingSolution('');
     setTrueFalseAnswer(null);
+    setTimeLimit(10);
+    setMemoryLimit(256);
   };
 
   return (
@@ -252,16 +264,45 @@ export function QuestionForm({ onSave, initialData, isEditing = false, onCancel 
 
           {/* Coding Question */}
           {questionType === 'coding' && (
-            <div className="space-y-2">
-              <Label htmlFor="codingSolution">Expected Code/Solution</Label>
-              <Textarea
-                id="codingSolution"
-                value={codingSolution}
-                onChange={(e) => setCodingSolution(e.target.value)}
-                placeholder="Enter the expected code or solution..."
-                className="min-h-[150px] font-mono"
-                required
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="codingSolution">Expected Code/Solution</Label>
+                <Textarea
+                  id="codingSolution"
+                  value={codingSolution}
+                  onChange={(e) => setCodingSolution(e.target.value)}
+                  placeholder="Enter the expected code or solution..."
+                  className="min-h-[150px] font-mono"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="timeLimit">Time Limit (seconds)</Label>
+                  <Input
+                    id="timeLimit"
+                    type="number"
+                    min="1"
+                    step="0.1"
+                    value={timeLimit}
+                    onChange={(e) => setTimeLimit(Number(e.target.value) || 10)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="memoryLimit">Memory Limit (MB)</Label>
+                  <Input
+                    id="memoryLimit"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={memoryLimit}
+                    onChange={(e) => setMemoryLimit(Number(e.target.value) || 256)}
+                    required
+                  />
+                </div>
+              </div>
             </div>
           )}
 

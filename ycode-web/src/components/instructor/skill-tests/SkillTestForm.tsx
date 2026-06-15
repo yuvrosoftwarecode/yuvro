@@ -20,6 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import ProctoringSettingsCard from '@/components/instructor/shared/ProctoringSettingsCard';
 
 
 export default function SkillTestForm() {
@@ -63,6 +64,8 @@ export default function SkillTestForm() {
     total_marks: 100,
     passing_marks: 60,
     enable_proctoring: false,
+    tab_switch_threshold: 3,
+    violation_threshold: 5,
     publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
     course: courseIdFromUrl || '',
     topic: topicIdFromUrl || ''
@@ -157,6 +160,8 @@ export default function SkillTestForm() {
         total_marks: data.total_marks,
         passing_marks: data.passing_marks,
         enable_proctoring: data.enable_proctoring,
+        tab_switch_threshold: data.tab_switch_threshold ?? 3,
+        violation_threshold: data.violation_threshold ?? 5,
         publish_status: data.publish_status,
         course: data.course,
         topic: data.topic || ''
@@ -249,6 +254,8 @@ export default function SkillTestForm() {
       total_marks: formData.total_marks,
       passing_marks: formData.passing_marks,
       enable_proctoring: formData.enable_proctoring,
+      tab_switch_threshold: formData.tab_switch_threshold,
+      violation_threshold: formData.violation_threshold,
       publish_status: formData.publish_status,
       course: formData.course,
       topic: formData.topic || undefined,
@@ -515,48 +522,39 @@ export default function SkillTestForm() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
-                      <Select
-                        value={formData.publish_status}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, publish_status: value as any })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
+                  <div className="mt-4 max-w-xs">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
+                    <Select
+                      value={formData.publish_status}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, publish_status: value as any })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                    </div>
-                    <div className="flex h-23 items-center gap-2">
-                      <Checkbox
-                        id="enable_proctoring"
-                        checked={formData.enable_proctoring}
-                        onCheckedChange={(checked) =>
-                          setFormData({ ...formData, enable_proctoring: Boolean(checked) })
-                        }
-                      />
-                      <label
-                        htmlFor="enable_proctoring"
-                        className="text-sm font-medium text-gray-900 select-none"
-                      >
-                        Enable Proctoring
-                      </label>
-                    </div>
-
-
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Proctoring Settings */}
+              <ProctoringSettingsCard
+                enableProctoring={formData.enable_proctoring}
+                onEnableProctoringChange={(val) => setFormData({ ...formData, enable_proctoring: val })}
+                tabSwitchThreshold={formData.tab_switch_threshold}
+                onTabSwitchThresholdChange={(val) => setFormData({ ...formData, tab_switch_threshold: val })}
+                violationThreshold={formData.violation_threshold}
+                onViolationThresholdChange={(val) => setFormData({ ...formData, violation_threshold: val })}
+                className="border border-gray-200 shadow-sm"
+              />
             </TabsContent>
 
             <TabsContent value="questions" className="space-y-6">

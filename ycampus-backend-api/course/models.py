@@ -457,6 +457,13 @@ class Question(models.Model):
         help_text="List of hints for the question. Format: [{'level': 1, 'text': 'hint text'}]",
     )
 
+    # Code Executor Limits (Time & Memory)
+    code_executor_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Execution limits: {'time_limit': 10, 'memory_limit': 256}"
+    )
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -743,3 +750,42 @@ class QuestionSolution(models.Model):
 
     def __str__(self):
         return f"{self.question.title[:40]} — {self.language} ({self.title})"
+
+
+class Attachment(models.Model):
+    """
+    Attachment model for faculty to share materials.
+    Supports optional association with a specific Unit or Sub-Unit.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file_name = models.CharField(max_length=255)
+    file = models.FileField(upload_to="attachments/")
+    file_type = models.CharField(max_length=255)
+    file_size = models.BigIntegerField()
+
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="attachments")
+    departments = models.ManyToManyField(Department, related_name="attachments")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="attachments")
+    sections = models.ManyToManyField(Section, related_name="attachments")
+
+    # Optional Unit / Sub-Unit association (null = general subject attachment)
+    unit = models.ForeignKey(
+        "Unit", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="attachments"
+    )
+    sub_unit = models.ForeignKey(
+        "SubUnit", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="attachments"
+    )
+
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_attachments")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.file_name
+

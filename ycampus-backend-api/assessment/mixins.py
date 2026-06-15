@@ -10,6 +10,9 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 import requests
 import json
+from django.db.models import Sum
+from django.utils.text import slugify
+from core.storage import upload_image
 
 
 class ProctoringMixin:
@@ -130,6 +133,7 @@ class ProctoringMixin:
         violation_types = [
             "copy_detected",
             "paste_detected",
+            "cut_detected",
             "right_click_detected",
             "keyboard_shortcut",
             "face_not_detected",
@@ -165,6 +169,31 @@ class ProctoringMixin:
         navigation_types = dict(BaseQuestionActivity.NAVIGATION_ACTIVITY_TYPES).keys()
         question_types = dict(BaseQuestionActivity.QUESTION_ACTIVITY_TYPES).keys()
 
+        # Handle Camera Snapshot
+        image_file = request.FILES.get("snapshot")
+        if image_file:
+            image_path = self._save_snapshot(
+                image_file, request.user, submission, question_id, activity_type=activity_type
+            )
+            if image_path:
+                event["image_path"] = image_path
+                # Keep the legacy snap_event for backward compatibility
+                snap_event = {
+                    "timestamp": timestamp,
+                    "image_path": image_path,
+                    "meta_data": meta_data,
+                }
+                qa_record.camera_snapshots.append(snap_event)
+                qa_record_updated = True
+
+        screen_file = request.FILES.get("screenshot")
+        if screen_file:
+            screen_path = self._save_snapshot(
+                screen_file, request.user, submission, question_id, activity_type=activity_type, prefix_override="screenshot"
+            )
+            if screen_path:
+                event["screen_path"] = screen_path
+
         if activity_type in proctoring_types:
             qa_record.proctoring_activities.append(event)
             qa_record_updated = True
@@ -177,26 +206,20 @@ class ProctoringMixin:
             qa_record.question_activities.append(event)
             qa_record_updated = True
 
-        # Handle Camera Snapshot
-        image_file = request.FILES.get("snapshot")
-        if image_file:
-            image_path = self._save_snapshot(
-                image_file, request.user, submission, question_id
-            )
-            if image_path:
-                snap_event = {
-                    "timestamp": timestamp,
-                    "image_path": image_path,
-                    "meta_data": meta_data,
-                }
-                qa_record.camera_snapshots.append(snap_event)
-                qa_record_updated = True
-
         if qa_record_updated:
             qa_record.save()
 
+        # Calculate stats using the helper
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
         return Response(
-            {"status": "logged", "scope": "question"}, status=status.HTTP_200_OK
+            {
+                "status": "logged",
+                "scope": "question",
+                "total_violations": total_violations,
+                "tab_switch_count": tab_switch_count,
+            },
+            status=status.HTTP_200_OK,
         )
 
     def _check_plagiarism(self, qa_record, request):
@@ -278,9 +301,15 @@ class ProctoringMixin:
         # Handle Camera Snapshot for Submission Level
         image_file = request.FILES.get("snapshot")
         if image_file:
-            image_path = self._save_snapshot(image_file, request.user, submission)
+            image_path = self._save_snapshot(image_file, request.user, submission, activity_type=activity_type)
             if image_path:
                 event["image_path"] = image_path
+
+        screen_file = request.FILES.get("screenshot")
+        if screen_file:
+            screen_path = self._save_snapshot(screen_file, request.user, submission, activity_type=activity_type, prefix_override="screenshot")
+            if screen_path:
+                event["screen_path"] = screen_path
 
         # Define non-violation events that shouldn't be counted as proctoring violations
         proctoring_types = dict(BaseQuestionActivity.PROCTORING_ACTIVITY_TYPES).keys()
@@ -290,6 +319,7 @@ class ProctoringMixin:
             activity_type in proctoring_types
             or activity_type == "snapshot"
             or image_file
+            or screen_file
         )
         is_violation = is_proctoring and (activity_type not in non_violation_types)
 
@@ -300,8 +330,18 @@ class ProctoringMixin:
             submission.general_events.append(event)
 
         submission.save()
+
+        # Calculate stats using the helper
+        total_violations, tab_switch_count = self._get_submission_stats(submission)
+
         return Response(
-            {"status": "logged", "scope": "submission"}, status=status.HTTP_200_OK
+            {
+                "status": "logged",
+                "scope": "submission",
+                "total_violations": total_violations,
+                "tab_switch_count": tab_switch_count,
+            },
+            status=status.HTTP_200_OK,
         )
 
     def _get_submission_field_name(self):
@@ -318,7 +358,28 @@ class ProctoringMixin:
             + "_submission"
         )
 
-    def _save_snapshot(self, file_obj, user, submission, question_id=None):
+    def _get_submission_stats(self, submission):
+        submission_field_name = self._get_submission_field_name()
+        
+        q_violations = self.question_activity_model.objects.filter(
+            **{submission_field_name: submission}
+        ).aggregate(total=Sum('violation_count'))['total'] or 0
+        
+        sub_violations = len(submission.proctoring_events or [])
+        
+        sub_tab_switches = sum(1 for e in (submission.general_events or []) if e.get('activity_type') == 'tab_switched')
+        
+        q_tab_switches = 0
+        for qa in self.question_activity_model.objects.filter(**{submission_field_name: submission}):
+            q_tab_switches += sum(1 for e in (qa.navigation_activities or []) if e.get('activity_type') == 'tab_switched')
+            
+        tab_switch_count = q_tab_switches + sub_tab_switches
+        total_violations = q_violations + sub_violations + sub_tab_switches
+        
+        return total_violations, tab_switch_count
+
+
+    def _save_snapshot(self, file_obj, user, submission, question_id=None, activity_type=None, prefix_override=None):
         """
         Save a camera snapshot via Django's default storage backend.
 
@@ -328,8 +389,7 @@ class ProctoringMixin:
         `default_storage.url(key)`.
         """
         try:
-            from django.utils.text import slugify
-            from core.storage import upload_image
+            
 
             # 1. Assessment Type & Hierarchy
             # Determine type and hierarchical names (Course/Topic)
@@ -384,10 +444,17 @@ class ProctoringMixin:
             attempt_dir = f"attempt-{attempt_count}"
 
             # 3. Filename
-            ts = str(int(time.time()))
-            filename = f"snapshot_{ts}.png"
+            prefix = prefix_override or "snapshot"
+            if not prefix_override:
+                if activity_type == "passport_photo_captured":
+                    prefix = "passport"
+                elif activity_type == "initial_screenshot_captured":
+                    prefix = "screen_share"
+                
+            ts = str(int(time.time() * 1000))
+            filename = f"{prefix}_{ts}.png"
             if question_id:
-                filename = f"q{question_id}_{ts}.png"
+                filename = f"q{question_id}_{prefix}_{ts}.png"
 
             # Object key: {user_id}/{type}/{parent}/{exam}/{attempt}/{filename}
             user_id = str(user.id)

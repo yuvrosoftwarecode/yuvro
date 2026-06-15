@@ -62,6 +62,10 @@ export interface Question {
   moduleId: string;
   topicId: string;
   isMultipleAnswer?: boolean;
+  code_executor_config?: {
+    time_limit: number;
+    memory_limit: number;
+  };
 }
 
 export function QuestionSetup() {
