@@ -160,7 +160,12 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
                         {log.image_path && (
                             <div className="space-y-1">
                                 <span className="text-[10px] text-muted-foreground">Camera</span>
-                                <img src={getImageUrl(log.image_path)} alt="Camera Snapshot" className="w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setActiveLightboxImg?.(getImageUrl(log.image_path))} />
+                                {(() => {
+                                    const isFaceViolation = ['face_not_detected', 'no_face_detected', 'multiple_faces_detected', 'face_mismatch', 'face_recognition_failed'].includes(log.activity_type || '');
+                                    return (
+                                        <img src={getImageUrl(log.image_path)} alt="Camera Snapshot" className={`w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity ${isFaceViolation ? 'border-2 border-red-500 box-border' : ''}`} onClick={() => setActiveLightboxImg?.(getImageUrl(log.image_path))} />
+                                    );
+                                })()}
                             </div>
                         )}
                         {log.screen_path && (
@@ -781,14 +786,19 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                         onClick={() => setActiveLightboxImg(imgUrl)}
                                                     >
                                                         <div className="aspect-video w-full relative">
-                                                            <img
-                                                                src={imgUrl}
-                                                                alt={`Camera Snapshot ${i + 1}`}
-                                                                className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"
-                                                                onError={(e) => {
-                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
-                                                                }}
-                                                            />
+                                                            {(() => {
+                                                                const isFaceViolation = ['face_not_detected', 'no_face_detected', 'multiple_faces_detected', 'face_mismatch', 'face_recognition_failed'].includes(event.activity_type || '');
+                                                                return (
+                                                                    <img
+                                                                        src={imgUrl}
+                                                                        alt={`Camera Snapshot ${i + 1}`}
+                                                                        className={`object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity ${isFaceViolation ? 'border-4 border-red-500 box-border' : ''}`}
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Load+Error';
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            })()}
                                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200">
                                                                 <Eye className="h-6 w-6 text-white" />
                                                             </div>
