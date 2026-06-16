@@ -34,6 +34,7 @@ interface Topic {
   duration: number;
   questions: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  enable_proctoring?: boolean;
 }
 
 interface Course {
@@ -55,6 +56,10 @@ interface TestInterfaceProps {
   course: Course;
   onComplete: (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
+  mediaStream?: MediaStream | null;
+  screenStream?: MediaStream | null;
+  preExamPhotoBlob?: Blob | null;
+  preExamScreenshotBlob?: Blob | null;
 }
 
 const DEFAULT_CODING_TEMPLATES = [
@@ -68,7 +73,12 @@ const DEFAULT_CODING_TEMPLATES = [
 const TestInterface: React.FC<TestInterfaceProps> = ({
   topic,
   course,
-  onComplete
+  onComplete,
+  onBack,
+  mediaStream,
+  screenStream,
+  preExamPhotoBlob,
+  preExamScreenshotBlob
 }) => {
   const { toast } = useToast();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -93,15 +103,16 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({});
   const currentQuestionIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    currentQuestionIdRef.current = questions[currentQuestion]?.id || null;
-  }, [currentQuestion, questions]);
-
   // Backend state
   const [questions, setQuestions] = useState<Question[]>([]);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [isLoadingTest, setIsLoadingTest] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [proctoringEnabled, setProctoringEnabled] = useState(true);
+
+  useEffect(() => {
+    currentQuestionIdRef.current = questions[currentQuestion]?.id || null;
+  }, [currentQuestion, questions]);
 
   const loadPromiseRef = useRef<Promise<any> | null>(null);
 
@@ -120,6 +131,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
         const response = await loadPromiseRef.current;
         if (!cancelled) {
           setSubmissionId(response.submission_id);
+          setProctoringEnabled(true);
           // Normalize question type field from backend
           const normalized: Question[] = (response.questions || []).map((q: any) => ({
             id: String(q.id),
@@ -170,6 +182,20 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
 
   // Initialize camera and microphone
   useEffect(() => {
+    if (!proctoringEnabled) return;
+
+    if (mediaStream) {
+      streamRef.current = mediaStream;
+      setHasMediaAccess(true);
+      setVideoTrackEnabled(true);
+      setAudioTrackEnabled(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.play().catch(console.error);
+      }
+      return;
+    }
+
     let isActive = true;
     const initializeMedia = async () => {
       try {
@@ -203,7 +229,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       isActive = false;
       stopMediaMonitoring();
     };
-  }, []);
+  }, [proctoringEnabled, mediaStream]);
 
   const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
     if (type === 'tab_switch') {
@@ -226,12 +252,30 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const { logActivity } = useProctoring({
     assessmentId: topic.id,
     assessmentType: 'skill-tests',
-    enabled: !!submissionId, // We enable proctoring once the test has officially started/resumed
+    enabled: proctoringEnabled && !!submissionId, // We enable proctoring once the test has officially started/resumed
     submissionId: submissionId,
     questionId: questions[currentQuestion]?.id,
     mediaStream: streamRef.current,
+    screenStream: screenStream,
     onViolation: handleProctoringViolation
   });
+
+  // Upload setup blobs once submissionId is active
+  const hasUploadedSetupBlobs = useRef(false);
+  useEffect(() => {
+    if (proctoringEnabled && submissionId && !hasUploadedSetupBlobs.current) {
+      hasUploadedSetupBlobs.current = true;
+      const uploadSetupBlobs = async () => {
+        if (preExamPhotoBlob) {
+          await logActivity('passport_photo_captured', {}, preExamPhotoBlob);
+        }
+        if (preExamScreenshotBlob) {
+          await logActivity('initial_screenshot_captured', {}, preExamScreenshotBlob);
+        }
+      };
+      uploadSetupBlobs();
+    }
+  }, [proctoringEnabled, submissionId, preExamPhotoBlob, preExamScreenshotBlob, logActivity]);
 
   const prevQuestionIdRef = useRef<string | null>(null);
 
@@ -563,7 +607,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            {submissionId && (
+            {submissionId && proctoringEnabled && (
               <div className="fixed top-20 left-4 z-[9999] w-32 h-24 sm:w-40 sm:h-30 rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 flex items-center justify-center group transition-all duration-300 hover:scale-[1.03]">
                 {hasMediaAccess ? (
                   <>
@@ -587,7 +631,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                 )}
               </div>
             )}
-            {!submissionId && (
+            {!submissionId && proctoringEnabled && (
               <video
                 ref={videoRef}
                 autoPlay
@@ -692,14 +736,16 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-6 p-3 bg-muted/30 rounded-lg">
-                  <h4 className="text-sm font-semibold mb-2">Monitoring Status</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between"><span>Camera</span><span className={videoTrackEnabled ? 'text-green-600' : 'text-red-600'}>{videoTrackEnabled ? 'Active' : 'Inactive'}</span></div>
-                    <div className="flex justify-between"><span>Audio</span><span className={audioTrackEnabled ? 'text-green-600' : 'text-red-600'}>{audioTrackEnabled ? 'Active' : 'Inactive'}</span></div>
-                    <div className="flex justify-between"><span>Tab Switches</span><span className="text-orange-600">{tabSwitchCount}</span></div>
+                {proctoringEnabled && (
+                  <div className="mt-6 p-3 bg-muted/30 rounded-lg">
+                    <h4 className="text-sm font-semibold mb-2">Monitoring Status</h4>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between"><span>Camera</span><span className={videoTrackEnabled ? 'text-green-600' : 'text-red-600'}>{videoTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                      <div className="flex justify-between"><span>Audio</span><span className={audioTrackEnabled ? 'text-green-600' : 'text-red-600'}>{audioTrackEnabled ? 'Active' : 'Inactive'}</span></div>
+                      <div className="flex justify-between"><span>Tab Switches</span><span className="text-orange-600">{tabSwitchCount}</span></div>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             ) : (
               <div className="space-y-1">
