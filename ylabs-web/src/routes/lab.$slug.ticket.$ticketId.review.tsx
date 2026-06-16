@@ -8,10 +8,11 @@ import {
   Gauge, Target, Users, Rocket,
 } from "lucide-react";
 
-export const Route = createFileRoute("/lab/$slug/ticket/$ticketId/review")({ component: Review });
+export const Route = createFileRoute("/lab/$slug/ticket/$ticketId/review")({ component: TicketReview });
 
-function Review() {
-  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId/review" });
+function TicketReview() {
+  const { slug, ticketId } = Route.useParams();
+  const navigate = useNavigate({ from: "/lab/$slug/ticket/$ticketId/review" });
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const ticket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
   const next = tickets.find((t) => t.status === "Not Started");

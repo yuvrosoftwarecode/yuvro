@@ -1,7 +1,11 @@
-import { createFileRoute, Link, Outlet, useMatch, useNavigate, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
+import JSZip from "jszip";
 import { TopNav } from "@/components/TopNav";
+import { PreviewStatus, PreviewState } from "@/components/Preview/PreviewStatus";
+import { PreviewConsole } from "@/components/Preview/PreviewConsole";
+import { WebContainerRunner } from "@/services/WebContainerRunner";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
 import {
@@ -58,7 +62,7 @@ Run with: \`javac Main.java && java Main\``;
 type FileName = string;
 
 const EXECUTOR_URL = import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009";
-const GITHUB_REPO = "MSLekha25/Weather_and_Air_Quality_Monitor";
+const GITHUB_REPO = "MKGandhi05/RideWise";
 
 type GitNode = {
   path: string;
@@ -80,9 +84,10 @@ type TestResult = { name: string; pass: boolean; time: string; expected?: string
 type BottomTab = "output" | "errors" | "tests" | "quality" | "terminal";
 
 function TicketEditor() {
-  const { slug, ticketId } = useParams({ from: "/lab/$slug/ticket/$ticketId" });
+  const { slug, ticketId } = Route.useParams();
   const navigate = useNavigate({ from: "/lab/$slug/ticket/$ticketId" });
-  const reviewMatch = useMatch({ from: "/lab/$slug/ticket/$ticketId/review", shouldThrow: false });
+  const routerState = useRouterState();
+  const isReviewRoute = routerState.location.pathname.endsWith("/review");
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const ticket = tickets.find((t) => t.id === ticketId) ?? tickets[0];
 
@@ -124,49 +129,77 @@ function TicketEditor() {
     async function fetchTree() {
       setIsLoadingTree(true);
       try {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`);
-        const data = await res.json();
-        if (data.tree) {
-          const root: TreeNode[] = [];
-          const map = new Map<string, TreeNode[]>();
-          map.set("", root);
-          
-          for (const item of data.tree as GitNode[]) {
-            const parts = item.path.split("/");
-            const name = parts.pop()!;
-            const parentPath = parts.join("/");
+        const res = await fetch(`/github-zip/${GITHUB_REPO}/zip/refs/heads/main`);
+        const blob = await res.blob();
+        const zip = await JSZip.loadAsync(blob);
+        
+        const root: TreeNode[] = [];
+        const map = new Map<string, TreeNode>();
+        
+        const getOrCreateNode = (path: string, isDir: boolean): TreeNode => {
+            if (map.has(path)) return map.get(path)!;
             
+            const parts = path.split("/");
+            const name = parts[parts.length - 1];
             const node: TreeNode = {
-              name,
-              path: item.path,
-              type: item.type,
-              ...(item.type === "tree" ? { children: [] } : {})
+                name,
+                path,
+                type: isDir ? "tree" : "blob",
+                ...(isDir ? { children: [] } : {})
             };
+            map.set(path, node);
             
-            if (!map.has(parentPath)) {
-              map.set(parentPath, []);
+            if (parts.length > 1) {
+                const parentPath = parts.slice(0, -1).join("/");
+                const parentNode = getOrCreateNode(parentPath, true);
+                parentNode.children!.push(node);
+            } else {
+                root.push(node);
             }
-            map.get(parentPath)!.push(node);
-            if (item.type === "tree") {
-              map.set(item.path, node.children!);
+            return node;
+        };
+
+        const loadedFiles: Record<string, string> = {};
+        const promises: Promise<void>[] = [];
+
+        zip.forEach((relativePath, zipEntry) => {
+          const parts = relativePath.split("/");
+          parts.shift(); // remove root folder (e.g., RepoName-main)
+          // Handle trailing slashes in directory names
+          if (parts[parts.length - 1] === "") parts.pop();
+          const path = parts.join("/");
+          if (!path) return;
+          
+          const isBinary = /\.(png|jpe?g|gif|ico|woff2?|ttf|eot|mp3|mp4|avi|zip|tar|gz|pdf)$/i.test(path);
+          const node = getOrCreateNode(path, zipEntry.dir);
+          if (!zipEntry.dir) {
+            if (isBinary) {
+              loadedFiles[path] = "";
+            } else {
+              promises.push(zipEntry.async("string").then(content => {
+                 loadedFiles[path] = content;
+              }));
             }
           }
-          
-          const sortNodes = (nodes: TreeNode[]) => {
-            nodes.sort((a, b) => {
-              if (a.type !== b.type) return a.type === "tree" ? -1 : 1;
-              return a.name.localeCompare(b.name);
-            });
-            for (const node of nodes) {
-              if (node.children) sortNodes(node.children);
-            }
-          };
-          sortNodes(root);
-          setRepoTree(root);
-        }
+        });
+        
+        await Promise.all(promises);
+        setFiles(loadedFiles);
+        
+        const sortNodes = (nodes: TreeNode[]) => {
+          nodes.sort((a, b) => {
+            if (a.type !== b.type) return a.type === "tree" ? -1 : 1;
+            return a.name.localeCompare(b.name);
+          });
+          for (const node of nodes) {
+            if (node.children) sortNodes(node.children);
+          }
+        };
+        sortNodes(root);
+        setRepoTree(root);
       } catch (e) {
         console.error(e);
-        showToast("Failed to fetch repository tree");
+        // Fallback or show toast
       } finally {
         setIsLoadingTree(false);
       }
@@ -179,20 +212,6 @@ function TicketEditor() {
       setOpenFiles(prev => [...prev, path]);
     }
     setActiveFile(path);
-    
-    if (!(path in files)) {
-      setFiles(prev => ({ ...prev, [path]: "// Loading..." }));
-      try {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`);
-        const data = await res.json();
-        if (data.content) {
-          const text = decodeURIComponent(escape(atob(data.content)));
-          setFiles(prev => ({ ...prev, [path]: text }));
-        }
-      } catch (e) {
-        setFiles(prev => ({ ...prev, [path]: "// Error loading file content" }));
-      }
-    }
   }
 
   // Keyboard: Ctrl/Cmd+Enter to run
@@ -421,7 +440,7 @@ function TicketEditor() {
     });
   }
 
-  if (reviewMatch) return <Outlet />;
+  if (isReviewRoute) return <Outlet />;
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -543,12 +562,12 @@ function TicketEditor() {
               </div>
             </div>
 
-            <div className="flex flex-1 min-w-0 flex-col">
-              {mainView === "preview" ? (
-                <div className="flex-1 bg-muted/20 relative">
-                  <PreviewView files={files} lab={lab} activeFile={activeFile} />
-                </div>
-              ) : (
+            <div className="flex flex-1 min-w-0 flex-col relative">
+              {/* We use visibility instead of display:none so the iframe loads and warms up Vite in the background! */}
+              <div className={`absolute inset-0 bg-muted/20 ${mainView === "preview" ? "z-10 opacity-100" : "-z-10 opacity-0 pointer-events-none"}`}>
+                <PreviewView files={files} lab={lab} activeFile={activeFile} />
+              </div>
+              <div className={`absolute inset-0 flex-col ${mainView === "code" ? "flex z-10 opacity-100" : "-z-10 opacity-0 pointer-events-none"}`}>
                 <>
                   {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
@@ -635,8 +654,8 @@ function TicketEditor() {
                 </div>
               </div>
               </>
-            )}
             </div>
+          </div>
 
             {/* Live progress */}
             {showProgress && (
@@ -815,50 +834,286 @@ function QualityView({ code }: { code: string }) {
 }
 
 function PreviewView({ files, lab, activeFile }: { files: Record<string, string>; lab: typeof labs[number]; activeFile: string }) {
-  const isHtmlActive = activeFile?.endsWith(".html");
+  const [previewStatus, setPreviewStatus] = useState<PreviewState>('idle');
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [consoleOutput, setConsoleOutput] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [showTerminal, setShowTerminal] = useState<boolean>(false);
   
-  if (lab.slug !== "ui" && !isHtmlActive) {
+  const runnerRef = useRef<WebContainerRunner | null>(null);
+
+  // Find package.json
+  const allPkgJsons = Object.keys(files).filter((path) => path.endsWith("package.json"));
+  let packageJsonPath = allPkgJsons.find(p => p.includes("frontend") || p.includes("client") || p.includes("web") || p.includes("ui"));
+  
+  if (!packageJsonPath && allPkgJsons.length > 0) {
+    packageJsonPath = allPkgJsons.find(p => {
+      const content = files[p];
+      return content.includes('"react"') || content.includes('"vite"') || content.includes('"next"');
+    }) || allPkgJsons[0];
+  }
+
+  const hasPackageJson = !!packageJsonPath;
+  const isReact = Object.keys(files).some(f => f.endsWith(".tsx") || f.endsWith(".jsx"));
+
+  const startWebContainer = async () => {
+    try {
+      setPreviewStatus('booting');
+      setConsoleOutput('');
+      
+      if (!runnerRef.current) {
+        runnerRef.current = new WebContainerRunner();
+      }
+      
+      const runner = runnerRef.current;
+      
+      // Clean up files (lift to root if needed)
+      const projectRoot = packageJsonPath ? packageJsonPath.replace("package.json", "") : "";
+      const runnerFiles: Record<string, string> = {};
+      
+      for (const [path, code] of Object.entries(files)) {
+        let targetPath = projectRoot && path.startsWith(projectRoot) ? `/${path.slice(projectRoot.length)}` : (!projectRoot ? `/${path}` : null);
+        if (targetPath) {
+          let content = code;
+          
+          // Inject Mock Backend into Vite Config so frontend buttons are functional
+          if (targetPath === "/vite.config.js" || targetPath === "/vite.config.ts") {
+            const mockPlugin = `
+const mockBackendPlugin = () => ({
+  name: 'mock-backend',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+      if (req.method === 'OPTIONS') {
+        res.end();
+        return;
+      }
+
+      if (req.url?.includes('/auth/register') || req.url?.includes('/auth/login')) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ token: "mock-jwt-token", user: { id: 1, email: "test@example.com" } }));
+        return;
+      }
+      if (req.url?.includes('/resume/upload')) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true, message: "Resume uploaded successfully (mocked)", data: { id: 123 } }));
+        return;
+      }
+      if (req.url?.includes('/jd/upload')) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true, message: "JD uploaded successfully (mocked)" }));
+        return;
+      }
+      if (req.url?.includes('/analytics/analyze')) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true }));
+        return;
+      }
+      if (req.url?.includes('/analytics') && req.method === 'GET') {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+          overall_match: 85,
+          skill_coverage: 90,
+          experience_match: 80,
+          keywords_matched: ["React", "JavaScript", "Node.js"],
+          missing_skills: ["Docker", "Kubernetes"],
+          total_interviews: 3,
+          average_score: 75
+        }));
+        return;
+      }
+      if (req.url?.includes('/api/') || req.method === 'POST' || req.method === 'PUT') {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true, data: [], message: "Mocked response" }));
+        return;
+      }
+      next();
+    });
+  }
+});
+`;
+            if (content.includes("plugins: [")) {
+              content = content.replace("export default defineConfig", mockPlugin + "\nexport default defineConfig");
+              content = content.replace("plugins: [", "plugins: [mockBackendPlugin(), ");
+            } else if (content.includes("defineConfig({")) {
+              content = content.replace("export default defineConfig", mockPlugin + "\nexport default defineConfig");
+              content = content.replace("defineConfig({", "defineConfig({ plugins: [mockBackendPlugin()],");
+            }
+          }
+
+          if (targetPath === "/package-lock.json" || targetPath === "/yarn.lock" || targetPath === "/pnpm-lock.yaml") {
+            continue; // Skip lockfiles so our dynamic package.json downgrades actually take effect
+          }
+
+          if (targetPath === "/index.html") {
+            const script = `
+<script>
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('React Router Future Flag')) return;
+    originalWarn(...args);
+  };
+</script>
+`;
+            if (content.includes("<head>")) {
+              content = content.replace("<head>", "<head>" + script);
+            } else {
+              content = script + content;
+            }
+          }
+
+          if (targetPath === "/package.json") {
+            // Force downgrade Vite to v5 no matter what version the student wrote to avoid WASI crashes
+            content = content.replace(/"vite"\s*:\s*"[^"]+"/, '"vite": "^5.4.11"');
+            content = content.replace(/"@vitejs\/plugin-react"\s*:\s*"[^"]+"/, '"@vitejs/plugin-react": "^4.2.1"');
+          }
+
+          runnerFiles[targetPath] = content;
+        }
+      }
+      
+      // Ensure environment variables are set so Axios doesn't resolve to 'undefined'
+      let envContent = runnerFiles["/.env"] || "";
+      envContent += "\nVITE_API_URL=\nREACT_APP_API_URL=\nREACT_APP_BASE_URL=\n";
+      runnerFiles["/.env"] = envContent;
+
+      // Inject Mock Backend for Create React App (react-scripts)
+      if (hasPackageJson && !runnerFiles["/src/setupProxy.js"]) {
+        runnerFiles["/src/setupProxy.js"] = `
+module.exports = function(app) {
+  app.use((req, res, next) => {
+    if (req.url.includes('/api/accounts/signin/') || req.url.includes('/api/accounts/signup/')) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ 
+        success: true, 
+        access: "mock-jwt-access-token", 
+        refresh: "mock-jwt-refresh-token",
+        username: "MockUser",
+        email: "user@example.com"
+      }));
+      return;
+    }
+    if (req.url.includes('/api/accounts/get_user/')) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ 
+        username: "MockUser",
+        email: "user@example.com"
+      }));
+      return;
+    }
+    if (req.url.includes('/api/')) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ success: true, message: "Mocked response from setupProxy.js" }));
+      return;
+    }
+    next();
+  });
+};
+`;
+      }
+
+      await runner.initialize(runnerFiles);
+      
+      setPreviewStatus('installing');
+      await runner.installDependencies((data) => {
+        setConsoleOutput(prev => prev + data);
+      });
+      
+      setPreviewStatus('starting');
+      await runner.startDevServer((data) => {
+        setConsoleOutput(prev => prev + data);
+      });
+      
+      const url = await runner.getPreviewUrl();
+      setPreviewUrl(url);
+      setPreviewStatus('ready');
+      
+    } catch (e: any) {
+      console.error(e);
+      setPreviewStatus('error');
+      setErrorMessage(e.message || "An unknown error occurred");
+    }
+  };
+
+  useEffect(() => {
+    if (!isReact && !hasPackageJson) return; // Prevent WebContainer from booting
+    startWebContainer();
+    return () => {
+      if (runnerRef.current) {
+        runnerRef.current.stop();
+      }
+    };
+  }, [packageJsonPath]); // Re-run if package.json path changes
+
+  // Sync active file changes to the WebContainer to trigger Vite HMR
+  useEffect(() => {
+    if (previewStatus === 'ready' && runnerRef.current && activeFile && files[activeFile] !== undefined) {
+      const projectRoot = packageJsonPath ? packageJsonPath.replace("package.json", "") : "";
+      const targetPath = projectRoot && activeFile.startsWith(projectRoot) ? `/${activeFile.slice(projectRoot.length)}` : (!projectRoot ? `/${activeFile}` : null);
+      
+      if (targetPath) {
+        // Debounce slightly or just write directly since fs operations are fast in memory
+        runnerRef.current.updateFile(targetPath, files[activeFile]);
+      }
+    }
+  }, [files[activeFile], activeFile, previewStatus, packageJsonPath]);
+
+  // If it's a Python/HTML project without a package.json, bypass WebContainers completely!
+  if (!isReact && !hasPackageJson) {
+    let htmlContent = files["/index.html"] || Object.values(files).find(c => c.includes("<!DOCTYPE html>")) || "<h1>No index.html found</h1>";
+    const cssFiles = Object.keys(files).filter(f => f.endsWith(".css"));
+    let injectedStyles = "";
+    for (const css of cssFiles) {
+      injectedStyles += `<style>/* ${css} */\n${files[css]}</style>\n`;
+    }
+    
+    if (htmlContent.includes("</head>")) {
+      htmlContent = htmlContent.replace("</head>", `${injectedStyles}</head>`);
+    } else {
+      htmlContent = injectedStyles + htmlContent;
+    }
+
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground font-mono">
-        Live preview is not applicable for {lab.name}. Check the Console tab for execution output.
+      <div className="flex h-full gap-2 bg-white relative group">
+        <iframe 
+          srcDoc={htmlContent} 
+          className="w-full h-full border-0 bg-white" 
+          sandbox="allow-scripts allow-forms allow-modals"
+          title="Preview"
+        />
       </div>
     );
   }
 
-  const html = isHtmlActive ? (files[activeFile] || "") : (files["index.html"] || "<h1>No HTML file selected/found</h1>");
-  const css = files["styles.css"] || Object.entries(files).find(([k]) => k.endsWith(".css"))?.[1] || "";
-  const js = files["script.js"] || Object.entries(files).find(([k]) => k.endsWith(".js"))?.[1] || "";
-
-  const interceptScript = `
-    document.addEventListener('click', (e) => {
-      const a = e.target.closest('a');
-      if (a) {
-        e.preventDefault();
-      }
-    });
-    document.addEventListener('submit', (e) => {
-      e.preventDefault();
-    });
-  `;
-
-  const srcDoc = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>${css}</style>
-      </head>
-      <body>
-        ${html}
-        <script>${js}</script>
-        <script>${interceptScript}</script>
-      </body>
-    </html>
-  `;
-
   return (
-    <div className="flex h-full gap-2">
-      <div className="flex-1 rounded border bg-white overflow-hidden relative">
-        <iframe title="preview" srcDoc={srcDoc} className="w-full h-full border-0 absolute inset-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+    <div className="flex flex-col h-full gap-2">
+      <div className="flex-1 rounded border bg-white overflow-hidden relative min-h-0 group">
+        <PreviewStatus 
+          status={previewStatus} 
+          errorMessage={errorMessage} 
+          onRetry={startWebContainer} 
+        />
+        {previewStatus === 'ready' && previewUrl && (
+          <iframe 
+            src={previewUrl} 
+            className="w-full h-full border-0" 
+            allow="cross-origin-isolated"
+            title="Preview"
+          />
+        )}
+        <button 
+          onClick={() => setShowTerminal(p => !p)}
+          className="absolute bottom-4 right-4 z-50 flex items-center gap-2 rounded border bg-background/95 backdrop-blur px-3 py-1.5 text-xs font-medium shadow hover:bg-accent text-foreground transition-opacity opacity-0 group-hover:opacity-100"
+        >
+          <TerminalIcon className="h-3 w-3" />
+          {showTerminal ? "Hide Console" : "Show Console"}
+        </button>
+      </div>
+      <div className={`rounded overflow-hidden shrink-0 transition-all duration-300 ${showTerminal ? "h-48 border opacity-100" : "h-0 border-0 opacity-0"}`}>
+        <PreviewConsole output={consoleOutput} />
       </div>
     </div>
   );

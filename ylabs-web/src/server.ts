@@ -21,7 +21,11 @@ async function getServerEntry(): Promise<ServerEntry> {
 function brandedErrorResponse(): Response {
   return new Response(renderErrorPage(), {
     status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
+    headers: { 
+      "content-type": "text/html; charset=utf-8",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin"
+    },
   });
 }
 
@@ -71,7 +75,18 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalizedResponse = await normalizeCatastrophicSsrResponse(response);
+      
+      // Inject Cross-Origin Isolation headers required by WebContainers for SharedArrayBuffer
+      const headers = new Headers(normalizedResponse.headers);
+      headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+      headers.set("Cross-Origin-Opener-Policy", "same-origin");
+      
+      return new Response(normalizedResponse.body, {
+        status: normalizedResponse.status,
+        statusText: normalizedResponse.statusText,
+        headers,
+      });
     } catch (error) {
       console.error(error);
       return brandedErrorResponse();
