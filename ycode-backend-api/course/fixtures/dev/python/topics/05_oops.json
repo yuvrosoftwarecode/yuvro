@@ -1,2650 +1,2734 @@
 {
-  "name": "Object-Oriented Programming",
-  "course_short_code": "PY101",
-  "order_index": 5,
-  "subtopics": [
-    {
-      "name": "Classes & Objects",
-      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-      "order_index": 0,
-      "videos": [
-        {
-          "title": "Introduction to Classes & Objects",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Classes & Objects in Python."
-        },
-        {
-          "title": "Advanced Classes & Objects Techniques",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "In-depth explanation and practical examples for Classes & Objects."
-        }
-      ]
-    },
-    {
-      "name": "OOP Concepts",
-      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-      "order_index": 1,
-      "videos": [
-        {
-          "title": "Introduction to OOP",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "Comprehensive tutorial covering basic concepts of OOP in Python."
-        },
-        {
-          "title": "Advanced OOP Techniques",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "In-depth explanation and practical examples for OOP."
-        }
-      ]
-    },
-    {
-      "name": "Advanced OOP",
-      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-      "order_index": 2,
-      "videos": [
-        {
-          "title": "Introduction to Advanced OOP",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Advanced OOP in Python."
-        },
-        {
-          "title": "Advanced Advanced OOP Techniques",
-          "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
-          "ai_context": "In-depth explanation and practical examples for Advanced OOP."
-        }
-      ]
-    }
-  ],
-  "questions": [
-    {
-      "type": "mcq_single",
-      "title": "Creating a Class",
-      "content": "Which keyword is used to create a class in Python?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "class",
-          "is_correct": true
-        },
-        {
-          "text": "def",
-          "is_correct": false
-        },
-        {
-          "text": "object",
-          "is_correct": false
-        },
-        {
-          "text": "struct",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Object Creation",
-      "content": "What is created when you call a class like MyClass()?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Object (instance)",
-          "is_correct": true
-        },
-        {
-          "text": "Function",
-          "is_correct": false
-        },
-        {
-          "text": "Module",
-          "is_correct": false
-        },
-        {
-          "text": "Variable only",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Self Parameter",
-      "content": "What does 'self' refer to in a class method?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Current object instance",
-          "is_correct": true
-        },
-        {
-          "text": "Class name",
-          "is_correct": false
-        },
-        {
-          "text": "Module name",
-          "is_correct": false
-        },
-        {
-          "text": "Global variable",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Constructor Method",
-      "content": "What is the purpose of the __init__ method?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Initialize object attributes",
-          "is_correct": true
-        },
-        {
-          "text": "Destroy object",
-          "is_correct": false
-        },
-        {
-          "text": "Call class name",
-          "is_correct": false
-        },
-        {
-          "text": "Import module",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Object Attributes",
-      "content": "What will be the output?\n\nclass A:\n    def __init__(self, x):\n        self.x = x\n\nobj = A(10)\nprint(obj.x)",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "10",
-          "is_correct": true
-        },
-        {
-          "text": "x",
-          "is_correct": false
-        },
-        {
-          "text": "None",
-          "is_correct": false
-        },
-        {
-          "text": "Error",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Missing self Issue",
-      "content": "What happens if 'self' is not used in instance methods?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "TypeError occurs",
-          "is_correct": true
-        },
-        {
-          "text": "Code runs normally",
-          "is_correct": false
-        },
-        {
-          "text": "Only warning appears",
-          "is_correct": false
-        },
-        {
-          "text": "Returns None",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Multiple Objects",
-      "content": "What will be the output?\n\nclass A:\n    def __init__(self, x):\n        self.x = x\n\nobj1 = A(5)\nobj2 = A(10)\nprint(obj1.x + obj2.x)",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "15",
-          "is_correct": true
-        },
-        {
-          "text": "5",
-          "is_correct": false
-        },
-        {
-          "text": "10",
-          "is_correct": false
-        },
-        {
-          "text": "Error",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Encapsulation Concept",
-      "content": "What does encapsulation mean in OOP?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Wrapping data and methods into a single unit",
-          "is_correct": true
-        },
-        {
-          "text": "Using only loops in a program",
-          "is_correct": false
-        },
-        {
-          "text": "Deleting objects automatically",
-          "is_correct": false
-        },
-        {
-          "text": "Running multiple programs together",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Inheritance Concept",
-      "content": "What is inheritance in OOP?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "One class acquiring properties of another class",
-          "is_correct": true
-        },
-        {
-          "text": "Creating multiple variables",
-          "is_correct": false
-        },
-        {
-          "text": "Deleting a class",
-          "is_correct": false
-        },
-        {
-          "text": "Running a function twice",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Polymorphism Meaning",
-      "content": "What does polymorphism allow in OOP?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Same function name behaving differently",
-          "is_correct": true
-        },
-        {
-          "text": "Only one class in program",
-          "is_correct": false
-        },
-        {
-          "text": "Deleting objects",
-          "is_correct": false
-        },
-        {
-          "text": "Using only loops",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Abstraction Concept",
-      "content": "What does abstraction mean in OOP?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Hiding internal implementation details",
-          "is_correct": true
-        },
-        {
-          "text": "Showing all internal code",
-          "is_correct": false
-        },
-        {
-          "text": "Deleting classes",
-          "is_correct": false
-        },
-        {
-          "text": "Using only variables",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Encapsulation Example",
-      "content": "Which is an example of encapsulation?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Using private variables inside a class",
-          "is_correct": true
-        },
-        {
-          "text": "Using only loops",
-          "is_correct": false
-        },
-        {
-          "text": "Writing multiple files",
-          "is_correct": false
-        },
-        {
-          "text": "Printing output only",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Inheritance Types",
-      "content": "Which of the following is a type of inheritance?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Single inheritance",
-          "is_correct": true
-        },
-        {
-          "text": "Loop inheritance",
-          "is_correct": false
-        },
-        {
-          "text": "File inheritance",
-          "is_correct": false
-        },
-        {
-          "text": "Function inheritance",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Polymorphism Example",
-      "content": "Which concept allows method overriding in child classes?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Polymorphism",
-          "is_correct": true
-        },
-        {
-          "text": "Encapsulation",
-          "is_correct": false
-        },
-        {
-          "text": "Abstraction",
-          "is_correct": false
-        },
-        {
-          "text": "Compilation",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Abstraction Implementation",
-      "content": "Which is commonly used to achieve abstraction in Python?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Abstract classes",
-          "is_correct": true
-        },
-        {
-          "text": "Lists",
-          "is_correct": false
-        },
-        {
-          "text": "Loops",
-          "is_correct": false
-        },
-        {
-          "text": "Variables",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Inheritance Usage",
-      "content": "Why is inheritance used in OOP?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To reuse code",
-          "is_correct": true
-        },
-        {
-          "text": "To slow down program",
-          "is_correct": false
-        },
-        {
-          "text": "To delete classes",
-          "is_correct": false
-        },
-        {
-          "text": "To avoid functions",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Polymorphism Real Use",
-      "content": "Which best represents polymorphism?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Same function name with different behavior",
-          "is_correct": true
-        },
-        {
-          "text": "One variable type",
-          "is_correct": false
-        },
-        {
-          "text": "Only one class",
-          "is_correct": false
-        },
-        {
-          "text": "Using only loops",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Method Overriding",
-      "content": "What happens when a child class defines a method with the same name as parent class?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Method overriding occurs",
-          "is_correct": true
-        },
-        {
-          "text": "Method deletion happens",
-          "is_correct": false
-        },
-        {
-          "text": "Compilation error always occurs",
-          "is_correct": false
-        },
-        {
-          "text": "Nothing happens",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Abstraction vs Encapsulation",
-      "content": "What is the key difference between abstraction and encapsulation?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Abstraction hides implementation, encapsulation hides data",
-          "is_correct": true
-        },
-        {
-          "text": "Both are same",
-          "is_correct": false
-        },
-        {
-          "text": "Encapsulation is inheritance",
-          "is_correct": false
-        },
-        {
-          "text": "Abstraction is loops",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Multiple Inheritance Complexity",
-      "content": "What is a potential issue in multiple inheritance?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Diamond problem",
-          "is_correct": true
-        },
-        {
-          "text": "Syntax error always",
-          "is_correct": false
-        },
-        {
-          "text": "No method execution",
-          "is_correct": false
-        },
-        {
-          "text": "No class creation",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Abstract Class Behavior",
-      "content": "What happens if an abstract method is not implemented in child class?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "TypeError is raised when object is created",
-          "is_correct": true
-        },
-        {
-          "text": "Program runs normally",
-          "is_correct": false
-        },
-        {
-          "text": "Method is ignored",
-          "is_correct": false
-        },
-        {
-          "text": "Returns None",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Runtime Polymorphism",
-      "content": "Which concept is associated with runtime method binding?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Polymorphism",
-          "is_correct": true
-        },
-        {
-          "text": "Encapsulation",
-          "is_correct": false
-        },
-        {
-          "text": "Abstraction",
-          "is_correct": false
-        },
-        {
-          "text": "Compilation",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Magic Method __str__",
-      "content": "What is the purpose of the __str__ method in Python?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To return a user-friendly string representation of an object",
-          "is_correct": true
-        },
-        {
-          "text": "To delete an object",
-          "is_correct": false
-        },
-        {
-          "text": "To compare two objects",
-          "is_correct": false
-        },
-        {
-          "text": "To create a class",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "__repr__ Purpose",
-      "content": "What does the __repr__ method return?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "An official string representation of an object",
-          "is_correct": true
-        },
-        {
-          "text": "A deleted object",
-          "is_correct": false
-        },
-        {
-          "text": "A loop output",
-          "is_correct": false
-        },
-        {
-          "text": "A file path",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Class Method Decorator",
-      "content": "Which decorator is used to define a class method in Python?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "@classmethod",
-          "is_correct": true
-        },
-        {
-          "text": "@staticmethod",
-          "is_correct": false
-        },
-        {
-          "text": "@function",
-          "is_correct": false
-        },
-        {
-          "text": "@objectmethod",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Static Method Behavior",
-      "content": "What is true about static methods?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "They do not access class or instance data",
-          "is_correct": true
-        },
-        {
-          "text": "They require self parameter",
-          "is_correct": false
-        },
-        {
-          "text": "They can only access instance variables",
-          "is_correct": false
-        },
-        {
-          "text": "They cannot be called",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Class Method Access",
-      "content": "What does a class method receive as its first parameter?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "cls (class reference)",
-          "is_correct": true
-        },
-        {
-          "text": "self (instance reference)",
-          "is_correct": false
-        },
-        {
-          "text": "function name",
-          "is_correct": false
-        },
-        {
-          "text": "module name",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Difference Between __str__ and __repr__",
-      "content": "What is the main difference between __str__ and __repr__?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "__str__ is user-friendly, __repr__ is for developers",
-          "is_correct": true
-        },
-        {
-          "text": "__repr__ is user-friendly, __str__ is for files",
-          "is_correct": false
-        },
-        {
-          "text": "Both are identical always",
-          "is_correct": false
-        },
-        {
-          "text": "__str__ is only for integers",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Static vs Class Method",
-      "content": "What is a key difference between static and class methods?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Class methods access class state, static methods do not",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods use self",
-          "is_correct": false
-        },
-        {
-          "text": "Class methods cannot be called",
-          "is_correct": false
-        },
-        {
-          "text": "Both are identical always",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Classes Basics",
-      "content": "Which of the following statements about classes in Python are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "A class is a blueprint for creating objects",
-          "is_correct": true
-        },
-        {
-          "text": "Classes are defined using the class keyword",
-          "is_correct": true
-        },
-        {
-          "text": "Classes cannot have methods",
-          "is_correct": false
-        },
-        {
-          "text": "Objects are instances of a class",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Object Basics",
-      "content": "Which of the following statements about objects in Python are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Objects are created from classes",
-          "is_correct": true
-        },
-        {
-          "text": "Objects can access class methods",
-          "is_correct": true
-        },
-        {
-          "text": "Objects are the same as classes",
-          "is_correct": false
-        },
-        {
-          "text": "Multiple objects can be created from one class",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Class Structure",
-      "content": "Which of the following are valid parts of a Python class?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Attributes (variables)",
-          "is_correct": true
-        },
-        {
-          "text": "Methods (functions)",
-          "is_correct": true
-        },
-        {
-          "text": "Only global variables",
-          "is_correct": false
-        },
-        {
-          "text": "Constructor (__init__ method)",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "__init__ Method",
-      "content": "Which of the following statements about the __init__ method are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "__init__ is a constructor method",
-          "is_correct": true
-        },
-        {
-          "text": "__init__ is called automatically when object is created",
-          "is_correct": true
-        },
-        {
-          "text": "__init__ is optional in all classes",
-          "is_correct": true
-        },
-        {
-          "text": "__init__ is used to delete objects",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Self Keyword",
-      "content": "Which of the following statements about self in Python classes are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "self refers to the current object",
-          "is_correct": true
-        },
-        {
-          "text": "self is used to access instance variables",
-          "is_correct": true
-        },
-        {
-          "text": "self is a reserved keyword in Python",
-          "is_correct": false
-        },
-        {
-          "text": "self must be the first parameter in instance methods",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Class Behavior",
-      "content": "Which of the following statements about advanced class behavior are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Each object has its own copy of instance variables",
-          "is_correct": true
-        },
-        {
-          "text": "Classes support multiple objects sharing same structure",
-          "is_correct": true
-        },
-        {
-          "text": "All objects share the same instance variables",
-          "is_correct": false
-        },
-        {
-          "text": "Methods belong to class definition",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Edge Cases in OOP",
-      "content": "Which of the following are correct regarding edge cases in classes and objects?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Creating object without __init__ is possible if no constructor is defined",
-          "is_correct": true
-        },
-        {
-          "text": "Multiple objects can have different attribute values",
-          "is_correct": true
-        },
-        {
-          "text": "Classes cannot be reused once defined",
-          "is_correct": false
-        },
-        {
-          "text": "Deleting an object frees memory automatically in Python",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "OOP Basics",
-      "content": "Which of the following are core concepts of Object-Oriented Programming?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Encapsulation",
-          "is_correct": true
-        },
-        {
-          "text": "Inheritance",
-          "is_correct": true
-        },
-        {
-          "text": "Polymorphism",
-          "is_correct": true
-        },
-        {
-          "text": "Compilation",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Abstraction Concept",
-      "content": "Which of the following statements about abstraction are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Abstraction hides implementation details",
-          "is_correct": true
-        },
-        {
-          "text": "Abstraction shows only essential features",
-          "is_correct": true
-        },
-        {
-          "text": "Abstraction is the same as inheritance",
-          "is_correct": false
-        },
-        {
-          "text": "Abstraction improves code simplicity",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Inheritance Basics",
-      "content": "Which of the following statements about inheritance are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Inheritance allows a class to reuse code from another class",
-          "is_correct": true
-        },
-        {
-          "text": "Child class inherits properties of parent class",
-          "is_correct": true
-        },
-        {
-          "text": "Inheritance means deleting parent class",
-          "is_correct": false
-        },
-        {
-          "text": "It helps in code reusability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Encapsulation Concept",
-      "content": "Which of the following statements about encapsulation are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Encapsulation bundles data and methods together",
-          "is_correct": true
-        },
-        {
-          "text": "Encapsulation helps in data hiding",
-          "is_correct": true
-        },
-        {
-          "text": "Encapsulation removes all access restrictions",
-          "is_correct": false
-        },
-        {
-          "text": "Encapsulation improves security of data",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Polymorphism Concept",
-      "content": "Which of the following statements about polymorphism are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Polymorphism means same interface, different behavior",
-          "is_correct": true
-        },
-        {
-          "text": "Method overriding is an example of polymorphism",
-          "is_correct": true
-        },
-        {
-          "text": "Polymorphism means only one function exists in program",
-          "is_correct": false
-        },
-        {
-          "text": "It allows flexibility in code",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced OOP Concepts",
-      "content": "Which of the following statements about advanced OOP concepts are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Polymorphism can be achieved via method overriding",
-          "is_correct": true
-        },
-        {
-          "text": "Abstraction is implemented using abstract classes",
-          "is_correct": true
-        },
-        {
-          "text": "Encapsulation removes all data protection",
-          "is_correct": false
-        },
-        {
-          "text": "Inheritance supports hierarchical relationships",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Edge Cases in OOP",
-      "content": "Which of the following are correct regarding edge cases in OOP concepts?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "A class can implement multiple concepts together",
-          "is_correct": true
-        },
-        {
-          "text": "Abstract classes cannot always be instantiated directly",
-          "is_correct": true
-        },
-        {
-          "text": "Inheritance removes the need for all classes",
-          "is_correct": false
-        },
-        {
-          "text": "Polymorphism works only in inheritance hierarchy",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Magic Methods Basics",
-      "content": "Which of the following are correct about magic methods in Python?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "__str__ is used to define user-friendly string representation",
-          "is_correct": true
-        },
-        {
-          "text": "__repr__ is used for official representation of object",
-          "is_correct": true
-        },
-        {
-          "text": "Magic methods are called explicitly only",
-          "is_correct": false
-        },
-        {
-          "text": "Magic methods start and end with double underscores",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Class Methods Basics",
-      "content": "Which of the following statements about class methods are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Class methods are defined using @classmethod decorator",
-          "is_correct": true
-        },
-        {
-          "text": "Class methods take cls as the first parameter",
-          "is_correct": true
-        },
-        {
-          "text": "Class methods use self as first parameter",
-          "is_correct": false
-        },
-        {
-          "text": "Class methods can access class variables",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Static Methods Basics",
-      "content": "Which of the following statements about static methods are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Static methods are defined using @staticmethod decorator",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods do not take self or cls as parameter",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods can access instance variables directly",
-          "is_correct": false
-        },
-        {
-          "text": "Static methods belong to the class but not to instances",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Class vs Static Methods",
-      "content": "Which of the following statements correctly differentiate class methods and static methods?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Class methods take cls as parameter",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods do not take cls or self",
-          "is_correct": true
-        },
-        {
-          "text": "Class methods cannot access class variables",
-          "is_correct": false
-        },
-        {
-          "text": "Both belong to the class and not instance",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Magic Methods Usage",
-      "content": "Which of the following statements about usage of __str__ and __repr__ are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "__str__ is used by print() function",
-          "is_correct": true
-        },
-        {
-          "text": "__repr__ is used for debugging",
-          "is_correct": true
-        },
-        {
-          "text": "__str__ is only for internal use",
-          "is_correct": false
-        },
-        {
-          "text": "__repr__ should ideally be unambiguous",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Method Behavior",
-      "content": "Which of the following statements about advanced OOP method behavior are correct?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Class methods can modify class state",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods cannot access class or instance state directly",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods are the same as instance methods",
-          "is_correct": false
-        },
-        {
-          "text": "Class methods are useful for factory methods",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Edge Cases in Advanced OOP",
-      "content": "Which of the following are correct regarding edge cases in advanced OOP concepts?",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "__repr__ is preferred in debugging logs",
-          "is_correct": true
-        },
-        {
-          "text": "Static methods can be called using class name",
-          "is_correct": true
-        },
-        {
-          "text": "Class methods cannot be inherited",
-          "is_correct": false
-        },
-        {
-          "text": "Magic methods are automatically invoked in specific situations",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Simple Class - Student",
-      "content": "Create a class Student with attributes name and age. Create an object and print the values.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "John 20",
-          "expected_output": "John 20"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "Alice 22",
-          "expected_output": "Alice 22"
-        }
-      ],
-      "examples": [
-        {
-          "input": "John 20",
-          "expected_output": "John 20",
-          "explanation": "Object stores and prints attributes."
-        }
-      ],
-      "inputFormat": "Name and age.",
-      "outputFormat": "Print name and age.",
-      "solutions": [
-        {
-          "title": "Basic Class",
-          "language": "python",
-          "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nname, age = input().split()\ns = Student(name, int(age))\nprint(s.name, s.age)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use __init__ method."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Class for Rectangle",
-      "content": "Create a class Rectangle with length and breadth and print its area.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "5 4",
-          "expected_output": "20"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "10 2",
-          "expected_output": "20"
-        }
-      ],
-      "examples": [
-        {
-          "input": "5 4",
-          "expected_output": "20",
-          "explanation": "Area = length * breadth"
-        }
-      ],
-      "inputFormat": "Two integers.",
-      "outputFormat": "Area of rectangle.",
-      "solutions": [
-        {
-          "title": "Rectangle Class",
-          "language": "python",
-          "code": "class Rectangle:\n    def __init__(self, l, b):\n        self.l = l\n        self.b = b\n\n    def area(self):\n        return self.l * self.b\n\nl, b = map(int, input().split())\nr = Rectangle(l, b)\nprint(r.area())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Multiply length and breadth."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Class for Car Details",
-      "content": "Create a class Car with attributes brand and price and print them.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "Toyota 500000",
-          "expected_output": "Toyota 500000"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "BMW 1000000",
-          "expected_output": "BMW 1000000"
-        }
-      ],
-      "examples": [
-        {
-          "input": "Toyota 500000",
-          "expected_output": "Toyota 500000",
-          "explanation": "Object initialization using __init__."
-        }
-      ],
-      "inputFormat": "Brand and price.",
-      "outputFormat": "Print details.",
-      "solutions": [
-        {
-          "title": "Car Class",
-          "language": "python",
-          "code": "class Car:\n    def __init__(self, brand, price):\n        self.brand = brand\n        self.price = price\n\nb, p = input().split()\nc = Car(b, int(p))\nprint(c.brand, c.price)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use constructor."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Class with Method - Circle Area",
-      "content": "Create a class Circle with radius and a method to calculate area.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "7",
-          "expected_output": "153.86"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "5",
-          "expected_output": "78.5"
-        }
-      ],
-      "examples": [
-        {
-          "input": "7",
-          "expected_output": "153.86",
-          "explanation": "Area = \u03c0r\u00b2"
-        }
-      ],
-      "inputFormat": "Radius.",
-      "outputFormat": "Area.",
-      "solutions": [
-        {
-          "title": "Circle Class",
-          "language": "python",
-          "code": "import math\nclass Circle:\n    def __init__(self, r):\n        self.r = r\n\n    def area(self):\n        return round(math.pi * self.r * self.r, 2)\n\nr = int(input())\nc = Circle(r)\nprint(c.area())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use math.pi"
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Class for Employee Salary",
-      "content": "Create a class Employee with salary and calculate bonus (10% of salary).",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "50000",
-          "expected_output": "5000"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "80000",
-          "expected_output": "8000"
-        }
-      ],
-      "examples": [
-        {
-          "input": "50000",
-          "expected_output": "5000",
-          "explanation": "10% bonus calculation."
-        }
-      ],
-      "inputFormat": "Salary.",
-      "outputFormat": "Bonus.",
-      "solutions": [
-        {
-          "title": "Employee Class",
-          "language": "python",
-          "code": "class Employee:\n    def __init__(self, salary):\n        self.salary = salary\n\n    def bonus(self):\n        return self.salary * 0.1\n\ns = int(input())\ne = Employee(s)\nprint(int(e.bonus()))",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "10% = salary * 0.1"
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Multiple Objects of a Class",
-      "content": "Create a class Product and create multiple objects, then print total price.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "2\nPen 10\nBook 20",
-          "expected_output": "30"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "3\nA 5\nB 10\nC 15",
-          "expected_output": "30"
-        }
-      ],
-      "examples": [
-        {
-          "input": "2\nPen 10\nBook 20",
-          "expected_output": "30",
-          "explanation": "Sum of multiple objects."
-        }
-      ],
-      "inputFormat": "N products with price.",
-      "outputFormat": "Total price.",
-      "solutions": [
-        {
-          "title": "Multiple Objects",
-          "language": "python",
-          "code": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\nn = int(input())\ntotal = 0\nfor _ in range(n):\n    name, price = input().split()\n    p = Product(name, int(price))\n    total += p.price\nprint(total)",
-          "complexity_analysis": "Time: O(N), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use loop for multiple objects."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Student Grade Class System",
-      "content": "Create a Student class with marks and determine grade using a method.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Classes & Objects",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "85",
-          "expected_output": "A"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "60",
-          "expected_output": "C"
-        }
-      ],
-      "examples": [
-        {
-          "input": "85",
-          "expected_output": "A",
-          "explanation": "Grade logic inside method."
-        }
-      ],
-      "inputFormat": "Marks.",
-      "outputFormat": "Grade.",
-      "solutions": [
-        {
-          "title": "Grade Class",
-          "language": "python",
-          "code": "class Student:\n    def __init__(self, marks):\n        self.marks = marks\n\n    def grade(self):\n        if self.marks >= 80:\n            return 'A'\n        elif self.marks >= 60:\n            return 'C'\n        else:\n            return 'F'\n\nm = int(input())\ns = Student(m)\nprint(s.grade())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use method for logic."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Encapsulation - Student Details",
-      "content": "Create a class Student with private variable __marks. Use methods to set and get marks.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "85",
-          "expected_output": "85"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "90",
-          "expected_output": "90"
-        }
-      ],
-      "examples": [
-        {
-          "input": "85",
-          "expected_output": "85",
-          "explanation": "Private variable accessed using method."
-        }
-      ],
-      "inputFormat": "Marks value.",
-      "outputFormat": "Returned marks.",
-      "solutions": [
-        {
-          "title": "Encapsulation Example",
-          "language": "python",
-          "code": "class Student:\n    def __init__(self):\n        self.__marks = 0\n\n    def set_marks(self, m):\n        self.__marks = m\n\n    def get_marks(self):\n        return self.__marks\n\nm = int(input())\ns = Student()\ns.set_marks(m)\nprint(s.get_marks())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use __ for private variables."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Inheritance - Animal Sound",
-      "content": "Create a base class Animal and a derived class Dog that inherits and prints sound.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Bark"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Bark"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Bark",
-          "explanation": "Child class inherits parent behavior."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Animal sound.",
-      "solutions": [
-        {
-          "title": "Inheritance Example",
-          "language": "python",
-          "code": "class Animal:\n    def sound(self):\n        return 'Animal Sound'\n\nclass Dog(Animal):\n    def sound(self):\n        return 'Bark'\n\nobj = Dog()\nprint(obj.sound())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use class inheritance."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Polymorphism - Function Overriding",
-      "content": "Demonstrate polymorphism by overriding a method in parent and child class.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Child Function"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Child Function"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Child Function",
-          "explanation": "Method overriding example."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Overridden method output.",
-      "solutions": [
-        {
-          "title": "Polymorphism Example",
-          "language": "python",
-          "code": "class Parent:\n    def show(self):\n        return 'Parent Function'\n\nclass Child(Parent):\n    def show(self):\n        return 'Child Function'\n\nobj = Child()\nprint(obj.show())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Override parent method."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Abstraction - Shape Area",
-      "content": "Create an abstract class Shape with method area() and implement it in child class Rectangle.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "5 4",
-          "expected_output": "20"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "10 2",
-          "expected_output": "20"
-        }
-      ],
-      "examples": [
-        {
-          "input": "5 4",
-          "expected_output": "20",
-          "explanation": "Abstract method implemented."
-        }
-      ],
-      "inputFormat": "Length and breadth.",
-      "outputFormat": "Area.",
-      "solutions": [
-        {
-          "title": "Abstraction Example",
-          "language": "python",
-          "code": "from abc import ABC, abstractmethod\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self):\n        pass\n\nclass Rectangle(Shape):\n    def __init__(self, l, b):\n        self.l = l\n        self.b = b\n\n    def area(self):\n        return self.l * self.b\n\nl, b = map(int, input().split())\nr = Rectangle(l, b)\nprint(r.area())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use ABC module."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Inheritance with Constructor",
-      "content": "Create a parent class Person and child class Employee using inheritance with constructors.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "John 30",
-          "expected_output": "John 30"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "Alice 25",
-          "expected_output": "Alice 25"
-        }
-      ],
-      "examples": [
-        {
-          "input": "John 30",
-          "expected_output": "John 30",
-          "explanation": "Child uses parent constructor."
-        }
-      ],
-      "inputFormat": "Name and age.",
-      "outputFormat": "Details.",
-      "solutions": [
-        {
-          "title": "Constructor Inheritance",
-          "language": "python",
-          "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Employee(Person):\n    def __init__(self, name, age):\n        super().__init__(name)\n        self.age = age\n\nname, age = input().split()\ne = Employee(name, age)\nprint(e.name, e.age)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use super()."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Polymorphism with Multiple Classes",
-      "content": "Create multiple classes with same method name and demonstrate polymorphism.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Car Bike"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Car Bike"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Car Bike",
-          "explanation": "Same method different behavior."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Outputs from multiple classes.",
-      "solutions": [
-        {
-          "title": "Polymorphism Multi-Class",
-          "language": "python",
-          "code": "class Car:\n    def move(self):\n        return 'Car'\n\nclass Bike:\n    def move(self):\n        return 'Bike'\n\nfor obj in [Car(), Bike()]:\n    print(obj.move(), end=' ')",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Same method name in different classes."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Full OOP System - Bank Account",
-      "content": "Create a bank system using encapsulation, inheritance, and methods for deposit and withdraw.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "OOP Concepts",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "1000 500",
-          "expected_output": "500"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "2000 1500",
-          "expected_output": "500"
-        }
-      ],
-      "examples": [
-        {
-          "input": "1000 500",
-          "expected_output": "500",
-          "explanation": "Deposit and withdraw logic."
-        }
-      ],
-      "inputFormat": "Balance and withdrawal.",
-      "outputFormat": "Remaining balance.",
-      "solutions": [
-        {
-          "title": "Bank OOP System",
-          "language": "python",
-          "code": "class Bank:\n    def __init__(self, balance):\n        self.__balance = balance\n\n    def withdraw(self, amt):\n        self.__balance -= amt\n        return self.__balance\n\nb, w = map(int, input().split())\nobj = Bank(b)\nprint(obj.withdraw(w))",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine encapsulation + methods."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Magic Method - __str__ Representation",
-      "content": "Create a class Student and implement the __str__ method to return student details in a readable format.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "John 20",
-          "expected_output": "Student: John, Age: 20"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "Alice 22",
-          "expected_output": "Student: Alice, Age: 22"
-        }
-      ],
-      "examples": [
-        {
-          "input": "John 20",
-          "expected_output": "Student: John, Age: 20",
-          "explanation": "__str__ controls readable object output."
-        }
-      ],
-      "inputFormat": "Name and age.",
-      "outputFormat": "Formatted string.",
-      "solutions": [
-        {
-          "title": "__str__ Method",
-          "language": "python",
-          "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    def __str__(self):\n        return f\"Student: {self.name}, Age: {self.age}\"\n\nname, age = input().split()\ns = Student(name, int(age))\nprint(s)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use __str__ for user-friendly output."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Magic Method - __repr__",
-      "content": "Create a class Car and implement __repr__ to return a debug-friendly representation.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "Toyota 500000",
-          "expected_output": "Car('Toyota', 500000)"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "BMW 1000000",
-          "expected_output": "Car('BMW', 1000000)"
-        }
-      ],
-      "examples": [
-        {
-          "input": "Toyota 500000",
-          "expected_output": "Car('Toyota', 500000)",
-          "explanation": "__repr__ shows object representation."
-        }
-      ],
-      "inputFormat": "Brand and price.",
-      "outputFormat": "Object representation.",
-      "solutions": [
-        {
-          "title": "__repr__ Method",
-          "language": "python",
-          "code": "class Car:\n    def __init__(self, brand, price):\n        self.brand = brand\n        self.price = price\n\n    def __repr__(self):\n        return f\"Car('{self.brand}', {self.price})\"\n\nb, p = input().split()\nc = Car(b, int(p))\nprint(c)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use __repr__ for debugging format."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Static Method Example",
-      "content": "Create a class MathUtils with a static method to add two numbers.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "3 5",
-          "expected_output": "8"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "10 20",
-          "expected_output": "30"
-        }
-      ],
-      "examples": [
-        {
-          "input": "3 5",
-          "expected_output": "8",
-          "explanation": "Static method does not use self."
-        }
-      ],
-      "inputFormat": "Two integers.",
-      "outputFormat": "Sum.",
-      "solutions": [
-        {
-          "title": "Static Method",
-          "language": "python",
-          "code": "class MathUtils:\n    @staticmethod\n    def add(a, b):\n        return a + b\n\nx, y = map(int, input().split())\nprint(MathUtils.add(x, y))",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use @staticmethod decorator."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Class Method Example",
-      "content": "Create a class Counter with a class method to track number of objects created.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "2",
-          "expected_output": "2"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "5",
-          "expected_output": "5"
-        }
-      ],
-      "examples": [
-        {
-          "input": "2",
-          "expected_output": "2",
-          "explanation": "Class method tracks shared data."
-        }
-      ],
-      "inputFormat": "Number of objects.",
-      "outputFormat": "Count.",
-      "solutions": [
-        {
-          "title": "Class Method",
-          "language": "python",
-          "code": "class Counter:\n    count = 0\n\n    def __init__(self):\n        Counter.count += 1\n\n    @classmethod\n    def get_count(cls):\n        return cls.count\n\nn = int(input())\nobjs = [Counter() for _ in range(n)]\nprint(Counter.get_count())",
-          "complexity_analysis": "Time: O(N), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use @classmethod and cls."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Static vs Class Method Difference",
-      "content": "Create a class showing difference between static method and class method.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Static Class"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Static Class"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Static Class",
-          "explanation": "Both method types used."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Method outputs.",
-      "solutions": [
-        {
-          "title": "Static vs Class",
-          "language": "python",
-          "code": "class Demo:\n    @staticmethod\n    def static():\n        return 'Static'\n\n    @classmethod\n    def cls_m(cls):\n        return 'Class'\n\nprint(Demo.static(), Demo.cls_m())",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use both decorators."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Custom Object Printing Using __str__ and __repr__",
-      "content": "Create a class Product that implements both __str__ and __repr__ methods differently.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "Phone 1000",
-          "expected_output": "Product: Phone"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "Laptop 50000",
-          "expected_output": "Product: Laptop"
-        }
-      ],
-      "examples": [
-        {
-          "input": "Phone 1000",
-          "expected_output": "Product: Phone",
-          "explanation": "__str__ vs __repr__ difference."
-        }
-      ],
-      "inputFormat": "Name and price.",
-      "outputFormat": "Formatted output.",
-      "solutions": [
-        {
-          "title": "Str vs Repr",
-          "language": "python",
-          "code": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\n    def __str__(self):\n        return f\"Product: {self.name}\"\n\n    def __repr__(self):\n        return f\"Product('{self.name}', {self.price})\"\n\nn, p = input().split()\nobj = Product(n, int(p))\nprint(obj)",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Differentiate __str__ and __repr__."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Bank System with Class Method",
-      "content": "Create a Bank class that tracks total accounts using class method and object creation.",
-      "level": "subtopic",
-      "topic_name": "Object-Oriented Programming",
-      "subtopic_name": "Advanced OOP",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "3",
-          "expected_output": "3 accounts created"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "5",
-          "expected_output": "5 accounts created"
-        }
-      ],
-      "examples": [
-        {
-          "input": "3",
-          "expected_output": "3 accounts created",
-          "explanation": "Class variable tracking objects."
-        }
-      ],
-      "inputFormat": "Number of accounts.",
-      "outputFormat": "Total accounts message.",
-      "solutions": [
-        {
-          "title": "Class Tracking",
-          "language": "python",
-          "code": "class Bank:\n    count = 0\n\n    def __init__(self):\n        Bank.count += 1\n\n    @classmethod\n    def total(cls):\n        return f\"{cls.count} accounts created\"\n\nn = int(input())\nobjs = [Bank() for _ in range(n)]\nprint(Bank.total())",
-          "complexity_analysis": "Time: O(N), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use class variables + classmethod."
-      ]
-    }
-  ]
+    "name": "Object-Oriented Programming",
+    "course_short_code": "PY101",
+    "order_index": 5,
+    "subtopics": [
+        {
+            "name": "Classes & Objects",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Classes & Objects",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Classes & Objects in Python."
+                },
+                {
+                    "title": "Advanced Classes & Objects Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Classes & Objects."
+                }
+            ]
+        },
+        {
+            "name": "OOP Concepts",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to OOP",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of OOP in Python."
+                },
+                {
+                    "title": "Advanced OOP Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for OOP."
+                }
+            ]
+        },
+        {
+            "name": "Advanced OOP",
+            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Introduction to Advanced OOP",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Advanced OOP in Python."
+                },
+                {
+                    "title": "Advanced Advanced OOP Techniques",
+                    "video_link": "https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+                    "ai_context": "In-depth explanation and practical examples for Advanced OOP."
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Creating a Class",
+            "content": "Which keyword is used to create a class in Python?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "class",
+                    "is_correct": true
+                },
+                {
+                    "text": "def",
+                    "is_correct": false
+                },
+                {
+                    "text": "object",
+                    "is_correct": false
+                },
+                {
+                    "text": "struct",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Object Creation",
+            "content": "What is created when you call a class like MyClass()?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Object (instance)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Function",
+                    "is_correct": false
+                },
+                {
+                    "text": "Module",
+                    "is_correct": false
+                },
+                {
+                    "text": "Variable only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Self Parameter",
+            "content": "What does 'self' refer to in a class method?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Current object instance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class name",
+                    "is_correct": false
+                },
+                {
+                    "text": "Module name",
+                    "is_correct": false
+                },
+                {
+                    "text": "Global variable",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Constructor Method",
+            "content": "What is the purpose of the __init__ method?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Initialize object attributes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Destroy object",
+                    "is_correct": false
+                },
+                {
+                    "text": "Call class name",
+                    "is_correct": false
+                },
+                {
+                    "text": "Import module",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Object Attributes",
+            "content": "What will be the output?\n\nclass A:\n    def __init__(self, x):\n        self.x = x\n\nobj = A(10)\nprint(obj.x)",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "10",
+                    "is_correct": true
+                },
+                {
+                    "text": "x",
+                    "is_correct": false
+                },
+                {
+                    "text": "None",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Missing self Issue",
+            "content": "What happens if 'self' is not used in instance methods?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "TypeError occurs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code runs normally",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only warning appears",
+                    "is_correct": false
+                },
+                {
+                    "text": "Returns None",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Objects",
+            "content": "What will be the output?\n\nclass A:\n    def __init__(self, x):\n        self.x = x\n\nobj1 = A(5)\nobj2 = A(10)\nprint(obj1.x + obj2.x)",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "15",
+                    "is_correct": true
+                },
+                {
+                    "text": "5",
+                    "is_correct": false
+                },
+                {
+                    "text": "10",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Encapsulation Concept",
+            "content": "What does encapsulation mean in OOP?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Wrapping data and methods into a single unit",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using only loops in a program",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting objects automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Running multiple programs together",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inheritance Concept",
+            "content": "What is inheritance in OOP?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "One class acquiring properties of another class",
+                    "is_correct": true
+                },
+                {
+                    "text": "Creating multiple variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting a class",
+                    "is_correct": false
+                },
+                {
+                    "text": "Running a function twice",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Polymorphism Meaning",
+            "content": "What does polymorphism allow in OOP?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Same function name behaving differently",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only one class in program",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting objects",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only loops",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Abstraction Concept",
+            "content": "What does abstraction mean in OOP?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Hiding internal implementation details",
+                    "is_correct": true
+                },
+                {
+                    "text": "Showing all internal code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting classes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only variables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Encapsulation Example",
+            "content": "Which is an example of encapsulation?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using private variables inside a class",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using only loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Writing multiple files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Printing output only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inheritance Types",
+            "content": "Which of the following is a type of inheritance?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Single inheritance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Loop inheritance",
+                    "is_correct": false
+                },
+                {
+                    "text": "File inheritance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Function inheritance",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Polymorphism Example",
+            "content": "Which concept allows method overriding in child classes?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Polymorphism",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Abstraction",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Abstraction Implementation",
+            "content": "Which is commonly used to achieve abstraction in Python?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Abstract classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Lists",
+                    "is_correct": false
+                },
+                {
+                    "text": "Loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "Variables",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Inheritance Usage",
+            "content": "Why is inheritance used in OOP?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To reuse code",
+                    "is_correct": true
+                },
+                {
+                    "text": "To slow down program",
+                    "is_correct": false
+                },
+                {
+                    "text": "To delete classes",
+                    "is_correct": false
+                },
+                {
+                    "text": "To avoid functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Polymorphism Real Use",
+            "content": "Which best represents polymorphism?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Same function name with different behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "One variable type",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only one class",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using only loops",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Method Overriding",
+            "content": "What happens when a child class defines a method with the same name as parent class?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Method overriding occurs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Method deletion happens",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compilation error always occurs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Nothing happens",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Abstraction vs Encapsulation",
+            "content": "What is the key difference between abstraction and encapsulation?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Abstraction hides implementation, encapsulation hides data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are same",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encapsulation is inheritance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Abstraction is loops",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Multiple Inheritance Complexity",
+            "content": "What is a potential issue in multiple inheritance?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Diamond problem",
+                    "is_correct": true
+                },
+                {
+                    "text": "Syntax error always",
+                    "is_correct": false
+                },
+                {
+                    "text": "No method execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "No class creation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Abstract Class Behavior",
+            "content": "What happens if an abstract method is not implemented in child class?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "TypeError is raised when object is created",
+                    "is_correct": true
+                },
+                {
+                    "text": "Program runs normally",
+                    "is_correct": false
+                },
+                {
+                    "text": "Method is ignored",
+                    "is_correct": false
+                },
+                {
+                    "text": "Returns None",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Runtime Polymorphism",
+            "content": "Which concept is associated with runtime method binding?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Polymorphism",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Abstraction",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Magic Method __str__",
+            "content": "What is the purpose of the __str__ method in Python?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To return a user-friendly string representation of an object",
+                    "is_correct": true
+                },
+                {
+                    "text": "To delete an object",
+                    "is_correct": false
+                },
+                {
+                    "text": "To compare two objects",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create a class",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "__repr__ Purpose",
+            "content": "What does the __repr__ method return?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "An official string representation of an object",
+                    "is_correct": true
+                },
+                {
+                    "text": "A deleted object",
+                    "is_correct": false
+                },
+                {
+                    "text": "A loop output",
+                    "is_correct": false
+                },
+                {
+                    "text": "A file path",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Method Decorator",
+            "content": "Which decorator is used to define a class method in Python?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "@classmethod",
+                    "is_correct": true
+                },
+                {
+                    "text": "@staticmethod",
+                    "is_correct": false
+                },
+                {
+                    "text": "@function",
+                    "is_correct": false
+                },
+                {
+                    "text": "@objectmethod",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Static Method Behavior",
+            "content": "What is true about static methods?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They do not access class or instance data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They require self parameter",
+                    "is_correct": false
+                },
+                {
+                    "text": "They can only access instance variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "They cannot be called",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Method Access",
+            "content": "What does a class method receive as its first parameter?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "cls (class reference)",
+                    "is_correct": true
+                },
+                {
+                    "text": "self (instance reference)",
+                    "is_correct": false
+                },
+                {
+                    "text": "function name",
+                    "is_correct": false
+                },
+                {
+                    "text": "module name",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Difference Between __str__ and __repr__",
+            "content": "What is the main difference between __str__ and __repr__?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "__str__ is user-friendly, __repr__ is for developers",
+                    "is_correct": true
+                },
+                {
+                    "text": "__repr__ is user-friendly, __str__ is for files",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are identical always",
+                    "is_correct": false
+                },
+                {
+                    "text": "__str__ is only for integers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Static vs Class Method",
+            "content": "What is a key difference between static and class methods?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class methods access class state, static methods do not",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods use self",
+                    "is_correct": false
+                },
+                {
+                    "text": "Class methods cannot be called",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both are identical always",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Classes Basics",
+            "content": "Which of the following statements about classes in Python are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A class is a blueprint for creating objects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Classes are defined using the class keyword",
+                    "is_correct": true
+                },
+                {
+                    "text": "Classes cannot have methods",
+                    "is_correct": false
+                },
+                {
+                    "text": "Objects are instances of a class",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Object Basics",
+            "content": "Which of the following statements about objects in Python are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Objects are created from classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Objects can access class methods",
+                    "is_correct": true
+                },
+                {
+                    "text": "Objects are the same as classes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Multiple objects can be created from one class",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class Structure",
+            "content": "Which of the following are valid parts of a Python class?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Attributes (variables)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Methods (functions)",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only global variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Constructor (__init__ method)",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "__init__ Method",
+            "content": "Which of the following statements about the __init__ method are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "__init__ is a constructor method",
+                    "is_correct": true
+                },
+                {
+                    "text": "__init__ is called automatically when object is created",
+                    "is_correct": true
+                },
+                {
+                    "text": "__init__ is optional in all classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "__init__ is used to delete objects",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Self Keyword",
+            "content": "Which of the following statements about self in Python classes are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "self refers to the current object",
+                    "is_correct": true
+                },
+                {
+                    "text": "self is used to access instance variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "self is a reserved keyword in Python",
+                    "is_correct": false
+                },
+                {
+                    "text": "self must be the first parameter in instance methods",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Class Behavior",
+            "content": "Which of the following statements about advanced class behavior are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Each object has its own copy of instance variables",
+                    "is_correct": true
+                },
+                {
+                    "text": "Classes support multiple objects sharing same structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "All objects share the same instance variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Methods belong to class definition",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases in OOP",
+            "content": "Which of the following are correct regarding edge cases in classes and objects?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Creating object without __init__ is possible if no constructor is defined",
+                    "is_correct": true
+                },
+                {
+                    "text": "Multiple objects can have different attribute values",
+                    "is_correct": true
+                },
+                {
+                    "text": "Classes cannot be reused once defined",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deleting an object frees memory automatically in Python",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "OOP Basics",
+            "content": "Which of the following are core concepts of Object-Oriented Programming?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Encapsulation",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inheritance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Polymorphism",
+                    "is_correct": true
+                },
+                {
+                    "text": "Compilation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Abstraction Concept",
+            "content": "Which of the following statements about abstraction are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Abstraction hides implementation details",
+                    "is_correct": true
+                },
+                {
+                    "text": "Abstraction shows only essential features",
+                    "is_correct": true
+                },
+                {
+                    "text": "Abstraction is the same as inheritance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Abstraction improves code simplicity",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Inheritance Basics",
+            "content": "Which of the following statements about inheritance are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Inheritance allows a class to reuse code from another class",
+                    "is_correct": true
+                },
+                {
+                    "text": "Child class inherits properties of parent class",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inheritance means deleting parent class",
+                    "is_correct": false
+                },
+                {
+                    "text": "It helps in code reusability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Encapsulation Concept",
+            "content": "Which of the following statements about encapsulation are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Encapsulation bundles data and methods together",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation helps in data hiding",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation removes all access restrictions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Encapsulation improves security of data",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Polymorphism Concept",
+            "content": "Which of the following statements about polymorphism are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Polymorphism means same interface, different behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Method overriding is an example of polymorphism",
+                    "is_correct": true
+                },
+                {
+                    "text": "Polymorphism means only one function exists in program",
+                    "is_correct": false
+                },
+                {
+                    "text": "It allows flexibility in code",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced OOP Concepts",
+            "content": "Which of the following statements about advanced OOP concepts are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Polymorphism can be achieved via method overriding",
+                    "is_correct": true
+                },
+                {
+                    "text": "Abstraction is implemented using abstract classes",
+                    "is_correct": true
+                },
+                {
+                    "text": "Encapsulation removes all data protection",
+                    "is_correct": false
+                },
+                {
+                    "text": "Inheritance supports hierarchical relationships",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases in OOP",
+            "content": "Which of the following are correct regarding edge cases in OOP concepts?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A class can implement multiple concepts together",
+                    "is_correct": true
+                },
+                {
+                    "text": "Abstract classes cannot always be instantiated directly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Inheritance removes the need for all classes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Polymorphism works only in inheritance hierarchy",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Magic Methods Basics",
+            "content": "Which of the following are correct about magic methods in Python?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "__str__ is used to define user-friendly string representation",
+                    "is_correct": true
+                },
+                {
+                    "text": "__repr__ is used for official representation of object",
+                    "is_correct": true
+                },
+                {
+                    "text": "Magic methods are called explicitly only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Magic methods start and end with double underscores",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class Methods Basics",
+            "content": "Which of the following statements about class methods are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class methods are defined using @classmethod decorator",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class methods take cls as the first parameter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class methods use self as first parameter",
+                    "is_correct": false
+                },
+                {
+                    "text": "Class methods can access class variables",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Static Methods Basics",
+            "content": "Which of the following statements about static methods are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Static methods are defined using @staticmethod decorator",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods do not take self or cls as parameter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods can access instance variables directly",
+                    "is_correct": false
+                },
+                {
+                    "text": "Static methods belong to the class but not to instances",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class vs Static Methods",
+            "content": "Which of the following statements correctly differentiate class methods and static methods?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class methods take cls as parameter",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods do not take cls or self",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class methods cannot access class variables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both belong to the class and not instance",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Magic Methods Usage",
+            "content": "Which of the following statements about usage of __str__ and __repr__ are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "__str__ is used by print() function",
+                    "is_correct": true
+                },
+                {
+                    "text": "__repr__ is used for debugging",
+                    "is_correct": true
+                },
+                {
+                    "text": "__str__ is only for internal use",
+                    "is_correct": false
+                },
+                {
+                    "text": "__repr__ should ideally be unambiguous",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Method Behavior",
+            "content": "Which of the following statements about advanced OOP method behavior are correct?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Class methods can modify class state",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods cannot access class or instance state directly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods are the same as instance methods",
+                    "is_correct": false
+                },
+                {
+                    "text": "Class methods are useful for factory methods",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Edge Cases in Advanced OOP",
+            "content": "Which of the following are correct regarding edge cases in advanced OOP concepts?",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "__repr__ is preferred in debugging logs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Static methods can be called using class name",
+                    "is_correct": true
+                },
+                {
+                    "text": "Class methods cannot be inherited",
+                    "is_correct": false
+                },
+                {
+                    "text": "Magic methods are automatically invoked in specific situations",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Create a Simple Class - Student",
+            "content": "Create a class Student with attributes name and age. Create an object and print the values.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "John 20",
+                    "expected_output": "John 20"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "Alice 22",
+                    "expected_output": "Alice 22"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "John 20",
+                    "expected_output": "John 20",
+                    "explanation": "Object stores and prints attributes."
+                }
+            ],
+            "inputFormat": "Name and age.",
+            "outputFormat": "Print name and age.",
+            "solutions": [
+                {
+                    "title": "Basic Class",
+                    "language": "python",
+                    "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nname, age = input().split()\ns = Student(name, int(age))\nprint(s.name, s.age)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use __init__ method."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Class for Rectangle",
+            "content": "Create a class Rectangle with length and breadth and print its area.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5 4",
+                    "expected_output": "20"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10 2",
+                    "expected_output": "20"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5 4",
+                    "expected_output": "20",
+                    "explanation": "Area = length * breadth"
+                }
+            ],
+            "inputFormat": "Two integers.",
+            "outputFormat": "Area of rectangle.",
+            "solutions": [
+                {
+                    "title": "Rectangle Class",
+                    "language": "python",
+                    "code": "class Rectangle:\n    def __init__(self, l, b):\n        self.l = l\n        self.b = b\n\n    def area(self):\n        return self.l * self.b\n\nl, b = map(int, input().split())\nr = Rectangle(l, b)\nprint(r.area())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Multiply length and breadth."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Class for Car Details",
+            "content": "Create a class Car with attributes brand and price and print them.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "Toyota 500000",
+                    "expected_output": "Toyota 500000"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "BMW 1000000",
+                    "expected_output": "BMW 1000000"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "Toyota 500000",
+                    "expected_output": "Toyota 500000",
+                    "explanation": "Object initialization using __init__."
+                }
+            ],
+            "inputFormat": "Brand and price.",
+            "outputFormat": "Print details.",
+            "solutions": [
+                {
+                    "title": "Car Class",
+                    "language": "python",
+                    "code": "class Car:\n    def __init__(self, brand, price):\n        self.brand = brand\n        self.price = price\n\nb, p = input().split()\nc = Car(b, int(p))\nprint(c.brand, c.price)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use constructor."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Class with Method - Circle Area",
+            "content": "Create a class Circle with radius and a method to calculate area.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "7",
+                    "expected_output": "153.86"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "78.5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "7",
+                    "expected_output": "153.86",
+                    "explanation": "Area = \u03c0r\u00b2"
+                }
+            ],
+            "inputFormat": "Radius.",
+            "outputFormat": "Area.",
+            "solutions": [
+                {
+                    "title": "Circle Class",
+                    "language": "python",
+                    "code": "import math\nclass Circle:\n    def __init__(self, r):\n        self.r = r\n\n    def area(self):\n        return round(math.pi * self.r * self.r, 2)\n\nr = int(input())\nc = Circle(r)\nprint(c.area())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use math.pi"
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Class for Employee Salary",
+            "content": "Create a class Employee with salary and calculate bonus (10% of salary).",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "50000",
+                    "expected_output": "5000"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "80000",
+                    "expected_output": "8000"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "50000",
+                    "expected_output": "5000",
+                    "explanation": "10% bonus calculation."
+                }
+            ],
+            "inputFormat": "Salary.",
+            "outputFormat": "Bonus.",
+            "solutions": [
+                {
+                    "title": "Employee Class",
+                    "language": "python",
+                    "code": "class Employee:\n    def __init__(self, salary):\n        self.salary = salary\n\n    def bonus(self):\n        return self.salary * 0.1\n\ns = int(input())\ne = Employee(s)\nprint(int(e.bonus()))",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "10% = salary * 0.1"
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Multiple Objects of a Class",
+            "content": "Create a class Product and create multiple objects, then print total price.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2\nPen 10\nBook 20",
+                    "expected_output": "30"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "3\nA 5\nB 10\nC 15",
+                    "expected_output": "30"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "2\nPen 10\nBook 20",
+                    "expected_output": "30",
+                    "explanation": "Sum of multiple objects."
+                }
+            ],
+            "inputFormat": "N products with price.",
+            "outputFormat": "Total price.",
+            "solutions": [
+                {
+                    "title": "Multiple Objects",
+                    "language": "python",
+                    "code": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\nn = int(input())\ntotal = 0\nfor _ in range(n):\n    name, price = input().split()\n    p = Product(name, int(price))\n    total += p.price\nprint(total)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use loop for multiple objects."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Student Grade Class System",
+            "content": "Create a Student class with marks and determine grade using a method.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Classes & Objects",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "85",
+                    "expected_output": "A"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "60",
+                    "expected_output": "C"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "85",
+                    "expected_output": "A",
+                    "explanation": "Grade logic inside method."
+                }
+            ],
+            "inputFormat": "Marks.",
+            "outputFormat": "Grade.",
+            "solutions": [
+                {
+                    "title": "Grade Class",
+                    "language": "python",
+                    "code": "class Student:\n    def __init__(self, marks):\n        self.marks = marks\n\n    def grade(self):\n        if self.marks >= 80:\n            return 'A'\n        elif self.marks >= 60:\n            return 'C'\n        else:\n            return 'F'\n\nm = int(input())\ns = Student(m)\nprint(s.grade())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use method for logic."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Encapsulation - Student Details",
+            "content": "Create a class Student with private variable __marks. Use methods to set and get marks.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "85",
+                    "expected_output": "85"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "90",
+                    "expected_output": "90"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "85",
+                    "expected_output": "85",
+                    "explanation": "Private variable accessed using method."
+                }
+            ],
+            "inputFormat": "Marks value.",
+            "outputFormat": "Returned marks.",
+            "solutions": [
+                {
+                    "title": "Encapsulation Example",
+                    "language": "python",
+                    "code": "class Student:\n    def __init__(self):\n        self.__marks = 0\n\n    def set_marks(self, m):\n        self.__marks = m\n\n    def get_marks(self):\n        return self.__marks\n\nm = int(input())\ns = Student()\ns.set_marks(m)\nprint(s.get_marks())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use __ for private variables."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Inheritance - Animal Sound",
+            "content": "Create a base class Animal and a derived class Dog that inherits and prints sound.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Bark"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Bark"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Bark",
+                    "explanation": "Child class inherits parent behavior."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Animal sound.",
+            "solutions": [
+                {
+                    "title": "Inheritance Example",
+                    "language": "python",
+                    "code": "class Animal:\n    def sound(self):\n        return 'Animal Sound'\n\nclass Dog(Animal):\n    def sound(self):\n        return 'Bark'\n\nobj = Dog()\nprint(obj.sound())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use class inheritance."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Polymorphism - Function Overriding",
+            "content": "Demonstrate polymorphism by overriding a method in parent and child class.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Child Function"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Child Function"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Child Function",
+                    "explanation": "Method overriding example."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Overridden method output.",
+            "solutions": [
+                {
+                    "title": "Polymorphism Example",
+                    "language": "python",
+                    "code": "class Parent:\n    def show(self):\n        return 'Parent Function'\n\nclass Child(Parent):\n    def show(self):\n        return 'Child Function'\n\nobj = Child()\nprint(obj.show())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Override parent method."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Abstraction - Shape Area",
+            "content": "Create an abstract class Shape with method area() and implement it in child class Rectangle.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "5 4",
+                    "expected_output": "20"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10 2",
+                    "expected_output": "20"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "5 4",
+                    "expected_output": "20",
+                    "explanation": "Abstract method implemented."
+                }
+            ],
+            "inputFormat": "Length and breadth.",
+            "outputFormat": "Area.",
+            "solutions": [
+                {
+                    "title": "Abstraction Example",
+                    "language": "python",
+                    "code": "from abc import ABC, abstractmethod\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self):\n        pass\n\nclass Rectangle(Shape):\n    def __init__(self, l, b):\n        self.l = l\n        self.b = b\n\n    def area(self):\n        return self.l * self.b\n\nl, b = map(int, input().split())\nr = Rectangle(l, b)\nprint(r.area())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use ABC module."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Inheritance with Constructor",
+            "content": "Create a parent class Person and child class Employee using inheritance with constructors.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "John 30",
+                    "expected_output": "John 30"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "Alice 25",
+                    "expected_output": "Alice 25"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "John 30",
+                    "expected_output": "John 30",
+                    "explanation": "Child uses parent constructor."
+                }
+            ],
+            "inputFormat": "Name and age.",
+            "outputFormat": "Details.",
+            "solutions": [
+                {
+                    "title": "Constructor Inheritance",
+                    "language": "python",
+                    "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Employee(Person):\n    def __init__(self, name, age):\n        super().__init__(name)\n        self.age = age\n\nname, age = input().split()\ne = Employee(name, age)\nprint(e.name, e.age)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use super()."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Polymorphism with Multiple Classes",
+            "content": "Create multiple classes with same method name and demonstrate polymorphism.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Car Bike"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Car Bike"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Car Bike",
+                    "explanation": "Same method different behavior."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Outputs from multiple classes.",
+            "solutions": [
+                {
+                    "title": "Polymorphism Multi-Class",
+                    "language": "python",
+                    "code": "class Car:\n    def move(self):\n        return 'Car'\n\nclass Bike:\n    def move(self):\n        return 'Bike'\n\nfor obj in [Car(), Bike()]:\n    print(obj.move(), end=' ')",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Same method name in different classes."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Full OOP System - Bank Account",
+            "content": "Create a bank system using encapsulation, inheritance, and methods for deposit and withdraw.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "OOP Concepts",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "500"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "2000 1500",
+                    "expected_output": "500"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "1000 500",
+                    "expected_output": "500",
+                    "explanation": "Deposit and withdraw logic."
+                }
+            ],
+            "inputFormat": "Balance and withdrawal.",
+            "outputFormat": "Remaining balance.",
+            "solutions": [
+                {
+                    "title": "Bank OOP System",
+                    "language": "python",
+                    "code": "class Bank:\n    def __init__(self, balance):\n        self.__balance = balance\n\n    def withdraw(self, amt):\n        self.__balance -= amt\n        return self.__balance\n\nb, w = map(int, input().split())\nobj = Bank(b)\nprint(obj.withdraw(w))",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine encapsulation + methods."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Magic Method - __str__ Representation",
+            "content": "Create a class Student and implement the __str__ method to return student details in a readable format.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "John 20",
+                    "expected_output": "Student: John, Age: 20"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "Alice 22",
+                    "expected_output": "Student: Alice, Age: 22"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "John 20",
+                    "expected_output": "Student: John, Age: 20",
+                    "explanation": "__str__ controls readable object output."
+                }
+            ],
+            "inputFormat": "Name and age.",
+            "outputFormat": "Formatted string.",
+            "solutions": [
+                {
+                    "title": "__str__ Method",
+                    "language": "python",
+                    "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    def __str__(self):\n        return f\"Student: {self.name}, Age: {self.age}\"\n\nname, age = input().split()\ns = Student(name, int(age))\nprint(s)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use __str__ for user-friendly output."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Magic Method - __repr__",
+            "content": "Create a class Car and implement __repr__ to return a debug-friendly representation.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "Toyota 500000",
+                    "expected_output": "Car('Toyota', 500000)"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "BMW 1000000",
+                    "expected_output": "Car('BMW', 1000000)"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "Toyota 500000",
+                    "expected_output": "Car('Toyota', 500000)",
+                    "explanation": "__repr__ shows object representation."
+                }
+            ],
+            "inputFormat": "Brand and price.",
+            "outputFormat": "Object representation.",
+            "solutions": [
+                {
+                    "title": "__repr__ Method",
+                    "language": "python",
+                    "code": "class Car:\n    def __init__(self, brand, price):\n        self.brand = brand\n        self.price = price\n\n    def __repr__(self):\n        return f\"Car('{self.brand}', {self.price})\"\n\nb, p = input().split()\nc = Car(b, int(p))\nprint(c)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use __repr__ for debugging format."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Static Method Example",
+            "content": "Create a class MathUtils with a static method to add two numbers.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3 5",
+                    "expected_output": "8"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10 20",
+                    "expected_output": "30"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3 5",
+                    "expected_output": "8",
+                    "explanation": "Static method does not use self."
+                }
+            ],
+            "inputFormat": "Two integers.",
+            "outputFormat": "Sum.",
+            "solutions": [
+                {
+                    "title": "Static Method",
+                    "language": "python",
+                    "code": "class MathUtils:\n    @staticmethod\n    def add(a, b):\n        return a + b\n\nx, y = map(int, input().split())\nprint(MathUtils.add(x, y))",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use @staticmethod decorator."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Class Method Example",
+            "content": "Create a class Counter with a class method to track number of objects created.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2",
+                    "expected_output": "2"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "2",
+                    "expected_output": "2",
+                    "explanation": "Class method tracks shared data."
+                }
+            ],
+            "inputFormat": "Number of objects.",
+            "outputFormat": "Count.",
+            "solutions": [
+                {
+                    "title": "Class Method",
+                    "language": "python",
+                    "code": "class Counter:\n    count = 0\n\n    def __init__(self):\n        Counter.count += 1\n\n    @classmethod\n    def get_count(cls):\n        return cls.count\n\nn = int(input())\nobjs = [Counter() for _ in range(n)]\nprint(Counter.get_count())",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use @classmethod and cls."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Static vs Class Method Difference",
+            "content": "Create a class showing difference between static method and class method.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Static Class"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Static Class"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Static Class",
+                    "explanation": "Both method types used."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Method outputs.",
+            "solutions": [
+                {
+                    "title": "Static vs Class",
+                    "language": "python",
+                    "code": "class Demo:\n    @staticmethod\n    def static():\n        return 'Static'\n\n    @classmethod\n    def cls_m(cls):\n        return 'Class'\n\nprint(Demo.static(), Demo.cls_m())",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use both decorators."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Custom Object Printing Using __str__ and __repr__",
+            "content": "Create a class Product that implements both __str__ and __repr__ methods differently.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "Phone 1000",
+                    "expected_output": "Product: Phone"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "Laptop 50000",
+                    "expected_output": "Product: Laptop"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "Phone 1000",
+                    "expected_output": "Product: Phone",
+                    "explanation": "__str__ vs __repr__ difference."
+                }
+            ],
+            "inputFormat": "Name and price.",
+            "outputFormat": "Formatted output.",
+            "solutions": [
+                {
+                    "title": "Str vs Repr",
+                    "language": "python",
+                    "code": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\n    def __str__(self):\n        return f\"Product: {self.name}\"\n\n    def __repr__(self):\n        return f\"Product('{self.name}', {self.price})\"\n\nn, p = input().split()\nobj = Product(n, int(p))\nprint(obj)",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Differentiate __str__ and __repr__."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Bank System with Class Method",
+            "content": "Create a Bank class that tracks total accounts using class method and object creation.",
+            "level": "subtopic",
+            "topic_name": "Object-Oriented Programming",
+            "subtopic_name": "Advanced OOP",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "3",
+                    "expected_output": "3 accounts created"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "5",
+                    "expected_output": "5 accounts created"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "3 accounts created",
+                    "explanation": "Class variable tracking objects."
+                }
+            ],
+            "inputFormat": "Number of accounts.",
+            "outputFormat": "Total accounts message.",
+            "solutions": [
+                {
+                    "title": "Class Tracking",
+                    "language": "python",
+                    "code": "class Bank:\n    count = 0\n\n    def __init__(self):\n        Bank.count += 1\n\n    @classmethod\n    def total(cls):\n        return f\"{cls.count} accounts created\"\n\nn = int(input())\nobjs = [Bank() for _ in range(n)]\nprint(Bank.total())",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use class variables + classmethod."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        }
+    ]
 }

@@ -395,8 +395,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         toast.success(`Passed ${passed} of ${total} tests`);
       } else if (res.status === 'timeout') {
         toast.error('Execution Timed Out');
-      } else if (res.status === 'failed' && (res as any).performance_warnings?.length > 0) {
-        toast.warning('Executed: Output correct but performance limits exceeded');
+      } else if (res.status === 'failed' && res.reason) {
+        toast.error(`Execution Failed: ${res.reason}`);
       } else {
         toast.error('Code execution failed');
       }
@@ -492,10 +492,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
       if (res.status === 'timeout') {
           toast.error('Submission Failed: Execution Timed Out');
-      } else if (res.status === 'failed' && !hasResourceWarning && res.reason) {
+      } else if (res.status === 'failed' && res.reason) {
           toast.error(`Submission Failed: ${res.reason}`);
-      } else if (res.status === 'failed' && hasResourceWarning) {
-          toast.warning(`Submitted: Output correct but performance limits exceeded`);
       } else if (passed === total && total > 0) {
         toast.success(`Solution submitted: All ${total} test cases passed (100%)`);
       } else if (total > 0) {

@@ -3808,19 +3808,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "try → catch → finally",
+                    "text": "try \u2192 catch \u2192 finally",
                     "is_correct": true
                 },
                 {
-                    "text": "try → finally → catch",
+                    "text": "try \u2192 finally \u2192 catch",
                     "is_correct": false
                 },
                 {
-                    "text": "try → catch",
+                    "text": "try \u2192 catch",
                     "is_correct": true
                 },
                 {
-                    "text": "catch → try → finally",
+                    "text": "catch \u2192 try \u2192 finally",
                     "is_correct": false
                 }
             ]
@@ -5949,7 +5949,11 @@
                     "expected_output": "4",
                     "explanation": "For input 'java', the expected output is '4'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6026,7 +6030,11 @@
                     "expected_output": "JAVA",
                     "explanation": "For input 'java', the expected output is 'JAVA'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6104,7 +6112,11 @@
                     "expected_output": "2",
                     "explanation": "For input 'java', the expected output is '2'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6182,7 +6194,11 @@
                     "expected_output": "false",
                     "explanation": "For input 'java', the expected output is 'false'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6260,7 +6276,11 @@
                     "expected_output": "helo",
                     "explanation": "For input 'hello', the expected output is 'helo'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6338,12 +6358,16 @@
                     "expected_output": "l",
                     "explanation": "For input 'hello', the expected output is 'l'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "String Compression",
-            "content": "Compress a string using character counts (aabcc → a2b1c2).",
+            "content": "Compress a string using character counts (aabcc \u2192 a2b1c2).",
             "level": "subtopic",
             "topic_name": "Strings, Exception Handling & File Handling",
             "subtopic_name": "String Class",
@@ -6416,7 +6440,11 @@
                     "expected_output": "a3",
                     "explanation": "For input 'aaa', the expected output is 'a3'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6494,7 +6522,11 @@
                     "expected_output": "bb",
                     "explanation": "For input 'cbbd', the expected output is 'bb'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6572,7 +6604,11 @@
                     "expected_output": "[[abc, bca, cab],[dog, god]]",
                     "explanation": "For input 'abc bca cab dog god', the expected output is '[[abc, bca, cab],[dog, god]]'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6650,7 +6686,11 @@
                     "expected_output": "",
                     "explanation": "For input 'dog race car', the expected output is ''."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6728,7 +6768,11 @@
                     "expected_output": "javacode",
                     "explanation": "For input 'java code', the expected output is 'javacode'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6805,7 +6849,11 @@
                     "expected_output": "avaj",
                     "explanation": "For input 'java', the expected output is 'avaj'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6882,7 +6930,11 @@
                     "expected_output": "japrova",
                     "explanation": "For input 'java 1 pro', the expected output is 'japrova'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6959,7 +7011,11 @@
                     "expected_output": "capacity:16 length:4",
                     "explanation": "For input 'java', the expected output is 'capacity:16 length:4'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7037,7 +7093,11 @@
                     "expected_output": "java java",
                     "explanation": "For input 'java', the expected output is 'java java'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7114,7 +7174,11 @@
                     "expected_output": "va",
                     "explanation": "For input 'java 0 2', the expected output is 'va'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7191,7 +7255,11 @@
                     "expected_output": "jxya",
                     "explanation": "For input 'java 1 3 xy', the expected output is 'jxya'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7268,7 +7336,11 @@
                     "expected_output": "consistent_output",
                     "explanation": "For input '2', the expected output is 'consistent_output'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7346,12 +7418,16 @@
                     "expected_output": "builder_faster_or_equal",
                     "explanation": "For input '500', the expected output is 'builder_faster_or_equal'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "Complex String Transformation Pipeline",
-            "content": "Perform multiple operations: reverse → insert → replace using StringBuilder.",
+            "content": "Perform multiple operations: reverse \u2192 insert \u2192 replace using StringBuilder.",
             "level": "subtopic",
             "topic_name": "Strings, Exception Handling & File Handling",
             "subtopic_name": "StringBuilder & StringBuffer",
@@ -7424,7 +7500,11 @@
                     "expected_output": "ollZeh",
                     "explanation": "For input 'hello 2 Z', the expected output is 'ollZeh'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7501,7 +7581,11 @@
                     "expected_output": "4",
                     "explanation": "For input '20 5', the expected output is '4'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7578,7 +7662,11 @@
                     "expected_output": "4",
                     "explanation": "For input 'java', the expected output is '4'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7655,7 +7743,11 @@
                     "expected_output": "3",
                     "explanation": "For input '5 2', the expected output is '3'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7732,7 +7824,11 @@
                     "expected_output": "2",
                     "explanation": "For input '8 4', the expected output is '2'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7809,7 +7905,11 @@
                     "expected_output": "Valid Age",
                     "explanation": "For input '25', the expected output is 'Valid Age'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7886,7 +7986,11 @@
                     "expected_output": "Valid Input",
                     "explanation": "For input '10', the expected output is 'Valid Input'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7963,7 +8067,11 @@
                     "expected_output": "2 finally executed",
                     "explanation": "For input '8 4', the expected output is '2 finally executed'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8040,7 +8148,11 @@
                     "expected_output": "Withdraw Success",
                     "explanation": "For input '2000 1000', the expected output is 'Withdraw Success'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8117,7 +8229,11 @@
                     "expected_output": "Arithmetic OK",
                     "explanation": "For input '5 1', the expected output is 'Arithmetic OK'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8195,7 +8311,11 @@
                     "expected_output": "Invalid User",
                     "explanation": "For input 'user 1234', the expected output is 'Invalid User'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8272,7 +8392,11 @@
                     "expected_output": "Valid Number",
                     "explanation": "For input '5', the expected output is 'Valid Number'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8349,7 +8473,11 @@
                     "expected_output": "Even Number",
                     "explanation": "For input '4', the expected output is 'Even Number'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8426,7 +8554,11 @@
                     "expected_output": "5",
                     "explanation": "For input '20 4', the expected output is '5'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8503,7 +8635,11 @@
                     "expected_output": "Valid String",
                     "explanation": "For input 'java', the expected output is 'Valid String'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8580,7 +8716,11 @@
                     "expected_output": "Valid Input",
                     "explanation": "For input '20', the expected output is 'Valid Input'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8657,7 +8797,11 @@
                     "expected_output": "2",
                     "explanation": "For input '8 4', the expected output is '2'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8735,7 +8879,11 @@
                     "expected_output": "Handled via throw and throws",
                     "explanation": "For input '10', the expected output is 'Handled via throw and throws'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8812,7 +8960,11 @@
                     "expected_output": "Loan Approved",
                     "explanation": "For input '30000 200000', the expected output is 'Loan Approved'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8889,7 +9041,11 @@
                     "expected_output": "Processed 20",
                     "explanation": "For input '20', the expected output is 'Processed 20'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8967,7 +9123,11 @@
                     "expected_output": "Transaction Successful",
                     "explanation": "For input '5000 1000', the expected output is 'Transaction Successful'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9045,7 +9205,11 @@
                     "expected_output": "Valid Number",
                     "explanation": "For input '5', the expected output is 'Valid Number'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9122,7 +9286,11 @@
                     "expected_output": "Valid Age",
                     "explanation": "For input '25', the expected output is 'Valid Age'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9199,7 +9367,11 @@
                     "expected_output": "Withdraw Success",
                     "explanation": "For input '2000 1000', the expected output is 'Withdraw Success'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9276,7 +9448,11 @@
                     "expected_output": "Valid String",
                     "explanation": "For input 'java', the expected output is 'Valid String'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9353,7 +9529,11 @@
                     "expected_output": "Valid Marks",
                     "explanation": "For input '90', the expected output is 'Valid Marks'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9430,7 +9610,11 @@
                     "expected_output": "Invalid Login",
                     "explanation": "For input 'user 1234', the expected output is 'Invalid Login'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9507,7 +9691,11 @@
                     "expected_output": "Valid Temperature",
                     "explanation": "For input '30', the expected output is 'Valid Temperature'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9584,7 +9772,11 @@
                     "expected_output": "Registration Success",
                     "explanation": "For input 'user2 25', the expected output is 'Registration Success'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9661,7 +9853,11 @@
                     "expected_output": "Order Placed",
                     "explanation": "For input '100 30', the expected output is 'Order Placed'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9738,7 +9934,11 @@
                     "expected_output": "Valid Entry",
                     "explanation": "For input 'B 30', the expected output is 'Valid Entry'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9816,7 +10016,11 @@
                     "expected_output": "File Written",
                     "explanation": "For input 'Java', the expected output is 'File Written'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9893,7 +10097,11 @@
                     "expected_output": "File Read",
                     "explanation": "For input 'data.txt', the expected output is 'File Read'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9970,7 +10178,11 @@
                     "expected_output": "Exists",
                     "explanation": "For input 'file2.txt', the expected output is 'Exists'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10047,7 +10259,11 @@
                     "expected_output": "Deleted",
                     "explanation": "For input 'a.txt', the expected output is 'Deleted'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10125,7 +10341,11 @@
                     "expected_output": "File Copied",
                     "explanation": "For input 'x.txt y.txt', the expected output is 'File Copied'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10202,7 +10422,11 @@
                     "expected_output": "Appended",
                     "explanation": "For input 'Java', the expected output is 'Appended'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10279,7 +10503,11 @@
                     "expected_output": "10",
                     "explanation": "For input 'data.txt', the expected output is '10'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10356,7 +10584,11 @@
                     "expected_output": "INFO:3 ERROR:2 WARNING:0",
                     "explanation": "For input 'log2.txt', the expected output is 'INFO:3 ERROR:2 WARNING:0'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10433,7 +10665,11 @@
                     "expected_output": "Merged",
                     "explanation": "For input 'x.txt y.txt', the expected output is 'Merged'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10510,7 +10746,11 @@
                     "expected_output": "Valid File",
                     "explanation": "For input 'input.txt', the expected output is 'Valid File'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10587,7 +10827,11 @@
                     "expected_output": "File Read",
                     "explanation": "For input 'data.txt', the expected output is 'File Read'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10664,7 +10908,11 @@
                     "expected_output": "Written",
                     "explanation": "For input 'Java', the expected output is 'Written'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10741,7 +10989,11 @@
                     "expected_output": "Appended",
                     "explanation": "For input 'World', the expected output is 'Appended'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10818,7 +11070,11 @@
                     "expected_output": "Copied",
                     "explanation": "For input 'x.txt y.txt', the expected output is 'Copied'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10895,7 +11151,11 @@
                     "expected_output": "a:1 b:2 c:1",
                     "explanation": "For input 'data.txt', the expected output is 'a:1 b:2 c:1'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10972,7 +11232,11 @@
                     "expected_output": "1:A 2:B 3:C",
                     "explanation": "For input 'data.txt', the expected output is '1:A 2:B 3:C'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11049,7 +11313,11 @@
                     "expected_output": "Copied Sorted",
                     "explanation": "For input 'x.txt y.txt', the expected output is 'Copied Sorted'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11126,7 +11394,11 @@
                     "expected_output": "LINES:5 WORDS:20 CHARS:100",
                     "explanation": "For input 'data.txt', the expected output is 'LINES:5 WORDS:20 CHARS:100'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11203,7 +11475,11 @@
                     "expected_output": "Updated",
                     "explanation": "For input 'data.txt A B', the expected output is 'Updated'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11280,7 +11556,11 @@
                     "expected_output": "Aggregated Report Generated",
                     "explanation": "For input 'a.txt b.txt c.txt', the expected output is 'Aggregated Report Generated'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11357,7 +11637,11 @@
                     "expected_output": "Object Serialized",
                     "explanation": "For input 'Alice 30', the expected output is 'Object Serialized'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11434,7 +11718,11 @@
                     "expected_output": "Alice 30",
                     "explanation": "For input 'data.txt', the expected output is 'Alice 30'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11511,7 +11799,11 @@
                     "expected_output": "Serializable",
                     "explanation": "For input 'Employee', the expected output is 'Serializable'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11588,7 +11880,11 @@
                     "expected_output": "Array Serialized",
                     "explanation": "For input '3 students', the expected output is 'Array Serialized'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11665,7 +11961,11 @@
                     "expected_output": "Serialized without password",
                     "explanation": "For input 'Alice 9999', the expected output is 'Serialized without password'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11741,7 +12041,11 @@
                     "expected_output": "Compatible",
                     "explanation": "For input 'v2', the expected output is 'Compatible'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11818,7 +12122,11 @@
                     "expected_output": "X Y Z",
                     "explanation": "For input 'data.txt', the expected output is 'X Y Z'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11895,7 +12203,11 @@
                     "expected_output": "Secure Object Stored",
                     "explanation": "For input 'Alice 8000 9999', the expected output is 'Secure Object Stored'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11971,7 +12283,11 @@
                     "expected_output": "Custom Serialized",
                     "explanation": "For input 'B 20', the expected output is 'Custom Serialized'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12048,7 +12364,11 @@
                     "expected_output": "Object Transferred",
                     "explanation": "For input 'Server1 Server2', the expected output is 'Object Transferred'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12125,7 +12445,11 @@
                     "expected_output": "File Content Printed",
                     "explanation": "For input 'data.txt', the expected output is 'File Content Printed'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12202,7 +12526,11 @@
                     "expected_output": "Written",
                     "explanation": "For input 'Java', the expected output is 'Written'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12279,7 +12607,11 @@
                     "expected_output": "Exists",
                     "explanation": "For input 'data.txt', the expected output is 'Exists'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12356,7 +12688,11 @@
                     "expected_output": "Directory Created",
                     "explanation": "For input 'dir2', the expected output is 'Directory Created'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12433,7 +12769,11 @@
                     "expected_output": "Copied",
                     "explanation": "For input 'x.txt y.txt', the expected output is 'Copied'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12510,7 +12850,11 @@
                     "expected_output": "a b c",
                     "explanation": "For input 'dir2', the expected output is 'a b c'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12586,7 +12930,11 @@
                     "expected_output": "Size:200 Modified:true",
                     "explanation": "For input 'data.txt', the expected output is 'Size:200 Modified:true'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12663,7 +13011,11 @@
                     "expected_output": "a b c",
                     "explanation": "For input 'src', the expected output is 'a b c'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12739,7 +13091,11 @@
                     "expected_output": "Monitoring Started",
                     "explanation": "For input 'test', the expected output is 'Monitoring Started'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12816,7 +13172,11 @@
                     "expected_output": "Processed",
                     "explanation": "For input 'data.txt', the expected output is 'Processed'."
                 }
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

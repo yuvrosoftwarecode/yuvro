@@ -1,1052 +1,1072 @@
 {
-  "name": "Error Handling",
-  "course_short_code": "JS100",
-  "order_index": 11,
-  "subtopics": [
-    {
-      "name": "Error Types",
-      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-      "order_index": 0,
-      "videos": [
+    "name": "Error Handling",
+    "course_short_code": "JS100",
+    "order_index": 11,
+    "subtopics": [
         {
-          "title": "Introduction to Error Types",
-          "video_link": "https://www.youtube.com/results?search_query=Error+Types+javascript",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Error Types in JavaScript."
+            "name": "Error Types",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Error Types",
+                    "video_link": "https://www.youtube.com/results?search_query=Error+Types+javascript",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Error Types in JavaScript."
+                },
+                {
+                    "title": "Advanced Error Types Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Error+Types+javascript",
+                    "ai_context": "In-depth explanation and practical examples for Error Types."
+                }
+            ]
         },
         {
-          "title": "Advanced Error Types Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Error+Types+javascript",
-          "ai_context": "In-depth explanation and practical examples for Error Types."
+            "name": "try/catch/finally",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to try/catch/finally",
+                    "video_link": "https://www.youtube.com/results?search_query=try/catch/finally+javascript",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of try/catch/finally in JavaScript."
+                },
+                {
+                    "title": "Advanced try/catch/finally Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=try/catch/finally+javascript",
+                    "ai_context": "In-depth explanation and practical examples for try/catch/finally."
+                }
+            ]
         }
-      ]
-    },
-    {
-      "name": "try/catch/finally",
-      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-      "order_index": 1,
-      "videos": [
+    ],
+    "questions": [
         {
-          "title": "Introduction to try/catch/finally",
-          "video_link": "https://www.youtube.com/results?search_query=try/catch/finally+javascript",
-          "ai_context": "Comprehensive tutorial covering basic concepts of try/catch/finally in JavaScript."
+            "type": "mcq_single",
+            "title": "Syntax Error Basics",
+            "content": "What is a syntax error in JavaScript?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "An error caused by incorrect code structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "An error caused by slow internet",
+                    "is_correct": false
+                },
+                {
+                    "text": "An error caused by CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "An error caused by browser themes",
+                    "is_correct": false
+                }
+            ]
         },
         {
-          "title": "Advanced try/catch/finally Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=try/catch/finally+javascript",
-          "ai_context": "In-depth explanation and practical examples for try/catch/finally."
+            "type": "mcq_single",
+            "title": "Runtime Error Meaning",
+            "content": "When does a runtime error occur?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "While the program is running",
+                    "is_correct": true
+                },
+                {
+                    "text": "Before code is written",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only during page styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "While saving a file",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Syntax Error Example",
+            "content": "Which situation can cause a syntax error?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Missing closing bracket in code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using console.log()",
+                    "is_correct": false
+                },
+                {
+                    "text": "Declaring a variable",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating an array",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Runtime Error Example",
+            "content": "Which situation is an example of a runtime error?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Calling a function that does not exist",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using correct syntax",
+                    "is_correct": false
+                },
+                {
+                    "text": "Adding comments in code",
+                    "is_correct": false
+                },
+                {
+                    "text": "Writing HTML tags",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Syntax vs Runtime Errors",
+            "content": "What is the key difference between syntax errors and runtime errors?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Syntax errors occur before execution, runtime errors occur during execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors occur before syntax errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both occur only during compilation",
+                    "is_correct": false
+                },
+                {
+                    "text": "There is no difference",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Program Execution with Errors",
+            "content": "What happens if JavaScript encounters a syntax error?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The code stops executing before running",
+                    "is_correct": true
+                },
+                {
+                    "text": "The browser ignores the error completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "The code automatically fixes itself",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only CSS stops working",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "try Block Purpose",
+            "content": "What is the purpose of the try block in JavaScript?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To test code that may produce an error",
+                    "is_correct": true
+                },
+                {
+                    "text": "To create loops",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style web pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "To declare variables only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "catch Block Usage",
+            "content": "What does the catch block do?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Handles errors thrown in the try block",
+                    "is_correct": true
+                },
+                {
+                    "text": "Stops all JavaScript execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creates asynchronous functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Deletes variables from memory",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "finally Block Purpose",
+            "content": "When does the finally block execute?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Always, whether an error occurs or not",
+                    "is_correct": true
+                },
+                {
+                    "text": "Only when there is no error",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only when an error occurs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only in asynchronous code",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Throwing Custom Errors",
+            "content": "Which keyword is used to create a custom error in JavaScript?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "throw",
+                    "is_correct": true
+                },
+                {
+                    "text": "catch",
+                    "is_correct": false
+                },
+                {
+                    "text": "finally",
+                    "is_correct": false
+                },
+                {
+                    "text": "error",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Custom Error Handling",
+            "content": "What happens when a custom error is thrown inside a try block?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Control moves to the catch block",
+                    "is_correct": true
+                },
+                {
+                    "text": "The browser closes automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "The program ignores the error",
+                    "is_correct": false
+                },
+                {
+                    "text": "The finally block is skipped",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Execution Flow with finally",
+            "content": "What will happen if both catch and finally blocks are present after a try block with an error?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "catch executes first, then finally executes",
+                    "is_correct": true
+                },
+                {
+                    "text": "finally executes before catch",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only catch executes",
+                    "is_correct": false
+                },
+                {
+                    "text": "Only finally executes",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Understanding Syntax Errors",
+            "content": "Which of the following statements about syntax errors are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Syntax errors occur when code does not follow language rules",
+                    "is_correct": true
+                },
+                {
+                    "text": "Missing brackets or semicolons can cause syntax errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Syntax errors occur only after successful program execution",
+                    "is_correct": false
+                },
+                {
+                    "text": "Syntax errors prevent code from running correctly",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basics of Runtime Errors",
+            "content": "Which statements about runtime errors are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Runtime errors occur while the program is executing",
+                    "is_correct": true
+                },
+                {
+                    "text": "Accessing undefined variables may cause runtime errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors are detected only before execution starts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Runtime errors can stop program execution unexpectedly",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Comparing Syntax and Runtime Errors",
+            "content": "Which of the following statements correctly compare syntax and runtime errors?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Syntax errors are usually detected before execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors happen during program execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both syntax and runtime errors are exactly the same",
+                    "is_correct": false
+                },
+                {
+                    "text": "Both types of errors can affect program behavior",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Handling Runtime Issues",
+            "content": "Which statements correctly describe runtime issues and debugging?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Runtime errors may occur due to invalid operations on data",
+                    "is_correct": true
+                },
+                {
+                    "text": "Debugging tools can help identify runtime errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors never affect application performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Careful testing helps reduce runtime errors",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Error Classification",
+            "content": "Which of the following statements about advanced error classification are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Syntax errors must usually be fixed before the program can run",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors can sometimes be handled using try...catch",
+                    "is_correct": true
+                },
+                {
+                    "text": "All runtime errors are automatically fixed by JavaScript",
+                    "is_correct": false
+                },
+                {
+                    "text": "Understanding error types improves debugging efficiency",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Error Concepts",
+            "content": "Which of the following statements about advanced error concepts are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "Error Types",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Syntax errors are generally detected during parsing of code",
+                    "is_correct": true
+                },
+                {
+                    "text": "Runtime errors may arise from unexpected user input or invalid operations",
+                    "is_correct": true
+                },
+                {
+                    "text": "Programs with runtime errors always fail before execution begins",
+                    "is_correct": false
+                },
+                {
+                    "text": "Proper error handling improves application stability and user experience",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Understanding try and catch",
+            "content": "Which of the following statements about try and catch are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The try block contains code that may produce an error",
+                    "is_correct": true
+                },
+                {
+                    "text": "The catch block handles errors from the try block",
+                    "is_correct": true
+                },
+                {
+                    "text": "catch executes only when there is no error",
+                    "is_correct": false
+                },
+                {
+                    "text": "try...catch helps prevent application crashes",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basics of finally",
+            "content": "Which statements about the finally block are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "finally executes whether an error occurs or not",
+                    "is_correct": true
+                },
+                {
+                    "text": "finally is commonly used for cleanup operations",
+                    "is_correct": true
+                },
+                {
+                    "text": "finally runs only when an error is thrown",
+                    "is_correct": false
+                },
+                {
+                    "text": "finally can be used with try...catch blocks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Understanding Custom Errors",
+            "content": "Which of the following statements about throwing custom errors are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The throw keyword is used to create custom errors",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom errors can provide meaningful error messages",
+                    "is_correct": true
+                },
+                {
+                    "text": "throw can only be used with syntax errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Custom errors help improve debugging and validation",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Working with Error Handling",
+            "content": "Which statements correctly describe error handling behavior?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Errors thrown inside try blocks can be handled by catch",
+                    "is_correct": true
+                },
+                {
+                    "text": "Custom errors can improve code readability and maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "finally prevents errors from occurring",
+                    "is_correct": false
+                },
+                {
+                    "text": "Proper error handling improves application stability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced try/catch Concepts",
+            "content": "Which of the following statements about advanced try/catch/finally concepts are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A catch block can access details about the thrown error",
+                    "is_correct": true
+                },
+                {
+                    "text": "The throw keyword can be used with strings, objects, or Error instances",
+                    "is_correct": true
+                },
+                {
+                    "text": "finally executes before the try block",
+                    "is_correct": false
+                },
+                {
+                    "text": "Error handling helps applications recover gracefully from failures",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Custom Error Handling",
+            "content": "Which of the following statements about advanced custom error handling are correct?",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Custom errors can be created to represent application-specific problems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Errors thrown with throw interrupt normal code execution",
+                    "is_correct": true
+                },
+                {
+                    "text": "try...catch automatically fixes all program errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Structured error handling improves debugging and application reliability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Handle Division Error Using try...catch",
+            "content": "Write a JavaScript program to throw a custom error when dividing a number by zero and handle it using try...catch.",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "10 0",
+                    "expected_output": "Cannot divide by zero"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "25 5",
+                    "expected_output": "5"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "8 0",
+                    "expected_output": "Cannot divide by zero",
+                    "explanation": "Custom errors can be thrown using throw statement."
+                }
+            ],
+            "inputFormat": "Two numbers.",
+            "outputFormat": "Result or error message.",
+            "solutions": [
+                {
+                    "title": "Division Error Handling",
+                    "language": "javascript",
+                    "code": "function divide(a, b) {\n  try {\n    if (b === 0) {\n      throw new Error('Cannot divide by zero');\n    }\n    console.log(a / b);\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\ndivide(10, 0);",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use throw new Error().",
+                "Catch the error using catch block."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Validate Age Input",
+            "content": "Write a JavaScript program to throw a custom error if age is below 18.",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "16",
+                    "expected_output": "Age must be 18 or above"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "22",
+                    "expected_output": "Access granted"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "15",
+                    "expected_output": "Age must be 18 or above",
+                    "explanation": "Input validation often uses custom errors."
+                }
+            ],
+            "inputFormat": "Age as integer.",
+            "outputFormat": "Validation result.",
+            "solutions": [
+                {
+                    "title": "Age Validation Error",
+                    "language": "javascript",
+                    "code": "function checkAge(age) {\n  try {\n    if (age < 18) {\n      throw new Error('Age must be 18 or above');\n    }\n    console.log('Access granted');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\ncheckAge(16);",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Check age condition.",
+                "Throw custom error for invalid age."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Handle Invalid Number Input",
+            "content": "Write a JavaScript program to throw a custom error if the input is not a valid number.",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "'abc'",
+                    "expected_output": "Invalid number"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "50",
+                    "expected_output": "Valid number"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "'hello'",
+                    "expected_output": "Invalid number",
+                    "explanation": "Custom validation errors improve error handling."
+                }
+            ],
+            "inputFormat": "Any value.",
+            "outputFormat": "Validation result.",
+            "solutions": [
+                {
+                    "title": "Number Validation",
+                    "language": "javascript",
+                    "code": "function validateNumber(value) {\n  try {\n    if (isNaN(value)) {\n      throw new Error('Invalid number');\n    }\n    console.log('Valid number');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nvalidateNumber('abc');",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use isNaN() for validation.",
+                "Throw error when value is invalid."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Use finally Block with Custom Errors",
+            "content": "Write a JavaScript program that throws a custom error for empty input and always executes a finally block.",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Input cannot be empty Cleanup completed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "JavaScript",
+                    "expected_output": "Valid input Cleanup completed"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Input cannot be empty Cleanup completed",
+                    "explanation": "finally block runs whether error occurs or not."
+                }
+            ],
+            "inputFormat": "String input.",
+            "outputFormat": "Validation and cleanup message.",
+            "solutions": [
+                {
+                    "title": "finally Block Example",
+                    "language": "javascript",
+                    "code": "function validateInput(input) {\n  try {\n    if (!input) {\n      throw new Error('Input cannot be empty');\n    }\n    console.log('Valid input');\n  } catch (error) {\n    console.log(error.message);\n  } finally {\n    console.log('Cleanup completed');\n  }\n}\n\nvalidateInput('');",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use finally block.",
+                "Throw error for empty input."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Custom Authentication Error Handler",
+            "content": "Write a JavaScript program to simulate user authentication by throwing custom errors for invalid username or password and handling them properly.",
+            "level": "subtopic",
+            "topic_name": "Error Handling",
+            "subtopic_name": "try/catch/finally",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "admin wrongpass",
+                    "expected_output": "Invalid password"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "admin 1234",
+                    "expected_output": "Login successful"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "user test",
+                    "expected_output": "Invalid username",
+                    "explanation": "Custom authentication errors improve application reliability."
+                }
+            ],
+            "inputFormat": "Username and password.",
+            "outputFormat": "Authentication result.",
+            "solutions": [
+                {
+                    "title": "Authentication Error Handling",
+                    "language": "javascript",
+                    "code": "function login(username, password) {\n  try {\n    if (username !== 'admin') {\n      throw new Error('Invalid username');\n    }\n\n    if (password !== '1234') {\n      throw new Error('Invalid password');\n    }\n\n    console.log('Login successful');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nlogin('admin', 'wrongpass');",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Validate username first.",
+                "Throw separate custom errors.",
+                "Handle all errors inside catch block."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
-      ]
-    }
-  ],
-  "questions": [
-    {
-      "type": "mcq_single",
-      "title": "Syntax Error Basics",
-      "content": "What is a syntax error in JavaScript?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "An error caused by incorrect code structure",
-          "is_correct": true
-        },
-        {
-          "text": "An error caused by slow internet",
-          "is_correct": false
-        },
-        {
-          "text": "An error caused by CSS styles",
-          "is_correct": false
-        },
-        {
-          "text": "An error caused by browser themes",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Runtime Error Meaning",
-      "content": "When does a runtime error occur?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "While the program is running",
-          "is_correct": true
-        },
-        {
-          "text": "Before code is written",
-          "is_correct": false
-        },
-        {
-          "text": "Only during page styling",
-          "is_correct": false
-        },
-        {
-          "text": "While saving a file",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Syntax Error Example",
-      "content": "Which situation can cause a syntax error?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Missing closing bracket in code",
-          "is_correct": true
-        },
-        {
-          "text": "Using console.log()",
-          "is_correct": false
-        },
-        {
-          "text": "Declaring a variable",
-          "is_correct": false
-        },
-        {
-          "text": "Creating an array",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Runtime Error Example",
-      "content": "Which situation is an example of a runtime error?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Calling a function that does not exist",
-          "is_correct": true
-        },
-        {
-          "text": "Using correct syntax",
-          "is_correct": false
-        },
-        {
-          "text": "Adding comments in code",
-          "is_correct": false
-        },
-        {
-          "text": "Writing HTML tags",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Syntax vs Runtime Errors",
-      "content": "What is the key difference between syntax errors and runtime errors?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Syntax errors occur before execution, runtime errors occur during execution",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors occur before syntax errors",
-          "is_correct": false
-        },
-        {
-          "text": "Both occur only during compilation",
-          "is_correct": false
-        },
-        {
-          "text": "There is no difference",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Program Execution with Errors",
-      "content": "What happens if JavaScript encounters a syntax error?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "The code stops executing before running",
-          "is_correct": true
-        },
-        {
-          "text": "The browser ignores the error completely",
-          "is_correct": false
-        },
-        {
-          "text": "The code automatically fixes itself",
-          "is_correct": false
-        },
-        {
-          "text": "Only CSS stops working",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "try Block Purpose",
-      "content": "What is the purpose of the try block in JavaScript?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To test code that may produce an error",
-          "is_correct": true
-        },
-        {
-          "text": "To create loops",
-          "is_correct": false
-        },
-        {
-          "text": "To style web pages",
-          "is_correct": false
-        },
-        {
-          "text": "To declare variables only",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "catch Block Usage",
-      "content": "What does the catch block do?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Handles errors thrown in the try block",
-          "is_correct": true
-        },
-        {
-          "text": "Stops all JavaScript execution",
-          "is_correct": false
-        },
-        {
-          "text": "Creates asynchronous functions",
-          "is_correct": false
-        },
-        {
-          "text": "Deletes variables from memory",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "finally Block Purpose",
-      "content": "When does the finally block execute?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Always, whether an error occurs or not",
-          "is_correct": true
-        },
-        {
-          "text": "Only when there is no error",
-          "is_correct": false
-        },
-        {
-          "text": "Only when an error occurs",
-          "is_correct": false
-        },
-        {
-          "text": "Only in asynchronous code",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Throwing Custom Errors",
-      "content": "Which keyword is used to create a custom error in JavaScript?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "throw",
-          "is_correct": true
-        },
-        {
-          "text": "catch",
-          "is_correct": false
-        },
-        {
-          "text": "finally",
-          "is_correct": false
-        },
-        {
-          "text": "error",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Custom Error Handling",
-      "content": "What happens when a custom error is thrown inside a try block?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Control moves to the catch block",
-          "is_correct": true
-        },
-        {
-          "text": "The browser closes automatically",
-          "is_correct": false
-        },
-        {
-          "text": "The program ignores the error",
-          "is_correct": false
-        },
-        {
-          "text": "The finally block is skipped",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Execution Flow with finally",
-      "content": "What will happen if both catch and finally blocks are present after a try block with an error?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "catch executes first, then finally executes",
-          "is_correct": true
-        },
-        {
-          "text": "finally executes before catch",
-          "is_correct": false
-        },
-        {
-          "text": "Only catch executes",
-          "is_correct": false
-        },
-        {
-          "text": "Only finally executes",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Understanding Syntax Errors",
-      "content": "Which of the following statements about syntax errors are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Syntax errors occur when code does not follow language rules",
-          "is_correct": true
-        },
-        {
-          "text": "Missing brackets or semicolons can cause syntax errors",
-          "is_correct": true
-        },
-        {
-          "text": "Syntax errors occur only after successful program execution",
-          "is_correct": false
-        },
-        {
-          "text": "Syntax errors prevent code from running correctly",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Basics of Runtime Errors",
-      "content": "Which statements about runtime errors are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Runtime errors occur while the program is executing",
-          "is_correct": true
-        },
-        {
-          "text": "Accessing undefined variables may cause runtime errors",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors are detected only before execution starts",
-          "is_correct": false
-        },
-        {
-          "text": "Runtime errors can stop program execution unexpectedly",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Comparing Syntax and Runtime Errors",
-      "content": "Which of the following statements correctly compare syntax and runtime errors?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Syntax errors are usually detected before execution",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors happen during program execution",
-          "is_correct": true
-        },
-        {
-          "text": "Both syntax and runtime errors are exactly the same",
-          "is_correct": false
-        },
-        {
-          "text": "Both types of errors can affect program behavior",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Handling Runtime Issues",
-      "content": "Which statements correctly describe runtime issues and debugging?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Runtime errors may occur due to invalid operations on data",
-          "is_correct": true
-        },
-        {
-          "text": "Debugging tools can help identify runtime errors",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors never affect application performance",
-          "is_correct": false
-        },
-        {
-          "text": "Careful testing helps reduce runtime errors",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Error Classification",
-      "content": "Which of the following statements about advanced error classification are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Syntax errors must usually be fixed before the program can run",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors can sometimes be handled using try...catch",
-          "is_correct": true
-        },
-        {
-          "text": "All runtime errors are automatically fixed by JavaScript",
-          "is_correct": false
-        },
-        {
-          "text": "Understanding error types improves debugging efficiency",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Error Concepts",
-      "content": "Which of the following statements about advanced error concepts are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "Error Types",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Syntax errors are generally detected during parsing of code",
-          "is_correct": true
-        },
-        {
-          "text": "Runtime errors may arise from unexpected user input or invalid operations",
-          "is_correct": true
-        },
-        {
-          "text": "Programs with runtime errors always fail before execution begins",
-          "is_correct": false
-        },
-        {
-          "text": "Proper error handling improves application stability and user experience",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Understanding try and catch",
-      "content": "Which of the following statements about try and catch are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "The try block contains code that may produce an error",
-          "is_correct": true
-        },
-        {
-          "text": "The catch block handles errors from the try block",
-          "is_correct": true
-        },
-        {
-          "text": "catch executes only when there is no error",
-          "is_correct": false
-        },
-        {
-          "text": "try...catch helps prevent application crashes",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Basics of finally",
-      "content": "Which statements about the finally block are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "finally executes whether an error occurs or not",
-          "is_correct": true
-        },
-        {
-          "text": "finally is commonly used for cleanup operations",
-          "is_correct": true
-        },
-        {
-          "text": "finally runs only when an error is thrown",
-          "is_correct": false
-        },
-        {
-          "text": "finally can be used with try...catch blocks",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Understanding Custom Errors",
-      "content": "Which of the following statements about throwing custom errors are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "The throw keyword is used to create custom errors",
-          "is_correct": true
-        },
-        {
-          "text": "Custom errors can provide meaningful error messages",
-          "is_correct": true
-        },
-        {
-          "text": "throw can only be used with syntax errors",
-          "is_correct": false
-        },
-        {
-          "text": "Custom errors help improve debugging and validation",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Working with Error Handling",
-      "content": "Which statements correctly describe error handling behavior?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Errors thrown inside try blocks can be handled by catch",
-          "is_correct": true
-        },
-        {
-          "text": "Custom errors can improve code readability and maintenance",
-          "is_correct": true
-        },
-        {
-          "text": "finally prevents errors from occurring",
-          "is_correct": false
-        },
-        {
-          "text": "Proper error handling improves application stability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced try/catch Concepts",
-      "content": "Which of the following statements about advanced try/catch/finally concepts are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "A catch block can access details about the thrown error",
-          "is_correct": true
-        },
-        {
-          "text": "The throw keyword can be used with strings, objects, or Error instances",
-          "is_correct": true
-        },
-        {
-          "text": "finally executes before the try block",
-          "is_correct": false
-        },
-        {
-          "text": "Error handling helps applications recover gracefully from failures",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Custom Error Handling",
-      "content": "Which of the following statements about advanced custom error handling are correct?",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Custom errors can be created to represent application-specific problems",
-          "is_correct": true
-        },
-        {
-          "text": "Errors thrown with throw interrupt normal code execution",
-          "is_correct": true
-        },
-        {
-          "text": "try...catch automatically fixes all program errors",
-          "is_correct": false
-        },
-        {
-          "text": "Structured error handling improves debugging and application reliability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Handle Division Error Using try...catch",
-      "content": "Write a JavaScript program to throw a custom error when dividing a number by zero and handle it using try...catch.",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "10 0",
-          "expected_output": "Cannot divide by zero"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "25 5",
-          "expected_output": "5"
-        }
-      ],
-      "examples": [
-        {
-          "input": "8 0",
-          "expected_output": "Cannot divide by zero",
-          "explanation": "Custom errors can be thrown using throw statement."
-        }
-      ],
-      "inputFormat": "Two numbers.",
-      "outputFormat": "Result or error message.",
-      "solutions": [
-        {
-          "title": "Division Error Handling",
-          "language": "javascript",
-          "code": "function divide(a, b) {\n  try {\n    if (b === 0) {\n      throw new Error('Cannot divide by zero');\n    }\n    console.log(a / b);\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\ndivide(10, 0);",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use throw new Error().",
-        "Catch the error using catch block."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Validate Age Input",
-      "content": "Write a JavaScript program to throw a custom error if age is below 18.",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "16",
-          "expected_output": "Age must be 18 or above"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "22",
-          "expected_output": "Access granted"
-        }
-      ],
-      "examples": [
-        {
-          "input": "15",
-          "expected_output": "Age must be 18 or above",
-          "explanation": "Input validation often uses custom errors."
-        }
-      ],
-      "inputFormat": "Age as integer.",
-      "outputFormat": "Validation result.",
-      "solutions": [
-        {
-          "title": "Age Validation Error",
-          "language": "javascript",
-          "code": "function checkAge(age) {\n  try {\n    if (age < 18) {\n      throw new Error('Age must be 18 or above');\n    }\n    console.log('Access granted');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\ncheckAge(16);",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Check age condition.",
-        "Throw custom error for invalid age."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Handle Invalid Number Input",
-      "content": "Write a JavaScript program to throw a custom error if the input is not a valid number.",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "'abc'",
-          "expected_output": "Invalid number"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "50",
-          "expected_output": "Valid number"
-        }
-      ],
-      "examples": [
-        {
-          "input": "'hello'",
-          "expected_output": "Invalid number",
-          "explanation": "Custom validation errors improve error handling."
-        }
-      ],
-      "inputFormat": "Any value.",
-      "outputFormat": "Validation result.",
-      "solutions": [
-        {
-          "title": "Number Validation",
-          "language": "javascript",
-          "code": "function validateNumber(value) {\n  try {\n    if (isNaN(value)) {\n      throw new Error('Invalid number');\n    }\n    console.log('Valid number');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nvalidateNumber('abc');",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use isNaN() for validation.",
-        "Throw error when value is invalid."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Use finally Block with Custom Errors",
-      "content": "Write a JavaScript program that throws a custom error for empty input and always executes a finally block.",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Input cannot be empty Cleanup completed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "JavaScript",
-          "expected_output": "Valid input Cleanup completed"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Input cannot be empty Cleanup completed",
-          "explanation": "finally block runs whether error occurs or not."
-        }
-      ],
-      "inputFormat": "String input.",
-      "outputFormat": "Validation and cleanup message.",
-      "solutions": [
-        {
-          "title": "finally Block Example",
-          "language": "javascript",
-          "code": "function validateInput(input) {\n  try {\n    if (!input) {\n      throw new Error('Input cannot be empty');\n    }\n    console.log('Valid input');\n  } catch (error) {\n    console.log(error.message);\n  } finally {\n    console.log('Cleanup completed');\n  }\n}\n\nvalidateInput('');",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use finally block.",
-        "Throw error for empty input."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Custom Authentication Error Handler",
-      "content": "Write a JavaScript program to simulate user authentication by throwing custom errors for invalid username or password and handling them properly.",
-      "level": "subtopic",
-      "topic_name": "Error Handling",
-      "subtopic_name": "try/catch/finally",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "admin wrongpass",
-          "expected_output": "Invalid password"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "admin 1234",
-          "expected_output": "Login successful"
-        }
-      ],
-      "examples": [
-        {
-          "input": "user test",
-          "expected_output": "Invalid username",
-          "explanation": "Custom authentication errors improve application reliability."
-        }
-      ],
-      "inputFormat": "Username and password.",
-      "outputFormat": "Authentication result.",
-      "solutions": [
-        {
-          "title": "Authentication Error Handling",
-          "language": "javascript",
-          "code": "function login(username, password) {\n  try {\n    if (username !== 'admin') {\n      throw new Error('Invalid username');\n    }\n\n    if (password !== '1234') {\n      throw new Error('Invalid password');\n    }\n\n    console.log('Login successful');\n  } catch (error) {\n    console.log(error.message);\n  }\n}\n\nlogin('admin', 'wrongpass');",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Validate username first.",
-        "Throw separate custom errors.",
-        "Handle all errors inside catch block."
-      ]
-    }
-  ]
+    ]
 }

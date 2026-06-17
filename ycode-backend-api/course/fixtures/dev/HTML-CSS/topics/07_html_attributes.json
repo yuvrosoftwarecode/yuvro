@@ -1,2403 +1,2487 @@
 {
-  "name": "HTML Attributes",
-  "course_short_code": "HTMLCSS100",
-  "order_index": 7,
-  "subtopics": [
-    {
-      "name": "Global Attributes",
-      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-      "order_index": 0,
-      "videos": [
-        {
-          "title": "Introduction to Global Attributes",
-          "video_link": "https://www.youtube.com/results?search_query=Global+Attributes+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Global Attributes in HTML/CSS."
-        },
-        {
-          "title": "Advanced Global Attributes Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Global+Attributes+html+css",
-          "ai_context": "In-depth explanation and practical examples for Global Attributes."
-        }
-      ]
-    },
-    {
-      "name": "Data Attributes",
-      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-      "order_index": 1,
-      "videos": [
-        {
-          "title": "Introduction to Data Attributes",
-          "video_link": "https://www.youtube.com/results?search_query=Data+Attributes+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Data Attributes in HTML/CSS."
-        },
-        {
-          "title": "Advanced Data Attributes Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Data+Attributes+html+css",
-          "ai_context": "In-depth explanation and practical examples for Data Attributes."
-        }
-      ]
-    },
-    {
-      "name": "Accessibility Attributes",
-      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-      "order_index": 2,
-      "videos": [
-        {
-          "title": "Introduction to Accessibility Attributes",
-          "video_link": "https://www.youtube.com/results?search_query=Accessibility+Attributes+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Accessibility Attributes in HTML/CSS."
-        },
-        {
-          "title": "Advanced Accessibility Attributes Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Accessibility+Attributes+html+css",
-          "ai_context": "In-depth explanation and practical examples for Accessibility Attributes."
-        }
-      ]
-    }
-  ],
-  "questions": [
-    {
-      "type": "mcq_single",
-      "title": "ID Attribute",
-      "content": "Which HTML attribute is used to uniquely identify an element?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id",
-          "is_correct": true
-        },
-        {
-          "text": "class",
-          "is_correct": false
-        },
-        {
-          "text": "name",
-          "is_correct": false
-        },
-        {
-          "text": "key",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Class Attribute",
-      "content": "Which attribute is used to apply styles to multiple HTML elements?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "class",
-          "is_correct": true
-        },
-        {
-          "text": "id",
-          "is_correct": false
-        },
-        {
-          "text": "style",
-          "is_correct": false
-        },
-        {
-          "text": "group",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Title Attribute",
-      "content": "What is the purpose of the title attribute in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It provides extra information shown as a tooltip",
-          "is_correct": true
-        },
-        {
-          "text": "It defines the page heading",
-          "is_correct": false
-        },
-        {
-          "text": "It creates hyperlinks",
-          "is_correct": false
-        },
-        {
-          "text": "It styles text color",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "ID vs Class Difference",
-      "content": "What is the main difference between id and class attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id is unique, class can be reused",
-          "is_correct": true
-        },
-        {
-          "text": "class is unique, id can be reused",
-          "is_correct": false
-        },
-        {
-          "text": "both are only for JavaScript",
-          "is_correct": false
-        },
-        {
-          "text": "id is only for images",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Style Attribute Usage",
-      "content": "What does the style attribute do in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It applies inline CSS styles to an element",
-          "is_correct": true
-        },
-        {
-          "text": "It links external CSS files",
-          "is_correct": false
-        },
-        {
-          "text": "It adds JavaScript functionality",
-          "is_correct": false
-        },
-        {
-          "text": "It creates animations automatically",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Correct ID Usage",
-      "content": "Which HTML snippet correctly uses the id attribute?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<div id=\"header\"></div>",
-          "is_correct": true
-        },
-        {
-          "text": "<div id=\"header main\"></div>",
-          "is_correct": false
-        },
-        {
-          "text": "<div class=\"header\"></div id>",
-          "is_correct": false
-        },
-        {
-          "text": "<id>header</id>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Class Reusability",
-      "content": "Why is the class attribute useful in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It allows multiple elements to share the same styling",
-          "is_correct": true
-        },
-        {
-          "text": "It makes elements unique",
-          "is_correct": false
-        },
-        {
-          "text": "It prevents CSS usage",
-          "is_correct": false
-        },
-        {
-          "text": "It replaces JavaScript functionality",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Data Attributes Purpose",
-      "content": "What is the purpose of HTML data-* attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To store custom data in HTML elements",
-          "is_correct": true
-        },
-        {
-          "text": "To style elements using CSS only",
-          "is_correct": false
-        },
-        {
-          "text": "To create links between pages",
-          "is_correct": false
-        },
-        {
-          "text": "To replace JavaScript functions",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Data Attribute Syntax",
-      "content": "Which is the correct way to define a custom data attribute in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "data-user-id",
-          "is_correct": true
-        },
-        {
-          "text": "userdata-id",
-          "is_correct": false
-        },
-        {
-          "text": "dataUserId",
-          "is_correct": false
-        },
-        {
-          "text": "user-data-id",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Data Attribute Access",
-      "content": "How can data attributes be accessed in JavaScript?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Using dataset property",
-          "is_correct": true
-        },
-        {
-          "text": "Using getAttribute only",
-          "is_correct": false
-        },
-        {
-          "text": "Using classList",
-          "is_correct": false
-        },
-        {
-          "text": "Using innerHTML",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Real-world Usage",
-      "content": "Where are data-* attributes commonly used?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Storing extra information for JavaScript interactions",
-          "is_correct": true
-        },
-        {
-          "text": "Replacing CSS stylesheets",
-          "is_correct": false
-        },
-        {
-          "text": "Creating database tables",
-          "is_correct": false
-        },
-        {
-          "text": "Rendering server-side code",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Data Attribute Advantage",
-      "content": "Why are data attributes useful in web development?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "They allow storing custom data without affecting layout",
-          "is_correct": true
-        },
-        {
-          "text": "They improve internet speed",
-          "is_correct": false
-        },
-        {
-          "text": "They replace backend databases",
-          "is_correct": false
-        },
-        {
-          "text": "They automatically style elements",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Correct Data Attribute Usage",
-      "content": "Which HTML snippet correctly uses a data attribute?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<div data-user-id=\"101\"></div>",
-          "is_correct": true
-        },
-        {
-          "text": "<div userdata=\"101\"></div>",
-          "is_correct": false
-        },
-        {
-          "text": "<data user-id=\"101\"></data>",
-          "is_correct": false
-        },
-        {
-          "text": "<div id-data=\"101\"></div>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "JavaScript Dataset Access",
-      "content": "How would you access data-user-id in JavaScript?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "element.dataset.userId",
-          "is_correct": true
-        },
-        {
-          "text": "element.data.user-id",
-          "is_correct": false
-        },
-        {
-          "text": "element.getData(user-id)",
-          "is_correct": false
-        },
-        {
-          "text": "element.userId.data",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "ARIA Label Purpose",
-      "content": "What is the main purpose of the aria-label attribute in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To provide an accessible label for screen readers",
-          "is_correct": true
-        },
-        {
-          "text": "To style elements with CSS",
-          "is_correct": false
-        },
-        {
-          "text": "To create hyperlinks",
-          "is_correct": false
-        },
-        {
-          "text": "To validate form inputs",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Role Attribute Usage",
-      "content": "What does the role attribute define in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "The purpose or function of an element for assistive technologies",
-          "is_correct": true
-        },
-        {
-          "text": "The color of an element",
-          "is_correct": false
-        },
-        {
-          "text": "The size of an element",
-          "is_correct": false
-        },
-        {
-          "text": "The position of an element",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Tabindex Purpose",
-      "content": "What is the purpose of the tabindex attribute?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To control keyboard navigation order",
-          "is_correct": true
-        },
-        {
-          "text": "To change font size",
-          "is_correct": false
-        },
-        {
-          "text": "To define image captions",
-          "is_correct": false
-        },
-        {
-          "text": "To validate forms",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "ARIA Label Use Case",
-      "content": "When is aria-label most useful?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "When an element has no visible text label",
-          "is_correct": true
-        },
-        {
-          "text": "When styling buttons with CSS",
-          "is_correct": false
-        },
-        {
-          "text": "When creating database connections",
-          "is_correct": false
-        },
-        {
-          "text": "When optimizing images",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Role Attribute Example",
-      "content": "Which of the following is a correct use of the role attribute?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<div role=\"button\">Click Me</div>",
-          "is_correct": true
-        },
-        {
-          "text": "<button role=\"color\">Click</button>",
-          "is_correct": false
-        },
-        {
-          "text": "<div role=\"style\">Box</div>",
-          "is_correct": false
-        },
-        {
-          "text": "<role>button</role>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Tabindex Behavior",
-      "content": "What does a positive tabindex value do?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It sets custom tab order for elements",
-          "is_correct": true
-        },
-        {
-          "text": "It disables keyboard navigation",
-          "is_correct": false
-        },
-        {
-          "text": "It hides the element",
-          "is_correct": false
-        },
-        {
-          "text": "It changes element color",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Accessibility Best Practice",
-      "content": "Why should ARIA attributes be used carefully in HTML?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Incorrect usage can harm accessibility instead of improving it",
-          "is_correct": true
-        },
-        {
-          "text": "They automatically fix all HTML errors",
-          "is_correct": false
-        },
-        {
-          "text": "They replace all semantic HTML tags",
-          "is_correct": false
-        },
-        {
-          "text": "They only work in mobile apps",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Global Attributes Basics",
-      "content": "Which of the following are valid HTML global attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id is used to uniquely identify an HTML element",
-          "is_correct": true
-        },
-        {
-          "text": "class is used to group multiple elements",
-          "is_correct": true
-        },
-        {
-          "text": "id is used only for images",
-          "is_correct": false
-        },
-        {
-          "text": "title provides extra information about an element",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Class Attribute Basics",
-      "content": "Which of the following statements about the class attribute are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "class can be used on multiple elements",
-          "is_correct": true
-        },
-        {
-          "text": "class helps apply CSS styles to multiple elements",
-          "is_correct": true
-        },
-        {
-          "text": "class must be unique for each element",
-          "is_correct": false
-        },
-        {
-          "text": "class is used for grouping elements logically",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Style Attribute Basics",
-      "content": "Which of the following statements about the style attribute are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "style is used to apply inline CSS",
-          "is_correct": true
-        },
-        {
-          "text": "style can change text color and size",
-          "is_correct": true
-        },
-        {
-          "text": "style is used to create new HTML elements",
-          "is_correct": false
-        },
-        {
-          "text": "style applies only to a single element",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "id and class Differences",
-      "content": "Which of the following statements about id and class attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id must be unique in a page",
-          "is_correct": true
-        },
-        {
-          "text": "class can be used on multiple elements",
-          "is_correct": true
-        },
-        {
-          "text": "id can be shared by multiple elements",
-          "is_correct": false
-        },
-        {
-          "text": "class is used for grouping elements",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Title Attribute Usage",
-      "content": "Which of the following statements about the title attribute are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "title shows tooltip text on hover",
-          "is_correct": true
-        },
-        {
-          "text": "title provides additional information about an element",
-          "is_correct": true
-        },
-        {
-          "text": "title is used to define CSS styles",
-          "is_correct": false
-        },
-        {
-          "text": "title improves user experience",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Attribute Usage",
-      "content": "Which of the following statements about advanced usage of global attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id is commonly used for JavaScript DOM selection",
-          "is_correct": true
-        },
-        {
-          "text": "class is widely used in CSS styling frameworks",
-          "is_correct": true
-        },
-        {
-          "text": "style attribute should always replace external CSS",
-          "is_correct": false
-        },
-        {
-          "text": "title attribute improves accessibility in some cases",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Global Attributes",
-      "content": "Which of the following are best practices for using global attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use unique id values for each element",
-          "is_correct": true
-        },
-        {
-          "text": "Use class for reusable styling",
-          "is_correct": true
-        },
-        {
-          "text": "Use style attribute for all styling in large projects",
-          "is_correct": false
-        },
-        {
-          "text": "Use title attribute to provide helpful hints",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Data Attributes Basics",
-      "content": "Which of the following statements about HTML data attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "data-* attributes allow storing custom data in HTML elements",
-          "is_correct": true
-        },
-        {
-          "text": "data-* attributes are part of HTML5 standard",
-          "is_correct": true
-        },
-        {
-          "text": "data-* attributes are used only for styling elements",
-          "is_correct": false
-        },
-        {
-          "text": "data-* attributes can store extra information in elements",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Using Data Attributes",
-      "content": "Which of the following statements about using data attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "data attributes start with 'data-' prefix",
-          "is_correct": true
-        },
-        {
-          "text": "data attributes can store strings or numbers",
-          "is_correct": true
-        },
-        {
-          "text": "data attributes replace HTML tags",
-          "is_correct": false
-        },
-        {
-          "text": "data attributes are accessible in JavaScript",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Real-world Usage Basics",
-      "content": "Which of the following statements about real-world usage of data attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "data attributes are used to store metadata in HTML",
-          "is_correct": true
-        },
-        {
-          "text": "They help in passing data to JavaScript",
-          "is_correct": true
-        },
-        {
-          "text": "They are used to create HTML pages",
-          "is_correct": false
-        },
-        {
-          "text": "They are useful in dynamic web applications",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Accessing Data Attributes",
-      "content": "Which of the following statements about accessing data attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Data attributes can be accessed using JavaScript dataset property",
-          "is_correct": true
-        },
-        {
-          "text": "data-user-id becomes dataset.userId in JavaScript",
-          "is_correct": true
-        },
-        {
-          "text": "Data attributes cannot be accessed in JavaScript",
-          "is_correct": false
-        },
-        {
-          "text": "They help in dynamic UI updates",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Real-world Data Usage",
-      "content": "Which of the following statements about real-world usage of data attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "They are used in tracking user interactions",
-          "is_correct": true
-        },
-        {
-          "text": "They help store temporary UI-related data",
-          "is_correct": true
-        },
-        {
-          "text": "They replace backend databases",
-          "is_correct": false
-        },
-        {
-          "text": "They are useful in frontend frameworks",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Data Attribute Concepts",
-      "content": "Which of the following statements about advanced data attribute usage are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Data attributes help separate data from presentation",
-          "is_correct": true
-        },
-        {
-          "text": "They are widely used in JavaScript frameworks",
-          "is_correct": true
-        },
-        {
-          "text": "Data attributes are processed on the server only",
-          "is_correct": false
-        },
-        {
-          "text": "They improve maintainability of frontend code",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Data Attributes",
-      "content": "Which of the following are best practices for using data attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use data attributes for custom metadata only",
-          "is_correct": true
-        },
-        {
-          "text": "Keep data attributes meaningful and descriptive",
-          "is_correct": true
-        },
-        {
-          "text": "Use data attributes for styling purposes only",
-          "is_correct": false
-        },
-        {
-          "text": "Access data attributes using dataset in JavaScript",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "ARIA Label Basics",
-      "content": "Which of the following statements about aria-label are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "aria-label provides an accessible name for elements",
-          "is_correct": true
-        },
-        {
-          "text": "aria-label helps screen readers understand content",
-          "is_correct": true
-        },
-        {
-          "text": "aria-label is used for styling HTML elements",
-          "is_correct": false
-        },
-        {
-          "text": "aria-label improves accessibility",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Role Attribute Basics",
-      "content": "Which of the following statements about the role attribute are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "role defines the purpose of an element",
-          "is_correct": true
-        },
-        {
-          "text": "role helps assistive technologies understand UI elements",
-          "is_correct": true
-        },
-        {
-          "text": "role is used to change page layout visually",
-          "is_correct": false
-        },
-        {
-          "text": "role improves accessibility structure",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Tabindex Basics",
-      "content": "Which of the following statements about tabindex are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "tabindex controls keyboard navigation order",
-          "is_correct": true
-        },
-        {
-          "text": "tabindex helps users navigate using the Tab key",
-          "is_correct": true
-        },
-        {
-          "text": "tabindex is used for styling elements",
-          "is_correct": false
-        },
-        {
-          "text": "tabindex can make elements focusable",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "ARIA and Role Usage",
-      "content": "Which of the following statements about aria-label and role are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "aria-label provides descriptive text for screen readers",
-          "is_correct": true
-        },
-        {
-          "text": "role defines the purpose of UI elements",
-          "is_correct": true
-        },
-        {
-          "text": "aria-label is used to apply CSS styles",
-          "is_correct": false
-        },
-        {
-          "text": "role helps improve accessibility structure",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Tabindex Behavior",
-      "content": "Which of the following statements about tabindex behavior are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "tabindex controls keyboard focus order",
-          "is_correct": true
-        },
-        {
-          "text": "tabindex can make non-focusable elements focusable",
-          "is_correct": true
-        },
-        {
-          "text": "tabindex is used only for visual styling",
-          "is_correct": false
-        },
-        {
-          "text": "tabindex improves keyboard accessibility",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Accessibility Concepts",
-      "content": "Which of the following statements about advanced accessibility attributes are correct?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "aria-label improves screen reader experience",
-          "is_correct": true
-        },
-        {
-          "text": "role helps define semantic meaning for assistive tools",
-          "is_correct": true
-        },
-        {
-          "text": "Accessibility attributes are only useful for visual users",
-          "is_correct": false
-        },
-        {
-          "text": "tabindex helps manage focus flow in complex UI",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Accessibility",
-      "content": "Which of the following are best practices for using accessibility attributes?",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use aria-label to describe unlabeled elements",
-          "is_correct": true
-        },
-        {
-          "text": "Use role to define meaningful UI structure",
-          "is_correct": true
-        },
-        {
-          "text": "Avoid using tabindex for keyboard navigation",
-          "is_correct": false
-        },
-        {
-          "text": "Ensure accessibility attributes improve usability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Use id and class in a Simple HTML Page",
-      "content": "Create an HTML page using global attributes id and class to style and identify elements.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Page with id and class usage"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Elements properly assigned id and class"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div id='header' class='main'>",
-          "explanation": "id uniquely identifies, class groups elements."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page using id and class.",
-      "solutions": [
-        {
-          "title": "Basic id and class usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Global Attributes</title>\n</head>\n<body>\n    <div id=\"header\" class=\"main\">\n        <h1>Welcome</h1>\n    </div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use id for unique elements and class for grouping."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Styled Sections Using class Attribute",
-      "content": "Build an HTML page with multiple sections using the class attribute for grouping elements.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multiple sections with same class"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Grouped elements using class"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div class='box'>",
-          "explanation": "class is used for grouping multiple elements."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with class usage.",
-      "solutions": [
-        {
-          "title": "Class grouping example",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Class Example</title>\n</head>\n<body>\n    <div class=\"box\">Box 1</div>\n    <div class=\"box\">Box 2</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use same class for multiple elements."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Web Page with Styled Title Attribute",
-      "content": "Create an HTML page using the title attribute to show tooltips when hovering over elements.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Tooltip shown on hover"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Title attribute working correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<p title='Hello'>",
-          "explanation": "title shows tooltip on hover."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML with tooltip.",
-      "solutions": [
-        {
-          "title": "Title attribute usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Title Attribute</title>\n</head>\n<body>\n    <p title=\"This is a tooltip\">Hover over me</p>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use title for hover text."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Styled Profile Card Using id and class",
-      "content": "Build a profile card using id and class attributes and apply inline style for formatting.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Profile card displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Styled profile card using attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div id='card' class='profile'>",
-          "explanation": "Combining id, class, and style attributes."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML profile card.",
-      "solutions": [
-        {
-          "title": "Profile Card",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Profile Card</title>\n</head>\n<body>\n    <div id=\"card\" class=\"profile\" style=\"border:1px solid black;padding:10px;\">\n        <h2>John Doe</h2>\n        <p>Developer</p>\n    </div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Combine id, class, and style attributes."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build a Styled Dashboard Section Using Global Attributes",
-      "content": "Create a dashboard section using id, class, title, and style attributes for layout and styling.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Dashboard section displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Proper use of global attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<section id='dash' class='box' title='Dashboard'>",
-          "explanation": "Multiple global attributes used together."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML dashboard section.",
-      "solutions": [
-        {
-          "title": "Dashboard Section",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <section id=\"dash\" class=\"box\" title=\"Dashboard Section\" style=\"background:#f0f0f0;\">\n        <h2>Analytics</h2>\n    </section>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use multiple global attributes together."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Complex Multi-Component UI Using Global Attributes",
-      "content": "Build a complex UI layout using id, class, title, and style attributes across multiple components.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multi-component UI displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "All components properly styled and identified"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Complex structured UI",
-          "explanation": "Global attributes help manage large UI systems."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML complex UI.",
-      "solutions": [
-        {
-          "title": "Complex UI Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>UI System</title>\n</head>\n<body>\n    <header id=\"top\" class=\"header\" title=\"Main Header\" style=\"background:lightblue;\">\n        <h1>Dashboard</h1>\n    </header>\n    <section id=\"content\" class=\"main\" title=\"Content Area\">\n        <p>Main content goes here.</p>\n    </section>\n    <footer id=\"bottom\" class=\"footer\" title=\"Footer\">\n        <p>Footer section</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use all global attributes across layout.",
-        "Structure UI into multiple components."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design a Real-World Admin Panel Using Global Attributes",
-      "content": "Create a complex admin panel layout using id, class, title, and style attributes to organize multiple sections.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Global Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Admin panel displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Structured admin UI with attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Admin dashboard layout",
-          "explanation": "Real-world admin panels use structured attributes."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML admin panel.",
-      "solutions": [
-        {
-          "title": "Admin Panel Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Admin Panel</title>\n</head>\n<body>\n    <header id=\"adminHeader\" class=\"top-bar\" title=\"Admin Header\">\n        <h1>Admin Panel</h1>\n    </header>\n    <section id=\"users\" class=\"section\" title=\"User Management\" style=\"padding:10px;\">\n        <p>User list</p>\n    </section>\n    <section id=\"reports\" class=\"section\" title=\"Reports\">\n        <p>Analytics data</p>\n    </section>\n    <footer id=\"adminFooter\" class=\"footer\" title=\"Footer Area\">\n        <p>\u00a9 Admin 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Design like a real admin dashboard.",
-        "Use attributes for structure and styling."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Use Basic data-* Attribute in HTML Element",
-      "content": "Create an HTML page using a simple data-* attribute to store custom information inside an element.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Element with data attribute present"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Custom data attribute correctly added"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div data-id='101'>",
-          "explanation": "data-* attributes store custom metadata."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML element with data attribute.",
-      "solutions": [
-        {
-          "title": "Basic data attribute usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Data Attribute</title>\n</head>\n<body>\n    <div data-id=\"101\">Product</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use data-* to store custom values."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a List with Data Attributes",
-      "content": "Build an HTML list where each item has a data-* attribute storing its unique ID.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "List with data attributes"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Each list item has unique data-id"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<li data-id='1'>Item</li>",
-          "explanation": "Each item stores metadata using data attributes."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML list.",
-      "solutions": [
-        {
-          "title": "List with data attributes",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>List Data</title>\n</head>\n<body>\n    <ul>\n        <li data-id=\"1\">Item 1</li>\n        <li data-id=\"2\">Item 2</li>\n    </ul>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Assign unique data-id to each item."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Store Product Information Using data-* Attributes",
-      "content": "Create a product card using data-* attributes to store product id, name, and price.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Product card displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Product metadata stored correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div data-name='Phone'>",
-          "explanation": "Data attributes store product details."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML product card.",
-      "solutions": [
-        {
-          "title": "Product Card",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Product</title>\n</head>\n<body>\n    <div data-id=\"101\" data-name=\"Phone\" data-price=\"500\">\n        Smartphone\n    </div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use multiple data attributes for storing info."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build a Dynamic Product List Using Data Attributes",
-      "content": "Create an HTML product list where each product has multiple data-* attributes like id, category, and price.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Product list displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Each product has metadata attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div data-category='electronics'>",
-          "explanation": "Data attributes help filter products."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML product list.",
-      "solutions": [
-        {
-          "title": "Product List with Data Attributes",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Products</title>\n</head>\n<body>\n    <div data-id=\"1\" data-category=\"electronics\" data-price=\"1000\">Laptop</div>\n    <div data-id=\"2\" data-category=\"mobile\" data-price=\"500\">Phone</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use multiple data-* attributes per element."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Filterable Product Grid Using Data Attributes",
-      "content": "Build a product grid using data-* attributes to simulate filtering by category.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Product grid displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Products grouped by category using data attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Filter-ready structure",
-          "explanation": "Data attributes are used for dynamic filtering."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML grid layout.",
-      "solutions": [
-        {
-          "title": "Filterable Grid",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Grid</title>\n</head>\n<body>\n    <div data-category=\"mobile\">Phone</div>\n    <div data-category=\"laptop\">Laptop</div>\n    <div data-category=\"mobile\">Tablet</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use data-category for grouping items."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design a Real-Time Dashboard Using Data Attributes",
-      "content": "Create a dashboard layout using data-* attributes to store live status, user roles, and metrics.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Dashboard displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Dynamic metadata stored in elements"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div data-role='admin'>",
-          "explanation": "Data attributes simulate dynamic systems."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML dashboard.",
-      "solutions": [
-        {
-          "title": "Dashboard with Data Attributes",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <div data-role=\"admin\" data-status=\"active\">User Panel</div>\n    <div data-role=\"user\" data-status=\"inactive\">User Panel 2</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use data-role and data-status for metadata."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build an Enterprise Level System Using Data Attributes",
-      "content": "Create a complex enterprise UI using data-* attributes for user management, roles, and permissions.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Data Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Enterprise UI displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Structured system with metadata attributes"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Admin system layout",
-          "explanation": "Data attributes simulate backend-like structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML enterprise system.",
-      "solutions": [
-        {
-          "title": "Enterprise Data System",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise System</title>\n</head>\n<body>\n    <div data-user=\"101\" data-role=\"admin\" data-access=\"full\">Admin</div>\n    <div data-user=\"102\" data-role=\"editor\" data-access=\"partial\">Editor</div>\n    <div data-user=\"103\" data-role=\"viewer\" data-access=\"read\">Viewer</div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Simulate backend data using data-* attributes.",
-        "Use multiple attributes per element."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Add aria-label to Improve Accessibility",
-      "content": "Create a simple HTML page using aria-label attribute to improve accessibility for screen readers.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Element with aria-label present"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Screen-reader friendly element"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<button aria-label='Close'>",
-          "explanation": "aria-label provides accessibility description."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML with aria-label.",
-      "solutions": [
-        {
-          "title": "Basic aria-label usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>ARIA Label</title>\n</head>\n<body>\n    <button aria-label=\"Close Button\">X</button>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use aria-label for describing elements."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Use role Attribute for Semantic Meaning",
-      "content": "Create an HTML page using the role attribute to define semantic roles like button, navigation, or banner.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Role attribute applied"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Accessible semantic roles defined"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<div role='navigation'>",
-          "explanation": "role defines element purpose."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML with role attribute.",
-      "solutions": [
-        {
-          "title": "Basic role usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Role Attribute</title>\n</head>\n<body>\n    <div role=\"navigation\">\n        <a href=\"#home\">Home</a>\n    </div>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use role for defining element purpose."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Use tabindex for Keyboard Navigation",
-      "content": "Create an HTML page using tabindex attribute to control keyboard navigation order.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Tab navigation order set"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Elements focusable using keyboard"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<button tabindex='1'>",
-          "explanation": "tabindex controls focus order."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML with tabindex.",
-      "solutions": [
-        {
-          "title": "Basic tabindex usage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Tabindex</title>\n</head>\n<body>\n    <button tabindex=\"1\">First</button>\n    <button tabindex=\"2\">Second</button>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use tabindex to control focus order."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Accessible Navigation Menu",
-      "content": "Build a navigation menu using role, aria-label, and tabindex attributes for accessibility.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Accessible navigation menu"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Keyboard and screen reader friendly menu"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<nav role='navigation' aria-label='Main Menu'>",
-          "explanation": "Combining accessibility attributes improves usability."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML navigation menu.",
-      "solutions": [
-        {
-          "title": "Accessible Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Navigation</title>\n</head>\n<body>\n    <nav role=\"navigation\" aria-label=\"Main Menu\">\n        <a href=\"#home\" tabindex=\"1\">Home</a>\n        <a href=\"#about\" tabindex=\"2\">About</a>\n    </nav>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Combine aria-label and role.",
-        "Use tabindex for navigation order."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Accessible Form Using ARIA Attributes",
-      "content": "Build a form using aria-label, role, and tabindex to improve accessibility and usability.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Accessible form displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Form supports keyboard navigation"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<input aria-label='Name'>",
-          "explanation": "ARIA improves form accessibility."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML form.",
-      "solutions": [
-        {
-          "title": "Accessible Form",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Form</title>\n</head>\n<body>\n    <form role=\"form\">\n        <input type=\"text\" aria-label=\"Name\" tabindex=\"1\">\n        <input type=\"email\" aria-label=\"Email\" tabindex=\"2\">\n    </form>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use aria-label for inputs.",
-        "Use tabindex for order."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build a Fully Accessible Dashboard UI",
-      "content": "Create a complex dashboard using aria-label, role, and tabindex for accessibility and structured navigation.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Dashboard UI displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Fully accessible dashboard layout"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Structured accessible system",
-          "explanation": "Accessibility ensures usability for all users."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML dashboard.",
-      "solutions": [
-        {
-          "title": "Accessible Dashboard",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header role=\"banner\" aria-label=\"Dashboard Header\">\n        <h1>Dashboard</h1>\n    </header>\n    <nav role=\"navigation\" aria-label=\"Sidebar Menu\">\n        <a href=\"#home\" tabindex=\"1\">Home</a>\n        <a href=\"#reports\" tabindex=\"2\">Reports</a>\n    </nav>\n    <main role=\"main\">\n        <section aria-label=\"Analytics Section\">\n            <p>Analytics data</p>\n        </section>\n    </main>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine all accessibility attributes.",
-        "Design for screen readers and keyboard users."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design an Enterprise Accessible Web Application",
-      "content": "Create a complex enterprise-level UI using aria-label, role, and tabindex for full accessibility compliance.",
-      "level": "subtopic",
-      "topic_name": "HTML Attributes",
-      "subtopic_name": "Accessibility Attributes",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Enterprise UI displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Fully accessible enterprise system"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Large accessible system layout",
-          "explanation": "Enterprise apps require strict accessibility rules."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML enterprise app.",
-      "solutions": [
-        {
-          "title": "Enterprise Accessibility UI",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise</title>\n</head>\n<body>\n    <header role=\"banner\" aria-label=\"Main Header\">\n        <h1>Company Portal</h1>\n    </header>\n    <nav role=\"navigation\" aria-label=\"Main Navigation\">\n        <a href=\"#dashboard\" tabindex=\"1\">Dashboard</a>\n        <a href=\"#users\" tabindex=\"2\">Users</a>\n    </nav>\n    <main role=\"main\">\n        <section aria-label=\"User Data Section\">\n            <p>User analytics</p>\n        </section>\n    </main>\n    <footer role=\"contentinfo\">\n        <p>\u00a9 2026 Company</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Ensure full accessibility compliance.",
-        "Use roles for all major sections."
-      ]
-    }
-  ]
+    "name": "HTML Attributes",
+    "course_short_code": "HTMLCSS100",
+    "order_index": 7,
+    "subtopics": [
+        {
+            "name": "Global Attributes",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Global Attributes",
+                    "video_link": "https://www.youtube.com/results?search_query=Global+Attributes+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Global Attributes in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Global Attributes Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Global+Attributes+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Global Attributes."
+                }
+            ]
+        },
+        {
+            "name": "Data Attributes",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to Data Attributes",
+                    "video_link": "https://www.youtube.com/results?search_query=Data+Attributes+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Data Attributes in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Data Attributes Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Data+Attributes+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Data Attributes."
+                }
+            ]
+        },
+        {
+            "name": "Accessibility Attributes",
+            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Introduction to Accessibility Attributes",
+                    "video_link": "https://www.youtube.com/results?search_query=Accessibility+Attributes+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Accessibility Attributes in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Accessibility Attributes Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Accessibility+Attributes+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Accessibility Attributes."
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "ID Attribute",
+            "content": "Which HTML attribute is used to uniquely identify an element?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id",
+                    "is_correct": true
+                },
+                {
+                    "text": "class",
+                    "is_correct": false
+                },
+                {
+                    "text": "name",
+                    "is_correct": false
+                },
+                {
+                    "text": "key",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Attribute",
+            "content": "Which attribute is used to apply styles to multiple HTML elements?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "class",
+                    "is_correct": true
+                },
+                {
+                    "text": "id",
+                    "is_correct": false
+                },
+                {
+                    "text": "style",
+                    "is_correct": false
+                },
+                {
+                    "text": "group",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Title Attribute",
+            "content": "What is the purpose of the title attribute in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It provides extra information shown as a tooltip",
+                    "is_correct": true
+                },
+                {
+                    "text": "It defines the page heading",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates hyperlinks",
+                    "is_correct": false
+                },
+                {
+                    "text": "It styles text color",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "ID vs Class Difference",
+            "content": "What is the main difference between id and class attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id is unique, class can be reused",
+                    "is_correct": true
+                },
+                {
+                    "text": "class is unique, id can be reused",
+                    "is_correct": false
+                },
+                {
+                    "text": "both are only for JavaScript",
+                    "is_correct": false
+                },
+                {
+                    "text": "id is only for images",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Style Attribute Usage",
+            "content": "What does the style attribute do in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It applies inline CSS styles to an element",
+                    "is_correct": true
+                },
+                {
+                    "text": "It links external CSS files",
+                    "is_correct": false
+                },
+                {
+                    "text": "It adds JavaScript functionality",
+                    "is_correct": false
+                },
+                {
+                    "text": "It creates animations automatically",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Correct ID Usage",
+            "content": "Which HTML snippet correctly uses the id attribute?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<div id=\"header\"></div>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div id=\"header main\"></div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<div class=\"header\"></div id>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<id>header</id>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Class Reusability",
+            "content": "Why is the class attribute useful in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It allows multiple elements to share the same styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "It makes elements unique",
+                    "is_correct": false
+                },
+                {
+                    "text": "It prevents CSS usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "It replaces JavaScript functionality",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Attributes Purpose",
+            "content": "What is the purpose of HTML data-* attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To store custom data in HTML elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style elements using CSS only",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create links between pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "To replace JavaScript functions",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Attribute Syntax",
+            "content": "Which is the correct way to define a custom data attribute in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "data-user-id",
+                    "is_correct": true
+                },
+                {
+                    "text": "userdata-id",
+                    "is_correct": false
+                },
+                {
+                    "text": "dataUserId",
+                    "is_correct": false
+                },
+                {
+                    "text": "user-data-id",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Attribute Access",
+            "content": "How can data attributes be accessed in JavaScript?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using dataset property",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using getAttribute only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using classList",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using innerHTML",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Real-world Usage",
+            "content": "Where are data-* attributes commonly used?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Storing extra information for JavaScript interactions",
+                    "is_correct": true
+                },
+                {
+                    "text": "Replacing CSS stylesheets",
+                    "is_correct": false
+                },
+                {
+                    "text": "Creating database tables",
+                    "is_correct": false
+                },
+                {
+                    "text": "Rendering server-side code",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Data Attribute Advantage",
+            "content": "Why are data attributes useful in web development?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They allow storing custom data without affecting layout",
+                    "is_correct": true
+                },
+                {
+                    "text": "They improve internet speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace backend databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically style elements",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Correct Data Attribute Usage",
+            "content": "Which HTML snippet correctly uses a data attribute?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<div data-user-id=\"101\"></div>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div userdata=\"101\"></div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<data user-id=\"101\"></data>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<div id-data=\"101\"></div>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "JavaScript Dataset Access",
+            "content": "How would you access data-user-id in JavaScript?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "element.dataset.userId",
+                    "is_correct": true
+                },
+                {
+                    "text": "element.data.user-id",
+                    "is_correct": false
+                },
+                {
+                    "text": "element.getData(user-id)",
+                    "is_correct": false
+                },
+                {
+                    "text": "element.userId.data",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "ARIA Label Purpose",
+            "content": "What is the main purpose of the aria-label attribute in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To provide an accessible label for screen readers",
+                    "is_correct": true
+                },
+                {
+                    "text": "To style elements with CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create hyperlinks",
+                    "is_correct": false
+                },
+                {
+                    "text": "To validate form inputs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Role Attribute Usage",
+            "content": "What does the role attribute define in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The purpose or function of an element for assistive technologies",
+                    "is_correct": true
+                },
+                {
+                    "text": "The color of an element",
+                    "is_correct": false
+                },
+                {
+                    "text": "The size of an element",
+                    "is_correct": false
+                },
+                {
+                    "text": "The position of an element",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tabindex Purpose",
+            "content": "What is the purpose of the tabindex attribute?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To control keyboard navigation order",
+                    "is_correct": true
+                },
+                {
+                    "text": "To change font size",
+                    "is_correct": false
+                },
+                {
+                    "text": "To define image captions",
+                    "is_correct": false
+                },
+                {
+                    "text": "To validate forms",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "ARIA Label Use Case",
+            "content": "When is aria-label most useful?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "When an element has no visible text label",
+                    "is_correct": true
+                },
+                {
+                    "text": "When styling buttons with CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "When creating database connections",
+                    "is_correct": false
+                },
+                {
+                    "text": "When optimizing images",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Role Attribute Example",
+            "content": "Which of the following is a correct use of the role attribute?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<div role=\"button\">Click Me</div>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<button role=\"color\">Click</button>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<div role=\"style\">Box</div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<role>button</role>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Tabindex Behavior",
+            "content": "What does a positive tabindex value do?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It sets custom tab order for elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "It disables keyboard navigation",
+                    "is_correct": false
+                },
+                {
+                    "text": "It hides the element",
+                    "is_correct": false
+                },
+                {
+                    "text": "It changes element color",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Accessibility Best Practice",
+            "content": "Why should ARIA attributes be used carefully in HTML?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Incorrect usage can harm accessibility instead of improving it",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically fix all HTML errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "They replace all semantic HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "They only work in mobile apps",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Global Attributes Basics",
+            "content": "Which of the following are valid HTML global attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id is used to uniquely identify an HTML element",
+                    "is_correct": true
+                },
+                {
+                    "text": "class is used to group multiple elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "id is used only for images",
+                    "is_correct": false
+                },
+                {
+                    "text": "title provides extra information about an element",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Class Attribute Basics",
+            "content": "Which of the following statements about the class attribute are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "class can be used on multiple elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "class helps apply CSS styles to multiple elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "class must be unique for each element",
+                    "is_correct": false
+                },
+                {
+                    "text": "class is used for grouping elements logically",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Style Attribute Basics",
+            "content": "Which of the following statements about the style attribute are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "style is used to apply inline CSS",
+                    "is_correct": true
+                },
+                {
+                    "text": "style can change text color and size",
+                    "is_correct": true
+                },
+                {
+                    "text": "style is used to create new HTML elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "style applies only to a single element",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "id and class Differences",
+            "content": "Which of the following statements about id and class attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id must be unique in a page",
+                    "is_correct": true
+                },
+                {
+                    "text": "class can be used on multiple elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "id can be shared by multiple elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "class is used for grouping elements",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Title Attribute Usage",
+            "content": "Which of the following statements about the title attribute are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "title shows tooltip text on hover",
+                    "is_correct": true
+                },
+                {
+                    "text": "title provides additional information about an element",
+                    "is_correct": true
+                },
+                {
+                    "text": "title is used to define CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "title improves user experience",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Attribute Usage",
+            "content": "Which of the following statements about advanced usage of global attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id is commonly used for JavaScript DOM selection",
+                    "is_correct": true
+                },
+                {
+                    "text": "class is widely used in CSS styling frameworks",
+                    "is_correct": true
+                },
+                {
+                    "text": "style attribute should always replace external CSS",
+                    "is_correct": false
+                },
+                {
+                    "text": "title attribute improves accessibility in some cases",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Global Attributes",
+            "content": "Which of the following are best practices for using global attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use unique id values for each element",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use class for reusable styling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use style attribute for all styling in large projects",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use title attribute to provide helpful hints",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Data Attributes Basics",
+            "content": "Which of the following statements about HTML data attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "data-* attributes allow storing custom data in HTML elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "data-* attributes are part of HTML5 standard",
+                    "is_correct": true
+                },
+                {
+                    "text": "data-* attributes are used only for styling elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "data-* attributes can store extra information in elements",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Using Data Attributes",
+            "content": "Which of the following statements about using data attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "data attributes start with 'data-' prefix",
+                    "is_correct": true
+                },
+                {
+                    "text": "data attributes can store strings or numbers",
+                    "is_correct": true
+                },
+                {
+                    "text": "data attributes replace HTML tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "data attributes are accessible in JavaScript",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Real-world Usage Basics",
+            "content": "Which of the following statements about real-world usage of data attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "data attributes are used to store metadata in HTML",
+                    "is_correct": true
+                },
+                {
+                    "text": "They help in passing data to JavaScript",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are used to create HTML pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are useful in dynamic web applications",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Accessing Data Attributes",
+            "content": "Which of the following statements about accessing data attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data attributes can be accessed using JavaScript dataset property",
+                    "is_correct": true
+                },
+                {
+                    "text": "data-user-id becomes dataset.userId in JavaScript",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data attributes cannot be accessed in JavaScript",
+                    "is_correct": false
+                },
+                {
+                    "text": "They help in dynamic UI updates",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Real-world Data Usage",
+            "content": "Which of the following statements about real-world usage of data attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They are used in tracking user interactions",
+                    "is_correct": true
+                },
+                {
+                    "text": "They help store temporary UI-related data",
+                    "is_correct": true
+                },
+                {
+                    "text": "They replace backend databases",
+                    "is_correct": false
+                },
+                {
+                    "text": "They are useful in frontend frameworks",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Data Attribute Concepts",
+            "content": "Which of the following statements about advanced data attribute usage are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Data attributes help separate data from presentation",
+                    "is_correct": true
+                },
+                {
+                    "text": "They are widely used in JavaScript frameworks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Data attributes are processed on the server only",
+                    "is_correct": false
+                },
+                {
+                    "text": "They improve maintainability of frontend code",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Data Attributes",
+            "content": "Which of the following are best practices for using data attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use data attributes for custom metadata only",
+                    "is_correct": true
+                },
+                {
+                    "text": "Keep data attributes meaningful and descriptive",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use data attributes for styling purposes only",
+                    "is_correct": false
+                },
+                {
+                    "text": "Access data attributes using dataset in JavaScript",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ARIA Label Basics",
+            "content": "Which of the following statements about aria-label are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "aria-label provides an accessible name for elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "aria-label helps screen readers understand content",
+                    "is_correct": true
+                },
+                {
+                    "text": "aria-label is used for styling HTML elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "aria-label improves accessibility",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Role Attribute Basics",
+            "content": "Which of the following statements about the role attribute are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "role defines the purpose of an element",
+                    "is_correct": true
+                },
+                {
+                    "text": "role helps assistive technologies understand UI elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "role is used to change page layout visually",
+                    "is_correct": false
+                },
+                {
+                    "text": "role improves accessibility structure",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tabindex Basics",
+            "content": "Which of the following statements about tabindex are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "tabindex controls keyboard navigation order",
+                    "is_correct": true
+                },
+                {
+                    "text": "tabindex helps users navigate using the Tab key",
+                    "is_correct": true
+                },
+                {
+                    "text": "tabindex is used for styling elements",
+                    "is_correct": false
+                },
+                {
+                    "text": "tabindex can make elements focusable",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "ARIA and Role Usage",
+            "content": "Which of the following statements about aria-label and role are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "aria-label provides descriptive text for screen readers",
+                    "is_correct": true
+                },
+                {
+                    "text": "role defines the purpose of UI elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "aria-label is used to apply CSS styles",
+                    "is_correct": false
+                },
+                {
+                    "text": "role helps improve accessibility structure",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Tabindex Behavior",
+            "content": "Which of the following statements about tabindex behavior are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "tabindex controls keyboard focus order",
+                    "is_correct": true
+                },
+                {
+                    "text": "tabindex can make non-focusable elements focusable",
+                    "is_correct": true
+                },
+                {
+                    "text": "tabindex is used only for visual styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "tabindex improves keyboard accessibility",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Accessibility Concepts",
+            "content": "Which of the following statements about advanced accessibility attributes are correct?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "aria-label improves screen reader experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "role helps define semantic meaning for assistive tools",
+                    "is_correct": true
+                },
+                {
+                    "text": "Accessibility attributes are only useful for visual users",
+                    "is_correct": false
+                },
+                {
+                    "text": "tabindex helps manage focus flow in complex UI",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Accessibility",
+            "content": "Which of the following are best practices for using accessibility attributes?",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use aria-label to describe unlabeled elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use role to define meaningful UI structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid using tabindex for keyboard navigation",
+                    "is_correct": false
+                },
+                {
+                    "text": "Ensure accessibility attributes improve usability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Use id and class in a Simple HTML Page",
+            "content": "Create an HTML page using global attributes id and class to style and identify elements.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Page with id and class usage"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Elements properly assigned id and class"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div id='header' class='main'>",
+                    "explanation": "id uniquely identifies, class groups elements."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page using id and class.",
+            "solutions": [
+                {
+                    "title": "Basic id and class usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Global Attributes</title>\n</head>\n<body>\n    <div id=\"header\" class=\"main\">\n        <h1>Welcome</h1>\n    </div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use id for unique elements and class for grouping."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Styled Sections Using class Attribute",
+            "content": "Build an HTML page with multiple sections using the class attribute for grouping elements.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple sections with same class"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Grouped elements using class"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div class='box'>",
+                    "explanation": "class is used for grouping multiple elements."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with class usage.",
+            "solutions": [
+                {
+                    "title": "Class grouping example",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Class Example</title>\n</head>\n<body>\n    <div class=\"box\">Box 1</div>\n    <div class=\"box\">Box 2</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use same class for multiple elements."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Web Page with Styled Title Attribute",
+            "content": "Create an HTML page using the title attribute to show tooltips when hovering over elements.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Tooltip shown on hover"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Title attribute working correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<p title='Hello'>",
+                    "explanation": "title shows tooltip on hover."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML with tooltip.",
+            "solutions": [
+                {
+                    "title": "Title attribute usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Title Attribute</title>\n</head>\n<body>\n    <p title=\"This is a tooltip\">Hover over me</p>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use title for hover text."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Styled Profile Card Using id and class",
+            "content": "Build a profile card using id and class attributes and apply inline style for formatting.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Profile card displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Styled profile card using attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div id='card' class='profile'>",
+                    "explanation": "Combining id, class, and style attributes."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML profile card.",
+            "solutions": [
+                {
+                    "title": "Profile Card",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Profile Card</title>\n</head>\n<body>\n    <div id=\"card\" class=\"profile\" style=\"border:1px solid black;padding:10px;\">\n        <h2>John Doe</h2>\n        <p>Developer</p>\n    </div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Combine id, class, and style attributes."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build a Styled Dashboard Section Using Global Attributes",
+            "content": "Create a dashboard section using id, class, title, and style attributes for layout and styling.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard section displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Proper use of global attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<section id='dash' class='box' title='Dashboard'>",
+                    "explanation": "Multiple global attributes used together."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML dashboard section.",
+            "solutions": [
+                {
+                    "title": "Dashboard Section",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <section id=\"dash\" class=\"box\" title=\"Dashboard Section\" style=\"background:#f0f0f0;\">\n        <h2>Analytics</h2>\n    </section>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use multiple global attributes together."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Complex Multi-Component UI Using Global Attributes",
+            "content": "Build a complex UI layout using id, class, title, and style attributes across multiple components.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multi-component UI displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "All components properly styled and identified"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Complex structured UI",
+                    "explanation": "Global attributes help manage large UI systems."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML complex UI.",
+            "solutions": [
+                {
+                    "title": "Complex UI Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>UI System</title>\n</head>\n<body>\n    <header id=\"top\" class=\"header\" title=\"Main Header\" style=\"background:lightblue;\">\n        <h1>Dashboard</h1>\n    </header>\n    <section id=\"content\" class=\"main\" title=\"Content Area\">\n        <p>Main content goes here.</p>\n    </section>\n    <footer id=\"bottom\" class=\"footer\" title=\"Footer\">\n        <p>Footer section</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use all global attributes across layout.",
+                "Structure UI into multiple components."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design a Real-World Admin Panel Using Global Attributes",
+            "content": "Create a complex admin panel layout using id, class, title, and style attributes to organize multiple sections.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Global Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Admin panel displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Structured admin UI with attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Admin dashboard layout",
+                    "explanation": "Real-world admin panels use structured attributes."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML admin panel.",
+            "solutions": [
+                {
+                    "title": "Admin Panel Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Admin Panel</title>\n</head>\n<body>\n    <header id=\"adminHeader\" class=\"top-bar\" title=\"Admin Header\">\n        <h1>Admin Panel</h1>\n    </header>\n    <section id=\"users\" class=\"section\" title=\"User Management\" style=\"padding:10px;\">\n        <p>User list</p>\n    </section>\n    <section id=\"reports\" class=\"section\" title=\"Reports\">\n        <p>Analytics data</p>\n    </section>\n    <footer id=\"adminFooter\" class=\"footer\" title=\"Footer Area\">\n        <p>\u00a9 Admin 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Design like a real admin dashboard.",
+                "Use attributes for structure and styling."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Use Basic data-* Attribute in HTML Element",
+            "content": "Create an HTML page using a simple data-* attribute to store custom information inside an element.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Element with data attribute present"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Custom data attribute correctly added"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div data-id='101'>",
+                    "explanation": "data-* attributes store custom metadata."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML element with data attribute.",
+            "solutions": [
+                {
+                    "title": "Basic data attribute usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Data Attribute</title>\n</head>\n<body>\n    <div data-id=\"101\">Product</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use data-* to store custom values."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a List with Data Attributes",
+            "content": "Build an HTML list where each item has a data-* attribute storing its unique ID.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "List with data attributes"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Each list item has unique data-id"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<li data-id='1'>Item</li>",
+                    "explanation": "Each item stores metadata using data attributes."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML list.",
+            "solutions": [
+                {
+                    "title": "List with data attributes",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>List Data</title>\n</head>\n<body>\n    <ul>\n        <li data-id=\"1\">Item 1</li>\n        <li data-id=\"2\">Item 2</li>\n    </ul>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Assign unique data-id to each item."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Store Product Information Using data-* Attributes",
+            "content": "Create a product card using data-* attributes to store product id, name, and price.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Product card displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Product metadata stored correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div data-name='Phone'>",
+                    "explanation": "Data attributes store product details."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML product card.",
+            "solutions": [
+                {
+                    "title": "Product Card",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Product</title>\n</head>\n<body>\n    <div data-id=\"101\" data-name=\"Phone\" data-price=\"500\">\n        Smartphone\n    </div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use multiple data attributes for storing info."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build a Dynamic Product List Using Data Attributes",
+            "content": "Create an HTML product list where each product has multiple data-* attributes like id, category, and price.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Product list displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Each product has metadata attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div data-category='electronics'>",
+                    "explanation": "Data attributes help filter products."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML product list.",
+            "solutions": [
+                {
+                    "title": "Product List with Data Attributes",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Products</title>\n</head>\n<body>\n    <div data-id=\"1\" data-category=\"electronics\" data-price=\"1000\">Laptop</div>\n    <div data-id=\"2\" data-category=\"mobile\" data-price=\"500\">Phone</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use multiple data-* attributes per element."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Filterable Product Grid Using Data Attributes",
+            "content": "Build a product grid using data-* attributes to simulate filtering by category.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Product grid displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Products grouped by category using data attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Filter-ready structure",
+                    "explanation": "Data attributes are used for dynamic filtering."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML grid layout.",
+            "solutions": [
+                {
+                    "title": "Filterable Grid",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Grid</title>\n</head>\n<body>\n    <div data-category=\"mobile\">Phone</div>\n    <div data-category=\"laptop\">Laptop</div>\n    <div data-category=\"mobile\">Tablet</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use data-category for grouping items."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design a Real-Time Dashboard Using Data Attributes",
+            "content": "Create a dashboard layout using data-* attributes to store live status, user roles, and metrics.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Dynamic metadata stored in elements"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div data-role='admin'>",
+                    "explanation": "Data attributes simulate dynamic systems."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML dashboard.",
+            "solutions": [
+                {
+                    "title": "Dashboard with Data Attributes",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <div data-role=\"admin\" data-status=\"active\">User Panel</div>\n    <div data-role=\"user\" data-status=\"inactive\">User Panel 2</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use data-role and data-status for metadata."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build an Enterprise Level System Using Data Attributes",
+            "content": "Create a complex enterprise UI using data-* attributes for user management, roles, and permissions.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Data Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Enterprise UI displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Structured system with metadata attributes"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Admin system layout",
+                    "explanation": "Data attributes simulate backend-like structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML enterprise system.",
+            "solutions": [
+                {
+                    "title": "Enterprise Data System",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise System</title>\n</head>\n<body>\n    <div data-user=\"101\" data-role=\"admin\" data-access=\"full\">Admin</div>\n    <div data-user=\"102\" data-role=\"editor\" data-access=\"partial\">Editor</div>\n    <div data-user=\"103\" data-role=\"viewer\" data-access=\"read\">Viewer</div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Simulate backend data using data-* attributes.",
+                "Use multiple attributes per element."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Add aria-label to Improve Accessibility",
+            "content": "Create a simple HTML page using aria-label attribute to improve accessibility for screen readers.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Element with aria-label present"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Screen-reader friendly element"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<button aria-label='Close'>",
+                    "explanation": "aria-label provides accessibility description."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML with aria-label.",
+            "solutions": [
+                {
+                    "title": "Basic aria-label usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>ARIA Label</title>\n</head>\n<body>\n    <button aria-label=\"Close Button\">X</button>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use aria-label for describing elements."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Use role Attribute for Semantic Meaning",
+            "content": "Create an HTML page using the role attribute to define semantic roles like button, navigation, or banner.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Role attribute applied"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Accessible semantic roles defined"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<div role='navigation'>",
+                    "explanation": "role defines element purpose."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML with role attribute.",
+            "solutions": [
+                {
+                    "title": "Basic role usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Role Attribute</title>\n</head>\n<body>\n    <div role=\"navigation\">\n        <a href=\"#home\">Home</a>\n    </div>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use role for defining element purpose."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Use tabindex for Keyboard Navigation",
+            "content": "Create an HTML page using tabindex attribute to control keyboard navigation order.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Tab navigation order set"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Elements focusable using keyboard"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<button tabindex='1'>",
+                    "explanation": "tabindex controls focus order."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML with tabindex.",
+            "solutions": [
+                {
+                    "title": "Basic tabindex usage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Tabindex</title>\n</head>\n<body>\n    <button tabindex=\"1\">First</button>\n    <button tabindex=\"2\">Second</button>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use tabindex to control focus order."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Accessible Navigation Menu",
+            "content": "Build a navigation menu using role, aria-label, and tabindex attributes for accessibility.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Accessible navigation menu"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Keyboard and screen reader friendly menu"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<nav role='navigation' aria-label='Main Menu'>",
+                    "explanation": "Combining accessibility attributes improves usability."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML navigation menu.",
+            "solutions": [
+                {
+                    "title": "Accessible Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Navigation</title>\n</head>\n<body>\n    <nav role=\"navigation\" aria-label=\"Main Menu\">\n        <a href=\"#home\" tabindex=\"1\">Home</a>\n        <a href=\"#about\" tabindex=\"2\">About</a>\n    </nav>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Combine aria-label and role.",
+                "Use tabindex for navigation order."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Accessible Form Using ARIA Attributes",
+            "content": "Build a form using aria-label, role, and tabindex to improve accessibility and usability.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Accessible form displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Form supports keyboard navigation"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<input aria-label='Name'>",
+                    "explanation": "ARIA improves form accessibility."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML form.",
+            "solutions": [
+                {
+                    "title": "Accessible Form",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Form</title>\n</head>\n<body>\n    <form role=\"form\">\n        <input type=\"text\" aria-label=\"Name\" tabindex=\"1\">\n        <input type=\"email\" aria-label=\"Email\" tabindex=\"2\">\n    </form>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use aria-label for inputs.",
+                "Use tabindex for order."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build a Fully Accessible Dashboard UI",
+            "content": "Create a complex dashboard using aria-label, role, and tabindex for accessibility and structured navigation.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard UI displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Fully accessible dashboard layout"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Structured accessible system",
+                    "explanation": "Accessibility ensures usability for all users."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML dashboard.",
+            "solutions": [
+                {
+                    "title": "Accessible Dashboard",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header role=\"banner\" aria-label=\"Dashboard Header\">\n        <h1>Dashboard</h1>\n    </header>\n    <nav role=\"navigation\" aria-label=\"Sidebar Menu\">\n        <a href=\"#home\" tabindex=\"1\">Home</a>\n        <a href=\"#reports\" tabindex=\"2\">Reports</a>\n    </nav>\n    <main role=\"main\">\n        <section aria-label=\"Analytics Section\">\n            <p>Analytics data</p>\n        </section>\n    </main>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine all accessibility attributes.",
+                "Design for screen readers and keyboard users."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design an Enterprise Accessible Web Application",
+            "content": "Create a complex enterprise-level UI using aria-label, role, and tabindex for full accessibility compliance.",
+            "level": "subtopic",
+            "topic_name": "HTML Attributes",
+            "subtopic_name": "Accessibility Attributes",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Enterprise UI displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Fully accessible enterprise system"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Large accessible system layout",
+                    "explanation": "Enterprise apps require strict accessibility rules."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML enterprise app.",
+            "solutions": [
+                {
+                    "title": "Enterprise Accessibility UI",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise</title>\n</head>\n<body>\n    <header role=\"banner\" aria-label=\"Main Header\">\n        <h1>Company Portal</h1>\n    </header>\n    <nav role=\"navigation\" aria-label=\"Main Navigation\">\n        <a href=\"#dashboard\" tabindex=\"1\">Dashboard</a>\n        <a href=\"#users\" tabindex=\"2\">Users</a>\n    </nav>\n    <main role=\"main\">\n        <section aria-label=\"User Data Section\">\n            <p>User analytics</p>\n        </section>\n    </main>\n    <footer role=\"contentinfo\">\n        <p>\u00a9 2026 Company</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Ensure full accessibility compliance.",
+                "Use roles for all major sections."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        }
+    ]
 }
