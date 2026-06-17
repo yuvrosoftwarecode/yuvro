@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -1514,6 +1514,61 @@ int main() {
         }
     }
 ]
+
+# --- Face Verification Integration ---
+from faceverification.face_verification import verify_candidate_face
+
+proctoring_router = APIRouter()
+
+@proctoring_router.post("/api/v1/proctoring/verify-batch")
+async def verify_batch_faces(
+    probe_images: List[UploadFile] = File(..., description="Array of photos taken during the exam"),
+    reference_image: Optional[UploadFile] = File(None, description="Initial ID/Selfie taken before the exam")
+):
+    # Read the initial reference image if provided
+    ref_bytes = await reference_image.read() if reference_image else b""
+    
+    # Read all exam probe images concurrently
+    probe_bytes_list = [await img.read() for img in probe_images]
+    
+    # Process all images concurrently using the existing async function
+    tasks = [
+        verify_candidate_face(ref_bytes, p_bytes) 
+        for p_bytes in probe_bytes_list
+    ]
+    
+    # Wait for all comparisons to finish
+    results = await asyncio.gather(*tasks)
+    anomalies = []
+    
+    # Analyze the DeepFace results for proctoring violations
+    for index, result in enumerate(results):
+        flags = result.get("risk_flags", [])
+        
+        if "multiple_faces_detected" in flags:
+            anomalies.append(f"Frame {index}: Multiple people detected in the frame.")
+        elif "face_mismatch" in flags:
+            anomalies.append(f"Frame {index}: A different person was detected (possible impersonation).")
+        elif "no_face_detected" in flags:
+            anomalies.append(f"Frame {index}: No person detected (candidate left the camera view).")
+            
+    if anomalies:
+        return {
+            "status": "failed",
+            "message": "Proctoring violations detected during the exam.",
+            "total_analyzed": len(probe_images),
+            "anomalies": anomalies,
+            "raw_results": results
+        }
+        
+    return {
+        "status": "passed",
+        "message": "All exam frames matched the reference successfully. No violations found.",
+        "total_analyzed": len(probe_images)
+    }
+
+app.include_router(proctoring_router)
+
 
 if __name__ == "__main__":
     import uvicorn

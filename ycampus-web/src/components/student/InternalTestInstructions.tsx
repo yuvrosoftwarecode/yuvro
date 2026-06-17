@@ -25,6 +25,7 @@ interface Assessment {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   description: string;
   marks: number;
+  enable_proctoring?: boolean;
 }
 
 interface InternalTestInstructionsProps {
@@ -51,7 +52,11 @@ const InternalTestInstructions: React.FC<InternalTestInstructionsProps> = ({
   };
 
   const handleStartAssessment = () => {
-    setShowPermissionDialog(true);
+    if (assessment.enable_proctoring) {
+      setShowPermissionDialog(true);
+    } else {
+      onStart();
+    }
   };
 
   const handlePermissionGranted = () => {
@@ -174,62 +179,64 @@ const InternalTestInstructions: React.FC<InternalTestInstructionsProps> = ({
       </Card>
 
       {/* Security Guidelines */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield className="h-5 w-5 text-orange-500" />
-            <span>Important Security Guidelines</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
-            <div className="flex items-start space-x-3">
-              <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5" />
-              <div className="text-sm text-orange-800">
-                <p className="font-semibold mb-2">Proctoring Requirements</p>
-                <p>This {isCampus ? "internal test" : "assessment"} uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
+      {assessment.enable_proctoring && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Shield className="h-5 w-5 text-orange-500" />
+              <span>Important Security Guidelines</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5" />
+                <div className="text-sm text-orange-800">
+                  <p className="font-semibold mb-2">Proctoring Requirements</p>
+                  <p>This {isCampus ? "internal test" : "assessment"} uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-start space-x-3 p-3 border rounded-lg">
-              <Camera className="h-5 w-5 text-blue-500 mt-1" />
-              <div className="text-sm">
-                <p className="font-semibold">Camera Monitoring</p>
-                <p className="text-muted-foreground">Keep your camera on and face visible throughout the {isCampus ? "internal test" : "assessment"}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-start space-x-3 p-3 border rounded-lg">
+                <Camera className="h-5 w-5 text-blue-500 mt-1" />
+                <div className="text-sm">
+                  <p className="font-semibold">Camera Monitoring</p>
+                  <p className="text-muted-foreground">Keep your camera on and face visible throughout the {isCampus ? "internal test" : "assessment"}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-3 border rounded-lg">
+                <Mic className="h-5 w-5 text-green-500 mt-1" />
+                <div className="text-sm">
+                  <p className="font-semibold">Audio Monitoring</p>
+                  <p className="text-muted-foreground">Microphone will be active to monitor ambient sound</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-3 border rounded-lg">
+                <Monitor className="h-5 w-5 text-purple-500 mt-1" />
+                <div className="text-sm">
+                  <p className="font-semibold">Screen Monitoring</p>
+                  <p className="text-muted-foreground">Do not switch tabs or minimize the browser window</p>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-start space-x-3 p-3 border rounded-lg">
-              <Mic className="h-5 w-5 text-green-500 mt-1" />
-              <div className="text-sm">
-                <p className="font-semibold">Audio Monitoring</p>
-                <p className="text-muted-foreground">Microphone will be active to monitor ambient sound</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-3 p-3 border rounded-lg">
-              <Monitor className="h-5 w-5 text-purple-500 mt-1" />
-              <div className="text-sm">
-                <p className="font-semibold">Screen Monitoring</p>
-                <p className="text-muted-foreground">Do not switch tabs or minimize the browser window</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <h4 className="font-semibold text-red-800 mb-2">Prohibited Actions</h4>
-            <ul className="text-sm text-red-700 space-y-1">
-              <li>• Switching tabs or opening other applications</li>
-              <li>• Using external resources or materials</li>
-              <li>• Communicating with others during the {isCampus ? "internal test" : "assessment"}</li>
-              <li>• Taking screenshots or recording the {isCampus ? "internal test" : "assessment"}</li>
-              <li>• Leaving the {isCampus ? "test" : "assessment"} area</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h4 className="font-semibold text-red-800 mb-2">Prohibited Actions</h4>
+              <ul className="text-sm text-red-700 space-y-1">
+                <li>• Switching tabs or opening other applications</li>
+                <li>• Using external resources or materials</li>
+                <li>• Communicating with others during the {isCampus ? "internal test" : "assessment"}</li>
+                <li>• Taking screenshots or recording the {isCampus ? "internal test" : "assessment"}</li>
+                <li>• Leaving the {isCampus ? "test" : "assessment"} area</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Before You Begin */}
       <Card>

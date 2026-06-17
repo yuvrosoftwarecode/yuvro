@@ -32,6 +32,7 @@ from .serializers import (
     MockInterviewSubmissionSerializer,
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
+from .face_verification_proxy import run_async_face_verification
 
 
 def has_active_submission(user, excluding_model=None, excluding_assessment_field=None, excluding_assessment_id=None):
@@ -287,6 +288,10 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             )
             certificate_id = cert.certificate_id
             
+        # Trigger async face verification
+        if exam.enable_proctoring:
+            run_async_face_verification(CertificationSubmission, submission.id)
+
         return Response({
             'status': 'submitted',
             'score': total_score,
@@ -557,6 +562,10 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         submission.marks = total_score
         submission.save()
         
+        # Trigger async face verification
+        if contest.enable_proctoring:
+            run_async_face_verification(ContestSubmission, submission.id)
+
         return Response({'status': 'Submitted', 'score': total_score}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path="increment-participant")
@@ -863,6 +872,10 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         submission.marks = total_score
         submission.save()
         
+        # Trigger async face verification
+        if skill_test.enable_proctoring:
+            run_async_face_verification(SkillTestSubmission, submission.id)
+
         return Response({
             'status': 'submitted',
             'score': total_score

@@ -19,12 +19,13 @@ from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import (
-    Contest, MockInterview, JobTest, SkillTest,
-    ContestSubmission, MockInterviewSubmission, 
-    JobTestSubmission, SkillTestSubmission,
-    SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity,
-    CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate
+    SkillTest, SkillTestSubmission, SkillTestQuestionActivity,
+    Contest, ContestRegistration, ContestSubmission, ContestQuestionActivity,
+    JobTest, JobTestSubmission, JobTestQuestionActivity,
+    CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate,
+    MockInterview, MockInterviewSubmission, MockInterviewQuestionActivity
 )
+from .face_verification_proxy import run_async_face_verification
 from .mixins import ProctoringMixin, AssessmentMixin, LeaderboardPagination
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
@@ -293,6 +294,10 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             gamification = GamificationService.record_activity(request.user, 'quiz')
         except Exception:
             pass  # Gamification should never break assessment flow
+            
+        # Trigger async face verification
+        if exam.enable_proctoring:
+            run_async_face_verification(CertificationSubmission, submission.id)
             
         return Response({
             'status': 'submitted',
@@ -678,6 +683,10 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         except Exception:
             pass  # Gamification should never break assessment flow
         
+        # Trigger async face verification
+        if contest.enable_proctoring:
+            run_async_face_verification(ContestSubmission, submission.id)
+
         return Response({'status': 'Submitted', 'score': total_score, 'gamification': gamification}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path="increment-participant")
@@ -1401,6 +1410,10 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             gamification = GamificationService.record_activity(request.user, 'quiz')
         except Exception:
             pass  # Gamification should never break assessment flow
+            
+        # Trigger async face verification
+        if skill_test.enable_proctoring:
+            run_async_face_verification(SkillTestSubmission, submission.id)
         
         return Response({
             'status': 'submitted',

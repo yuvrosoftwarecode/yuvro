@@ -360,6 +360,10 @@ class BaseUserSubmission(BaseTimestampedModel):
     user_agent = models.TextField(blank=True)
     marks = models.FloatField(null=True, blank=True)
 
+    # Post-exam AI Proctoring verification
+    proctoring_passed = models.BooleanField(default=True)
+    anomalies_detected = models.JSONField(default=list, blank=True)
+
     class Meta:
         abstract = True
 

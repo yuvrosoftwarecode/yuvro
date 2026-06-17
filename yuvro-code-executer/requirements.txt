@@ -13,3 +13,8 @@ opentelemetry-instrumentation-fastapi==0.45b0
 opentelemetry-instrumentation-httpx==0.45b0
 opentelemetry-instrumentation-logging==0.45b0
 prometheus-client==0.20.0
+
+# Face Verification
+deepface>=0.0.89
+opencv-python-headless>=4.9.0
+tf-keras
