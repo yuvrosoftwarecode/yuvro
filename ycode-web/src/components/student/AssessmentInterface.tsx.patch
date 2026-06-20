@@ -1,0 +1,8 @@
+--- src/components/student/AssessmentInterface.tsx
++++ src/components/student/AssessmentInterface.tsx
+@@ -414,7 +414,7 @@
+         });
+       }
+     }
+-  });
++  }, [hasMediaAccess]);

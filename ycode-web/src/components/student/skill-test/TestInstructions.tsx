@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import PermissionDialog from '@/components/student/mock_interview/PermissionDialog';
 import {
   ArrowLeft,
   Clock,
@@ -28,11 +27,12 @@ interface Test {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   description: string;
   marks: number;
+  enable_proctoring?: boolean;
 }
 
 interface TestInstructionsProps {
   test: Test;
-  onStart: (screenStream?: MediaStream) => void;
+  onStart: (screenStream?: MediaStream | null) => void;
   onBack: () => void;
 }
 
@@ -41,8 +41,6 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
   onStart,
   onBack
 }) => {
-  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600';
@@ -53,16 +51,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
   };
 
   const handleStartTest = () => {
-    setShowPermissionDialog(true);
-  };
-
-  const handlePermissionGranted = (screenStream?: MediaStream) => {
-    setShowPermissionDialog(false);
-    onStart(screenStream);
-  };
-
-  const handlePermissionCanceled = () => {
-    setShowPermissionDialog(false);
+    onStart();
   };
 
   return (
@@ -194,67 +183,69 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
       </Card>
 
       {/* Security Guidelines */}
-      <Card className="rounded-2xl border-0 shadow-lg">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center space-x-2 text-lg">
-            <Shield className="h-5 w-5 text-amber-500" />
-            <span>Security Guidelines</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-sm">
-            <div className="flex items-start space-x-3">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <p className="font-semibold text-yellow-900 mb-1">Proctoring Requirements</p>
-                <p className="text-yellow-800">This test uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Camera className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Camera</p>
-                <p className="text-muted-foreground text-xs mt-0.5">Keep your face visible</p>
+      {test.enable_proctoring && (
+        <Card className="rounded-2xl border-0 shadow-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <Shield className="h-5 w-5 text-amber-500" />
+              <span>Security Guidelines</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-sm">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <p className="font-semibold text-yellow-900 mb-1">Proctoring Requirements</p>
+                  <p className="text-yellow-800">This test uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <Mic className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                  <Camera className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Camera</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Keep your face visible</p>
+                </div>
               </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Microphone</p>
-                <p className="text-muted-foreground text-xs mt-0.5">Audio monitoring active</p>
+
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                  <Mic className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Microphone</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Audio monitoring active</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                  <Monitor className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Screen</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">No tab switching</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Monitor className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Screen</p>
-                <p className="text-muted-foreground text-xs mt-0.5">No tab switching</p>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+              <h4 className="font-semibold text-red-900 mb-2 text-sm">Prohibited Actions</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-red-800">
+                <span>• Switching tabs or apps</span>
+                <span>• Using external resources</span>
+                <span>• Communicating with others</span>
+                <span>• Taking screenshots</span>
               </div>
             </div>
-          </div>
-
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
-            <h4 className="font-semibold text-red-900 mb-2 text-sm">Prohibited Actions</h4>
-            <div className="grid grid-cols-2 gap-2 text-xs text-red-800">
-              <span>• Switching tabs or apps</span>
-              <span>• Using external resources</span>
-              <span>• Communicating with others</span>
-              <span>• Taking screenshots</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Before You Begin - Compact Checklist */}
       <Card className="rounded-2xl border-0 shadow-lg">
@@ -301,13 +292,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
         </Button>
       </div>
 
-      {/* Permission Dialog */}
-      <PermissionDialog
-        open={showPermissionDialog}
-        onConfirm={handlePermissionGranted}
-        onCancel={handlePermissionCanceled}
-        requireScreenShare={(test as any).enable_proctoring ?? true} // Assuming test has enable_proctoring passed or defaults to true for skill tests
-      />
+
     </div>
   );
 };

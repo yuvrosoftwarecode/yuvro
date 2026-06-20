@@ -29,6 +29,16 @@ interface TopicSidebarProps {
   overallProgress?: number;
 }
 
+const renderIcon = (icon: any) => {
+  if (!icon) return '🗂️';
+  if (React.isValidElement(icon)) return icon;
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && '$$typeof' in icon)) {
+    const IconComponent = icon as React.ComponentType<any>;
+    return <IconComponent className="w-5 h-5" />;
+  }
+  return icon;
+};
+
 const TopicSidebar = ({
   course,
   selectedTopic,
@@ -54,7 +64,7 @@ const TopicSidebar = ({
         {!isOpen ? (
           <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
             <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 rounded-xl overflow-hidden shadow-sm" title={course.name}>
-              {course.icon || '🗂️'}
+              {renderIcon(course.icon)}
             </div>
             <div className="flex flex-col items-center gap-3 w-full px-2">
               {course.topics.map((topic) => {
@@ -87,7 +97,7 @@ const TopicSidebar = ({
           <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-10 h-10 flex items-center justify-center text-xl rounded-lg overflow-hidden shrink-0 shadow-sm">
-                {course.icon || '🗂️'}
+                {renderIcon(course.icon)}
               </div>
               <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
             </div>

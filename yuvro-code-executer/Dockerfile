@@ -19,6 +19,8 @@ RUN apt-get update \
         default-jdk-headless \
         curl \
         procps \
+        libgl1 \
+        libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import AssessmentInterface from '@/components/student/AssessmentInterface';
 import { startCertificationExam, submitCertificationExam, getCertificationExam } from '@/services/certificationService';
 import { toast } from 'sonner';
+import ProctoringGate from '@/components/student/ProctoringGate';
 
 interface Question {
     id: string;
@@ -22,6 +23,11 @@ interface Assessment {
     duration: number;
     totalQuestions: number;
     topicId: string;
+    proctoring_enabled?: boolean;
+    tab_switch_threshold?: number;
+    violation_threshold?: number;
+    initial_violations?: number;
+    initial_tab_switches?: number;
 }
 
 interface StartExamResponse {
@@ -29,6 +35,11 @@ interface StartExamResponse {
     status: string;
     duration: number;
     questions: Question[];
+    enable_proctoring?: boolean;
+    tab_switch_threshold?: number;
+    violation_threshold?: number;
+    violation_count?: number;
+    tab_switch_count?: number;
 }
 
 const CertificationExam: React.FC = () => {
@@ -38,6 +49,18 @@ const CertificationExam: React.FC = () => {
     const [assessment, setAssessment] = useState<Assessment | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [submissionId, setSubmissionId] = useState<string | null>(null);
+    const [gatePassed, setGatePassed] = useState(false);
+    const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+    const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+    const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+    const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+            if (screenStream) screenStream.getTracks().forEach(t => t.stop());
+        };
+    }, [cameraStream, screenStream]);
 
     useEffect(() => {
         const fetchExam = async () => {
@@ -62,7 +85,12 @@ const CertificationExam: React.FC = () => {
                     course: exam.course_name || "Certification",
                     duration: startRes.duration || exam.duration,
                     totalQuestions: startRes.questions.length,
-                    topicId: ""
+                    topicId: "",
+                    proctoring_enabled: startRes.enable_proctoring,
+                    tab_switch_threshold: startRes.tab_switch_threshold,
+                    violation_threshold: startRes.violation_threshold,
+                    initial_violations: startRes.violation_count ?? 0,
+                    initial_tab_switches: startRes.tab_switch_count ?? 0,
                 });
 
             } catch (err: any) {
@@ -79,13 +107,14 @@ const CertificationExam: React.FC = () => {
 
     const [result, setResult] = useState<any | null>(null);
 
-    const handleSubmit = async (assessmentId: string, subId: string, answers: any, explanations: any, q_ids: string[]) => {
+    const handleSubmit = async (assessmentId: string, subId: string, answers: any, explanations: any, q_ids: string[], timeSpent?: Record<string, number>) => {
         // Custom submit handler for certification
         const res = await submitCertificationExam(assessmentId, {
             submission_id: subId,
             answers,
             explanations,
-            all_question_ids: q_ids
+            all_question_ids: q_ids,
+            time_spent: timeSpent
         });
         setResult(res);
         return res;
@@ -232,6 +261,21 @@ const CertificationExam: React.FC = () => {
         );
     }
 
+    if (assessment.proctoring_enabled && !gatePassed) {
+        return (
+            <ProctoringGate
+                onReady={(data) => {
+                    setCameraStream(data.cameraStream);
+                    setScreenStream(data.screenStream);
+                    setPhotoBlob(data.photoBlob);
+                    setScreenshotBlob(data.screenshotBlob);
+                    setGatePassed(true);
+                }}
+                onCancel={() => navigate('/student/certifications')}
+            />
+        );
+    }
+
     return (
         <AssessmentInterface
             assessment={assessment}
@@ -241,6 +285,10 @@ const CertificationExam: React.FC = () => {
             onBack={() => navigate('/student/certifications')}
             onSubmit={handleSubmit}
             assessmentType="certification-exams"
+            preExamCameraStream={cameraStream}
+            screenStream={screenStream}
+            preExamPhotoBlob={photoBlob}
+            preExamScreenshotBlob={screenshotBlob}
         />
     );
 };

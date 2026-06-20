@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import {
   Plus, Search, Save, Upload, Sparkles, Bold, List, Paperclip, Youtube, Code2,
   RefreshCw, Copy, ArrowDownToLine, Lightbulb, Globe, HelpCircle, BookOpen,
-  Zap, FileText, ChevronRight, Trash2
+  Zap, FileText, ChevronRight, Trash2, Lock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -233,7 +233,7 @@ const Revise = () => {
 
   return (
     <FacultyLayout>
-      <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-[hsl(210,40%,98%)]">
+      <div className="relative flex flex-col h-[calc(100vh-3.5rem)] bg-[hsl(210,40%,98%)] overflow-hidden">
         {/* ── Sticky Header ── */}
         <header className="sticky top-0 z-30 bg-background/80 backdrop-blur border-b px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
           <h1 className="text-base font-semibold text-foreground whitespace-nowrap">Revise – AI Teaching Notebook</h1>
@@ -338,6 +338,19 @@ const Revise = () => {
               {AiPanel}
             </aside>
           )}
+        </div>
+
+        {/* Lock Overlay */}
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/20 backdrop-blur-[6px]">
+          <div className="flex flex-col items-center p-8 bg-background/70 border border-white/20 backdrop-blur-lg rounded-2xl shadow-2xl max-w-sm w-full mx-4 text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
+            <div className="p-4 bg-[hsl(174,64%,33%)]/10 rounded-full text-[hsl(174,64%,33%)] animate-pulse">
+              <Lock className="h-8 w-8" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">Access Restricted</h2>
+            <p className="text-sm text-muted-foreground">
+              Contact admin for access
+            </p>
+          </div>
         </div>
       </div>
     </FacultyLayout>

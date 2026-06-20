@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { fetchQuestionById } from '@/services/questionService';
+import ProctoringSettingsCard from '../shared/ProctoringSettingsCard';
 
 export default function MockInterviewForm() {
   const navigate = useNavigate();
@@ -455,6 +456,13 @@ export default function MockInterviewForm() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <ProctoringSettingsCard
+                    enableProctoring={true}
+                    onEnableProctoringChange={() => {}}
+                    alwaysEnabled={true}
+                    className="mt-4"
+                  />
                 </CardContent>
               </Card>
             </TabsContent>

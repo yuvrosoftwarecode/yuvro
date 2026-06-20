@@ -3858,3 +3858,154 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
 
 
+
+from .models import Attachment
+from .serializers import AttachmentSerializer
+import mimetypes
+from django.http import FileResponse
+
+
+class AttachmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Faculty Attachment Management.
+    Faculty can upload, list, update and delete attachments.
+    Visibility is scoped to the faculty's own uploads or their assigned academic scope.
+    """
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["file_name", "subject__subject_name"]
+    filterset_fields = ["batch", "subject", "unit", "sub_unit"]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Attachment.objects.select_related(
+            "batch", "subject", "uploaded_by"
+        ).prefetch_related("departments", "sections")
+
+        # Show only attachments the faculty uploaded OR those within their scope
+        if hasattr(user, "faculty_profile"):
+            faculty = user.faculty_profile
+            # Get sections this faculty is assigned to
+            assigned_section_ids = SectionSubjectFaculty.objects.filter(
+                faculty=faculty
+            ).values_list("section_id", flat=True)
+            qs = qs.filter(
+                Q(uploaded_by=user) | Q(sections__in=assigned_section_ids)
+            ).distinct()
+        else:
+            qs = qs.filter(uploaded_by=user)
+
+        # Extra query filters
+        department = self.request.query_params.get("department")
+        section = self.request.query_params.get("section")
+        unit = self.request.query_params.get("unit")
+        sub_unit = self.request.query_params.get("sub_unit")
+        if department:
+            qs = qs.filter(departments__id=department)
+        if section:
+            qs = qs.filter(sections__id=section)
+        if unit:
+            qs = qs.filter(unit__id=unit)
+        if sub_unit:
+            qs = qs.filter(sub_unit__id=sub_unit)
+
+        return qs
+
+    def perform_create(self, serializer):
+        from rest_framework.exceptions import ValidationError
+        file_obj = self.request.FILES.get("file")
+        if not file_obj:
+            raise ValidationError({"file": "A file is required for upload."})
+        file_name = file_obj.name
+        file_type = mimetypes.guess_type(file_name)[0] or "application/octet-stream"
+        file_size = file_obj.size
+        try:
+            serializer.save(
+                uploaded_by=self.request.user,
+                file_name=file_name,
+                file_type=file_type,
+                file_size=file_size,
+            )
+        except Exception as exc:
+            raise ValidationError({"detail": f"Attachment creation failed: {exc}"})
+
+    def perform_update(self, serializer):
+        file_obj = self.request.FILES.get("file")
+        if file_obj:
+            file_name = file_obj.name
+            file_type = mimetypes.guess_type(file_name)[0] or "application/octet-stream"
+            file_size = file_obj.size
+            serializer.save(
+                file_name=file_name,
+                file_type=file_type,
+                file_size=file_size,
+            )
+        else:
+            serializer.save()
+
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, pk=None):
+        attachment = self.get_object()
+        try:
+            file_handle = attachment.file.open()
+            mime_type = attachment.file_type or "application/octet-stream"
+            response = FileResponse(file_handle, content_type=mime_type)
+            response["Content-Disposition"] = (
+                f'attachment; filename="{attachment.file_name}"'
+            )
+            return response
+        except Exception:
+            return Response(
+                {"detail": "File not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+class StudentAttachmentViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for Students to view Faculty Attachments (Faculty Reports).
+    """
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ["file_name", "subject__subject_name"]
+    filterset_fields = ["batch", "subject"]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Attachment.objects.select_related(
+            "batch", "subject", "uploaded_by"
+        ).prefetch_related("departments", "sections")
+
+        if hasattr(user, "student_profile"):
+            student = user.student_profile
+            # Provide access to attachments for the student's batch and section
+            # Adjust according to how attachments are mapped to students
+            qs = qs.filter(
+                batch=student.batch,
+                departments=student.department,
+                sections=student.section
+            ).distinct()
+        else:
+            qs = Attachment.objects.none()
+
+        subject = self.request.query_params.get("subject")
+        if subject:
+            qs = qs.filter(subject_id=subject)
+
+        return qs
+
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, pk=None):
+        attachment = self.get_object()
+        try:
+            file_handle = attachment.file.open()
+            mime_type = attachment.file_type or "application/octet-stream"
+            response = FileResponse(file_handle, content_type=mime_type)
+            response["Content-Disposition"] = (
+                f'attachment; filename="{attachment.file_name}"'
+            )
+            return response
+        except Exception:
+            return Response(
+                {"detail": "File not found."}, status=status.HTTP_404_NOT_FOUND
+            )

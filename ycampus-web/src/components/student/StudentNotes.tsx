@@ -1,15 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X, Brain, Zap, Table as TableIcon } from 'lucide-react';
+import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { createNote, deleteNote, fetchNotesBySubUnit, fetchSubUnitById, Note, updateNote, markSubUnitComplete } from '@/services/subjectService';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import AIChatContainer from './ai-buddy/AIChatContainer';
+import { StudyToolkitPanel } from './StudyToolkit';
+import {
+  HardnessOfWaterArticle,
+  FluorideManagementArticle,
+  WaterSofteningArticle,
+  DesalinationArticle,
+  BoilerTroublesArticle,
+  BatteryTechnologyArticle,
+  FuelSolarCellsArticle,
+  CorrosionPrinciplesArticle,
+  CorrosionControlArticle
+} from './DummyLearningMaterials';
 
 const MaterialsView = ({
   materials,
@@ -19,6 +28,8 @@ const MaterialsView = ({
   setIsChatOpen,
   showHeader = true,
   subunit,
+  subunitId,
+  subunitName,
   isMarkedComplete,
   onMarkComplete,
 }: {
@@ -29,12 +40,13 @@ const MaterialsView = ({
   setIsChatOpen: (value: boolean) => void;
   showHeader?: boolean;
   subunit?: any;
+  subunitId?: string;
+  subunitName?: string;
   isMarkedComplete?: boolean;
   onMarkComplete?: () => void;
 }) => {
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'extra-large'>('normal');
   const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
-  const [completed, setCompleted] = useState(false);
 
   const themeClasses = {
     light: 'bg-white border-gray-150 text-slate-800 shadow-sm',
@@ -78,7 +90,7 @@ const MaterialsView = ({
 
     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
       <div className="mb-8 mt-2 space-y-6">
-        {subunit && subunit.content ? (
+        {false && subunit && subunit.content ? (
           <div className={`rounded-3xl p-8 border transition-all duration-300 ${themeClasses[theme]}`}>
             <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b ${
               theme === 'dark' ? 'border-slate-850' : theme === 'sepia' ? 'border-[#ebdcb6]' : 'border-gray-150'
@@ -386,279 +398,29 @@ const MaterialsView = ({
               </Button>
             </div>
           </div>
-        ) : (
-          <>
-            {/* Header Section */}
-            <div className="rounded-2xl p-8 text-black bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-8 h-8 text-indigo-600" />
-            <h2 className="text-3xl font-bold font-sans tracking-tight">M1 → Unit 1 → Rank of Matrix using Echelon Form</h2>
-          </div>
-          <p className="text-gray-700 mt-3 max-w-3xl font-sans text-[15px] leading-relaxed">
-            The <strong>rank of a matrix</strong> is defined as the maximum number of linearly independent rows or columns in the matrix. It tells how much useful (non-redundant) information is present and represents the dimension of the row or column space.
-          </p>
-          <div className="mt-4 bg-white/60 p-4 rounded-xl inline-block border border-indigo-200/50">
-            <code className="text-indigo-800 font-mono text-sm font-semibold">Rank(A) ≤ min(m, n)</code>
-          </div>
-        </div>
-
-        {/* Two Column Grid for Basics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><Zap className="w-5 h-5 text-amber-500" /> Why Rank is Important:</h3>
-            <ul className="space-y-3 font-sans">
-              {[
-                'Solving systems of linear equations',
-                'Checking consistency of equations',
-                'Finding inverse of matrix',
-                'Machine Learning & Data compression'
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-gray-700 bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
-                   <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                   <span className="text-sm">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><Brain className="w-5 h-5 text-purple-500" /> Linear Independence:</h3>
-            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-              Rows are independent if no row can be formed by combining other rows. Dependent rows do <strong className="text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">not increase rank</strong>.
-            </p>
-            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100/50">
-               <span className="text-xs text-purple-600 font-bold uppercase tracking-wider block mb-2">Example of Dependence:</span>
-               <code className="text-sm text-purple-900 font-mono bg-white px-2 py-1 rounded shadow-sm">R₂ = 2R₁ → Dependent</code>
-            </div>
-          </div>
-        </div>
-
-        {/* Echelon Form Section */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-           <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-xl"><TableIcon className="w-6 h-6" /></div>
-              <h3 className="text-xl font-bold text-gray-900 font-sans tracking-tight">Row Echelon Form (REF)</h3>
-           </div>
-           
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                 <h4 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wider">Conditions for REF:</h4>
-                 <ul className="space-y-3">
-                   <li className="flex items-start gap-3">
-                     <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                     <span className="text-sm text-gray-700 mt-0.5">All <strong>zero rows are at the bottom</strong></span>
-                   </li>
-                   <li className="flex items-start gap-3">
-                     <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                     <span className="text-sm text-gray-700 mt-0.5">First non-zero element in each row (pivot) moves right as we go down</span>
-                   </li>
-                   <li className="flex items-start gap-3">
-                     <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                     <span className="text-sm text-gray-700 mt-0.5">All elements <strong>below pivot are zero</strong></span>
-                   </li>
-                 </ul>
-              </div>
-              <div className="bg-slate-900 rounded-xl p-5 shadow-inner">
-                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 block">Example Matrix in REF</span>
-                 <pre className="text-sm text-emerald-400 font-mono leading-relaxed">
-{`[ 1  2  3  4 ]
-[ 0  1  5  6 ]
-[ 0  0  2  3 ]
-[ 0  0  0  0 ]`}
-                 </pre>
-                 <div className="mt-4 pt-4 border-t border-slate-700/50">
-                    <span className="text-xs text-slate-300"><strong className="text-white">Pivot:</strong> First non-zero element in each row, used to eliminate other elements.</span>
-                 </div>
-              </div>
-           </div>
-        </div>
-
-        {/* Steps and Operations */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col hover:border-indigo-200 transition-colors">
-            <h3 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2"><Sparkles className="w-5 h-5 text-indigo-500" /> Elementary Row Operations</h3>
-            <p className="text-sm text-gray-600 mb-4 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50">These operations do <strong>NOT</strong> change the rank of the matrix:</p>
-            
-            <div className="space-y-4 font-sans mt-auto">
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">1. Row Interchange</div>
-                <code className="text-sm text-slate-800 font-mono">Rᵢ ↔ Rⱼ</code>
-              </div>
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">2. Row Scaling</div>
-                <code className="text-sm text-slate-800 font-mono">Rᵢ → kRᵢ</code>
-              </div>
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">3. Row Replacement</div>
-                <code className="text-sm text-slate-800 font-mono">Rᵢ → Rᵢ + kRⱼ</code>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col hover:border-emerald-200 transition-colors">
-            <h3 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2"><Check className="w-5 h-5 text-emerald-500" /> Steps to Find Rank</h3>
-            
-            <ol className="space-y-4 mt-auto">
-              {[
-                { title: 'Write the matrix', desc: 'Start with the given matrix' },
-                { title: 'Convert to Echelon Form', desc: 'Make zeros below pivots & shift pivots right' },
-                { title: 'Arrange rows', desc: 'Move all zero rows to the bottom' },
-                { title: 'Count non-zero rows', desc: 'Rank = Number of non-zero rows' }
-              ].map((step, i) => (
-                <li key={i} className="flex items-start gap-4 text-sm bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                  <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">{i + 1}</span>
-                  <div>
-                    <strong className="text-gray-900 block mb-0.5">{step.title}</strong>
-                    <span className="text-gray-500">{step.desc}</span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            
-            <div className="mt-5 bg-emerald-50 text-emerald-800 p-4 rounded-xl border border-emerald-200 text-center font-bold shadow-sm">
-               👉 Rank = Number of non-zero rows
-            </div>
-          </div>
-        </div>
-
-        {/* Examples Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">Example 1 (Step-by-Step)</h3>
-              <div className="space-y-4">
-                 <div className="bg-slate-900 p-4 rounded-xl">
-                    <pre className="text-sm text-slate-300 font-mono">
-{`A = [ 1  2  3 ]
-    [ 2  4  6 ]
-    [ 1  1  1 ]`}
-                    </pre>
-                 </div>
-                 <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50">
-                    <div className="text-xs font-bold text-indigo-800 mb-2 uppercase tracking-wider">Step 1: Eliminate below 1st pivot</div>
-                    <code className="text-xs text-indigo-600 block mb-1">R₂ → R₂ - 2R₁</code>
-                    <code className="text-xs text-indigo-600 block mb-3">R₃ → R₃ - R₁</code>
-                    <pre className="text-sm text-slate-700 font-mono">
-{`[ 1   2   3 ]
-[ 0   0   0 ]
-[ 0  -1  -2 ]`}
-                    </pre>
-                 </div>
-                 <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50">
-                    <div className="text-xs font-bold text-indigo-800 mb-2 uppercase tracking-wider">Step 2: Rearrange rows</div>
-                    <pre className="text-sm text-slate-700 font-mono">
-{`[ 1   2   3 ]
-[ 0  -1  -2 ]
-[ 0   0   0 ]`}
-                    </pre>
-                 </div>
-                 <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-center justify-between">
-                    <span className="text-sm font-medium text-emerald-800">Non-zero rows = 2</span>
-                    <strong className="text-emerald-700 font-bold bg-white px-3 py-1 rounded shadow-sm text-sm">Rank = 2</strong>
-                 </div>
-              </div>
-           </div>
-
-           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">Example 2 (Larger Matrix)</h3>
-              <div className="space-y-4">
-                 <div className="bg-slate-900 p-4 rounded-xl">
-                    <pre className="text-sm text-slate-300 font-mono">
-{`[ 1  2  1  3 ]
-[ 2  4  0  6 ]
-[ 3  6  3  9 ]`}
-                    </pre>
-                 </div>
-                 <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-100/50">
-                    <div className="text-xs font-bold text-purple-800 mb-2 uppercase tracking-wider">Step 1: Operations</div>
-                    <code className="text-xs text-purple-600 block mb-1">R₂ → R₂ - 2R₁</code>
-                    <code className="text-xs text-purple-600 block mb-3">R₃ → R₃ - 3R₁</code>
-                    <pre className="text-sm text-slate-700 font-mono">
-{`[ 1  2   1  3 ]
-[ 0  0  -2  0 ]
-[ 0  0   0  0 ]`}
-                    </pre>
-                 </div>
-                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div className="text-sm text-slate-600 font-medium">Already in echelon form.</div>
-                 </div>
-                 <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-center justify-between">
-                    <span className="text-sm font-medium text-emerald-800">Non-zero rows = 2</span>
-                    <strong className="text-emerald-700 font-bold bg-white px-3 py-1 rounded shadow-sm text-sm">Rank = 2</strong>
-                 </div>
-              </div>
-           </div>
-        </div>
-
-        {/* Properties & Common Mistakes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">Important Properties</h3>
-              <ul className="space-y-3 font-sans text-sm mb-6">
-                <li className="flex items-center gap-3 pb-2 border-b border-gray-50"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Rank ≤ min(m, n)</li>
-                <li className="flex items-center gap-3 pb-2 border-b border-gray-50"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Rank of Zero Matrix = 0</li>
-                <li className="flex items-center gap-3 pb-2 border-b border-gray-50"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Rank of Identity Matrix = n</li>
-                <li className="flex items-center gap-3 pb-2 border-b border-gray-50"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Rank does not change under row ops</li>
-                <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Row Rank = Column Rank</li>
-              </ul>
-              
-              <div className="mt-auto">
-                 <h4 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">System of Equations (AX = B)</h4>
-                 <div className="overflow-hidden rounded-xl border border-gray-200">
-                   <table className="w-full text-left text-sm">
-                     <thead className="bg-slate-50 text-slate-600">
-                       <tr><th className="px-3 py-2 font-semibold border-b border-gray-200">Condition</th><th className="px-3 py-2 font-semibold border-b border-gray-200">Result</th></tr>
-                     </thead>
-                     <tbody className="divide-y divide-gray-100">
-                       <tr className="hover:bg-slate-50/50"><td className="px-3 py-2 font-mono text-xs">Rank(A) = Rank([A|B]) = n</td><td className="px-3 py-2 text-emerald-600 font-medium border-l border-gray-100">Unique solution</td></tr>
-                       <tr className="hover:bg-slate-50/50"><td className="px-3 py-2 font-mono text-xs">Rank(A) = Rank([A|B]) {'<'} n</td><td className="px-3 py-2 text-amber-600 font-medium border-l border-gray-100">Infinite solutions</td></tr>
-                       <tr className="hover:bg-slate-50/50"><td className="px-3 py-2 font-mono text-xs">Rank(A) ≠ Rank([A|B])</td><td className="px-3 py-2 text-rose-600 font-medium border-l border-gray-100">No solution</td></tr>
-                     </tbody>
-                   </table>
-                 </div>
-              </div>
-           </div>
-
-           <div className="space-y-6">
-              <div className="bg-rose-50/50 rounded-2xl p-6 border border-rose-100 shadow-sm">
-                 <h3 className="text-lg font-bold text-rose-900 mb-4 flex items-center gap-2"><X className="w-5 h-5 text-rose-500" /> Common Mistakes</h3>
-                 <ul className="space-y-2.5 font-sans">
-                   {[
-                     'Not converting fully to echelon form',
-                     'Counting zero rows as non-zero',
-                     'Performing wrong row operations',
-                     'Forgetting to rearrange rows'
-                   ].map((item, i) => (
-                     <li key={i} className="flex items-start gap-2.5 text-rose-800 text-sm">
-                       <span className="text-rose-500 font-bold">❌</span> {item}
-                     </li>
-                   ))}
-                 </ul>
-              </div>
-              
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200/60 shadow-sm">
-                 <h3 className="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2"><Zap className="w-5 h-5 text-amber-600" /> Exam Strategy</h3>
-                 <div className="grid grid-cols-2 gap-3 mt-4">
-                   {[
-                     'Use row operations',
-                     'Create zeros quickly',
-                     'Avoid fractions',
-                     'Count rows carefully'
-                   ].map((item, i) => (
-                     <div key={i} className="bg-white/60 p-2.5 rounded-lg border border-amber-200/40 text-amber-900 text-sm font-medium flex items-center gap-2">
-                       <Check className="w-4 h-4 text-emerald-500" /> {item}
-                     </div>
-                   ))}
-                 </div>
-              </div>
-           </div>
-        </div>
-      </>
-      )}
+        ) : (() => {
+            const articles = [
+              HardnessOfWaterArticle,
+              FluorideManagementArticle,
+              WaterSofteningArticle,
+              DesalinationArticle,
+              BoilerTroublesArticle,
+              BatteryTechnologyArticle,
+              FuelSolarCellsArticle,
+              CorrosionPrinciplesArticle,
+              CorrosionControlArticle,
+            ];
+            // Deterministic pick based on subunitId so same topic always shows same article
+            const key = subunitId || subunitName || subunit?.name || 'default';
+            let hash = 0;
+            for (let i = 0; i < key.length; i++) { hash += key.charCodeAt(i); }
+            const Article = articles[hash % articles.length];
+            return <Article />;
+          })()
+        }
       </div>
-
       {materials.length === 0 ? (
         <></>
-        // <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200 font-sans">
         //   <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
         //   <p className="text-sm">No study materials available for this unit yet.</p>
         // </div>
@@ -849,6 +611,7 @@ const MyNotesView = ({
 
 const StudentNotes = ({
   subunitId,
+  subunitName,
   mode = 'materials',
   sessionId,
   onNewSession,
@@ -856,6 +619,7 @@ const StudentNotes = ({
   onProgressUpdate,
 }: {
   subunitId: string;
+  subunitName?: string;
   mode?: 'materials' | 'my-notes';
   sessionId?: string;
   onNewSession?: () => void;
@@ -1073,6 +837,7 @@ const StudentNotes = ({
                   setIsChatOpen={setIsChatOpen}
                   showHeader={false}
                   subunit={subunit}
+                  subunitName={subunitName}
                   isMarkedComplete={isMarkedComplete}
                   onMarkComplete={handleMarkComplete}
                 />
@@ -1138,7 +903,15 @@ const StudentNotes = ({
 
   return (
     <div ref={containerRef} className={`h-full flex flex-row bg-white overflow-hidden font-sans ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
-      <div className="p-6 overflow-hidden" style={{ width: isChatOpen ? `calc(${100 - chatWidth}% - 6px)` : '100%' }}>
+      {/* Main content area */}
+      <div
+        className="p-6 overflow-hidden flex-1 min-w-0"
+        style={{
+          width: isChatOpen
+            ? `calc(${100 - chatWidth}% - 280px - 6px)`
+            : 'calc(100% - 280px)',
+        }}
+      >
         {mode === 'materials' ? (
           <MaterialsView
             materials={materials}
@@ -1147,6 +920,8 @@ const StudentNotes = ({
             isChatOpen={isChatOpen}
             setIsChatOpen={setIsChatOpen}
             subunit={subunit}
+            subunitId={subunitId}
+            subunitName={subunitName}
             isMarkedComplete={isMarkedComplete}
             onMarkComplete={handleMarkComplete}
           />
@@ -1172,6 +947,7 @@ const StudentNotes = ({
         )}
       </div>
 
+      {/* AI Chat panel (slides in) */}
       {isChatOpen && (
         <>
           <div
@@ -1196,6 +972,13 @@ const StudentNotes = ({
             />
           </div>
         </>
+      )}
+
+      {/* Persistent Study Toolkit sidebar (always visible in materials mode) */}
+      {mode === 'materials' && (
+        <div className="w-[280px] shrink-0 h-full">
+          <StudyToolkitPanel onOpenAi={() => setIsChatOpen(true)} />
+        </div>
       )}
     </div>
   );

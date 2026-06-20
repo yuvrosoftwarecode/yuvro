@@ -12,6 +12,7 @@ import {
   Info,
   Layout,
   MessageCircle,
+  FileText,
   MonitorPlay,
   PlayCircle,
   Sparkles,
@@ -26,6 +27,7 @@ import CustomContentSidebar from './CustomContentSidebar.tsx';
 import type { ContentItem } from './CustomContentSidebar.tsx';
 import QuizInterface from './QuizInterface.tsx';
 import StudentNotes from './StudentNotes.tsx';
+import FacultyReports from './FacultyReports.tsx';
 import StudentVideos, { type LayoutMode } from './StudentVideos.tsx';
 import {
   Subject,
@@ -47,7 +49,7 @@ const SubjectDetail: React.FC = () => {
   const [contentData, setContentData] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'quizzes'>('materials');
+  const [activeTab, setActiveTab] = useState<'videos' | 'materials' | 'my-notes' | 'faculty-reports' | 'quizzes'>('materials');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedTopicTitle, setSelectedTopicTitle] = useState('');
 
@@ -276,6 +278,7 @@ const SubjectDetail: React.FC = () => {
       return (
         <StudentNotes
           subunitId={selectedTopic}
+          subunitName={selectedTopicTitle || 'Sub Unit'}
           mode="materials"
           sessionId={chatSessionId}
           onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
@@ -289,6 +292,7 @@ const SubjectDetail: React.FC = () => {
       return (
         <StudentNotes
           subunitId={selectedTopic}
+          subunitName={selectedTopicTitle || 'Sub Unit'}
           mode="my-notes"
           sessionId={chatSessionId}
           onNewSession={() => setChatSessionId(`subunit-chat-${selectedTopic}-${uuidv4()}`)}
@@ -298,6 +302,10 @@ const SubjectDetail: React.FC = () => {
       );
     }
 
+    if (activeTab === 'faculty-reports') {
+      return <FacultyReports subjectId={subjectId!} />;
+    }
+
     return <div className="p-6">{renderQuizContent()}</div>;
   };
 
@@ -305,6 +313,7 @@ const SubjectDetail: React.FC = () => {
     // { key: 'videos', label: 'Videos', icon: <PlayCircle className="w-4 h-4" /> },
     { key: 'materials', label: 'Materials', icon: <BookOpen className="w-4 h-4" /> },
     { key: 'my-notes', label: 'My Notes', icon: <StickyNote className="w-4 h-4" /> },
+    { key: 'faculty-reports', label: 'Faculty Reports', icon: <FileText className="w-4 h-4" /> },
     { key: 'quizzes', label: 'Quiz', icon: <HelpCircle className="w-4 h-4" /> },
   ] as const;
 
