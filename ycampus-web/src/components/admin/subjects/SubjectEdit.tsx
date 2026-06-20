@@ -27,11 +27,14 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   BookOpen,
   Video,
   FileQuestion,
   FileText,
   Layers3,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -114,6 +117,18 @@ const SubjectEdit: React.FC = () => {
 
   // Right-panel tab state
   const [rightTab, setRightTab] = useState<"videos" | "materials" | "notes" | "questions">("questions");
+
+  // Structure panel collapse state (persisted)
+  const [structureCollapsed, setStructureCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('ycampus_structure_collapsed') === 'true';
+  });
+  const toggleStructure = () => {
+    setStructureCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('ycampus_structure_collapsed', String(next));
+      return next;
+    });
+  };
 
   // Subject editing state
   const [editSubjectValues, setEditSubjectValues] = useState({
@@ -416,86 +431,121 @@ const SubjectEdit: React.FC = () => {
             <main className="p-6">
               <div className="h-[calc(100vh-120px)] w-full flex gap-6">
             {/* Left Sidebar */}
-            <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
-              <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-amber-50 to-orange-50/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-amber-100 rounded-lg">
-                      <Layers3 className="w-4 h-4 text-amber-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-900">Structure</h3>
-                      <p className="text-xs text-slate-600">Units & Sub-units</p>
+            <div
+              className={`bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+                structureCollapsed ? 'w-[44px] min-w-[44px]' : 'w-[360px] min-w-[360px]'
+              }`}
+            >
+              {structureCollapsed ? (
+                /* ── Collapsed slim tab ── */
+                <div className="flex flex-col items-center h-full py-3 gap-3">
+                  <button
+                    onClick={toggleStructure}
+                    title="Expand Structure Panel"
+                    className="p-2 hover:bg-amber-50 rounded-lg text-amber-600 transition-colors"
+                  >
+                    <PanelLeftOpen className="w-4 h-4" />
+                  </button>
+                  <div
+                    className="text-[11px] font-semibold text-slate-400 whitespace-nowrap mt-2"
+                    style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+                  >
+                    Units &amp; Sub-units
+                  </div>
+                </div>
+              ) : (
+                /* ── Expanded full panel ── */
+                <>
+                  <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-amber-50 to-orange-50/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-amber-100 rounded-lg">
+                          <Layers3 className="w-4 h-4 text-amber-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-slate-900">Structure</h3>
+                          <p className="text-xs text-slate-600">Units &amp; Sub-units</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1 cursor-pointer">
+                          <Plus className="w-3 h-3 mr-1" /> Add
+                        </Button>
+                        <button
+                          onClick={toggleStructure}
+                          title="Collapse Structure Panel"
+                          className="ml-1 p-1.5 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
+                        >
+                          <PanelLeftClose className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1 cursor-pointer">
-                    <Plus className="w-3 h-3 mr-1" /> Add
-                  </Button>
-                </div>
-              </div>
 
-              <ScrollArea className="flex-1 p-3">
-                <div className="space-y-3">
-                  {units.map((unit) => {
-                    const expanded = !!expandedUnits[unit.id];
-                    const subs = subUnitsMap[unit.id] || [];
-                    const isSelected = selectedUnit?.id === unit.id;
+                  <ScrollArea className="flex-1 p-3">
+                    <div className="space-y-3">
+                      {units.map((unit) => {
+                        const expanded = !!expandedUnits[unit.id];
+                        const subs = subUnitsMap[unit.id] || [];
+                        const isSelected = selectedUnit?.id === unit.id;
 
-                    return (
-                      <div key={unit.id} className={`group backdrop-blur-sm border rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? "bg-amber-50/80 border-amber-200 shadow-sm" : "bg-white/70 border-slate-200/60"}`} onClick={async () => {
-                        if (isSelected && !selectedSubUnit) {
-                          await toggleExpandUnit(unit.id);
-                        } else if (isSelected && selectedSubUnit) {
-                          setSelectedSubUnit(null);
-                        } else {
-                          setSelectedUnit(unit);
-                          setSelectedSubUnit(null);
-                          if (!expanded) await toggleExpandUnit(unit.id);
-                        }
-                      }}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className={`font-medium text-sm transition-colors ${isSelected ? "text-amber-700" : "text-slate-900 group-hover:text-amber-700"}`}>
-                              {unit.name}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600 cursor-pointer">
-                              <Edit3 className="w-3 h-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer">
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                        {expanded && (
-                          <div className="mt-3 pt-3 border-t border-slate-200/60">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="text-xs font-medium text-slate-700 flex items-center gap-1">Sub-units</div>
-                              <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2 cursor-pointer">
-                                <Plus className="w-2 h-2 mr-1" /> Add
-                              </Button>
-                            </div>
-                            <div className="space-y-2">
-                              {subs.map((s) => (
-                                <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
-                                  <div className="flex items-center justify-between">
-                                    <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50 cursor-pointer"><Edit3 className="w-2.5 h-2.5" /></Button>
-                                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50 cursor-pointer"><Trash2 className="w-2.5 h-2.5" /></Button>
-                                    </div>
-                                  </div>
+                        return (
+                          <div key={unit.id} className={`group backdrop-blur-sm border rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? "bg-amber-50/80 border-amber-200 shadow-sm" : "bg-white/70 border-slate-200/60"}`} onClick={async () => {
+                            if (isSelected && !selectedSubUnit) {
+                              await toggleExpandUnit(unit.id);
+                            } else if (isSelected && selectedSubUnit) {
+                              setSelectedSubUnit(null);
+                            } else {
+                              setSelectedUnit(unit);
+                              setSelectedSubUnit(null);
+                              if (!expanded) await toggleExpandUnit(unit.id);
+                            }
+                          }}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm transition-colors ${isSelected ? "text-amber-700" : "text-slate-900 group-hover:text-amber-700"}`}>
+                                  {unit.name}
                                 </div>
-                              ))}
+                              </div>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600 cursor-pointer">
+                                  <Edit3 className="w-3 h-3" />
+                                </Button>
+                                <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer">
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
                             </div>
+                            {expanded && (
+                              <div className="mt-3 pt-3 border-t border-slate-200/60">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="text-xs font-medium text-slate-700 flex items-center gap-1">Sub-units</div>
+                                  <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2 cursor-pointer">
+                                    <Plus className="w-2 h-2 mr-1" /> Add
+                                  </Button>
+                                </div>
+                                <div className="space-y-2">
+                                  {subs.map((s) => (
+                                    <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
+                                      <div className="flex items-center justify-between">
+                                        <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50 cursor-pointer"><Edit3 className="w-2.5 h-2.5" /></Button>
+                                          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50 cursor-pointer"><Trash2 className="w-2.5 h-2.5" /></Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </ScrollArea>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                </>
+              )}
             </div>
 
             {/* Right Panel */}
