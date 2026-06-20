@@ -17,6 +17,7 @@ import InternalTestInstructions from './InternalTestInstructions';
 import InternalTestInterface from './InternalTestInterface';
 import InternalTestResults from './InternalTestResults';
 import InternalTestThankYou from './InternalTestThankYou';
+import ProctoringGate from '@/components/student/ProctoringGate';
 import PageHeader from '@/components/common/PageHeader';
 
 interface Assessment {
@@ -34,6 +35,7 @@ interface Assessment {
   marks: number;
   completedDate?: string;
   score?: number;
+  enable_proctoring?: boolean;
 }
 
 interface AssessmentContentProps {}
@@ -46,6 +48,12 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentView, setCurrentView] = useState<'list' | 'instructions' | 'assessment' | 'results' | 'thankyou'>('list');
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+  const [gateActive, setGateActive] = useState(false);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
   const [assessmentStats, setAssessmentStats] = useState<{
     answeredCount: number;
     totalQuestions: number;
@@ -123,7 +131,8 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
           description: test.description || '',
           marks: test.total_marks || 0,
           score: latestSubmission?.marks ?? undefined,
-          completedDate: latestSubmission?.completed_at || latestSubmission?.created_at
+          completedDate: latestSubmission?.completed_at || latestSubmission?.created_at,
+          enable_proctoring: true
         };
       });
 
@@ -169,6 +178,18 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
     setCurrentView('list');
     setSelectedAssessment(null);
     updateUrlParams({ view: 'list', assessmentId: null });
+    setGatePassed(false);
+    setGateActive(false);
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+    }
+    if (screenStream) {
+      screenStream.getTracks().forEach(track => track.stop());
+    }
+    setCameraStream(null);
+    setScreenStream(null);
+    setPhotoBlob(null);
+    setScreenshotBlob(null);
   };
 
   const handleStartAssessment = (assessment: Assessment) => {
@@ -185,8 +206,13 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
   };
 
   const handleBeginAssessment = () => {
-    setCurrentView('assessment');
-    updateUrlParams({ view: 'assessment' });
+    if (selectedAssessment?.enable_proctoring) {
+      setGatePassed(false);
+      setGateActive(true);
+    } else {
+      setCurrentView('assessment');
+      updateUrlParams({ view: 'assessment' });
+    }
   };
 
   const handleAssessmentComplete = (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
@@ -234,6 +260,28 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
     );
   }
 
+  if (gateActive && !gatePassed && selectedAssessment) {
+    return (
+      <ProctoringGate
+        onReady={(data) => {
+          setCameraStream(data.cameraStream);
+          setScreenStream(data.screenStream);
+          setPhotoBlob(data.photoBlob);
+          setScreenshotBlob(data.screenshotBlob);
+          setGatePassed(true);
+          setGateActive(false);
+          setCurrentView('assessment');
+          updateUrlParams({ view: 'assessment' });
+        }}
+        onCancel={() => {
+          setGateActive(false);
+          setCurrentView('instructions');
+          updateUrlParams({ view: 'instructions', assessmentId: selectedAssessment.id });
+        }}
+      />
+    );
+  }
+
   if (currentView === 'instructions' && selectedAssessment) {
     return (
       <InternalTestInstructions
@@ -250,6 +298,10 @@ const InternalTestContent: React.FC<AssessmentContentProps> = () => {
         assessment={selectedAssessment as any}
         onComplete={handleAssessmentComplete}
         onBack={handleBackToList}
+        mediaStream={cameraStream}
+        screenStream={screenStream}
+        preExamPhotoBlob={photoBlob}
+        preExamScreenshotBlob={screenshotBlob}
       />
     );
   }

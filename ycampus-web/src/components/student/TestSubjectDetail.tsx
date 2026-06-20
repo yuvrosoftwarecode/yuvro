@@ -27,6 +27,7 @@ import TestInterface from '@/components/student/TestInterface';
 import TestInstructions from '@/components/student/TestInstructions';
 import TestResultsScreen from '@/components/student/TestResultsScreen';
 import TestThankYou from '@/components/student/TestThankYou';
+import ProctoringGate from '@/components/student/ProctoringGate';
 import { fetchUnitsBySubject, UnitWithSubUnits } from '@/services/subjectService';
 import { fetchSkillTests, SkillTest, getUserSubmissions } from '@/services/skillTestService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +39,7 @@ interface Topic {
   questions: number;
   totalMarks?: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  enable_proctoring?: boolean;
 }
 
 interface Course {
@@ -162,6 +164,12 @@ const TestSubjectDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [gateActive, setGateActive] = useState(false);
+  const [gatePassed, setGatePassed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
 
   const isSkillTest = location.pathname.includes('skill-test');
   const baseUrl = isSkillTest ? "/student/skill-test" : "/student/test";
@@ -268,7 +276,12 @@ const TestSubjectDetail = () => {
 
   const handleStartTest = () => {
     setShowInstructions(false);
-    setShowTest(true);
+    if (selectedTopic?.enable_proctoring) {
+      setGatePassed(false);
+      setGateActive(true);
+    } else {
+      setShowTest(true);
+    }
   };
 
   const handleTestComplete = (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
@@ -312,6 +325,18 @@ const TestSubjectDetail = () => {
     setSelectedTopic(null);
     setShowInstructions(false);
     setShowTest(false);
+    setGatePassed(false);
+    setGateActive(false);
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+    }
+    if (screenStream) {
+      screenStream.getTracks().forEach(track => track.stop());
+    }
+    setCameraStream(null);
+    setScreenStream(null);
+    setPhotoBlob(null);
+    setScreenshotBlob(null);
   };
 
   if (showThankYou && selectedTopic && testStats) {
@@ -341,6 +366,26 @@ const TestSubjectDetail = () => {
     );
   }
 
+  if (gateActive && !gatePassed && selectedTopic) {
+    return (
+      <ProctoringGate
+        onReady={(data) => {
+          setCameraStream(data.cameraStream);
+          setScreenStream(data.screenStream);
+          setPhotoBlob(data.photoBlob);
+          setScreenshotBlob(data.screenshotBlob);
+          setGatePassed(true);
+          setGateActive(false);
+          setShowTest(true);
+        }}
+        onCancel={() => {
+          setGateActive(false);
+          setShowInstructions(true);
+        }}
+      />
+    );
+  }
+
   if (showTest && selectedTopic) {
     return (
       <TestInterface
@@ -348,6 +393,10 @@ const TestSubjectDetail = () => {
         course={{ id: subjectName, name: displaySubjectName } as Course}
         onComplete={handleTestComplete}
         onBack={handleBackToCourses}
+        mediaStream={cameraStream}
+        screenStream={screenStream}
+        preExamPhotoBlob={photoBlob}
+        preExamScreenshotBlob={screenshotBlob}
       />
     );
   }
@@ -483,7 +532,8 @@ const TestSubjectDetail = () => {
                                 duration: problem.duration,
                                 questions: problem.total_questions || 0,
                                 totalMarks: problem.total_marks || 0,
-                                difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
+                                difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard',
+                                enable_proctoring: true
                               };
 
                               if (completedTests.has(problem.id)) {

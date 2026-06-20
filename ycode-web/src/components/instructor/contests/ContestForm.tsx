@@ -13,6 +13,7 @@ import { contestService, ContestFormModel, mapContestFromBackend } from '@/servi
 import { fetchQuestionById, Question } from '@/services/questionService';
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import ProctoringSettingsCard from '@/components/instructor/shared/ProctoringSettingsCard';
 import {
   Select,
   SelectTrigger,
@@ -59,6 +60,8 @@ export default function ContestForm() {
     totalMarks: '100',
     passingMarks: '60',
     enableProctoring: true,
+    tabSwitchThreshold: 3,
+    violationThreshold: 5,
     publishStatus: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
     prize: '',
     registrationStartDate: '',
@@ -69,7 +72,6 @@ export default function ContestForm() {
     openForAllDepartments: true,
     allowedDepartments: [] as string[],
     requireStudentId: false,
-    proctoringTechniques: [] as string[],
   });
 
   const [collegeOptions, setCollegeOptions] = useState<Option[]>([]);
@@ -212,11 +214,12 @@ export default function ContestForm() {
         openForAllDepartments: mappedContest.open_for_all_departments ?? true,
         allowedDepartments: mappedContest.allowed_departments ?? [],
         requireStudentId: mappedContest.require_student_id ?? false,
-        proctoringTechniques: mappedContest.proctoring_techniques ?? [],
         instructions: mappedContest.instructions || '',
         totalMarks: mappedContest.total_marks ? String(mappedContest.total_marks) : '100',
         passingMarks: mappedContest.passing_marks ? String(mappedContest.passing_marks) : '60',
         enableProctoring: mappedContest.enable_proctoring ?? false,
+        tabSwitchThreshold: mappedContest.tabSwitchThreshold ?? 3,
+        violationThreshold: mappedContest.violationThreshold ?? 5,
         publishStatus: (mappedContest.publish_status as 'draft' | 'active' | 'inactive' | 'archived') ?? 'draft',
       });
 
@@ -325,12 +328,13 @@ export default function ContestForm() {
       allow_late_entry: formData.allowLateEntry,
 
       enable_proctoring: formData.enableProctoring,
+      tab_switch_threshold: formData.tabSwitchThreshold,
+      violation_threshold: formData.violationThreshold,
       open_for_all_colleges: formData.openForAllColleges,
       allowed_colleges: formData.allowedColleges.map(String),
       open_for_all_departments: formData.openForAllDepartments,
       allowed_departments: formData.allowedDepartments.map(String),
       require_student_id: formData.requireStudentId,
-      proctoring_techniques: formData.proctoringTechniques,
 
       questions_config: selectedQuestionsByType,
       questions_random_config: randomQuestionsConfig,
@@ -696,32 +700,15 @@ export default function ContestForm() {
                   </Card>
 
                   {/* Proctoring Settings */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <ShieldCheck className="h-5 w-5 mr-2 text-[#F97316]" />
-                        Proctoring Settings
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="enable_proctoring"
-                          checked={formData.enableProctoring}
-                          onCheckedChange={(checked) =>
-                            setFormData({ ...formData, enableProctoring: Boolean(checked) })
-                          }
-                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
-                        />
-                        <label
-                          htmlFor="enable_proctoring"
-                          className="text-sm font-medium text-gray-900 select-none cursor-pointer"
-                        >
-                          Enable Proctoring
-                        </label>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ProctoringSettingsCard
+                    enableProctoring={formData.enableProctoring}
+                    onEnableProctoringChange={(val) => setFormData({ ...formData, enableProctoring: val })}
+                    tabSwitchThreshold={formData.tabSwitchThreshold}
+                    onTabSwitchThresholdChange={(val) => setFormData({ ...formData, tabSwitchThreshold: val })}
+                    violationThreshold={formData.violationThreshold}
+                    onViolationThresholdChange={(val) => setFormData({ ...formData, violationThreshold: val })}
+                    className="border border-gray-200 shadow-sm"
+                  />
 
                   {/* Prize Information Card */}
                   <Card className="border border-gray-200 shadow-sm">

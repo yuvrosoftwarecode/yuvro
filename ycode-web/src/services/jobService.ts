@@ -34,6 +34,7 @@ export interface Job {
         coding: number;
         descriptive: number;
     };
+    enable_proctoring?: boolean;
     logo?: string;
     responsibilities?: string[];
     required_skills?: string[];
@@ -234,6 +235,10 @@ export const jobService = {
             application_ids: applicationIds,
             emails: emails
         });
+    },
+
+    async getJobTestSubmission(applicationId: string): Promise<any> {
+        return restApiAuthUtil.get(`/jobs/applications/${applicationId}/test_submission/`);
     },
 };
 

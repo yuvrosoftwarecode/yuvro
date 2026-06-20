@@ -25,6 +25,8 @@ export interface Contest {
   total_marks?: number;
   passing_marks?: number;
   enable_proctoring?: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
   questions_config: {
     mcq_single: string[];
     mcq_multiple: string[];
@@ -84,6 +86,10 @@ export interface StartContestResponse {
   questions: any[];
   is_late_entry: boolean;
   enable_proctoring: boolean;
+  tab_switch_threshold?: number;
+  violation_threshold?: number;
+  violation_count?: number;
+  tab_switch_count?: number;
 }
 
 export const fetchContests = async (): Promise<Contest[]> => {
@@ -120,6 +126,8 @@ export interface ContestFormModel {
   total_marks?: number;
   passing_marks?: number;
   enable_proctoring?: boolean;
+  tabSwitchThreshold?: number;
+  violationThreshold?: number;
 }
 
 // Maps raw backend Contest data to the form-friendly ContestFormModel
@@ -163,6 +171,8 @@ export function mapContestFromBackend(c: any): ContestFormModel {
     total_marks: c.total_marks ?? undefined,
     passing_marks: c.passing_marks ?? undefined,
     enable_proctoring: c.enable_proctoring ?? false,
+    tabSwitchThreshold: c.tab_switch_threshold ?? 3,
+    violationThreshold: c.violation_threshold ?? 5,
   };
 }
 
