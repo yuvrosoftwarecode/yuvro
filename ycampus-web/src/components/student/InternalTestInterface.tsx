@@ -120,6 +120,22 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
   const [showTabWarningDialog, setShowTabWarningDialog] = useState(false);
   const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const tabSwitchThresholdRef = useRef(3);
+
+  useEffect(() => {
+    // Prevent backward navigation
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+      toast({
+        title: "Navigation Blocked",
+        description: "You cannot go back during an active test.",
+        variant: "destructive"
+      });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [toast]);
 
   // Camera state
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -155,8 +171,20 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
           }));
           setQuestions(normalized);
           if (response.duration) {
-            setTimeLeft(response.duration * 60);
+            let remainingSeconds = response.duration * 60;
+            if (response.started_at) {
+              const elapsed = Math.floor((Date.now() - new Date(response.started_at).getTime()) / 1000);
+              if (elapsed > 0 && elapsed < remainingSeconds) {
+                remainingSeconds -= elapsed;
+              } else if (elapsed >= remainingSeconds) {
+                remainingSeconds = 0;
+              }
+            }
+            setTimeLeft(remainingSeconds);
             setTestDuration(response.duration * 60);
+          }
+          if (response.tab_switch_threshold) {
+             tabSwitchThresholdRef.current = response.tab_switch_threshold;
           }
         }
       } catch (err: any) {
@@ -252,7 +280,7 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
       setTabSwitchCount((prev) => {
         const next = prev + 1;
         setTabSwitchAlert(true);
-        if (next >= 2) {
+        if (next >= tabSwitchThresholdRef.current) {
           setShowTabWarningDialog(false);
           setShowTabSwitchDialog(true);
         } else {
@@ -400,6 +428,9 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
       }
     }
 
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(console.error);
+    }
     onComplete({ answeredCount, totalQuestions: questions.length, timeSpent });
   };
 

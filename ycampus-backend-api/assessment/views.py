@@ -186,11 +186,18 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         random.shuffle(questions_to_send)
         
+        for q in questions_to_send:
+            if q.get('mcq_options') and isinstance(q['mcq_options'], list):
+                for opt in q['mcq_options']:
+                    if isinstance(opt, dict):
+                        opt.pop('is_correct', None)
+        
         total_violations, tab_switch_count = self._get_submission_stats(submission)
         
         return Response({
             'submission_id': submission.id,
             'status': submission.status,
+            'started_at': submission.started_at,
             'duration': exam.duration,
             'questions': questions_to_send,
             # Uniform proctoring config
@@ -480,10 +487,17 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         random.shuffle(questions_to_send)
 
+        for q in questions_to_send:
+            if q.get('mcq_options') and isinstance(q['mcq_options'], list):
+                for opt in q['mcq_options']:
+                    if isinstance(opt, dict):
+                        opt.pop('is_correct', None)
+
         total_violations, tab_switch_count = self._get_submission_stats(submission)
 
         return Response({
             'submission_id': submission.id,
+            'started_at': submission.started_at,
             'duration': contest.duration,
             'questions': questions_to_send,
             # Uniform proctoring config
@@ -768,12 +782,19 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         # Shuffle final list
         random.shuffle(questions_to_send)
         
+        for q in questions_to_send:
+            if q.get('mcq_options') and isinstance(q['mcq_options'], list):
+                for opt in q['mcq_options']:
+                    if isinstance(opt, dict):
+                        opt.pop('is_correct', None)
+        
         total_violations, tab_switch_count = self._get_submission_stats(submission)
 
         # 2. Return Response
         return Response({
             'submission_id': str(submission.id),
             'status': submission.status,
+            'started_at': submission.started_at,
             'duration': skill_test.duration,
             'questions': [{**q, 'id': str(q['id'])} for q in questions_to_send],
             # Uniform proctoring config

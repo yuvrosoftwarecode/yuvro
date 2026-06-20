@@ -363,7 +363,7 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
                         <div className="w-1/3 flex-shrink-0 px-3 overflow-y-auto custom-scrollbar">
                             <div className="space-y-4 pt-2">
                                 <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center shadow-inner">
-                            <video ref={videoRef} className={`w-full h-full object-cover ${!cameraStream ? 'opacity-0' : 'opacity-100'}`} />
+                            <video ref={videoRef} muted className={`w-full h-full object-cover ${!cameraStream ? 'opacity-0' : 'opacity-100'}`} />
                             {!cameraStream && <Camera className="absolute h-6 w-6 text-slate-700" />}
                         </div>
 
