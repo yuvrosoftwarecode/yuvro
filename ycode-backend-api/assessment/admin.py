@@ -11,12 +11,13 @@ from .models import (
     JobTestSubmission,
     SkillTestQuestionActivity,
     ContestQuestionActivity,
-    MockInterviewQuestionActivity,
     JobTestQuestionActivity,
     CertificationExam,
     CertificationSubmission,
     CertificationQuestionActivity,
-    Certificate
+    Certificate,
+    PredefinedInterviewQuestion,
+    UserInterviewProgress
 )
 
 
@@ -153,17 +154,32 @@ class ContestAdmin(admin.ModelAdmin):
     update_contest_status.short_description = "Update contest status"
 
 
+@admin.register(PredefinedInterviewQuestion)
+class PredefinedInterviewQuestionAdmin(admin.ModelAdmin):
+    list_display = ["text", "mock_interview", "level", "parent"]
+    list_filter = ["level", "mock_interview"]
+    search_fields = ["text"]
+
+class PredefinedInterviewQuestionInline(admin.TabularInline):
+    model = PredefinedInterviewQuestion
+    extra = 5
+    fields = ["text", "level", "parent"]
+
+@admin.register(UserInterviewProgress)
+class UserInterviewProgressAdmin(admin.ModelAdmin):
+    list_display = ["user", "mock_interview", "completed_count"]
+    list_filter = ["mock_interview"]
+    search_fields = ["user__username", "user__email", "mock_interview__title"]
+
 @admin.register(MockInterview)
 class MockInterviewAdmin(admin.ModelAdmin):
     list_display = [
         "title",
-        "ai_generation_mode",
-        "voice_type",
         "publish_status",
         "max_duration",
         "created_at",
     ]
-    list_filter = ["ai_generation_mode", "voice_type", "publish_status", "created_at"]
+    list_filter = ["publish_status", "created_at"]
     search_fields = ["title", "description"]
     readonly_fields = ["id", "created_at", "updated_at"]
     fieldsets = (
@@ -180,27 +196,6 @@ class MockInterviewAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "AI Configuration",
-            {
-                "fields": (
-                    "ai_generation_mode",
-                    "ai_context",
-                ),
-                "description": "Configure how the AI interviewer behaves and generates questions.",
-            },
-        ),
-        (
-            "Voice Settings",
-            {
-                "fields": ("voice_type", "voice_speed", "audio_settings"),
-                "description": "Configure the voice and audio properties of the interviewer.",
-            },
-        ),
-        (
-            "Questions & Publishing",
-            {"fields": ("questions_config", "questions_random_config")},
-        ),
-        (
             "Metadata",
             {
                 "fields": ("id", "created_by", "created_at", "updated_at"),
@@ -208,6 +203,7 @@ class MockInterviewAdmin(admin.ModelAdmin):
             },
         ),
     )
+    inlines = [PredefinedInterviewQuestionInline]
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("created_by")
@@ -356,7 +352,7 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
     list_filter = [
         "status",
         "experience_level",
-        "mock_interview__ai_generation_mode",
+        "interview_type",
         "started_at",
     ]
     search_fields = ["user__username", "user__email", "mock_interview__title"]
@@ -364,7 +360,7 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Submission Info",
-            {"fields": ("user", "mock_interview", "experience_level", "status")},
+            {"fields": ("user", "mock_interview", "experience_level", "status", "interview_type")},
         ),
         ("Timing", {"fields": ("started_at", "submitted_at", "completed_at")}),
         ("Results", {"fields": ("marks",)}),
@@ -518,11 +514,7 @@ class ContestQuestionActivityAdmin(BaseQuestionActivityAdmin):
     list_display = BaseQuestionActivityAdmin.list_display + ["contest_submission"]
 
 
-@admin.register(MockInterviewQuestionActivity)
-class MockInterviewQuestionActivityAdmin(BaseQuestionActivityAdmin):
-    list_display = BaseQuestionActivityAdmin.list_display + [
-        "mock_interview_submission"
-    ]
+
 
 
 @admin.register(JobTestQuestionActivity)

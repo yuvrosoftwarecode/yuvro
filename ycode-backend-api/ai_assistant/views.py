@@ -840,6 +840,18 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 # Store actual duration if needed
                 # submission.selected_duration = ... 
                 submission.save()
+                
+                # Update UserInterviewProgress for green bars (Practice Phase)
+                if submission.interview_type == "predefined":
+                    from assessment.models import UserInterviewProgress
+                    progress, created = UserInterviewProgress.objects.get_or_create(
+                        user=interview_session.user,
+                        mock_interview=submission.mock_interview
+                    )
+                    if progress.completed_count < 5:
+                        progress.completed_count += 1
+                        progress.save()
+                        logger.info(f"Incremented progress for user {interview_session.user.id}: {progress.completed_count}/5")
         except Exception as e:
              print(f"Error syncing MockInterviewSubmission: {e}")
 
