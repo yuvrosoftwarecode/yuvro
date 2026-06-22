@@ -49,4 +49,4 @@ django-storages[s3]==1.14.4
 
 # Face verification make insta
 deepface>=0.0.89
-opencv-python-headless>=4.9.0
+opencv-python-headless>=4.9.0httpx==0.27.0

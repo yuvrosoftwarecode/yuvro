@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
-import MockInterviewLibrary from '@/components/student/MockInterviewLibrary';
-import PermissionDialog from '@/components/student/PermissionDialog';
-import InterviewScreen from '@/components/student/InterviewScreen';
+import MockInterviewLibrary from '@/components/student/mock_interview/MockInterviewLibrary';
+import PermissionDialog from '@/components/student/mock_interview/PermissionDialog';
+import InterviewScreen from '@/components/student/mock_interview/InterviewScreen';
 import ReportsScreen from '@/components/student/ReportsScreen';
-import ThankYouScreen from '@/components/student/ThankYouScreen';
+import ThankYouScreen from '@/components/student/mock_interview/ThankYouScreen';
+import UploadSection from '@/components/student/mock_interview/UploadSection';
+import InterviewSetup from '@/components/student/mock_interview/InterviewSetup';
 import { Role, InterviewSettings } from '@/types/mockInterview';
 import { mockInterviewService } from '@/services/mockInterviewService';
+import { aiMockInterviewService } from '@/services/aiMockInterviewService';
 
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-type InterviewState = 'library' | 'permission' | 'interview' | 'reports' | 'thank-you';
+type InterviewState = 'library' | 'upload' | 'setup' | 'permission' | 'interview' | 'reports' | 'thank-you';
 
 const StudentMockInterview = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState<InterviewState>('library');
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [interviewSettings, setInterviewSettings] = useState<InterviewSettings | null>(null);
@@ -22,15 +27,28 @@ const StudentMockInterview = () => {
   const [aiConfig, setAiConfig] = useState<any>(null);
   const [isNewReport, setIsNewReport] = useState(false);
 
-  // Step 1: User clicks "Start Interview" on a card → open permission dialog
+  const [customAnalysis, setCustomAnalysis] = useState<any>(null);
+  const [customSettings, setCustomSettings] = useState<any>(null);
+  const [customJdText, setCustomJdText] = useState<string>('');
+  const [customResumeText, setCustomResumeText] = useState<string>('');
+  const [starting, setStarting] = useState(false);
+  const startingRef = useRef(false);
+
+  // Step 1: User clicks "Start Interview" on a card → open permission dialog or custom upload
   const handleStartPractice = (role: Role) => {
     setSelectedRole(role);
-    setState('permission');
+    if (role.id === 'jd_resume') {
+      setState('upload');
+    } else {
+      setState('permission');
+    }
   };
 
   // Step 2: Permission granted → request actual media stream and start interview
   const handlePermissionConfirmed = async () => {
-    if (!selectedRole) return;
+    if (!selectedRole || startingRef.current) return;
+    startingRef.current = true;
+    setStarting(true);
     let stream: MediaStream | null = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -38,21 +56,39 @@ const StudentMockInterview = () => {
       console.error('Failed to get media permissions:', err);
       toast.error('Camera and microphone access is required. Please grant permissions and try again.');
       setState('library');
+      startingRef.current = false;
+      setStarting(false);
       return;
     }
 
     try {
       // Start the interview session
-      const response = await mockInterviewService.startInterview(
-        selectedRole.id,
-        'beginner',
-        selectedRole.max_duration,
-        undefined 
-      );
+      let response;
+      if (selectedRole.id === 'jd_resume') {
+        const difficulty = customSettings?.difficulty || 'medium';
+        const numQuestions = customSettings?.num_questions || 5;
+        const adaptive = customSettings?.adaptive || false;
+        
+        response = await aiMockInterviewService.startInterview(
+          customAnalysis,
+          difficulty,
+          numQuestions,
+          adaptive,
+          customJdText,
+          customResumeText
+        );
+      } else {
+        response = await mockInterviewService.startInterview(
+          selectedRole.id,
+          'beginner',
+          selectedRole.max_duration,
+          undefined 
+        );
+      }
       
       const settings: InterviewSettings = {
-        difficulty: 'beginner',
-        duration: `${selectedRole.max_duration} mins`,
+        difficulty: selectedRole.id === 'jd_resume' ? customSettings.difficulty : 'beginner',
+        duration: selectedRole.id === 'jd_resume' ? `${customSettings.num_questions * 5} mins` : `${selectedRole.max_duration} mins`,
         interviewer: selectedRole.interviewer_name || 'Junnu',
         mediaStream: stream,
       };
@@ -60,21 +96,38 @@ const StudentMockInterview = () => {
       setInterviewSettings(settings);
       setAiConfig({
         interview_type: response.interview_type,
-        first_question: response.first_question
+        first_question: response.first_question,
+        first_question_id: response.first_question_id
       });
       setSubmissionId(response.submission_id);
       setInterviewSessionId(response.interview_session_id);
       setChatSessionId(response.chat_session_id);
       setState('interview');
+      startingRef.current = false;
+      setStarting(false);
     } catch (error: any) {
       console.error('Failed to start interview:', error);
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
       }
+      startingRef.current = false;
+      setStarting(false);
       const apiError = error.message || 'Failed to start interview. Please try again.';
       sessionStorage.setItem('toast_error', apiError);
       window.location.reload();
     }
+  };
+
+  const handleAnalysisComplete = (analysis: any, jdText: string, resumeText: string) => {
+    setCustomAnalysis(analysis);
+    setCustomJdText(jdText);
+    setCustomResumeText(resumeText);
+    setState('setup');
+  };
+
+  const handleSetupComplete = (settings: { difficulty: string; num_questions: number; adaptive: boolean }) => {
+    setCustomSettings(settings);
+    setState('permission');
   };
 
   // Step 3: User cancelled permission dialog
@@ -121,6 +174,35 @@ const StudentMockInterview = () => {
     setState('library');
   };
 
+  // ── Upload section (custom interview only) ──────
+  if (state === 'upload') {
+    return (
+      <StudentLayout>
+        <div className="flex-1 px-8 py-6 pb-12">
+          <UploadSection
+            onAnalysisComplete={handleAnalysisComplete}
+            onBack={handleBackToLibrary}
+          />
+        </div>
+      </StudentLayout>
+    );
+  }
+
+  // ── Setup settings & metrics ───────────────────
+  if (state === 'setup') {
+    return (
+      <StudentLayout>
+        <div className="flex-1 px-8 py-6 pb-12">
+          <InterviewSetup
+            analysis={customAnalysis}
+            onStart={handleSetupComplete}
+            onCancel={handleBackToLibrary}
+          />
+        </div>
+      </StudentLayout>
+    );
+  }
+
   // ── Full-screen interview ──────────────────────
   if (state === 'interview' && selectedRole && interviewSettings) {
     return (
@@ -146,7 +228,7 @@ const StudentMockInterview = () => {
     return (
       <ReportsScreen
         role={selectedRole}
-        difficulty={interviewSettings?.difficulty || 'beginner'}
+        _difficulty={interviewSettings?.difficulty || 'beginner'}
         duration={interviewSettings?.duration || '30 mins'}
         sessionId={submissionId}
         onTryAgain={handleTryAgain}
@@ -158,13 +240,27 @@ const StudentMockInterview = () => {
 
   // ── Thank you screen ──────────────────────
   if (state === 'thank-you') {
-    return <ThankYouScreen onComplete={handleBackToLibrary} />;
+    return (
+      <ThankYouScreen 
+        onComplete={() => {
+          if (submissionId) {
+            navigate(`/student/assessments/mock-interview/report/${submissionId}`);
+          } else {
+            handleBackToLibrary();
+          }
+        }} 
+      />
+    );
   }
 
   // ── Library view ───────────────────────────────────
   return (
     <StudentLayout>
-      <MockInterviewLibrary onStartPractice={handleStartPractice} />
+      <div className="flex-1 px-8 py-6 pb-12">
+        <div className="max-w-[1600px] mx-auto space-y-8">
+          <MockInterviewLibrary onStartPractice={handleStartPractice} />
+        </div>
+      </div>
       <PermissionDialog
         open={state === 'permission'}
         onConfirm={handlePermissionConfirmed}

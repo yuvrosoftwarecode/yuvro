@@ -336,19 +336,37 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "mock_interview",
+        "interview_type",
         "status",
         "experience_level",
         "marks",
+        "face_check_count_display",
+        "face_enroll_photo_display",
         "started_at",
         "submitted_at",
     ]
     list_filter = [
         "status",
         "experience_level",
+        "interview_type",
         "started_at",
     ]
-    search_fields = ["user__username", "user__email", "mock_interview__title"]
-    readonly_fields = ["id", "created_at", "updated_at", "started_at"]
+    search_fields = [
+        "user__username",
+        "user__email",
+        "mock_interview__title",
+    ]
+    readonly_fields = [
+        "id",
+        "created_at",
+        "updated_at",
+        "started_at",
+        "jd_text_display",
+        "resume_text_display",
+        "face_enrollment_display",
+        "face_checks_display",
+        "interview_analytics_display",
+    ]
     fieldsets = (
         (
             "Submission Info",
@@ -357,6 +375,39 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
         ("Timing", {"fields": ("started_at", "submitted_at", "completed_at")}),
         ("Results", {"fields": ("marks",)}),
         (
+            "JD & Resume (AI / Custom Interviews)",
+            {
+                "fields": ("jd_text_display", "resume_text_display"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Interview Analytics",
+            {
+                "fields": ("interview_analytics_display",),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Face Verification",
+            {
+                "fields": ("face_enrollment_display", "face_checks_display"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Proctoring Data",
+            {
+                "fields": (
+                    "proctoring_events",
+                    "browser_info",
+                    "ip_address",
+                    "user_agent",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        (
             "Metadata",
             {"fields": ("id", "created_at", "updated_at"), "classes": ("collapse",)},
         ),
@@ -364,6 +415,172 @@ class MockInterviewSubmissionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("user", "mock_interview")
+
+    # ── helper to get state_data safely ──────────────────────────────────────
+
+    def _state(self, obj):
+        return obj.state_data or {}
+
+    # ── list_display helpers ──────────────────────────────────────────────────
+
+    @admin.display(description="Face Checks")
+    def face_check_count_display(self, obj):
+        checks = self._state(obj).get("face_checks", [])
+        return len(checks)
+
+    @admin.display(description="Enroll Photo")
+    def face_enroll_photo_display(self, obj):
+        enrollment = self._state(obj).get("face_enrollment") or {}
+        key = enrollment.get("photo_key")
+        if not key:
+            return "—"
+        try:
+            from core.storage import build_public_url
+            url = build_public_url(key)
+            if url:
+                return format_html(
+                    '<a href="{}" target="_blank" rel="noopener">📷 View</a>', url
+                )
+        except Exception:
+            pass
+        return format_html('<code>{}</code>', key)
+
+    # ── readonly field displays ───────────────────────────────────────────────
+
+    @admin.display(description="Job Description")
+    def jd_text_display(self, obj):
+        state = self._state(obj)
+        jd = state.get("jd_text") or ""
+        if not jd:
+            return "—"
+        return format_html(
+            '<pre style="white-space:pre-wrap;max-height:300px;overflow-y:auto;'
+            'font-size:0.85em;background:#f8f8f8;padding:8px;border-radius:4px;">{}</pre>',
+            jd,
+        )
+
+    @admin.display(description="Resume Text")
+    def resume_text_display(self, obj):
+        state = self._state(obj)
+        rt = state.get("resume_text") or ""
+        if not rt:
+            return "—"
+        return format_html(
+            '<pre style="white-space:pre-wrap;max-height:300px;overflow-y:auto;'
+            'font-size:0.85em;background:#f8f8f8;padding:8px;border-radius:4px;">{}</pre>',
+            rt,
+        )
+
+    @admin.display(description="Face Enrollment")
+    def face_enrollment_display(self, obj):
+        enrollment = self._state(obj).get("face_enrollment") or {}
+        if not enrollment:
+            return "Not enrolled"
+        rows = []
+        enrolled = enrollment.get("enrolled", False)
+        rows.append(f"<b>Enrolled:</b> {'✅ Yes' if enrolled else '❌ No'}")
+        rows.append(f"<b>Face ID:</b> {enrollment.get('face_id', '—')}")
+        key = enrollment.get("photo_key")
+        if key:
+            try:
+                from core.storage import build_public_url
+                url = build_public_url(key)
+                if url:
+                    rows.append(
+                        f'<b>Enrollment Photo:</b> <a href="{url}" target="_blank" rel="noopener">📷 View Photo</a>'
+                    )
+                else:
+                    rows.append(f"<b>Enrollment Photo Key:</b> <code>{key}</code>")
+            except Exception:
+                rows.append(f"<b>Enrollment Photo Key:</b> <code>{key}</code>")
+        else:
+            rows.append("<b>Enrollment Photo:</b> Not uploaded to storage")
+        return format_html("<br>".join(rows))
+
+    @admin.display(description="Face Verification Checks")
+    def face_checks_display(self, obj):
+        checks = self._state(obj).get("face_checks", [])
+        if not checks:
+            return "No checks recorded"
+        rows = [
+            f"<b>Total checks:</b> {len(checks)}<br>"
+            "<table style='border-collapse:collapse;font-size:0.85em;width:100%'>"
+            "<thead><tr style='background:#eee'>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Timestamp</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Status</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Score</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Photo</th>"
+            "</tr></thead><tbody>"
+        ]
+        for check in checks[-20:]:   # show last 20 checks
+            ts = check.get("timestamp", "—")
+            st = check.get("status", check.get("verified", "—"))
+            sc = check.get("score", check.get("similarity", "—"))
+            key = check.get("photo_key")
+            photo_cell = "—"
+            if key:
+                try:
+                    from core.storage import build_public_url
+                    url = build_public_url(key)
+                    if url:
+                        photo_cell = f'<a href="{url}" target="_blank" rel="noopener">📷</a>'
+                except Exception:
+                    photo_cell = f"<code>{key[:30]}…</code>"
+            rows.append(
+                f"<tr>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{ts}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{st}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{sc}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{photo_cell}</td>"
+                f"</tr>"
+            )
+        rows.append("</tbody></table>")
+        return format_html("".join(rows))
+
+    @admin.display(description="Interview Analytics")
+    def interview_analytics_display(self, obj):
+        state = self._state(obj)
+        answers = state.get("answers", {})
+        interview = state.get("interview", [])
+        if not answers and not interview:
+            return "No interview data recorded yet."
+
+        # Build Q&A table
+        rows = [
+            f"<b>Questions Asked:</b> {len(interview)} | "
+            f"<b>Answers Given:</b> {len(answers)}<br><br>"
+            "<table style='border-collapse:collapse;font-size:0.85em;width:100%'>"
+            "<thead><tr style='background:#eee'>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>#</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd;max-width:300px'>Question</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd;max-width:300px'>Answer</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Score</th>"
+            "<th style='padding:4px 8px;border:1px solid #ddd'>Evaluation</th>"
+            "</tr></thead><tbody>"
+        ]
+        for i, q in enumerate(interview, 1):
+            qid = str(q.get("id", ""))
+            q_text = (q.get("question") or "")[:200]
+            ans_data = answers.get(qid) or {}
+            ans_text = (ans_data.get("answer") or "")[:200]
+            score = ans_data.get("score", "—")
+            evaluation = (ans_data.get("evaluation") or "")[:150]
+            rows.append(
+                f"<tr>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{i}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd;max-width:300px'>{q_text}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd;max-width:300px'>{ans_text}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{score}</td>"
+                f"<td style='padding:4px 8px;border:1px solid #ddd'>{evaluation}</td>"
+                f"</tr>"
+            )
+        rows.append("</tbody></table>")
+
+        # Overall score from state
+        overall = state.get("analysis", {}).get("overall_score") or obj.marks or "—"
+        rows.insert(0, f"<b>Overall Score:</b> {overall}<br>")
+
+        return format_html("".join(rows))
 
 
 @admin.register(JobTestSubmission)

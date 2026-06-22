@@ -323,6 +323,8 @@ class MockInterviewSubmission(BaseUserSubmission):
         MockInterview,
         on_delete=models.CASCADE,
         related_name="mock_interview_submissions",
+        null=True,
+        blank=True,
     )
     experience_level = models.CharField(
         max_length=20,
@@ -352,12 +354,18 @@ class MockInterviewSubmission(BaseUserSubmission):
         choices=[("predefined", "Predefined"), ("full_ai", "Full AI")],
         default="full_ai"
     )
+    state_data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="In-progress state data for AI-powered mock interview",
+    )
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
+        title = self.mock_interview.title if self.mock_interview else "JD/Resume AI Mock Interview"
+        return f"{self.user.username} - {title} ({self.get_experience_level_display()})"
 
 
 class UserInterviewProgress(BaseTimestampedModel):
