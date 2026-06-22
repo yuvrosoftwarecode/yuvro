@@ -18,14 +18,68 @@ interface Sprint {
   status: SprintStatus;
 }
 
-function buildSprints(allTickets: Ticket[]): Sprint[] {
-  const groups: { id: string; name: string; goal: string; range: string; tags: string[] }[] = [
+function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
+  const javaGroups = [
     { id: "S1", name: "Sprint 1 · Foundations", goal: "Master language fundamentals & control flow", range: "Apr 1 – Apr 7", tags: ["Fundamentals"] },
     { id: "S2", name: "Sprint 2 · OOP Core", goal: "Classes, inheritance and interfaces", range: "Apr 8 – Apr 14", tags: ["OOP"] },
     { id: "S3", name: "Sprint 3 · Generics & Errors", goal: "Type-safe APIs and resilient error handling", range: "Apr 15 – Apr 21", tags: ["Generics", "Errors", "I/O"] },
     { id: "S4", name: "Sprint 4 · Collections", goal: "Lists, maps and idiomatic data access", range: "Apr 22 – Apr 28", tags: ["Collections"] },
     { id: "S5", name: "Sprint 5 · Advanced Java", goal: "Streams, concurrency, testing & patterns", range: "Apr 29 – May 12", tags: ["Streams", "FP", "Threads", "DB", "Testing", "Patterns"] },
   ];
+  const pythonGroups = [
+    { id: "PS1", name: "Sprint 1 · Python Foundations", goal: "Types, collections, control flow & functions", range: "Apr 1 – Apr 10", tags: ["Py Fundamentals"] },
+    { id: "PS2", name: "Sprint 2 · Data & APIs", goal: "Files, JSON, requests and pandas basics", range: "Apr 11 – Apr 24", tags: ["Py Data"] },
+    { id: "PS3", name: "Sprint 3 · Django Todo App", goal: "Build a full Django todo app with HTML templates", range: "May 13 – May 26", tags: ["Django Todo"] },
+  ];
+  const uiGroups = [
+    { id: "US1", name: "Sprint 1 · HTML & CSS", goal: "Semantic markup, box model and specificity", range: "Apr 1 – Apr 10", tags: ["HTML/CSS"] },
+    { id: "US2", name: "Sprint 2 · Layout", goal: "Flexbox, Grid and responsive breakpoints", range: "Apr 11 – Apr 20", tags: ["Layout"] },
+    { id: "US3", name: "Sprint 3 · React Essentials", goal: "Components, state, effects and custom hooks", range: "Apr 21 – May 4", tags: ["React"] },
+    { id: "US4", name: "Sprint 4 · Accessibility", goal: "Build inclusive UI: keyboard, focus, contrast", range: "May 5 – May 12", tags: ["Accessibility"] },
+  ];
+  const sqlGroups = [
+    { id: "QS1", name: "Sprint 1 · Querying", goal: "SELECT, filtering, aggregates and CTEs", range: "Apr 1 – Apr 10", tags: ["Querying"] },
+    { id: "QS2", name: "Sprint 2 · Joins", goal: "Combine tables with INNER, LEFT and multi-joins", range: "Apr 11 – Apr 18", tags: ["Joins"] },
+    { id: "QS3", name: "Sprint 3 · Window Functions", goal: "Ranking, LAG/LEAD and running totals", range: "Apr 19 – Apr 28", tags: ["Windows"] },
+    { id: "QS4", name: "Sprint 4 · Performance & Modeling", goal: "EXPLAIN, indexes and normalization", range: "Apr 29 – May 8", tags: ["Tuning"] },
+  ];
+  const mongoGroups = [
+    { id: "MS1", name: "Sprint 1 · CRUD basics", goal: "Insert, find, update and delete documents", range: "Apr 1 – Apr 8", tags: ["Mongo CRUD"] },
+    { id: "MS2", name: "Sprint 2 · Query Operators", goal: "Comparison, logical, array and nested queries", range: "Apr 9 – Apr 16", tags: ["Mongo Query"] },
+    { id: "MS3", name: "Sprint 3 · Aggregation Pipelines", goal: "$match, $group, $lookup and projections", range: "Apr 17 – Apr 26", tags: ["Aggregation"] },
+    { id: "MS4", name: "Sprint 4 · Indexes & Performance", goal: "Design indexes and read explain plans", range: "Apr 27 – May 4", tags: ["Mongo Indexes"] },
+  ];
+  const progGroups = [
+    { id: "PG1", name: "Sprint 1 · Intro", goal: "Hello world, comments and reading input", range: "Apr 1 – Apr 4", tags: ["Prog Intro"] },
+    { id: "PG2", name: "Sprint 2 · Variables & Operators", goal: "Types, arithmetic, boolean and comparisons", range: "Apr 5 – Apr 9", tags: ["Prog Variables"] },
+    { id: "PG3", name: "Sprint 3 · Control Flow", goal: "if/else, nested and switch/match", range: "Apr 10 – Apr 14", tags: ["Prog Control Flow"] },
+    { id: "PG4", name: "Sprint 4 · Loops", goal: "for/while, break/continue, nested patterns", range: "Apr 15 – Apr 19", tags: ["Prog Loops"] },
+    { id: "PG5", name: "Sprint 5 · Functions", goal: "Define, call, defaults, kwargs and recursion", range: "Apr 20 – Apr 25", tags: ["Prog Functions"] },
+    { id: "PG6", name: "Sprint 6 · Strings", goal: "Slicing, methods and palindrome check", range: "Apr 26 – Apr 29", tags: ["Prog Strings"] },
+    { id: "PG7", name: "Sprint 7 · File I/O", goal: "Read/write files and word count", range: "Apr 30 – May 3", tags: ["Prog File I/O"] },
+    { id: "PG8", name: "Sprint 8 · Error Handling", goal: "try/except and custom exceptions", range: "May 4 – May 7", tags: ["Prog Errors"] },
+    { id: "PG9", name: "Sprint 9 · OOP Basics", goal: "Classes, inheritance and dunder methods", range: "May 8 – May 13", tags: ["Prog OOP"] },
+  ];
+  const dsGroups = [
+    { id: "DS1", name: "Sprint 1 · Arrays", goal: "Traversal, two-pointer and sliding window", range: "Apr 1 – Apr 5", tags: ["DS Arrays"] },
+    { id: "DS2", name: "Sprint 2 · Linked Lists", goal: "Singly linked lists, reverse and cycle detection", range: "Apr 6 – Apr 11", tags: ["DS Linked Lists"] },
+    { id: "DS3", name: "Sprint 3 · Stacks", goal: "Stack ops, parentheses and min stack", range: "Apr 12 – Apr 16", tags: ["DS Stacks"] },
+    { id: "DS4", name: "Sprint 4 · Queues", goal: "Two-stack queue, circular queue and deque", range: "Apr 17 – Apr 22", tags: ["DS Queues"] },
+    { id: "DS5", name: "Sprint 5 · Hashing", goal: "Hash maps, two-sum and group anagrams", range: "Apr 23 – Apr 27", tags: ["DS Hashing"] },
+    { id: "DS6", name: "Sprint 6 · Trees", goal: "Traversals, BST and LCA", range: "Apr 28 – May 3", tags: ["DS Trees"] },
+    { id: "DS7", name: "Sprint 7 · Heaps", goal: "Heapify and top-K problems", range: "May 4 – May 7", tags: ["DS Heaps"] },
+    { id: "DS8", name: "Sprint 8 · Graphs", goal: "BFS, DFS and Dijkstra", range: "May 8 – May 14", tags: ["DS Graphs"] },
+    { id: "DS9", name: "Sprint 9 · Sorting", goal: "Bubble, merge and quick sort", range: "May 15 – May 19", tags: ["DS Sorting"] },
+    { id: "DS10", name: "Sprint 10 · Searching", goal: "Binary search and rotated array search", range: "May 20 – May 23", tags: ["DS Searching"] },
+  ];
+  const groups =
+    slug === "python" ? pythonGroups :
+    slug === "ui" ? uiGroups :
+    slug === "sql" ? sqlGroups :
+    slug === "mongo" ? mongoGroups :
+    slug === "programming" ? progGroups :
+    slug === "datastructures" ? dsGroups :
+    javaGroups;
   return groups.map((g) => {
     const ts = allTickets.filter((t) => g.tags.includes(t.tag));
     const completed = ts.filter((t) => t.status === "Completed").length;
@@ -41,7 +95,7 @@ function LabDashboard() {
   const lab = labs.find((l) => l.slug === slug) ?? labs[0];
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
-  const sprints = useMemo(() => buildSprints(tickets), []);
+  const sprints = useMemo(() => buildSprints(slug, tickets), [slug]);
   const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
   const sprintTickets = sprint ? tickets.filter((t) => sprint.ticketIds.includes(t.id)) : tickets;
   const cols: { key: "Not Started" | "In Progress" | "Completed"; }[] = [{ key: "Not Started" }, { key: "In Progress" }, { key: "Completed" }];
@@ -54,7 +108,7 @@ function LabDashboard() {
       <TopNav />
       <main className="mx-auto max-w-[1500px] px-4 py-6">
         <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">Practical Labs</Link>
+          <Link to="/dashboard" className="hover:text-foreground">Practical Labs</Link>
           <span>/</span><span className="text-foreground">{lab.name}</span>
         </div>
 

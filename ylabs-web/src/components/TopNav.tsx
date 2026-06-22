@@ -1,10 +1,11 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Flame, Zap, Trophy, User, Users, LayoutDashboard, MessagesSquare, Award, BarChart3, Sun, Moon } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Flame, Zap, Trophy, User, Users, LayoutDashboard, MessagesSquare, Award, BarChart3, Sun, Moon, LogOut } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { me } from "@/lib/dummy";
+import { useAuth } from "@/lib/auth";
 
 const links = [
-  { to: "/", label: "Individual Hub", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Individual Hub", icon: LayoutDashboard },
   { to: "/collaboration", label: "Collaboration Hub", icon: Users },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
@@ -16,17 +17,19 @@ const links = [
 export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactNode; activeOverride?: string } = {}) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { theme, toggle } = useTheme();
+  const { user, logout } = useAuth();
+  const nav = useNavigate();
   const activePath = activeOverride ?? path;
   return (
     <header className="sticky top-0 z-40 glass border-b border-border">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
-        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground font-mono text-xs">PL</div>
-          <span>Practical Labs</span>
+        <Link to="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
+          <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">Y</div>
+          <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
           {links.map((l) => {
-            const active = l.to === "/" ? activePath === "/" : activePath.startsWith(l.to);
+            const active = l.to === "/dashboard" ? activePath === "/dashboard" : activePath.startsWith(l.to);
             const Icon = l.icon;
             return (
               <Link key={l.to} to={l.to}
@@ -46,6 +49,12 @@ export function TopNav({ rightSlot, activeOverride }: { rightSlot?: React.ReactN
           <span className="hidden sm:flex items-center gap-1 text-primary"><Zap className="h-4 w-4" />{me.xp.toLocaleString()} XP</span>
           <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
           <div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold">{me.avatar}</div>
+          {user && (
+            <button onClick={() => { logout(); nav({ to: "/" }); }} title="Sign out"
+              className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground">
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </header>
