@@ -5,7 +5,7 @@ import { tickets, labs } from "@/lib/dummy";
 import {
   CheckCircle2, XCircle, Zap, Award, Clock, TrendingUp, Sparkles, ArrowRight,
   Code2, MessageSquare, Share2, BookOpen, Trophy, Flame, ChevronDown, ChevronRight,
-  Gauge, Target, Users, Rocket,
+  Gauge, Target, Users, Rocket, Flag,
 } from "lucide-react";
 
 export const Route = createFileRoute("/lab/$slug/ticket/$ticketId/review")({ component: Review });
@@ -230,6 +230,8 @@ function Review() {
           <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Trophy className="h-4 w-4 text-warning" />View best solution</button>
           <Link to="/forum" className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><MessageSquare className="h-4 w-4" />Discuss on forum</Link>
           <button className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Share2 className="h-4 w-4" />Share achievement</button>
+          <button onClick={() => alert("Issue reported · #4821")} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><Flag className="h-4 w-4" />Report</button>
+          <button onClick={() => { const f = prompt("Share your feedback on this ticket:"); if (f) alert("Thanks for the feedback!"); }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"><MessageSquare className="h-4 w-4" />Feedback</button>
           <Link to="/lab/$slug" params={{ slug: lab.slug }} className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto">← Lab dashboard</Link>
           {next && (
             <Link to="/lab/$slug/ticket/$ticketId" params={{ slug: lab.slug, ticketId: next.id }}
