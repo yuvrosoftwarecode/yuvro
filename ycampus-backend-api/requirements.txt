@@ -45,3 +45,8 @@ openpyxl==3.1.5
 # Object Storage (AWS S3 / MinIO)
 boto3==1.35.36
 django-storages[s3]==1.14.4
+
+
+# Face verification make insta
+deepface>=0.0.89
+opencv-python-headless>=4.9.0

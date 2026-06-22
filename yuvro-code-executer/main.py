@@ -1516,9 +1516,35 @@ int main() {
 ]
 
 # --- Face Verification Integration ---
-from faceverification.face_verification import verify_candidate_face
+from faceverification.face_verification import verify_candidate_face, enroll_face, analyze_face
 
 proctoring_router = APIRouter()
+
+@proctoring_router.post("/api/v1/proctoring/enroll")
+async def enroll_single_face(
+    image: UploadFile = File(..., description="Selfie to enroll")
+):
+    image_bytes = await image.read()
+    result = await enroll_face(image_bytes)
+    return result
+
+@proctoring_router.post("/api/v1/proctoring/verify")
+async def verify_single_face(
+    probe_image: UploadFile = File(..., description="Live webcam frame"),
+    reference_image: UploadFile = File(..., description="Enrolled reference selfie")
+):
+    probe_bytes = await probe_image.read()
+    ref_bytes = await reference_image.read()
+    result = await verify_candidate_face(ref_bytes, probe_bytes)
+    return result
+
+@proctoring_router.post("/api/v1/proctoring/analyze")
+async def analyze_single_face(
+    image: UploadFile = File(..., description="Live webcam frame")
+):
+    image_bytes = await image.read()
+    result = await analyze_face(image_bytes)
+    return result
 
 @proctoring_router.post("/api/v1/proctoring/verify-batch")
 async def verify_batch_faces(

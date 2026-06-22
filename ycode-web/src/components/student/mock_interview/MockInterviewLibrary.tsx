@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search } from 'lucide-react';
+import { Search, FileText } from 'lucide-react';
 import InterviewRoleCard from '@/components/common/InterviewRoleCard';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
+import { aiMockInterviewService } from '@/services/aiMockInterviewService';
 import { Role } from '@/types/mockInterview';
 import { getRoleIconConfig } from '@/utils/mockInterviewUtils';
 import { useNavigate } from "react-router-dom";
@@ -17,11 +18,22 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
+  const [customSubmissions, setCustomSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-    const navigate = useNavigate(); // ✅ INSIDE component
+  const navigate = useNavigate(); // ✅ INSIDE component
 
 
   useEffect(() => {
+    const fetchCustomSubmissions = async () => {
+      try {
+        const subs = await aiMockInterviewService.getCustomSubmissions();
+        setCustomSubmissions(subs);
+      } catch (error) {
+        console.error('Failed to fetch custom submissions', error);
+      }
+    };
+    fetchCustomSubmissions();
+
     const fetchMockInterviews = async () => {
       try {
         const data = await mockInterviewService.getAllMockInterviews();
@@ -137,9 +149,36 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
       )}
 
       {/* Cards Grid — 3 columns */}
-{!loading && filteredRoles.length > 0 && (
+{!loading && (filteredRoles.length > 0 || searchTerm) && (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     
+    {(!searchTerm || 
+      'jd & resume ai mock interview'.includes(searchTerm.toLowerCase()) || 
+      'custom jd/resume'.includes(searchTerm.toLowerCase())) && (
+      <InterviewRoleCard
+        title="JD & Resume AI Mock Interview"
+        description="Upload your target Job Description and Resume to generate a tailored, realistic mock interview with real-time feedback."
+        icon={<FileText className="w-6 h-6 text-indigo-500" />}
+        gradient="from-indigo-500 to-purple-600 animate-pulse-slow"
+        duration={30}
+        questionCount={5}
+        category="AI Tailored"
+        my_submissions={customSubmissions}
+        onStart={() => onStartPractice({
+          id: 'jd_resume',
+          title: 'JD & Resume AI Mock Interview',
+          description: 'Upload your target Job Description and Resume to generate a tailored, realistic mock interview with real-time feedback.',
+          category: 'AI Tailored',
+          level: 'Intermediate',
+          max_duration: 30,
+          interviewer_name: 'Junnu',
+          interviewer_voice_id: '',
+          voice_speed: 1.0,
+          buttonGradient: 'from-indigo-500 to-purple-600',
+        })}
+      />
+    )}
+
     {/* Dynamic Cards */}
     {filteredRoles.map(role => (
       <InterviewRoleCard
@@ -161,7 +200,11 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
 )}
 
       {/* Empty state */}
-      {!loading && filteredRoles.length === 0 && (
+      {!loading && filteredRoles.length === 0 && !(
+        !searchTerm || 
+        'jd & resume ai mock interview'.includes(searchTerm.toLowerCase()) || 
+        'custom jd/resume'.includes(searchTerm.toLowerCase())
+      ) && (
         <Card className="border-dashed border-2 py-20 bg-slate-50/50">
           <CardContent>
             <div className="text-center">

@@ -977,9 +977,7 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
 
 
 class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
-    mock_interview_title = serializers.CharField(
-        source="mock_interview.title", read_only=True
-    )
+    mock_interview_title = serializers.SerializerMethodField()
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
     user_email = serializers.EmailField(source="user.email", read_only=True)
     report_summary = serializers.SerializerMethodField()
@@ -987,6 +985,15 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
     transcript = serializers.SerializerMethodField()
     actual_duration_display = serializers.SerializerMethodField()
     interview_session_id = serializers.SerializerMethodField()
+
+    def get_mock_interview_title(self, obj):
+        if obj.mock_interview:
+            return obj.mock_interview.title
+        if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
+            return obj.chat_session.interview_session.role_title
+        if obj.chat_session:
+            return obj.chat_session.title
+        return "JD & Resume AI Mock Interview"
 
     def get_interview_session_id(self, obj):
         if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
@@ -1063,6 +1070,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "transcript",
             "actual_duration_display",
             "interview_session_id",
+            "state_data",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 

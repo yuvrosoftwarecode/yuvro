@@ -109,7 +109,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
             <CardDescription className="line-clamp-2 text-sm font-medium text-slate-500 leading-relaxed min-h-[40px] mt-2">
               {description}
             </CardDescription>
-            {renderProgress()}
+            {category !== 'AI Tailored' && renderProgress()}
           </div>
         </div>
       </CardHeader>

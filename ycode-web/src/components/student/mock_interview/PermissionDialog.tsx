@@ -18,8 +18,11 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
   const [cameraGranted, setCameraGranted] = useState(false);
   const [microphoneGranted, setMicrophoneGranted] = useState(false);
 
+  const hasRequestedRef = React.useRef(false);
+
   useEffect(() => {
-    if (open) {
+    if (open && !hasRequestedRef.current) {
+      hasRequestedRef.current = true;
       requestPermissions();
     }
   }, [open]);

@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2, Video, VideoOff, Settings, PhoneOff, Eye, Volume2, Target, Shield } from 'lucide-react';
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2, Video, VideoOff, Settings, PhoneOff, Eye, Volume2, Target, Shield, HelpCircle } from 'lucide-react';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
+import { aiMockInterviewService } from '@/services/aiMockInterviewService';
+import { toast } from 'sonner';
 import { Role, Message } from '@/types/mockInterview';
 import { useAuth } from '@/contexts/AuthContext';
 import knowledgeTree from '@/assets/knowledge-tree.png';
@@ -50,6 +52,9 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [currentQuestionId, setCurrentQuestionId] = useState<number>(1);
+  const [hintsRemaining, setHintsRemaining] = useState<number>(3);
+  const [isHintAvailable, setIsHintAvailable] = useState<boolean>(false);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('modern');
@@ -109,6 +114,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const currentCodeRef = useRef(currentCode);
   const showCodeEditorRef = useRef(showCodeEditor);
   const isProcessingRef = useRef(false);
+  const currentQuestionIdRef = useRef(currentQuestionId);
 
   const setInterviewStateSync = (newState: 'initial' | 'listening' | 'thinking' | 'speaking') => {
     console.log(`[InterviewEngine] State Transition: ${interviewStateRef.current} -> ${newState}`);
@@ -132,6 +138,104 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   useEffect(() => {
     showCodeEditorRef.current = showCodeEditor;
   }, [showCodeEditor]);
+
+  useEffect(() => {
+    currentQuestionIdRef.current = currentQuestionId;
+  }, [currentQuestionId]);
+
+  const captureScreenshot = (): string | null => {
+    if (!videoRef.current) return null;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth || 640;
+      canvas.height = videoRef.current.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      }
+    } catch (e) {
+      console.warn("Failed to capture video screenshot:", e);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const activeSubId = submissionId || propsSubmissionId;
+    if (role.id !== 'jd_resume' || !activeSubId || isInterviewCompleted) return;
+
+    const enrollTimer = setTimeout(async () => {
+      const imgB64 = captureScreenshot();
+      if (imgB64) {
+        try {
+          console.log("[Proctoring] Enrolling face...");
+          await aiMockInterviewService.faceEnroll(activeSubId, imgB64);
+        } catch (e) {
+          console.warn("Face enrollment failed:", e);
+        }
+      }
+    }, 4000);
+
+    const verificationInterval = setInterval(async () => {
+      const imgB64 = captureScreenshot();
+      if (imgB64) {
+        try {
+          console.log("[Proctoring] Verifying presence...");
+          const res = await aiMockInterviewService.faceVerify(activeSubId, imgB64);
+          if (res && res.status === 'warning') {
+            toast.warning(res.message || "Proctoring warning: face mismatch or absent.");
+          }
+        } catch (e) {
+          console.warn("Face verification failed:", e);
+        }
+      }
+    }, 20000);
+
+    return () => {
+      clearTimeout(enrollTimer);
+      clearInterval(verificationInterval);
+    };
+  }, [role.id, submissionId, propsSubmissionId, isInterviewCompleted]);
+
+  useEffect(() => {
+    showCodeEditorRef.current = showCodeEditor;
+  }, [showCodeEditor]);
+
+  const handleRequestHint = async () => {
+    const activeSubId = submissionId || propsSubmissionId;
+    if (!activeSubId || isAITyping || isInterviewCompleted) return;
+    try {
+      setIsAITyping(true);
+      window.speechSynthesis.cancel();
+      
+      const response = await aiMockInterviewService.getHint(
+        activeSubId,
+        currentQuestionId,
+        currentUserAnswer
+      );
+      console.log("[InterviewEngine] Hint response:", response);
+      
+      const hintText = response.hint;
+      const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const hintMessage: Message = {
+        type: 'ai',
+        content: `💡 Hint: ${hintText}`,
+        timestamp: new Date().toLocaleTimeString(),
+        relativeTime: aiElapsed,
+      };
+      
+      setConversation(prev => [...prev, hintMessage]);
+      speakText(hintText);
+      setIsAITyping(false);
+      
+      // Reset speech recognition to make sure it keeps listening
+      setInterviewStateSync('listening');
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Failed to fetch hint:", err);
+      setIsAITyping(false);
+    }
+  };
 
   const checkCodingQuestion = (text: string) => {
     const aiText = text.toLowerCase();
@@ -255,11 +359,30 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setChatSessionId(propsChatSessionId);
 
         const config = aiConfig;
-        const isPredefined = config.interview_type === 'predefined';
+        const isCustomMode = role.id === 'jd_resume';
+        const isPredefined = config?.interview_type === 'predefined';
 
         startTimeRef.current = Date.now();
 
-        if (isPredefined) {
+        if (isCustomMode) {
+          // --- CUSTOM JD/RESUME MODE INITIALIZATION ---
+          const greeting = config?.first_question || "Hello! I'm your interviewer today. To start, could you please introduce yourself?";
+          if (config?.first_question_id) {
+            setCurrentQuestionId(config.first_question_id);
+          }
+          setConversation([{
+            type: 'ai',
+            content: greeting,
+            timestamp: new Date().toLocaleTimeString(),
+            relativeTime: 0,
+          }]);
+          
+          setIsAITyping(false);
+          setTimeout(() => {
+             console.log("[InterviewEngine] Initializing custom greeting...");
+             speakText(greeting);
+          }, 1000);
+        } else if (isPredefined) {
           // --- PREDEFINED MODE INITIALIZATION ---
           const greeting = config.first_question || "Hello! I'm your interviewer today. To start, could you please introduce yourself?";
           setConversation([{
@@ -322,16 +445,22 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
       window.speechSynthesis.cancel();
 
-      if (interviewSessionId) {
+      const activeSubmissionId = submissionId || propsSubmissionId;
+      if (role.id === 'jd_resume') {
+        if (activeSubmissionId) {
+          await aiMockInterviewService.generateReport(activeSubmissionId);
+        }
+        onInterviewComplete(role, difficulty, duration, activeSubmissionId || '');
+      } else if (interviewSessionId) {
         // Use the specialized end_interview endpoint which handles report generation
         await mockInterviewService.endInterviewSession(interviewSessionId);
         onInterviewComplete(role, difficulty, duration, submissionId || interviewSessionId);
-      } else if (submissionId) {
+      } else if (activeSubmissionId) {
         // Fallback for when only submissionId is present
-        await mockInterviewService.updateMockInterviewSubmission(submissionId, {
+        await mockInterviewService.updateMockInterviewSubmission(activeSubmissionId, {
           status: 'completed',
         });
-        onInterviewComplete(role, difficulty, duration, submissionId);
+        onInterviewComplete(role, difficulty, duration, activeSubmissionId);
       } else {
         onExit();
       }
@@ -492,12 +621,95 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     setIsUserTyping(false);
     setIsAITyping(true);
 
+    const isCustomMode = role.id === 'jd_resume';
     const isPredefined = aiConfig?.interview_type === 'predefined';
     const effectiveInterviewSessionId = propsInterviewSessionId || interviewSessionId;
     const effectiveChatId = propsChatSessionId || chatSessionId;
 
     try {
-      if (isPredefined && effectiveInterviewSessionId) {
+      if (isCustomMode) {
+        // --- CUSTOM JD/RESUME AI INTERVIEW FLOW ---
+        console.log("[InterviewEngine] Custom mode: submitting answer for question", currentQuestionIdRef.current);
+        
+        let combinedAnswer = cleanAnswer + (isEditorActive && latestCode ? `\n\n[Code Submission]:\n${latestCode}` : '');
+        
+        const response = await aiMockInterviewService.submitAnswer(
+          submissionId || propsSubmissionId || '',
+          currentQuestionIdRef.current,
+          combinedAnswer,
+          elapsedSeconds
+        );
+        
+        console.log("[InterviewEngine] Submit answer response:", response);
+        const cueText = response.cue.message;
+        const proceed = response.proceed;
+        
+        if (response.cue.action === 'offer_hint') {
+          setIsHintAvailable(true);
+        } else {
+          setIsHintAvailable(false);
+        }
+        
+        if (proceed) {
+          setIsAITyping(true);
+          try {
+            const nextResp = await aiMockInterviewService.nextQuestion(submissionId || propsSubmissionId || '');
+            console.log("[InterviewEngine] Received next question:", nextResp);
+            
+            const nextText = nextResp.question;
+            const nextQId = nextResp.question_id;
+            
+            if (nextQId) {
+              setCurrentQuestionId(nextQId);
+            }
+            
+            const combinedText = `${cueText}\n\n${nextText}`;
+            const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+            
+            const combinedMessage: Message = {
+              type: 'ai',
+              content: combinedText,
+              timestamp: new Date().toLocaleTimeString(),
+              relativeTime: aiElapsed,
+            };
+            
+            setConversation(prev => [...prev, combinedMessage]);
+            speakText(combinedText);
+            setIsHintAvailable(false);
+            setIsAITyping(false);
+            
+            if (nextResp.is_finished) {
+              console.log("[InterviewEngine] Interview completed");
+              setTimeout(() => handleEndInterview(), 4000);
+            }
+          } catch (err) {
+            console.error("[InterviewEngine] Error getting next custom question:", err);
+            // Fallback: show cue message at least
+            const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+            const cueMessage: Message = {
+              type: 'ai',
+              content: cueText,
+              timestamp: new Date().toLocaleTimeString(),
+              relativeTime: aiElapsed,
+            };
+            setConversation(prev => [...prev, cueMessage]);
+            speakText(cueText);
+            setIsAITyping(false);
+          }
+        } else {
+          // If we don't proceed, just show the cue (like "Would you like to add anything else?")
+          const aiElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const cueMessage: Message = {
+            type: 'ai',
+            content: cueText,
+            timestamp: new Date().toLocaleTimeString(),
+            relativeTime: aiElapsed,
+          };
+          setConversation(prev => [...prev, cueMessage]);
+          speakText(cueText);
+          setIsAITyping(false);
+        }
+      } else if (isPredefined && effectiveInterviewSessionId) {
         // --- PREDEFINED DIALOGUE ENGINE ---
         console.log("[InterviewEngine] Fetching next predefined question...");
         const lowerAnswer = cleanAnswer.toLowerCase();
@@ -680,6 +892,18 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           <span title="AI Proctoring Active">
             <Shield className="w-5 h-5 text-emerald-400 cursor-pointer hover:text-emerald-300 transition-colors mr-2" />
           </span>
+          {role.id === 'jd_resume' && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isAITyping || isInterviewCompleted}
+              onClick={handleRequestHint}
+              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border-amber-500/20 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-2 transition-all mr-2"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Request Hint
+            </Button>
+          )}
           <Button
             variant="ghost"
             onClick={handleEndInterview}
