@@ -102,6 +102,19 @@ export const taskService = {
     },
 
     updateTask: async (id: string, data: any): Promise<Task> => {
+        if (data.attachment instanceof File) {
+            const formData = new FormData();
+            Object.keys(data).forEach(key => {
+                if (data[key] !== undefined && data[key] !== null) {
+                    if (Array.isArray(data[key])) {
+                        data[key].forEach((val: any) => formData.append(key, val));
+                    } else {
+                        formData.append(key, data[key]);
+                    }
+                }
+            });
+            return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, formData);
+        }
         return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, data);
     },
 

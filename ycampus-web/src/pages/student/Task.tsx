@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, Paperclip, XCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { taskService, Task, TaskSubmission, TaskComment } from '@/services/taskService';
-import { CodeEditor } from '@/components/ui/code-editor';
+import CodeExecutionPanel from '@/components/code-editor/CodeExecutionPanel';
 import { format } from 'date-fns';
 import JSZip from 'jszip';
 import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
@@ -619,7 +619,8 @@ const StudentTask: React.FC = () => {
 
                       <div className="h-[520px] w-full rounded-md border">
                         {isCoding ? (
-                          <CodeEditor
+                          <CodeExecutionPanel
+                            problem={{ id: currentTask.id, title: currentTask.title, description: currentTask.description || '' }}
                             initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
                             onCodeChange={(code: string) => {
                               if (isMultiQuestion && activeQuestionIndex !== null) {
@@ -630,6 +631,7 @@ const StudentTask: React.FC = () => {
                             }}
                             readOnly={getTaskStatus(currentTask.id) === 'completed' && submissions[currentTask.id]?.status !== 'rejected'}
                             className="h-full border-0"
+                            showSubmitButton={false}
                           />
                         ) : (
                           <Textarea
