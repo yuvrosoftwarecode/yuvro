@@ -13,13 +13,11 @@ def parse_json_response(text: str) -> dict | list:
     """
     text = text.strip()
 
-    # Attempt 1: direct parse
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Attempt 2: extract from markdown code fences
     if "```" in text:
         parts = text.split("```")
         for part in parts[1::2]:
@@ -31,7 +29,6 @@ def parse_json_response(text: str) -> dict | list:
             except json.JSONDecodeError:
                 continue
 
-    # Attempt 3: find first { ... } or [ ... ] block
     first_obj = text.find("{")
     first_arr = text.find("[")
 

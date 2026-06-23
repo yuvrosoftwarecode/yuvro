@@ -6,10 +6,6 @@ Conventions:
     - Keep prompts short to stay within token budgets.
 """
 
-# ───────────────────────────────────────────────────────────
-# 1. Skill Extractor
-# ───────────────────────────────────────────────────────────
-
 SKILL_EXTRACTION_PROMPT = """\
 Extract all technical and soft skills from the following resume text.
 
@@ -36,10 +32,6 @@ Rules:
 - Be exhaustive but avoid duplicates.
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 2. JD Parser
-# ───────────────────────────────────────────────────────────
 
 JD_PARSING_PROMPT = """\
 Parse the following job description into structured requirements.
@@ -75,10 +67,6 @@ Rules:
 - If experience years are not explicit, infer from seniority level.
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 3. Resume + JD Combined Analysis
-# ───────────────────────────────────────────────────────────
 
 RESUME_EXTRACTION_PROMPT = """\
 Analyze the following resume against the job description.
@@ -122,10 +110,6 @@ Rules:
 """
 
 
-# ───────────────────────────────────────────────────────────
-# 4. Interview Question Generation (batch)
-# ───────────────────────────────────────────────────────────
-
 INTERVIEW_GENERATION_PROMPT = """\
 You are a technical interviewer.
 
@@ -154,10 +138,6 @@ Each question must be meaningfully different in wording, topic, and expected poi
 Return ONLY the JSON array.
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 5. Adaptive Next Question
-# ───────────────────────────────────────────────────────────
 
 ADAPTIVE_QUESTION_PROMPT = """\
 You are an adaptive technical interviewer.
@@ -195,10 +175,6 @@ Return ONLY a valid JSON object:
 """
 
 
-# ───────────────────────────────────────────────────────────
-# 6. Answer Evaluation
-# ───────────────────────────────────────────────────────────
-
 EVALUATION_PROMPT = """\
 Evaluate this interview answer.
 
@@ -218,10 +194,6 @@ Return JSON:
 }}
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 7. Hint Generation (adaptive, level-aware)
-# ───────────────────────────────────────────────────────────
 
 HINT_PROMPT = """\
 Give a hint for this interview question.
@@ -244,10 +216,6 @@ Rules:
 - If partial_answer is provided, tailor the hint to what they're missing.
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 8. Report Generation
-# ───────────────────────────────────────────────────────────
 
 REPORT_GENERATION_PROMPT = """\
 Generate a comprehensive interview performance report.
@@ -288,10 +256,6 @@ Return ONLY a valid JSON object:
 }}
 """
 
-
-# ───────────────────────────────────────────────────────────
-# 9. Code Analysis (LLM-assisted review)
-# ───────────────────────────────────────────────────────────
 
 CODE_ANALYSIS_PROMPT = """\
 Analyze the following code submitted as an interview answer.

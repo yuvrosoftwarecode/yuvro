@@ -8,7 +8,6 @@ from assessment.ai_interview.config import settings
 
 logger = logging.getLogger(__name__)
 
-# URL of the yuvro-code-executer microservice running in the docker network
 CODE_EXECUTER_URL = os.getenv("CODE_EXECUTOR_URL", "http://yuvro-code-executor:8009")
 
 def _get_stub_result(operation: str) -> dict[str, Any]:
@@ -73,5 +72,4 @@ def build_reference_id(image_bytes: bytes) -> str:
     """Generate a consistent identifier for a reference image."""
     return hashlib.sha256(image_bytes).hexdigest()
 
-# Alias verify_face to analyze_face for now
 verify_face = analyze_face

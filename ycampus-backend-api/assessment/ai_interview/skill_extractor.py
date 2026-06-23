@@ -3,7 +3,7 @@ import logging
 from assessment.ai_interview.config import settings
 from assessment.ai_interview.llm_client import get_llm_client
 from assessment.ai_interview.prompts import SKILL_EXTRACTION_PROMPT
-from assessment.ai_interview.schemas.jd import ExtractedSkill, SkillProfile
+from assessment.ai_interview.schemas.job_description import ExtractedSkill, SkillProfile
 from assessment.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)

@@ -3,13 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-# ───────────────────────────────────────────────────────────
-# Shared Models
-# ───────────────────────────────────────────────────────────
-
 class InterviewQuestion(BaseModel):
-    """A single generated interview question."""
-
     id: int = Field(..., description="Question sequence number")
     question: str = Field(..., description="The interview question text")
     topic: str = Field(..., description="Skill or domain area being tested")
@@ -23,8 +17,6 @@ class InterviewQuestion(BaseModel):
 
 
 class AnswerEvaluation(BaseModel):
-    """LLM-generated evaluation of a candidate answer."""
-
     score: int = Field(..., ge=1, le=10, description="Score from 1-10")
     score_percentage: Optional[float] = Field(None, description="Approximate percentage score")
     feedback: str = Field(..., description="2-3 sentence constructive feedback")
@@ -37,28 +29,20 @@ class AnswerEvaluation(BaseModel):
     answer_word_count: Optional[int] = Field(None, description="Word count of submitted answer")
     answer_truncated: bool = Field(False, description="Whether the LLM evaluator saw a condensed answer")
 
-    # Rule-based and code analysis sub-scores (when applicable)
     llm_score: Optional[int] = Field(None, description="LLM-only score component")
     rule_based_score: Optional[int] = Field(None, description="Rule-based score component")
     code_analysis_score: Optional[int] = Field(None, description="Code analysis score (coding questions)")
 
 
 class AcknowledgementCue(BaseModel):
-    """Conversational cue the client can speak or display."""
-
     type: int = Field(..., ge=1, le=3, description="1=next question, 2=add more/hint, 3=silence check")
     action: str = Field(..., description="Client action identifier")
     message: str = Field(..., description="Candidate-facing acknowledgement")
     wait_seconds: Optional[float] = Field(None, description="Seconds to wait before this cue")
 
 
-# ───────────────────────────────────────────────────────────
-# Request Models
-# ───────────────────────────────────────────────────────────
 
 class StartInterviewRequest(BaseModel):
-    """POST /api/v1/start-interview body."""
-
     session_id: str = Field(..., description="Session from resume upload")
     difficulty: str = Field("medium", description="easy | medium | hard")
     num_questions: int = Field(5, ge=1, le=15, description="Number of questions (1-15)")
@@ -66,14 +50,10 @@ class StartInterviewRequest(BaseModel):
 
 
 class NextQuestionRequest(BaseModel):
-    """POST /api/v1/next-question body (adaptive mode)."""
-
     session_id: str = Field(..., description="Active session ID")
 
 
 class SubmitAnswerRequest(BaseModel):
-    """POST /api/v1/submit-answer body."""
-
     session_id: str = Field(..., description="Active session ID")
     question_id: int = Field(..., description="ID of the question being answered")
     answer: str = Field(..., min_length=1, max_length=20_000, description="Candidate's answer")
@@ -85,16 +65,12 @@ class SubmitAnswerRequest(BaseModel):
 
 
 class HintRequest(BaseModel):
-    """POST /api/v1/get-hint body."""
-
     session_id: str = Field(..., description="Active session ID")
     question_id: int = Field(..., description="ID of the question needing a hint")
     partial_answer: str = Field("", description="Candidate's partial answer so far")
 
 
 class InterviewCueRequest(BaseModel):
-    """POST /api/v1/interview-cue body for real-time guidance."""
-
     session_id: str = Field(..., description="Active session ID")
     question_id: Optional[int] = Field(None, description="Current question ID")
     event_type: str = Field(
@@ -105,10 +81,6 @@ class InterviewCueRequest(BaseModel):
     answer_duration_seconds: Optional[float] = Field(None, ge=0, description="Observed answer duration")
     partial_answer: str = Field("", max_length=5000, description="Current partial answer")
 
-
-# ───────────────────────────────────────────────────────────
-# Response Models
-# ───────────────────────────────────────────────────────────
 
 class StartInterviewResponse(BaseModel):
     session_id: str
@@ -125,8 +97,6 @@ class StartInterviewResponse(BaseModel):
 
 
 class NextQuestionResponse(BaseModel):
-    """Response for adaptive next question."""
-
     session_id: str
     question: Optional[InterviewQuestion] = None
     questions_remaining: int

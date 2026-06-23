@@ -20,10 +20,6 @@ def _parse_optional_years(value: object, prefer: str = "first") -> float | None:
     return value
 
 
-# ───────────────────────────────────────────────────────────
-# Skill Extraction Models
-# ───────────────────────────────────────────────────────────
-
 class ExtractedSkill(BaseModel):
     """A single skill extracted from a resume."""
 
@@ -47,10 +43,6 @@ class SkillProfile(BaseModel):
     skills: list[ExtractedSkill] = Field(default_factory=list)
     summary: str = Field("", description="One-line skill profile summary")
 
-
-# ───────────────────────────────────────────────────────────
-# JD Parsing Models
-# ───────────────────────────────────────────────────────────
 
 class JDSkillRequirement(BaseModel):
     """A skill requirement from a job description."""

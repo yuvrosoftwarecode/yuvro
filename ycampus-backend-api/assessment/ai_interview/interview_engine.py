@@ -17,10 +17,6 @@ CLOSING_NOTE = (
 )
 
 
-# ───────────────────────────────────────────────────────────
-# Batch Mode — generate all questions at once
-# ───────────────────────────────────────────────────────────
-
 async def generate_questions(
     analysis: dict,
     difficulty: str = "medium",
@@ -62,7 +58,6 @@ async def generate_questions(
 
     questions = parse_json_response(response)
 
-    # Handle both array and object-with-array responses
     if isinstance(questions, dict):
         questions = questions.get("questions", [])
 
@@ -85,10 +80,6 @@ async def generate_questions(
     logger.info("Generated %d questions including self introduction", len(all_questions))
     return all_questions
 
-
-# ───────────────────────────────────────────────────────────
-# Adaptive Mode — one question at a time
-# ───────────────────────────────────────────────────────────
 
 async def get_next_question(
     session: dict[str, Any],
@@ -117,7 +108,6 @@ async def get_next_question(
         logger.info("Interview complete: %d/%d questions asked", questions_asked, num_total_questions)
         return None
 
-    # Compute performance stats
     scores = [_coerce_score(a.get("score", 5)) for a in answers.values() if isinstance(a, dict)]
     avg_score = sum(scores) / len(scores) if scores else 5.0
 
@@ -189,10 +179,6 @@ async def get_next_question(
     )
 
 
-# ───────────────────────────────────────────────────────────
-# Internal Helpers
-# ───────────────────────────────────────────────────────────
-
 def build_self_intro_question() -> dict:
     """Return the standard first question for every interview."""
     return {
@@ -241,7 +227,6 @@ def _get_all_topics(analysis: dict) -> list[str]:
     if domain and domain not in topics:
         topics.append(domain)
 
-    # Add gap topics for probing
     for gap in analysis.get("gaps", []):
         if gap not in topics:
             topics.append(gap)

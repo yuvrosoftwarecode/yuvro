@@ -19,10 +19,6 @@ def _parse_optional_years(value: object) -> float | None:
     return value
 
 
-# ───────────────────────────────────────────────────────────
-# Request Models
-# ───────────────────────────────────────────────────────────
-
 class ResumeUploadRequest(BaseModel):
     """POST /api/v1/upload-resume body."""
 
@@ -46,10 +42,6 @@ class ResumeUploadRequest(BaseModel):
             raise ValueError("Field must contain non-whitespace text.")
         return v.strip()
 
-
-# ───────────────────────────────────────────────────────────
-# Analysis Model (returned by LLM)
-# ───────────────────────────────────────────────────────────
 
 class SkillMatch(BaseModel):
     """Single skill comparison between resume and JD."""
@@ -93,10 +85,6 @@ class ResumeAnalysis(BaseModel):
     def parse_experience_years(cls, value: object) -> float | None:
         return _parse_optional_years(value)
 
-
-# ───────────────────────────────────────────────────────────
-# Response Models
-# ───────────────────────────────────────────────────────────
 
 class ResumeUploadResponse(BaseModel):
     """Response returned after a successful resume upload."""

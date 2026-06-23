@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, field_validator
 
 
 def _parse_optional_years(value: object) -> float | None:
-    """Accept fractional years and common LLM strings like '3.5 years'."""
     if value is None:
         return None
     if isinstance(value, (int, float)):
@@ -19,12 +18,7 @@ def _parse_optional_years(value: object) -> float | None:
     return value
 
 
-# ───────────────────────────────────────────────────────────
-# Request Models
-# ───────────────────────────────────────────────────────────
-
 class ResumeUploadRequest(BaseModel):
-    """POST /api/v1/upload-resume body."""
 
     resume_text: str = Field(
         ...,
@@ -47,12 +41,7 @@ class ResumeUploadRequest(BaseModel):
         return v.strip()
 
 
-# ───────────────────────────────────────────────────────────
-# Analysis Model (returned by LLM)
-# ───────────────────────────────────────────────────────────
-
 class SkillMatch(BaseModel):
-    """Single skill comparison between resume and JD."""
 
     skill: str = Field(..., description="Skill name (e.g. 'Python', 'Docker')")
     found_in_resume: bool = Field(..., description="Whether the candidate lists this skill")
@@ -62,7 +51,6 @@ class SkillMatch(BaseModel):
 
 
 class ResumeAnalysis(BaseModel):
-    """Structured output from the LLM resume + JD analysis."""
 
     candidate_name: str = Field("", description="Extracted candidate name")
     experience_years: Optional[float] = Field(None, description="Total years of experience")
@@ -94,12 +82,6 @@ class ResumeAnalysis(BaseModel):
         return _parse_optional_years(value)
 
 
-# ───────────────────────────────────────────────────────────
-# Response Models
-# ───────────────────────────────────────────────────────────
-
 class ResumeUploadResponse(BaseModel):
-    """Response returned after a successful resume upload."""
-
     session_id: str = Field(..., description="Unique session identifier for subsequent calls")
     analysis: ResumeAnalysis = Field(..., description="Structured resume-JD analysis")

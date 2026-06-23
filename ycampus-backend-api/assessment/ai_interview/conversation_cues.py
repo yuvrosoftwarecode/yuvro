@@ -61,7 +61,6 @@ def cue_for_answer(
     answer_duration_seconds: float | None,
     interview_complete: bool,
 ) -> tuple[dict, bool]:
-    """Choose the best post-answer acknowledgement."""
     if interview_complete:
         return closing_ack(), True
 
@@ -88,7 +87,6 @@ def cue_for_event(
     answer_duration_seconds: float | None = None,
     partial_answer: str = "",
 ) -> tuple[dict, bool]:
-    """Return a real-time cue for timers or partial-answer events."""
     normalized_event = event_type.strip().lower()
 
     if (

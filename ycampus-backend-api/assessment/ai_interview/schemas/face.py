@@ -4,8 +4,6 @@ from pydantic import BaseModel, Field
 
 
 class FaceMonitoringMetrics(BaseModel):
-    """Session-level face monitoring counters."""
-
     total_checks: int = Field(0, description="Total periodic verification checks")
     passed_checks: int = Field(0, description="Checks where the enrolled face matched")
     warning_checks: int = Field(0, description="Checks with non-blocking uncertainty")
@@ -20,8 +18,6 @@ class FaceMonitoringMetrics(BaseModel):
 
 
 class FaceBaseResponse(BaseModel):
-    """Shared face verification fields."""
-
     session_id: str
     status: str = Field(..., description="passed | warning | failed | stub")
     face_detected: bool
@@ -36,16 +32,12 @@ class FaceBaseResponse(BaseModel):
 
 
 class FaceEnrollResponse(FaceBaseResponse):
-    """Response after capturing the candidate's reference selfie."""
-
     enrolled: bool
     reference_id: Optional[str] = None
     enrolled_at: Optional[str] = None
 
 
 class FaceVerifyResponse(FaceBaseResponse):
-    """Response for a periodic live camera verification frame."""
-
     verified: bool = Field(False, description="Whether this monitoring frame passed")
     identity_verified: Optional[bool] = Field(None, description="Whether live face matches reference")
     distance: Optional[float] = Field(None, description="DeepFace comparison distance")

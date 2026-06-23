@@ -37,7 +37,6 @@ class AnswerEvaluation(BaseModel):
     answer_word_count: Optional[int] = Field(None, description="Word count of submitted answer")
     answer_truncated: bool = Field(False, description="Whether the LLM evaluator saw a condensed answer")
 
-    # Rule-based and code analysis sub-scores (when applicable)
     llm_score: Optional[int] = Field(None, description="LLM-only score component")
     rule_based_score: Optional[int] = Field(None, description="Rule-based score component")
     code_analysis_score: Optional[int] = Field(None, description="Code analysis score (coding questions)")

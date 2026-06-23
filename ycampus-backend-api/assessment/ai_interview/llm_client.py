@@ -8,10 +8,6 @@ from assessment.ai_interview.config import settings
 logger = logging.getLogger(__name__)
 
 
-# ───────────────────────────────────────────────────────────
-# Abstract base
-# ───────────────────────────────────────────────────────────
-
 class BaseLLMClient(ABC):
     """Every LLM provider must implement `generate`."""
 
@@ -26,10 +22,6 @@ class BaseLLMClient(ABC):
         """Return the model's text completion."""
         ...
 
-
-# ───────────────────────────────────────────────────────────
-# OpenAI implementation
-# ───────────────────────────────────────────────────────────
 
 class OpenAIClient(BaseLLMClient):
     """Async OpenAI chat-completion client."""
@@ -75,10 +67,6 @@ class OpenAIClient(BaseLLMClient):
         return text
 
 
-# ───────────────────────────────────────────────────────────
-# Anthropic implementation
-# ───────────────────────────────────────────────────────────
-
 class AnthropicClient(BaseLLMClient):
     """Async Anthropic messages client."""
 
@@ -117,10 +105,6 @@ class AnthropicClient(BaseLLMClient):
         return text
 
 
-# ───────────────────────────────────────────────────────────
-# Gemini implementation
-# ───────────────────────────────────────────────────────────
-
 class GeminiClient(BaseLLMClient):
     """Async Google Gemini client using google-generativeai."""
 
@@ -155,7 +139,6 @@ class GeminiClient(BaseLLMClient):
             "max_output_tokens": max_tokens,
         }
 
-        # Combine system prompt and user prompt since Gemini uses single-turn
         full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
 
         try:
@@ -184,10 +167,6 @@ class GeminiClient(BaseLLMClient):
         logger.debug("Gemini response: length=%d chars", len(text))
         return text
 
-
-# ───────────────────────────────────────────────────────────
-# Factory
-# ───────────────────────────────────────────────────────────
 
 _PROVIDERS = {
     "openai": OpenAIClient,

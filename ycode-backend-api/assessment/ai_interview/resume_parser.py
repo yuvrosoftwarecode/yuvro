@@ -13,10 +13,6 @@ from assessment.ai_interview.json_parser import parse_json_response
 logger = logging.getLogger(__name__)
 
 
-# ───────────────────────────────────────────────────────────
-# PDF Text Extraction
-# ───────────────────────────────────────────────────────────
-
 async def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """Extract plain text from a PDF file.
 
@@ -57,10 +53,6 @@ def _extract_with_pdfplumber(pdf_bytes: bytes) -> str:
         return ""
 
 
-# ───────────────────────────────────────────────────────────
-# Orchestrated Resume Analysis
-# ───────────────────────────────────────────────────────────
-
 MAX_LLM_RETRIES = 2
 
 
@@ -75,7 +67,6 @@ async def analyze_resume(resume_text: str, jd_text: str) -> dict:
     Returns:
         Dict matching the ResumeAnalysis schema.
     """
-    # Steps 1 and 2 are independent, so run them together to reduce latency.
     logger.info("Steps 1-2/3: Extracting resume skills and parsing JD in parallel")
     skill_profile, jd_requirements = await asyncio.gather(
         extract_skills(resume_text),
@@ -87,7 +78,6 @@ async def analyze_resume(resume_text: str, jd_text: str) -> dict:
 
     jd_summary = json.dumps(jd_requirements.model_dump(), indent=2)
 
-    # Step 3: Combined analysis
     logger.info("Step 3/3: Running combined resume-JD analysis")
     client = get_llm_client()
 
@@ -109,7 +99,6 @@ async def analyze_resume(resume_text: str, jd_text: str) -> dict:
             )
             result = parse_json_response(response)
 
-            # Attach the raw sub-analyses for downstream consumers
             result["_skill_profile"] = skill_profile.model_dump()
             result["_jd_requirements"] = jd_requirements.model_dump()
 

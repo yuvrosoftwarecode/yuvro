@@ -30,7 +30,6 @@ async def generate_report(session: dict) -> dict:
             "Please ensure your microphone is working and you are speaking clearly during the interview."
         )
 
-    # ── Compute statistics ────────────────────────────────
     scores = []
     topic_scores = defaultdict(list)
     evaluations_text_parts = []
@@ -56,14 +55,12 @@ async def generate_report(session: dict) -> dict:
 
     avg_score = sum(scores) / len(scores)
 
-    # Best/worst topics
     topic_avgs = {t: sum(s) / len(s) for t, s in topic_scores.items()}
     best_topic = max(topic_avgs, key=topic_avgs.get) if topic_avgs else "N/A"
     worst_topic = min(topic_avgs, key=topic_avgs.get) if topic_avgs else "N/A"
 
     evaluations_summary = "\n".join(evaluations_text_parts)
 
-    # ── LLM report generation ────────────────────────────
     client = get_llm_client()
 
     jd_reqs = analysis.get("_jd_requirements", {})
@@ -87,7 +84,6 @@ async def generate_report(session: dict) -> dict:
         try:
             logger.info("Report generation attempt %d/%d", attempt, MAX_RETRIES)
 
-            # System prompt matching candidate report style
             response = await client.generate(
                 prompt=prompt,
                 system_prompt="You are a senior HR analyst. Generate a comprehensive, fair interview report. Return only valid JSON.",

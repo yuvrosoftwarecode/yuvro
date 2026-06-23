@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 
 def _parse_optional_years(value: object, prefer: str = "first") -> float | None:
-    """Accept fractional years and common LLM strings like '2.5 years'."""
     if value is None:
         return None
     if isinstance(value, (int, float)):
@@ -20,13 +19,7 @@ def _parse_optional_years(value: object, prefer: str = "first") -> float | None:
     return value
 
 
-# ───────────────────────────────────────────────────────────
-# Skill Extraction Models
-# ───────────────────────────────────────────────────────────
-
 class ExtractedSkill(BaseModel):
-    """A single skill extracted from a resume."""
-
     skill: str = Field(..., description="Skill name")
     category: str = Field(
         ..., description="technical | soft | tool | framework | language | certification | domain"
@@ -42,19 +35,11 @@ class ExtractedSkill(BaseModel):
 
 
 class SkillProfile(BaseModel):
-    """Complete skill profile extracted from a resume."""
-
     skills: list[ExtractedSkill] = Field(default_factory=list)
     summary: str = Field("", description="One-line skill profile summary")
 
 
-# ───────────────────────────────────────────────────────────
-# JD Parsing Models
-# ───────────────────────────────────────────────────────────
-
 class JDSkillRequirement(BaseModel):
-    """A skill requirement from a job description."""
-
     skill: str = Field(..., description="Required skill name")
     category: str = Field(
         ..., description="technical | soft | tool | framework | language | certification | domain"
@@ -63,8 +48,6 @@ class JDSkillRequirement(BaseModel):
 
 
 class ExperienceRequirement(BaseModel):
-    """Experience level/years requirement."""
-
     min_years: Optional[float] = None
     max_years: Optional[float] = None
     level: str = Field("mid", description="junior | mid | senior | lead | principal")
@@ -85,8 +68,6 @@ class ExperienceRequirement(BaseModel):
 
 
 class JDRequirements(BaseModel):
-    """Fully parsed job description."""
-
     title: str = Field("", description="Job title")
     company: str = Field("", description="Company name")
     experience_required: ExperienceRequirement = Field(default_factory=ExperienceRequirement)

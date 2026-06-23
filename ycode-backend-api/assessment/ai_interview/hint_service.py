@@ -35,7 +35,6 @@ async def generate_hint(
     submission = await sync_to_async(MockInterviewSubmission.objects.get)(id=session_id)
     state = submission.state_data or {}
 
-    # Track hint count per question in session
     hint_key = f"_hints_{question_id}"
     hint_count = state.get(hint_key, 0)
 
@@ -49,7 +48,6 @@ async def generate_hint(
             "hints_remaining": 0,
         }
 
-    # Escalate level: 1 -> 2 -> 3
     hint_level = min(hint_count + 1, 3)
 
     client = get_llm_client()
@@ -77,7 +75,6 @@ async def generate_hint(
     result = parse_json_response(response)
     hint_text = result.get("hint", "Think about the core concepts related to this topic.")
 
-    # Update hint count in session
     new_count = hint_count + 1
     state[hint_key] = new_count
     submission.state_data = state

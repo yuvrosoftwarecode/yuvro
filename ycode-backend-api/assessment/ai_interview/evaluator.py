@@ -11,10 +11,6 @@ from assessment.ai_interview.json_parser import parse_json_response
 logger = logging.getLogger(__name__)
 
 
-# ───────────────────────────────────────────────────────────
-# Main Evaluator — combines all strategies
-# ───────────────────────────────────────────────────────────
-
 async def evaluate_answer(
     question: str,
     expected_points: list[str],
@@ -34,7 +30,6 @@ async def evaluate_answer(
     """
     answer_for_llm, answer_note, answer_truncated = _prepare_answer_for_llm(answer)
 
-    # Strategy 1: LLM scoring (always)
     llm_result = await _llm_evaluate(
         question,
         expected_points,
@@ -43,15 +38,12 @@ async def evaluate_answer(
         answer_note,
     )
 
-    # Strategy 2: Rule-based grading (always)
     rule_result = _rule_based_evaluate(answer, expected_points)
 
-    # Strategy 3: Code analysis (coding questions only)
     code_result = None
     if question_type == "coding":
         code_result = _code_analysis(answer)
 
-    # Combine scores with weights
     combined = _combine_scores(llm_result, rule_result, code_result, question_type)
     combined["answer_word_count"] = len(answer.split())
     combined["answer_truncated"] = answer_truncated
@@ -72,10 +64,6 @@ async def evaluate_answer(
 
     return combined
 
-
-# ───────────────────────────────────────────────────────────
-# Strategy 1: LLM Scoring
-# ───────────────────────────────────────────────────────────
 
 async def _llm_evaluate(
     question: str,
@@ -104,10 +92,6 @@ async def _llm_evaluate(
     return parse_json_response(response)
 
 
-# ───────────────────────────────────────────────────────────
-# Strategy 2: Rule-Based Grading
-# ───────────────────────────────────────────────────────────
-
 def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
     """Deterministic keyword/rubric matching.
 
@@ -118,11 +102,9 @@ def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
     """
     answer_lower = answer.lower()
 
-    # Keyword coverage
     covered = []
     missed = []
     for point in expected_points:
-        # Check for keyword presence (split multi-word points)
         keywords = [w.lower().strip() for w in re.split(r"[,;/]", point)]
         if any(kw in answer_lower for kw in keywords if len(kw) > 2):
             covered.append(point)
@@ -131,11 +113,9 @@ def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
 
     coverage_ratio = len(covered) / max(len(expected_points), 1)
 
-    # Length adequacy (penalize very short answers)
     word_count = len(answer.split())
-    length_score = min(word_count / 50, 1.0)  # 50+ words = full credit
+    length_score = min(word_count / 50, 1.0)
 
-    # Structure bonus (uses paragraphs, bullet points, code blocks)
     structure_bonus = 0.0
     if "\n\n" in answer or "\n-" in answer or "\n*" in answer:
         structure_bonus = 0.1
@@ -153,10 +133,6 @@ def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
     }
 
 
-# ───────────────────────────────────────────────────────────
-# Strategy 3: Code Analysis (AST-based)
-# ───────────────────────────────────────────────────────────
-
 def _code_analysis(answer: str) -> dict:
     """Analyze code in the answer using Python's ast module.
 
@@ -165,7 +141,6 @@ def _code_analysis(answer: str) -> dict:
     - Basic complexity metrics (function count, class count, depth)
     - Code patterns
     """
-    # Try to extract code from markdown fences
     code = _extract_code_block(answer) or answer
 
     result: dict[str, Any] = {
@@ -184,7 +159,6 @@ def _code_analysis(answer: str) -> dict:
         result["num_functions"] = sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef))
         result["num_classes"] = sum(1 for n in ast.walk(tree) if isinstance(n, ast.ClassDef))
 
-        # Estimate complexity from nesting depth
         max_depth = _max_nesting_depth(tree)
         if max_depth > 4:
             result["complexity_estimate"] = "high"
@@ -195,8 +169,7 @@ def _code_analysis(answer: str) -> dict:
         result["syntax_error"] = str(exc)
         logger.debug("Code has syntax error: %s", exc)
 
-    # Score: syntax valid + structure + error handling + docs
-    score = 3  # base
+    score = 3
     if result["syntax_valid"]:
         score += 3
     if result["num_functions"] > 0:
@@ -235,10 +208,6 @@ def _max_nesting_depth(node: ast.AST, depth: int = 0) -> int:
             max_d = max(max_d, _max_nesting_depth(child, depth))
     return max_d
 
-
-# ───────────────────────────────────────────────────────────
-# Score Combiner
-# ───────────────────────────────────────────────────────────
 
 def _combine_scores(
     llm_result: dict,

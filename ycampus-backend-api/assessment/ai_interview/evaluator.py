@@ -10,31 +10,15 @@ from assessment.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)
 
-
-# ───────────────────────────────────────────────────────────
-# Main Evaluator — combines all strategies
-# ───────────────────────────────────────────────────────────
-
 async def evaluate_answer(
     question: str,
     expected_points: list[str],
     answer: str,
     question_type: str = "technical",
 ) -> dict:
-    """Evaluate a candidate's answer using all applicable strategies.
 
-    Args:
-        question: The interview question text.
-        expected_points: Key points the candidate should cover.
-        answer: The candidate's response.
-        question_type: technical | behavioral | coding | system_design.
-
-    Returns:
-        Combined evaluation dict with score, feedback, sub-scores.
-    """
     answer_for_llm, answer_note, answer_truncated = _prepare_answer_for_llm(answer)
 
-    # Strategy 1: LLM scoring (always)
     llm_result = await _llm_evaluate(
         question,
         expected_points,
@@ -43,15 +27,11 @@ async def evaluate_answer(
         answer_note,
     )
 
-    # Strategy 2: Rule-based grading (always)
     rule_result = _rule_based_evaluate(answer, expected_points)
 
-    # Strategy 3: Code analysis (coding questions only)
     code_result = None
     if question_type == "coding":
         code_result = _code_analysis(answer)
-
-    # Combine scores with weights
     combined = _combine_scores(llm_result, rule_result, code_result, question_type)
     combined["answer_word_count"] = len(answer.split())
     combined["answer_truncated"] = answer_truncated
@@ -73,10 +53,6 @@ async def evaluate_answer(
     return combined
 
 
-# ───────────────────────────────────────────────────────────
-# Strategy 1: LLM Scoring
-# ───────────────────────────────────────────────────────────
-
 async def _llm_evaluate(
     question: str,
     expected_points: list[str],
@@ -84,7 +60,6 @@ async def _llm_evaluate(
     question_type: str,
     answer_note: str,
 ) -> dict:
-    """Semantic evaluation via LLM."""
     client = get_llm_client()
 
     prompt = EVALUATION_PROMPT.format(
@@ -104,25 +79,15 @@ async def _llm_evaluate(
     return parse_json_response(response)
 
 
-# ───────────────────────────────────────────────────────────
-# Strategy 2: Rule-Based Grading
-# ───────────────────────────────────────────────────────────
+
 
 def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
-    """Deterministic keyword/rubric matching.
-
-    Scores based on:
-    - Coverage of expected points (keyword matching)
-    - Answer length adequacy
-    - Structure (paragraphs, lists)
-    """
+    
     answer_lower = answer.lower()
 
-    # Keyword coverage
     covered = []
     missed = []
     for point in expected_points:
-        # Check for keyword presence (split multi-word points)
         keywords = [w.lower().strip() for w in re.split(r"[,;/]", point)]
         if any(kw in answer_lower for kw in keywords if len(kw) > 2):
             covered.append(point)
@@ -131,11 +96,9 @@ def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
 
     coverage_ratio = len(covered) / max(len(expected_points), 1)
 
-    # Length adequacy (penalize very short answers)
     word_count = len(answer.split())
-    length_score = min(word_count / 50, 1.0)  # 50+ words = full credit
+    length_score = min(word_count / 50, 1.0) 
 
-    # Structure bonus (uses paragraphs, bullet points, code blocks)
     structure_bonus = 0.0
     if "\n\n" in answer or "\n-" in answer or "\n*" in answer:
         structure_bonus = 0.1
@@ -153,19 +116,10 @@ def _rule_based_evaluate(answer: str, expected_points: list[str]) -> dict:
     }
 
 
-# ───────────────────────────────────────────────────────────
-# Strategy 3: Code Analysis (AST-based)
-# ───────────────────────────────────────────────────────────
+
 
 def _code_analysis(answer: str) -> dict:
-    """Analyze code in the answer using Python's ast module.
-
-    Checks:
-    - Syntax validity
-    - Basic complexity metrics (function count, class count, depth)
-    - Code patterns
-    """
-    # Try to extract code from markdown fences
+    
     code = _extract_code_block(answer) or answer
 
     result: dict[str, Any] = {
@@ -184,7 +138,6 @@ def _code_analysis(answer: str) -> dict:
         result["num_functions"] = sum(1 for n in ast.walk(tree) if isinstance(n, ast.FunctionDef))
         result["num_classes"] = sum(1 for n in ast.walk(tree) if isinstance(n, ast.ClassDef))
 
-        # Estimate complexity from nesting depth
         max_depth = _max_nesting_depth(tree)
         if max_depth > 4:
             result["complexity_estimate"] = "high"
@@ -195,8 +148,7 @@ def _code_analysis(answer: str) -> dict:
         result["syntax_error"] = str(exc)
         logger.debug("Code has syntax error: %s", exc)
 
-    # Score: syntax valid + structure + error handling + docs
-    score = 3  # base
+    score = 3
     if result["syntax_valid"]:
         score += 3
     if result["num_functions"] > 0:
@@ -213,7 +165,6 @@ def _code_analysis(answer: str) -> dict:
 
 
 def _extract_code_block(text: str) -> str | None:
-    """Extract code from markdown fences."""
     if "```" in text:
         parts = text.split("```")
         for part in parts[1::2]:
@@ -226,7 +177,6 @@ def _extract_code_block(text: str) -> str | None:
 
 
 def _max_nesting_depth(node: ast.AST, depth: int = 0) -> int:
-    """Calculate maximum nesting depth in an AST."""
     max_d = depth
     for child in ast.iter_child_nodes(node):
         if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
@@ -236,23 +186,13 @@ def _max_nesting_depth(node: ast.AST, depth: int = 0) -> int:
     return max_d
 
 
-# ───────────────────────────────────────────────────────────
-# Score Combiner
-# ───────────────────────────────────────────────────────────
-
 def _combine_scores(
     llm_result: dict,
     rule_result: dict,
     code_result: dict | None,
     question_type: str,
 ) -> dict:
-    """Combine all evaluation scores into a final result.
-
-    Weights:
-      technical/behavioral: 60% LLM + 40% rules
-      coding: 40% LLM + 25% rules + 35% code analysis
-      system_design: 70% LLM + 30% rules
-    """
+  
     llm_score = _coerce_score(llm_result.get("score", 5))
     rule_score = _coerce_score(rule_result.get("score", 5))
 
@@ -285,7 +225,6 @@ def _combine_scores(
 
 
 def _prepare_answer_for_llm(answer: str) -> tuple[str, str, bool]:
-    """Keep long answers usable without blindly dropping the conclusion."""
     clean_answer = answer.strip()
     max_chars = settings.MAX_ANSWER_CHARS
     if len(clean_answer) <= max_chars:
@@ -315,7 +254,6 @@ def _coerce_score(value: object, default: float = 5.0) -> float:
 
 
 def _should_offer_hint(evaluation: dict) -> bool:
-    """Offer a hint when the answer is roughly 60% correct."""
     score_percentage = float(evaluation.get("score_percentage", 0.0))
     return (
         settings.HINT_OFFER_MIN_PERCENT
