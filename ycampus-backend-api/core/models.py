@@ -366,6 +366,9 @@ class PlacementOfficerProfile(BaseTimestampedModel):
     def __str__(self):
         return f"{self.user.username} - Placement Officer {self.college.name}"
 
+def task_attachment_path(instance, filename):
+    return f"ycampus/task/{instance.id}/attachments/{filename}"
+
 class Task(models.Model):
     """
     Model representing a task assigned by a faculty to one or more sections.
@@ -404,7 +407,7 @@ class Task(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    attachment = models.FileField(upload_to="task_attachments/", blank=True, null=True)
+    attachment = models.FileField(upload_to=task_attachment_path, max_length=1024, blank=True, null=True)
     is_sent = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -415,6 +418,9 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.faculty.user.username}"
+
+def task_submission_path(instance, filename):
+    return f"ycampus/task/{instance.task_id}/submissions/{instance.student_id}/{filename}"
 
 class TaskSubmission(BaseTimestampedModel):
     """
@@ -432,7 +438,7 @@ class TaskSubmission(BaseTimestampedModel):
     )
     is_submitted = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(null=True, blank=True)
-    file = models.FileField(upload_to="task_submissions/", null=True, blank=True)
+    file = models.FileField(upload_to=task_submission_path, max_length=1024, null=True, blank=True)
 
     # Review Process Fields
     status = models.CharField(
@@ -462,6 +468,9 @@ class TaskSubmission(BaseTimestampedModel):
         super().save(*args, **kwargs)
 
 
+def task_submission_history_path(instance, filename):
+    return f"ycampus/task/{instance.submission.task_id}/submissions/{instance.submission.student_id}/history/{filename}"
+
 class TaskSubmissionHistory(BaseTimestampedModel):
     """
     Model representing historical attempts for a task submission.
@@ -472,7 +481,7 @@ class TaskSubmissionHistory(BaseTimestampedModel):
     attempt_number = models.IntegerField()
     answer = models.TextField(blank=True, null=True)
     answers_data = models.JSONField(default=dict, blank=True)
-    file = models.FileField(upload_to="task_submissions_history/", null=True, blank=True)
+    file = models.FileField(upload_to=task_submission_history_path, max_length=1024, null=True, blank=True)
     
     status = models.CharField(max_length=20, default='pending')
     grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)

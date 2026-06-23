@@ -10,7 +10,7 @@ import MonacoCodeEditor from './MonacoCodeEditor';
 interface TestCase { input: string; expected_output: string; }
 interface ExampleProblem { id: string; title: string; description: string; test_cases: TestCase[]; solutions: Record<string, string>; }
 interface TestResultItem { passed: boolean; input: string; expected_output: string; actual_output: string; error?: string; execution_time?: number; }
-interface ExecutionMetrics { total_time: number; passed: number; total: number; }
+interface ExecutionMetrics { total_time: number; passed: number; total: number; performance_warnings?: any[]; status?: string; }
 
 interface ExampleCodeGalleryProps {
     onClose: () => void;
@@ -109,8 +109,13 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                 const passed = res.test_results.passed || 0;
                 const total = res.test_results.total || 0;
                 const totalTime = res.test_results.results.reduce((a: number, r: any) => a + (r.execution_time || 0), 0);
-                setExecutionMetrics({ total_time: totalTime, passed, total });
-                passed === total ? toast.success(`All ${total} tests passed!`) : toast.error(`${passed}/${total} tests passed`);
+                setExecutionMetrics({ total_time: totalTime, passed, total, performance_warnings: res.performance_warnings, status: res.status });
+                if (res.status === 'failed' && res.performance_warnings && res.performance_warnings.length > 0) {
+                    const isTLE = res.performance_warnings[0].type === 'Time Limit Exceeded';
+                    toast.error(isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded');
+                } else {
+                    passed === total ? toast.success(`All ${total} tests passed!`) : toast.error(`${passed}/${total} tests passed`);
+                }
             } else { toast.error(res.error_message || 'Execution failed'); }
         } catch { toast.error('Failed to run code'); }
         finally { setIsRunning(false); }
@@ -236,6 +241,29 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         </div>
                                     )}
 
+                                    {executionMetrics && executionMetrics.status === 'failed' && (() => {
+                                        const warnings: any[] = executionMetrics.performance_warnings || [];
+                                        if (warnings.length > 0) {
+                                            const w = warnings[0];
+                                            const isTLE = w.type === 'Time Limit Exceeded';
+                                            return (
+                                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-col mb-4">
+                                                    <h4 className="text-amber-800 font-bold text-sm flex items-center gap-2">
+                                                        <Zap className="h-4 w-4" />
+                                                        {isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded'}
+                                                    </h4>
+                                                    <p className="text-amber-700 text-xs mt-1">
+                                                        {isTLE
+                                                            ? `Your output is correct, but execution took ${w.execution_time?.toFixed(2)}s — above the configured time limit. Optimize your algorithm.`
+                                                            : `Your output is correct, but used ${(w.memory_usage / 1024)?.toFixed(1)} MB — above the configured memory limit. Reduce memory usage.`
+                                                        }
+                                                    </p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+
                                     <div className="space-y-4">
                                         {selectedProblem.test_cases.map((tc, idx) => (
                                             <div key={idx}>
@@ -243,7 +271,11 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Case {idx + 1}</span>
                                                     {testResults?.[idx] && (
                                                         <span className={`text-[10px] font-bold uppercase ${testResults[idx].passed ? 'text-green-600' : 'text-red-500'}`}>
-                                                            {testResults[idx].passed ? 'Passed' : 'Failed'}
+                                                            {testResults[idx].passed 
+                                                                ? (testResults[idx].error === 'Time Limit Exceeded' ? 'Passed (TLE)' 
+                                                                    : testResults[idx].error === 'Memory Limit Exceeded' ? 'Passed (MLE)' 
+                                                                    : 'Passed') 
+                                                                : 'Failed'}
                                                         </span>
                                                     )}
                                                 </div>
