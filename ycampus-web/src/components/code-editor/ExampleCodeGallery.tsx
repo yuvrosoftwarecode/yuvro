@@ -33,6 +33,8 @@ interface ExecutionMetrics {
     total_time: number;
     passed: number;
     total: number;
+    performance_warnings?: any[];
+    status?: string;
 }
 
 const LANGUAGES = [
@@ -119,12 +121,17 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                 const passed = res.test_results.passed || 0;
                 const total = res.test_results.total || 0;
                 const totalTime = res.test_results.results.reduce((acc: number, r: any) => acc + (r.execution_time || 0), 0);
-                setExecutionMetrics({ total_time: totalTime, passed, total });
-
-                if (passed === total) {
-                    toast.success(`All ${total} tests passed!`);
+                setExecutionMetrics({ total_time: totalTime, passed, total, performance_warnings: res.performance_warnings, status: res.status });
+                
+                if (res.status === 'failed' && res.performance_warnings && res.performance_warnings.length > 0) {
+                    const isTLE = res.performance_warnings[0].type === 'Time Limit Exceeded';
+                    toast.error(isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded');
                 } else {
-                    toast.error(`${passed}/${total} tests passed`);
+                    if (passed === total) {
+                        toast.success(`All ${total} tests passed!`);
+                    } else {
+                        toast.error(`${passed}/${total} tests passed`);
+                    }
                 }
             } else {
                 toast.error(res.error_message || 'Execution failed');
@@ -241,6 +248,30 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                                 <Badge className="bg-amber-50 text-amber-700 border-amber-100 text-[10px] font-bold uppercase tracking-tighter">Last Run Analytics</Badge>
                                                 <div className="h-px flex-1 bg-white"></div>
                                             </div>
+
+                                            {executionMetrics.status === 'failed' && (() => {
+                                                const warnings: any[] = executionMetrics.performance_warnings || [];
+                                                if (warnings.length > 0) {
+                                                    const w = warnings[0];
+                                                    const isTLE = w.type === 'Time Limit Exceeded';
+                                                    return (
+                                                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-col mb-4">
+                                                            <h4 className="text-amber-800 font-bold text-sm flex items-center gap-2">
+                                                                <Zap className="h-4 w-4" />
+                                                                {isTLE ? 'Time Limit Exceeded' : 'Memory Limit Exceeded'}
+                                                            </h4>
+                                                            <p className="text-amber-700 text-xs mt-1">
+                                                                {isTLE
+                                                                    ? `Your output is correct, but execution took ${w.execution_time?.toFixed(2)}s — above the configured time limit. Optimize your algorithm.`
+                                                                    : `Your output is correct, but used ${(w.memory_usage / 1024)?.toFixed(1)} MB — above the configured memory limit. Reduce memory usage.`
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
+
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-2xl border border-green-100 shadow-sm relative overflow-hidden group">
                                                     <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-110 transition-transform">
@@ -292,7 +323,11 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                                         </div>
                                                         {testResults && testResults[idx] && (
                                                             testResults[idx].passed
-                                                                ? <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] h-5">Verified</Badge>
+                                                                ? <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px] h-5">
+                                                                    {testResults[idx].error === 'Time Limit Exceeded' ? 'Passed (TLE)' 
+                                                                    : testResults[idx].error === 'Memory Limit Exceeded' ? 'Passed (MLE)' 
+                                                                    : 'Verified'}
+                                                                  </Badge>
                                                                 : <Badge className="bg-red-100 text-red-700 border-red-200 text-[10px] h-5">Failed</Badge>
                                                         )}
                                                     </div>

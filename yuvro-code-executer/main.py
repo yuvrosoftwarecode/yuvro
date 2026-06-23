@@ -503,8 +503,8 @@ class CodeExecutorService:
             }
 
         config = LANGUAGE_CONFIGS[language]
-        # Cap timeout between 2 and 5 seconds to prevent backend/CPU resource abuse
-        timeout = min(max(timeout or 3, 2), 5)
+        # Cap timeout between 2 and 300 seconds to prevent backend/CPU resource abuse
+        timeout = min(max(timeout or 3, 2), 300)
 
         with tracer.start_as_current_span(
             f"execute_code_{language}",
@@ -772,8 +772,8 @@ async def health_check():
 async def execute_code(request: CodeExecutionRequest):
     """Execute code and return results"""
     try:
-        # Cap timeout between 2 and 5 seconds to prevent resource abuse
-        exec_timeout = min(max(request.timeout or 3, 2), 5)
+        # Cap timeout between 2 and 300 seconds to prevent resource abuse
+        exec_timeout = min(max(request.timeout or 3, 2), 300)
         result = await CodeExecutorService.execute_code(
             request.code,
             request.language,
@@ -871,8 +871,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
             )
 
         config = LANGUAGE_CONFIGS[language]
-        # Cap timeout between 2 and 5 seconds to prevent resource abuse
-        exec_timeout = min(max(request.timeout or 3, 2), 5)
+        # Cap timeout between 2 and 300 seconds to prevent resource abuse
+        exec_timeout = min(max(request.timeout or 3, 2), 300)
         
         # 1. First, compile the code once if needed
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -989,120 +989,118 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
             # 2. Run all test cases using the compiled binary (or source for script langs)
             test_results = []
             passed_count = 0
+            
+            semaphore = asyncio.Semaphore(5)
 
-            for test_case in all_test_cases:
-                # Pre-process input for this test case
-                input_data = test_case.input
-                # Note: Input is passed as-is to all languages (no preprocessing).
-                # Solutions in C/C++/Java parse the same raw JSON input as Python.
-
-                # Run process
-                start_time = time.time()
-                if language == 'java':
-                    run_cmd = config['run_command'] + ['Solution']
-                elif language in ['cpp', 'c']:
-                    run_cmd = [os.path.join(temp_dir, 'solution')]
-                else:
-                    run_cmd = config['command'] + [filename]
-
-                process = await asyncio.create_subprocess_exec(
-                    *run_cmd,
-                    cwd=temp_dir,
-                    stdin=asyncio.subprocess.PIPE,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-
-                try:
-                    # Ensure input ends with newline
-                    if input_data and not input_data.endswith('\n'):
-                        input_data = input_data + '\n'
-
-                    # Measure memory while process is alive
-                    mem_task = asyncio.create_task(
-                        process.communicate(input=input_data.encode())
-                    )
+            async def run_single_test_case(test_case):
+                async with semaphore:
+                    input_data = test_case.input
                     
-                    # Background task to poll for peak memory usage
-                    async def track_peak_memory(pid):
-                        max_mem = 0
-                        try:
-                            ps_proc = psutil.Process(pid)
-                            # Poll while process is alive
-                            while process.returncode is None:
-                                try:
-                                    mem = ps_proc.memory_info().rss / 1024 / 1024
-                                    if mem > max_mem:
-                                        max_mem = mem
-                                except Exception:
-                                    pass
-                                await asyncio.sleep(0.05)
-                        except Exception:
-                            pass
-                        return max_mem
+                    start_time = time.time()
+                    if language == 'java':
+                        run_cmd = config['run_command'] + ['Solution']
+                    elif language in ['cpp', 'c']:
+                        run_cmd = [os.path.join(temp_dir, 'solution')]
+                    else:
+                        run_cmd = config['command'] + [filename]
+
+                    process = await asyncio.create_subprocess_exec(
+                        *run_cmd,
+                        cwd=temp_dir,
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
+                    )
+
+                    try:
+                        if input_data and not input_data.endswith('\n'):
+                            input_data = input_data + '\n'
+
+                        mem_task = asyncio.create_task(
+                            process.communicate(input=input_data.encode())
+                        )
                         
-                    monitor_task = asyncio.create_task(track_peak_memory(process.pid))
+                        async def track_peak_memory(pid):
+                            max_mem = 0
+                            try:
+                                ps_proc = psutil.Process(pid)
+                                while process.returncode is None:
+                                    try:
+                                        mem = ps_proc.memory_info().rss / 1024 / 1024
+                                        if mem > max_mem:
+                                            max_mem = mem
+                                    except Exception:
+                                        pass
+                                    await asyncio.sleep(0.05)
+                            except Exception:
+                                pass
+                            return max_mem
+                            
+                        monitor_task = asyncio.create_task(track_peak_memory(process.pid))
 
-                    stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
-                    execution_time = time.time() - start_time
-                    memory_usage = await monitor_task
+                        stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
+                        execution_time = time.time() - start_time
+                        memory_usage = await monitor_task
 
 
-                    actual_output = stdout.decode().strip()
-                    console_output = stderr.decode().strip()  # Console output from print statements
-                    expected_output = test_case.expected_output.strip()
-                    
-                    passed = actual_output == expected_output
-                    error_msg = stderr.decode() if not passed and not console_output else ""
+                        actual_output = stdout.decode().strip()
+                        console_output = stderr.decode().strip()
+                        expected_output = test_case.expected_output.strip()
+                        
+                        passed = actual_output == expected_output
+                        error_msg = stderr.decode() if not passed and not console_output else ""
 
-                    # If output is correct but limits exceeded, keep passed=True but
-                    # inject a structured warning into the console output and set error_msg.
-                    if passed and request.time_limit is not None and execution_time > request.time_limit:
-                        error_msg = "Time Limit Exceeded"
-                        limit_warning = json.dumps({
-                            "status": "failed",
-                            "reason": "Time Limit Exceeded",
-                            "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds. Execution took {execution_time:.2f}s."
-                        })
-                        console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
-                    elif passed and request.memory_limit is not None and memory_usage > request.memory_limit:
-                        error_msg = "Memory Limit Exceeded"
-                        limit_warning = json.dumps({
-                            "status": "failed",
-                            "reason": "Memory Limit Exceeded",
-                            "message": f"Program execution exceeded the configured memory limit of {request.memory_limit} MB. Used {memory_usage:.2f} MB."
-                        })
-                        console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
+                        if passed and request.time_limit is not None and execution_time > request.time_limit:
+                            error_msg = "Time Limit Exceeded"
+                            limit_warning = json.dumps({
+                                "status": "failed",
+                                "reason": "Time Limit Exceeded",
+                                "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds. Execution took {execution_time:.2f}s."
+                            })
+                            console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
+                        elif passed and request.memory_limit is not None and memory_usage > request.memory_limit:
+                            error_msg = "Memory Limit Exceeded"
+                            limit_warning = json.dumps({
+                                "status": "failed",
+                                "reason": "Memory Limit Exceeded",
+                                "message": f"Program execution exceeded the configured memory limit of {request.memory_limit} MB. Used {memory_usage:.2f} MB."
+                            })
+                            console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
 
-                    if passed: passed_count += 1
-                    
-                    test_results.append(TestResult(
-                        passed=passed,
-                        input=test_case.input,
-                        expected_output=expected_output,
-                        actual_output=actual_output,
-                        error=error_msg,
-                        execution_time=execution_time,
-                        memory_usage=memory_usage,
-                        console_output=console_output
-                    ))
-                except asyncio.TimeoutError:
-                    if process:
-                        try:
-                            kill_process_tree(process.pid)
-                        except:
-                            pass
-                        try:
-                            process.kill()
-                        except:
-                            pass
-                    return JSONResponse(
-                        status_code=200,
-                        content={
-                            "status": "tle",
-                            "message": "Time Limit Exceeded"
-                        }
-                    )
+                        return TestResult(
+                            passed=passed,
+                            input=test_case.input,
+                            expected_output=expected_output,
+                            actual_output=actual_output,
+                            error=error_msg,
+                            execution_time=execution_time,
+                            memory_usage=memory_usage,
+                            console_output=console_output
+                        )
+                    except asyncio.TimeoutError:
+                        if process:
+                            try:
+                                kill_process_tree(process.pid)
+                            except:
+                                pass
+                            try:
+                                process.kill()
+                            except:
+                                pass
+                        raise asyncio.TimeoutError()
+
+            try:
+                tasks = [run_single_test_case(tc) for tc in all_test_cases]
+                test_results = await asyncio.gather(*tasks)
+                passed_count = sum(1 for t in test_results if t.passed)
+            except asyncio.TimeoutError:
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "status": "tle",
+                        "message": "Time Limit Exceeded"
+                    }
+                )
 
             # Determine basic_result (first test or summary)
             has_timeout = any(t.error == 'Timeout' for t in test_results)
@@ -1508,6 +1506,165 @@ int main() {
     if (scanf("%d", &n) == 1) {
         printf("%d\\n", fib(n));
     }
+    return 0;
+}
+'''
+        }
+    },
+    {
+        "id": "reverse-string-tle",
+        "title": "Reverse a String (TLE)",
+        "description": "Write a function that reverses an input string. This example intentionally exceeds the time limit to demonstrate the Time Limit Exceeded warning.",
+        "test_cases": [
+            {"input": "hello", "expected_output": "olleh"},
+            {"input": "world", "expected_output": "dlrow"},
+            {"input": "OpenAI", "expected_output": "IAnepO"},
+        ],
+        "solutions": {
+            "python": '''class Solution:
+    def solve(self, *args):
+        import time
+        time.sleep(11) # Intentionally exceed 10s limit
+        input_str = args[0] if len(args) > 0 else ""
+        return input_str[::-1]
+''',
+            "javascript": '''"use strict";
+const fs = require('fs');
+function solve() {
+    const start = Date.now();
+    while (Date.now() - start < 11000) {} // Intentionally exceed 10s limit
+    const lines = fs.readFileSync(0, 'utf8').split('\\n').filter(l => l.trim());
+    if (lines.length === 0) return;
+    console.log(lines[0].split('').reverse().join(''));
+}
+solve();
+''',
+            "java": '''import java.util.*;
+public class Solution {
+    public static void main(String[] args) {
+        try {
+            Thread.sleep(11000); // Intentionally exceed 10s limit
+        } catch (InterruptedException e) {}
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            String s = sc.nextLine();
+            System.out.println(new StringBuilder(s).reverse().toString());
+        }
+    }
+}
+''',
+            "cpp": '''#include <iostream>
+#include <string>
+#include <algorithm>
+#include <thread>
+#include <chrono>
+using namespace std;
+int main() {
+    this_thread::sleep_for(chrono::seconds(11)); // Intentionally exceed 10s limit
+    string s;
+    if (getline(cin, s)) {
+        reverse(s.begin(), s.end());
+        cout << s << endl;
+    }
+    return 0;
+}
+''',
+            "c": '''#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+int main() {
+    sleep(11); // Intentionally exceed 10s limit
+    char s[1000];
+    if (fgets(s, sizeof(s), stdin)) {
+        s[strcspn(s, "\\n")] = 0;
+        int len = strlen(s);
+        for(int i = 0; i < len / 2; i++) {
+            char t = s[i];
+            s[i] = s[len - 1 - i];
+            s[len - 1 - i] = t;
+        }
+        printf("%s\\n", s);
+    }
+    return 0;
+}
+'''
+        }
+    },
+    {
+        "id": "reverse-string-mle",
+        "title": "Reverse a String (MLE)",
+        "description": "Write a function that reverses an input string. This example intentionally exceeds the memory limit to demonstrate the Memory Limit Exceeded warning.",
+        "test_cases": [
+            {"input": "hello", "expected_output": "olleh"},
+            {"input": "world", "expected_output": "dlrow"},
+            {"input": "OpenAI", "expected_output": "IAnepO"},
+        ],
+        "solutions": {
+            "python": '''class Solution:
+    def solve(self, *args):
+        a = bytearray(300 * 1024 * 1024) # Intentionally allocate ~300MB
+        for i in range(100): a[i] = 1 # Touch memory
+        input_str = args[0] if len(args) > 0 else ""
+        return input_str[::-1]
+''',
+            "javascript": '''"use strict";
+const fs = require('fs');
+function solve() {
+    const a = Buffer.alloc(300 * 1024 * 1024, 1); // Intentionally allocate ~300MB
+    const lines = fs.readFileSync(0, 'utf8').split('\\n').filter(l => l.trim());
+    if (lines.length === 0) return;
+    console.log(lines[0].split('').reverse().join(''));
+}
+solve();
+''',
+            "java": '''import java.util.*;
+public class Solution {
+    public static void main(String[] args) {
+        byte[] a = new byte[300 * 1024 * 1024]; // Intentionally allocate ~300MB
+        for (int i = 0; i < 100; i++) a[i] = 1;
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            String s = sc.nextLine();
+            System.out.println(new StringBuilder(s).reverse().toString());
+        }
+    }
+}
+''',
+            "cpp": '''#include <iostream>
+#include <string>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+int main() {
+    char* a = new char[300 * 1024 * 1024]; // Intentionally allocate ~300MB
+    memset(a, 1, 300 * 1024 * 1024);
+    string s;
+    if (getline(cin, s)) {
+        reverse(s.begin(), s.end());
+        cout << s << endl;
+    }
+    delete[] a;
+    return 0;
+}
+''',
+            "c": '''#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+int main() {
+    char* a = (char*)malloc(300 * 1024 * 1024); // Intentionally allocate ~300MB
+    memset(a, 1, 300 * 1024 * 1024);
+    char s[1000];
+    if (fgets(s, sizeof(s), stdin)) {
+        s[strcspn(s, "\\n")] = 0;
+        int len = strlen(s);
+        for(int i = 0; i < len / 2; i++) {
+            char t = s[i];
+            s[i] = s[len - 1 - i];
+            s[len - 1 - i] = t;
+        }
+        printf("%s\\n", s);
+    }
+    free(a);
     return 0;
 }
 '''
