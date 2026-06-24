@@ -64,6 +64,8 @@ export default function ContestForm() {
     violationThreshold: 5,
     publishStatus: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
     prize: '',
+    paymentType: 'unpaid' as 'paid' | 'unpaid',
+    amount: '',
     registrationStartDate: '',
     registrationEndDate: '',
     allowLateEntry: false,
@@ -204,6 +206,8 @@ export default function ContestForm() {
         endDate: formatDateTimeForInput(mappedContest.endDate),
         duration: mappedContest.duration.replace(' min', ''),
         prize: mappedContest.prize || '',
+        paymentType: mappedContest.payment_type || 'unpaid',
+        amount: mappedContest.amount ? String(mappedContest.amount) : '',
         difficulty: mappedContest.difficulty,
         description: mappedContest.description,
         registrationStartDate: formatDateTimeForInput(mappedContest.registrationStartDate || ''),
@@ -318,6 +322,8 @@ export default function ContestForm() {
       end_datetime: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       prize: formData.prize,
+      payment_type: formData.paymentType,
+      amount: formData.amount ? parseFloat(formData.amount) : undefined,
       difficulty: formData.difficulty.toLowerCase(),
       description: formData.description,
       instructions: formData.instructions,
@@ -710,12 +716,12 @@ export default function ContestForm() {
                     className="border border-gray-200 shadow-sm"
                   />
 
-                  {/* Prize Information Card */}
+                  {/* Prize & Payment Information Card */}
                   <Card className="border border-gray-200 shadow-sm">
                     <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900">Prize Information</CardTitle>
+                      <CardTitle className="text-lg font-semibold text-gray-900">Prize & Payment Information</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Prize (Optional)</label>
                         <Input
@@ -723,6 +729,36 @@ export default function ContestForm() {
                           onChange={(e) => setFormData({ ...formData, prize: e.target.value })}
                           placeholder="e.g., $500 Cash Prize"
                         />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
+                          <Select
+                            value={formData.paymentType}
+                            onValueChange={(value) => setFormData({ ...formData, paymentType: value as 'paid' | 'unpaid' })}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Payment Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="unpaid">Unpaid / Free</SelectItem>
+                              <SelectItem value="paid">Paid</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {formData.paymentType === 'paid' && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={formData.amount}
+                              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                              placeholder="e.g., 50.00"
+                            />
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
