@@ -3002,4 +3002,30 @@ class JobTestViewSet(viewsets.ViewSet):
         return Response({"submission": serializer.data})
 
 
+from rest_framework.views import APIView
+
+class FaceEnrollView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            image_b64 = request.data.get('image', '')
+            if not image_b64:
+                return Response({"error": "No image provided for enrollment."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            import base64
+            if ',' in image_b64:
+                image_b64 = image_b64.split(',')[1]
+            image_bytes = base64.b64decode(image_b64)
+            
+            from assessment.ai_interview.face_verification import enroll_face
+            
+            res = async_to_sync(enroll_face)(image_bytes)
+            return Response(res)
+        except Exception as e:
+            logger.error(f"Error in general face_enroll: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 

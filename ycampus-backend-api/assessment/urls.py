@@ -9,6 +9,7 @@ from .views import (
     CertificationExamViewSet,
     CertificationSubmissionViewSet,
     PlacementDashboardViewSet,
+    FaceEnrollView,
 )
 from .leaderboard_views import LeaderboardViewSet
 
@@ -29,5 +30,6 @@ router.register(r"placement-dashboard", PlacementDashboardViewSet, basename="pla
 
 
 urlpatterns = [
+    path("assessment/face-enroll/", FaceEnrollView.as_view(), name="face-enroll"),
     path("assessment/", include(router.urls)),
 ]
