@@ -15,7 +15,8 @@
         "location": "San Francisco, CA",
         "about": "System Administrator with full access to all features and comprehensive experience in managing educational platforms.",
         "gender": "prefer_not_to_say"
-      }
+      },
+      "id": "719bbe01-4f96-402f-8c4a-e0a41cbab141"
     },
     {
       "email": "instructor_ds@yuvro.com",
@@ -32,7 +33,8 @@
         "location": "Boston, MA",
         "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
         "gender": "female"
-      }
+      },
+      "id": "140093e7-8892-4bcb-a78a-8dbd5c3816b8"
     },
     {
       "email": "instructor_python@yuvro.com",
@@ -49,7 +51,8 @@
         "location": "Seattle, WA",
         "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
         "gender": "male"
-      }
+      },
+      "id": "5c2d2c67-2cf3-4d5b-96ba-57d91d6e4a09"
     },
     {
       "email": "instructor_java@yuvro.com",
@@ -66,7 +69,8 @@
         "location": "Austin, TX",
         "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
         "gender": "male"
-      }
+      },
+      "id": "ecb3abe5-5961-4520-8668-f61e7b243349"
     },
     {
       "email": "instructor_mysql@yuvro.com",
@@ -83,7 +87,8 @@
         "location": "New York, NY",
         "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
         "gender": "female"
-      }
+      },
+      "id": "a1e1ddd2-d633-4000-bc9b-4288bfb46449"
     },
     {
       "email": "instructor_mongodb@yuvro.com",
@@ -100,7 +105,8 @@
         "location": "Denver, CO",
         "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
         "gender": "male"
-      }
+      },
+      "id": "f408448f-117a-4190-aa63-86eeabb87894"
     },
     {
       "email": "instructor_ai@yuvro.com",
@@ -117,7 +123,8 @@
         "location": "Palo Alto, CA",
         "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
         "gender": "female"
-      }
+      },
+      "id": "eb5b062e-89c8-4dc0-b3d6-b445070a7b5e"
     },
     {
       "email": "recruiter_admin@yuvro.com",
@@ -134,7 +141,8 @@
         "location": "India",
         "about": "Recruiter admin with access to manage candidates and hiring workflows.",
         "gender": "prefer_not_to_say"
-      }
+      },
+      "id": "960e7a57-c51d-4a80-afcb-0aefd0a005da"
     },
     {
       "email": "recruiter@yuvro.com",
@@ -151,7 +159,8 @@
         "location": "San Francisco, CA",
         "about": "Technical recruiter specializing in software engineering and data science positions with 8+ years of experience in tech talent acquisition.",
         "gender": "female"
-      }
+      },
+      "id": "c8fc172f-0663-41d4-80c8-9f56f70fbef1"
     },
     {
       "email": "shilpa@gmail.com",
@@ -271,7 +280,8 @@
           "portfolio": "https://shilpadora.dev",
           "email": "shilpa@gmail.com"
         }
-      }
+      },
+      "id": "c07928ac-c571-4677-a24a-aa0869fa6596"
     },
     {
       "email": "devendra@gmail.com",
@@ -390,7 +400,8 @@
           "linkedin": "https://linkedin.com/in/devendradora",
           "email": "devendra@gmail.com"
         }
-      }
+      },
+      "id": "9b2d755e-84f2-44a8-b695-45b27077fda9"
     },
     {
       "email": "rohith@gmail.com",
@@ -510,7 +521,8 @@
           "linkedin": "https://linkedin.com/in/rohithkrishna",
           "email": "rohith@gmail.com"
         }
-      }
+      },
+      "id": "41a0317a-fc18-4ff2-a3fe-b28b9a463bf0"
     },
     {
       "email": "manikanta@gmail.com",
@@ -627,7 +639,8 @@
           "portfolio": "https://manikanta.dev",
           "email": "manikanta@gmail.com"
         }
-      }
+      },
+      "id": "8eb1f34d-6ff5-4b74-924a-6ada1146b65c"
     },
     {
       "email": "harsha@gmail.com",
@@ -746,7 +759,8 @@
           "linkedin": "https://linkedin.com/in/harshavardhan",
           "email": "harsha@gmail.com"
         }
-      }
+      },
+      "id": "4f9b9776-af49-4102-bb61-b2e6313931d1"
     },
     {
       "email": "vinod@gmail.com",
@@ -860,7 +874,7 @@
           },
           {
             "name": "CISSP Associate",
-            "issuer": "(ISC)²",
+            "issuer": "(ISC)\u00b2",
             "completion_date": "February 2024"
           }
         ],
@@ -870,7 +884,8 @@
           "website": "https://vinodkumar-security.com",
           "email": "vinod@gmail.com"
         }
-      }
+      },
+      "id": "109db8ab-92ee-4684-946a-86968c465d91"
     }
   ]
 }

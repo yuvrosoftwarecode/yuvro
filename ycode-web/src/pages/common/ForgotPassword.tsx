@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import restApiUtil from "../../utils/RestApiUtil";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_API_BASE_URL}/auth/forgot-password/`, {
+      await restApiUtil.post('/auth/forgot-password/', {
         email,
       });
       setMessage("If this email exists, a reset link will be sent.");

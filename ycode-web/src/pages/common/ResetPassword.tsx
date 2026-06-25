@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import restApiUtil from "../../utils/RestApiUtil";
 import { getPasswordStrength } from "../../utils/passwordStrength";
 
 const ResetPassword: React.FC = () => {
@@ -28,16 +28,13 @@ const ResetPassword: React.FC = () => {
     }
 
     try {
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_API_BASE_URL}/auth/reset-password/${uidb64}/${token}/`,
-        { password }
-      );
+      await restApiUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
 
       setMessage("Password reset successful. Redirecting...");
       setTimeout(() => navigate("/login"), 1500);
 
     } catch (err: any) {
-      setError(err.response?.data?.error || "Reset link is invalid or expired.");
+      setError(err.details?.error || err.message || "Reset link is invalid or expired.");
     }
   };
 

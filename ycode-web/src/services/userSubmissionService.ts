@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8001/api';
+import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface UserSubmission {
   id: string;
@@ -80,20 +78,11 @@ export interface ProctorEventData {
 }
 
 class UserSubmissionService {
-  private getAuthHeaders() {
-    const token = localStorage.getItem('access_token');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-  }
 
   async getAllSubmissions(): Promise<UserSubmission[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/submissions/`, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.get<UserSubmission[]>('/submissions/');
+      return response;
     } catch (error) {
       console.error('Error fetching submissions:', error);
       throw error;
@@ -102,10 +91,8 @@ class UserSubmissionService {
 
   async getSubmission(id: string): Promise<UserSubmission> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/submissions/${id}/`, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.get<UserSubmission>(`/submissions/${id}/`);
+      return response;
     } catch (error) {
       console.error('Error fetching submission:', error);
       throw error;
@@ -114,10 +101,8 @@ class UserSubmissionService {
 
   async createSubmission(data: CreateUserSubmissionData): Promise<UserSubmission> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/submissions/`, data, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.post<UserSubmission>('/submissions/', data);
+      return response;
     } catch (error) {
       console.error('Error creating submission:', error);
       throw error;
@@ -126,10 +111,8 @@ class UserSubmissionService {
 
   async updateSubmission(id: string, data: UpdateUserSubmissionData): Promise<UserSubmission> {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/submissions/${id}/`, data, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.patch<UserSubmission>(`/submissions/${id}/`, data);
+      return response;
     } catch (error) {
       console.error('Error updating submission:', error);
       throw error;
@@ -138,9 +121,7 @@ class UserSubmissionService {
 
   async deleteSubmission(id: string): Promise<void> {
     try {
-      await axios.delete(`${API_BASE_URL}/submissions/${id}/`, {
-        headers: this.getAuthHeaders(),
-      });
+      await restApiAuthUtil.delete(`/submissions/${id}/`);
     } catch (error) {
       console.error('Error deleting submission:', error);
       throw error;
@@ -149,10 +130,8 @@ class UserSubmissionService {
 
   async addProctorEvent(id: string, eventData: ProctorEventData): Promise<UserSubmission> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/submissions/${id}/add_proctoring_event/`, eventData, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.post<UserSubmission>(`/submissions/${id}/add_proctoring_event/`, eventData);
+      return response;
     } catch (error) {
       console.error('Error adding proctor event:', error);
       throw error;
@@ -165,10 +144,8 @@ class UserSubmissionService {
     time_spent?: number;
   }): Promise<UserSubmission> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/submissions/${id}/submit/`, submissionData, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.post<UserSubmission>(`/submissions/${id}/submit/`, submissionData);
+      return response;
     } catch (error) {
       console.error('Error submitting submission:', error);
       throw error;
@@ -178,11 +155,8 @@ class UserSubmissionService {
   async getMySubmissions(assessmentType?: string): Promise<UserSubmission[]> {
     try {
       const params = assessmentType ? { assessment_type: assessmentType } : {};
-      const response = await axios.get(`${API_BASE_URL}/submissions/my_submissions/`, {
-        headers: this.getAuthHeaders(),
-        params,
-      });
-      return response.data;
+      const response = await restApiAuthUtil.get<UserSubmission[]>('/submissions/my_submissions/', { params });
+      return response;
     } catch (error) {
       console.error('Error fetching my submissions:', error);
       throw error;
@@ -191,10 +165,8 @@ class UserSubmissionService {
 
   async getSuspiciousSubmissions(): Promise<UserSubmission[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/submissions/suspicious_submissions/`, {
-        headers: this.getAuthHeaders(),
-      });
-      return response.data;
+      const response = await restApiAuthUtil.get<UserSubmission[]>('/submissions/suspicious_submissions/');
+      return response;
     } catch (error) {
       console.error('Error fetching suspicious submissions:', error);
       throw error;
@@ -203,14 +175,13 @@ class UserSubmissionService {
 
   async getSubmissionsByAssessment(assessmentType: string, assessmentId: string): Promise<UserSubmission[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/submissions/`, {
-        headers: this.getAuthHeaders(),
+      const response = await restApiAuthUtil.get<UserSubmission[]>('/submissions/', {
         params: {
           assessment_type: assessmentType,
           assessment_id: assessmentId,
         },
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching submissions by assessment:', error);
       throw error;

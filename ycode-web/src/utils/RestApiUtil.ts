@@ -1,6 +1,5 @@
 import { trackApiCall } from '../observability/telemetry';
-
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+import { getBaseUrlForPath, SERVICE_URLS } from './serviceRouter';
 
 export class ApiError extends Error {
     status: number;
@@ -26,7 +25,8 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const url = new URL(`${this.baseURL}${endpoint}`);
+        const baseUrl = getBaseUrlForPath(endpoint);
+        const url = new URL(`${baseUrl}${endpoint}`);
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);
@@ -151,5 +151,5 @@ class RestApiUtil {
 }
 
 export { RestApiUtil };
-export const restApiUtil = new RestApiUtil(API_BASE_URL);
+export const restApiUtil = new RestApiUtil(SERVICE_URLS.ycode);
 export default restApiUtil;

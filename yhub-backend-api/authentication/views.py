@@ -1,71 +1,105 @@
-import requests as http_requests
-from rest_framework import status, generics, permissions, filters
+from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from django.contrib.auth import login, get_user_model
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
-from django.conf import settings
-from django.db.models import Q
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth import login
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.openapi import OpenApiTypes
+from rest_framework.permissions import AllowAny
+import logging
+import requests as http_requests
 
-from .models import Profile
+logger = logging.getLogger(__name__)
+from .models import (
+    User,
+    Profile,
+    College,
+    Department,
+)
 from .serializers import (
     CustomTokenObtainPairSerializer,
     UserRegistrationSerializer,
     UserSerializer,
     UserUpdateSerializer,
     UserLoginSerializer,
+    CollegeSerializer,
+    DepartmentSerializer,
     ProfileSerializer,
 )
-from .permissions import IsAdminUser, IsAuthenticatedUser, IsOwnerOrAdmin
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
+from authentication.permissions import (
+    IsAdminUser,
+    IsAuthenticatedUser,
+    IsInstructorOrAdmin,
+)
+from django.contrib.auth import get_user_model
+from urllib.parse import urlparse
 
 User = get_user_model()
 
-try:
-    from django_filters.rest_framework import DjangoFilterBackend
-except ImportError:
-    DjangoFilterBackend = None
 
-
-# ── Login ──────────────────────────────────────────────────────────────────
+@extend_schema(
+    summary="User Login",
+    description="Login with email and password to get JWT tokens.",
+    request=UserLoginSerializer,
+    examples=[
+        OpenApiExample(
+            "Login Example",
+            value={"email": "user@example.com", "password": "your_password"},
+        )
+    ],
+)
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def login_view(request):
-    """Email + password login."""
+    """User login endpoint."""
     serializer = UserLoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-
+    
     user = serializer.validated_data["user"]
     login(request, user)
+    
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+    
+    return Response(
+        {
+            "user": UserSerializer(user).data,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        },
+        status=status.HTTP_200_OK,
+    )
 
-    refresh = CustomTokenObtainPairSerializer.get_token(user)
-    return Response({
-        "user": UserSerializer(user).data,
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-    })
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
-# ── Google OAuth ───────────────────────────────────────────────────────────
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def google_login_view(request):
-    """Google OAuth2 login — accepts access_token from frontend."""
+    """
+    Authenticate with a Google OAuth2 access_token obtained from the frontend.
+    Fetches the user's profile from Google, creates or retrieves the local user,
+    and returns JWT tokens.
+    """
     access_token = request.data.get("token")
     if not access_token:
         return Response({"error": "token is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Fetch user info from Google
     google_resp = http_requests.get(
         "https://www.googleapis.com/oauth2/v3/userinfo",
         headers={"Authorization": f"Bearer {access_token}"},
@@ -74,16 +108,17 @@ def google_login_view(request):
     if google_resp.status_code != 200:
         return Response({"error": "Invalid Google token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    data = google_resp.json()
-    email = data.get("email")
-    google_id = data.get("sub")
-    first_name = data.get("given_name", "")
-    last_name = data.get("family_name", "")
+    google_data = google_resp.json()
+    email = google_data.get("email")
+    google_id = google_data.get("sub")
+    first_name = google_data.get("given_name", "")
+    last_name = google_data.get("family_name", "")
 
     if not email:
         return Response({"error": "Could not retrieve email from Google"}, status=status.HTTP_400_BAD_REQUEST)
 
-    user, _ = User.objects.get_or_create(
+    # Get or create user by email
+    user, created = User.objects.get_or_create(
         email=email,
         defaults={
             "username": email,
@@ -92,59 +127,220 @@ def google_login_view(request):
             "is_active": True,
         },
     )
-
-    # Store google_id on Profile — never overwrite existing password
+    
     profile, _ = Profile.objects.get_or_create(user=user)
     if not profile.google_id:
         profile.google_id = google_id
         profile.save(update_fields=["google_id"])
 
-    refresh = CustomTokenObtainPairSerializer.get_token(user)
-    return Response({
-        "user": UserSerializer(user).data,
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-    }, status=status.HTTP_200_OK)
+    # Generate JWT tokens
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+
+    return Response(
+        {
+            "user": UserSerializer(user).data,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        },
+        status=status.HTTP_200_OK,
+    )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedUser])
+def generate_resume_pdf(request):
+    try:
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found. Please complete your profile first.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        profile_serializer = ProfileSerializer(profile)
+        profile_data = profile_serializer.data
+
+        resume_settings = request.data.get('settings', {})
+        if not resume_settings and profile.resume_config:
+            resume_settings = profile.resume_config
+
+        template_id = resume_settings.get('template', 'classic')
+        font_family = resume_settings.get('font', 'Inter')
+        color_scheme = resume_settings.get('color', 'default')
+
+        if request.data.get('settings') and request.data.get('save_config', False):
+            profile.resume_config = resume_settings
+            profile.save()
+
+        color_schemes = {
+            'default': {'primary': '#374151', 'accent': '#6b7280'},
+            'blue': {'primary': '#1e40af', 'accent': '#3b82f6'},
+            'green': {'primary': '#166534', 'accent': '#22c55e'},
+            'purple': {'primary': '#7c3aed', 'accent': '#a78bfa'},
+            'red': {'primary': '#dc2626', 'accent': '#ef4444'},
+            'teal': {'primary': '#0d9488', 'accent': '#14b8a6'},
+        }
+
+        colors = color_schemes.get(color_scheme, color_schemes['default'])
+
+        context = {
+            'profile': profile_data,
+            'user': request.user,
+            'template_id': template_id,
+            'colors': colors,
+            'font_family': font_family,
+            'generated_date': datetime.now().strftime('%B %d, %Y'),
+        }
+
+        if not WEASYPRINT_AVAILABLE:
+            html_content = render_to_string('resume/resume_template.html', context)
+            return Response({
+                'html_content': html_content,
+                'message': 'HTML content generated. Convert to PDF on frontend.',
+                'fallback': True
+            }, status=status.HTTP_200_OK)
+
+        html_content = render_to_string('resume/resume_template.html', context)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            HTML(string=html_content).write_pdf(tmp_file.name)
+
+            with open(tmp_file.name, 'rb') as pdf_file:
+                pdf_content = pdf_file.read()
+
+            os.unlink(tmp_file.name)
+
+        user_name = profile_data.get('full_name', 'Resume').replace(' ', '_')
+        filename = f"{user_name}_Resume_{datetime.now().strftime('%Y%m%d')}.pdf"
+
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Length'] = len(pdf_content)
+
+        logger.info(f"Resume PDF generated successfully for user {request.user.username}")
+        return response
+
+    except Exception as e:
+        logger.error(f"Error generating resume PDF: {str(e)}")
+
+        return Response(
+            {
+                "error": "Failed to generate resume PDF",
+                "details": str(e) if settings.DEBUG else "Internal server error",
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
-# ── Register ───────────────────────────────────────────────────────────────
+      
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticatedUser])
+def resume_config_view(request):
+    """Get or update user's resume configuration."""
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        return Response({
+            'error': 'Profile not found. Please complete your profile first.'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response({
+            'resume_config': profile.resume_config or {}
+        })
+
+    elif request.method == 'PUT':
+        resume_config = request.data.get('resume_config', {})
+        profile.resume_config = resume_config
+        profile.save()
+
+        return Response({
+            'message': 'Resume configuration updated successfully',
+            'resume_config': profile.resume_config
+        })
+
 
 class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
 
+    @extend_schema(
+        summary="Register New User",
+        description="Create a new user account and receive JWT tokens.",
+        examples=[
+            OpenApiExample(
+                "Registration Example",
+                value={
+                    "username": "newuser",
+                    "email": "newuser@example.com",
+                    "password": "secure_password123",
+                    "first_name": "John",
+                    "last_name": "Doe",
+                },
+            )
+        ],
+    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        refresh = CustomTokenObtainPairSerializer.get_token(user)
-        return Response({
-            "user": UserSerializer(user).data,
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }, status=status.HTTP_201_CREATED)
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+
+        return Response(
+            {
+                "user": UserSerializer(user).data,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
-# ── Logout ─────────────────────────────────────────────────────────────────
-
+@extend_schema(
+    summary="User Logout",
+    description="Logout user by blacklisting the refresh token.",
+    request={
+        "type": "object",
+        "properties": {
+            "refresh": {"type": "string", "description": "Refresh token to blacklist"}
+        },
+        "required": ["refresh"],
+    },
+    examples=[
+        OpenApiExample(
+            "Logout Example",
+            value={"refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."},
+        )
+    ],
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
 def logout_view(request):
     try:
         refresh_token = request.data.get("refresh")
         if not refresh_token:
-            return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
-        RefreshToken(refresh_token).blacklist()
+            return Response(
+                {"error": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
         return Response({"message": "Successfully logged out."})
     except TokenError as e:
-        return Response({"error": f"Token error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": f"Token error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
-        return Response({"error": f"Logout failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": f"Logout failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-
-# ── Token refresh ──────────────────────────────────────────────────────────
 
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
@@ -154,40 +350,71 @@ class CustomTokenRefreshView(TokenRefreshView):
             raise InvalidToken(e.args[0])
 
 
-# ── Current user ───────────────────────────────────────────────────────────
+@extend_schema(
+    summary="Get Current User Info",
+    description="Get information about the currently authenticated user.",
+    responses=UserSerializer,
+)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
-    return Response(UserSerializer(request.user).data)
+    """Get current user information."""
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 
-# ── Profile ────────────────────────────────────────────────────────────────
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedUser])
+def get_resume_templates(request):
+    """Get available resume templates, color schemes, and fonts."""
+    templates = [
+        {
+            'id': 'classic',
+            'name': 'Classic Professional',
+            'description': 'Clean and traditional layout perfect for corporate roles',
+            'category': 'free',
+            'popular': True,
+        },
+        {
+            'id': 'modern',
+            'name': 'Modern Minimal',
+            'description': 'Sleek design with focus on content and readability',
+            'category': 'free',
+        },
+        {
+            'id': 'developer',
+            'name': 'Developer Focused',
+            'description': 'Highlighting technical skills and projects',
+            'category': 'free',
+            'new': True,
+        },
+        {
+            'id': 'compact',
+            'name': 'Compact Single Page',
+            'description': 'All information in one page efficiently',
+            'category': 'free',
+        },
+    ]
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserUpdateSerializer
-    permission_classes = [IsAuthenticatedUser]
+    return Response({
+        'templates': templates,
+        'color_schemes': [
+            {'id': 'default', 'name': 'Default', 'primary': '#374151', 'accent': '#6b7280'},
+            {'id': 'blue', 'name': 'Professional Blue', 'primary': '#1e40af', 'accent': '#3b82f6'},
+            {'id': 'green', 'name': 'Nature Green', 'primary': '#166534', 'accent': '#22c55e'},
+            {'id': 'purple', 'name': 'Creative Purple', 'primary': '#7c3aed', 'accent': '#a78bfa'},
+            {'id': 'red', 'name': 'Bold Red', 'primary': '#dc2626', 'accent': '#ef4444'},
+            {'id': 'teal', 'name': 'Modern Teal', 'primary': '#0d9488', 'accent': '#14b8a6'},
+        ],
+        'fonts': [
+            {'id': 'inter', 'name': 'Inter', 'family': 'Inter, sans-serif'},
+            {'id': 'roboto', 'name': 'Roboto', 'family': 'Roboto, sans-serif'},
+            {'id': 'opensans', 'name': 'Open Sans', 'family': 'Open Sans, sans-serif'},
+            {'id': 'lato', 'name': 'Lato', 'family': 'Lato, sans-serif'},
+        ]
+    })
 
-    def get_object(self):
-        return self.request.user
-
-
-class ProfileDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticatedUser]
-
-    def get_object(self):
-        profile, _ = Profile.objects.get_or_create(user=self.request.user)
-        return profile
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        return Response(ProfileSerializer(serializer.save()).data)
-
-
-# ── Password reset ─────────────────────────────────────────────────────────
 
 class ForgotPasswordView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
@@ -196,16 +423,18 @@ class ForgotPasswordView(generics.GenericAPIView):
         email = request.data.get("email")
         if not email:
             return Response({"error": "Email is required"}, status=400)
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"message": "If this email exists, a reset link will be sent."})
+            return Response(
+                {"message": "If this email exists, a reset link will be sent."}
+            )
 
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
 
         # Get dynamic frontend URL from request origin/referer to support HTTP and HTTPS
-        from urllib.parse import urlparse
         origin = request.META.get("HTTP_ORIGIN")
         if not origin:
             referer = request.META.get("HTTP_REFERER")
@@ -217,13 +446,25 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
+        # Render styled HTML email template
+        from django.template.loader import render_to_string
+        context = {
+            "user": user,
+            "reset_link": reset_link,
+            "frontend_url": frontend_url,
+        }
+        html_message = render_to_string("emails/password_reset.html", context)
+        plain_message = f"Click the link to reset your password: {reset_link}"
+
         send_mail(
             subject="Password Reset Request",
-            message=f"Click the link to reset your password: {reset_link}",
+            message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
+            html_message=html_message,
             fail_silently=False,
         )
+
         return Response({"message": "If this email exists, a reset link will be sent."})
 
 
@@ -234,14 +475,17 @@ class ResetPasswordView(generics.GenericAPIView):
         password = request.data.get("password")
         if not password:
             return Response({"error": "Password is required"}, status=400)
+
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
-        except Exception:
+        except:
             return Response({"error": "Invalid reset link"}, status=400)
 
         if not PasswordResetTokenGenerator().check_token(user, token):
-            return Response({"error": "Reset link has expired or is invalid"}, status=400)
+            return Response(
+                {"error": "Reset link has expired or is invalid"}, status=400
+            )
 
         try:
             validate_password(password, user)
@@ -250,16 +494,43 @@ class ResetPasswordView(generics.GenericAPIView):
 
         user.set_password(password)
         user.save()
+
         return Response({"message": "Password reset successful. You may now login."})
 
-
-# ── Admin: user management ─────────────────────────────────────────────────
 
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def admin_users(request):
     admins = User.objects.filter(is_staff=True).values("id", "email", "username")
     return Response(list(admins))
+
+
+from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import generics, filters
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+import logging
+import os
+import tempfile
+from datetime import datetime
+
+try:
+    from django_filters.rest_framework import DjangoFilterBackend
+except ImportError:
+    DjangoFilterBackend = None
+
+try:
+    from weasyprint import HTML, CSS
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+
+User = get_user_model()
 
 
 class UsersPagination(PageNumberPagination):
@@ -272,26 +543,48 @@ class UsersListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
     pagination_class = UsersPagination
-    permission_classes = [IsAdminUser]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter] + (
+        [DjangoFilterBackend] if DjangoFilterBackend else []
+    )
+    filterset_fields = ["role", "is_active"]
     search_fields = ["username", "email", "first_name", "last_name"]
     ordering_fields = ["date_joined", "last_login", "username", "email"]
     ordering = ["-date_joined"]
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            role_filter = self.request.query_params.get("role", None)
+            if (
+                role_filter == "instructor"
+                and self.request.user.is_authenticated
+                and self.request.user.is_instructor()
+            ):
+                return [IsInstructorOrAdmin()]
+            else:
+                return [IsAdminUser()]
+        else:
+            return [IsAdminUser()]
+
     def get_queryset(self):
         queryset = super().get_queryset()
-        role = self.request.query_params.get("role")
+
+        role = self.request.query_params.get("role", None)
         if role:
             queryset = queryset.filter(role=role)
-        is_active = self.request.query_params.get("is_active")
+
+        is_active = self.request.query_params.get("is_active", None)
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == "true")
-        search = self.request.query_params.get("search")
+
+        search = self.request.query_params.get("search", None)
         if search:
             queryset = queryset.filter(
-                Q(username__icontains=search) | Q(email__icontains=search) |
-                Q(first_name__icontains=search) | Q(last_name__icontains=search)
+                Q(username__icontains=search)
+                | Q(email__icontains=search)
+                | Q(first_name__icontains=search)
+                | Q(last_name__icontains=search)
             )
+
         return queryset
 
 
@@ -309,6 +602,245 @@ class UserToggleStatusView(APIView):
             user = User.objects.get(pk=pk)
             user.is_active = not user.is_active
             user.save()
-            return Response(UserSerializer(user).data)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+    permission_classes = [IsAuthenticatedUser]
+
+    def get_object(self):
+        return self.request.user
+
+
+class ProfileDetailView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticatedUser]
+
+    def get_object(self):
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        return profile
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_profile = serializer.save()
+
+        return Response(ProfileSerializer(updated_profile).data)
+
+
+@extend_schema(
+    summary="Upload a profile image",
+    description=(
+        "Uploads a profile image (or cover image / id card image) to object storage "
+        "(S3 / MinIO depending on STORAGE_BACKEND) and saves the resulting URL "
+        "back on the user's profile. Send the file in the `image` field and the "
+        "target field name in `field` (`profile_image` | `cover_image` | "
+        "`id_card_image`). Max size 10 MB."
+    ),
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "image": {"type": "string", "format": "binary"},
+                "field": {
+                    "type": "string",
+                    "enum": ["profile_image", "cover_image", "id_card_image"],
+                },
+            },
+            "required": ["image", "field"],
+        }
+    },
+    responses={200: ProfileSerializer},
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def upload_profile_image(request):
+    """
+    POST /api/auth/profile/upload-image/
+
+    multipart/form-data:
+        image:    file (required, ≤10 MB)
+        field:    "profile_image" | "cover_image" | "id_card_image" (default: profile_image)
+    """
+    ALLOWED_FIELDS = ("profile_image", "cover_image", "id_card_image")
+    ALLOWED_CONTENT_TYPES = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+    }
+    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response(
+            {"error": "No image file provided. Use the 'image' form field."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if image_file.size > MAX_BYTES:
+        return Response(
+            {"error": f"Image too large. Max size is {MAX_BYTES // (1024 * 1024)} MB."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    target_field = request.data.get("field", "profile_image")
+    if target_field not in ALLOWED_FIELDS:
+        return Response(
+            {"error": f"Invalid field. Must be one of: {', '.join(ALLOWED_FIELDS)}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    content_type = (image_file.content_type or "").lower()
+    ext = ALLOWED_CONTENT_TYPES.get(content_type)
+    if not ext:
+        fallback = os.path.splitext(image_file.name)[1].lstrip(".").lower()
+        ext = fallback or "jpg"
+
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    try:
+        from core.storage import upload_image
+
+        stored_name = upload_image(
+            key=f"profile/{request.user.id}/{target_field}.{ext}",
+            file_obj=image_file,
+            replace_extensions=("jpg", "jpeg", "png", "webp", "gif"),
+        )
+    except Exception as exc:
+        logger.exception("Failed to upload profile image")
+        return Response(
+            {"error": f"Failed to upload image: {exc}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    setattr(profile, target_field, stored_name)
+    profile.save(update_fields=[target_field, "updated_at"])
+
+    return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)
+
+
+from rest_framework import viewsets
+
+class CollegeViewSet(viewsets.ModelViewSet):
+    queryset = College.objects.all()
+    serializer_class = CollegeSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUser()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        verification_status = self.request.query_params.get('verification_status')
+        if verification_status:
+            queryset = queryset.filter(verification_status=verification_status)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Admin-created colleges are auto-approved; student-created ones stay pending
+        user = self.request.user
+        if user.is_staff or getattr(user, 'role', '') == 'admin':
+            serializer.save(verification_status='approved')
+        else:
+            serializer.save(verification_status='pending')
+        
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        college = self.get_object()
+        college.verification_status = 'approved'
+        college.save()
+        return Response({'status': 'approved'})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        college = self.get_object()
+        college.verification_status = 'rejected'
+        college.save()
+        return Response({'status': 'rejected'})
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUser()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        verification_status = self.request.query_params.get('verification_status')
+        if verification_status:
+            queryset = queryset.filter(verification_status=verification_status)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Admin-created departments are auto-approved; student-created ones stay pending
+        user = self.request.user
+        if user.is_staff or getattr(user, 'role', '') == 'admin':
+            serializer.save(verification_status='approved')
+        else:
+            serializer.save(verification_status='pending')
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        dept = self.get_object()
+        dept.verification_status = 'approved'
+        dept.save()
+        return Response({'status': 'approved'})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        dept = self.get_object()
+        dept.verification_status = 'rejected'
+        dept.save()
+        return Response({'status': 'rejected'})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def change_password_view(request):
+    """Allow logged-in users (especially those with temp passwords) to change their password."""
+    password = request.data.get("password")
+    if not password:
+        return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    first_name = request.data.get("first_name")
+    last_name = request.data.get("last_name")
+
+    user = request.user
+
+    # Require first and last name for guest accounts on reset
+    if user.role == "guest":
+        if not first_name:
+            return Response({"error": "First name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not last_name:
+            return Response({"error": "Last name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(password, user)
+    except ValidationError as e:
+        return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(password)
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
+
+    if user.role == "guest":
+        user.role = "student"
+    user.save()
+
+    return Response({"message": "Password changed successfully."})

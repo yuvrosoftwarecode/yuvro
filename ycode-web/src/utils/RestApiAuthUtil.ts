@@ -1,6 +1,6 @@
 import { RestApiUtil, ApiError } from './RestApiUtil';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+// baseURL is now resolved dynamically in RestApiUtil based on the endpoint path.
 
 interface RequestOptions extends RequestInit {
     params?: Record<string, string>;
@@ -159,5 +159,5 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 }
 
-export const restApiAuthUtil = new RestApiAuthUtil(API_BASE_URL);
+export const restApiAuthUtil = new RestApiAuthUtil('');
 export default restApiAuthUtil;

@@ -1,44 +1,85 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import User, Profile
+
+from .models import (
+    User,
+    College,
+    Department,
+    Profile,
+)
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "verification_status", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class CollegeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = College
+        fields = ["id", "name", "verification_status", "created_at"]
+        read_only_fields = ["id", "created_at", "verification_status"]
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    college_name = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profile
+        fields = [
+            "id", "profile_image", "cover_image", "full_name",
+            "title", "location", "about", "gender",
+            "college", "college_other", "college_name",
+            "department", "department_other", "department_name",
+            "student_id", "id_card_image", "google_id",
+            "resume_config", "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_college_name(self, obj):
+        if obj.college:
+            return obj.college.name
+        return obj.college_other
+
+    def get_department_name(self, obj):
+        if obj.department:
+            return obj.department.name
+        return obj.department_other
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
+
+        # Add custom claims
         token["role"] = user.role
         token["username"] = user.username
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
+
         return token
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = [
-            "profile_image", "cover_image", "full_name",
-            "title", "location", "about", "gender",
-        ]
-
-
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(read_only=True)
-    full_name = serializers.SerializerMethodField()
-
     class Meta:
         model = User
         fields = [
-            "id", "username", "email", "first_name", "last_name",
-            "full_name", "role", "is_active", "date_joined", "last_login",
-            "profile",
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "is_active",
+            "date_joined",
+            "last_login",
         ]
         read_only_fields = ["id", "date_joined", "last_login"]
-
-    def get_full_name(self, obj):
-        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -50,16 +91,24 @@ class UserLoginSerializer(serializers.Serializer):
 
         email = attrs.get("email")
         password = attrs.get("password")
+        request = self.context.get("request")
 
         if email and password:
-            user = authenticate(username=email, password=password)
+            # Pass email=email explicitly, as USERNAME_FIELD is 'email'
+            user = authenticate(request=request, email=email, password=password)
+            if not user:
+                # Fallback to username=email just in case another backend needs it
+                user = authenticate(request=request, username=email, password=password)
+
             if user:
                 if not user.is_active:
                     raise serializers.ValidationError("User account is disabled.")
                 attrs["user"] = user
                 return attrs
-            raise serializers.ValidationError("Invalid email or password.")
-        raise serializers.ValidationError("Must include email and password.")
+            else:
+                raise serializers.ValidationError("Invalid email or password.")
+        else:
+            raise serializers.ValidationError("Must include email and password.")
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -69,8 +118,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "username", "email", "password", "password_confirm",
-            "first_name", "last_name",
+            "username",
+            "email",
+            "password",
+            "password_confirm",
+            "first_name",
+            "last_name",
+            "role",
         ]
 
     def validate(self, attrs):
@@ -78,13 +132,32 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Passwords don't match.")
         return attrs
 
+    def validate_role(self, value):
+        allowed_roles = ["student"]
+        if value not in allowed_roles:
+            raise serializers.ValidationError(
+                f"Invalid role. Allowed roles for registration: {', '.join(allowed_roles)}"
+            )
+        return value
+
     def create(self, validated_data):
         validated_data.pop("password_confirm")
         password = validated_data.pop("password")
-        return User.objects.create_user(password=password, **validated_data)
+        user = User.objects.create_user(password=password, **validated_data)
+        return user
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name"]
+        fields = ["username", "email", "first_name", "last_name", "role"]
+
+    def validate_role(self, value):
+        request = self.context.get("request")
+        if request and request.user:
+            if not request.user.can_manage_users():
+                if self.instance and self.instance.role != value:
+                    raise serializers.ValidationError(
+                        "You don't have permission to change user roles."
+                    )
+        return value

@@ -49,8 +49,6 @@ services:
     networks:
       - yhub
       - executor
-      - yuvro-storage
-
 
 volumes:
   yhub_postgres_data:
