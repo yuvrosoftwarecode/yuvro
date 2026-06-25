@@ -1,7 +1,7 @@
 # YHub Platform Makefile
 
 .PHONY: setup dev dev-detached stop restart logs clean
-.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
+.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset load-fixtures-data
 .PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
 
 # ============================================================================
@@ -78,6 +78,11 @@ db-reset:
 	docker compose -f docker-compose.yhub.yml down yhub-db -v
 	docker compose -f docker-compose.yhub.yml up -d yhub-db
 	@echo "✅ Database reset complete!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YHub fixture data..."
+	docker compose -f docker-compose.yhub.yml exec yhub-backend python manage.py seed_agents
+	@echo "✅ YHub fixture data loaded!"
 
 # ============================================================================
 # Backend

@@ -14,7 +14,6 @@ from io import BytesIO
 import traceback
 import logging
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -1534,71 +1533,75 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 if not context_text.strip():
                     context_text = "No resume or profile information provided. Please ask general questions relevant to the position."
 
-                # 3. Initialize AI Chat Session
+                # 3. Initialize AI Chat Session directly on YHub
+                chat_session_id = None
+                interview_session_id = None
+
                 if mock_interview.ai_generation_mode in [MockInterview.AI_GEN_FULL, MockInterview.AI_GEN_MIXED]:
-                    # Find an active AI agent (prefer Claude/Anthropic)
-                    ai_agent = AIAgent.objects.filter(is_active=True, provider='anthropic').first()
-                    if not ai_agent:
-                        # Fallback to Gemini
-                        ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
-                        if not ai_agent:
-                            # Last resort fallback
-                            ai_agent = AIAgent.objects.filter(is_active=True).first()
-                    
-                    if ai_agent:
-                        # Safe user name
-                        user_first_name = user.first_name if user.first_name else "Candidate"
+                    # Safe extraction of AI Context and Coding Count
+                    raw_ai_context = mock_interview.ai_context.get(
+                        experience_level.lower(), {}
+                    ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+
+                    # Backwards compatibility check
+                    if isinstance(raw_ai_context, dict):
+                        actual_ai_context = raw_ai_context.get('context_str') or raw_ai_context.get('context', [])
+                        coding_count = raw_ai_context.get('coding_questions_count', 1)
+                    else:
+                        actual_ai_context = raw_ai_context
+                        coding_count = 1
+
+                    try:
+                        import requests
+                        yhub_url = "http://yhub-backend:8000/api/sessions/create_from_ycode/"
+                        auth_header = request.headers.get("Authorization")
+                        headers = {}
+                        if auth_header:
+                            headers["Authorization"] = auth_header
                         
-                        # Safe extraction of AI Context and Coding Count
-                        raw_ai_context = mock_interview.ai_context.get(
-                            experience_level.lower(), {}
-                        ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+                        context_payload = {
+                            "role": mock_interview.title,
+                            "description": mock_interview.description,
+                            "instructions": mock_interview.instructions,
+                            "difficulty": experience_level,
+                            "level": experience_level,
+                            "max_duration": mock_interview.max_duration,
+                            "selected_duration": selected_duration,
+                            "required_skills": mock_interview.required_skills,
+                            "optional_skills": mock_interview.optional_skills,
+                            "interviewer_name": mock_interview.interviewer_name,
+                            "interviewer_voice_id": mock_interview.interviewer_voice_id,
+                            "voice_speed": mock_interview.voice_speed,
+                            "ai_context": actual_ai_context,
+                            "coding_questions_count": coding_count,
+                            "candidate_info": context_text
+                        }
 
-                        # Backwards compatibility check
-                        if isinstance(raw_ai_context, dict):
-                            # Try both keys, default to empty list or string accordingly
-                            actual_ai_context = raw_ai_context.get('context_str') or raw_ai_context.get('context', [])
-                            coding_count = raw_ai_context.get('coding_questions_count', 1)
-                        else:
-                            # Fallback for legacy flat array format
-                            actual_ai_context = raw_ai_context
-                            coding_count = 1
-
-                        chat_session = ChatSession.objects.create(
-                            user=user,
-                            ai_agent=ai_agent,
-                            title=f"Mock Interview: {mock_interview.title}",
-                            page="mock_interview",
-                            context={
-                                "role": mock_interview.title,
-                                "description": mock_interview.description,
-                                "instructions": mock_interview.instructions,
-                                "difficulty": experience_level,
-                                "level": experience_level,
-                                "max_duration": mock_interview.max_duration,
-                                "selected_duration": selected_duration,
-                                "required_skills": mock_interview.required_skills,
-                                "optional_skills": mock_interview.optional_skills,
-                                "interviewer_name": mock_interview.interviewer_name,
-                                "interviewer_voice_id": mock_interview.interviewer_voice_id,
-                                "voice_speed": mock_interview.voice_speed,
-                                "ai_context": actual_ai_context,
-                                "coding_questions_count": coding_count,
-                                "candidate_info": context_text
+                        payload = {
+                            "ai_agent_provider": "gemini",
+                            "ai_agent_model_name": "gemini-2.5-flash",
+                            "title": f"Mock Interview: {mock_interview.title}",
+                            "page": "mock_interview",
+                            "context": context_payload,
+                            "interview_session": {
+                                "role_title": mock_interview.title,
+                                "role_level": experience_level,
+                                "difficulty": "Adaptive",
+                                "duration_minutes": selected_duration or mock_interview.max_duration,
+                                "status": "started"
                             }
-                        )
-                        
-                        # Create InterviewSession linking to ChatSession
-                        # This is crucial for the AI Assistant module to track it as an interview
-                        interview_session = InterviewSession.objects.create(
-                            user=user,
-                            chat_session=chat_session,
-                            role_title=mock_interview.title,
-                            role_level=experience_level,
-                            difficulty="Adaptive", # Mock interviews are generally adaptive
-                            duration_minutes=selected_duration or mock_interview.max_duration,
-                            status='started'
-                        )
+                        }
+
+                        resp = requests.post(yhub_url, json=payload, headers=headers, timeout=10)
+                        if resp.status_code == 201:
+                            resp_data = resp.json()
+                            chat_session_id = resp_data.get("id")
+                            interview_session_id = resp_data.get("interview_session_id")
+                        else:
+                            raise Exception(f"Failed to create session on YHub: {resp.text}")
+                    except Exception as e:
+                        logger.error(f"Error calling YHub to create session: {e}")
+                        raise Exception(f"Failed to connect to AI server: {str(e)}")
 
                 # 4. Create NEW submission
                 submission = MockInterviewSubmission.objects.create(
@@ -1608,7 +1611,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     experience_level=experience_level,
                     selected_duration=selected_duration,
                     resume=resume_file,
-                    chat_session=chat_session
+                    chat_session_id=chat_session_id
                 )
             else:
                  # Update settings if restarted
@@ -1617,22 +1620,24 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                  if resume_file: 
                      submission.resume = resume_file
                  submission.save()
-                 chat_session = submission.chat_session
-
-                 # Try to get linked interview session
-                 try:
-                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
-                 except InterviewSession.DoesNotExist:
-                     # Create it if it was missing (e.g. from old data)
-                     interview_session = InterviewSession.objects.create(
-                         user=user,
-                         chat_session=chat_session,
-                         role_title=mock_interview.title,
-                         role_level=experience_level,
-                         difficulty="Adaptive",
-                         duration_minutes=selected_duration or mock_interview.max_duration,
-                         status='started'
-                     )
+                 
+                 chat_session_id = submission.chat_session_id
+                 if chat_session_id:
+                     # Fetch existing interview_session_id from YHub
+                     try:
+                         import requests
+                         yhub_url = f"http://yhub-backend:8000/api/sessions/{chat_session_id}/"
+                         auth_header = request.headers.get("Authorization")
+                         headers = {}
+                         if auth_header:
+                             headers["Authorization"] = auth_header
+                         
+                         resp = requests.get(yhub_url, headers=headers, timeout=5)
+                         if resp.status_code == 200:
+                             resp_data = resp.json()
+                             interview_session_id = resp_data.get("interview_session_id")
+                     except Exception as e:
+                         logger.error(f"Error fetching existing session from YHub: {e}")
 
             # Extract coding count one more time for frontend response
             raw_ai_context_resp = mock_interview.ai_context.get(
@@ -1643,13 +1648,13 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
-                'interview_session_id': interview_session.id if interview_session else None,
-                'id': interview_session.id if interview_session else None, # Backwards compatibility for frontend
+                'interview_session_id': interview_session_id,
+                'id': interview_session_id, # Backwards compatibility for frontend
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,
                 'experience_level': submission.experience_level,
-                'chat_session_id': chat_session.id if chat_session else None,
+                'chat_session_id': chat_session_id,
                 'ai_config': {
                     'mode': mock_interview.ai_generation_mode,
                     'coding_count': coding_count_resp,
@@ -1689,6 +1694,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         from .serializers import MockInterviewSubmissionSerializer
         serializer = MockInterviewSubmissionSerializer(qs, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    def complete_submission(self, request):
+        """Internal endpoint to complete a mock interview submission."""
+        chat_session_id = request.data.get("chat_session_id")
+        if not chat_session_id:
+            return Response({"error": "Missing chat_session_id"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        submission = MockInterviewSubmission.objects.filter(chat_session_id=chat_session_id).first()
+        if submission:
+            submission.status = MockInterviewSubmission.STATUS_COMPLETED
+            submission.completed_at = timezone.now()
+            submission.save()
+            return Response({"status": "completed"}, status=status.HTTP_200_OK)
+            
+        return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
     

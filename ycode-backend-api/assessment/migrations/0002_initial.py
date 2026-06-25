@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
         ("authentication", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("assessment", "0001_initial"),
-        ("ai_assistant", "0002_initial"),
     ]
 
     operations = [
@@ -109,17 +108,7 @@ class Migration(migrations.Migration):
                 to="course.topic",
             ),
         ),
-        migrations.AddField(
-            model_name="mockinterviewsubmission",
-            name="chat_session",
-            field=models.OneToOneField(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name="mock_interview_submission",
-                to="ai_assistant.chatsession",
-            ),
-        ),
+
         migrations.AddField(
             model_name="mockinterviewsubmission",
             name="mock_interview",

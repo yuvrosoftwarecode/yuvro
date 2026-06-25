@@ -77,6 +77,9 @@ class ChatSessionSerializer(serializers.ModelSerializer):
     ai_agent_provider = serializers.CharField(
         source="ai_agent.provider", read_only=True
     )
+    interview_session_id = serializers.CharField(
+        source="interview_session.id", read_only=True, required=False
+    )
 
     class Meta:
         model = ChatSession
@@ -86,6 +89,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
             "ai_agent",
             "ai_agent_name",
             "ai_agent_provider",
+            "interview_session_id",
             "title",
             "page",
             "context",

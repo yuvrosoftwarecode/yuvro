@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
+import { getBaseUrlForPath } from '@/utils/serviceRouter';
 
 export type ChatMessage = {
   id: string;
@@ -329,7 +330,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
         ...(sid && !sid.startsWith('local-') ? {} : { ai_agent_id: agentId })
       };
 
-      const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
+      const baseUrl = getBaseUrlForPath('/sessions/');
       const endpoint = (sid && !sid.startsWith('local-')) 
         ? `${baseUrl}/sessions/${sid}/send_message/`
         : `${baseUrl}/chat/quick_chat/`;

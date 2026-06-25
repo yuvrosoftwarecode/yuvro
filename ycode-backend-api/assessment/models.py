@@ -427,13 +427,7 @@ class MockInterviewSubmission(BaseUserSubmission):
     )
 
     resume = models.FileField(upload_to="resumes/", null=True, blank=True)
-    chat_session = models.OneToOneField(
-        "ai_assistant.ChatSession",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="mock_interview_submission",
-    )
+    chat_session_id = models.UUIDField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]

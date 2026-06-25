@@ -1,4 +1,5 @@
 import { trackApiCall } from '../observability/telemetry';
+import { getBaseUrlForPath } from './serviceRouter';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
@@ -26,7 +27,12 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const url = new URL(`${this.baseURL}${endpoint}`);
+        const isDefaultBackend = this.baseURL === import.meta.env.VITE_BACKEND_API_BASE_URL;
+        const resolvedBaseUrl = isDefaultBackend ? getBaseUrlForPath(endpoint) : this.baseURL;
+        
+        const cleanBaseUrl = resolvedBaseUrl.replace(/\/$/, '');
+        const cleanEndpoint = '/' + endpoint.replace(/^\//, '');
+        const url = new URL(`${cleanBaseUrl}${cleanEndpoint}`);
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);
