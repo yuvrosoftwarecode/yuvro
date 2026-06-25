@@ -39,8 +39,7 @@ from .serializers import (
     QuestionSolutionSerializer,
     StudentCodePracticeSerializer,
 )
-from ai_assistant.services import AIServiceFactory, AIServiceError
-from ai_assistant.models import AIAgent
+from core.ai_services import AIServiceFactory, AIServiceError
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -1684,7 +1683,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def generate_insights(self, request):
         """
-        Generate AI insights based on user's recent coding practice using `ai_assistant` service.
+        Generate AI insights based on user's recent coding practice using AI service.
         """
         user = request.user
         
@@ -1791,14 +1790,8 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
         # 4. Call AI Service
         try:
-            # Find an active agent
-            agent = AIAgent.objects.filter(is_active=True).first()
-            if not agent:
-                 # Fallback if no agent in DB, but we need one. 
-                 # For now, return error or mock if forced.
-                 return Response({"error": "No active AI agent configured."}, status=503)
-
-            ai_service = AIServiceFactory.create_service(agent.provider, agent.model_name)
+            # Generate insights directly using Gemini
+            ai_service = AIServiceFactory.create_service("gemini", "gemini-2.5-flash")
             
             # Using async wrapper as seen in other views
             loop = asyncio.new_event_loop()

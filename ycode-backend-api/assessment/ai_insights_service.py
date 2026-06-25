@@ -6,7 +6,7 @@ import asyncio
 import json
 from typing import Dict, List, Any
 from django.conf import settings
-from ai_assistant.services import AIServiceFactory, AIServiceError
+from core.ai_services import AIServiceFactory, AIServiceError
 
 
 class ContestAIInsightsService:

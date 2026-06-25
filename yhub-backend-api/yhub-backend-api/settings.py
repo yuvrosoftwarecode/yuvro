@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # Local — auth only
     "authentication",
+    "ai_assistant",
 ]
 
 MIDDLEWARE = [
@@ -92,7 +93,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "authentication.authentication.DynamicJWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

@@ -12,6 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+ALLOWED_HOSTS.extend(["ycode-backend", "ycode-backend-api"])
 
 # Application definition
 INSTALLED_APPS = [
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     "core",
     "authentication",
     "course",
-    "ai_assistant",
     "job",
     "assessment",
     "gamification",

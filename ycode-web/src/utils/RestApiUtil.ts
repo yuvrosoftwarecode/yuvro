@@ -25,8 +25,12 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const baseUrl = getBaseUrlForPath(endpoint);
-        const url = new URL(`${baseUrl}${endpoint}`);
+        const isDefaultBackend = this.baseURL === import.meta.env.VITE_BACKEND_API_BASE_URL;
+        const resolvedBaseUrl = isDefaultBackend ? getBaseUrlForPath(endpoint) : this.baseURL;
+        
+        const cleanBaseUrl = resolvedBaseUrl.replace(/\/$/, '');
+        const cleanEndpoint = '/' + endpoint.replace(/^\//, '');
+        const url = new URL(`${cleanBaseUrl}${cleanEndpoint}`);
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);

@@ -30,7 +30,6 @@ urlpatterns = [
     path("api/auth/", include("authentication.urls")),
     path("api/course/", include("course.urls")),
     path("api/", include("gamification.urls")),
-    path("api/", include("ai_assistant.urls")),
     path("api/health/", health_check, name="health_check"),
     path("accounts/", include("allauth.urls")),
     path("api/jobs/", include("job.urls")),
