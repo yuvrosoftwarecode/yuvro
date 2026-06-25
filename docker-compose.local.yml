@@ -95,6 +95,27 @@ services:
       - ./ylabs-web:/app
       - /app/node_modules
 
+  # ── YHub ───────────────────────────────────────────────────────────────────
+  yhub-db:
+    env_file:
+      - ./yhub-backend-api/.env.local
+      - path: ./yhub-backend-api/.env.local-secrets
+        required: false
+
+  yhub-backend:
+    env_file:
+      - ./yhub-backend-api/.env.local
+      - path: ./yhub-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ./yhub-backend-api:/app
+      - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
+
   # ── Code Executor ──────────────────────────────────────────────────────────
   yuvro-code-executor:
     env_file:

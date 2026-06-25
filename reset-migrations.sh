@@ -45,10 +45,15 @@ delete_migrations "ycode-backend-api" "YCode Backend"
 # Reset YCampus migrations
 delete_migrations "ycampus-backend-api" "YCampus Backend"
 
+# Reset YHub migrations
+delete_migrations "yhub-backend-api" "YHub Backend"
+
 echo "🎉 All migrations have been reset!"
 echo ""
 echo "Next steps:"
 echo "1. Run: make makemigrations-ycode"
 echo "2. Run: make makemigrations-ycampus"
-echo "3. Run: make setup-ycode"
-echo "4. Run: make setup-ycampus"
+echo "3. Run: make makemigrations-yhub"
+echo "4. Run: make -f Makefile.ycode setup"
+echo "5. Run: make -f Makefile.ycampus setup"
+echo "6. Run: make -f Makefile.yhub setup"

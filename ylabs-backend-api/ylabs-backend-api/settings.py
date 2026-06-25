@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     # Local — auth only
-    "authentication",
+    # "authentication",
 ]
 
 MIDDLEWARE = [
@@ -68,7 +68,7 @@ WSGI_APPLICATION = "ylabs-backend-api.wsgi.application"
 
 DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 
-AUTH_USER_MODEL = "authentication.User"
+# AUTH_USER_MODEL = "authentication.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
