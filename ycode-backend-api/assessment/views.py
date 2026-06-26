@@ -14,8 +14,8 @@ from io import BytesIO
 import traceback
 import logging
 
-from authentication.models import Profile
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
+from core.models import Profile
+from core.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import (
     SkillTest, SkillTestSubmission, SkillTestQuestionActivity,
@@ -518,7 +518,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         contest = self.get_object()
         from .models import ContestRegistration
         from .serializers import ContestRegistrationSerializer
-        registrations = ContestRegistration.objects.filter(contest=contest).select_related('user', 'user__profile', 'user__profile__college', 'user__profile__department')
+        registrations = ContestRegistration.objects.filter(contest=contest)
         serializer = ContestRegistrationSerializer(registrations, many=True)
         return Response(serializer.data)
 
@@ -712,7 +712,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         submissions = ContestSubmission.objects.filter(
             contest=contest,
             status__in=[ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED]
-        ).select_related('user').order_by('-marks', 'submitted_at')
+        ).order_by('-marks', 'submitted_at')
         
         # 2. Apply Pagination
         paginator = LeaderboardPagination()
@@ -759,7 +759,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             contest=contest,
         ).exclude(
             status=ContestSubmission.STATUS_CANCELLED
-        ).select_related('user', 'user__profile', 'user__profile__college', 'user__profile__department')
+        )
 
         registered_count = registrations.count()
         attempted_count = submissions.count()
@@ -1120,7 +1120,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             )
 
         try:
-            from authentication.models import College
+            from core.models import College
             college = College.objects.get(id=college_id)
         except College.DoesNotExist:
             return Response(

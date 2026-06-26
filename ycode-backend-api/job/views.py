@@ -20,7 +20,7 @@ from .models import (
     JobSkill,
     CandidateSearchLog,
 )
-from authentication.models import Profile
+from core.models import Profile
 from .serializers import (
     JobSerializer,
     CompanySerializer,
@@ -39,7 +39,7 @@ from .serializers import (
     EducationSerializer,
     CertificationSerializer,
 )
-from authentication.permissions import IsAuthenticatedUser
+from core.permissions import IsAuthenticatedUser
 import logging
 
 
@@ -481,7 +481,7 @@ class JobViewSet(viewsets.ModelViewSet):
         frontend_url = origin.rstrip("/") if origin else settings.FRONTEND_URL
 
         from django.contrib.auth import get_user_model
-        from authentication.models import Profile
+        from core.models import Profile
         import random
         import string
         from django.template.loader import render_to_string
@@ -1135,8 +1135,8 @@ class CandidateSearchViewSet(viewsets.ViewSet):
         filters = search_serializer.validated_data
 
         queryset = (
-            JobProfile.objects.select_related("profile__user")
-            .prefetch_related("job_skills", "profile__skills", "profile__experiences")
+            JobProfile.objects
+            .prefetch_related("job_skills")
             .all()
         )
 
@@ -1382,14 +1382,9 @@ class CandidateSearchViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             job_profile = (
-                JobProfile.objects.select_related("profile__user")
+                JobProfile.objects
                 .prefetch_related(
                     "job_skills",
-                    "profile__skills",
-                    "profile__experiences",
-                    "profile__projects",
-                    "profile__education",
-                    "profile__certifications",
                 )
                 .get(pk=pk)
             )
@@ -1403,8 +1398,8 @@ class CandidateSearchViewSet(viewsets.ViewSet):
 
     def list(self, request):
         queryset = (
-            JobProfile.objects.select_related("profile__user")
-            .prefetch_related("job_skills", "profile__skills", "profile__experiences")
+            JobProfile.objects
+            .prefetch_related("job_skills")
             .all()
         )
 

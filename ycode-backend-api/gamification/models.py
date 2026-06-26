@@ -7,7 +7,8 @@ class UserGamificationProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="gamification_profile"
+        related_name="gamification_profile",
+        db_constraint=False
     )
     current_streak = models.IntegerField(default=0)
     longest_streak = models.IntegerField(default=0)
@@ -38,7 +39,8 @@ class DailyUserActivity(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="daily_activities"
+        related_name="daily_activities",
+        db_constraint=False
     )
     date = models.DateField(default=timezone.now)
     activity_count = models.IntegerField(default=0)
@@ -89,7 +91,8 @@ class UserBadge(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="badges"
+        related_name="badges",
+        db_constraint=False
     )
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name="user_badges")
     earned_at = models.DateTimeField(auto_now_add=True)
@@ -139,7 +142,8 @@ class UserMission(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='daily_missions'
+        related_name='daily_missions',
+        db_constraint=False
     )
     mission = models.ForeignKey(Mission, on_delete=models.CASCADE, related_name='user_missions')
     date = models.DateField(default=timezone.now)

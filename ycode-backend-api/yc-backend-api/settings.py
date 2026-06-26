@@ -26,18 +26,12 @@ INSTALLED_APPS = [
     # Third party apps
     "rest_framework",
     "rest_framework_simplejwt",
-    "rest_framework.authtoken",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "drf_spectacular",
     "storages",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
     # Local apps
     "core",
-    "authentication",
     "course",
     "job",
     "assessment",
@@ -54,7 +48,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
     "observability.TracingMiddleware",
 ]
 
@@ -82,7 +75,7 @@ WSGI_APPLICATION = "yc-backend-api.wsgi.application"
 DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 
 # Custom User Model
-AUTH_USER_MODEL = "authentication.User"
+AUTH_USER_MODEL = "core.User"
 
 
 # Password validation
@@ -162,7 +155,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "core.authentication.DynamicJWTAuthentication",
+        "core.authentication.StatelessJWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -193,8 +186,6 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
-    # Custom token serializer to include role in JWT
-    "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.CustomTokenObtainPairSerializer",
 }
 
 # CORS Settings
@@ -222,31 +213,8 @@ CSRF_TRUSTED_ORIGINS = config(
     default="https://backend-code-dev.yuvro.ai,https://backend-campus-dev.yuvro.ai,http://localhost:8001",
 ).split(",")
 
-# Django Allauth Settings
+# Django Allauth Settings (cleanup)
 SITE_ID = 1
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_UNIQUE_EMAIL = True
-
-# Social Auth Settings
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-        "OAUTH_PKCE_ENABLED": True,
-        "APP": {
-            "client_id": config("GOOGLE_OAUTH2_CLIENT_ID", default=""),
-            "secret": config("GOOGLE_OAUTH2_CLIENT_SECRET", default=""),
-        },
-    }
-}
 
 # Logging
 LOGGING = {

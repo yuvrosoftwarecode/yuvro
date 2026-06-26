@@ -11,7 +11,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsAdminUser
+from core.permissions import CanManageCourses, IsAuthenticatedUser, IsAdminUser
 from .utils import CodeExecutionUtil
 from gamification.service import GamificationService
 from gamification.models import UserGamificationProfile, DailyUserActivity
@@ -62,7 +62,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return CourseSerializer if self.action == "retrieve" else CourseBasicSerializer
 
     def get_queryset(self):
-        queryset = Course.objects.prefetch_related('course_instructors__instructor').all()
+        queryset = Course.objects.prefetch_related('course_instructors').all()
         category = self.request.query_params.get("category")
         if category:
             queryset = queryset.filter(category=category)
@@ -402,14 +402,14 @@ class VideoViewSet(viewsets.ModelViewSet):
 
 
 class NoteViewSet(viewsets.ModelViewSet):
-    queryset = Note.objects.select_related("sub_topic", "user")
+    queryset = Note.objects.select_related("sub_topic")
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticatedUser]
 
     def get_queryset(self):
         from django.db.models import Q
         
-        qs = Note.objects.select_related("sub_topic", "user")
+        qs = Note.objects.select_related("sub_topic")
         user = self.request.user
 
         if user.role == "instructor":
@@ -418,14 +418,20 @@ class NoteViewSet(viewsets.ModelViewSet):
                     instructor=user
                 ).values_list("course_id", flat=True)
             )
-        if user.role == "student":
-            qs = qs.filter(
-                Q(user=user) | 
-                Q(user__role__in=["instructor", "admin"])
-            )
-
         if sid := self.request.query_params.get("sub_topic"):
             qs = qs.filter(sub_topic_id=sid)
+
+        if user.role == "student":
+            if sid:
+                instructor_ids = CourseInstructor.objects.filter(
+                    course__topics__subtopics__id=sid
+                ).values_list("instructor_id", flat=True)
+                qs = qs.filter(
+                    Q(user_id=user.id) | 
+                    Q(user_id__in=instructor_ids)
+                )
+            else:
+                qs = qs.filter(user_id=user.id)
 
         return qs
 

@@ -153,7 +153,7 @@ class Note(models.Model):
         Subtopic, on_delete=models.CASCADE, related_name="notes"
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes", db_constraint=False
     )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -181,6 +181,7 @@ class CourseInstructor(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name="instructor_courses",
+        db_constraint=False,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -212,6 +213,7 @@ class UserCourseProgress(BaseTimestampedModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="course_progress",
+        db_constraint=False,
     )
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="user_progress"
@@ -419,7 +421,7 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="created_questions"
+        User, on_delete=models.CASCADE, related_name="created_questions", db_constraint=False
     )
 
     class Meta:
@@ -658,7 +660,7 @@ class StudentCodePractice(BaseTimestampedModel):
     )
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="student_code_practices"
+        User, on_delete=models.CASCADE, related_name="student_code_practices", db_constraint=False
     )
     question = models.ForeignKey(
         Question,

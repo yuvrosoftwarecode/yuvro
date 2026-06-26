@@ -1,4 +1,4 @@
-const SERVICE_URLS: Record<string, string> = {
+export const SERVICE_URLS: Record<string, string> = {
     ycode: import.meta.env.VITE_BACKEND_API_BASE_URL || 'http://localhost:8000/api',
     yhub: import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || 'http://localhost:8003/api',
 };

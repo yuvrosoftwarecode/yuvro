@@ -10,7 +10,7 @@ from .models import (
     ContestSubmission,
     ContestQuestionActivity,
 )
-from authentication.models import User, College
+from core.models import User, College
 from course.models import Question
 
 
@@ -37,7 +37,7 @@ class ContestAnalyticsService:
         try:
             user = User.objects.get(id=user_id)
             submission = ContestSubmission.objects.select_related(
-                'user', 'user__profile', 'contest'
+                'contest'
             ).get(contest=self.contest, user=user)
         except (User.DoesNotExist, ContestSubmission.DoesNotExist):
             raise ValueError("Student submission not found for this contest")
@@ -407,11 +407,21 @@ class ContestAnalyticsService:
 
         # Get all submissions from this college
         college_submissions = ContestSubmission.objects.filter(
-            contest=self.contest,
-            user__profile__college=college
+        # Resolve user IDs belonging to this college statelessly
+        all_subs = ContestSubmission.objects.filter(
+            contest=self.contest
         ).exclude(
             status=ContestSubmission.STATUS_CANCELLED
-        ).select_related('user', 'user__profile', 'user__profile__department')
+        )
+        user_ids = []
+        for sub in all_subs:
+            if sub.user and str(getattr(sub.user, 'college_id', None)) == str(college.id):
+                user_ids.append(sub.user.id)
+
+        college_submissions = ContestSubmission.objects.filter(
+            contest=self.contest,
+            user_id__in=user_ids
+        )
 
         if not college_submissions.exists():
             raise ValueError("No submissions found for this college in this contest")
@@ -747,7 +757,7 @@ class ContestAnalyticsService:
 
     def _calculate_did_not_attempt(self, college: College) -> List[Dict[str, Any]]:
         """Return students from this college who are enrolled but never started the contest."""
-        from authentication.models import Profile
+        from core.models import Profile
 
         # Students from this college who have a profile
         college_user_ids = set(
@@ -764,7 +774,7 @@ class ContestAnalyticsService:
 
         not_attempted_ids = college_user_ids - attempted_user_ids
 
-        from authentication.models import User as AuthUser
+        from core.models import User as AuthUser
         students = AuthUser.objects.filter(
             id__in=not_attempted_ids,
             role='student'

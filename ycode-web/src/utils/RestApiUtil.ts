@@ -25,7 +25,7 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const isDefaultBackend = this.baseURL === import.meta.env.VITE_BACKEND_API_BASE_URL;
+        const isDefaultBackend = this.baseURL === SERVICE_URLS.ycode;
         const resolvedBaseUrl = isDefaultBackend ? getBaseUrlForPath(endpoint) : this.baseURL;
         
         const cleanBaseUrl = resolvedBaseUrl.replace(/\/$/, '');

@@ -13,7 +13,7 @@ from .models import (
     StudentCodePractice,
 )
 from gamification.models import UserGamificationProfile
-from authentication.serializers import UserSerializer
+from core.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
