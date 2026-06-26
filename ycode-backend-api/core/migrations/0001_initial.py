@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("assessment", "0009_contest_amount_contest_payment_type"),
+        ("assessment", "0007_alter_certificationexam_enable_proctoring_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
