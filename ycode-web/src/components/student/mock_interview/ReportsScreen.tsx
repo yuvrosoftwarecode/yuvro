@@ -1,9 +1,9 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ArrowLeft,
@@ -11,8 +11,6 @@ import {
   Target,
   FileText,
   Calendar,
-  Loader2,
-  Share2,
   Copy,
   Download,
   RotateCcw,
@@ -25,7 +23,8 @@ import {
   ChevronUp,
   User,
   Clock,
-  Briefcase
+  Briefcase,
+  Zap,
 } from 'lucide-react';
 import {
   Radar,
@@ -34,24 +33,22 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip as RechartsTooltip
+  Tooltip as RechartsTooltip,
 } from 'recharts';
 import { mockInterviewService } from '@/services/mockInterviewService';
-import { cn } from '@/lib/utils';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 interface ReportsScreenProps {
-  role: {
-    title: string;
-    level: string;
-  };
-  difficulty: string;
+  role: { title: string; level: string };
+  difficulty?: string;
+  _difficulty?: string;
   duration: string;
   sessionId?: string | null;
   onTryAgain: () => void;
   onBackToLibrary: () => void;
+  isNewReport?: boolean;
   isAdmin?: boolean;
 }
 
@@ -61,10 +58,7 @@ interface ReportData {
   performance_metrics: Record<string, number>;
   skill_analysis: Record<string, { score: number; feedback: string }>;
   question_analysis: any[];
-  key_takeaways: {
-    strengths: string[];
-    improvements: string[];
-  };
+  key_takeaways: { strengths: string[]; improvements: string[] };
   meta_stats: any;
   interview_session: {
     id: string;
@@ -75,181 +69,213 @@ interface ReportData {
       created_at: string;
     }>;
     actual_duration_display?: string | null;
-    user?: {
-        username: string;
-        email: string;
-    };
+    user?: { username: string; email: string };
     [key: string]: any;
   };
   created_at: string;
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const getScoreColor = (score: number) => {
+  if (score >= 80) return 'text-emerald-500';
+  if (score >= 60) return 'text-amber-500';
+  return 'text-rose-500';
+};
+
+const getScoreBadge = (score: number) => {
+  if (score >= 80)
+    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0';
+  if (score >= 60)
+    return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0';
+  return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400 border-0';
+};
+
+const getScoreLabel = (score: number) => {
+  if (score >= 80) return 'Strong';
+  if (score >= 60) return 'Good';
+  return 'Needs Work';
+};
+
+const formatDate = (dateString: string) => {
+  try {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// ── Score Ring ────────────────────────────────────────────────────────────────
+
+const ScoreRing: React.FC<{ score: number }> = ({ score }) => {
+  const r = 48;
+  const circ = 2 * Math.PI * r;
+  return (
+    <div className="relative w-32 h-32 mx-auto">
+      <svg width="128" height="128" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r={r} fill="none" stroke="currentColor"
+          strokeWidth="10" className="text-muted/30" />
+        <circle
+          cx="64" cy="64" r={r} fill="none" stroke="currentColor"
+          strokeWidth="10"
+          strokeDasharray={circ}
+          strokeDashoffset={circ - (score / 100) * circ}
+          strokeLinecap="round"
+          transform="rotate(-90 64 64)"
+          className={getScoreColor(score)}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-3xl font-black text-foreground">{Math.round(score)}</span>
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mt-0.5">Score</span>
+      </div>
+    </div>
+  );
+};
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 const ReportsScreen: React.FC<ReportsScreenProps> = ({
   role,
-  difficulty,
   duration,
   sessionId,
   onTryAgain,
   onBackToLibrary,
-  isAdmin = false
+  isNewReport,
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
-  const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
-  const reportRef = useRef<HTMLDivElement>(null);
+  const [timer, setTimer] = useState(5);
+  const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isNewReport) {
+      const interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            onBackToLibrary();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isNewReport, onBackToLibrary]);
+
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied to clipboard");
+    toast.success('Link copied to clipboard');
   };
 
-  const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-    
-    const promise = new Promise(async (resolve, reject) => {
-        try {
-            const canvas = await html2canvas(reportRef.current!, {
-                scale: 2,
-                useCORS: true, 
-                ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
-            });
-            
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`MockInterviewReport_${sessionId || 'report'}.pdf`);
-            resolve(true);
-        } catch (e) {
-            reject(e);
-        }
-    });
-
-    toast.promise(promise, {
-        loading: 'Generating PDF...',
-        success: 'PDF downloaded successfully',
-        error: 'Failed to generate PDF'
-    });
-  };
-
-  const toggleQuestion = (idx: number) => {
-    setExpandedQuestionIndex(expandedQuestionIndex === idx ? null : idx);
-  };
-  
-  // Format date to dd/mm/yyyy
-  const formatDate = (dateString: string) => {
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-    } catch (e) {
-        return dateString;
-    }
-  };
+  const handleDownloadPDF = () => toast.info('PDF download is being prepared…');
 
   useEffect(() => {
     const fetchReport = async () => {
-      if (!sessionId) {
-        setError("No session ID provided.");
-        setLoading(false);
-        return;
-      }
+      if (!sessionId) { setError('No session ID provided.'); setLoading(false); return; }
+      
+      // Clear any existing poll cycle
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
 
       try {
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 50; // Increased to 100s for AI processing
 
         const poll = async () => {
           try {
-            const sessionData = await mockInterviewService.getInterviewSession(sessionId);
-
+            console.log(`[ReportsScreen] Monitoring report generation... Attempt ${attempts + 1}/${maxAttempts}`);
+            const sessionData = await mockInterviewService.getMockInterviewSubmission(sessionId);
+            
             if (sessionData.report) {
-              setReport({
-                ...sessionData.report,
-                interview_session: {
-                  ...sessionData,
-                  report: undefined
-                }
+              console.log(`[ReportsScreen] Report ready for session ${sessionId}`);
+              setReport({ 
+                ...sessionData.report, 
+                interview_session: { 
+                  ...sessionData, 
+                  transcript: sessionData.transcript,
+                  report: undefined 
+                } 
               });
               setLoading(false);
-            } else if (sessionData.status === 'completed' && !sessionData.report) {
-                 // If the session is marked completed but has no report, generation likely failed server-side.
-                 setError("Report generation system encountered an error. Please try again or check backend logs.");
-                 setLoading(false);
             } else if (attempts < maxAttempts) {
               attempts++;
-              setTimeout(poll, 2000);
+              pollTimerRef.current = setTimeout(poll, 2000);
             } else {
-              setError("Report generation timed out without completion. Please check back later.");
+              setError('Analysis is taking longer than usual. Please check back in your Interview Library in a minute.');
               setLoading(false);
             }
           } catch (err) {
-            console.error(err);
-            setError("Failed to fetch report data.");
+            console.error('[ReportsScreen] Polling Error:', err);
+            setError('Failed to fetch report data.');
             setLoading(false);
           }
         };
         poll();
-      } catch (err) {
-        console.error(err);
-        setError("Failed to initialize report fetching.");
-        setLoading(false);
+      } catch (err) { 
+        console.error('[ReportsScreen] Initialise Error:', err);
+        setError('Failed to initialise report fetching.'); 
+        setLoading(false); 
       }
     };
-
     fetchReport();
   }, [sessionId]);
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-500";
-    if (score >= 60) return "text-amber-500";
-    return "text-rose-500";
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    if (score >= 60) return "bg-amber-50 text-amber-700 border-amber-200";
-    return "bg-rose-50 text-rose-700 border-rose-200";
-  };
-
-  const handleLearnClick = (skill: string) => {
-    window.open(`https://yuvro.in/student/learn?q=${encodeURIComponent(skill)}`, '_blank');
-  };
-
+  // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-        <div className="relative w-24 h-24 mb-6">
-          <div className="absolute inset-0 border-t-4 border-blue-600 rounded-full animate-spin"></div>
-          <div className="absolute inset-2 border-r-4 border-purple-500 rounded-full animate-spin reverse-spin"></div>
-          <Bot className="absolute inset-0 m-auto w-8 h-8 text-slate-400 animate-pulse" />
+      <div className="flex flex-col items-center justify-center space-y-5">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-t-2 border-primary rounded-full animate-spin" />
+          <div className="absolute inset-2 border-r-2 border-primary/40 rounded-full animate-spin [animation-direction:reverse]" />
+          <Bot className="absolute inset-0 m-auto w-6 h-6 text-muted-foreground animate-pulse" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Generating Analysis</h2>
-        <p className="text-slate-500 mt-2 max-w-md text-center">
-          Our AI is evaluating your technical depth, communication clarity, and problem-solving approach.
+        <div className="text-center space-y-1">
+          <p className="text-sm font-semibold text-foreground">Generating Analysis</p>
+          <p className="text-xs text-slate-400 max-w-sm mt-1 leading-relaxed">
+          Our AI is evaluating your technical accuracy and delivery. 
+          Detailed analysis usually takes 30-60 seconds. You can stay here or return later.
         </p>
+
+        {isNewReport && (
+          <div className="mt-8 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 animate-pulse">
+            Redirecting to library in {timer}s...
+          </div>
+        )}
+        </div>
       </div>
     );
   }
 
+  // ── Error ────────────────────────────────────────────────────────────────────
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full border-red-100 shadow-xl shadow-red-50 rounded-2xl">
-          <CardContent className="pt-8 text-center space-y-4">
-            <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-red-500" />
+      <div className="flex items-center justify-center py-32">
+        <Card className="max-w-sm w-full border">
+          <CardContent className="pt-10 pb-8 text-center space-y-4">
+            <div className="h-14 w-14 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-900/30">
+              <AlertCircle className="w-6 h-6 text-rose-500" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Analysis Failed</h2>
-            <p className="text-slate-500">{error || "Unable to retrieve report data."}</p>
-            <Button onClick={onBackToLibrary} variant="outline" className="mt-4 w-full cursor-pointer rounded-xl">
-              Return to {isAdmin ? 'Reports List' : 'Library'}
+            <div>
+              <p className="text-sm font-semibold text-foreground">Analysis Failed</p>
+              <p className="text-xs text-muted-foreground mt-1">{error || 'Unable to retrieve report data.'}</p>
+            </div>
+            <Button onClick={onBackToLibrary} variant="outline" size="sm" className="w-full">
+              Return to Library
             </Button>
           </CardContent>
         </Card>
@@ -260,424 +286,401 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   const radarData = Object.entries(report.performance_metrics || {}).map(([key, value]) => ({
     subject: key,
     A: value,
-    fullMark: 100
+    fullMark: 100,
   }));
 
   return (
-    <div ref={reportRef} className="min-h-screen font-sans text-slate-900 pb-20 selection:bg-blue-100 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="w-full space-y-6 pb-8 px-6 pt-6">
 
-      {/* Background Mesh (Subtle) */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-200/20 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-[120px] translate-x-1/3 translate-y-1/3"></div>
-      </div>
+      {/* ── Page Header ──────────────────────────────────────────────────────── */}
+      <div className="w-full flex items-center justify-between gap-6 pb-4 border-b">
 
-      {/* Hero Header - Full Width */}
-      <div className="bg-white/80 border-b border-slate-200/60 sticky top-0 z-30 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
-        <div className="w-full px-6 md:px-10 lg:px-14 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onBackToLibrary} className="rounded-full hover:bg-slate-100/80 cursor-pointer transition-transform hover:-translate-x-1">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-                {role.title}
-                <span className="text-slate-300 font-light text-2xl">|</span>
-                <span className="text-slate-500 font-medium text-lg">Report</span>
-                {isAdmin && report.interview_session.user && (
-                    <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                        Candidate: {report.interview_session.user.username}
-                    </span>
-                )}
-              </h1>
-              <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 font-medium">
-                <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5 text-blue-500" /> {role.level}</span>
-                <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-purple-500" /> 
-                    {report.interview_session.actual_duration_display 
-                        ? report.interview_session.actual_duration_display
-                        : `${duration} mins`
-                    }
-                </span>
-                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-emerald-500" /> {formatDate(report.created_at)}</span>
-              </div>
+        {/* Left: Back + Title */}
+        <div className="flex items-center gap-4 min-w-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-9 w-9 p-0 shrink-0 rounded-full"
+            onClick={onBackToLibrary}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="h-8 border-l border-border shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">
+              {report.interview_session?.mock_interview_title || role.title} — Report
+            </h1>
+            <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+              {/* <span className="flex items-center gap-1.5">
+                <Briefcase className="h-3.5 w-3.5" /> {role.level}
+              </span> */}
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                {report.interview_session.actual_duration_display || `${duration} mins`}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" /> {formatDate(report.created_at)}
+              </span>
             </div>
           </div>
-          <div className="flex gap-3" data-html2canvas-ignore>
-            {!isAdmin && (
-                <Button variant="outline" onClick={onTryAgain} className="gap-2 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl border-slate-200 shadow-sm">
-                <RotateCcw className="w-4 h-4" /> Try Again
-                </Button>
-            )}
-            <Button variant="outline" onClick={handleCopyLink} className="gap-2 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl border-slate-200 shadow-sm">
-              <Copy className="w-4 h-4" /> Copy Link
-            </Button>
-            <Button onClick={handleDownloadPDF} className="gap-2 bg-gradient-to-r from-blue-600 to-saffron-600 hover:from-blue-700 hover:to-saffron-700 shadow-lg shadow-blue-500/25 border-0 cursor-pointer transition-all hover:scale-105 active:scale-95 rounded-xl text-white font-medium">
-              <Download className="w-4 h-4" /> Download PDF
-            </Button>
-          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-xs" onClick={onTryAgain}>
+            <RotateCcw className="h-3.5 w-3.5" /> Try Again
+          </Button>
+          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={handleCopyLink}>
+            <Copy className="h-3.5 w-3.5" /> Copy Link
+          </Button>
+          <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={handleDownloadPDF}>
+            <Download className="h-3.5 w-3.5" /> Download PDF
+          </Button>
         </div>
       </div>
 
-      {/* Main Content - Full Width Container */}
-      <div className="w-full px-6 md:px-10 lg:px-14 py-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
 
-        {/* Top Summary Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Overall Score Card */}
-          <Card className="xl:col-span-4 overflow-hidden relative border-0 shadow-xl shadow-slate-200/60 bg-white/70 backdrop-blur-sm group rounded-3xl transition-transform hover:-translate-y-1 duration-500">
-            {/* Decorative blob */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-60 group-hover:opacity-80 transition-opacity duration-1000"></div>
+      {/* ── Hero: Score + AI Summary ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-            <CardHeader className="pb-0 relative z-10 pt-8 pl-8">
-              <CardTitle className="text-slate-500 text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                <Target className="w-4 h-4" /> Overall Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center p-8 relative z-10">
-              <div className="relative w-56 h-56 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-                {/* Background Circle */}
-                <svg className="absolute w-full h-full transform -rotate-90 drop-shadow-lg">
-                  <circle cx="112" cy="112" r="100" className="text-slate-100" strokeWidth="20" fill="none" stroke="currentColor" />
-                  <circle
-                    cx="112" cy="112" r="100"
-                    className={`transition-all duration-1000 ease-out ${getScoreColor(report.overall_score)}`}
-                    strokeWidth="20"
-                    strokeDasharray={2 * Math.PI * 100}
-                    strokeDashoffset={2 * Math.PI * 100 * (1 - report.overall_score / 100)}
-                    strokeLinecap="round"
-                    fill="none"
-                    stroke="currentColor"
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center text-center animate-in zoom-in duration-500 delay-150">
-                  <span className="text-6xl font-black text-slate-800 tracking-tighter">{Math.round(report.overall_score)}</span>
-                  <span className="text-sm font-bold text-slate-400 mt-1 tracking-widest uppercase">Score</span>
+        {/* Score card */}
+        <Card className="border">
+          <CardHeader className="pb-3 border-b">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+              Overall Score
+              <Badge className={`${getScoreBadge(report.overall_score)} text-[10px] px-2 py-0.5`}>
+                {getScoreLabel(report.overall_score)}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-8 pb-8 space-y-6 flex flex-col items-center justify-center min-h-[220px]">
+            <ScoreRing score={report.overall_score} />
+            <p className="text-xs text-center text-muted-foreground">
+              Better than{' '}
+              <span className="font-semibold text-foreground">72%</span> of candidates
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* AI Summary card */}
+        <Card className="md:col-span-2 border">
+          <CardHeader className="pb-3 border-b">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                <Bot className="h-4 w-4 text-primary" />
+              </div>
+              AI Analysis Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 pb-8 space-y-5 min-h-[220px] flex flex-col justify-between">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {report.feedback_summary || 'An analysis of your interview performance is shown below.'}
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Top Strength */}
+              <div className="p-5 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/10 border border-emerald-200 dark:border-emerald-900/30">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                  <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                    Top Strength
+                  </p>
                 </div>
-              </div>
-
-              <p className="mt-8 text-center text-slate-600 text-base font-medium px-4">
-                Better than <strong className="text-slate-900 bg-slate-100 px-2 py-0.5 rounded">72%</strong> of candidates.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Executive Summary Card */}
-          <div className="xl:col-span-8 flex flex-col h-full">
-            <Card className="flex-1 border-0 shadow-2xl shadow-blue-900/10 bg-gradient-to-br from-slate-900 via-slate-800 to-saffron-900 text-white relative overflow-hidden transition-transform duration-500 hover:shadow-3xl rounded-3xl group">
-              <div className="absolute top-0 right-0 p-12 opacity-10 transition-opacity group-hover:opacity-20 duration-700">
-                <Bot className="w-80 h-80" />
-              </div>
-              <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent"></div>
-
-              <CardHeader className="pt-10 pl-10 relative z-10">
-                <CardTitle className="flex items-center gap-3 text-blue-200 text-xl font-bold">
-                  <div className="p-2 bg-white/10 rounded-lg backdrop-blur-md border border-white/10">
-                    <Bot className="w-6 h-6" />
-                  </div>
-                  AI Analysis Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-10 pb-10 relative z-10 flex flex-col justify-between h-[calc(100%-100px)]">
-                <p className="text-slate-200 leading-relaxed text-lg font-light tracking-wide">
-                  {report.feedback_summary || "An analysis of your interview performance is shown below."}
+                <p className="text-sm text-foreground leading-relaxed">
+                  {report.key_takeaways?.strengths?.[0] || 'Communicated technical concepts clearly.'}
                 </p>
+              </div>
 
-                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Top Strength */}
-                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 transition-all hover:bg-white/10 hover:border-white/20 group/item">
-                    <div className="flex items-center gap-3 text-emerald-400 font-bold mb-3 uppercase tracking-wider text-xs">
-                      <CheckCircle className="w-5 h-5 group-hover/item:scale-110 transition-transform" /> Top Strength
-                    </div>
-                    <p className="text-base text-slate-100 font-medium">
-                      {report.key_takeaways?.strengths?.[0] || "Communicated technical concepts clearly."}
-                    </p>
-                  </div>
-                  {/* Focus Area */}
-                  <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 transition-all hover:bg-white/10 hover:border-white/20 group/item">
-                    <div className="flex items-center gap-3 text-amber-400 font-bold mb-3 uppercase tracking-wider text-xs">
-                      <Target className="w-5 h-5 group-hover/item:scale-110 transition-transform" /> Primary Focus
-                    </div>
-                    <p className="text-base text-slate-100 font-medium">
-                      {report.key_takeaways?.improvements?.[0] || "Could improve on specific edge case handling."}
-                    </p>
-                  </div>
+              {/* Primary Focus */}
+              <div className="p-5 rounded-lg bg-amber-50/70 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/30">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <Target className="h-3.5 w-3.5 text-amber-500" />
+                  <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                    Primary Focus
+                  </p>
                 </div>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {report.key_takeaways?.improvements?.[0] || 'Improve edge case handling.'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
+      <Tabs defaultValue="questions" className="w-full">
+        <div className="flex justify-center mb-2">
+          <TabsList>
+            <TabsTrigger value="skills" className="text-xs px-5">Skills &amp; Growth</TabsTrigger>
+            <TabsTrigger value="questions" className="text-xs px-5">Question Analysis</TabsTrigger>
+            <TabsTrigger value="transcript" className="text-xs px-5">Transcript</TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* ── SKILLS TAB ─────────────────────────────────────────────────────── */}
+        <TabsContent value="skills" className="mt-4 space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+            {/* Radar */}
+            <Card className="border">
+              <CardHeader className="pb-3 border-b">
+                <CardTitle className="text-sm">Competency Map</CardTitle>
+              </CardHeader>
+              <CardContent className="h-64 px-3 pb-4 pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis
+                      dataKey="subject"
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 500 }}
+                    />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar
+                      name="Skill Level"
+                      dataKey="A"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      fill="hsl(var(--primary))"
+                      fillOpacity={0.15}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{
+                        fontSize: 11,
+                        borderRadius: 8,
+                        border: '1px solid hsl(var(--border))',
+                        background: 'hsl(var(--card))',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
-          </div>
-        </div>
 
-        {/* Detailed Analysis Tabs */}
-        <div className="space-y-6">
-          <Tabs defaultValue="questions" className="w-full">
-            <div className="flex justify-center mb-10 sticky top-[80px] z-20 py-2">
-              <TabsList className="bg-white/80 backdrop-blur-md border border-slate-200/50 p-1.5 rounded-full shadow-lg shadow-slate-200/40">
-                <TabsTrigger value="skills" className="rounded-full px-8 py-2.5 text-sm font-medium data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all cursor-pointer">
-                  Skills & Growth
-                </TabsTrigger>
-                <TabsTrigger value="questions" className="rounded-full px-8 py-2.5 text-sm font-medium data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all cursor-pointer">
-                  Question Analysis
-                </TabsTrigger>
-                <TabsTrigger value="transcript" className="rounded-full px-8 py-2.5 text-sm font-medium data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all cursor-pointer">
-                  Full Transcript
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            {/* SKILLS TAB */}
-            <TabsContent value="skills" className="animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Radar Chart */}
-                <Card className="lg:col-span-1 shadow-lg shadow-slate-200/50 border-0 bg-white/80 backdrop-blur rounded-3xl">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-bold text-slate-800">Competency Map</CardTitle>
-                  </CardHeader>
-                  <CardContent className="h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                        <PolarGrid stroke="#e2e8f0" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                        <Radar
-                          name="Skill Level"
-                          dataKey="A"
-                          stroke="#3b82f6"
-                          strokeWidth={3}
-                          fill="url(#radarGradient)"
-                          fillOpacity={0.5}
-                        />
-                        <defs>
-                          <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-                          </linearGradient>
-                        </defs>
-                        <RechartsTooltip />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                {/* Skill Cards Grid */}
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 auto-rows-max gap-5">
-                  {Object.entries(report.skill_analysis || {}).map(([skill, data]: [string, any], idx) => {
-                    const score = data.score; // Assuming out of 10
-                    const isLowScore = score < 7;
-
-                    return (
-                      <Card key={idx} className="border-0 shadow-md shadow-slate-200/50 hover:shadow-xl hover:shadow-blue-100/50 transition-all group duration-300 rounded-2xl bg-white/90 backdrop-blur">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <CardTitle className="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{skill}</CardTitle>
-                            <Badge variant="outline" className={`text-sm font-semibold px-3 py-0.5 rounded-full ${getScoreBg(score * 10)}`}>
-                              {score}/10
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="relative h-2.5 w-full bg-slate-100 rounded-full mb-4 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r ${score >= 7 ? 'from-emerald-400 to-emerald-500' : 'from-blue-400 to-blue-600'}`}
-                              style={{ width: `${score * 10}%` }}
-                            ></div>
-                          </div>
-
-                          <p className="text-sm text-slate-600 line-clamp-2 h-10 mb-5 leading-relaxed">
-                            {data.feedback}
-                          </p>
-
-                          {isLowScore ? (
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-between bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white group-hover:translate-x-1 transition-all duration-300 cursor-pointer rounded-xl h-11 border border-blue-100"
-                              onClick={() => handleLearnClick(skill)}
-                            >
-                              <span className="flex items-center gap-2 font-medium">
-                                <BookOpen className="w-4 h-4" /> Learn {skill}
-                              </span>
-                              <ChevronRight className="w-4 h-4" />
-                            </Button>
-                          ) : (
-                            <div className="h-11 flex items-center justify-center text-sm text-emerald-700 font-semibold bg-emerald-50 rounded-xl border border-emerald-100">
-                              <CheckCircle className="w-4 h-4 mr-2" /> Strong Proficiency
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* QUESTIONS TAB - FULL WIDTH CARDS */}
-            <TabsContent value="questions" className="animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
-              <div className="w-full space-y-4 pb-20">
-                {report.question_analysis?.map((q, idx) => {
-                  const isExpanded = expandedQuestionIndex === idx;
-                  return (
-                    <div key={idx} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden
-                           ${isExpanded
-                        ? 'shadow-xl shadow-blue-900/5 border-blue-200 ring-1 ring-blue-100'
-                        : 'shadow-sm border-slate-200 hover:shadow-md hover:border-slate-300'
-                      }
-                        `}>
-                      {/* Card Header / Summary */}
-                      <div
-                        onClick={() => toggleQuestion(idx)}
-                        className="p-6 flex items-start gap-6 cursor-pointer hover:bg-slate-50/50 transition-colors select-none"
-                      >
-                        <div className={`
-                                 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-all duration-300 shadow-sm
-                                 ${isExpanded ? 'bg-blue-600 text-white scale-110' : 'bg-slate-100 text-slate-500'}
-                              `}>
-                          {idx + 1}
-                        </div>
-
-                        <div className="flex-1 min-w-0 pt-1">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-                            <h3 className={`text-lg font-bold transition-colors pr-8 leading-tight ${isExpanded ? 'text-blue-800' : 'text-slate-800'}`}>
-                              {q.question}
-                            </h3>
-                            <Badge variant="secondary" className={`${getScoreBg(q.ai_score)} shrink-0 self-start md:self-center px-4 py-1 text-sm font-semibold rounded-lg`}>
-                              {q.ai_score}% Match
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm text-slate-500">
-                            <span className="capitalize font-semibold text-xs bg-slate-100 px-3 py-1 rounded-md text-slate-600 border border-slate-200 tracking-wide">{q.type}</span>
-                            {isExpanded ? <ChevronUp className="w-5 h-5 ml-auto text-blue-500" /> : <ChevronDown className="w-5 h-5 ml-auto text-slate-400" />}
-                          </div>
-                        </div>
+            {/* Skill cards */}
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.entries(report.skill_analysis || {}).map(([skill, data]: [string, any], idx) => {
+                const score = data.score as number;
+                const isLow = score < 7;
+                return (
+                  <Card key={idx} className="border hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3 border-b">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-semibold">{skill}</CardTitle>
+                        <Badge className={`${getScoreBadge(score * 10)} text-[10px] px-2 py-0.5`}>
+                          {score}/10
+                        </Badge>
                       </div>
-
-                      {/* EXPANDED CONTENT */}
-                      <div className={`
-                              overflow-hidden transition-all duration-500 ease-in-out
-                              ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}
-                           `}>
-                        <div className="p-8 pt-2 border-t border-slate-100 bg-gradient-to-b from-slate-50/50 to-white">
-                          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-4">
-
-                            {/* User Answer Column */}
-                            <div className="xl:col-span-2 space-y-3">
-                              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 pl-1">
-                                <User className="w-4 h-4 text-blue-500" /> Your Response
-                              </h4>
-                              <div className="bg-white p-6 rounded-2xl border border-slate-200 text-slate-700 text-base leading-relaxed shadow-sm hover:shadow-md transition-shadow">
-                                {q.user_answer || "No answer recorded."}
-                              </div>
-                            </div>
-
-                            {/* Evaluation - Strengths */}
-                            <div className="bg-emerald-50/60 p-6 rounded-2xl border border-emerald-100">
-                              <h4 className="text-base font-bold text-emerald-800 mb-4 flex items-center gap-2">
-                                <TrendingUp className="w-5 h-5" /> Good Points
-                              </h4>
-                              <ul className="space-y-4">
-                                {q.what_went_well?.map((item: string, i: number) => (
-                                  <li key={i} className="text-sm text-emerald-900 flex items-start gap-3">
-                                    <div className="bg-emerald-200/50 p-1 rounded-full shrink-0 mt-0.5">
-                                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                                    </div>
-                                    <span className="leading-relaxed font-medium">{item}</span>
-                                  </li>
-                                )) || <li className="text-sm text-slate-400">None detected</li>}
-                              </ul>
-                            </div>
-
-                            {/* Evaluation - Improvements */}
-                            <div className="bg-rose-50/60 p-6 rounded-2xl border border-rose-100">
-                              <h4 className="text-base font-bold text-rose-800 mb-4 flex items-center gap-2">
-                                <AlertCircle className="w-5 h-5" /> Areas for Growth
-                              </h4>
-                              <ul className="space-y-4">
-                                {q.what_could_be_better?.map((item: string, i: number) => (
-                                  <li key={i} className="text-sm text-rose-900 flex items-start gap-3">
-                                    <div className="bg-rose-200/50 p-1 rounded-full shrink-0 mt-0.5">
-                                      <div className="w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center">
-                                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                                      </div>
-                                    </div>
-                                    <span className="leading-relaxed font-medium">{item}</span>
-                                  </li>
-                                )) || <li className="text-sm text-slate-400">None detected</li>}
-                              </ul>
-                            </div>
-
-                            {/* Ideal Answer */}
-                            <div className="xl:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200 p-8 rounded-3xl shadow-xl relative overflow-hidden group">
-                              <div className="absolute -top-10 -right-10 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
-                                <Bot className="w-64 h-64" />
-                              </div>
-                              <h4 className="text-base font-bold text-blue-300 mb-4 flex items-center gap-2 relative z-10">
-                                <Bot className="w-5 h-5" /> AI Suggested Answer
-                              </h4>
-                              <p className="text-base leading-loose font-light tracking-wide text-white/90 relative z-10 whitespace-pre-wrap">
-                                {q.recommended_response || "No recommendation available."}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </TabsContent>
-
-            {/* TRANSCRIPT TAB */}
-            <TabsContent value="transcript" className="animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
-              <Card className="h-[calc(100vh-250px)] flex flex-col border-0 shadow-xl shadow-slate-200/50 rounded-3xl bg-white/90 backdrop-blur overflow-hidden">
-                <CardHeader className="bg-slate-50/80 border-b border-slate-100 py-4 px-8">
-                  <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <FileText className="w-4 h-4" /> Interview Transcript
-                  </CardTitle>
-                </CardHeader>
-                <ScrollArea className="flex-1 p-8 bg-slate-50/30">
-                  <div className="space-y-8 max-w-5xl mx-auto">
-                    {report.interview_session?.transcript?.map((msg, idx) => (
-                      msg.message_type !== 'system' && (
-                        <div
-                          key={idx}
-                          className={`flex gap-6 ${msg.message_type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                    </CardHeader>
+                    <CardContent className="pt-4 space-y-3">
+                      <Progress value={score * 10} className="h-2" />
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        {data.feedback}
+                      </p>
+                      {isLow ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-xs h-8 gap-2"
+                          onClick={() =>
+                            window.open(
+                              `https://yuvro.in/student/learn?q=${encodeURIComponent(skill)}`,
+                              '_blank'
+                            )
+                          }
                         >
-                          <div className={`
-                            w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md border
-                            ${msg.message_type === 'user'
-                              ? 'bg-blue-600 text-white border-blue-500 shadow-blue-200'
-                              : 'bg-white text-slate-700 border-slate-100 shadow-slate-200'
-                            }
-                          `}>
-                            {msg.message_type === 'user' ? <User className="w-6 h-6" /> : <Bot className="w-6 h-6 text-blue-600" />}
-                          </div>
-                          <div className={`
-                            max-w-[75%] p-6 rounded-3xl text-sm leading-relaxed shadow-sm
-                            ${msg.message_type === 'user'
-                              ? 'bg-blue-600 text-white rounded-tr-sm shadow-blue-200'
-                              : 'bg-white border border-slate-100 text-slate-700 rounded-tl-sm shadow-slate-100'
-                            }
-                          `}>
-                            <p className="whitespace-pre-wrap text-base">{msg.content}</p>
-                            <span className={`text-[11px] mt-3 block font-medium opacity-70 ${msg.message_type === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
-                              {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    )) || (
-                        <div className="text-center py-20 text-slate-400 flex flex-col items-center gap-4">
-                          <FileText className="w-12 h-12 opacity-20" />
-                          <p>No transcript available for this session.</p>
+                          <BookOpen className="h-3.5 w-3.5" />
+                          Learn {skill}
+                          <ChevronRight className="h-3.5 w-3.5 ml-auto" />
+                        </Button>
+                      ) : (
+                        <div className="h-8 flex items-center justify-center text-xs text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-900/20 rounded-md border border-emerald-200 dark:border-emerald-900/30 gap-1.5">
+                          <CheckCircle className="h-3.5 w-3.5" /> Strong Proficiency
                         </div>
                       )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* ── QUESTIONS TAB ──────────────────────────────────────────────────── */}
+        <TabsContent value="questions" className="mt-4">
+          <div className="space-y-3">
+            {report.question_analysis?.map((q, idx) => {
+              const isOpen = expandedQuestion === idx;
+              return (
+                <Card
+                  key={idx}
+                  className={`border overflow-hidden transition-shadow ${isOpen ? 'shadow-md border-primary/30' : 'hover:shadow-sm'}`}
+                >
+                  {/* Header row */}
+                  <button
+                    className="w-full text-left px-5 py-4 flex items-start gap-4 hover:bg-muted/20 transition-colors"
+                    onClick={() => setExpandedQuestion(isOpen ? null : idx)}
+                  >
+                    <div
+                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 border transition-colors ${
+                        isOpen
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-muted text-muted-foreground border-border'
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-medium text-foreground leading-snug">
+                          {q.question}
+                        </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Badge className={`${getScoreBadge(q.ai_score)} text-[10px] px-2 py-0.5`}>
+                            {q.ai_score}%
+                          </Badge>
+                          {isOpen
+                            ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground capitalize mt-1 inline-block">
+                        {q.type}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Expanded content */}
+                  {isOpen && (
+                    <div className="border-t bg-muted/10">
+                      <div className="px-5 py-5 space-y-4">
+
+                        {/* User answer */}
+                        <div className="rounded-lg border bg-background p-4">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <User className="h-3 w-3" /> Your Response
+                          </p>
+                          <p className="text-sm text-foreground leading-relaxed">
+                            {q.user_answer || 'No answer recorded.'}
+                          </p>
+                        </div>
+
+                        {/* Feedback columns */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="rounded-lg border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/60 dark:bg-emerald-950/10 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">Good Points</p>
+                            </div>
+                            <ul className="space-y-2">
+                              {q.what_went_well?.map((item: string, i: number) => (
+                                <li key={i} className="text-xs text-muted-foreground flex gap-2 leading-relaxed">
+                                  <span className="text-emerald-500 shrink-0 mt-0.5">•</span> {item}
+                                </li>
+                              )) || <li className="text-xs text-muted-foreground">None detected</li>}
+                            </ul>
+                          </div>
+
+                          <div className="rounded-lg border border-rose-200 dark:border-rose-900/30 bg-rose-50/60 dark:bg-rose-950/10 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <AlertCircle className="h-3.5 w-3.5 text-rose-500" />
+                              <p className="text-xs font-bold text-rose-700 dark:text-rose-400">Areas for Growth</p>
+                            </div>
+                            <ul className="space-y-2">
+                              {q.what_could_be_better?.map((item: string, i: number) => (
+                                <li key={i} className="text-xs text-muted-foreground flex gap-2 leading-relaxed">
+                                  <span className="text-rose-500 shrink-0 mt-0.5">•</span> {item}
+                                </li>
+                              )) || <li className="text-xs text-muted-foreground">None detected</li>}
+                            </ul>
+                          </div>
+                        </div>
+
+                        {/* AI Suggestion */}
+                        {q.recommended_response && (
+                          <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Zap className="h-3.5 w-3.5 text-amber-500" />
+                              <p className="text-xs font-bold text-foreground">AI Suggested Answer</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                              {q.recommended_response}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* ── TRANSCRIPT TAB ─────────────────────────────────────────────────── */}
+        <TabsContent value="transcript" className="mt-4">
+          <Card className="border">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Interview Transcript
+              </CardTitle>
+            </CardHeader>
+            <ScrollArea className="h-[calc(100vh-320px)]">
+              <div className="px-6 py-5 space-y-4 max-w-3xl mx-auto">
+                {report.interview_session?.transcript
+                  ?.filter((m) => m.message_type !== 'system')
+                  .map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex gap-3 ${msg.message_type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                    >
+                      <div
+                        className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 border ${
+                          msg.message_type === 'user'
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-muted text-muted-foreground border-border'
+                        }`}
+                      >
+                        {msg.message_type === 'user'
+                          ? <User className="h-4 w-4" />
+                          : <Bot className="h-4 w-4" />}
+                      </div>
+                      <div
+                        className={`max-w-[72%] px-4 py-3 rounded-xl text-sm leading-relaxed border ${
+                          msg.message_type === 'user'
+                            ? 'bg-primary text-primary-foreground border-primary rounded-tr-none'
+                            : 'bg-muted/40 text-foreground border-border rounded-tl-none'
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+                        <span
+                          className={`text-[10px] mt-2 block ${
+                            msg.message_type === 'user'
+                              ? 'text-primary-foreground/60 text-right'
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          {new Date(msg.created_at).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )) || (
+                  <div className="text-center py-20 text-muted-foreground space-y-3">
+                    <FileText className="h-10 w-10 mx-auto opacity-20" />
+                    <p className="text-xs">No transcript available for this session.</p>
                   </div>
-                </ScrollArea>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+                )}
+              </div>
+            </ScrollArea>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

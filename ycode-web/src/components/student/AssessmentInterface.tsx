@@ -118,7 +118,18 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   }, [propQuestions]);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(assessment.duration * 60);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    let remainingSeconds = assessment.duration * 60;
+    if (assessment.started_at) {
+      const elapsed = Math.floor((Date.now() - new Date(assessment.started_at).getTime()) / 1000);
+      if (elapsed > 0 && elapsed < remainingSeconds) {
+        remainingSeconds -= elapsed;
+      } else if (elapsed >= remainingSeconds) {
+        remainingSeconds = 0;
+      }
+    }
+    return remainingSeconds;
+  });
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
   const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
 
@@ -161,12 +172,35 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const mediaStream = assessment.proctoring_enabled ? currentCameraStream : null;
 
   const [questionPage, setQuestionPage] = useState(0);
+  const tabSwitchThresholdRef = useRef(assessment.tab_switch_threshold ?? 3);
   const [tabSwitchCount, setTabSwitchCount] = useState(assessment.initial_tab_switches ?? 0);
+
+  useEffect(() => {
+    // Prevent backward navigation
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+      toast.error("Navigation Blocked", {
+        description: "You cannot go back during an active test."
+      });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const currentQuestionData = questions[currentQuestion];
 
   useEffect(() => {
     if (currentQuestionData?.id) {
+      setTabSwitchCount(prev => {
+        const next = prev + 1;
+        
+        if (next >= tabSwitchThresholdRef.current) {
+          setShowNavigationDialog(false);
+          setPendingNavigation(null);
+        }
+        return next;
+      });
       setViewed(prev => {
         const next = new Set(prev);
         next.add(currentQuestionData.id);
@@ -564,6 +598,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       toast.dismiss(loadingToast);
       toast.success("Assessment submitted successfully!");
 
+      if (document.fullscreenElement) {
+          document.exitFullscreen().catch(console.error);
+      }
       onComplete({
         answeredCount,
         totalQuestions: questions.length,

@@ -877,6 +877,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "transcript",
             "actual_duration_display",
             "interview_session_id",
+            "state_data",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
