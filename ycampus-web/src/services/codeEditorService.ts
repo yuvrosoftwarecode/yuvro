@@ -81,7 +81,7 @@ class CodeEditorService {
 
       if (request.question_id && request.question_id !== 'practice') {
         try {
-          const response: any = await restApiAuthUtil.get(`/course/questions/${request.question_id}/`);
+          const response: any = await restApiAuthUtil.get(`/course/questions/${request.question_id}/?_t=${Date.now()}`);
           const q = response.data || response;
           if (q && q.code_executor_config) {
             timeLimit = q.code_executor_config.time_limit || 10;
@@ -258,6 +258,7 @@ class CodeEditorService {
         code: response.code || request.code,
         language: response.language || request.language,
         status: response.status || 'completed',
+        reason: response.reason || undefined,
         output: response.output || '',
         error_message: response.error_message || '',
         execution_time: response.execution_time || 0,
@@ -274,7 +275,8 @@ class CodeEditorService {
           results: response.test_results?.test_results || response.test_results?.results || [],
           success: response.status === 'completed'
         },
-        plagiarism_flagged: response.plagiarism_flagged || false
+        plagiarism_flagged: response.plagiarism_flagged || false,
+        performance_warnings: response.performance_warnings || [],
       };
     } catch (error) {
       console.error('Code submission failed:', error);

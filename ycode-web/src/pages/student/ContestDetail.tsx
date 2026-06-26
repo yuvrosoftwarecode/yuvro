@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
+import PublicLayout from '@/components/common/PublicLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
     Trophy, Clock, Users, Calendar, Building2, GraduationCap, Zap,
-    ArrowLeft, Play, CheckCircle2, AlertCircle, Timer,
-    Target, FileText, Star, Gift
+    ArrowLeft, ChevronLeftCircle, ChevronRight, Play, CheckCircle2, AlertCircle, Timer,
+    Target, FileText, Star, Gift, Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { fetchContests, contestService } from "@/services/contestService";
@@ -59,6 +60,10 @@ interface Contest {
 const ContestDetail: React.FC = () => {
     const { contestId } = useParams<{ contestId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isPublic = location.pathname.startsWith('/public/');
+    const basePath = isPublic ? '/public/contests' : '/student/contests';
+    const Layout: React.FC<any> = isPublic ? PublicLayout : DashboardLayout;
     const [contest, setContest] = useState<Contest | null>(null);
     const [loading, setLoading] = useState(true);
     const [registering, setRegistering] = useState(false);
@@ -78,7 +83,9 @@ const ContestDetail: React.FC = () => {
         const loadContest = async () => {
             if (!contestId) return;
             try {
-                const found = await contestService.getContest(contestId);
+                const found = isPublic 
+                    ? await contestService.getPublicContest(contestId)
+                    : await contestService.getContest(contestId);
                 // Map backend response to component state
                 // Note: backend response keys might differ slightly, checking both
                 const mapToState = (data: any) => ({
@@ -123,66 +130,14 @@ const ContestDetail: React.FC = () => {
         loadContest();
     }, [contestId]);
 
-    const handleRegister = async () => {
+    const handleRegister = () => {
         if (!contest) return;
-        setRegistering(true);
-        try {
-            const response = await contestService.registerContest(String(contest.id));
-            setContest({
-                ...contest,
-                isRegistered: true,
-                participants: (contest.participants || 0) + 1
-            });
-
-            if (response.is_late_entry && response.remaining_time_minutes) {
-                toast.success(
-                    `Registered! ⚠️ Late Entry: You have ${response.remaining_time_minutes} minutes remaining`,
-                    { duration: 6000 }
-                );
-            } else {
-                toast.success("Successfully registered for the contest!");
-            }
-        } catch (err: any) {
-            const errorData = err.details || err.response?.data;
-            const errorType = errorData?.error_type;
-            const errorMsg = errorData?.error || errorData?.message || err.message || "Failed to register for contest";
-
-            if (errorType === 'no_college' || errorType === 'no_department') {
-                // Show inline picker instead of redirecting to profile
-                setPickerMode(errorType === 'no_college' ? 'college' : 'department');
-                try {
-                    const colleges = await collegeService.getColleges('approved');
-                    setCollegePickerColleges(colleges);
-                } catch { /* ignore */ }
-                setShowCollegePicker(true);
-            } else if (errorType === 'college_mismatch') {
-                const allowed = errorData?.allowed_college_names?.join(', ') || 'specific colleges';
-                const yours = errorData?.student_college_name || 'your current college';
-                toast.error(
-                    `This contest is for: ${allowed}. Your profile shows: ${yours}.`,
-                    { duration: 6000 }
-                );
-            } else if (errorType === 'department_mismatch') {
-                const allowed = errorData?.allowed_department_names?.join(', ') || 'specific departments';
-                const yours = errorData?.student_department_name || 'your current department';
-                toast.error(
-                    `This contest is for: ${allowed}. Your profile shows: ${yours}.`,
-                    { duration: 6000 }
-                );
-            } else if (errorData?.requires_profile_update) {
-                setProfileHelpMessage(errorMsg);
-                setShowProfileHelpModal(true);
-            } else {
-                toast.error(errorMsg);
-            }
-        } finally {
-            setRegistering(false);
-        }
+        navigate(`${basePath}/${contest.id}/register`);
     };
 
     const handleEnter = () => {
         if (contest) {
-            navigate(`/student/contests/${contest.id}/attempt`);
+            navigate(`${basePath}/${contest.id}/attempt`);
         }
     };
 
@@ -303,30 +258,30 @@ const ContestDetail: React.FC = () => {
 
     if (loading) {
         return (
-            <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+            <Layout {...(!isPublic ? { hideHeader: true, hideFooter: true, contentClassName: 'bg-gray-50' } : {})}>
                 <div className="max-w-6xl mx-auto px-6 py-12">
                     <div className="animate-pulse space-y-6">
                         <div className="h-8 bg-gray-200 rounded w-1/3"></div>
                         <div className="h-64 bg-gray-200 rounded-xl"></div>
                     </div>
                 </div>
-            </DashboardLayout>
+            </Layout>
         );
     }
 
     if (!contest) {
         return (
-            <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+            <Layout {...(!isPublic ? { hideHeader: true, hideFooter: true, contentClassName: 'bg-gray-50' } : {})}>
                 <div className="max-w-6xl mx-auto px-6 py-12 text-center">
                     <AlertCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Contest Not Found</h2>
                     <p className="text-muted-foreground mb-6">The contest you're looking for doesn't exist.</p>
-                    <Button onClick={() => navigate('/student/contests')} variant="outline">
+                    <Button onClick={() => navigate(basePath)} variant="outline">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Contests
                     </Button>
                 </div>
-            </DashboardLayout>
+            </Layout>
         );
     }
 
@@ -338,7 +293,7 @@ const ContestDetail: React.FC = () => {
     const isRegistrationOpen = registrationInfo.state === 'open' || registrationInfo.state === 'late_entry';
 
     return (
-        <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+        <Layout {...(!isPublic ? { hideHeader: true, hideFooter: true, contentClassName: 'bg-gray-50' } : {})}>
 
             {/* Profile Requirements Modal */}
             <Dialog open={showProfileHelpModal} onOpenChange={setShowProfileHelpModal}>
@@ -435,335 +390,270 @@ const ContestDetail: React.FC = () => {
                 </DialogContent>
             </Dialog>
 
-            <div className="container mx-auto px-6 py-8">
-                {/* Back Button */}
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate('/student/contests')}
-                    className="mb-6 text-muted-foreground hover:text-gray-900"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Contests
-                </Button>
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-8 py-4 md:py-6 font-inter">
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-1 mb-4 w-fit font-inter">
+                    {!isPublic && (
+                        <>
+                            <ChevronLeftCircle 
+                                size={32} 
+                                color="#343330" 
+                                strokeWidth={1.5} 
+                                className="cursor-pointer" 
+                                onClick={() => navigate(basePath)} 
+                            />
+                            <span 
+                                className="text-[14px] leading-[16.8px] text-[#757575] font-normal cursor-pointer hover:text-gray-900"
+                                onClick={() => navigate(basePath)}
+                            >
+                                Contests
+                            </span>
+                            <ChevronRight size={14} color="#343330" strokeWidth={2} />
+                        </>
+                    )}
+                    <span className="text-[14px] leading-[16.8px] text-[#343330] font-normal">
+                        Details
+                    </span>
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Hero Card */}
-                        <Card className={cn(
-                            "overflow-hidden border-0 shadow-lg",
-                            isLive && "ring-2 ring-green-500"
-                        )}>
-                            {/* Header with gradient */}
-                            <div className={`bg-gradient-to-r ${style.gradient} p-6 text-white relative overflow-hidden`}>
-                                {/* Background pattern */}
-                                <div className="absolute inset-0 opacity-10">
-                                    <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/20" />
-                                    <div className="absolute -left-5 -bottom-5 w-24 h-24 rounded-full bg-white/20" />
+                {/* Hero Banner */}
+                <div className="relative w-full rounded-[20px] overflow-hidden mb-[16px] min-h-[120px] flex items-center">
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: "url('/images/contest-banner-new.png')" }}
+                    >
+                        <div className="absolute inset-0 bg-[#000000]/[0.22]"></div>
+                    </div>
+
+                    <div className="relative z-10 w-full px-[40px] py-[16px] flex justify-between items-center gap-8">
+                        <div className="flex flex-col max-w-[800px]">
+                            {/* Top Badge */}
+                            <div className="inline-flex items-center gap-[4px] px-[12px] py-[6px] rounded-[16px] border border-white/20 bg-white/10 backdrop-blur-sm text-[#E0E0E0] text-[13px] leading-[16px] font-medium mb-[12px] w-fit">
+                                <Trophy size={14} />
+                                Contest
+                            </div>
+
+                            {/* Title & Description */}
+                            <h1 className="font-manrope text-[48px] leading-[1.2] font-bold text-white tracking-[-0.01em] mb-[8px]">
+                                {contest.title}
+                            </h1>
+                            
+                            <p className="font-inter text-[18px] leading-[26px] text-[#F3F3F3] font-normal mb-[16px]">
+                                {contest.description ? contest.description : `Join the ${contest.title} and unleash your coding potential! Collaborate with innovators and tackle challenges that push the boundaries of technology.`}
+                            </p>
+
+                            {/* Bottom Badges */}
+                            <div className="flex items-center gap-[12px]">
+                                <div className="inline-flex items-center justify-center px-[12px] py-[6px] rounded-[16px] border border-[#00C48C]/40 bg-[#00C48C]/10 backdrop-blur-sm font-inter font-medium text-[13px] leading-[16px] text-[#00C48C]">
+                                    {isRegistrationOpen ? 'Registration Open' : registrationInfo.state === 'closed' ? 'Registration Closed' : 'Registration Upcoming'}
                                 </div>
-
-                                <div className="relative z-10">
-                                    <div className="flex items-start gap-4 mb-4">
-                                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                                            {getTypeIcon(contest.type)}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Badge className="bg-white/20 text-white border-0 capitalize">
-                                                    {contest.type}
-                                                </Badge>
-                                                <Badge className={cn("border", getDifficultyColor(contest.difficulty))}>
-                                                    {contest.difficulty}
-                                                </Badge>
-                                                {isLive && (
-                                                    <Badge className="bg-green-500 text-white border-0 animate-pulse">
-                                                        🔴 LIVE
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <h1 className="text-2xl font-bold mb-1">{contest.title}</h1>
-                                            <p className="text-white/80">by {contest.organizer}</p>
-                                        </div>
+                                {contest.openForAllColleges && (
+                                    <div className="inline-flex items-center justify-center gap-[6px] px-[12px] py-[6px] rounded-[16px] border border-white/20 bg-white/10 text-[#E0E0E0] font-inter text-[13px] leading-[16px] font-medium backdrop-blur-sm">
+                                        <Globe size={14} />
+                                        Open to All
                                     </div>
+                                )}
+                            </div>
+                        </div>
 
-                                    {/* Stats row */}
-                                    <div className="flex flex-wrap gap-4 text-sm">
-                                        <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                                            <Calendar className="h-4 w-4" />
-                                            {contest.startDate.toLocaleDateString('en-US', {
-                                                weekday: 'short',
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                                            <Timer className="h-4 w-4" />
-                                            {contest.duration} mins
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                                            <Users className="h-4 w-4" />
-                                            {contest.participants} participants
-                                        </div>
-                                    </div>
+                        {/* Right Date Box */}
+                        {contest.endDate && (
+                            <div className="shrink-0 flex flex-col items-center justify-center min-w-[120px] p-[16px] rounded-[16px] border border-white/20 bg-white/10 backdrop-blur-md text-white shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+                                <span className="font-inter font-medium text-[14px] leading-[16px] text-[#E0E0E0] mb-[4px]">Ends on</span>
+                                <div className="flex items-start text-[#F89A2E]">
+                                    <span className="font-manrope font-bold text-[48px] leading-[1] tracking-[-0.01em]">{contest.endDate.getDate()}</span>
+                                    <span className="font-inter font-bold text-[16px] leading-[1] mt-[6px] ml-[2px]">
+                                        {contest.endDate.getDate() === 1 || contest.endDate.getDate() === 21 || contest.endDate.getDate() === 31 ? 'st' : 
+                                         contest.endDate.getDate() === 2 || contest.endDate.getDate() === 22 ? 'nd' : 
+                                         contest.endDate.getDate() === 3 || contest.endDate.getDate() === 23 ? 'rd' : 'th'}
+                                    </span>
+                                </div>
+                                <span className="font-inter font-bold text-[26px] leading-[1] tracking-[-0.01em] text-white mt-[4px]">
+                                    {contest.endDate.toLocaleString('en-US', { month: 'long' })}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column */}
+                    <div className="lg:col-span-2 flex flex-col gap-4">
+                        
+                        {/* Overview Section */}
+                        <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-5 md:p-6">
+                            <h2 className="text-[16px] font-bold text-[#F59E0B] mb-3">Overview</h2>
+                            <p className="text-[14px] leading-[22px] text-[#4B5563]">
+                                {contest.overview ? (
+                                    contest.overview
+                                ) : (
+                                    <>
+                                        Join us for this thrilling competition that brings together innovators, coders, and enthusiasts from around the world. We challenge participants to explore the frontiers of technology and develop groundbreaking applications.
+                                        <br/><br/>
+                                        {contest.instructions}
+                                    </>
+                                )}
+                            </p>
+                        </div>
+
+                        {/* Info Cards Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Eligibility Card */}
+                            <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-4 flex items-start gap-3">
+                                <Target className="h-5 w-5 text-[#F59E0B] shrink-0" />
+                                <div>
+                                    <h3 className="text-[13px] font-bold text-[#111827] uppercase tracking-wide mb-1">Eligibility</h3>
+                                    <p className="text-[13px] text-[#6B7280] leading-[18px]">
+                                        {contest.openForAllColleges && contest.openForAllDepartments 
+                                            ? "Open to all students, professionals, and hobbyists aged 18 or older. No geographical restrictions." 
+                                            : "Restricted to specific colleges or departments. Please see quick info for details."}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Action Section */}
-                            <CardContent className="p-6 bg-white">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        {isUpcoming && (
-                                            <div className="flex items-center gap-2 text-indigo-600">
-                                                <Clock className="h-5 w-5" />
-                                                <span className="font-semibold">Starts in {getCountdown(contest.startDate)}</span>
-                                            </div>
-                                        )}
-                                        {isLive && (
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-green-600">
-                                                    <Play className="h-5 w-5 fill-current" />
-                                                    <span className="font-semibold">Contest is Live!</span>
-                                                </div>
-                                                {contest.allowLateEntry && !contest.isRegistered && (registrationInfo.state === 'open' || registrationInfo.state === 'late_entry') && (
-                                                    <div className="flex items-center gap-2 text-amber-600 animate-pulse">
-                                                        <Timer className="h-4 w-4" />
-                                                        <span className="font-medium text-sm">
-                                                            Late Entry closes in {getCountdown(contest.registrationEndDate || contest.endDate || new Date())}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                        {isPast && (
-                                            <div className="flex items-center gap-2 text-gray-500">
-                                                <CheckCircle2 className="h-5 w-5" />
-                                                <span className="font-semibold">Contest Ended</span>
-                                            </div>
-                                        )}
-                                        {!contest.isRegistered && !isPast && registrationInfo.state !== 'open' && (
-                                            <div className="mt-2 text-sm text-gray-600">
-                                                <div className="flex items-center gap-2">
-                                                    <AlertCircle className="h-4 w-4 text-amber-500" />
-                                                    <span className="font-medium">{registrationInfo.message}</span>
-                                                </div>
-                                                {registrationInfo.subMessage && (
-                                                    <div className="text-xs text-gray-500 mt-1">{registrationInfo.subMessage}</div>
-                                                )}
-                                            </div>
-                                        )}
-                                        {!contest.isRegistered && !isPast && registrationInfo.state === 'open' && !isLive && registrationInfo.subMessage && (
-                                            <div className="mt-2 text-xs text-gray-500">
-                                                {registrationInfo.subMessage}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {!isPast && (
-                                        <Button
-                                            size="lg"
-                                            className={cn(
-                                                "min-w-[150px] text-white border-0",
-                                                contest.isRegistered
-                                                    ? isLive
-                                                        ? "bg-gradient-to-r from-green-500 to-emerald-600"
-                                                        : "bg-gray-400"
-                                                    : contest.allowLateEntry && isLive
-                                                        ? "bg-gradient-to-r from-amber-500 to-orange-600"
-                                                        : `bg-gradient-to-r ${style.gradient}`
-                                            )}
-                                            disabled={(contest.isRegistered && !isLive) || (!contest.isRegistered && !isRegistrationOpen)}
-                                            onClick={() => {
-                                                if (contest.isRegistered) {
-                                                    handleEnter();
-                                                } else if (isRegistrationOpen) {
-                                                    handleRegister();
-                                                } else {
-                                                    toast(registrationInfo.message);
-                                                }
-                                            }}
-                                        >
-                                            {registering ? (
-                                                <span className="flex items-center gap-2">
-                                                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    Registering...
-                                                </span>
-                                            ) : contest.isRegistered ? (
-                                                isLive ? (
-                                                    <>
-                                                        <Play className="h-5 w-5 mr-2 fill-current" />
-                                                        Enter Contest
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <CheckCircle2 className="h-5 w-5 mr-2" />
-                                                        Registered
-                                                    </>
-                                                )
-                                            ) : (
-                                                <>
-                                                    {contest.allowLateEntry && isLive ? (
-                                                        <>
-                                                            <Zap className="h-5 w-5 mr-2 fill-current" />
-                                                            Late Entry
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Target className="h-5 w-5 mr-2" />
-                                                            {registrationInfo.state === 'not_started'
-                                                                ? 'Registration Opens Soon'
-                                                                : registrationInfo.state === 'closed'
-                                                                    ? 'Registration Closed'
-                                                                    : 'Register Now'}
-                                                        </>
-                                                    )}
-                                                </>
-                                            )}
-                                        </Button>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Description */}
-                        {contest.description && (
-                            <Card className="border border-gray-100 shadow-sm">
-                                <CardHeader className="border-b border-gray-100">
-                                    <CardTitle className="flex items-center gap-2 text-lg">
-                                        <FileText className="h-5 w-5 text-indigo-500" />
-                                        About This Contest
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6">
-                                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                                        {contest.description}
+                            {/* Start Date Card */}
+                            <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-4 flex items-start gap-3">
+                                <Calendar className="h-5 w-5 text-[#F59E0B] shrink-0" />
+                                <div>
+                                    <h3 className="text-[13px] font-bold text-[#111827] uppercase tracking-wide mb-1">Start Date & Time</h3>
+                                    <p className="text-[13px] text-[#6B7280] leading-[18px]">
+                                        {contest.startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}<br/>
+                                        {contest.startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                     </p>
-                                </CardContent>
-                            </Card>
-                        )}
+                                </div>
+                            </div>
 
-                        {/* Rules & Instructions */}
-                        {contest.instructions && (
-                            <Card className="border border-gray-100 shadow-sm">
-                                <CardHeader className="border-b border-gray-100">
-                                    <CardTitle className="flex items-center gap-2 text-lg">
-                                        <AlertCircle className="h-5 w-5 text-amber-500" />
-                                        Rules & Guidelines
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6">
-                                    <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-                                        {contest.instructions}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
+                            {/* Duration Card */}
+                            <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-4 flex items-start gap-3">
+                                <Timer className="h-5 w-5 text-[#F59E0B] shrink-0" />
+                                <div>
+                                    <h3 className="text-[13px] font-bold text-[#111827] uppercase tracking-wide mb-1">Duration</h3>
+                                    <p className="text-[13px] text-[#6B7280] leading-[18px]">
+                                        {contest.duration >= 1440 
+                                            ? `${Math.round(contest.duration / 60)} Hour Intense Sprint` 
+                                            : `${contest.duration} Minutes`}<br/>
+                                        Virtual/Online
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Registration Deadline Card */}
+                            <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-4 flex items-start gap-3">
+                                <Clock className="h-5 w-5 text-[#EF4444] shrink-0" />
+                                <div>
+                                    <h3 className="text-[13px] font-bold text-[#111827] uppercase tracking-wide mb-1">Registration Deadline</h3>
+                                    <p className="text-[13px] text-[#6B7280] leading-[18px]">
+                                        {contest.registrationEndDate ? (
+                                            <>
+                                                {contest.registrationEndDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}<br/>
+                                                {contest.registrationEndDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                            </>
+                                        ) : (
+                                            "Rolling Registration"
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Sidebar */}
-                    <div className="space-y-6">
-                        {/* Prizes Card */}
-                        {contest.prize && (
-                            <Card className="border border-gray-100 shadow-sm overflow-hidden">
-                                <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-100">
-                                    <CardTitle className="flex items-center gap-2 text-lg text-amber-700">
-                                        <Gift className="h-5 w-5" />
-                                        Prizes
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6">
-                                    <p className="text-gray-700 font-medium whitespace-pre-wrap">{contest.prize}</p>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* Leaderboard */}
-                        <ContestLeaderboard
-                            contestId={contest.id}
-                            contestTitle={contest.title}
-                        />
-
-                        {/* Quick Info */}
-                        <Card className="border border-gray-100 shadow-sm">
-                            <CardHeader className="border-b border-gray-100 pb-3">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Star className="h-4 w-4 text-indigo-500" />
-                                    Quick Info
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4 space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Duration</span>
-                                    <span className="font-medium">{contest.duration} minutes</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Type</span>
-                                    <Badge variant="secondary" className="capitalize">{contest.type}</Badge>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Difficulty</span>
-                                    <Badge variant="outline" className={getDifficultyColor(contest.difficulty)}>
-                                        {contest.difficulty}
-                                    </Badge>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Status</span>
-                                    <Badge variant={isLive ? "default" : "secondary"} className={isLive ? "bg-green-500" : ""}>
-                                        {contest.status}
-                                    </Badge>
-                                </div>
-
-                                {(!contest.openForAllColleges || !contest.openForAllDepartments || contest.requireStudentId) && (
-                                    <div className="pt-3 mt-3 border-t border-gray-100">
-                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Eligibility Rules</span>
-                                        <div className="space-y-2">
-                                            {!contest.openForAllColleges && (
-                                                <div>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                        <Building2 className="h-3 w-3 text-indigo-500" /> Specific Colleges Only
-                                                    </div>
-                                                    {contest.allowedCollegesDetails && contest.allowedCollegesDetails.length > 0 && (
-                                                        <div className="mt-1.5 ml-5 space-y-1">
-                                                            {contest.allowedCollegesDetails.map(c => (
-                                                                <div key={c.id} className="text-xs text-gray-500 bg-indigo-50 rounded px-2 py-0.5 inline-block mr-1 mb-1">
-                                                                    {c.name}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {!contest.openForAllDepartments && (
-                                                <div>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                        <GraduationCap className="h-3 w-3 text-indigo-500" /> Specific Departments Only
-                                                    </div>
-                                                    {contest.allowedDepartmentsDetails && contest.allowedDepartmentsDetails.length > 0 && (
-                                                        <div className="mt-1.5 ml-5 space-y-1">
-                                                            {contest.allowedDepartmentsDetails.map(d => (
-                                                                <div key={d.id} className="text-xs text-gray-500 bg-indigo-50 rounded px-2 py-0.5 inline-block mr-1 mb-1">
-                                                                    {d.name}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {contest.requireStudentId && (
-                                                <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                    <FileText className="h-3 w-3 text-indigo-500" /> Student Verification Required
-                                                </div>
-                                            )}
-                                        </div>
+                    <div className="space-y-4">
+                        {/* Action Card */}
+                        <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-5 shadow-sm">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="font-inter font-semibold text-[12px] leading-[14.4px] text-[#5A5A5A]">Total Prize Pool</span>
+                                {contest.endDate && new Date() < contest.endDate && (
+                                    <div className="flex items-center gap-[4px] bg-[#F5F5F5] rounded-[8px] px-[6px] py-[4px]">
+                                        <Calendar size={10} color="#343330" />
+                                        <span className="font-inter font-bold text-[10px] leading-[12.4px] text-[#303030]">
+                                            {getCountdown(contest.endDate)} Left
+                                        </span>
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
+                            </div>
+                            <div className="text-[28px] font-bold text-[#111827] mb-4">
+                                {contest.prize || "₹10,000"}
+                            </div>
+
+                            <div className="bg-[#E4861A]/10 rounded-[8px] p-[12px] mb-4 flex flex-col gap-[8px]">
+                                <h4 className="font-inter font-semibold text-[13px] leading-[16px] text-[#131B2E]">Required Skills</h4>
+                                <div className="flex flex-wrap gap-[6px]">
+                                    {['Python', 'ML', 'React'].map(skill => (
+                                        <span key={skill} className="bg-[#FFFFFF] border border-[#D9D9D9] rounded-[4px] px-[8px] py-[4px] font-inter font-semibold text-[12px] leading-[14.4px] text-[#5A5A5A] flex items-center justify-center">
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {!isPast && (
+                                <Button
+                                    className={cn(
+                                        "w-full text-white border-0 h-[36px] flex items-center justify-center gap-[8px] font-inter text-[14px] font-semibold rounded-[8px] transition-all",
+                                        contest.isRegistered
+                                            ? isLive
+                                                ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90"
+                                                : "bg-gray-400 cursor-not-allowed"
+                                            : contest.allowLateEntry && isLive
+                                                ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-90"
+                                                : "bg-gradient-to-r from-[#1A73E8] to-[#6C24B5] hover:opacity-90 shadow-md"
+                                    )}
+                                    disabled={(contest.isRegistered && !isLive) || (!contest.isRegistered && !isRegistrationOpen)}
+                                    onClick={() => {
+                                        if (contest.isRegistered) {
+                                            handleEnter();
+                                        } else if (isRegistrationOpen) {
+                                            handleRegister();
+                                        } else {
+                                            toast(registrationInfo.message);
+                                        }
+                                    }}
+                                >
+                                    {registering ? (
+                                        <span className="flex items-center gap-2 justify-center w-full">
+                                            <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Registering...
+                                        </span>
+                                    ) : contest.isRegistered ? (
+                                        isLive ? (
+                                            <span className="flex items-center gap-2 justify-center w-full"><Play className="h-5 w-5 fill-current" /> Enter Contest</span>
+                                        ) : (
+                                            <span className="flex items-center gap-2 justify-center w-full"><CheckCircle2 className="h-5 w-5" /> Registered</span>
+                                        )
+                                    ) : (
+                                        <span className="flex items-center gap-2 justify-center w-full">
+                                            {contest.allowLateEntry && isLive ? (
+                                                <><Zap className="h-5 w-5 fill-current" /> Late Entry</>
+                                            ) : (
+                                                <>
+                                                    {registrationInfo.state === 'not_started'
+                                                        ? 'Registration Opens Soon'
+                                                        : registrationInfo.state === 'closed'
+                                                            ? 'Registration Closed'
+                                                            : 'Register Now'}
+                                                    {registrationInfo.state !== 'closed' && registrationInfo.state !== 'not_started' && <ArrowLeft className="h-[16px] w-[16px] rotate-180" />}
+                                                </>
+                                            )}
+                                        </span>
+                                    )}
+                                </Button>
+                            )}
+                            
+                            {/* Leaderboard below the Action Card if the contest has started or is past */}
+                            {(isLive || isPast) && (
+                                <div className="mt-6">
+                                    <ContestLeaderboard
+                                        contestId={contest.id}
+                                        contestTitle={contest.title}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </Layout>
     );
 };
 

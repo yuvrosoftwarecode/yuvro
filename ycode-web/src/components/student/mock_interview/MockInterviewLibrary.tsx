@@ -1,65 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ModernCard from '@/components/common/ModernCard';
-import SearchBar from "@/components/common/SearchBar";
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, Play, Star, Clock, Users } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, FileText } from 'lucide-react';
+import InterviewRoleCard from '@/components/common/InterviewRoleCard';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
-
-import { Role, InterviewSettings } from '@/types/mockInterview';
-import { getLevelBadgeVariant } from '@/utils/mockInterviewUtils';
-import { getCourseIconConfig } from '@/utils/CourseIcons';
+import { aiMockInterviewService } from '@/services/aiMockInterviewService';
+import { Role } from '@/types/mockInterview';
+import { getRoleIconConfig } from '@/utils/mockInterviewUtils';
+import { useNavigate } from "react-router-dom";
 
 interface MockInterviewLibraryProps {
-  onStartInterview?: (role: Role, settings: any) => void;
+  onStartPractice: (role: Role) => void;
 }
 
-const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInterview }) => {
-  const navigate = useNavigate(); // Add hook
+const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPractice }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState('');
-  const [selectedDuration, setSelectedDuration] = useState('');
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
+  const [customSubmissions, setCustomSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // ✅ INSIDE component
 
-  // ... (useEffect remains same) ...
 
   useEffect(() => {
+    const fetchCustomSubmissions = async () => {
+      try {
+        const subs = await aiMockInterviewService.getCustomSubmissions();
+        setCustomSubmissions(subs);
+      } catch (error) {
+        console.error('Failed to fetch custom submissions', error);
+      }
+    };
+    fetchCustomSubmissions();
+
     const fetchMockInterviews = async () => {
       try {
         const data = await mockInterviewService.getAllMockInterviews();
         const mappedRoles = data.map((item: ApiMockInterview) => {
-          let level: 'Beginner' | 'Intermediate' | 'Advanced' = 'Intermediate';
-          const config = getCourseIconConfig(item.title, item.ai_generation_mode);
-          const IconComponent = config.Icon;
+          const getDesignConfig = (title: string) => {
+            const t = title.toLowerCase();
+            if (t.includes('dsa') || t.includes('data structure')) return { gradient: 'from-orange-500 to-rose-500', category: 'Product Based', questions: 15 };
+            if (t.includes('python')) return { gradient: 'from-blue-500 to-indigo-600', category: 'Product Based', questions: 12 };
+            if (t.includes('java')) return { gradient: 'from-red-500 to-pink-500', category: 'Product Based', questions: 18 };
+            if (t.includes('system design')) return { gradient: 'from-purple-500 to-indigo-500', category: 'Product Based', questions: 10 };
+            if (t.includes('aptitude')) return { gradient: 'from-emerald-500 to-teal-500', category: 'Startup', questions: 20 };
+            if (t.includes('logical')) return { gradient: 'from-amber-400 to-orange-500', category: 'Startup', questions: 15 };
+            if (t.includes('communication') || t.includes('hr') || t.includes('behavioral')) return { gradient: 'from-sky-400 to-blue-500', category: 'Service Based', questions: 10 };
+            if (t.includes('dbms')) return { gradient: 'from-cyan-400 to-blue-600', category: 'Startup', questions: 12 };
+            return { gradient: 'from-slate-500 to-slate-700', category: 'Service Based', questions: 10 };
+          };
+
+          const design = getDesignConfig(item.title);
+          const { icon, iconBg, iconColor } = getRoleIconConfig(item.title);
 
           return {
             id: item.id,
-            title: item.title,
+            title: item.title.replace('Mock Interview — ', '').replace('Mock Interview - ', ''),
             description: item.description,
-            category: item.ai_generation_mode.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            level: level,
+            category: design.category,
+            level: 'Intermediate' as const,
             max_duration: item.max_duration,
             interviewer_name: item.interviewer_name || 'Junnu',
             interviewer_voice_id: item.interviewer_voice_id || '',
             voice_speed: item.voice_speed || 1.0,
-            icon: <IconComponent className="w-6 h-6 text-white" />,
-            iconBg: `${config.bg} p-2 rounded-lg`,
-            iconColor: config.text,
-            buttonGradient: config.gradient || "from-slate-700 to-slate-900"
+            icon,
+            iconBg,
+            iconColor,
+            buttonGradient: design.gradient,
+            questionCount: design.questions,
+            user_progress: item.user_progress,
+            my_submissions: item.my_submissions,
           };
         });
         setMockRoles(mappedRoles);
       } catch (error) {
-        console.error("Failed to fetch mock interviews", error);
+        console.error('Failed to fetch mock interviews', error);
       } finally {
         setLoading(false);
       }
@@ -68,276 +84,137 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     fetchMockInterviews();
   }, []);
 
-  const filteredRoles = mockRoles.filter(role =>
-    role.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleStartPracticeClick = (role: Role) => {
-    setSelectedRole(role);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedRole(null);
-    setSelectedDifficulty('');
-    setSelectedDuration('');
-    setResumeFile(null);
-    setAgreeToTerms(false);
-  };
-
-  const handleStartInterview = async () => {
-    // NOTE: In this refactor, we no longer start the media stream HERE.
-    // We navigate to the room page which handles the stream per the plan.
-
-    if (!selectedRole) return;
-
-    const settings: InterviewSettings = {
-      difficulty: selectedDifficulty,
-      duration: selectedDuration,
-      interviewer: selectedRole.interviewer_name || 'Junnu',
-      mediaStream: null as any, // Stream will be acquired in the room
-      resume: resumeFile || undefined
-    };
-
-    // Navigate to the interview room
-    navigate('/student/mock-interview/session', {
-      state: {
-        role: { ...selectedRole, icon: undefined }, // Strip non-serializable icon
-        settings: settings
-      }
-    });
-  };
-
-  const handleStartInterviewClick = () => {
-    if (!selectedDifficulty || !selectedDuration || !agreeToTerms) {
-      alert('Please fill in all required fields and agree to terms.');
-      return;
-    }
-    setShowModal(false);
-    handleStartInterview();
-  };
+  const filteredRoles = mockRoles.filter(role => {
+    const matchesSearch =
+      role.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || role.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="px-8 py-6 max-w-[1600px] mx-auto animate-fade-in">
-        {/* Header with Search */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-          <div className="text-left w-full md:w-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Mock Interview
-            </h1>
-            <p className="text-muted-foreground">
-              Choose a role to start practicing your interview skills
-            </p>
-          </div>
+    <div className="space-y-6">
+      {/* Header — matches Task page exactly */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Mock Interviews</h1>
+        <p className="text-muted-foreground">Choose a domain and start your AI-powered mock interview.</p>
+      </div>
 
-          <div className="w-full md:w-auto min-w-[320px] max-w-md">
-            <SearchBar
-              searchQuery={searchTerm}
-              setSearchQuery={setSearchTerm}
-              placeholder="Search roles..."
-            />
-          </div>
-        </div>
+      {/* Filters — matches Task page filter card */}
+      <Card className="rounded-2xl border-slate-200 bg-white shadow-sm overflow-hidden">
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Search
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Search by topic or keyword..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12 rounded-xl bg-white hover:bg-slate-50 transition-colors border-slate-200"
+                />
+              </div>
+            </div>
 
-        {/* Role Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredRoles.map((role) => (
-            <ModernCard
-              key={role.id}
-              title={role.title.replace('Mock Interview — ', '')}
-              description={role.description}
-              icon={role.icon}
-              iconClassName={role.iconBg}
-              gradientColor={role.buttonGradient || "from-slate-700"}
-              tags={[
-                {
-                  text: role.level,
-                  variant: getLevelBadgeVariant(role.level)
-                }
-              ]}
-              footerItems={[
-                { icon: <Clock className="w-3.5 h-3.5" />, text: `${role.max_duration} mins` },
-                { icon: <Users className="w-3.5 h-3.5" />, text: role.interviewer_name }
-              ]}
-              actionLabel="Start Practice"
-              onAction={() => handleStartPracticeClick(role)}
-            />
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Category
+              </label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="h-12 rounded-xl bg-white hover:bg-slate-50 transition-colors border-slate-200">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="Product Based">Product Based</SelectItem>
+                  <SelectItem value="Service Based">Service Based</SelectItem>
+                  <SelectItem value="Startup">Startup</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Loading skeleton */}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="h-48 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
           ))}
         </div>
+      )}
 
-        <Dialog open={showModal} onOpenChange={handleCloseModal}>
-          <DialogContent className="max-w-2xl max-h-[90vh] rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-xl ring-1 ring-black/5 p-0 flex flex-col overflow-hidden">
+      {/* Cards Grid — 3 columns */}
+{!loading && (filteredRoles.length > 0 || searchTerm) && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    
+    {(!searchTerm || 
+      'jd & resume ai mock interview'.includes(searchTerm.toLowerCase()) || 
+      'custom jd/resume'.includes(searchTerm.toLowerCase())) && (
+      <InterviewRoleCard
+        title="JD & Resume AI Mock Interview"
+        description="Upload your target Job Description and Resume to generate a tailored, realistic mock interview with real-time feedback."
+        icon={<FileText className="w-6 h-6 text-indigo-500" />}
+        gradient="from-indigo-500 to-purple-600 animate-pulse-slow"
+        duration={30}
+        questionCount={5}
+        category="AI Tailored"
+        my_submissions={customSubmissions}
+        onStart={() => onStartPractice({
+          id: 'jd_resume',
+          title: 'JD & Resume AI Mock Interview',
+          description: 'Upload your target Job Description and Resume to generate a tailored, realistic mock interview with real-time feedback.',
+          category: 'AI Tailored',
+          level: 'Intermediate',
+          max_duration: 30,
+          interviewer_name: 'Junnu',
+          interviewer_voice_id: '',
+          voice_speed: 1.0,
+          buttonGradient: 'from-indigo-500 to-purple-600',
+        })}
+      />
+    )}
 
-            {/* styled header matching Profile modal */}
-            <DialogHeader className="p-6 border-b border-slate-100/50 bg-gradient-to-r from-slate-50/50 to-white flex-shrink-0">
-              <div className="flex items-center gap-3 mb-1">
-                <div className={`p-2 rounded-lg ${selectedRole?.iconBg?.split(" ")[0] || 'bg-slate-100'}`}>
-                  {selectedRole?.icon}
-                </div>
-                <div>
-                  <DialogTitle className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                    {selectedRole?.title}
-                  </DialogTitle>
-                  <p className="text-xs font-semibold text-blue-600 tracking-wider uppercase mt-1">
-                    {selectedRole?.category}
-                  </p>
-                </div>
-              </div>
-            </DialogHeader>
+    {/* Dynamic Cards */}
+    {filteredRoles.map(role => (
+      <InterviewRoleCard
+        key={role.id}
+        title={role.title}
+        description={role.description}
+        icon={role.icon}
+        gradient={role.buttonGradient || 'from-slate-500 to-slate-700'}
+        duration={role.max_duration}
+        questionCount={(role as any).questionCount || 10}
+        category={role.category}
+        user_progress={(role as any).user_progress}
+        my_submissions={(role as any).my_submissions}
+        onStart={() => onStartPractice(role)}
+      />
+    ))}
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+  </div>
+)}
 
-              {/* Difficulty Level */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Experience Level</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { label: 'Intern', value: 'intern' },
-                    { label: 'Beginner (0-1 yrs)', value: 'beginner' },
-                    { label: 'Intermediate (1-3 yrs)', value: '1_3_years' },
-                    { label: 'Experienced (3+ yrs)', value: '3_plus_years' }
-                  ].map((level) => (
-                    <button
-                      key={level.value}
-                      onClick={() => setSelectedDifficulty(level.value)}
-                      className={`
-                        relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border text-left
-                        ${selectedDifficulty === level.value
-                          ? 'border-blue-500/30 bg-blue-50/50 text-blue-700 ring-4 ring-blue-500/10'
-                          : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-white hover:border-slate-300'
-                        }
-                      `}
-                    >
-                      {level.label}
-                      {selectedDifficulty === level.value && (
-                        <div className="absolute top-1/2 right-3 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Interview Duration */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Interview Duration</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {(() => {
-                    const max = selectedRole?.max_duration || 60;
-                    const options = [];
-                    if (max >= 15) options.push({ value: '15 mins', label: '15 Mins', minutes: 15 });
-                    if (max >= 30) options.push({ value: '30 mins', label: '30 Mins', minutes: 30 });
-                    if (max >= 45) options.push({ value: '45 mins', label: '45 Mins', minutes: 45 });
-                    if (!options.find(o => o.minutes === max) && max > 0) {
-                      options.push({ value: `${max} mins`, label: `${max} Mins`, minutes: max });
-                    }
-                    options.sort((a, b) => a.minutes - b.minutes);
-
-                    return options.map((duration) => (
-                      <button
-                        key={duration.value}
-                        onClick={() => setSelectedDuration(duration.value)}
-                        className={`
-                          relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border text-center
-                          ${selectedDuration === duration.value
-                            ? 'border-blue-500/30 bg-blue-50/50 text-blue-700 ring-4 ring-blue-500/10'
-                            : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-white hover:border-slate-300'
-                          }
-                        `}
-                      >
-                        {duration.label}
-                      </button>
-                    ));
-                  })()}
-                </div>
-              </div>
-
-              {/* Resume Upload */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resume (Optional)</h4>
-                <div className={`
-                    group border-2 border-dashed rounded-xl p-6 transition-colors text-center cursor-pointer
-                    ${resumeFile ? 'border-blue-500/30 bg-blue-50/30' : 'border-slate-200 hover:border-slate-300 bg-slate-50/30'}
-                `}>
-                  <input
-                    type="file"
-                    id="resume-upload"
-                    accept=".pdf"
-                    onChange={(e) => setResumeFile(e.target.files ? e.target.files[0] : null)}
-                    className="hidden"
-                  />
-                  <label htmlFor="resume-upload" className="cursor-pointer w-full h-full block">
-                    {resumeFile ? (
-                      <div className="flex items-center justify-center gap-2 text-blue-700">
-                        <span className="text-sm font-medium line-clamp-1">{resumeFile.name}</span>
-                        <button
-                          onClick={(e) => { e.preventDefault(); setResumeFile(null); }}
-                          className="p-1 hover:bg-blue-100 rounded-full"
-                        >
-                          <span className="sr-only">Remove</span>
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <div className="flex justify-center text-slate-400 group-hover:text-slate-500 transition-colors">
-                          <Search className="w-8 h-8 opacity-50" />
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">Click to upload your resume (PDF)</p>
-                        <p className="text-xs text-slate-400">Helps AI tailor questions to your experience</p>
-                      </div>
-                    )}
-                  </label>
-                </div>
-              </div>
-
-              {/* Terms */}
-              <div className="pt-4 border-t border-slate-100">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className={`
-                    mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-colors
-                    ${agreeToTerms ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-300 bg-white group-hover:border-slate-400'}
-                  `}>
-                    {agreeToTerms && <span className="text-xs">✓</span>}
-                  </div>
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={agreeToTerms}
-                    onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  />
-                  <span className="text-sm text-slate-600 select-none">
-                    I agree to the <span className="text-blue-600 font-medium hover:underline">Terms & Conditions</span> regarding the recording and processing of my interview session.
-                  </span>
-                </label>
-              </div>
+      {/* Empty state */}
+      {!loading && filteredRoles.length === 0 && !(
+        !searchTerm || 
+        'jd & resume ai mock interview'.includes(searchTerm.toLowerCase()) || 
+        'custom jd/resume'.includes(searchTerm.toLowerCase())
+      ) && (
+        <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+          <CardContent>
+            <div className="text-center">
+              <Search className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+              <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No interviews found</p>
+              <p className="text-slate-400 text-xs mt-1 font-medium">Try adjusting your search or category filter</p>
             </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3 justify-end">
-              <Button
-                variant="ghost"
-                onClick={handleCloseModal}
-                className="rounded-xl hover:bg-slate-200 text-slate-500 font-medium px-6"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleStartInterviewClick}
-                disabled={!selectedDifficulty || !selectedDuration || !agreeToTerms}
-                className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/10 px-8 py-6 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
-              >
-                <Play className="h-4 w-4 mr-2" />
-                Start Interview
-              </Button>
-            </div>
-
-          </DialogContent>
-        </Dialog>
-      </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

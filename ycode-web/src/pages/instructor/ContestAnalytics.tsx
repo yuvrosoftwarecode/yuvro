@@ -50,8 +50,26 @@ export default function ContestAnalytics() {
     );
   }
 
+  // Combine authenticated participants and public registrations
+  const publicRegistrations = (contest?.public_registrations || []).map((reg: any, index: number) => ({
+    id: `public_${index}`,
+    user_name: reg.fullName || 'N/A',
+    user_email: reg.email,
+    college_name: reg.college || 'N/A',
+    department_name: reg.department || 'N/A',
+    registered_at: reg.registered_at,
+    is_authenticated: false
+  }));
+
+  const authenticatedParticipants = participants.map((p: any) => ({
+    ...p,
+    is_authenticated: true
+  }));
+
+  const allParticipants = [...authenticatedParticipants, ...publicRegistrations];
+
   // Use backend metrics if available, otherwise fallback to local data length
-  const registeredCount = contest?.participants_count || participants.length;
+  const registeredCount = contest?.participants_count || allParticipants.length;
 
   // Calculate specific metrics for stats card
   const uniqueCandidates = contest?.unique_candidates_count ||
@@ -95,7 +113,7 @@ export default function ContestAnalytics() {
       <Tabs defaultValue="attempted" className="mt-8">
         <TabsList className="mb-4">
           <TabsTrigger value="attempted">Attempted Candidates</TabsTrigger>
-          <TabsTrigger value="registered">Registered Participants ({participants.length})</TabsTrigger>
+          <TabsTrigger value="registered">Registered Participants ({allParticipants.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="attempted">
           <CandidatesTable
@@ -109,13 +127,24 @@ export default function ContestAnalytics() {
           <Card className="border border-gray-200">
             <CardContent className="p-0">
               <DataTable
-                data={participants}
+                data={allParticipants}
                 columns={[
                   {
                     header: 'Student',
                     cell: (p) => (
                       <div>
-                        <div className="font-medium text-gray-900">{p.user_name}</div>
+                        <div className="font-medium text-gray-900 flex items-center gap-2">
+                          {p.user_name}
+                          {!p.is_authenticated ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                              Public
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                              Auth
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-gray-500">{p.user_email}</div>
                       </div>
                     )

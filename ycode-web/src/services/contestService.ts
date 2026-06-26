@@ -1,4 +1,5 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
+import restApiUtil from '../utils/RestApiUtil';
 
 // Single source of truth — matches backend snake_case fields
 export interface Contest {
@@ -19,6 +20,8 @@ export interface Contest {
   allow_late_entry?: boolean;
   duration?: number;
   prize?: string;
+  payment_type?: 'paid' | 'unpaid';
+  amount?: string | number;
   difficulty: string;
   description: string;
   instructions?: string;
@@ -93,7 +96,14 @@ export interface StartContestResponse {
 }
 
 export const fetchContests = async (): Promise<Contest[]> => {
-  return restApiAuthUtil.get('/assessment/contests/');
+  const contests = await restApiAuthUtil.get('/assessment/contests/');
+  // Cache to localStorage to enable mocking public contest views locally
+  try {
+    localStorage.setItem('mock_public_contests', JSON.stringify(contests));
+  } catch (e) {
+    console.error("Failed to cache contests", e);
+  }
+  return contests;
 };
 
 // Form-friendly model with camelCase fields (used by ContestForm UI state only)
@@ -108,6 +118,8 @@ export interface ContestFormModel {
   duration: string;
   participants: number;
   prize?: string;
+  payment_type?: 'paid' | 'unpaid';
+  amount?: string | number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   description: string;
   registrationStartDate?: string;
@@ -143,6 +155,8 @@ export function mapContestFromBackend(c: any): ContestFormModel {
     duration: c.duration ? `${Math.round(typeof c.duration === 'string' ? parseFloat(c.duration) : c.duration)} min` : '',
     participants: c.participants_count ?? 0,
     prize: c.prize ?? '',
+    payment_type: c.payment_type ?? 'unpaid',
+    amount: c.amount ?? '',
     difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
     description: c.description ?? '',
     registrationStartDate: c.registration_start_datetime || c.registration_start_date || '',
@@ -283,4 +297,94 @@ export const contestService = {
     params.append('include_ai_insights', String(includeAI));
     return restApiAuthUtil.get(`/assessment/contests/${contestId}/college_analytics/?${params.toString()}`);
   },
+
+  // MOCK PUBLIC APIs
+  async getPublicContest(contestId: string): Promise<Contest> {
+    try {
+      // First try to fetch the actual contest unauthenticated
+      const contest = await restApiUtil.get<Contest>(`/assessment/contests/${contestId}/`);
+      if (contest) return contest;
+    } catch (e) {
+      console.warn("Unauthenticated fetch failed, falling back to mock or cache", e);
+    }
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const cached = localStorage.getItem('mock_public_contests');
+          if (cached) {
+            const contests: Contest[] = JSON.parse(cached);
+            const found = contests.find(c => String(c.id) === contestId);
+            if (found) {
+              return resolve(found);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to read cached contests", e);
+        }
+        
+        // Fallback mock if not found in localStorage
+        resolve({
+          id: contestId,
+          title: "Yuvro Contest",
+          organizer: "Yuvro Code",
+          type: "company",
+          status: "upcoming",
+          start_datetime: new Date(Date.now() + 86400000).toISOString(),
+          end_datetime: new Date(Date.now() + 172800000).toISOString(),
+          duration: 120,
+          difficulty: "Medium",
+          description: "This is a public contest. Anyone can register.",
+          questions_config: { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] },
+          questions_random_config: { mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 },
+          participants_count: 0,
+          open_for_all_colleges: true,
+          registration_start_datetime: new Date(Date.now() - 86400000).toISOString(),
+          registration_end_datetime: new Date(Date.now() + 43200000).toISOString(),
+          allow_late_entry: true,
+        } as Contest);
+      }, 300);
+    });
+  },
+
+  async fetchPublicContests(): Promise<Contest[]> {
+    try {
+      // First try to fetch actual contests unauthenticated
+      const contests = await restApiUtil.get<Contest[]>('/assessment/contests/');
+      if (contests && Array.isArray(contests)) return contests;
+    } catch (e) {
+      console.warn("Unauthenticated fetch failed, falling back to mock or cache", e);
+    }
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        try {
+          const cached = localStorage.getItem('mock_public_contests');
+          if (cached) {
+            return resolve(JSON.parse(cached));
+          }
+        } catch (e) {
+          console.error("Failed to read cached contests", e);
+        }
+
+        resolve([]);
+      }, 300);
+    });
+  },
+
+  async sendRegistrationOtp(contestId: string, email: string): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/public_send_otp/`, { email });
+  },
+
+  async verifyRegistrationOtp(contestId: string, email: string, otp: string): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/public_verify_otp/`, { email, otp });
+  },
+
+  async registerPublicContest(contestId: string, email: string, otp: string, details: any): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/public_register/`, { email, otp, details });
+  },
+
+  async verifyPayment(contestId: string, paymentToken: string): Promise<any> {
+    return restApiUtil.post(`/assessment/contests/${contestId}/verify_payment/`, { payment_token: paymentToken });
+  }
 };

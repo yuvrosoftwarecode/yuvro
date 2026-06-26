@@ -1,2185 +1,2269 @@
 {
-  "name": "Links & Navigation",
-  "subject_short_code": "HTMLCSS100",
-  "order_index": 2,
-  "sub_units": [
-    {
-      "name": "Anchor Tags",
-      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-      "order_index": 0,
-      "videos": [
-        {
-          "title": "Introduction to Anchor Tags",
-          "video_link": "https://www.youtube.com/results?search_query=Anchor+Tags+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Anchor Tags in HTML/CSS."
-        },
-        {
-          "title": "Advanced Anchor Tags Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Anchor+Tags+html+css",
-          "ai_context": "In-depth explanation and practical examples for Anchor Tags."
-        }
-      ]
-    },
-    {
-      "name": "Page Navigation",
-      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-      "order_index": 1,
-      "videos": [
-        {
-          "title": "Introduction to Page Navigation",
-          "video_link": "https://www.youtube.com/results?search_query=Page+Navigation+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Page Navigation in HTML/CSS."
-        },
-        {
-          "title": "Advanced Page Navigation Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Page+Navigation+html+css",
-          "ai_context": "In-depth explanation and practical examples for Page Navigation."
-        }
-      ]
-    },
-    {
-      "name": "Email & Phone Links",
-      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-      "order_index": 2,
-      "videos": [
-        {
-          "title": "Introduction to Email & Phone Links",
-          "video_link": "https://www.youtube.com/results?search_query=Email+%26+Phone+Links+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Email & Phone Links in HTML/CSS."
-        },
-        {
-          "title": "Advanced Email & Phone Links Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Email+%26+Phone+Links+html+css",
-          "ai_context": "In-depth explanation and practical examples for Email & Phone Links."
-        }
-      ]
-    }
-  ],
-  "questions": [
-    {
-      "type": "mcq_single",
-      "title": "Anchor Tag Purpose",
-      "content": "Which HTML tag is used to create hyperlinks?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a>",
-          "is_correct": true
-        },
-        {
-          "text": "<link>",
-          "is_correct": false
-        },
-        {
-          "text": "<href>",
-          "is_correct": false
-        },
-        {
-          "text": "<nav>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "External Link Example",
-      "content": "Which attribute specifies the destination URL of an anchor tag?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "href",
-          "is_correct": true
-        },
-        {
-          "text": "src",
-          "is_correct": false
-        },
-        {
-          "text": "alt",
-          "is_correct": false
-        },
-        {
-          "text": "target",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Internal Links",
-      "content": "What is an internal link in HTML?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "A link that connects pages within the same website",
-          "is_correct": true
-        },
-        {
-          "text": "A link to another website",
-          "is_correct": false
-        },
-        {
-          "text": "A hidden link",
-          "is_correct": false
-        },
-        {
-          "text": "A database connection",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Opening in New Tab",
-      "content": "Which target value opens a link in a new browser tab?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "_blank",
-          "is_correct": true
-        },
-        {
-          "text": "_self",
-          "is_correct": false
-        },
-        {
-          "text": "_top",
-          "is_correct": false
-        },
-        {
-          "text": "_parent",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Relative Path",
-      "content": "Which type of link is commonly used for internal website navigation?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Relative URL",
-          "is_correct": true
-        },
-        {
-          "text": "Absolute URL only",
-          "is_correct": false
-        },
-        {
-          "text": "FTP link",
-          "is_correct": false
-        },
-        {
-          "text": "mailto link",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Security Best Practice",
-      "content": "Why is rel=\"noopener\" often used with target=\"_blank\"?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To improve security and prevent access to the original page",
-          "is_correct": true
-        },
-        {
-          "text": "To make links load faster",
-          "is_correct": false
-        },
-        {
-          "text": "To disable hyperlinks",
-          "is_correct": false
-        },
-        {
-          "text": "To apply CSS styles",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Anchor Tag Syntax",
-      "content": "Which HTML snippet correctly creates a link to https://example.com?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a href=\"https://example.com\">Visit</a>",
-          "is_correct": true
-        },
-        {
-          "text": "<a src=\"https://example.com\">Visit</a>",
-          "is_correct": false
-        },
-        {
-          "text": "<link href=\"https://example.com\">Visit</link>",
-          "is_correct": false
-        },
-        {
-          "text": "<href>https://example.com</href>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Bookmark Link Purpose",
-      "content": "What is a bookmark link in HTML mainly used for?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To jump to a specific section on a webpage",
-          "is_correct": true
-        },
-        {
-          "text": "To download files",
-          "is_correct": false
-        },
-        {
-          "text": "To style navigation menus",
-          "is_correct": false
-        },
-        {
-          "text": "To connect databases",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "ID Attribute Usage",
-      "content": "Which attribute is commonly used to create bookmark targets in HTML?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "id",
-          "is_correct": true
-        },
-        {
-          "text": "class",
-          "is_correct": false
-        },
-        {
-          "text": "style",
-          "is_correct": false
-        },
-        {
-          "text": "target",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Bookmark Link Syntax",
-      "content": "Which symbol is used before an ID in a bookmark link?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "#",
-          "is_correct": true
-        },
-        {
-          "text": "@",
-          "is_correct": false
-        },
-        {
-          "text": "&",
-          "is_correct": false
-        },
-        {
-          "text": "$",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Smooth Scrolling",
-      "content": "What is the purpose of smooth navigation or smooth scrolling?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To create a visually smooth transition between sections",
-          "is_correct": true
-        },
-        {
-          "text": "To increase internet speed",
-          "is_correct": false
-        },
-        {
-          "text": "To compress HTML files",
-          "is_correct": false
-        },
-        {
-          "text": "To remove page content",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Bookmark Navigation Example",
-      "content": "Which HTML snippet correctly links to a section with id=\"about\"?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a href=\"#about\">About</a>",
-          "is_correct": true
-        },
-        {
-          "text": "<a id=\"about\">About</a>",
-          "is_correct": false
-        },
-        {
-          "text": "<link href=\"about\">About</link>",
-          "is_correct": false
-        },
-        {
-          "text": "<a src=\"#about\">About</a>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Duplicate IDs Issue",
-      "content": "Why should IDs used for bookmark links be unique?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Duplicate IDs can cause incorrect navigation behavior",
-          "is_correct": true
-        },
-        {
-          "text": "IDs are automatically deleted otherwise",
-          "is_correct": false
-        },
-        {
-          "text": "Duplicate IDs improve performance",
-          "is_correct": false
-        },
-        {
-          "text": "Browsers do not support unique IDs",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Smooth Scroll CSS",
-      "content": "Which CSS property is commonly used to enable smooth scrolling behavior?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "scroll-behavior: smooth;",
-          "is_correct": true
-        },
-        {
-          "text": "navigation: smooth;",
-          "is_correct": false
-        },
-        {
-          "text": "transition: scroll;",
-          "is_correct": false
-        },
-        {
-          "text": "animation: smooth-scroll;",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "mailto Purpose",
-      "content": "What is the purpose of the mailto: link in HTML?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To open the user's email application",
-          "is_correct": true
-        },
-        {
-          "text": "To make phone calls",
-          "is_correct": false
-        },
-        {
-          "text": "To create bookmarks",
-          "is_correct": false
-        },
-        {
-          "text": "To connect databases",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Phone Link Protocol",
-      "content": "Which protocol is used to create clickable phone number links in HTML?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "tel:",
-          "is_correct": true
-        },
-        {
-          "text": "call:",
-          "is_correct": false
-        },
-        {
-          "text": "phone:",
-          "is_correct": false
-        },
-        {
-          "text": "mobile:",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Email Link Example",
-      "content": "Which HTML snippet correctly creates an email link?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a href=\"mailto:test@example.com\">Email Us</a>",
-          "is_correct": true
-        },
-        {
-          "text": "<a mailto=\"test@example.com\">Email Us</a>",
-          "is_correct": false
-        },
-        {
-          "text": "<email href=\"test@example.com\">Email Us</email>",
-          "is_correct": false
-        },
-        {
-          "text": "<a src=\"mailto:test@example.com\">Email Us</a>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Phone Link Behavior",
-      "content": "What usually happens when a user clicks a tel: link on a mobile device?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It opens the phone dialer with the number",
-          "is_correct": true
-        },
-        {
-          "text": "It opens the email application",
-          "is_correct": false
-        },
-        {
-          "text": "It downloads a contact file",
-          "is_correct": false
-        },
-        {
-          "text": "It refreshes the webpage",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Adding Email Subject",
-      "content": "How can you prefill an email subject in a mailto: link?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Using ?subject= in the URL",
-          "is_correct": true
-        },
-        {
-          "text": "Using #subject=",
-          "is_correct": false
-        },
-        {
-          "text": "Using &title=",
-          "is_correct": false
-        },
-        {
-          "text": "Using mail-subject=",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Accessibility Consideration",
-      "content": "Why should descriptive text be used for email and phone links?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It improves accessibility and user understanding",
-          "is_correct": true
-        },
-        {
-          "text": "It increases internet speed",
-          "is_correct": false
-        },
-        {
-          "text": "It hides the link destination",
-          "is_correct": false
-        },
-        {
-          "text": "It automatically validates phone numbers",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Valid Telephone Link",
-      "content": "Which HTML snippet correctly creates a clickable phone link?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a href=\"tel:+1234567890\">Call Us</a>",
-          "is_correct": true
-        },
-        {
-          "text": "<a phone=\"+1234567890\">Call Us</a>",
-          "is_correct": false
-        },
-        {
-          "text": "<tel href=\"+1234567890\">Call Us</tel>",
-          "is_correct": false
-        },
-        {
-          "text": "<a src=\"tel:+1234567890\">Call Us</a>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Anchor Tag Basics",
-      "content": "Which of the following statements about anchor tags are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<a> tag is used to create hyperlinks",
-          "is_correct": true
-        },
-        {
-          "text": "href attribute specifies the link destination",
-          "is_correct": true
-        },
-        {
-          "text": "<a> tag cannot link to another webpage",
-          "is_correct": false
-        },
-        {
-          "text": "Anchor tags can contain text or images",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Internal Links",
-      "content": "Which of the following statements about internal links are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Internal links connect pages within the same website",
-          "is_correct": true
-        },
-        {
-          "text": "Relative paths are commonly used for internal links",
-          "is_correct": true
-        },
-        {
-          "text": "Internal links always require full URLs",
-          "is_correct": false
-        },
-        {
-          "text": "Internal navigation improves user experience",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "External Links",
-      "content": "Which of the following statements about external links are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "External links point to other websites",
-          "is_correct": true
-        },
-        {
-          "text": "External links usually use absolute URLs",
-          "is_correct": true
-        },
-        {
-          "text": "External links cannot open in a new tab",
-          "is_correct": false
-        },
-        {
-          "text": "Users can navigate to different domains using external links",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Opening Links in New Tabs",
-      "content": "Which of the following statements about opening links in new tabs are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "target=\"_blank\" opens links in a new tab",
-          "is_correct": true
-        },
-        {
-          "text": "Opening external links in new tabs can improve user convenience",
-          "is_correct": true
-        },
-        {
-          "text": "target=\"_self\" opens links in a new tab",
-          "is_correct": false
-        },
-        {
-          "text": "rel=\"noopener\" can improve security for new tabs",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Anchor Tag Attributes",
-      "content": "Which of the following statements about anchor tag attributes are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "href defines the destination URL",
-          "is_correct": true
-        },
-        {
-          "text": "target controls where the link opens",
-          "is_correct": true
-        },
-        {
-          "text": "Anchor tags cannot contain attributes",
-          "is_correct": false
-        },
-        {
-          "text": "title attribute can provide additional information about a link",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Linking Concepts",
-      "content": "Which of the following statements about advanced linking concepts are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Anchor tags can link to sections within the same page using IDs",
-          "is_correct": true
-        },
-        {
-          "text": "Broken links negatively affect user experience",
-          "is_correct": true
-        },
-        {
-          "text": "Anchor tags only work with text content",
-          "is_correct": false
-        },
-        {
-          "text": "Semantic linking improves accessibility and SEO",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Navigation",
-      "content": "Which of the following are best practices for using anchor tags?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use descriptive link text for accessibility",
-          "is_correct": true
-        },
-        {
-          "text": "Use relative paths for internal navigation when appropriate",
-          "is_correct": true
-        },
-        {
-          "text": "Open every link in a new tab by default",
-          "is_correct": false
-        },
-        {
-          "text": "Check links regularly to avoid broken navigation",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Bookmark Links Basics",
-      "content": "Which of the following statements about bookmark links are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Bookmark links help navigate within the same webpage",
-          "is_correct": true
-        },
-        {
-          "text": "Bookmark links use element IDs",
-          "is_correct": true
-        },
-        {
-          "text": "Bookmark links require JavaScript to work",
-          "is_correct": false
-        },
-        {
-          "text": "Anchor tags are used for bookmark navigation",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Using IDs for Navigation",
-      "content": "Which of the following statements about IDs in page navigation are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "The href attribute can point to an ID using #",
-          "is_correct": true
-        },
-        {
-          "text": "Each ID should be unique within a page",
-          "is_correct": true
-        },
-        {
-          "text": "IDs can only be used with paragraphs",
-          "is_correct": false
-        },
-        {
-          "text": "Bookmark links improve long-page navigation",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Smooth Navigation Basics",
-      "content": "Which of the following statements about smooth navigation are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Smooth scrolling creates animated page movement",
-          "is_correct": true
-        },
-        {
-          "text": "CSS can be used to enable smooth scrolling",
-          "is_correct": true
-        },
-        {
-          "text": "Smooth navigation changes webpage content automatically",
-          "is_correct": false
-        },
-        {
-          "text": "Smooth scrolling improves user experience",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Navigation Behavior",
-      "content": "Which of the following statements about page navigation behavior are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Bookmark links jump to specific sections of a page",
-          "is_correct": true
-        },
-        {
-          "text": "Smooth scrolling can be controlled using CSS property scroll-behavior",
-          "is_correct": true
-        },
-        {
-          "text": "Bookmark navigation only works between different websites",
-          "is_correct": false
-        },
-        {
-          "text": "Navigation links can improve accessibility",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Navigation and User Experience",
-      "content": "Which of the following statements about navigation and user experience are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Clear navigation helps users find content faster",
-          "is_correct": true
-        },
-        {
-          "text": "Smooth navigation is useful for single-page websites",
-          "is_correct": true
-        },
-        {
-          "text": "Navigation structure does not affect usability",
-          "is_correct": false
-        },
-        {
-          "text": "Bookmark links reduce excessive scrolling",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Page Navigation Concepts",
-      "content": "Which of the following statements about advanced page navigation concepts are correct?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "JavaScript can enhance smooth scrolling effects",
-          "is_correct": true
-        },
-        {
-          "text": "Deep linking allows direct access to specific sections",
-          "is_correct": true
-        },
-        {
-          "text": "Bookmark links negatively impact SEO",
-          "is_correct": false
-        },
-        {
-          "text": "Accessible navigation benefits keyboard and screen-reader users",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Page Navigation",
-      "content": "Which of the following are best practices for page navigation?",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use meaningful IDs for sections",
-          "is_correct": true
-        },
-        {
-          "text": "Provide clear navigation labels",
-          "is_correct": true
-        },
-        {
-          "text": "Avoid navigation links on long pages",
-          "is_correct": false
-        },
-        {
-          "text": "Use smooth scrolling carefully for better usability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an External Website Link",
-      "content": "Create an HTML page with an anchor tag linking to an external website.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "External link displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Link opens correct external website"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"https://example.com\">Visit Website</a>",
-          "explanation": "Anchor tags create clickable links."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with external link.",
-      "solutions": [
-        {
-          "title": "External Link Example",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>External Link</title>\n</head>\n<body>\n    <a href=\"https://www.google.com\">Visit Google</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use the href attribute inside the anchor tag."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Internal Page Link",
-      "content": "Create an HTML page containing a link to another HTML page within the same project.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Internal link created"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Internal HTML file linked correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"about.html\">About</a>",
-          "explanation": "Internal links connect pages within a website."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with internal link.",
-      "solutions": [
-        {
-          "title": "Internal Link Example",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Internal Link</title>\n</head>\n<body>\n    <a href=\"about.html\">Go to About Page</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use the file name inside href for internal links."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Open Link in New Tab",
-      "content": "Create an HTML page with a link that opens in a new browser tab.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Link opens in new tab"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "target attribute used correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"https://example.com\" target=\"_blank\">Open</a>",
-          "explanation": "target='_blank' opens a link in a new tab."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with new tab link.",
-      "solutions": [
-        {
-          "title": "New Tab Link",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>New Tab Link</title>\n</head>\n<body>\n    <a href=\"https://www.wikipedia.org\" target=\"_blank\">Open Wikipedia</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use target='_blank' in the anchor tag."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build a Navigation Menu",
-      "content": "Create a simple navigation menu using multiple anchor tags linking to different pages.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Navigation menu displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Multiple links work correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Home | About | Contact",
-          "explanation": "Navigation menus use multiple anchor tags."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Navigation webpage.",
-      "solutions": [
-        {
-          "title": "Navigation Menu",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Navigation Menu</title>\n</head>\n<body>\n    <nav>\n        <a href=\"index.html\">Home</a> |\n        <a href=\"about.html\">About</a> |\n        <a href=\"contact.html\">Contact</a>\n    </nav>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use multiple anchor tags inside a nav section."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Resource Links Page",
-      "content": "Build a webpage containing internal and external resource links, some opening in new tabs.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Resource links displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Internal and external links function properly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Links with mixed navigation behavior",
-          "explanation": "Webpages often contain different link types."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Resource links webpage.",
-      "solutions": [
-        {
-          "title": "Resource Links Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Resources</title>\n</head>\n<body>\n    <h1>Learning Resources</h1>\n\n    <a href=\"tutorial.html\">HTML Tutorial</a><br>\n    <a href=\"https://developer.mozilla.org\" target=\"_blank\">MDN Docs</a><br>\n    <a href=\"https://www.w3schools.com\" target=\"_blank\">W3Schools</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Combine internal and external links."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design Multi-Page Website Navigation",
-      "content": "Create a multi-page website navigation structure with internal links and external social media links opening in new tabs.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Website navigation created"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Internal and external links work properly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Navigation with social links",
-          "explanation": "Modern websites use mixed navigation."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Website navigation webpage.",
-      "solutions": [
-        {
-          "title": "Website Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Website Navigation</title>\n</head>\n<body>\n    <nav>\n        <a href=\"index.html\">Home</a> |\n        <a href=\"services.html\">Services</a> |\n        <a href=\"contact.html\">Contact</a>\n    </nav>\n\n    <h2>Follow Us</h2>\n    <a href=\"https://twitter.com\" target=\"_blank\">Twitter</a><br>\n    <a href=\"https://linkedin.com\" target=\"_blank\">LinkedIn</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use nav for navigation links.",
-        "Open external sites in new tabs."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Educational Portal Navigation",
-      "content": "Create an educational portal homepage with subject links, resource links, and external documentation links opening in new tabs.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Anchor Tags",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Educational portal links displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Navigation organized and functional"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Portal with course and documentation links",
-          "explanation": "Educational sites use organized navigation systems."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Educational portal webpage.",
-      "solutions": [
-        {
-          "title": "Educational Portal",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Educational Portal</title>\n</head>\n<body>\n    <h1>Student Learning Portal</h1>\n\n    <nav>\n        <a href=\"python.html\">Python</a> |\n        <a href=\"html.html\">HTML</a> |\n        <a href=\"css.html\">CSS</a>\n    </nav>\n\n    <h2>External Resources</h2>\n    <a href=\"https://developer.mozilla.org\" target=\"_blank\">MDN Documentation</a><br>\n    <a href=\"https://www.w3schools.com\" target=\"_blank\">W3Schools Tutorials</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Organize navigation links clearly.",
-        "Use target='_blank' for external resources."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Basic Bookmark Link",
-      "content": "Create an HTML page with a bookmark link that jumps to another section of the same page.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Bookmark link navigates to section"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Correct id and href usage"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"#about\">Go to About</a>",
-          "explanation": "Bookmark links navigate within the same page."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with bookmark navigation.",
-      "solutions": [
-        {
-          "title": "Bookmark Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Bookmark Link</title>\n</head>\n<body>\n    <a href=\"#about\">Go to About Section</a>\n\n    <h2 id=\"about\">About Section</h2>\n    <p>This is the about section.</p>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use id attribute for target sections."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Top of Page Navigation",
-      "content": "Build an HTML page with a 'Back to Top' bookmark link.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Back to top link works"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Page navigation scrolls correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"#top\">Back to Top</a>",
-          "explanation": "Bookmark links improve page usability."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with top navigation.",
-      "solutions": [
-        {
-          "title": "Back to Top Link",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Back to Top</title>\n</head>\n<body>\n    <h1 id=\"top\">Welcome</h1>\n\n    <p>Content goes here...</p>\n    <p>More content...</p>\n    <p>Even more content...</p>\n\n    <a href=\"#top\">Back to Top</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Assign an id to the top section."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Multi-Section Navigation",
-      "content": "Create a webpage with links navigating to multiple sections using bookmarks.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multiple section links work"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Each section linked correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Navigation menu with bookmarks",
-          "explanation": "Bookmarks allow quick page navigation."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with section navigation.",
-      "solutions": [
-        {
-          "title": "Section Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Section Navigation</title>\n</head>\n<body>\n    <a href=\"#html\">HTML</a> |\n    <a href=\"#css\">CSS</a> |\n    <a href=\"#js\">JavaScript</a>\n\n    <h2 id=\"html\">HTML</h2>\n    <p>HTML content.</p>\n\n    <h2 id=\"css\">CSS</h2>\n    <p>CSS content.</p>\n\n    <h2 id=\"js\">JavaScript</h2>\n    <p>JavaScript content.</p>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Each bookmark target needs a unique id."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Implement Smooth Scrolling Navigation",
-      "content": "Create a webpage with smooth scrolling behavior for bookmark links using CSS.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Smooth scrolling enabled"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Bookmark links scroll smoothly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Smooth page transition",
-          "explanation": "CSS can enable smooth scrolling."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Smooth scrolling webpage.",
-      "solutions": [
-        {
-          "title": "Smooth Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Smooth Navigation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n    </style>\n</head>\n<body>\n    <a href=\"#section1\">Go to Section 1</a>\n\n    <div style=\"height:500px\"></div>\n\n    <h2 id=\"section1\">Section 1</h2>\n    <p>Smooth scrolling example.</p>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use scroll-behavior: smooth in CSS."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Course Navigation Page",
-      "content": "Create a course webpage with a navigation menu linking to different course topics using bookmarks and smooth scrolling.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Course navigation works"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Smooth transitions between topics"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Navigation menu for lessons",
-          "explanation": "Bookmark links help organize long pages."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Course webpage.",
-      "solutions": [
-        {
-          "title": "Course Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Course Navigation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n    </style>\n</head>\n<body>\n    <nav>\n        <a href=\"#intro\">Introduction</a> |\n        <a href=\"#html\">HTML</a> |\n        <a href=\"#css\">CSS</a>\n    </nav>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"intro\">Introduction</h2>\n    <p>Introduction content.</p>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"html\">HTML</h2>\n    <p>HTML lesson content.</p>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"css\">CSS</h2>\n    <p>CSS lesson content.</p>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Combine bookmark links with smooth scrolling."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design Single Page Portfolio Navigation",
-      "content": "Create a single-page portfolio website with bookmark navigation links and smooth scrolling between sections.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Portfolio navigation created"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "All sections accessible smoothly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Portfolio with About, Skills, Contact navigation",
-          "explanation": "Single-page websites use bookmark navigation."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Portfolio webpage.",
-      "solutions": [
-        {
-          "title": "Portfolio Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Portfolio</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n        section {\n            height: 400px;\n        }\n    </style>\n</head>\n<body>\n    <nav>\n        <a href=\"#about\">About</a> |\n        <a href=\"#skills\">Skills</a> |\n        <a href=\"#contact\">Contact</a>\n    </nav>\n\n    <section id=\"about\">\n        <h2>About Me</h2>\n        <p>Portfolio introduction.</p>\n    </section>\n\n    <section id=\"skills\">\n        <h2>Skills</h2>\n        <p>HTML, CSS, JavaScript</p>\n    </section>\n\n    <section id=\"contact\">\n        <h2>Contact</h2>\n        <p>Email: john@example.com</p>\n    </section>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use section elements with unique ids.",
-        "Enable smooth scrolling in CSS."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Documentation Navigation System",
-      "content": "Create a long documentation webpage with a table of contents using bookmark links and smooth navigation.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Page Navigation",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Documentation navigation works"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Table of contents links navigate correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Documentation with table of contents",
-          "explanation": "Bookmark navigation improves usability for long pages."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Documentation webpage.",
-      "solutions": [
-        {
-          "title": "Documentation Navigation",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n        section {\n            height: 500px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Documentation</h1>\n\n    <h2>Table of Contents</h2>\n    <a href=\"#intro\">Introduction</a><br>\n    <a href=\"#setup\">Setup</a><br>\n    <a href=\"#usage\">Usage</a>\n\n    <section id=\"intro\">\n        <h2>Introduction</h2>\n        <p>Introduction details.</p>\n    </section>\n\n    <section id=\"setup\">\n        <h2>Setup</h2>\n        <p>Setup instructions.</p>\n    </section>\n\n    <section id=\"usage\">\n        <h2>Usage</h2>\n        <p>Usage examples.</p>\n    </section>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Create a table of contents using anchor tags.",
-        "Use smooth scrolling for better experience."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Email Link",
-      "content": "Create an HTML page containing a clickable email link using the mailto: protocol.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Email link displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Clicking opens email application"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"mailto:test@example.com\">Send Email</a>",
-          "explanation": "mailto: creates a clickable email link."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with email link.",
-      "solutions": [
-        {
-          "title": "Email Link Example",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Email Link</title>\n</head>\n<body>\n    <a href=\"mailto:john@example.com\">Send Email</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use mailto: inside the href attribute."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Phone Call Link",
-      "content": "Build an HTML page containing a clickable phone number using the tel: protocol.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Phone link displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Phone dialer opens on click"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<a href=\"tel:+911234567890\">Call Now</a>",
-          "explanation": "tel: creates clickable phone links."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with phone link.",
-      "solutions": [
-        {
-          "title": "Phone Link Example",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Phone Link</title>\n</head>\n<body>\n    <a href=\"tel:+919876543210\">Call Us</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use tel: inside the href attribute."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Contact Information Links",
-      "content": "Create an HTML page displaying both an email link and a phone link.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Email and phone links displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Both links function correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Clickable email and phone links",
-          "explanation": "Contact pages often use mailto and tel links."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML contact page.",
-      "solutions": [
-        {
-          "title": "Contact Links",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Contact Info</title>\n</head>\n<body>\n    <h1>Contact Us</h1>\n    <a href=\"mailto:support@example.com\">Email Support</a><br>\n    <a href=\"tel:+911234567890\">Call Support</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use separate anchor tags for email and phone."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Customer Support Page",
-      "content": "Create a customer support webpage with multiple email and phone contact links.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Support page displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "All email and phone links work"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Support page with multiple contacts",
-          "explanation": "Support pages provide different contact options."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Customer support webpage.",
-      "solutions": [
-        {
-          "title": "Support Contact Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Customer Support</title>\n</head>\n<body>\n    <h1>Customer Support</h1>\n\n    <h2>Email Contacts</h2>\n    <a href=\"mailto:billing@example.com\">Billing Support</a><br>\n    <a href=\"mailto:technical@example.com\">Technical Support</a>\n\n    <h2>Phone Contacts</h2>\n    <a href=\"tel:+911111111111\">Sales Team</a><br>\n    <a href=\"tel:+922222222222\">Help Desk</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Organize contact information into sections."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create Business Contact Card",
-      "content": "Build a business contact card webpage using clickable email and phone links with proper formatting.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Business card displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Contact links formatted correctly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Digital business contact card",
-          "explanation": "Business cards often use clickable contact details."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Business contact card webpage.",
-      "solutions": [
-        {
-          "title": "Business Contact Card",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Business Card</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Web Developer</p>\n\n    <a href=\"mailto:john@example.com\">john@example.com</a><br>\n    <a href=\"tel:+919876543210\">+91 9876543210</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use proper formatting for contact information."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design Company Contact Portal",
-      "content": "Create a company contact portal with departments having separate email and phone links.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "practice",
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Company contact portal created"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Department contact links function properly"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Portal with department contacts",
-          "explanation": "Large companies organize contacts by department."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Company contact webpage.",
-      "solutions": [
-        {
-          "title": "Company Contact Portal",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Company Contacts</title>\n</head>\n<body>\n    <h1>Company Contact Portal</h1>\n\n    <h2>HR Department</h2>\n    <a href=\"mailto:hr@example.com\">hr@example.com</a><br>\n    <a href=\"tel:+911234567890\">+91 1234567890</a>\n\n    <h2>Technical Support</h2>\n    <a href=\"mailto:support@example.com\">support@example.com</a><br>\n    <a href=\"tel:+919876543210\">+91 9876543210</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Group contacts department-wise.",
-        "Use separate links for each department."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build Emergency Contact System",
-      "content": "Create an emergency contact webpage with multiple emergency phone numbers and support email links.",
-      "level": "subtopic",
-      "unit_name": "Links & Navigation",
-      "subunit_name": "Email & Phone Links",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Emergency contact system displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "All emergency links accessible"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Emergency phone and email contacts",
-          "explanation": "Emergency systems need quick clickable access."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Emergency contact webpage.",
-      "solutions": [
-        {
-          "title": "Emergency Contact System",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Emergency Contacts</title>\n</head>\n<body>\n    <h1>Emergency Contacts</h1>\n\n    <h2>Police</h2>\n    <a href=\"tel:100\">Call Police</a>\n\n    <h2>Ambulance</h2>\n    <a href=\"tel:108\">Call Ambulance</a>\n\n    <h2>Support Email</h2>\n    <a href=\"mailto:help@example.com\">Email Support</a>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use tel links for emergency numbers.",
-        "Keep contact links clearly visible."
-      ]
-    }
-  ]
+    "name": "Links & Navigation",
+    "subject_short_code": "HTMLCSS100",
+    "order_index": 2,
+    "sub_units": [
+        {
+            "name": "Anchor Tags",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Anchor Tags",
+                    "video_link": "https://www.youtube.com/results?search_query=Anchor+Tags+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Anchor Tags in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Anchor Tags Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Anchor+Tags+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Anchor Tags."
+                }
+            ]
+        },
+        {
+            "name": "Page Navigation",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to Page Navigation",
+                    "video_link": "https://www.youtube.com/results?search_query=Page+Navigation+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Page Navigation in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Page Navigation Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Page+Navigation+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Page Navigation."
+                }
+            ]
+        },
+        {
+            "name": "Email & Phone Links",
+            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Introduction to Email & Phone Links",
+                    "video_link": "https://www.youtube.com/results?search_query=Email+%26+Phone+Links+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Email & Phone Links in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Email & Phone Links Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Email+%26+Phone+Links+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Email & Phone Links."
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Anchor Tag Purpose",
+            "content": "Which HTML tag is used to create hyperlinks?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<link>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<href>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<nav>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "External Link Example",
+            "content": "Which attribute specifies the destination URL of an anchor tag?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "href",
+                    "is_correct": true
+                },
+                {
+                    "text": "src",
+                    "is_correct": false
+                },
+                {
+                    "text": "alt",
+                    "is_correct": false
+                },
+                {
+                    "text": "target",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Internal Links",
+            "content": "What is an internal link in HTML?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "A link that connects pages within the same website",
+                    "is_correct": true
+                },
+                {
+                    "text": "A link to another website",
+                    "is_correct": false
+                },
+                {
+                    "text": "A hidden link",
+                    "is_correct": false
+                },
+                {
+                    "text": "A database connection",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Opening in New Tab",
+            "content": "Which target value opens a link in a new browser tab?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "_blank",
+                    "is_correct": true
+                },
+                {
+                    "text": "_self",
+                    "is_correct": false
+                },
+                {
+                    "text": "_top",
+                    "is_correct": false
+                },
+                {
+                    "text": "_parent",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Relative Path",
+            "content": "Which type of link is commonly used for internal website navigation?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Relative URL",
+                    "is_correct": true
+                },
+                {
+                    "text": "Absolute URL only",
+                    "is_correct": false
+                },
+                {
+                    "text": "FTP link",
+                    "is_correct": false
+                },
+                {
+                    "text": "mailto link",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Security Best Practice",
+            "content": "Why is rel=\"noopener\" often used with target=\"_blank\"?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To improve security and prevent access to the original page",
+                    "is_correct": true
+                },
+                {
+                    "text": "To make links load faster",
+                    "is_correct": false
+                },
+                {
+                    "text": "To disable hyperlinks",
+                    "is_correct": false
+                },
+                {
+                    "text": "To apply CSS styles",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Anchor Tag Syntax",
+            "content": "Which HTML snippet correctly creates a link to https://example.com?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a href=\"https://example.com\">Visit</a>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<a src=\"https://example.com\">Visit</a>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<link href=\"https://example.com\">Visit</link>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<href>https://example.com</href>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bookmark Link Purpose",
+            "content": "What is a bookmark link in HTML mainly used for?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To jump to a specific section on a webpage",
+                    "is_correct": true
+                },
+                {
+                    "text": "To download files",
+                    "is_correct": false
+                },
+                {
+                    "text": "To style navigation menus",
+                    "is_correct": false
+                },
+                {
+                    "text": "To connect databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "ID Attribute Usage",
+            "content": "Which attribute is commonly used to create bookmark targets in HTML?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "id",
+                    "is_correct": true
+                },
+                {
+                    "text": "class",
+                    "is_correct": false
+                },
+                {
+                    "text": "style",
+                    "is_correct": false
+                },
+                {
+                    "text": "target",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bookmark Link Syntax",
+            "content": "Which symbol is used before an ID in a bookmark link?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "#",
+                    "is_correct": true
+                },
+                {
+                    "text": "@",
+                    "is_correct": false
+                },
+                {
+                    "text": "&",
+                    "is_correct": false
+                },
+                {
+                    "text": "$",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Smooth Scrolling",
+            "content": "What is the purpose of smooth navigation or smooth scrolling?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To create a visually smooth transition between sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "To increase internet speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "To compress HTML files",
+                    "is_correct": false
+                },
+                {
+                    "text": "To remove page content",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Bookmark Navigation Example",
+            "content": "Which HTML snippet correctly links to a section with id=\"about\"?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a href=\"#about\">About</a>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<a id=\"about\">About</a>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<link href=\"about\">About</link>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<a src=\"#about\">About</a>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Duplicate IDs Issue",
+            "content": "Why should IDs used for bookmark links be unique?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Duplicate IDs can cause incorrect navigation behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "IDs are automatically deleted otherwise",
+                    "is_correct": false
+                },
+                {
+                    "text": "Duplicate IDs improve performance",
+                    "is_correct": false
+                },
+                {
+                    "text": "Browsers do not support unique IDs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Smooth Scroll CSS",
+            "content": "Which CSS property is commonly used to enable smooth scrolling behavior?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "scroll-behavior: smooth;",
+                    "is_correct": true
+                },
+                {
+                    "text": "navigation: smooth;",
+                    "is_correct": false
+                },
+                {
+                    "text": "transition: scroll;",
+                    "is_correct": false
+                },
+                {
+                    "text": "animation: smooth-scroll;",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "mailto Purpose",
+            "content": "What is the purpose of the mailto: link in HTML?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To open the user's email application",
+                    "is_correct": true
+                },
+                {
+                    "text": "To make phone calls",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create bookmarks",
+                    "is_correct": false
+                },
+                {
+                    "text": "To connect databases",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Phone Link Protocol",
+            "content": "Which protocol is used to create clickable phone number links in HTML?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "tel:",
+                    "is_correct": true
+                },
+                {
+                    "text": "call:",
+                    "is_correct": false
+                },
+                {
+                    "text": "phone:",
+                    "is_correct": false
+                },
+                {
+                    "text": "mobile:",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Email Link Example",
+            "content": "Which HTML snippet correctly creates an email link?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a href=\"mailto:test@example.com\">Email Us</a>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<a mailto=\"test@example.com\">Email Us</a>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<email href=\"test@example.com\">Email Us</email>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<a src=\"mailto:test@example.com\">Email Us</a>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Phone Link Behavior",
+            "content": "What usually happens when a user clicks a tel: link on a mobile device?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It opens the phone dialer with the number",
+                    "is_correct": true
+                },
+                {
+                    "text": "It opens the email application",
+                    "is_correct": false
+                },
+                {
+                    "text": "It downloads a contact file",
+                    "is_correct": false
+                },
+                {
+                    "text": "It refreshes the webpage",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Adding Email Subject",
+            "content": "How can you prefill an email subject in a mailto: link?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using ?subject= in the URL",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using #subject=",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using &title=",
+                    "is_correct": false
+                },
+                {
+                    "text": "Using mail-subject=",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Accessibility Consideration",
+            "content": "Why should descriptive text be used for email and phone links?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It improves accessibility and user understanding",
+                    "is_correct": true
+                },
+                {
+                    "text": "It increases internet speed",
+                    "is_correct": false
+                },
+                {
+                    "text": "It hides the link destination",
+                    "is_correct": false
+                },
+                {
+                    "text": "It automatically validates phone numbers",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Valid Telephone Link",
+            "content": "Which HTML snippet correctly creates a clickable phone link?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a href=\"tel:+1234567890\">Call Us</a>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<a phone=\"+1234567890\">Call Us</a>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<tel href=\"+1234567890\">Call Us</tel>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<a src=\"tel:+1234567890\">Call Us</a>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Anchor Tag Basics",
+            "content": "Which of the following statements about anchor tags are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<a> tag is used to create hyperlinks",
+                    "is_correct": true
+                },
+                {
+                    "text": "href attribute specifies the link destination",
+                    "is_correct": true
+                },
+                {
+                    "text": "<a> tag cannot link to another webpage",
+                    "is_correct": false
+                },
+                {
+                    "text": "Anchor tags can contain text or images",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Internal Links",
+            "content": "Which of the following statements about internal links are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Internal links connect pages within the same website",
+                    "is_correct": true
+                },
+                {
+                    "text": "Relative paths are commonly used for internal links",
+                    "is_correct": true
+                },
+                {
+                    "text": "Internal links always require full URLs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Internal navigation improves user experience",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "External Links",
+            "content": "Which of the following statements about external links are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "External links point to other websites",
+                    "is_correct": true
+                },
+                {
+                    "text": "External links usually use absolute URLs",
+                    "is_correct": true
+                },
+                {
+                    "text": "External links cannot open in a new tab",
+                    "is_correct": false
+                },
+                {
+                    "text": "Users can navigate to different domains using external links",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Opening Links in New Tabs",
+            "content": "Which of the following statements about opening links in new tabs are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "target=\"_blank\" opens links in a new tab",
+                    "is_correct": true
+                },
+                {
+                    "text": "Opening external links in new tabs can improve user convenience",
+                    "is_correct": true
+                },
+                {
+                    "text": "target=\"_self\" opens links in a new tab",
+                    "is_correct": false
+                },
+                {
+                    "text": "rel=\"noopener\" can improve security for new tabs",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Anchor Tag Attributes",
+            "content": "Which of the following statements about anchor tag attributes are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "href defines the destination URL",
+                    "is_correct": true
+                },
+                {
+                    "text": "target controls where the link opens",
+                    "is_correct": true
+                },
+                {
+                    "text": "Anchor tags cannot contain attributes",
+                    "is_correct": false
+                },
+                {
+                    "text": "title attribute can provide additional information about a link",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Linking Concepts",
+            "content": "Which of the following statements about advanced linking concepts are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Anchor tags can link to sections within the same page using IDs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Broken links negatively affect user experience",
+                    "is_correct": true
+                },
+                {
+                    "text": "Anchor tags only work with text content",
+                    "is_correct": false
+                },
+                {
+                    "text": "Semantic linking improves accessibility and SEO",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Navigation",
+            "content": "Which of the following are best practices for using anchor tags?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use descriptive link text for accessibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use relative paths for internal navigation when appropriate",
+                    "is_correct": true
+                },
+                {
+                    "text": "Open every link in a new tab by default",
+                    "is_correct": false
+                },
+                {
+                    "text": "Check links regularly to avoid broken navigation",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Bookmark Links Basics",
+            "content": "Which of the following statements about bookmark links are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Bookmark links help navigate within the same webpage",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bookmark links use element IDs",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bookmark links require JavaScript to work",
+                    "is_correct": false
+                },
+                {
+                    "text": "Anchor tags are used for bookmark navigation",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Using IDs for Navigation",
+            "content": "Which of the following statements about IDs in page navigation are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "The href attribute can point to an ID using #",
+                    "is_correct": true
+                },
+                {
+                    "text": "Each ID should be unique within a page",
+                    "is_correct": true
+                },
+                {
+                    "text": "IDs can only be used with paragraphs",
+                    "is_correct": false
+                },
+                {
+                    "text": "Bookmark links improve long-page navigation",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Smooth Navigation Basics",
+            "content": "Which of the following statements about smooth navigation are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Smooth scrolling creates animated page movement",
+                    "is_correct": true
+                },
+                {
+                    "text": "CSS can be used to enable smooth scrolling",
+                    "is_correct": true
+                },
+                {
+                    "text": "Smooth navigation changes webpage content automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Smooth scrolling improves user experience",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Navigation Behavior",
+            "content": "Which of the following statements about page navigation behavior are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Bookmark links jump to specific sections of a page",
+                    "is_correct": true
+                },
+                {
+                    "text": "Smooth scrolling can be controlled using CSS property scroll-behavior",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bookmark navigation only works between different websites",
+                    "is_correct": false
+                },
+                {
+                    "text": "Navigation links can improve accessibility",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Navigation and User Experience",
+            "content": "Which of the following statements about navigation and user experience are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Clear navigation helps users find content faster",
+                    "is_correct": true
+                },
+                {
+                    "text": "Smooth navigation is useful for single-page websites",
+                    "is_correct": true
+                },
+                {
+                    "text": "Navigation structure does not affect usability",
+                    "is_correct": false
+                },
+                {
+                    "text": "Bookmark links reduce excessive scrolling",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Page Navigation Concepts",
+            "content": "Which of the following statements about advanced page navigation concepts are correct?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "JavaScript can enhance smooth scrolling effects",
+                    "is_correct": true
+                },
+                {
+                    "text": "Deep linking allows direct access to specific sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "Bookmark links negatively impact SEO",
+                    "is_correct": false
+                },
+                {
+                    "text": "Accessible navigation benefits keyboard and screen-reader users",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Page Navigation",
+            "content": "Which of the following are best practices for page navigation?",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use meaningful IDs for sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "Provide clear navigation labels",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid navigation links on long pages",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use smooth scrolling carefully for better usability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Create an External Website Link",
+            "content": "Create an HTML page with an anchor tag linking to an external website.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "External link displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Link opens correct external website"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"https://example.com\">Visit Website</a>",
+                    "explanation": "Anchor tags create clickable links."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with external link.",
+            "solutions": [
+                {
+                    "title": "External Link Example",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>External Link</title>\n</head>\n<body>\n    <a href=\"https://www.google.com\">Visit Google</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use the href attribute inside the anchor tag."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Internal Page Link",
+            "content": "Create an HTML page containing a link to another HTML page within the same project.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Internal link created"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Internal HTML file linked correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"about.html\">About</a>",
+                    "explanation": "Internal links connect pages within a website."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with internal link.",
+            "solutions": [
+                {
+                    "title": "Internal Link Example",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Internal Link</title>\n</head>\n<body>\n    <a href=\"about.html\">Go to About Page</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use the file name inside href for internal links."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Open Link in New Tab",
+            "content": "Create an HTML page with a link that opens in a new browser tab.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Link opens in new tab"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "target attribute used correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"https://example.com\" target=\"_blank\">Open</a>",
+                    "explanation": "target='_blank' opens a link in a new tab."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with new tab link.",
+            "solutions": [
+                {
+                    "title": "New Tab Link",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>New Tab Link</title>\n</head>\n<body>\n    <a href=\"https://www.wikipedia.org\" target=\"_blank\">Open Wikipedia</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use target='_blank' in the anchor tag."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build a Navigation Menu",
+            "content": "Create a simple navigation menu using multiple anchor tags linking to different pages.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation menu displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple links work correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Home | About | Contact",
+                    "explanation": "Navigation menus use multiple anchor tags."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Navigation webpage.",
+            "solutions": [
+                {
+                    "title": "Navigation Menu",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Navigation Menu</title>\n</head>\n<body>\n    <nav>\n        <a href=\"index.html\">Home</a> |\n        <a href=\"about.html\">About</a> |\n        <a href=\"contact.html\">Contact</a>\n    </nav>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use multiple anchor tags inside a nav section."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Resource Links Page",
+            "content": "Build a webpage containing internal and external resource links, some opening in new tabs.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Resource links displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Internal and external links function properly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Links with mixed navigation behavior",
+                    "explanation": "Webpages often contain different link types."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Resource links webpage.",
+            "solutions": [
+                {
+                    "title": "Resource Links Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Resources</title>\n</head>\n<body>\n    <h1>Learning Resources</h1>\n\n    <a href=\"tutorial.html\">HTML Tutorial</a><br>\n    <a href=\"https://developer.mozilla.org\" target=\"_blank\">MDN Docs</a><br>\n    <a href=\"https://www.w3schools.com\" target=\"_blank\">W3Schools</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Combine internal and external links."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design Multi-Page Website Navigation",
+            "content": "Create a multi-page website navigation structure with internal links and external social media links opening in new tabs.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Website navigation created"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Internal and external links work properly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation with social links",
+                    "explanation": "Modern websites use mixed navigation."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Website navigation webpage.",
+            "solutions": [
+                {
+                    "title": "Website Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Website Navigation</title>\n</head>\n<body>\n    <nav>\n        <a href=\"index.html\">Home</a> |\n        <a href=\"services.html\">Services</a> |\n        <a href=\"contact.html\">Contact</a>\n    </nav>\n\n    <h2>Follow Us</h2>\n    <a href=\"https://twitter.com\" target=\"_blank\">Twitter</a><br>\n    <a href=\"https://linkedin.com\" target=\"_blank\">LinkedIn</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use nav for navigation links.",
+                "Open external sites in new tabs."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Educational Portal Navigation",
+            "content": "Create an educational portal homepage with subject links, resource links, and external documentation links opening in new tabs.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Anchor Tags",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Educational portal links displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation organized and functional"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Portal with course and documentation links",
+                    "explanation": "Educational sites use organized navigation systems."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Educational portal webpage.",
+            "solutions": [
+                {
+                    "title": "Educational Portal",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Educational Portal</title>\n</head>\n<body>\n    <h1>Student Learning Portal</h1>\n\n    <nav>\n        <a href=\"python.html\">Python</a> |\n        <a href=\"html.html\">HTML</a> |\n        <a href=\"css.html\">CSS</a>\n    </nav>\n\n    <h2>External Resources</h2>\n    <a href=\"https://developer.mozilla.org\" target=\"_blank\">MDN Documentation</a><br>\n    <a href=\"https://www.w3schools.com\" target=\"_blank\">W3Schools Tutorials</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Organize navigation links clearly.",
+                "Use target='_blank' for external resources."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Basic Bookmark Link",
+            "content": "Create an HTML page with a bookmark link that jumps to another section of the same page.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Bookmark link navigates to section"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Correct id and href usage"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"#about\">Go to About</a>",
+                    "explanation": "Bookmark links navigate within the same page."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with bookmark navigation.",
+            "solutions": [
+                {
+                    "title": "Bookmark Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Bookmark Link</title>\n</head>\n<body>\n    <a href=\"#about\">Go to About Section</a>\n\n    <h2 id=\"about\">About Section</h2>\n    <p>This is the about section.</p>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use id attribute for target sections."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Top of Page Navigation",
+            "content": "Build an HTML page with a 'Back to Top' bookmark link.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Back to top link works"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Page navigation scrolls correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"#top\">Back to Top</a>",
+                    "explanation": "Bookmark links improve page usability."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with top navigation.",
+            "solutions": [
+                {
+                    "title": "Back to Top Link",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Back to Top</title>\n</head>\n<body>\n    <h1 id=\"top\">Welcome</h1>\n\n    <p>Content goes here...</p>\n    <p>More content...</p>\n    <p>Even more content...</p>\n\n    <a href=\"#top\">Back to Top</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Assign an id to the top section."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Multi-Section Navigation",
+            "content": "Create a webpage with links navigating to multiple sections using bookmarks.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple section links work"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Each section linked correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation menu with bookmarks",
+                    "explanation": "Bookmarks allow quick page navigation."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with section navigation.",
+            "solutions": [
+                {
+                    "title": "Section Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Section Navigation</title>\n</head>\n<body>\n    <a href=\"#html\">HTML</a> |\n    <a href=\"#css\">CSS</a> |\n    <a href=\"#js\">JavaScript</a>\n\n    <h2 id=\"html\">HTML</h2>\n    <p>HTML content.</p>\n\n    <h2 id=\"css\">CSS</h2>\n    <p>CSS content.</p>\n\n    <h2 id=\"js\">JavaScript</h2>\n    <p>JavaScript content.</p>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Each bookmark target needs a unique id."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Implement Smooth Scrolling Navigation",
+            "content": "Create a webpage with smooth scrolling behavior for bookmark links using CSS.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Smooth scrolling enabled"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Bookmark links scroll smoothly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Smooth page transition",
+                    "explanation": "CSS can enable smooth scrolling."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Smooth scrolling webpage.",
+            "solutions": [
+                {
+                    "title": "Smooth Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Smooth Navigation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n    </style>\n</head>\n<body>\n    <a href=\"#section1\">Go to Section 1</a>\n\n    <div style=\"height:500px\"></div>\n\n    <h2 id=\"section1\">Section 1</h2>\n    <p>Smooth scrolling example.</p>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use scroll-behavior: smooth in CSS."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Course Navigation Page",
+            "content": "Create a course webpage with a navigation menu linking to different course topics using bookmarks and smooth scrolling.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Course navigation works"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Smooth transitions between topics"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation menu for lessons",
+                    "explanation": "Bookmark links help organize long pages."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Course webpage.",
+            "solutions": [
+                {
+                    "title": "Course Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Course Navigation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n    </style>\n</head>\n<body>\n    <nav>\n        <a href=\"#intro\">Introduction</a> |\n        <a href=\"#html\">HTML</a> |\n        <a href=\"#css\">CSS</a>\n    </nav>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"intro\">Introduction</h2>\n    <p>Introduction content.</p>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"html\">HTML</h2>\n    <p>HTML lesson content.</p>\n\n    <div style=\"height:300px\"></div>\n\n    <h2 id=\"css\">CSS</h2>\n    <p>CSS lesson content.</p>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Combine bookmark links with smooth scrolling."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design Single Page Portfolio Navigation",
+            "content": "Create a single-page portfolio website with bookmark navigation links and smooth scrolling between sections.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Portfolio navigation created"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "All sections accessible smoothly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Portfolio with About, Skills, Contact navigation",
+                    "explanation": "Single-page websites use bookmark navigation."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Portfolio webpage.",
+            "solutions": [
+                {
+                    "title": "Portfolio Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Portfolio</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n        section {\n            height: 400px;\n        }\n    </style>\n</head>\n<body>\n    <nav>\n        <a href=\"#about\">About</a> |\n        <a href=\"#skills\">Skills</a> |\n        <a href=\"#contact\">Contact</a>\n    </nav>\n\n    <section id=\"about\">\n        <h2>About Me</h2>\n        <p>Portfolio introduction.</p>\n    </section>\n\n    <section id=\"skills\">\n        <h2>Skills</h2>\n        <p>HTML, CSS, JavaScript</p>\n    </section>\n\n    <section id=\"contact\">\n        <h2>Contact</h2>\n        <p>Email: john@example.com</p>\n    </section>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use section elements with unique ids.",
+                "Enable smooth scrolling in CSS."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Documentation Navigation System",
+            "content": "Create a long documentation webpage with a table of contents using bookmark links and smooth navigation.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Page Navigation",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Documentation navigation works"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Table of contents links navigate correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Documentation with table of contents",
+                    "explanation": "Bookmark navigation improves usability for long pages."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Documentation webpage.",
+            "solutions": [
+                {
+                    "title": "Documentation Navigation",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Documentation</title>\n    <style>\n        html {\n            scroll-behavior: smooth;\n        }\n        section {\n            height: 500px;\n        }\n    </style>\n</head>\n<body>\n    <h1>Documentation</h1>\n\n    <h2>Table of Contents</h2>\n    <a href=\"#intro\">Introduction</a><br>\n    <a href=\"#setup\">Setup</a><br>\n    <a href=\"#usage\">Usage</a>\n\n    <section id=\"intro\">\n        <h2>Introduction</h2>\n        <p>Introduction details.</p>\n    </section>\n\n    <section id=\"setup\">\n        <h2>Setup</h2>\n        <p>Setup instructions.</p>\n    </section>\n\n    <section id=\"usage\">\n        <h2>Usage</h2>\n        <p>Usage examples.</p>\n    </section>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Create a table of contents using anchor tags.",
+                "Use smooth scrolling for better experience."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Email Link",
+            "content": "Create an HTML page containing a clickable email link using the mailto: protocol.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Email link displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Clicking opens email application"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"mailto:test@example.com\">Send Email</a>",
+                    "explanation": "mailto: creates a clickable email link."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with email link.",
+            "solutions": [
+                {
+                    "title": "Email Link Example",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Email Link</title>\n</head>\n<body>\n    <a href=\"mailto:john@example.com\">Send Email</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use mailto: inside the href attribute."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Phone Call Link",
+            "content": "Build an HTML page containing a clickable phone number using the tel: protocol.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Phone link displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Phone dialer opens on click"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<a href=\"tel:+911234567890\">Call Now</a>",
+                    "explanation": "tel: creates clickable phone links."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with phone link.",
+            "solutions": [
+                {
+                    "title": "Phone Link Example",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Phone Link</title>\n</head>\n<body>\n    <a href=\"tel:+919876543210\">Call Us</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use tel: inside the href attribute."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Contact Information Links",
+            "content": "Create an HTML page displaying both an email link and a phone link.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Email and phone links displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Both links function correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Clickable email and phone links",
+                    "explanation": "Contact pages often use mailto and tel links."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML contact page.",
+            "solutions": [
+                {
+                    "title": "Contact Links",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Contact Info</title>\n</head>\n<body>\n    <h1>Contact Us</h1>\n    <a href=\"mailto:support@example.com\">Email Support</a><br>\n    <a href=\"tel:+911234567890\">Call Support</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use separate anchor tags for email and phone."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Customer Support Page",
+            "content": "Create a customer support webpage with multiple email and phone contact links.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Support page displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "All email and phone links work"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Support page with multiple contacts",
+                    "explanation": "Support pages provide different contact options."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Customer support webpage.",
+            "solutions": [
+                {
+                    "title": "Support Contact Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Customer Support</title>\n</head>\n<body>\n    <h1>Customer Support</h1>\n\n    <h2>Email Contacts</h2>\n    <a href=\"mailto:billing@example.com\">Billing Support</a><br>\n    <a href=\"mailto:technical@example.com\">Technical Support</a>\n\n    <h2>Phone Contacts</h2>\n    <a href=\"tel:+911111111111\">Sales Team</a><br>\n    <a href=\"tel:+922222222222\">Help Desk</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Organize contact information into sections."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create Business Contact Card",
+            "content": "Build a business contact card webpage using clickable email and phone links with proper formatting.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Business card displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Contact links formatted correctly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Digital business contact card",
+                    "explanation": "Business cards often use clickable contact details."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Business contact card webpage.",
+            "solutions": [
+                {
+                    "title": "Business Contact Card",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Business Card</title>\n</head>\n<body>\n    <h1>John Doe</h1>\n    <p>Web Developer</p>\n\n    <a href=\"mailto:john@example.com\">john@example.com</a><br>\n    <a href=\"tel:+919876543210\">+91 9876543210</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use proper formatting for contact information."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design Company Contact Portal",
+            "content": "Create a company contact portal with departments having separate email and phone links.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Company contact portal created"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Department contact links function properly"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Portal with department contacts",
+                    "explanation": "Large companies organize contacts by department."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Company contact webpage.",
+            "solutions": [
+                {
+                    "title": "Company Contact Portal",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Company Contacts</title>\n</head>\n<body>\n    <h1>Company Contact Portal</h1>\n\n    <h2>HR Department</h2>\n    <a href=\"mailto:hr@example.com\">hr@example.com</a><br>\n    <a href=\"tel:+911234567890\">+91 1234567890</a>\n\n    <h2>Technical Support</h2>\n    <a href=\"mailto:support@example.com\">support@example.com</a><br>\n    <a href=\"tel:+919876543210\">+91 9876543210</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Group contacts department-wise.",
+                "Use separate links for each department."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build Emergency Contact System",
+            "content": "Create an emergency contact webpage with multiple emergency phone numbers and support email links.",
+            "level": "subtopic",
+            "unit_name": "Links & Navigation",
+            "subunit_name": "Email & Phone Links",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Emergency contact system displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "All emergency links accessible"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Emergency phone and email contacts",
+                    "explanation": "Emergency systems need quick clickable access."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Emergency contact webpage.",
+            "solutions": [
+                {
+                    "title": "Emergency Contact System",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Emergency Contacts</title>\n</head>\n<body>\n    <h1>Emergency Contacts</h1>\n\n    <h2>Police</h2>\n    <a href=\"tel:100\">Call Police</a>\n\n    <h2>Ambulance</h2>\n    <a href=\"tel:108\">Call Ambulance</a>\n\n    <h2>Support Email</h2>\n    <a href=\"mailto:help@example.com\">Email Support</a>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use tel links for emergency numbers.",
+                "Keep contact links clearly visible."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        }
+    ]
 }

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import SolutionViewer from '@/components/student/skill-test/SolutionViewer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -448,7 +448,11 @@ const TestResults: React.FC<TestResultsProps> = ({
                             {q.mcq_options && (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {q.mcq_options.map((opt: any, optIdx: number) => {
-                                  const isSelected = opt.text === q.answer_data?.answer;
+                                  const optText = opt.text || opt.option_text || '';
+                                  const rawAns = q.answer_data?.answer !== undefined ? q.answer_data.answer : q.answer_data;
+                                  const isSelected = Array.isArray(rawAns)
+                                    ? rawAns.some((ans: any) => String(ans).trim() === String(optText).trim())
+                                    : String(rawAns || '').trim() === String(optText).trim();
                                   const isOptCorrect = opt.is_correct;
 
                                   let style = "border-gray-200 bg-white text-gray-600";
@@ -457,7 +461,7 @@ const TestResults: React.FC<TestResultsProps> = ({
 
                                   return (
                                     <div key={optIdx} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
-                                      <span>{opt.text}</span>
+                                      <span>{optText}</span>
                                       {isOptCorrect && <CheckCircle className="h-4 w-4 text-green-600" />}
                                       {isSelected && !isOptCorrect && <XCircle className="h-4 w-4 text-red-600" />}
                                     </div>

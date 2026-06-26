@@ -9,6 +9,7 @@ import StatusBadge from '@/components/common/StatusBadge';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import SearchBar from '@/components/common/SearchBar';
 import { mockInterviewService } from '@/services/mockInterviewService';
+import { aiMockInterviewService } from '@/services/aiMockInterviewService';
 import { StatsCard } from '@/components/common/StatsCard';
 import { DataTable, Column } from '@/components/common/DataTable';
 import DetailHeader from '@/components/common/DetailHeader';
@@ -84,6 +85,7 @@ function mapMockInterviewFromBackend(c: any): MockInterviewUI {
 
 export default function MockInterviewPage() {
   const [mockInterviews, setMockInterviews] = useState<MockInterviewUI[]>([]);
+  const [customSubmissions, setCustomSubmissions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
   const [currentView, setCurrentView] = useState<'list' | 'view'>('list');
@@ -96,6 +98,11 @@ export default function MockInterviewPage() {
       if (Array.isArray(data)) {
         const mapped = data.map(mapMockInterviewFromBackend);
         setMockInterviews(mapped);
+      }
+      
+      const customData = await aiMockInterviewService.getCustomSubmissions();
+      if (Array.isArray(customData)) {
+        setCustomSubmissions(customData);
       }
     } catch (err) {
       console.error('Failed to fetch mock interviews:', err);
@@ -146,6 +153,15 @@ export default function MockInterviewPage() {
     const matchesTab = selectedTab === 'all' || status === selectedTab;
 
     return matchesSearch && matchesTab;
+  });
+
+  const filteredCustomSubmissions = customSubmissions.filter(sub => {
+    const q = (searchQuery || '').toString().trim().toLowerCase();
+    return !q || [
+      sub.user_name,
+      sub.user_email,
+      sub.mock_interview_title
+    ].some(field => (field || '').toString().toLowerCase().includes(q));
   });
 
 
@@ -276,6 +292,56 @@ export default function MockInterviewPage() {
     }
   ];
 
+  const customColumns: Column<any>[] = [
+    {
+      header: 'Candidate',
+      cell: (sub) => (
+        <div className="text-left">
+          <div className="font-medium text-gray-900">{sub.user_name || sub.user_email?.split('@')[0] || 'Unknown'}</div>
+          <div className="text-xs text-gray-500 truncate max-w-[200px]">{sub.user_email || 'No email'}</div>
+        </div>
+      )
+    },
+    {
+      header: 'Role',
+      cell: (sub) => (
+        <div className="text-left">
+          <div className="font-medium text-gray-900 truncate max-w-[200px]">{sub.mock_interview_title || 'JD & Resume Interview'}</div>
+          <div className="text-xs text-gray-500 capitalize">{sub.experience_level?.replace(/_/g, ' ') || 'Unknown'}</div>
+        </div>
+      )
+    },
+    {
+      header: 'Status',
+      cell: (sub) => <StatusBadge status={sub.status} />
+    },
+    {
+      header: 'Score',
+      cell: (sub) => sub.marks != null ? `${sub.marks}/100` : '-'
+    },
+    {
+      header: 'Date',
+      cell: (sub) => new Date(sub.started_at || sub.created_at).toLocaleDateString()
+    },
+    {
+      header: 'Actions',
+      className: 'text-right',
+      cell: (sub) => (
+        <div className="flex justify-end gap-2">
+          {sub.id && (
+            <button
+              onClick={() => navigate(`/instructor/mock-interview/reports/${sub.id}`)}
+              className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+              title="View Report"
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )
+    }
+  ];
+
   return (
     <DashboardLayout
       title={getHeaderTitle()}
@@ -317,9 +383,10 @@ export default function MockInterviewPage() {
               <div className="flex w-full items-center gap-4 h-12">
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
                   <TabsList className="inline-flex w-auto gap-1">
-                    <TabsTrigger value="all" className="px-6">All</TabsTrigger>
-                    <TabsTrigger value="active" className="px-6">Active</TabsTrigger>
-                    <TabsTrigger value="draft" className="px-6">Draft</TabsTrigger>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="active">Active</TabsTrigger>
+                    <TabsTrigger value="draft">Draft</TabsTrigger>
+                    <TabsTrigger value="custom">JD & Resume</TabsTrigger>
                   </TabsList>
                 </Tabs>
 
@@ -452,7 +519,7 @@ export default function MockInterviewPage() {
           </div>
         )}
 
-        {currentView === 'list' && (
+        {currentView === 'list' && selectedTab !== 'custom' && (
           <DataTable
             title="Mock Interviews"
             description={`${filteredMockInterviews.length} interview(s) found`}
@@ -464,6 +531,30 @@ export default function MockInterviewPage() {
               subMessage: searchQuery
                 ? `No mock interviews found matching "${searchQuery}"`
                 : `No ${selectedTab} mock interviews found.`,
+              action: searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Clear search
+                </button>
+              ) : undefined
+            }}
+          />
+        )}
+
+        {currentView === 'list' && selectedTab === 'custom' && (
+          <DataTable
+            title="JD & Resume Interviews"
+            description={`${filteredCustomSubmissions.length} interview(s) found`}
+            data={filteredCustomSubmissions}
+            columns={customColumns}
+            keyExtractor={(sub) => String(sub.id)}
+            emptyState={{
+              message: 'No JD & Resume interviews found',
+              subMessage: searchQuery
+                ? `No submissions matching "${searchQuery}"`
+                : 'No custom interviews have been submitted yet.',
               action: searchQuery ? (
                 <button
                   onClick={() => setSearchQuery('')}

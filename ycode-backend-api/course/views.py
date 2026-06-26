@@ -1534,7 +1534,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 performance_warnings = []
                 for r in (basic_results + advanced_results + custom_results):
                     err = r.get("error", "")
-                    if r.get("passed") and err in ("Time Limit Exceeded", "Memory Limit Exceeded"):
+                    if err in ("Time Limit Exceeded", "Memory Limit Exceeded"):
                         performance_warnings.append({
                             "type": err,
                             "execution_time": r.get("execution_time", 0),

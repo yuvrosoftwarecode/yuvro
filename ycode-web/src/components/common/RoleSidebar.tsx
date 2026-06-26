@@ -234,7 +234,10 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   ];
 
   return (
-    <div className={`${sidebarCollapsed ? 'w-20' : 'w-64'} bg-sidebar border-r border-border/30 flex flex-col sticky top-0 h-screen transition-all duration-300 ease-in-out ${className}`}>
+    <div 
+      className={`${sidebarCollapsed ? 'w-20' : ''} flex flex-col sticky top-0 h-screen transition-all duration-300 ease-in-out ${className}`}
+      style={!sidebarCollapsed ? { width: '256px', backgroundColor: '#FAFAFA', borderRight: '0.8px solid #E5E7EB4D' } : { backgroundColor: '#FAFAFA', borderRight: '0.8px solid #E5E7EB4D' }}
+    >
       {/* Header / Logo */}
       <div className={`p-4 mb-2`}>
         <div className={`flex items-center h-10 ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
@@ -243,7 +246,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-saffron-start to-saffron-end flex items-center justify-center shadow-lg shadow-saffron/25 shrink-0">
                     <Sparkles className="text-white w-5 h-5" strokeWidth={2.2} />
                 </div>
-                <span className="text-xl font-extrabold text-foreground tracking-tight truncate">Yuvro</span>
+                <span className="font-black truncate" style={{ fontFamily: 'Segoe UI', fontSize: '20px', lineHeight: '28px', letterSpacing: '-0.5px', color: '#111827' }}>Yuvro</span>
             </div>
           )}
           <button
@@ -259,7 +262,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 custom-scrollbar">
         {!sidebarCollapsed && (
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-saffron/80 mb-2 px-3">
+            <p className="font-bold uppercase mb-2 px-3" style={{ fontFamily: 'Segoe UI', fontSize: '10px', lineHeight: '15px', letterSpacing: '1.8px', color: '#FF8000CC' }}>
               {getPortalTitle()}
             </p>
         )}
@@ -272,17 +275,16 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-0' : 'gap-3 px-3 py-2.5'} rounded-xl cursor-pointer group relative transition-all duration-200 min-h-[40px] ${isActive
-                  ? 'bg-gradient-to-r from-saffron/12 to-saffron/5 dark:from-saffron/15 dark:to-saffron/8 text-foreground font-semibold shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                  }`}
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-0' : 'gap-3 px-3 py-2.5'} rounded-xl cursor-pointer group relative transition-all duration-200 min-h-[40px] ${isActive ? 'shadow-sm' : 'hover:bg-muted/30'}`}
+                style={isActive ? { background: 'linear-gradient(to right, rgba(255, 128, 0, 0.12), rgba(255, 128, 0, 0.05))', color: '#111827' } : { color: '#6B7280' }}
                 title={sidebarCollapsed ? item.label : ''}
               >
                 <Icon 
-                  className={`w-[18px] h-[18px] shrink-0 transition-colors ${isActive ? 'text-saffron' : 'text-muted-foreground/70'}`} 
+                  className={`w-[18px] h-[18px] shrink-0 transition-colors`} 
+                  style={{ color: isActive ? '#FF8000' : '#6B7280' }}
                   strokeWidth={isActive ? 2.2 : 1.6} 
                 />
-                {!sidebarCollapsed && <span className="font-medium text-[13px] tracking-wide">{item.label}</span>}
+                {!sidebarCollapsed && <span className={`font-inter ${isActive ? 'font-semibold' : 'font-medium'}`} style={{ fontSize: '14px', lineHeight: '16.8px' }}>{item.label}</span>}
 
                 {sidebarCollapsed && (
                   <div className="absolute left-full ml-4 px-2 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-all invisible group-hover:visible translate-x-2 group-hover:translate-x-0 whitespace-nowrap z-50 shadow-lg">
