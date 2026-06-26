@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("assessment", "0005_remove_contest_proctoring_techniques_and_more"),
-        ("job", "0002_job_enable_proctoring_job_tab_switch_threshold_and_more"),
+        ("job", "0001_initial"),
     ]
 
     operations = [

@@ -323,6 +323,8 @@ class MockInterviewSubmission(BaseUserSubmission):
         MockInterview,
         on_delete=models.CASCADE,
         related_name="mock_interview_submissions",
+        null=True,
+        blank=True,
     )
     experience_level = models.CharField(
         max_length=20,

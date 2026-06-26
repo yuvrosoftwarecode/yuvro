@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("course", "0001_initial"),
-        ("authentication", "0001_initial"),
+        ("core", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("assessment", "0001_initial"),
     ]
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -124,7 +124,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -164,7 +164,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -183,7 +183,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -201,7 +201,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -212,7 +212,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -241,7 +241,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -250,7 +250,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -260,7 +260,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -278,7 +278,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -297,7 +297,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -306,7 +306,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="contest_registrations",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -326,7 +326,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -346,7 +346,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -355,14 +355,14 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
             model_name="contest",
             name="allowed_colleges",
             field=models.ManyToManyField(
-                blank=True, related_name="allowed_contests", to="authentication.college"
+                blank=True, related_name="allowed_contests", to="core.college", db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -371,7 +371,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 related_name="allowed_contests",
-                to="authentication.department",
+                to="core.department", db_constraint=False,
             ),
         ),
         migrations.AddField(
@@ -381,7 +381,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -399,7 +399,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_submissions",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -419,7 +419,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="graded_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -439,7 +439,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -448,7 +448,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="%(class)s_question_activities",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -468,7 +468,7 @@ class Migration(migrations.Migration):
                 help_text="User who created this record",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_%(class)s_set",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AddField(
@@ -506,7 +506,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="certificates",
-                to=settings.AUTH_USER_MODEL,
+                to=settings.AUTH_USER_MODEL, db_constraint=False
             ),
         ),
         migrations.AlterUniqueTogether(
