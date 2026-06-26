@@ -103,29 +103,7 @@ const Footer: React.FC<FooterProps> = ({ variant = 'marketing', compactLinks = D
     }, []);
 
     if (variant === 'compact') {
-        return (
-            <footer className="border-t border-gray-200 bg-white px-6 py-3">
-                <div className="flex items-center gap-2 text-xs text-gray-600 whitespace-nowrap overflow-x-auto">
-                    <span>{`Copyright \u00A9 ${year}`}</span>
-                    <span>|</span>
-                    <span>Empowering the next generation of developers</span>
-                    {compactLinks.map((item, index) => (
-                        <React.Fragment key={`${item.label}-${index}`}>
-                            <span>|</span>
-                            {item.to ? (
-                                <Link to={item.to} className="hover:text-gray-900 transition-colors">
-                                    {item.label}
-                                </Link>
-                            ) : (
-                                <span>{item.label}</span>
-                            )}
-                        </React.Fragment>
-                    ))}
-                    <span>|</span>
-                    <span className="text-gray-500">{country}</span>
-                </div>
-            </footer>
-        );
+        return null;
     }
 
     return (

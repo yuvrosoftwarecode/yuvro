@@ -124,6 +124,15 @@ class Contest(BaseAssessmentModel):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     prize = models.CharField(max_length=255, blank=True, null=True)
+    
+    PAYMENT_TYPE_PAID = "paid"
+    PAYMENT_TYPE_UNPAID = "unpaid"
+    PAYMENT_TYPE_CHOICES = [
+        (PAYMENT_TYPE_PAID, "Paid"),
+        (PAYMENT_TYPE_UNPAID, "Unpaid"),
+    ]
+    payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default=PAYMENT_TYPE_UNPAID)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     # Contests allow only one attempt per user (enforced by ContestSubmission.unique_together)
     # Override the inherited max_attempts to always be 1 and make it non-editable
@@ -146,6 +155,9 @@ class Contest(BaseAssessmentModel):
     
     # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
+    
+    # Public Registrations (unauthenticated users)
+    public_registrations = models.JSONField(default=list, blank=True, help_text="Stores details of unauthenticated users who registered for public contests")
 
     class Meta:
         ordering = ["-start_datetime"]

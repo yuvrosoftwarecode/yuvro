@@ -31,6 +31,8 @@ import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
 import ContestDetail from './pages/student/ContestDetail';
+import ContestRegistration from './pages/student/ContestRegistration';
+import MockPayment from './pages/student/MockPayment';
 import ContestAttempt from './pages/student/ContestAttempt';
 import CodePractice from './pages/student/CodePractice';
 import Certify from './pages/student/Certify';
@@ -241,6 +243,30 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/student/contests/:contestId/register"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ContestRegistration />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contests/:contestId/payment"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <MockPayment />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Public Contest Routes (Unauthenticated) */}
+              <Route path="/public/contests" element={<Contest />} />
+              <Route path="/public/contests/:contestId" element={<ContestDetail />} />
+              <Route path="/public/contests/:contestId/register" element={<ContestRegistration />} />
+              <Route path="/public/contests/:contestId/payment" element={<MockPayment />} />
 
               <Route
                 path="/student/contests/:contestId/attempt"

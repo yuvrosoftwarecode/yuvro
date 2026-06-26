@@ -296,6 +296,8 @@ class ContestSerializer(serializers.ModelSerializer):
             "end_datetime",
             "duration",
             "prize",
+            "payment_type",
+            "amount",
             "difficulty",
             "description",
             "open_for_all_colleges",
@@ -321,6 +323,7 @@ class ContestSerializer(serializers.ModelSerializer):
             "updated_at",
             "is_registered",
             "my_submission_status",
+            "public_registrations",
         ]
 
         read_only_fields = [
@@ -330,6 +333,7 @@ class ContestSerializer(serializers.ModelSerializer):
             "updated_at",
             "is_registered",
             "my_submission_status",
+            "public_registrations",
         ]
 
     def validate(self, attrs):
