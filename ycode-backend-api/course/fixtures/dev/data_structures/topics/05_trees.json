@@ -206,7 +206,11 @@
                 "The depth of a tree is 1 plus the maximum depth of its subtrees.",
                 "Can you define a recursive function where the base case is a null node return 0?",
                 "Consider using DFS to explore each path from root to leaf, tracking the maximum level reached."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -297,7 +301,11 @@
                 "A BST follows a specific property: every node in the left subtree must be smaller, and every node in the right subtree must be larger.",
                 "It's not enough to check a node against its immediate children; a node must be compared against a global range of valid values.",
                 "How can you update the [min, max] range as you descend the tree? Left child's new max is parent's value, right child's new min is parent's value."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -370,7 +378,11 @@
                 "Level order means visiting nodes level by level. Which data structure is best for First-In-First-Out (FIFO) processing?",
                 "You can use a queue to store nodes. Before processing a level, record the current queue size to know how many nodes belong to that level.",
                 "For each node popped from the queue, add its children to the queue to be processed in the next level iteration."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -443,7 +455,11 @@
                 "Leverage the BST property: if both nodes are smaller than the current node, the LCA must be in the left subtree.",
                 "If both nodes are larger than the current node, the LCA must be in the right subtree.",
                 "If the current node's value is between p and q (or equal to one of them), then the current node is the LCA."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -515,7 +531,11 @@
                 "A maximum path can pass through a node and go into both subtrees, OR it can continue up to the parent through only one subtree.",
                 "Use a recursive helper that returns the max gain from a subtree (one-side only). Update a global max with the combined (both-sides) sum.",
                 "What if a subtree returns a negative sum? We should ignore it (use max(gain, 0)) to avoid decreasing our path sum."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -587,7 +607,11 @@
                 "Level order serialization is often easier as it matches the input format you've been using in these problems.",
                 "In level order, use a queue and represent missing children with 'null'.",
                 "When deserializing, use a queue to re-attach left and right children to their parents as you progress through the serialized list."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -659,7 +683,11 @@
                 "Preorder starts with the root. The next elements are the left subtree's root, then the right subtree's root.",
                 "Inorder is split by the root into left and right subtrees. Finding the root's index in 'inorder' tells you the size of each subtree.",
                 "Use a hash map to look up inorder indices in O(1). Recursively build the tree using slices or index ranges."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -721,7 +749,11 @@
                 "Use a Trie to store words. Each node will represent a character and have a boolean flag for 'end of word'.",
                 "For regular characters, follow the Trie children. For '.', you must check all possible children recursively (backtracking).",
                 "If searching with '.' at a node leads to a match in any child, the search is successful."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -786,7 +818,11 @@
                 "A Trie can keep track of how many words pass through each node. Add a 'count' field to each TrieNode.",
                 "As you insert words, increment the count for every node in the prefix path.",
                 "To find the shortest unique prefix, traverse the Trie for each word until you hit a node with count == 1."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -851,7 +887,11 @@
                 "Think about what needs to happen to a single node: its left child should become its right child, and vice versa.",
                 "You can achieve this recursively by swapping the results of `invertTree(root.left)` and `invertTree(root.right)`.",
                 "The base case is a null node, which doesn't need inverting."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -912,7 +952,11 @@
                 "A standard level order traversal uses a queue. How can you modify it to reverse directions?",
                 "You can use a boolean flag to track the current direction and reverse the list for the current level if necessary.",
                 "Alternatively, use a double-ended queue (deque) to insert values from the front or back depending on the level depth."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -970,7 +1014,11 @@
                 "A Trie stores strings character by character. Each node has children (e.g., an array of 26 letters) and an 'isEndOfWord' flag.",
                 "For 'insert', traverse the characters, creating nodes as needed. Mark the last node as 'isEndOfWord'.",
                 "For 'search', traverse. Return true only if you reach the end of the word AND the flag is set."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1010,7 +1058,11 @@
                 "Searching every word individually is slow. Instead, store all target words in a Trie.",
                 "Use DFS to explore every starting cell on the board. As you move, traverse the Trie simultaneously to prune searches that don't match any prefix.",
                 "When you find a word in the Trie, add it to your result set and mark it as 'found' to avoid duplicates."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1060,7 +1112,11 @@
                 "Start by carefully reading the problem statement and understanding the input/output format.",
                 "For tree problems, consider whether a Depth First Search (DFS) or Breadth First Search (BFS) approach is more appropriate.",
                 "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1100,7 +1156,11 @@
             "hints": [
                 "Start by carefully reading the problem statement and understanding the input/output format.",
                 "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

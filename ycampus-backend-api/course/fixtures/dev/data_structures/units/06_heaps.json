@@ -54,7 +54,7 @@
                 }
             ],
             "hints": [
-                "Think about the definition of a heap property — does it apply to every parent-child pair, or just the root?",
+                "Think about the definition of a heap property \u2014 does it apply to every parent-child pair, or just the root?",
                 "Compare min-heap and max-heap: in which one is the root the smallest element?",
                 "Remember: a heap is a complete binary tree, not necessarily a binary search tree."
             ]
@@ -225,7 +225,11 @@
                 "Sorting the array would place the Kth largest element at index N-K. Can we do better than O(N log N)?",
                 "A Min-Heap of size K can track the K largest elements seen so far. The smallest among these is the Kth largest.",
                 "Iterate through the array, pushing elements into the heap. If the heap size exceeds K, pop the smallest element. The final top of the heap is your answer."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -356,7 +360,11 @@
                 "First, you need to count the frequency of each element. A HashMap or Counter would be perfect for this.",
                 "How can you use the frequencies to find the top K elements? Sorting the unique elements by frequency would take O(N log N).",
                 "Can we use a Min-Heap of size K to maintain the top frequencies? Or perhaps Bucket Sort for an O(N) solution?"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -445,7 +453,11 @@
                 "The problem asks you to repeatedly pick the TWO heaviest stones. Which data structure helps you find the max elements efficiently?",
                 "A Max-Heap is perfect here. You can insert all weights, then pop the two largest.",
                 "After smashing them, if there's a remainder, push it back into the heap. Continue until one or zero stones remain."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -533,7 +545,11 @@
                 "The cooling period 'n' implies that if you have multiple tasks of the same type, you must wait 'n' intervals between them.",
                 "Prioritize the tasks with the highest frequency. Why? Because they are the most likely to cause idle time.",
                 "The formula (max_freq - 1) * (n + 1) + max_count gives the total time. Compare this with the total number of tasks."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -613,7 +629,11 @@
                 "Imagine you have just two sorted lists. You could use two pointers. How does this scale to K lists?",
                 "At any moment, you only care about the smallest element among the current heads of the K lists.",
                 "A Min-Heap of size K can efficiently give you the minimum among K heads. Repeatedly pop the minimum and push the next element from the same list."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -685,7 +705,11 @@
                 "Tracking the median in a sorted list is easy, but inserting into a sorted list takes O(N). Can we do better?",
                 "The median divides the data into two halves. Can we use two heaps to store these halves?",
                 "Use a Max-Heap for the smaller half and a Min-Heap for the larger half. Keep their sizes balanced (difference <= 1)."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -765,12 +789,16 @@
                 "A brute-force solution checking each window takes O(N * K). Can we optimize this with a deque or heap?",
                 "We need to quickly find the maximum in the window. A monotonic deque can store indices of elements in decreasing order.",
                 "As the window slides, remove indices that are out of bounds and elements smaller than the current one from the back of the deque. The front will always be the max."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
             "title": "K Closest Points to Origin",
-            "content": "Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane and an integer k, return the k closest points to the origin (0, 0).\n\nThe distance between two points on the X-Y plane is the Euclidean distance (√(x1 - x2)^2 + (y1 - y2)^2).\n\nYou may return the answer in any order. The answer is guaranteed to be unique (except for the order that it is in).\n\n**Constraints:**\n- 1 <= k <= points.length <= 10^4\n- -10^4 <= xi, yi <= 10^4",
+            "content": "Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane and an integer k, return the k closest points to the origin (0, 0).\n\nThe distance between two points on the X-Y plane is the Euclidean distance (\u221a(x1 - x2)^2 + (y1 - y2)^2).\n\nYou may return the answer in any order. The answer is guaranteed to be unique (except for the order that it is in).\n\n**Constraints:**\n- 1 <= k <= points.length <= 10^4\n- -10^4 <= xi, yi <= 10^4",
             "level": "subtopic",
             "unit_name": "Heaps",
             "subunit_name": "Priority Queues and Heaps",
@@ -847,7 +875,11 @@
                 "The distance to the origin is sqrt(x^2 + y^2). For comparison, x^2 + y^2 is sufficient and more efficient.",
                 "Sorting all points by distance takes O(N log N). Can we use a heap to maintain only the K closest ones in O(N log K)?",
                 "A Max-Heap of size K can store the closest points seen so far. If a new point is closer than the current farthest in the heap, replace it."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -929,7 +961,11 @@
                 "This problem is about combining elements to minimize total cost. Which pair should you combine at each step?",
                 "Combining the two shortest sticks is always greedy-optimal. Their sum will be part of future connection costs.",
                 "A Min-Heap can keep the stick lengths sorted. Pop the two smallest, push their sum, and repeat until one stick remains."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -979,7 +1015,11 @@
                 "The 'infinite' part suggests we shouldn't actually store all positive integers. We only need to track the ones removed or added back.",
                 "Use a counter to track the smallest integer that hasn't been 'touched' yet.",
                 "A Min-Heap combined with a set can track 'added back' integers that are smaller than our current counter."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

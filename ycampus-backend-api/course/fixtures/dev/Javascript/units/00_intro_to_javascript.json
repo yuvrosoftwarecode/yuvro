@@ -2039,7 +2039,11 @@
             ],
             "hints": [
                 "Use console.log() to print messages."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2086,7 +2090,11 @@
             ],
             "hints": [
                 "Use multiple console.log() statements."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2133,7 +2141,11 @@
             ],
             "hints": [
                 "JavaScript executes code line by line."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

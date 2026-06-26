@@ -95,11 +95,15 @@ class CodeEditorService {
 
       if (request.question_id && request.question_id !== 'practice') {
         try {
-          const response = await restApiAuthUtil.get(`/course/questions/${request.question_id}/`);
+          const response = await restApiAuthUtil.get(`/course/questions/${request.question_id}/?_t=${Date.now()}`);
           const q = response.data;
           if (q && q.code_executor_config) {
-            timeLimit = q.code_executor_config.time_limit || 10;
-            memoryLimit = q.code_executor_config.memory_limit || 256;
+            let config = q.code_executor_config;
+            if (typeof config === 'string') {
+              try { config = JSON.parse(config); } catch (e) {}
+            }
+            timeLimit = Number(config.time_limit) || 10;
+            memoryLimit = Number(config.memory_limit) || 256;
           }
         } catch (e) {
           console.warn('Could not fetch question config for runCode', e);
@@ -300,6 +304,7 @@ class CodeEditorService {
           success: response.status === 'completed',
         },
         plagiarism_flagged: response.plagiarism_flagged || false,
+        performance_warnings: response.performance_warnings || [],
       };
     } catch (error) {
       // Re-throw TLE as-is so CodeEditor can handle it

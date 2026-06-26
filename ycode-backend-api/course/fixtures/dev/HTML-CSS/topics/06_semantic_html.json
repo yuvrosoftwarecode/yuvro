@@ -1,2405 +1,2489 @@
 {
-  "name": "Semantic HTML",
-  "course_short_code": "HTMLCSS100",
-  "order_index": 6,
-  "subtopics": [
-    {
-      "name": "Why Semantic HTML Matters",
-      "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
-      "order_index": 0,
-      "videos": [
-        {
-          "title": "Introduction to Why Semantic HTML Matters",
-          "video_link": "https://www.youtube.com/results?search_query=Why+Semantic+HTML+Matters+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Why Semantic HTML Matters in HTML/CSS."
-        },
-        {
-          "title": "Advanced Why Semantic HTML Matters Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Why+Semantic+HTML+Matters+html+css",
-          "ai_context": "In-depth explanation and practical examples for Why Semantic HTML Matters."
-        }
-      ]
-    },
-    {
-      "name": "Semantic Tags",
-      "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
-      "order_index": 1,
-      "videos": [
-        {
-          "title": "Introduction to Semantic Tags",
-          "video_link": "https://www.youtube.com/results?search_query=Semantic+Tags+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Semantic Tags in HTML/CSS."
-        },
-        {
-          "title": "Advanced Semantic Tags Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Semantic+Tags+html+css",
-          "ai_context": "In-depth explanation and practical examples for Semantic Tags."
-        }
-      ]
-    },
-    {
-      "name": "Semantic Layout Building",
-      "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
-      "order_index": 2,
-      "videos": [
-        {
-          "title": "Introduction to Semantic Layout Building",
-          "video_link": "https://www.youtube.com/results?search_query=Semantic+Layout+Building+html+css",
-          "ai_context": "Comprehensive tutorial covering basic concepts of Semantic Layout Building in HTML/CSS."
-        },
-        {
-          "title": "Advanced Semantic Layout Building Techniques",
-          "video_link": "https://www.youtube.com/results?search_query=Semantic+Layout+Building+html+css",
-          "ai_context": "In-depth explanation and practical examples for Semantic Layout Building."
-        }
-      ]
-    }
-  ],
-  "questions": [
-    {
-      "type": "mcq_single",
-      "title": "Semantic HTML Meaning",
-      "content": "What does semantic HTML primarily focus on?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Using meaningful tags to describe content",
-          "is_correct": true
-        },
-        {
-          "text": "Using only CSS for layout",
-          "is_correct": false
-        },
-        {
-          "text": "Writing JavaScript functions",
-          "is_correct": false
-        },
-        {
-          "text": "Compressing HTML files",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Accessibility Benefit",
-      "content": "How does semantic HTML improve accessibility?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It helps screen readers understand page structure",
-          "is_correct": true
-        },
-        {
-          "text": "It increases page loading speed only",
-          "is_correct": false
-        },
-        {
-          "text": "It removes the need for images",
-          "is_correct": false
-        },
-        {
-          "text": "It disables CSS styling",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "SEO Benefit",
-      "content": "Why is semantic HTML important for SEO?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It helps search engines understand page content better",
-          "is_correct": true
-        },
-        {
-          "text": "It hides content from search engines",
-          "is_correct": false
-        },
-        {
-          "text": "It replaces keywords automatically",
-          "is_correct": false
-        },
-        {
-          "text": "It prevents indexing of pages",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Maintainability Concept",
-      "content": "What does maintainability mean in the context of semantic HTML?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Code is easier to read and update",
-          "is_correct": true
-        },
-        {
-          "text": "Code runs faster in browsers",
-          "is_correct": false
-        },
-        {
-          "text": "Code automatically fixes errors",
-          "is_correct": false
-        },
-        {
-          "text": "Code requires no testing",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Semantic Tags Example",
-      "content": "Which of the following is a semantic HTML tag?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<article>",
-          "is_correct": true
-        },
-        {
-          "text": "<div>",
-          "is_correct": false
-        },
-        {
-          "text": "<span>",
-          "is_correct": false
-        },
-        {
-          "text": "<b>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "SEO and Structure",
-      "content": "Why do search engines prefer semantic HTML structures?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "They make it easier to understand content hierarchy",
-          "is_correct": true
-        },
-        {
-          "text": "They automatically rank websites higher",
-          "is_correct": false
-        },
-        {
-          "text": "They reduce server load",
-          "is_correct": false
-        },
-        {
-          "text": "They block irrelevant content",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Accessibility Challenge",
-      "content": "What issue can arise if non-semantic tags like <div> are overused instead of semantic tags?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Reduced accessibility for assistive technologies",
-          "is_correct": true
-        },
-        {
-          "text": "Faster browser rendering",
-          "is_correct": false
-        },
-        {
-          "text": "Improved SEO automatically",
-          "is_correct": false
-        },
-        {
-          "text": "Smaller HTML file size",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Header Tag Purpose",
-      "content": "Which HTML tag is used to define the header section of a webpage?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header>",
-          "is_correct": true
-        },
-        {
-          "text": "<head>",
-          "is_correct": false
-        },
-        {
-          "text": "<top>",
-          "is_correct": false
-        },
-        {
-          "text": "<section>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Navigation Tag",
-      "content": "Which semantic tag is used for navigation links in a webpage?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<nav>",
-          "is_correct": true
-        },
-        {
-          "text": "<menu>",
-          "is_correct": false
-        },
-        {
-          "text": "<links>",
-          "is_correct": false
-        },
-        {
-          "text": "<navigate>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Main Content Tag",
-      "content": "Which HTML tag represents the main content of a webpage?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<main>",
-          "is_correct": true
-        },
-        {
-          "text": "<body>",
-          "is_correct": false
-        },
-        {
-          "text": "<content>",
-          "is_correct": false
-        },
-        {
-          "text": "<article>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Section vs Article",
-      "content": "What is the main difference between <section> and <article> tags?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<article> is self-contained content, <section> is a grouping of related content",
-          "is_correct": true
-        },
-        {
-          "text": "Both are used only for styling",
-          "is_correct": false
-        },
-        {
-          "text": "<section> is for images only",
-          "is_correct": false
-        },
-        {
-          "text": "<article> is only for navigation",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Aside Tag Usage",
-      "content": "What is the purpose of the <aside> tag in HTML?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To represent side content like ads or related links",
-          "is_correct": true
-        },
-        {
-          "text": "To define the main content",
-          "is_correct": false
-        },
-        {
-          "text": "To create navigation menus",
-          "is_correct": false
-        },
-        {
-          "text": "To store footer information only",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Correct Semantic Structure",
-      "content": "Which structure correctly represents a semantic HTML page layout?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header><nav><main><section><article><aside><footer>",
-          "is_correct": true
-        },
-        {
-          "text": "<div><div><div><div><div>",
-          "is_correct": false
-        },
-        {
-          "text": "<head><body><style><script>",
-          "is_correct": false
-        },
-        {
-          "text": "<top><menu><content><bottom>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Footer Purpose",
-      "content": "Why is the <footer> tag important in semantic HTML?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "It contains page footer information like copyright and links",
-          "is_correct": true
-        },
-        {
-          "text": "It defines the main navigation",
-          "is_correct": false
-        },
-        {
-          "text": "It stores JavaScript code",
-          "is_correct": false
-        },
-        {
-          "text": "It replaces the header tag",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Webpage Structure",
-      "content": "What is the main purpose of semantic layout building in HTML?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "To structure webpages using meaningful HTML elements",
-          "is_correct": true
-        },
-        {
-          "text": "To add animations to webpages",
-          "is_correct": false
-        },
-        {
-          "text": "To write backend code",
-          "is_correct": false
-        },
-        {
-          "text": "To compress images in websites",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Blog Layout Elements",
-      "content": "Which semantic tag is most commonly used to represent a blog post?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<article>",
-          "is_correct": true
-        },
-        {
-          "text": "<nav>",
-          "is_correct": false
-        },
-        {
-          "text": "<footer>",
-          "is_correct": false
-        },
-        {
-          "text": "<aside>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Dashboard Structure",
-      "content": "Which HTML element is typically used for navigation in a dashboard layout?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<nav>",
-          "is_correct": true
-        },
-        {
-          "text": "<section>",
-          "is_correct": false
-        },
-        {
-          "text": "<article>",
-          "is_correct": false
-        },
-        {
-          "text": "<main>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Blog Page Structure",
-      "content": "What is the correct semantic structure for a blog page?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header> + <main> + <article> + <aside> + <footer>",
-          "is_correct": true
-        },
-        {
-          "text": "<div> + <span> + <b> + <i>",
-          "is_correct": false
-        },
-        {
-          "text": "<table> + <tr> + <td>",
-          "is_correct": false
-        },
-        {
-          "text": "<form> + <input> + <button>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Dashboard Layout Purpose",
-      "content": "Why are semantic tags useful in dashboard layouts?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "They improve structure and readability of complex UI",
-          "is_correct": true
-        },
-        {
-          "text": "They replace CSS completely",
-          "is_correct": false
-        },
-        {
-          "text": "They eliminate JavaScript usage",
-          "is_correct": false
-        },
-        {
-          "text": "They automatically create backend APIs",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Semantic Layout Best Practice",
-      "content": "Which practice is best for building semantic webpage layouts?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Using appropriate semantic tags instead of only <div>",
-          "is_correct": true
-        },
-        {
-          "text": "Using only inline styles for layout",
-          "is_correct": false
-        },
-        {
-          "text": "Avoiding <header> and <footer>",
-          "is_correct": false
-        },
-        {
-          "text": "Writing all content inside <span> tags",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_single",
-      "title": "Dashboard Component Structure",
-      "content": "Which combination best represents a semantic dashboard layout?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header> + <nav> + <main> + <section> + <aside> + <footer>",
-          "is_correct": true
-        },
-        {
-          "text": "<div> + <div> + <div> + <div>",
-          "is_correct": false
-        },
-        {
-          "text": "<table> + <tr> + <td> + <form>",
-          "is_correct": false
-        },
-        {
-          "text": "<head> + <body> + <script>",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Semantic HTML Basics",
-      "content": "Which of the following statements about Semantic HTML are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML gives meaning to web content",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML helps structure webpages properly",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML is used only for styling",
-          "is_correct": false
-        },
-        {
-          "text": "Semantic HTML improves readability of code",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Accessibility in Semantic HTML",
-      "content": "Which of the following statements about accessibility in Semantic HTML are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML helps screen readers understand content",
-          "is_correct": true
-        },
-        {
-          "text": "It improves accessibility for users with disabilities",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML removes the need for browsers",
-          "is_correct": false
-        },
-        {
-          "text": "It provides meaningful structure to content",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "SEO Benefits Basics",
-      "content": "Which of the following statements about SEO benefits of Semantic HTML are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML helps search engines understand content",
-          "is_correct": true
-        },
-        {
-          "text": "It improves search engine ranking potential",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML has no effect on SEO",
-          "is_correct": false
-        },
-        {
-          "text": "It provides structured content for crawlers",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Maintainability Benefits",
-      "content": "Which of the following statements about maintainability in Semantic HTML are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML makes code easier to understand",
-          "is_correct": true
-        },
-        {
-          "text": "It improves long-term code maintenance",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML makes code harder to debug",
-          "is_correct": false
-        },
-        {
-          "text": "It helps developers collaborate more efficiently",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "SEO and Accessibility Relationship",
-      "content": "Which of the following statements about SEO and accessibility in Semantic HTML are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Accessibility improvements can also benefit SEO",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic tags help both users and search engines",
-          "is_correct": true
-        },
-        {
-          "text": "SEO is unrelated to HTML structure",
-          "is_correct": false
-        },
-        {
-          "text": "Proper structure improves content understanding",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Semantic Concepts",
-      "content": "Which of the following statements about advanced semantic HTML concepts are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML improves machine readability of content",
-          "is_correct": true
-        },
-        {
-          "text": "It enhances accessibility APIs like screen readers",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic HTML is only useful for visual design",
-          "is_correct": false
-        },
-        {
-          "text": "It helps create scalable web applications",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Semantic HTML",
-      "content": "Which of the following are best practices for using Semantic HTML?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use appropriate semantic tags for structure",
-          "is_correct": true
-        },
-        {
-          "text": "Improve accessibility using semantic elements",
-          "is_correct": true
-        },
-        {
-          "text": "Avoid using semantic tags in modern web development",
-          "is_correct": false
-        },
-        {
-          "text": "Use semantic HTML to improve SEO performance",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Semantic Tags Basics",
-      "content": "Which of the following are semantic HTML5 structural tags?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header> is a semantic tag used for page header content",
-          "is_correct": true
-        },
-        {
-          "text": "<footer> is used for footer content of a page or section",
-          "is_correct": true
-        },
-        {
-          "text": "<div> is a semantic tag for navigation",
-          "is_correct": false
-        },
-        {
-          "text": "<nav> is used for navigation links",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Main and Section Tags",
-      "content": "Which of the following statements about <main> and <section> tags are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<main> represents the main content of a webpage",
-          "is_correct": true
-        },
-        {
-          "text": "<section> is used to divide content into sections",
-          "is_correct": true
-        },
-        {
-          "text": "<main> is used for navigation menus",
-          "is_correct": false
-        },
-        {
-          "text": "<section> helps organize related content",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Article and Aside Basics",
-      "content": "Which of the following statements about <article> and <aside> tags are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<article> represents independent content",
-          "is_correct": true
-        },
-        {
-          "text": "<aside> is used for side or supplementary content",
-          "is_correct": true
-        },
-        {
-          "text": "<article> is used only for navigation menus",
-          "is_correct": false
-        },
-        {
-          "text": "<aside> can contain related links or ads",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Page Structure Understanding",
-      "content": "Which of the following statements about semantic page structure are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header> and <footer> define top and bottom sections of a page",
-          "is_correct": true
-        },
-        {
-          "text": "<main> should contain the primary content",
-          "is_correct": true
-        },
-        {
-          "text": "<section> cannot be used multiple times in a page",
-          "is_correct": false
-        },
-        {
-          "text": "Semantic tags improve document structure clarity",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Navigation and Content Structure",
-      "content": "Which of the following statements about navigation and content structure are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<nav> is used for navigation links",
-          "is_correct": true
-        },
-        {
-          "text": "<article> represents standalone content",
-          "is_correct": true
-        },
-        {
-          "text": "<nav> is used for page styling only",
-          "is_correct": false
-        },
-        {
-          "text": "<section> helps group related content",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Semantic Structure",
-      "content": "Which of the following statements about advanced semantic structure are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic tags improve accessibility for assistive technologies",
-          "is_correct": true
-        },
-        {
-          "text": "Proper use of semantic tags improves SEO performance",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic tags are optional and have no functional impact",
-          "is_correct": false
-        },
-        {
-          "text": "They help define a clear document outline",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Semantic Tags",
-      "content": "Which of the following are best practices for using semantic HTML tags?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use <main> only once per page",
-          "is_correct": true
-        },
-        {
-          "text": "Use <article> for independent content blocks",
-          "is_correct": true
-        },
-        {
-          "text": "Use <div> instead of semantic tags always",
-          "is_correct": false
-        },
-        {
-          "text": "Use semantic tags to improve readability and structure",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Basic Webpage Structure",
-      "content": "Which of the following statements about structuring real webpages are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic HTML helps structure real webpages",
-          "is_correct": true
-        },
-        {
-          "text": "<header>, <main>, and <footer> are used in page layout",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic layout is only for styling text",
-          "is_correct": false
-        },
-        {
-          "text": "Webpages should have a clear structure",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Blog Layout Basics",
-      "content": "Which of the following statements about blog layouts are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Blog layouts often use <article> for posts",
-          "is_correct": true
-        },
-        {
-          "text": "<aside> can be used for side content like ads or links",
-          "is_correct": true
-        },
-        {
-          "text": "Blog layouts do not use semantic tags",
-          "is_correct": false
-        },
-        {
-          "text": "<header> can be used for blog titles",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Dashboard Layout Basics",
-      "content": "Which of the following statements about dashboard layouts are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 1,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Dashboards often use sections to organize data",
-          "is_correct": true
-        },
-        {
-          "text": "<nav> is used for navigation in dashboards",
-          "is_correct": true
-        },
-        {
-          "text": "Dashboards cannot use semantic HTML",
-          "is_correct": false
-        },
-        {
-          "text": "<main> holds the primary dashboard content",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Real Webpage Structure",
-      "content": "Which of the following statements about structuring real webpages are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "<header> is used for top section content",
-          "is_correct": true
-        },
-        {
-          "text": "<footer> is used for bottom section content",
-          "is_correct": true
-        },
-        {
-          "text": "<main> can appear multiple times in a page",
-          "is_correct": false
-        },
-        {
-          "text": "Semantic structure improves readability",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Blog Layout Structure",
-      "content": "Which of the following statements about blog layouts are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 2,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Each blog post can be wrapped in an <article>",
-          "is_correct": true
-        },
-        {
-          "text": "<aside> can show related posts or ads",
-          "is_correct": true
-        },
-        {
-          "text": "Blogs should avoid using semantic tags",
-          "is_correct": false
-        },
-        {
-          "text": "<section> can group blog content",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Advanced Layout Design",
-      "content": "Which of the following statements about advanced layout building are correct?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Semantic layout improves SEO and accessibility",
-          "is_correct": true
-        },
-        {
-          "text": "Dashboards often combine nav, main, and aside sections",
-          "is_correct": true
-        },
-        {
-          "text": "Semantic layout is not useful for real-world applications",
-          "is_correct": false
-        },
-        {
-          "text": "Proper structure helps scalable web design",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "mcq_multiple",
-      "title": "Best Practices for Layout Building",
-      "content": "Which of the following are best practices for building semantic layouts?",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 3,
-      "categories": [
-        "learn",
-        "skill_test"
-      ],
-      "mcq_options": [
-        {
-          "text": "Use <main> for primary content only once per page",
-          "is_correct": true
-        },
-        {
-          "text": "Use semantic tags to improve clarity and structure",
-          "is_correct": true
-        },
-        {
-          "text": "Avoid using semantic HTML for layouts",
-          "is_correct": false
-        },
-        {
-          "text": "Organize content using header, section, and footer",
-          "is_correct": true
-        }
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Basic Semantic Page Structure",
-      "content": "Create an HTML page using semantic tags like <header>, <main>, and <footer> to improve structure and readability.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Page with semantic structure"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Header, main, footer sections present"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<header>, <main>, <footer>",
-          "explanation": "Semantic tags improve readability and structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with semantic structure.",
-      "solutions": [
-        {
-          "title": "Basic Semantic Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Page</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n    <main>\n        <p>Welcome to my site.</p>\n    </main>\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use header, main, footer tags."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Improve Accessibility Using Semantic HTML",
-      "content": "Create a webpage using semantic tags and ensure accessibility by using proper headings and landmarks.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Accessible semantic layout"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Screen-reader friendly structure"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Proper headings and landmarks",
-          "explanation": "Accessibility improves usability for assistive tech."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "Accessible HTML page.",
-      "solutions": [
-        {
-          "title": "Accessible Semantic Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Accessible Page</title>\n</head>\n<body>\n    <header>\n        <h1>Home Page</h1>\n    </header>\n    <main>\n        <section>\n            <h2>About Us</h2>\n            <p>We build accessible websites.</p>\n        </section>\n    </main>\n    <footer>\n        <p>Contact us</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use headings properly for accessibility."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Blog Layout Using Semantic HTML",
-      "content": "Build a blog layout using semantic tags like article, section, header, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Blog structure displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Article and sections properly used"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<article>, <section>",
-          "explanation": "Semantic tags help structure blog content."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog layout.",
-      "solutions": [
-        {
-          "title": "Blog Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post Title</h2>\n            <p>Blog content goes here.</p>\n        </article>\n    </main>\n    <footer>\n        <p>Footer content</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use article for blog content."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an SEO Friendly Semantic Web Page",
-      "content": "Build a semantic HTML page using proper headings, sections, and article tags to improve SEO structure.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "SEO structured page"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Proper heading hierarchy maintained"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "SEO optimized structure",
-          "explanation": "Search engines understand semantic structure better."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML SEO page.",
-      "solutions": [
-        {
-          "title": "SEO Semantic Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>SEO Page</title>\n</head>\n<body>\n    <header>\n        <h1>Technology Blog</h1>\n    </header>\n    <main>\n        <section>\n            <h2>Latest Trends</h2>\n            <article>\n                <h3>AI Growth</h3>\n                <p>Content about AI.</p>\n            </article>\n        </section>\n    </main>\n    <footer>\n        <p>All rights reserved</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use proper heading hierarchy for SEO."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design a Maintainable Multi-Section Web Page",
-      "content": "Create a semantic HTML page with multiple sections and reusable structure for maintainability.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multi-section page"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Well structured reusable layout"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Maintainable HTML structure",
-          "explanation": "Semantic HTML improves maintainability."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page.",
-      "solutions": [
-        {
-          "title": "Maintainable Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Maintainable Page</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n    </header>\n    <main>\n        <section>\n            <h2>Services</h2>\n            <p>Details here.</p>\n        </section>\n        <section>\n            <h2>About</h2>\n            <p>About content.</p>\n        </section>\n    </main>\n    <footer>\n        <p>Footer info</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use multiple section tags for structure."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build an Accessible SEO Optimized Article Page",
-      "content": "Create a complex semantic HTML page that supports accessibility, SEO, and maintainability using article, section, header, and nav tags.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Full article page"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Accessible and SEO-friendly structure"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Complete semantic webpage",
-          "explanation": "Combines accessibility + SEO + structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML article page.",
-      "solutions": [
-        {
-          "title": "Advanced Semantic Article",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Article Page</title>\n</head>\n<body>\n    <header>\n        <h1>Tech Insights</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n        </nav>\n    </header>\n    <main>\n        <article>\n            <h2>AI Revolution</h2>\n            <section>\n                <h3>Introduction</h3>\n                <p>AI is transforming industries.</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine nav, article, section properly.",
-        "Maintain heading hierarchy for SEO."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Fully Structured SEO Blog System",
-      "content": "Design a complex blog page using semantic HTML ensuring accessibility, SEO optimization, and maintainable structure with multiple articles and sections.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Why Semantic HTML Matters",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Blog system displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Multiple articles structured semantically"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "SEO blog system",
-          "explanation": "Large scale semantic structure improves SEO and maintainability."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog system.",
-      "solutions": [
-        {
-          "title": "SEO Blog System",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog System</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog System</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post 1</h2>\n            <section>\n                <p>Content 1</p>\n            </section>\n        </article>\n        <article>\n            <h2>Post 2</h2>\n            <section>\n                <p>Content 2</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>End of Blog</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Use multiple articles and sections.",
-        "Maintain semantic structure for SEO."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Basic Semantic Page Layout",
-      "content": "Create an HTML page using semantic tags like <header>, <main>, and <footer> to structure a simple webpage.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Page with header, main, footer"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Semantic structure correctly displayed"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<header>, <main>, <footer>",
-          "explanation": "Basic semantic layout improves structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with semantic tags.",
-      "solutions": [
-        {
-          "title": "Basic Semantic Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Page</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n    <main>\n        <p>Welcome to the homepage.</p>\n    </main>\n    <footer>\n        <p>\u00a9 2026 MySite</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use header, main, footer tags."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Navigation Bar Using Semantic Tags",
-      "content": "Build an HTML page that includes a navigation menu using the <nav> tag inside the header.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Navigation bar displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Nav links correctly structured"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<nav> inside header",
-          "explanation": "Nav tag is used for navigation links."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML page with nav.",
-      "solutions": [
-        {
-          "title": "Navigation Bar",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Nav Page</title>\n</head>\n<body>\n    <header>\n        <nav>\n            <a href=\"#home\">Home</a>\n            <a href=\"#about\">About</a>\n        </nav>\n    </header>\n    <main>\n        <p>Content here</p>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use nav inside header."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Blog Section Using Article Tag",
-      "content": "Create an HTML page using <article> and <section> to structure a blog post.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Blog article displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Sectioned blog content"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<article> and <section>",
-          "explanation": "Article tag is used for blog posts."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog page.",
-      "solutions": [
-        {
-          "title": "Blog Article",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>My First Post</h2>\n            <section>\n                <p>Content of blog post.</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>Footer info</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use article for blog content."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Build a Multi-Section Web Page Using Semantic Tags",
-      "content": "Create a webpage using header, nav, main, section, article, aside, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multi-section page displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "All semantic tags properly used"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Structured layout with multiple tags",
-          "explanation": "Semantic tags organize content clearly."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML structured page.",
-      "solutions": [
-        {
-          "title": "Multi Semantic Page",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Layout</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Article Title</h2>\n                <p>Content goes here.</p>\n            </article>\n        </section>\n        <aside>\n            <p>Sidebar info</p>\n        </aside>\n    </main>\n    <footer>\n        <p>Footer content</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Combine multiple semantic tags together.",
-        "Use aside for sidebar content."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Complete News Website Layout",
-      "content": "Build a semantic HTML news webpage using header, nav, main, section, article, aside, and footer for proper structure.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "News layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Proper semantic segmentation"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "News website structure",
-          "explanation": "Real-world websites use semantic layout."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML news page.",
-      "solutions": [
-        {
-          "title": "News Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>News Site</title>\n</head>\n<body>\n    <header>\n        <h1>Daily News</h1>\n        <nav>\n            <a href=\"#world\">World</a>\n            <a href=\"#sports\">Sports</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Breaking News</h2>\n                <p>Important update...</p>\n            </article>\n        </section>\n        <aside>\n            <p>Trending topics</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 News 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Structure like real news websites.",
-        "Use aside for extra content."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design a Complex Blog Platform Layout",
-      "content": "Create a full blog platform layout using all semantic tags including header, nav, main, section, article, aside, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Blog platform displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Fully structured semantic layout"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Complete blog system",
-          "explanation": "Large applications rely on semantic structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog platform.",
-      "solutions": [
-        {
-          "title": "Blog Platform Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog Platform</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog Platform</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n            <a href=\"#posts\">Posts</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Post 1</h2>\n                <p>Content here</p>\n            </article>\n            <article>\n                <h2>Post 2</h2>\n                <p>Content here</p>\n            </article>\n        </section>\n        <aside>\n            <p>Popular posts</p>\n        </aside>\n    </main>\n    <footer>\n        <p>All rights reserved</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine multiple articles inside sections.",
-        "Use nav and aside effectively."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Enterprise-Level Website Layout Using Semantic Tags",
-      "content": "Design a complex enterprise webpage using all semantic HTML tags to ensure scalability, accessibility, and maintainability.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Tags",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Enterprise layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Fully structured semantic enterprise page"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Large scale semantic system",
-          "explanation": "Enterprise apps require clean structure."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML enterprise page.",
-      "solutions": [
-        {
-          "title": "Enterprise Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise Site</title>\n</head>\n<body>\n    <header>\n        <h1>Company</h1>\n        <nav>\n            <a href=\"#services\">Services</a>\n            <a href=\"#contact\">Contact</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Service 1</h2>\n                <p>Description</p>\n            </article>\n            <article>\n                <h2>Service 2</h2>\n                <p>Description</p>\n            </article>\n        </section>\n        <aside>\n            <p>Announcements</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 Enterprise 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Think like a real enterprise website.",
-        "Use all semantic tags properly."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Simple Blog Layout",
-      "content": "Create a basic blog layout using semantic HTML tags including header, main, article, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Blog layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Proper semantic blog structure"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<article> inside <main>",
-          "explanation": "Blog layout uses article for posts."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog layout.",
-      "solutions": [
-        {
-          "title": "Basic Blog Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post Title</h2>\n            <p>Blog content goes here.</p>\n        </article>\n    </main>\n    <footer>\n        <p>\u00a9 2026 Blog</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use article for blog posts."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Simple Webpage Structure",
-      "content": "Create a basic webpage using semantic tags such as header, main, section, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "learn"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Webpage structure displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Proper semantic structure used"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<header>, <main>, <footer>",
-          "explanation": "Basic webpage layout uses semantic tags."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML webpage.",
-      "solutions": [
-        {
-          "title": "Simple Webpage",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Webpage</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n    </header>\n    <main>\n        <section>\n            <p>Welcome content</p>\n        </section>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use header, main, footer properly."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Simple Dashboard Layout",
-      "content": "Build a basic dashboard layout using semantic HTML with header, main, aside, and section.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "easy",
-      "marks": 5,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Dashboard layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Sidebar and main content structured"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "<aside> used for sidebar",
-          "explanation": "Dashboards use aside for navigation panels."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML dashboard layout.",
-      "solutions": [
-        {
-          "title": "Basic Dashboard",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Dashboard</h1>\n    </header>\n    <main>\n        <aside>\n            <p>Sidebar Menu</p>\n        </aside>\n        <section>\n            <p>Main Content</p>\n        </section>\n    </main>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "basic"
-        }
-      ],
-      "hints": [
-        "Use aside for sidebar."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Blog Website with Multiple Posts",
-      "content": "Build a blog layout with multiple articles using semantic tags like header, main, article, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "learn",
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Multiple blog posts displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Structured blog layout"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Multiple <article> elements",
-          "explanation": "Blogs contain multiple posts."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog page.",
-      "solutions": [
-        {
-          "title": "Multi Post Blog",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post 1</h2>\n            <p>Content 1</p>\n        </article>\n        <article>\n            <h2>Post 2</h2>\n            <p>Content 2</p>\n        </article>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use multiple article tags."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create a Dashboard with Sidebar Navigation",
-      "content": "Build a semantic dashboard layout with header, aside for sidebar navigation, main content, and sections.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "medium",
-      "marks": 10,
-      "categories": [
-        "practice"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Dashboard layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Sidebar navigation works"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Dashboard with sidebar",
-          "explanation": "Dashboards use aside for navigation."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML dashboard.",
-      "solutions": [
-        {
-          "title": "Dashboard Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Admin Dashboard</h1>\n    </header>\n    <main>\n        <aside>\n            <nav>\n                <p>Menu</p>\n            </nav>\n        </aside>\n        <section>\n            <h2>Analytics</h2>\n        </section>\n    </main>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "intermediate"
-        }
-      ],
-      "hints": [
-        "Use aside for navigation menu."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Design a Complex Multi-Page Blog Layout",
-      "content": "Create a complex blog layout using semantic HTML including multiple articles, sections, sidebar, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Complex blog layout displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Multiple structured sections and articles"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Full blog system layout",
-          "explanation": "Real blogs use multiple structured components."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML blog system.",
-      "solutions": [
-        {
-          "title": "Complex Blog Layout",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog System</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog System</h1>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Post 1</h2>\n                <p>Content 1</p>\n            </article>\n            <article>\n                <h2>Post 2</h2>\n                <p>Content 2</p>\n            </article>\n        </section>\n        <aside>\n            <p>Popular Posts</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 2026 Blog</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine multiple semantic elements.",
-        "Use aside for extra information."
-      ]
-    },
-    {
-      "type": "coding",
-      "title": "Create an Enterprise Level Dashboard Layout",
-      "content": "Design a complex enterprise dashboard using semantic HTML tags including header, nav, aside, main, section, article, and footer.",
-      "level": "subtopic",
-      "topic_name": "Semantic HTML",
-      "subtopic_name": "Semantic Layout Building",
-      "difficulty": "hard",
-      "marks": 15,
-      "categories": [
-        "skill_test"
-      ],
-      "test_cases_basic": [
-        {
-          "input": "",
-          "expected_output": "Enterprise dashboard displayed"
-        }
-      ],
-      "test_cases_advanced": [
-        {
-          "input": "",
-          "expected_output": "Fully structured dashboard system"
-        }
-      ],
-      "examples": [
-        {
-          "input": "",
-          "expected_output": "Enterprise UI layout",
-          "explanation": "Large systems require structured semantic layout."
-        }
-      ],
-      "inputFormat": "No input.",
-      "outputFormat": "HTML enterprise dashboard.",
-      "solutions": [
-        {
-          "title": "Enterprise Dashboard",
-          "language": "html",
-          "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Company Dashboard</h1>\n        <nav>\n            <p>Navigation</p>\n        </nav>\n    </header>\n    <main>\n        <aside>\n            <p>Sidebar Menu</p>\n        </aside>\n        <section>\n            <article>\n                <h2>Reports</h2>\n                <p>Analytics data</p>\n            </article>\n            <article>\n                <h2>Users</h2>\n                <p>User data</p>\n            </article>\n        </section>\n    </main>\n    <footer>\n        <p>\u00a9 Enterprise 2026</p>\n    </footer>\n</body>\n</html>",
-          "complexity_analysis": "Time: O(1), Space: O(1)",
-          "is_primary": true,
-          "approach": "advanced"
-        }
-      ],
-      "hints": [
-        "Combine all semantic tags properly.",
-        "Think like a real enterprise UI."
-      ]
-    }
-  ]
+    "name": "Semantic HTML",
+    "course_short_code": "HTMLCSS100",
+    "order_index": 6,
+    "subtopics": [
+        {
+            "name": "Why Semantic HTML Matters",
+            "content": "Array traversal refers to visiting each element of an array one by one to perform operations such as reading, updating, or computing values. Basic operations on arrays include insertion, deletion, updating elements, and calculating values like sum, minimum, and maximum. Understanding traversal and these fundamental operations is essential for solving many programming problems efficiently.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Introduction to Why Semantic HTML Matters",
+                    "video_link": "https://www.youtube.com/results?search_query=Why+Semantic+HTML+Matters+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Why Semantic HTML Matters in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Why Semantic HTML Matters Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Why+Semantic+HTML+Matters+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Why Semantic HTML Matters."
+                }
+            ]
+        },
+        {
+            "name": "Semantic Tags",
+            "content": "Searching in arrays involves finding the position of a specific element. The most basic method is linear search, which checks each element sequentially. For sorted arrays, binary search can be used to reduce search time significantly by repeatedly dividing the search space in half. Understanding these searching techniques helps improve algorithm efficiency.",
+            "order_index": 1,
+            "videos": [
+                {
+                    "title": "Introduction to Semantic Tags",
+                    "video_link": "https://www.youtube.com/results?search_query=Semantic+Tags+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Semantic Tags in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Semantic Tags Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Semantic+Tags+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Semantic Tags."
+                }
+            ]
+        },
+        {
+            "name": "Semantic Layout Building",
+            "content": "Array rearrangement problems involve changing the order of elements based on specific conditions. Examples include moving all zeros to the end, separating positive and negative numbers, alternating elements, or sorting based on certain criteria. These problems help develop strong skills in in-place algorithms and efficient array manipulation.",
+            "order_index": 2,
+            "videos": [
+                {
+                    "title": "Introduction to Semantic Layout Building",
+                    "video_link": "https://www.youtube.com/results?search_query=Semantic+Layout+Building+html+css",
+                    "ai_context": "Comprehensive tutorial covering basic concepts of Semantic Layout Building in HTML/CSS."
+                },
+                {
+                    "title": "Advanced Semantic Layout Building Techniques",
+                    "video_link": "https://www.youtube.com/results?search_query=Semantic+Layout+Building+html+css",
+                    "ai_context": "In-depth explanation and practical examples for Semantic Layout Building."
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "Semantic HTML Meaning",
+            "content": "What does semantic HTML primarily focus on?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using meaningful tags to describe content",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using only CSS for layout",
+                    "is_correct": false
+                },
+                {
+                    "text": "Writing JavaScript functions",
+                    "is_correct": false
+                },
+                {
+                    "text": "Compressing HTML files",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Accessibility Benefit",
+            "content": "How does semantic HTML improve accessibility?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps screen readers understand page structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "It increases page loading speed only",
+                    "is_correct": false
+                },
+                {
+                    "text": "It removes the need for images",
+                    "is_correct": false
+                },
+                {
+                    "text": "It disables CSS styling",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SEO Benefit",
+            "content": "Why is semantic HTML important for SEO?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It helps search engines understand page content better",
+                    "is_correct": true
+                },
+                {
+                    "text": "It hides content from search engines",
+                    "is_correct": false
+                },
+                {
+                    "text": "It replaces keywords automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "It prevents indexing of pages",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Maintainability Concept",
+            "content": "What does maintainability mean in the context of semantic HTML?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Code is easier to read and update",
+                    "is_correct": true
+                },
+                {
+                    "text": "Code runs faster in browsers",
+                    "is_correct": false
+                },
+                {
+                    "text": "Code automatically fixes errors",
+                    "is_correct": false
+                },
+                {
+                    "text": "Code requires no testing",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Semantic Tags Example",
+            "content": "Which of the following is a semantic HTML tag?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<article>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<span>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<b>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "SEO and Structure",
+            "content": "Why do search engines prefer semantic HTML structures?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They make it easier to understand content hierarchy",
+                    "is_correct": true
+                },
+                {
+                    "text": "They automatically rank websites higher",
+                    "is_correct": false
+                },
+                {
+                    "text": "They reduce server load",
+                    "is_correct": false
+                },
+                {
+                    "text": "They block irrelevant content",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Accessibility Challenge",
+            "content": "What issue can arise if non-semantic tags like <div> are overused instead of semantic tags?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Reduced accessibility for assistive technologies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Faster browser rendering",
+                    "is_correct": false
+                },
+                {
+                    "text": "Improved SEO automatically",
+                    "is_correct": false
+                },
+                {
+                    "text": "Smaller HTML file size",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Header Tag Purpose",
+            "content": "Which HTML tag is used to define the header section of a webpage?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<head>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<top>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<section>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Navigation Tag",
+            "content": "Which semantic tag is used for navigation links in a webpage?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<nav>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<menu>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<links>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<navigate>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Main Content Tag",
+            "content": "Which HTML tag represents the main content of a webpage?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<main>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<body>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<content>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<article>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Section vs Article",
+            "content": "What is the main difference between <section> and <article> tags?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<article> is self-contained content, <section> is a grouping of related content",
+                    "is_correct": true
+                },
+                {
+                    "text": "Both are used only for styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "<section> is for images only",
+                    "is_correct": false
+                },
+                {
+                    "text": "<article> is only for navigation",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Aside Tag Usage",
+            "content": "What is the purpose of the <aside> tag in HTML?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To represent side content like ads or related links",
+                    "is_correct": true
+                },
+                {
+                    "text": "To define the main content",
+                    "is_correct": false
+                },
+                {
+                    "text": "To create navigation menus",
+                    "is_correct": false
+                },
+                {
+                    "text": "To store footer information only",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Correct Semantic Structure",
+            "content": "Which structure correctly represents a semantic HTML page layout?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header><nav><main><section><article><aside><footer>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div><div><div><div><div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<head><body><style><script>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<top><menu><content><bottom>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Footer Purpose",
+            "content": "Why is the <footer> tag important in semantic HTML?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "It contains page footer information like copyright and links",
+                    "is_correct": true
+                },
+                {
+                    "text": "It defines the main navigation",
+                    "is_correct": false
+                },
+                {
+                    "text": "It stores JavaScript code",
+                    "is_correct": false
+                },
+                {
+                    "text": "It replaces the header tag",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Webpage Structure",
+            "content": "What is the main purpose of semantic layout building in HTML?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "To structure webpages using meaningful HTML elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "To add animations to webpages",
+                    "is_correct": false
+                },
+                {
+                    "text": "To write backend code",
+                    "is_correct": false
+                },
+                {
+                    "text": "To compress images in websites",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Blog Layout Elements",
+            "content": "Which semantic tag is most commonly used to represent a blog post?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<article>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<nav>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<footer>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<aside>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dashboard Structure",
+            "content": "Which HTML element is typically used for navigation in a dashboard layout?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<nav>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<section>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<article>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<main>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Blog Page Structure",
+            "content": "What is the correct semantic structure for a blog page?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header> + <main> + <article> + <aside> + <footer>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div> + <span> + <b> + <i>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<table> + <tr> + <td>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<form> + <input> + <button>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dashboard Layout Purpose",
+            "content": "Why are semantic tags useful in dashboard layouts?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "They improve structure and readability of complex UI",
+                    "is_correct": true
+                },
+                {
+                    "text": "They replace CSS completely",
+                    "is_correct": false
+                },
+                {
+                    "text": "They eliminate JavaScript usage",
+                    "is_correct": false
+                },
+                {
+                    "text": "They automatically create backend APIs",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Semantic Layout Best Practice",
+            "content": "Which practice is best for building semantic webpage layouts?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Using appropriate semantic tags instead of only <div>",
+                    "is_correct": true
+                },
+                {
+                    "text": "Using only inline styles for layout",
+                    "is_correct": false
+                },
+                {
+                    "text": "Avoiding <header> and <footer>",
+                    "is_correct": false
+                },
+                {
+                    "text": "Writing all content inside <span> tags",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_single",
+            "title": "Dashboard Component Structure",
+            "content": "Which combination best represents a semantic dashboard layout?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header> + <nav> + <main> + <section> + <aside> + <footer>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div> + <div> + <div> + <div>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<table> + <tr> + <td> + <form>",
+                    "is_correct": false
+                },
+                {
+                    "text": "<head> + <body> + <script>",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Semantic HTML Basics",
+            "content": "Which of the following statements about Semantic HTML are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML gives meaning to web content",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML helps structure webpages properly",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML is used only for styling",
+                    "is_correct": false
+                },
+                {
+                    "text": "Semantic HTML improves readability of code",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Accessibility in Semantic HTML",
+            "content": "Which of the following statements about accessibility in Semantic HTML are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML helps screen readers understand content",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves accessibility for users with disabilities",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML removes the need for browsers",
+                    "is_correct": false
+                },
+                {
+                    "text": "It provides meaningful structure to content",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SEO Benefits Basics",
+            "content": "Which of the following statements about SEO benefits of Semantic HTML are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML helps search engines understand content",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves search engine ranking potential",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML has no effect on SEO",
+                    "is_correct": false
+                },
+                {
+                    "text": "It provides structured content for crawlers",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Maintainability Benefits",
+            "content": "Which of the following statements about maintainability in Semantic HTML are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML makes code easier to understand",
+                    "is_correct": true
+                },
+                {
+                    "text": "It improves long-term code maintenance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML makes code harder to debug",
+                    "is_correct": false
+                },
+                {
+                    "text": "It helps developers collaborate more efficiently",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "SEO and Accessibility Relationship",
+            "content": "Which of the following statements about SEO and accessibility in Semantic HTML are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Accessibility improvements can also benefit SEO",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic tags help both users and search engines",
+                    "is_correct": true
+                },
+                {
+                    "text": "SEO is unrelated to HTML structure",
+                    "is_correct": false
+                },
+                {
+                    "text": "Proper structure improves content understanding",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Semantic Concepts",
+            "content": "Which of the following statements about advanced semantic HTML concepts are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML improves machine readability of content",
+                    "is_correct": true
+                },
+                {
+                    "text": "It enhances accessibility APIs like screen readers",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic HTML is only useful for visual design",
+                    "is_correct": false
+                },
+                {
+                    "text": "It helps create scalable web applications",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Semantic HTML",
+            "content": "Which of the following are best practices for using Semantic HTML?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use appropriate semantic tags for structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Improve accessibility using semantic elements",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid using semantic tags in modern web development",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use semantic HTML to improve SEO performance",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Semantic Tags Basics",
+            "content": "Which of the following are semantic HTML5 structural tags?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header> is a semantic tag used for page header content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<footer> is used for footer content of a page or section",
+                    "is_correct": true
+                },
+                {
+                    "text": "<div> is a semantic tag for navigation",
+                    "is_correct": false
+                },
+                {
+                    "text": "<nav> is used for navigation links",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Main and Section Tags",
+            "content": "Which of the following statements about <main> and <section> tags are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<main> represents the main content of a webpage",
+                    "is_correct": true
+                },
+                {
+                    "text": "<section> is used to divide content into sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "<main> is used for navigation menus",
+                    "is_correct": false
+                },
+                {
+                    "text": "<section> helps organize related content",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Article and Aside Basics",
+            "content": "Which of the following statements about <article> and <aside> tags are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<article> represents independent content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<aside> is used for side or supplementary content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<article> is used only for navigation menus",
+                    "is_correct": false
+                },
+                {
+                    "text": "<aside> can contain related links or ads",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Page Structure Understanding",
+            "content": "Which of the following statements about semantic page structure are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header> and <footer> define top and bottom sections of a page",
+                    "is_correct": true
+                },
+                {
+                    "text": "<main> should contain the primary content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<section> cannot be used multiple times in a page",
+                    "is_correct": false
+                },
+                {
+                    "text": "Semantic tags improve document structure clarity",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Navigation and Content Structure",
+            "content": "Which of the following statements about navigation and content structure are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<nav> is used for navigation links",
+                    "is_correct": true
+                },
+                {
+                    "text": "<article> represents standalone content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<nav> is used for page styling only",
+                    "is_correct": false
+                },
+                {
+                    "text": "<section> helps group related content",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Semantic Structure",
+            "content": "Which of the following statements about advanced semantic structure are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic tags improve accessibility for assistive technologies",
+                    "is_correct": true
+                },
+                {
+                    "text": "Proper use of semantic tags improves SEO performance",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic tags are optional and have no functional impact",
+                    "is_correct": false
+                },
+                {
+                    "text": "They help define a clear document outline",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Semantic Tags",
+            "content": "Which of the following are best practices for using semantic HTML tags?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use <main> only once per page",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use <article> for independent content blocks",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use <div> instead of semantic tags always",
+                    "is_correct": false
+                },
+                {
+                    "text": "Use semantic tags to improve readability and structure",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Basic Webpage Structure",
+            "content": "Which of the following statements about structuring real webpages are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic HTML helps structure real webpages",
+                    "is_correct": true
+                },
+                {
+                    "text": "<header>, <main>, and <footer> are used in page layout",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic layout is only for styling text",
+                    "is_correct": false
+                },
+                {
+                    "text": "Webpages should have a clear structure",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Blog Layout Basics",
+            "content": "Which of the following statements about blog layouts are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Blog layouts often use <article> for posts",
+                    "is_correct": true
+                },
+                {
+                    "text": "<aside> can be used for side content like ads or links",
+                    "is_correct": true
+                },
+                {
+                    "text": "Blog layouts do not use semantic tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "<header> can be used for blog titles",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Dashboard Layout Basics",
+            "content": "Which of the following statements about dashboard layouts are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 1,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Dashboards often use sections to organize data",
+                    "is_correct": true
+                },
+                {
+                    "text": "<nav> is used for navigation in dashboards",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dashboards cannot use semantic HTML",
+                    "is_correct": false
+                },
+                {
+                    "text": "<main> holds the primary dashboard content",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Real Webpage Structure",
+            "content": "Which of the following statements about structuring real webpages are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "<header> is used for top section content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<footer> is used for bottom section content",
+                    "is_correct": true
+                },
+                {
+                    "text": "<main> can appear multiple times in a page",
+                    "is_correct": false
+                },
+                {
+                    "text": "Semantic structure improves readability",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Blog Layout Structure",
+            "content": "Which of the following statements about blog layouts are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Each blog post can be wrapped in an <article>",
+                    "is_correct": true
+                },
+                {
+                    "text": "<aside> can show related posts or ads",
+                    "is_correct": true
+                },
+                {
+                    "text": "Blogs should avoid using semantic tags",
+                    "is_correct": false
+                },
+                {
+                    "text": "<section> can group blog content",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Advanced Layout Design",
+            "content": "Which of the following statements about advanced layout building are correct?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Semantic layout improves SEO and accessibility",
+                    "is_correct": true
+                },
+                {
+                    "text": "Dashboards often combine nav, main, and aside sections",
+                    "is_correct": true
+                },
+                {
+                    "text": "Semantic layout is not useful for real-world applications",
+                    "is_correct": false
+                },
+                {
+                    "text": "Proper structure helps scalable web design",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "mcq_multiple",
+            "title": "Best Practices for Layout Building",
+            "content": "Which of the following are best practices for building semantic layouts?",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 3,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Use <main> for primary content only once per page",
+                    "is_correct": true
+                },
+                {
+                    "text": "Use semantic tags to improve clarity and structure",
+                    "is_correct": true
+                },
+                {
+                    "text": "Avoid using semantic HTML for layouts",
+                    "is_correct": false
+                },
+                {
+                    "text": "Organize content using header, section, and footer",
+                    "is_correct": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Create a Basic Semantic Page Structure",
+            "content": "Create an HTML page using semantic tags like <header>, <main>, and <footer> to improve structure and readability.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Page with semantic structure"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Header, main, footer sections present"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<header>, <main>, <footer>",
+                    "explanation": "Semantic tags improve readability and structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with semantic structure.",
+            "solutions": [
+                {
+                    "title": "Basic Semantic Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Page</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n    <main>\n        <p>Welcome to my site.</p>\n    </main>\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use header, main, footer tags."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Improve Accessibility Using Semantic HTML",
+            "content": "Create a webpage using semantic tags and ensure accessibility by using proper headings and landmarks.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Accessible semantic layout"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Screen-reader friendly structure"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Proper headings and landmarks",
+                    "explanation": "Accessibility improves usability for assistive tech."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "Accessible HTML page.",
+            "solutions": [
+                {
+                    "title": "Accessible Semantic Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Accessible Page</title>\n</head>\n<body>\n    <header>\n        <h1>Home Page</h1>\n    </header>\n    <main>\n        <section>\n            <h2>About Us</h2>\n            <p>We build accessible websites.</p>\n        </section>\n    </main>\n    <footer>\n        <p>Contact us</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use headings properly for accessibility."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Blog Layout Using Semantic HTML",
+            "content": "Build a blog layout using semantic tags like article, section, header, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Blog structure displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Article and sections properly used"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<article>, <section>",
+                    "explanation": "Semantic tags help structure blog content."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog layout.",
+            "solutions": [
+                {
+                    "title": "Blog Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post Title</h2>\n            <p>Blog content goes here.</p>\n        </article>\n    </main>\n    <footer>\n        <p>Footer content</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use article for blog content."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an SEO Friendly Semantic Web Page",
+            "content": "Build a semantic HTML page using proper headings, sections, and article tags to improve SEO structure.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "SEO structured page"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Proper heading hierarchy maintained"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "SEO optimized structure",
+                    "explanation": "Search engines understand semantic structure better."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML SEO page.",
+            "solutions": [
+                {
+                    "title": "SEO Semantic Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>SEO Page</title>\n</head>\n<body>\n    <header>\n        <h1>Technology Blog</h1>\n    </header>\n    <main>\n        <section>\n            <h2>Latest Trends</h2>\n            <article>\n                <h3>AI Growth</h3>\n                <p>Content about AI.</p>\n            </article>\n        </section>\n    </main>\n    <footer>\n        <p>All rights reserved</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use proper heading hierarchy for SEO."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design a Maintainable Multi-Section Web Page",
+            "content": "Create a semantic HTML page with multiple sections and reusable structure for maintainability.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multi-section page"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Well structured reusable layout"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Maintainable HTML structure",
+                    "explanation": "Semantic HTML improves maintainability."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page.",
+            "solutions": [
+                {
+                    "title": "Maintainable Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Maintainable Page</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n    </header>\n    <main>\n        <section>\n            <h2>Services</h2>\n            <p>Details here.</p>\n        </section>\n        <section>\n            <h2>About</h2>\n            <p>About content.</p>\n        </section>\n    </main>\n    <footer>\n        <p>Footer info</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use multiple section tags for structure."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build an Accessible SEO Optimized Article Page",
+            "content": "Create a complex semantic HTML page that supports accessibility, SEO, and maintainability using article, section, header, and nav tags.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Full article page"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Accessible and SEO-friendly structure"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Complete semantic webpage",
+                    "explanation": "Combines accessibility + SEO + structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML article page.",
+            "solutions": [
+                {
+                    "title": "Advanced Semantic Article",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Article Page</title>\n</head>\n<body>\n    <header>\n        <h1>Tech Insights</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n        </nav>\n    </header>\n    <main>\n        <article>\n            <h2>AI Revolution</h2>\n            <section>\n                <h3>Introduction</h3>\n                <p>AI is transforming industries.</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>Copyright 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine nav, article, section properly.",
+                "Maintain heading hierarchy for SEO."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Fully Structured SEO Blog System",
+            "content": "Design a complex blog page using semantic HTML ensuring accessibility, SEO optimization, and maintainable structure with multiple articles and sections.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Why Semantic HTML Matters",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Blog system displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple articles structured semantically"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "SEO blog system",
+                    "explanation": "Large scale semantic structure improves SEO and maintainability."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog system.",
+            "solutions": [
+                {
+                    "title": "SEO Blog System",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog System</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog System</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post 1</h2>\n            <section>\n                <p>Content 1</p>\n            </section>\n        </article>\n        <article>\n            <h2>Post 2</h2>\n            <section>\n                <p>Content 2</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>End of Blog</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Use multiple articles and sections.",
+                "Maintain semantic structure for SEO."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Basic Semantic Page Layout",
+            "content": "Create an HTML page using semantic tags like <header>, <main>, and <footer> to structure a simple webpage.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Page with header, main, footer"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Semantic structure correctly displayed"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<header>, <main>, <footer>",
+                    "explanation": "Basic semantic layout improves structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with semantic tags.",
+            "solutions": [
+                {
+                    "title": "Basic Semantic Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Page</title>\n</head>\n<body>\n    <header>\n        <h1>My Website</h1>\n    </header>\n    <main>\n        <p>Welcome to the homepage.</p>\n    </main>\n    <footer>\n        <p>\u00a9 2026 MySite</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use header, main, footer tags."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Navigation Bar Using Semantic Tags",
+            "content": "Build an HTML page that includes a navigation menu using the <nav> tag inside the header.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Navigation bar displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Nav links correctly structured"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<nav> inside header",
+                    "explanation": "Nav tag is used for navigation links."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML page with nav.",
+            "solutions": [
+                {
+                    "title": "Navigation Bar",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Nav Page</title>\n</head>\n<body>\n    <header>\n        <nav>\n            <a href=\"#home\">Home</a>\n            <a href=\"#about\">About</a>\n        </nav>\n    </header>\n    <main>\n        <p>Content here</p>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use nav inside header."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Blog Section Using Article Tag",
+            "content": "Create an HTML page using <article> and <section> to structure a blog post.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Blog article displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Sectioned blog content"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<article> and <section>",
+                    "explanation": "Article tag is used for blog posts."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog page.",
+            "solutions": [
+                {
+                    "title": "Blog Article",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>My First Post</h2>\n            <section>\n                <p>Content of blog post.</p>\n            </section>\n        </article>\n    </main>\n    <footer>\n        <p>Footer info</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use article for blog content."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Build a Multi-Section Web Page Using Semantic Tags",
+            "content": "Create a webpage using header, nav, main, section, article, aside, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multi-section page displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "All semantic tags properly used"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Structured layout with multiple tags",
+                    "explanation": "Semantic tags organize content clearly."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML structured page.",
+            "solutions": [
+                {
+                    "title": "Multi Semantic Page",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Semantic Layout</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Article Title</h2>\n                <p>Content goes here.</p>\n            </article>\n        </section>\n        <aside>\n            <p>Sidebar info</p>\n        </aside>\n    </main>\n    <footer>\n        <p>Footer content</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Combine multiple semantic tags together.",
+                "Use aside for sidebar content."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Complete News Website Layout",
+            "content": "Build a semantic HTML news webpage using header, nav, main, section, article, aside, and footer for proper structure.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "News layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Proper semantic segmentation"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "News website structure",
+                    "explanation": "Real-world websites use semantic layout."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML news page.",
+            "solutions": [
+                {
+                    "title": "News Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>News Site</title>\n</head>\n<body>\n    <header>\n        <h1>Daily News</h1>\n        <nav>\n            <a href=\"#world\">World</a>\n            <a href=\"#sports\">Sports</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Breaking News</h2>\n                <p>Important update...</p>\n            </article>\n        </section>\n        <aside>\n            <p>Trending topics</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 News 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Structure like real news websites.",
+                "Use aside for extra content."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design a Complex Blog Platform Layout",
+            "content": "Create a full blog platform layout using all semantic tags including header, nav, main, section, article, aside, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Blog platform displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Fully structured semantic layout"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Complete blog system",
+                    "explanation": "Large applications rely on semantic structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog platform.",
+            "solutions": [
+                {
+                    "title": "Blog Platform Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog Platform</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog Platform</h1>\n        <nav>\n            <a href=\"#home\">Home</a>\n            <a href=\"#posts\">Posts</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Post 1</h2>\n                <p>Content here</p>\n            </article>\n            <article>\n                <h2>Post 2</h2>\n                <p>Content here</p>\n            </article>\n        </section>\n        <aside>\n            <p>Popular posts</p>\n        </aside>\n    </main>\n    <footer>\n        <p>All rights reserved</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine multiple articles inside sections.",
+                "Use nav and aside effectively."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Enterprise-Level Website Layout Using Semantic Tags",
+            "content": "Design a complex enterprise webpage using all semantic HTML tags to ensure scalability, accessibility, and maintainability.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Tags",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Enterprise layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Fully structured semantic enterprise page"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Large scale semantic system",
+                    "explanation": "Enterprise apps require clean structure."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML enterprise page.",
+            "solutions": [
+                {
+                    "title": "Enterprise Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise Site</title>\n</head>\n<body>\n    <header>\n        <h1>Company</h1>\n        <nav>\n            <a href=\"#services\">Services</a>\n            <a href=\"#contact\">Contact</a>\n        </nav>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Service 1</h2>\n                <p>Description</p>\n            </article>\n            <article>\n                <h2>Service 2</h2>\n                <p>Description</p>\n            </article>\n        </section>\n        <aside>\n            <p>Announcements</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 Enterprise 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Think like a real enterprise website.",
+                "Use all semantic tags properly."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Simple Blog Layout",
+            "content": "Create a basic blog layout using semantic HTML tags including header, main, article, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Blog layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Proper semantic blog structure"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<article> inside <main>",
+                    "explanation": "Blog layout uses article for posts."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog layout.",
+            "solutions": [
+                {
+                    "title": "Basic Blog Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post Title</h2>\n            <p>Blog content goes here.</p>\n        </article>\n    </main>\n    <footer>\n        <p>\u00a9 2026 Blog</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use article for blog posts."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Simple Webpage Structure",
+            "content": "Create a basic webpage using semantic tags such as header, main, section, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Webpage structure displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Proper semantic structure used"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<header>, <main>, <footer>",
+                    "explanation": "Basic webpage layout uses semantic tags."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML webpage.",
+            "solutions": [
+                {
+                    "title": "Simple Webpage",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Webpage</title>\n</head>\n<body>\n    <header>\n        <h1>Website</h1>\n    </header>\n    <main>\n        <section>\n            <p>Welcome content</p>\n        </section>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use header, main, footer properly."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Simple Dashboard Layout",
+            "content": "Build a basic dashboard layout using semantic HTML with header, main, aside, and section.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Sidebar and main content structured"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "<aside> used for sidebar",
+                    "explanation": "Dashboards use aside for navigation panels."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML dashboard layout.",
+            "solutions": [
+                {
+                    "title": "Basic Dashboard",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Dashboard</h1>\n    </header>\n    <main>\n        <aside>\n            <p>Sidebar Menu</p>\n        </aside>\n        <section>\n            <p>Main Content</p>\n        </section>\n    </main>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "basic"
+                }
+            ],
+            "hints": [
+                "Use aside for sidebar."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Blog Website with Multiple Posts",
+            "content": "Build a blog layout with multiple articles using semantic tags like header, main, article, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple blog posts displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Structured blog layout"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple <article> elements",
+                    "explanation": "Blogs contain multiple posts."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog page.",
+            "solutions": [
+                {
+                    "title": "Multi Post Blog",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog</h1>\n    </header>\n    <main>\n        <article>\n            <h2>Post 1</h2>\n            <p>Content 1</p>\n        </article>\n        <article>\n            <h2>Post 2</h2>\n            <p>Content 2</p>\n        </article>\n    </main>\n    <footer>\n        <p>Footer</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use multiple article tags."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create a Dashboard with Sidebar Navigation",
+            "content": "Build a semantic dashboard layout with header, aside for sidebar navigation, main content, and sections.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "practice"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Sidebar navigation works"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Dashboard with sidebar",
+                    "explanation": "Dashboards use aside for navigation."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML dashboard.",
+            "solutions": [
+                {
+                    "title": "Dashboard Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Admin Dashboard</h1>\n    </header>\n    <main>\n        <aside>\n            <nav>\n                <p>Menu</p>\n            </nav>\n        </aside>\n        <section>\n            <h2>Analytics</h2>\n        </section>\n    </main>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "intermediate"
+                }
+            ],
+            "hints": [
+                "Use aside for navigation menu."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Design a Complex Multi-Page Blog Layout",
+            "content": "Create a complex blog layout using semantic HTML including multiple articles, sections, sidebar, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Complex blog layout displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Multiple structured sections and articles"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Full blog system layout",
+                    "explanation": "Real blogs use multiple structured components."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML blog system.",
+            "solutions": [
+                {
+                    "title": "Complex Blog Layout",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog System</title>\n</head>\n<body>\n    <header>\n        <h1>My Blog System</h1>\n    </header>\n    <main>\n        <section>\n            <article>\n                <h2>Post 1</h2>\n                <p>Content 1</p>\n            </article>\n            <article>\n                <h2>Post 2</h2>\n                <p>Content 2</p>\n            </article>\n        </section>\n        <aside>\n            <p>Popular Posts</p>\n        </aside>\n    </main>\n    <footer>\n        <p>\u00a9 2026 Blog</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine multiple semantic elements.",
+                "Use aside for extra information."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        },
+        {
+            "type": "coding",
+            "title": "Create an Enterprise Level Dashboard Layout",
+            "content": "Design a complex enterprise dashboard using semantic HTML tags including header, nav, aside, main, section, article, and footer.",
+            "level": "subtopic",
+            "topic_name": "Semantic HTML",
+            "subtopic_name": "Semantic Layout Building",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "",
+                    "expected_output": "Enterprise dashboard displayed"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "",
+                    "expected_output": "Fully structured dashboard system"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "",
+                    "expected_output": "Enterprise UI layout",
+                    "explanation": "Large systems require structured semantic layout."
+                }
+            ],
+            "inputFormat": "No input.",
+            "outputFormat": "HTML enterprise dashboard.",
+            "solutions": [
+                {
+                    "title": "Enterprise Dashboard",
+                    "language": "html",
+                    "code": "<!DOCTYPE html>\n<html>\n<head>\n    <title>Enterprise Dashboard</title>\n</head>\n<body>\n    <header>\n        <h1>Company Dashboard</h1>\n        <nav>\n            <p>Navigation</p>\n        </nav>\n    </header>\n    <main>\n        <aside>\n            <p>Sidebar Menu</p>\n        </aside>\n        <section>\n            <article>\n                <h2>Reports</h2>\n                <p>Analytics data</p>\n            </article>\n            <article>\n                <h2>Users</h2>\n                <p>User data</p>\n            </article>\n        </section>\n    </main>\n    <footer>\n        <p>\u00a9 Enterprise 2026</p>\n    </footer>\n</body>\n</html>",
+                    "complexity_analysis": "Time: O(1), Space: O(1)",
+                    "is_primary": true,
+                    "approach": "advanced"
+                }
+            ],
+            "hints": [
+                "Combine all semantic tags properly.",
+                "Think like a real enterprise UI."
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
+        }
+    ]
 }

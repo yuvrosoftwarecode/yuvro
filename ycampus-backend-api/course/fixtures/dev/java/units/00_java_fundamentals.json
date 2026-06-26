@@ -65,7 +65,7 @@
         },
         {
             "name": "Control Statements & Loops",
-            "content": "Control statements in Java direct the flow of program execution based on conditions, including if, if-else, if-else-if ladder, nested if, and switch-case statements. Loops are used to execute a block of code repeatedly — Java supports for loops, while loops, do-while loops, and enhanced for-each loops. Loop control statements like break, continue, and labeled loops provide additional control. Together, control statements and loops form the core logic-building blocks of any Java program.",
+            "content": "Control statements in Java direct the flow of program execution based on conditions, including if, if-else, if-else-if ladder, nested if, and switch-case statements. Loops are used to execute a block of code repeatedly \u2014 Java supports for loops, while loops, do-while loops, and enhanced for-each loops. Loop control statements like break, continue, and labeled loops provide additional control. Together, control statements and loops form the core logic-building blocks of any Java program.",
             "order_index": 5,
             "videos": [
                 {
@@ -416,19 +416,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "Source Code → Bytecode → JVM → Machine Code",
+                    "text": "Source Code \u2192 Bytecode \u2192 JVM \u2192 Machine Code",
                     "is_correct": true
                 },
                 {
-                    "text": "Machine Code → JVM → Source Code",
+                    "text": "Machine Code \u2192 JVM \u2192 Source Code",
                     "is_correct": false
                 },
                 {
-                    "text": "Bytecode → Source Code → Compiler",
+                    "text": "Bytecode \u2192 Source Code \u2192 Compiler",
                     "is_correct": false
                 },
                 {
-                    "text": "JDK → Machine Code → Source Code",
+                    "text": "JDK \u2192 Machine Code \u2192 Source Code",
                     "is_correct": false
                 }
             ]
@@ -5280,19 +5280,19 @@
             ],
             "mcq_options": [
                 {
-                    "text": "int → Integer",
+                    "text": "int \u2192 Integer",
                     "is_correct": true
                 },
                 {
-                    "text": "char → Character",
+                    "text": "char \u2192 Character",
                     "is_correct": true
                 },
                 {
-                    "text": "boolean → Boolean",
+                    "text": "boolean \u2192 Boolean",
                     "is_correct": true
                 },
                 {
-                    "text": "String → StringWrapper",
+                    "text": "String \u2192 StringWrapper",
                     "is_correct": false
                 }
             ]
@@ -5965,7 +5965,11 @@
                 "Use Scanner to take input.",
                 "Read two integer values.",
                 "Use the + operator to add them."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6059,7 +6063,11 @@
                 "Compare the first number with the remaining numbers.",
                 "Use if-else conditions.",
                 "Store the largest value in a variable before printing."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6153,7 +6161,11 @@
                 "Use the modulus (%) operator.",
                 "If a number is divisible by 2, it is even.",
                 "Check whether remainder becomes 0."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6247,7 +6259,11 @@
                 "Use if-else-if conditions.",
                 "Check whether the number is greater than 0.",
                 "Handle zero separately."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6332,7 +6348,7 @@
                     "title": "Prime Check Using Nested Loops",
                     "language": "java",
                     "code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int L = sc.nextInt();\n        int R = sc.nextInt();\n\n        StringBuilder result = new StringBuilder();\n\n        for(int i = L; i <= R; i++) {\n            if(i < 2) continue;\n\n            boolean isPrime = true;\n\n            for(int j = 2; j * j <= i; j++) {\n                if(i % j == 0) {\n                    isPrime = false;\n                    break;\n                }\n            }\n\n            if(isPrime) {\n                result.append(i).append(\" \");\n            }\n        }\n\n        System.out.print(result.toString().trim());\n    }\n}",
-                    "complexity_analysis": "Time Complexity: O(N * √N), Space Complexity: O(1)",
+                    "complexity_analysis": "Time Complexity: O(N * \u221aN), Space Complexity: O(1)",
                     "is_primary": true,
                     "approach": "nested loop prime checking"
                 }
@@ -6342,7 +6358,11 @@
                 "Loop through each number in the range.",
                 "Check divisibility from 2 to square root of the number.",
                 "Skip numbers less than 2."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6437,7 +6457,11 @@
                 "Extract digits using modulus (%) operator.",
                 "Raise each digit to the power of total digits.",
                 "Compare the sum with the original number."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6532,7 +6556,11 @@
                 "LinkedHashMap helps maintain insertion order.",
                 "Ignore spaces while counting.",
                 "Traverse the string character by character."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6627,7 +6655,11 @@
                 "Maintain a current consecutive failure count.",
                 "Reset the count when a successful request is encountered.",
                 "Track the maximum failure streak during traversal."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6722,7 +6754,11 @@
                 "HashSet helps detect duplicates efficiently.",
                 "Keep only K recent elements in the window.",
                 "If an element already exists in the set, print 'Suspicious'."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6817,7 +6853,11 @@
                 "Slide the window one element at a time.",
                 "Subtract the outgoing element and add the incoming element.",
                 "Track the maximum sum during traversal."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -6910,7 +6950,11 @@
             "hints": [
                 "Use System.getProperty().",
                 "The property key is java.version."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7003,7 +7047,11 @@
             "hints": [
                 "Use java.vm.name property.",
                 "System properties contain JVM details."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7096,7 +7144,11 @@
             "hints": [
                 "Use os.name system property.",
                 "System.getProperty() helps retrieve system details."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7189,7 +7241,11 @@
             "hints": [
                 "Use user.dir property.",
                 "The JVM stores working directory information."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7283,7 +7339,11 @@
                 "Use Runtime.getRuntime().",
                 "Use totalMemory() and freeMemory().",
                 "Used memory = total - free."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7376,7 +7436,11 @@
             "hints": [
                 "Use java.vendor property.",
                 "Use java.vm.vendor property."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7469,7 +7533,11 @@
             "hints": [
                 "Use sun.arch.data.model property.",
                 "The value is usually 32 or 64."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7563,7 +7631,11 @@
                 "Use System.nanoTime().",
                 "Store start and end times.",
                 "Subtract end - start."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7656,7 +7728,11 @@
             "hints": [
                 "Use Runtime class.",
                 "Call availableProcessors()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7750,7 +7826,11 @@
                 "Create objects inside a loop.",
                 "Use System.gc().",
                 "Garbage collection execution is not guaranteed immediately."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7843,7 +7923,11 @@
             "hints": [
                 "Use int data type.",
                 "Read input using Scanner."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -7918,7 +8002,7 @@
                 {
                     "input": "2",
                     "expected_output": "12.56",
-                    "explanation": "Area = 3.14 × r × r"
+                    "explanation": "Area = 3.14 \u00d7 r \u00d7 r"
                 }
             ],
             "inputFormat": "An integer radius.",
@@ -7936,7 +8020,11 @@
             "hints": [
                 "Use double data type.",
                 "Use printf for formatting."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8029,7 +8117,11 @@
             "hints": [
                 "Characters can be cast to int.",
                 "Use char data type."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8122,7 +8214,11 @@
             "hints": [
                 "Use arithmetic operations.",
                 "Avoid extra variables."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8197,7 +8293,7 @@
                 {
                     "input": "1000 5 2",
                     "expected_output": "100.00",
-                    "explanation": "Simple Interest = (P × R × T) / 100"
+                    "explanation": "Simple Interest = (P \u00d7 R \u00d7 T) / 100"
                 }
             ],
             "inputFormat": "Three numbers representing principal, rate, and time.",
@@ -8215,7 +8311,11 @@
             "hints": [
                 "Use double data type.",
                 "Apply simple interest formula."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8290,7 +8390,7 @@
                 {
                     "input": "0",
                     "expected_output": "32.00",
-                    "explanation": "F = (C × 9/5) + 32"
+                    "explanation": "F = (C \u00d7 9/5) + 32"
                 }
             ],
             "inputFormat": "A single integer or decimal representing Celsius temperature.",
@@ -8308,7 +8408,11 @@
             "hints": [
                 "Use floating-point calculation.",
                 "Apply temperature conversion formula."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8401,7 +8505,11 @@
             "hints": [
                 "Use loop and division.",
                 "Handle negative numbers using Math.abs()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8494,7 +8602,11 @@
             "hints": [
                 "Use ternary operator.",
                 "Compare numbers step-by-step."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8587,7 +8699,11 @@
             "hints": [
                 "Extract last digit using modulo.",
                 "Build reverse number iteratively."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8680,7 +8796,11 @@
             "hints": [
                 "Use Integer.parseInt().",
                 "Base 2 is used for binary conversion."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8773,7 +8893,11 @@
             "hints": [
                 "Use arithmetic operators.",
                 "Division between integers gives integer result."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8866,7 +8990,11 @@
             "hints": [
                 "Use explicit type casting.",
                 "Decimal part will be truncated."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -8959,7 +9087,11 @@
             "hints": [
                 "Use modulus operator.",
                 "n % 2 determines parity."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9052,7 +9184,11 @@
             "hints": [
                 "++a increments before usage.",
                 "a++ increments after usage."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9145,7 +9281,11 @@
             "hints": [
                 "Use condition ? true:false",
                 "Check marks >= 35"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9238,7 +9378,11 @@
             "hints": [
                 "Use 3.0 instead of 3.",
                 "Integer division truncates decimals."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9331,7 +9475,11 @@
             "hints": [
                 "Use & operator.",
                 "Bitwise operations work on binary values."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9424,7 +9572,11 @@
             "hints": [
                 "Use loop for repeated multiplication.",
                 "Initialize result as 1."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9517,7 +9669,11 @@
             "hints": [
                 "Use << operator.",
                 "Left shift multiplies by powers of 2."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9610,7 +9766,11 @@
             "hints": [
                 "Byte range is -128 to 127.",
                 "Overflow occurs during casting."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9703,7 +9863,11 @@
             "hints": [
                 "Use Scanner for input.",
                 "Concatenate strings using + operator."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9796,7 +9960,11 @@
             "hints": [
                 "Use nextInt() method.",
                 "Print using System.out.println()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9889,7 +10057,11 @@
             "hints": [
                 "Use charAt(0).",
                 "Cast char into int."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -9982,7 +10154,11 @@
             "hints": [
                 "Use double data type.",
                 "Use nextDouble() for input."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10075,7 +10251,11 @@
             "hints": [
                 "Use nextLine() for full-line input.",
                 "Concatenate with a space."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10168,7 +10348,11 @@
             "hints": [
                 "Use string concatenation.",
                 "Multiply number by itself."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10261,7 +10445,11 @@
             "hints": [
                 "nextInt() leaves newline in buffer.",
                 "Use extra nextLine() to consume it."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10354,7 +10542,11 @@
             "hints": [
                 "Use trim() before split().",
                 "Split using regex \\s+."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10447,7 +10639,11 @@
             "hints": [
                 "Traverse string from end.",
                 "Append characters into new string."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10540,7 +10736,11 @@
             "hints": [
                 "Use Math.max() and Math.min().",
                 "Average should be double."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10633,7 +10833,11 @@
             "hints": [
                 "Use if-else ladder.",
                 "Compare with zero."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10726,7 +10930,11 @@
             "hints": [
                 "Use for loop from 1 to 10.",
                 "Multiply number with loop variable."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10819,7 +11027,11 @@
             "hints": [
                 "Initialize sum with 0.",
                 "Add numbers inside loop."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10912,7 +11124,11 @@
             "hints": [
                 "Use division by 10.",
                 "Handle negative values using Math.abs()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -10987,7 +11203,7 @@
                 {
                     "input": "5",
                     "expected_output": "120",
-                    "explanation": "5! = 5 × 4 × 3 × 2 × 1"
+                    "explanation": "5! = 5 \u00d7 4 \u00d7 3 \u00d7 2 \u00d7 1"
                 }
             ],
             "inputFormat": "A single integer.",
@@ -11005,7 +11221,11 @@
             "hints": [
                 "Initialize factorial as 1.",
                 "Multiply numbers from 1 to N."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11098,7 +11318,11 @@
             "hints": [
                 "Reverse the number.",
                 "Compare original and reversed values."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11183,7 +11407,7 @@
                     "title": "Prime Checker",
                     "language": "java",
                     "code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n\n        if(n <= 1) {\n            System.out.println(\"Not Prime\");\n            return;\n        }\n\n        boolean prime = true;\n\n        for(int i = 2; i <= Math.sqrt(n); i++) {\n            if(n % i == 0) {\n                prime = false;\n                break;\n            }\n        }\n\n        if(prime)\n            System.out.println(\"Prime\");\n        else\n            System.out.println(\"Not Prime\");\n    }\n}",
-                    "complexity_analysis": "Time Complexity: O(√N), Space Complexity: O(1)",
+                    "complexity_analysis": "Time Complexity: O(\u221aN), Space Complexity: O(1)",
                     "is_primary": true,
                     "approach": "optimized-prime-check"
                 }
@@ -11191,7 +11415,11 @@
             "hints": [
                 "Prime numbers are greater than 1.",
                 "Check divisibility till square root of N."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11266,7 +11494,7 @@
                 {
                     "input": "153",
                     "expected_output": "Armstrong",
-                    "explanation": "1³ + 5³ + 3³ = 153"
+                    "explanation": "1\u00b3 + 5\u00b3 + 3\u00b3 = 153"
                 }
             ],
             "inputFormat": "A single integer.",
@@ -11284,7 +11512,11 @@
             "hints": [
                 "Count number of digits.",
                 "Raise each digit to power of digit count."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11377,7 +11609,11 @@
             "hints": [
                 "Start with 0 and 1.",
                 "Next term is sum of previous two."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11462,7 +11698,7 @@
                     "title": "Triangle Pattern",
                     "language": "java",
                     "code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n\n        for(int i = 1; i <= n; i++) {\n            for(int j = 1; j <= i; j++) {\n                System.out.print(\"*\");\n            }\n            System.out.println();\n        }\n    }\n}",
-                    "complexity_analysis": "Time Complexity: O(N²), Space Complexity: O(1)",
+                    "complexity_analysis": "Time Complexity: O(N\u00b2), Space Complexity: O(1)",
                     "is_primary": true,
                     "approach": "nested-loops"
                 }
@@ -11470,7 +11706,11 @@
             "hints": [
                 "Use nested loops.",
                 "Outer loop controls rows."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11563,7 +11803,11 @@
             "hints": [
                 "Use loop to traverse array.",
                 "Store result in sum variable."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11656,7 +11900,11 @@
             "hints": [
                 "Initialize max with first element.",
                 "Compare all remaining elements."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11749,7 +11997,11 @@
             "hints": [
                 "Swap first and last elements.",
                 "Move pointers inward."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11842,7 +12094,11 @@
             "hints": [
                 "Use modulus operator.",
                 "Increment counter for even elements."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -11935,7 +12191,11 @@
             "hints": [
                 "Maintain largest and second largest variables.",
                 "Avoid sorting the array."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12028,7 +12288,11 @@
             "hints": [
                 "Binary Search works only on sorted arrays.",
                 "Use low, high, and mid indexes."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12121,7 +12385,11 @@
             "hints": [
                 "Use modulo for large K values.",
                 "Store rotated elements in another array."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12214,7 +12482,11 @@
             "hints": [
                 "Array is already sorted.",
                 "Compare current element with previous element."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12307,7 +12579,11 @@
             "hints": [
                 "Use two pointers.",
                 "Compare elements from both arrays."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12400,7 +12676,11 @@
             "hints": [
                 "Use HashMap to store frequency.",
                 "Increment count for repeated elements."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12493,7 +12773,11 @@
             "hints": [
                 "Use Integer.toString().",
                 "Store converted value in String variable."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12586,7 +12870,11 @@
             "hints": [
                 "Use Integer.parseInt().",
                 "Input is a String."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12679,7 +12967,11 @@
             "hints": [
                 "ArrayList<Integer> stores Integer objects.",
                 "Primitive int values are auto-boxed."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12772,7 +13064,11 @@
             "hints": [
                 "Use Character.isDigit().",
                 "Input contains single character."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12865,7 +13161,11 @@
             "hints": [
                 "Use Integer.parseInt().",
                 "Inputs are strings, not integers directly."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -12958,7 +13258,11 @@
             "hints": [
                 "Traverse the string character by character.",
                 "Use Character.isDigit()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13051,7 +13355,11 @@
             "hints": [
                 "Convert strings into Integer objects.",
                 "Use Arrays.sort()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13144,7 +13452,11 @@
             "hints": [
                 "Primitive int[] does not work with reverseOrder().",
                 "Use Integer[] instead."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13237,7 +13549,11 @@
             "hints": [
                 "Use Integer.parseInt(string, radix).",
                 "Hexadecimal uses radix/base 16."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13330,7 +13646,11 @@
             "hints": [
                 "Use Integer.parseInt().",
                 "Handle invalid inputs using try-catch."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13423,7 +13743,11 @@
             "hints": [
                 "Use public keyword.",
                 "Access variable using object."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13516,7 +13840,11 @@
             "hints": [
                 "Private variables cannot be accessed directly.",
                 "Use getter method."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13609,7 +13937,11 @@
             "hints": [
                 "Protected members are accessible in subclasses.",
                 "Use inheritance."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13702,7 +14034,11 @@
             "hints": [
                 "Use getPackage() method.",
                 "Classes without explicit package return null."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13795,7 +14131,11 @@
             "hints": [
                 "Use private variables.",
                 "Access data using getter and setter methods."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13888,7 +14228,11 @@
             "hints": [
                 "Protected members are accessible in subclasses.",
                 "Use inheritance properly."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -13981,7 +14325,11 @@
             "hints": [
                 "Balance should be private.",
                 "Update balance only through methods."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -14074,7 +14422,11 @@
             "hints": [
                 "Use separate classes.",
                 "Pass values through constructor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -14167,7 +14519,11 @@
             "hints": [
                 "Keep confidential role private.",
                 "Use equals() for string comparison."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -14260,7 +14616,11 @@
             "hints": [
                 "Use protected variable in parent class.",
                 "Access inherited member inside child class."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

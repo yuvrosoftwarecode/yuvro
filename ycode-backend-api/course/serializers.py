@@ -410,19 +410,11 @@ class QuestionSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"code_executor_config": "time_limit must be a positive number (seconds)"}
                     )
-                if time_limit > 300:
-                    raise serializers.ValidationError(
-                        {"code_executor_config": "time_limit cannot exceed 300 seconds"}
-                    )
 
             if memory_limit is not None:
                 if not isinstance(memory_limit, (int, float)) or memory_limit <= 0:
                     raise serializers.ValidationError(
                         {"code_executor_config": "memory_limit must be a positive number (MB)"}
-                    )
-                if memory_limit > 4096:
-                    raise serializers.ValidationError(
-                        {"code_executor_config": "memory_limit cannot exceed 4096 MB"}
                     )
 
         return data

@@ -1702,7 +1702,11 @@
             ],
             "hints": [
                 "Use __init__ method."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1749,7 +1753,11 @@
             ],
             "hints": [
                 "Multiply length and breadth."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1796,7 +1804,11 @@
             ],
             "hints": [
                 "Use constructor."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1843,7 +1855,11 @@
             ],
             "hints": [
                 "Use math.pi"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1890,7 +1906,11 @@
             ],
             "hints": [
                 "10% = salary * 0.1"
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1937,7 +1957,11 @@
             ],
             "hints": [
                 "Use loop for multiple objects."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -1984,7 +2008,11 @@
             ],
             "hints": [
                 "Use method for logic."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2032,7 +2060,11 @@
             ],
             "hints": [
                 "Use __ for private variables."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2079,7 +2111,11 @@
             ],
             "hints": [
                 "Use class inheritance."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2126,7 +2162,11 @@
             ],
             "hints": [
                 "Override parent method."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2173,7 +2213,11 @@
             ],
             "hints": [
                 "Use ABC module."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2220,7 +2264,11 @@
             ],
             "hints": [
                 "Use super()."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2267,7 +2315,11 @@
             ],
             "hints": [
                 "Same method name in different classes."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2314,7 +2366,11 @@
             ],
             "hints": [
                 "Combine encapsulation + methods."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2362,7 +2418,11 @@
             ],
             "hints": [
                 "Use __str__ for user-friendly output."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2409,7 +2469,11 @@
             ],
             "hints": [
                 "Use __repr__ for debugging format."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2456,7 +2520,11 @@
             ],
             "hints": [
                 "Use @staticmethod decorator."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2503,7 +2571,11 @@
             ],
             "hints": [
                 "Use @classmethod and cls."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2550,7 +2622,11 @@
             ],
             "hints": [
                 "Use both decorators."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2597,7 +2673,11 @@
             ],
             "hints": [
                 "Differentiate __str__ and __repr__."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         },
         {
             "type": "coding",
@@ -2644,7 +2724,11 @@
             ],
             "hints": [
                 "Use class variables + classmethod."
-            ]
+            ],
+            "code_executor_config": {
+                "time_limit": 10,
+                "memory_limit": 256
+            }
         }
     ]
 }

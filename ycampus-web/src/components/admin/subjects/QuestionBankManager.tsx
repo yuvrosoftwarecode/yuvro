@@ -287,12 +287,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     if (formData.type === 'coding' && formData.code_executor_config) {
       const tl = formData.code_executor_config.time_limit;
       const ml = formData.code_executor_config.memory_limit;
-      if (!tl || tl < 1 || tl > 60) {
-        toast.error('Time limit must be between 1 and 60 seconds');
+      if (!tl || isNaN(tl) || tl <= 0) {
+        toast.error('Time limit must be a positive number');
         return;
       }
-      if (!ml || ml < 16 || ml > 1024) {
-        toast.error('Memory limit must be between 16 and 1024 MB');
+      if (!ml || isNaN(ml) || ml <= 0) {
+        toast.error('Memory limit must be a positive number');
         return;
       }
     }
@@ -965,7 +965,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       <Input
                         type="number"
                         min="1"
-                        max="60"
                         value={formData.code_executor_config?.time_limit ?? 10}
                         onChange={(e) => setFormData(prev => ({
                           ...prev,
@@ -982,7 +981,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       <Input
                         type="number"
                         min="16"
-                        max="1024"
                         value={formData.code_executor_config?.memory_limit ?? 256}
                         onChange={(e) => setFormData(prev => ({
                           ...prev,
