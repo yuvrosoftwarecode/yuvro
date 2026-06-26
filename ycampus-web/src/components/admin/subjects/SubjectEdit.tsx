@@ -5,6 +5,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import VideosPanel from "./VideosPanel";
 import NotesManager from "./NotesManager";
 import QuestionBankManager from "./QuestionBankManager";
+import StudyMaterialManager from "./StudyMaterialManager";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "../../admin/AdminSidebar";
 
@@ -112,7 +113,7 @@ const SubjectEdit: React.FC = () => {
   const [selectedSubUnit, setSelectedSubUnit] = useState<SubUnit | null>(null);
 
   // Right-panel tab state
-  const [rightTab, setRightTab] = useState<"videos" | "notes" | "questions">("questions");
+  const [rightTab, setRightTab] = useState<"videos" | "materials" | "notes" | "questions">("questions");
 
   // Subject editing state
   const [editSubjectValues, setEditSubjectValues] = useState({
@@ -509,6 +510,7 @@ const SubjectEdit: React.FC = () => {
                     {selectedSubUnit && (
                       <>
                         <Button variant={rightTab === "videos" ? "default" : "outline"} onClick={() => setRightTab("videos")} className="gap-2 cursor-pointer transition-all"><Video className="w-4 h-4" /> Videos</Button>
+                        <Button variant={rightTab === "materials" ? "default" : "outline"} onClick={() => setRightTab("materials")} className="gap-2 cursor-pointer transition-all"><BookOpen className="w-4 h-4" /> Study Materials</Button>
                         <Button variant={rightTab === "notes" ? "default" : "outline"} onClick={() => setRightTab("notes")} className="gap-2 cursor-pointer transition-all"><FileText className="w-4 h-4" /> Notes</Button>
                       </>
                     )}
@@ -527,6 +529,17 @@ const SubjectEdit: React.FC = () => {
                   />
                 ) : rightTab === "videos" && selectedSubUnit ? (
                   <VideosPanel subUnitId={selectedSubUnit.id} />
+                ) : rightTab === "materials" && selectedSubUnit ? (
+                  <StudyMaterialManager 
+                    subUnit={selectedSubUnit} 
+                    onUpdate={(updated) => {
+                      setSubUnitsMap((prev) => {
+                        const arr = prev[updated.unit] || [];
+                        return { ...prev, [updated.unit]: arr.map((s) => (s.id === updated.id ? updated : s)) };
+                      });
+                      setSelectedSubUnit(updated);
+                    }} 
+                  />
                 ) : rightTab === "notes" && selectedSubUnit ? (
                   <NotesManager subUnitId={selectedSubUnit.id} />
                 ) : (
