@@ -160,7 +160,7 @@ class JobApplication(BaseTimestampedModel):
 class SocialLinks(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.OneToOneField(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="links"
+        "core.Profile", on_delete=models.CASCADE, related_name="links", db_constraint=False
     )
 
     github = models.URLField(blank=True, null=True)
@@ -182,7 +182,7 @@ class Skill(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="skills"
+        "core.Profile", on_delete=models.CASCADE, related_name="skills", db_constraint=False
     )
 
     name = models.CharField(max_length=100)
@@ -196,7 +196,7 @@ class Skill(models.Model):
 class Experience(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="experiences"
+        "core.Profile", on_delete=models.CASCADE, related_name="experiences", db_constraint=False
     )
 
     company = models.CharField(max_length=255)
@@ -216,7 +216,7 @@ class Experience(models.Model):
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="projects"
+        "core.Profile", on_delete=models.CASCADE, related_name="projects", db_constraint=False
     )
 
     title = models.CharField(max_length=255)
@@ -236,7 +236,7 @@ class Project(models.Model):
 class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="education"
+        "core.Profile", on_delete=models.CASCADE, related_name="education", db_constraint=False
     )
 
     institution = models.CharField(max_length=255)
@@ -255,9 +255,10 @@ class Education(models.Model):
 class Certification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
-        "authentication.Profile",
+        "core.Profile",
         on_delete=models.CASCADE,
         related_name="certifications",
+        db_constraint=False,
     )
 
     name = models.CharField(max_length=255)
@@ -306,7 +307,7 @@ class JobProfile(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.OneToOneField(
-        "authentication.Profile", on_delete=models.CASCADE, related_name="job_profile"
+        "core.Profile", on_delete=models.CASCADE, related_name="job_profile", db_constraint=False
     )
 
     current_ctc = models.DecimalField(

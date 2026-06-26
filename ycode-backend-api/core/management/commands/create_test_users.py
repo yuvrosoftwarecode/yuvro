@@ -3,7 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db import models
-from authentication.models import Profile, College
+from core.models import Profile, College
 from job.models import SocialLinks, Skill, Experience, Project, Education, Certification
 
 User = get_user_model()
@@ -193,7 +193,7 @@ class Command(BaseCommand):
                         
                         # Now handle department if present
                         if first_department and not profile.department:
-                            from authentication.models import Department
+                            from core.models import Department
                             department, dept_created = Department.objects.get_or_create(
                                 college=college,
                                 name__iexact=first_department,

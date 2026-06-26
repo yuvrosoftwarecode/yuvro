@@ -844,3 +844,39 @@ def change_password_view(request):
     user.save()
 
     return Response({"message": "Password changed successfully."})
+
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def internal_user_detail_view(request, pk):
+    from django.conf import settings
+    from django.shortcuts import get_object_or_404
+    token = request.headers.get("X-Internal-Token")
+    expected_token = getattr(settings, "INTERNAL_SERVICE_TOKEN", "super-secret-internal-token")
+    if not token or token != expected_token:
+        return Response({"error": "Unauthorized internal request"}, status=status.HTTP_403_FORBIDDEN)
+
+    user = get_object_or_404(User, id=pk)
+    profile = getattr(user, "profile", None)
+    
+    profile_data = {}
+    if profile:
+        profile_data = {
+            "college_id": str(profile.college_id) if profile.college_id else None,
+            "college_name": profile.college.name if profile.college else None,
+            "department_id": str(profile.department_id) if profile.department_id else None,
+            "department_name": profile.department.name if profile.department else None,
+            "full_name": profile.full_name,
+            "profile_image": profile.profile_image,
+        }
+
+    return Response({
+        "user_id": str(user.id),
+        "email": user.email,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+        "is_active": user.is_active,
+        "profile": profile_data,
+    })

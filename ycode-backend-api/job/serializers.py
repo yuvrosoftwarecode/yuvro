@@ -17,8 +17,8 @@ from .models import (
     Education,
     Certification,
 )
-from authentication.models import Profile
-from authentication.serializers import UserSerializer, CollegeSerializer, DepartmentSerializer
+from core.models import Profile
+from core.serializers import UserSerializer, CollegeSerializer, DepartmentSerializer
 import logging
 
 User = get_user_model()
@@ -636,7 +636,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         # Handle 'Other' college creation
         college_other = validated_data.get("college_other")
         if college_other:
-            from authentication.models import College
+            from core.models import College
             college, _ = College.objects.get_or_create(
                 name__iexact=college_other,
                 defaults={"name": college_other, "verification_status": "pending"}
@@ -646,7 +646,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         # Handle 'Other' department creation
         department_other = validated_data.get("department_other")
         if department_other:
-            from authentication.models import Department
+            from core.models import Department
             department, _ = Department.objects.get_or_create(
                 name__iexact=department_other,
                 defaults={"name": department_other, "verification_status": "pending"}

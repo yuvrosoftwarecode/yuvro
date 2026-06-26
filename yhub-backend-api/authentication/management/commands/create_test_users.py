@@ -3,8 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db import models
-from authentication.models import Profile, College
-from job.models import SocialLinks, Skill, Experience, Project, Education, Certification
+from authentication.models import Profile, College, Department
 
 User = get_user_model()
 
@@ -99,12 +98,13 @@ class Command(BaseCommand):
 
                 profile_data = user_data.get("profile", {})
 
-                skills_data = profile_data.pop("skills", [])
-                experiences_data = profile_data.pop("experiences", [])
-                projects_data = profile_data.pop("projects", [])
+                # Remove non-existent profile relations
+                profile_data.pop("skills", [])
+                profile_data.pop("experiences", [])
+                profile_data.pop("projects", [])
                 education_data = profile_data.pop("education", [])
-                certifications_data = profile_data.pop("certifications", [])
-                social_links_data = profile_data.pop("social_links", {})
+                profile_data.pop("certifications", [])
+                profile_data.pop("social_links", {})
 
                 profile, profile_created = Profile.objects.get_or_create(
                     user=user, defaults=profile_data
@@ -118,59 +118,8 @@ class Command(BaseCommand):
                     profile.save()
                     self.stdout.write(f"  ✓ Updated profile for: {user.email}")
 
-                if social_links_data:
-                    social_links, _ = SocialLinks.objects.get_or_create(
-                        profile=profile, defaults=social_links_data
-                    )
-                    self.stdout.write(f"    ✓ Created social links for: {user.email}")
-
-                if skills_data:
-                    Skill.objects.filter(profile=profile).delete()
-                    for skill_data in skills_data:
-                        Skill.objects.create(profile=profile, **skill_data)
-                    self.stdout.write(
-                        f"    ✓ Created {len(skills_data)} skills for: {user.email}"
-                    )
-
-                if experiences_data:
-                    Experience.objects.filter(profile=profile).delete()
-                    for exp_data in experiences_data:
-                        Experience.objects.create(profile=profile, **exp_data)
-                    self.stdout.write(
-                        f"    ✓ Created {len(experiences_data)} experiences for: {user.email}"
-                    )
-
-                if projects_data:
-                    Project.objects.filter(profile=profile).delete()
-                    for project_data in projects_data:
-                        Project.objects.create(profile=profile, **project_data)
-                    self.stdout.write(
-                        f"    ✓ Created {len(projects_data)} projects for: {user.email}"
-                    )
-
+                # Auto-create college and department from first education record if present
                 if education_data:
-                    Education.objects.filter(profile=profile).delete()
-                    
-                    # Auto-create and link profile.college and profile.department from the first education institution
-                    first_edu = education_data[0] if education_data else {}
-                    first_institution = first_edu.get("institution", "")
-                    first_department = first_edu.get("department", "")
-                    
-                    for edu_data in education_data:
-                        # Extract fields that are not part of the Education model
-                        inst = edu_data.pop("institution", "")
-                        dept = edu_data.pop("department", "")
-                        
-                        # Re-add institution for model creation, as Education model expects it
-                        if inst:
-                             edu_data["institution"] = inst
-                             
-                        Education.objects.create(profile=profile, **edu_data)
-                    self.stdout.write(
-                        f"    ✓ Created {len(education_data)} education records for: {user.email}"
-                    )
-
-                    # Auto-create and link profile.college and profile.department from the first education institution
                     first_edu = education_data[0]
                     first_institution = first_edu.get("institution", "")
                     first_department = first_edu.get("department", "")
@@ -193,9 +142,7 @@ class Command(BaseCommand):
                         
                         # Now handle department if present
                         if first_department and not profile.department:
-                            from authentication.models import Department
                             department, dept_created = Department.objects.get_or_create(
-                                college=college,
                                 name__iexact=first_department,
                                 defaults={"name": first_department}
                             )
@@ -209,14 +156,6 @@ class Command(BaseCommand):
                                 self.stdout.write(
                                     f"    ✓ Linked existing department '{department.name}' to: {user.email}"
                                 )
-
-                if certifications_data:
-                    Certification.objects.filter(profile=profile).delete()
-                    for cert_data in certifications_data:
-                        Certification.objects.create(profile=profile, **cert_data)
-                    self.stdout.write(
-                        f"    ✓ Created {len(certifications_data)} certifications for: {user.email}"
-                    )
 
             self.stdout.write(
                 self.style.SUCCESS(
@@ -238,15 +177,8 @@ class Command(BaseCommand):
 
             self.stdout.write(f"\nProfile Data Summary:")
             self.stdout.write(f"- Profiles: {Profile.objects.count()}")
-            self.stdout.write(f"- Social Links: {SocialLinks.objects.count()}")
-            self.stdout.write(f"- Skills: {Skill.objects.count()}")
-            self.stdout.write(f"- Experiences: {Experience.objects.count()}")
-            self.stdout.write(f"- Projects: {Project.objects.count()}")
-            self.stdout.write(f"- Education Records: {Education.objects.count()}")
-            self.stdout.write(f"- Certifications: {Certification.objects.count()}")
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error creating test users: {str(e)}"))
             import traceback
-
             self.stdout.write(self.style.ERROR(traceback.format_exc()))

@@ -1,4 +1,5 @@
 import { RestApiUtil, ApiError } from './RestApiUtil';
+import { SERVICE_URLS } from './serviceRouter';
 
 // baseURL is now resolved dynamically in RestApiUtil based on the endpoint path.
 
@@ -159,5 +160,5 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 }
 
-export const restApiAuthUtil = new RestApiAuthUtil('');
+export const restApiAuthUtil = new RestApiAuthUtil(SERVICE_URLS.ycode);
 export default restApiAuthUtil;

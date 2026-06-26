@@ -140,9 +140,9 @@ class Contest(BaseAssessmentModel):
 
     # College & Department Constraints
     open_for_all_colleges = models.BooleanField(default=True)
-    allowed_colleges = models.ManyToManyField("authentication.College", blank=True, related_name="allowed_contests")
+    allowed_colleges = models.ManyToManyField("core.College", blank=True, related_name="allowed_contests")
     open_for_all_departments = models.BooleanField(default=True)
-    allowed_departments = models.ManyToManyField("authentication.Department", blank=True, related_name="allowed_contests")
+    allowed_departments = models.ManyToManyField("core.Department", blank=True, related_name="allowed_contests")
     
     # Proctoring & Registration
     require_student_id = models.BooleanField(default=False)
@@ -166,7 +166,7 @@ class Contest(BaseAssessmentModel):
 
 class ContestRegistration(BaseModel):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="registrations")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contest_registrations")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contest_registrations", db_constraint=False)
     registered_at = models.DateTimeField(auto_now_add=True)
     is_late_entry = models.BooleanField(default=False, help_text="Whether the user registered after the registration window closed")
 
@@ -334,7 +334,7 @@ class BaseUserSubmission(BaseTimestampedModel):
     ]
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="%(class)s_submissions"
+        User, on_delete=models.CASCADE, related_name="%(class)s_submissions", db_constraint=False
     )
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_STARTED
@@ -521,7 +521,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
     ]
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="%(class)s_question_activities"
+        User, on_delete=models.CASCADE, related_name="%(class)s_question_activities", db_constraint=False
     )
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="%(class)s_question_activities"
@@ -601,6 +601,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
         null=True,
         blank=True,
         related_name="graded_%(class)s_question_activities",
+        db_constraint=False,
     )
     graded_at = models.DateTimeField(null=True, blank=True)
     grading_feedback = models.TextField(blank=True)
@@ -627,6 +628,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
         null=True,
         blank=True,
         related_name="resolved_%(class)s_question_activities",
+        db_constraint=False,
     )
     resolved_at = models.DateTimeField(null=True, blank=True)
     resolution_notes = models.TextField(blank=True)
@@ -747,7 +749,7 @@ class CertificationQuestionActivity(BaseQuestionActivity):
 
 class Certificate(BaseTimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="certificates")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="certificates", db_constraint=False)
     course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="certificates")
     certification_exam = models.ForeignKey(CertificationExam, on_delete=models.SET_NULL, null=True, related_name="issued_certificates")
     submission = models.OneToOneField(CertificationSubmission, on_delete=models.SET_NULL, null=True, related_name="certificate")

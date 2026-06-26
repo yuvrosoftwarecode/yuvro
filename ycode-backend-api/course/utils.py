@@ -149,7 +149,6 @@ class CodeExecutionUtil:
             recent_submissions = (
                 StudentCodePractice.objects.filter(question=question)
                 .exclude(user=user)
-                .select_related("user")
                 .order_by("-created_at")[:20]
             )
 

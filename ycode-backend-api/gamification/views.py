@@ -105,35 +105,41 @@ class GamificationViewSet(viewsets.GenericViewSet):
         from .service import calculate_level
         scope = request.query_params.get('scope', 'global')
 
-        queryset = UserGamificationProfile.objects.select_related(
-            'user', 'user__profile', 'user__profile__college'
-        ).order_by('-total_xp')
+        queryset = UserGamificationProfile.objects.order_by('-total_xp')
 
+        # Since authentication_user and authentication_profile are unmanaged and in YHub,
+        # we cannot do DB-level joins. We will just fetch the top globally for now.
         if scope == 'college':
             try:
-                user_college = request.user.profile.college
-                if user_college:
-                    queryset = queryset.filter(user__profile__college=user_college)
-                # If user has no college, fall through to global
+                user_college_name = request.user.college_name
+                # To support college filtering in the future, we'd need to either sync college_id 
+                # into UserGamificationProfile, or query YHub for a list of student IDs in the college.
+                pass
             except Exception:
-                pass  # No profile or no college — show global
+                pass  # Fall through to global
 
         top_profiles = queryset[:10]
         data = []
+        from core.user_resolver import resolve_user
+
         for i, profile in enumerate(top_profiles):
             avatar_url = None
+            username = "Unknown"
             try:
-                if hasattr(profile.user, 'profile'):
-                    avatar_url = profile.user.profile.profile_image
+                user_data = resolve_user(profile.user_id)
+                if user_data:
+                    avatar_url = user_data.profile_image
+                    username = user_data.username
             except Exception:
                 pass
+            
             data.append({
                 "rank": i + 1,
-                "user": profile.user.username,
+                "user": username,
                 "xp": profile.total_xp,
                 "level": calculate_level(profile.total_xp),
                 "avatar": avatar_url,
-                "is_current_user": profile.user == request.user,
+                "is_current_user": str(profile.user_id) == str(request.user.id),
                 "scope": scope,
             })
         return Response(data)
