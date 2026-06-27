@@ -1,0 +1,269 @@
+{
+  "sub_unit_name": "Array Rearrangement",
+  "subject_short_code": "DSA100",
+  "content": [
+    {
+      "type": "concept-card",
+      "title": "What is Array Rearrangement?",
+      "description": "Array Rearrangement refers to changing the positions of elements in an array according to specific rules or conditions without necessarily changing the data itself."
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>In many programming problems, we need to reorganize elements rather than simply store them. This process is called <strong>Array Rearrangement</strong>. Common examples include reversing arrays, moving zeros to the end, rotating elements, segregating positive and negative numbers, and arranging data in a specific order.</p>"
+    },
+    {
+      "type": "fact-box",
+      "title": "Why Rearrangement Matters",
+      "content": "Array rearrangement techniques are widely used in sorting algorithms, scheduling systems, memory management, and optimization problems."
+    },
+    {
+      "type": "diagram",
+      "title": "Basic Rearrangement Example",
+      "steps": [
+        "Original Array: [10, 20, 30, 40]",
+        "Rearrange Elements",
+        "Result Array: [40, 30, 20, 10]"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Common Rearrangement Operations"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Array Rearrangement includes multiple operations that modify the order of elements based on a particular requirement.</p>"
+    },
+    {
+      "type": "accordion",
+      "title": "Types of Rearrangement",
+      "items": [
+        {
+          "question": "Array Reversal",
+          "answer": "Reverse the order of elements from start to end."
+        },
+        {
+          "question": "Array Rotation",
+          "answer": "Move elements left or right by a fixed number of positions."
+        },
+        {
+          "question": "Move Zeros",
+          "answer": "Shift all zeros to the end while maintaining relative order."
+        },
+        {
+          "question": "Segregation",
+          "answer": "Group elements based on conditions such as positive/negative or even/odd."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Array Reversal"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Array reversal is one of the most common rearrangement problems. The first element swaps with the last element, the second with the second-last, and so on until the entire array is reversed.</p>"
+    },
+    {
+      "type": "process_flow",
+      "title": "Reversal Process",
+      "steps": [
+        "Initialize two pointers",
+        "One at beginning",
+        "One at end",
+        "Swap elements",
+        "Move pointers inward",
+        "Repeat until pointers meet"
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Array Reversal Example",
+      "steps": [
+        "[1, 2, 3, 4, 5]",
+        "Swap 1 and 5",
+        "[5, 2, 3, 4, 1]",
+        "Swap 2 and 4",
+        "[5, 4, 3, 2, 1]"
+      ]
+    },
+    {
+      "type": "complexity-card",
+      "title": "Array Reversal Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Array Rotation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Array rotation shifts elements either to the left or right by a specified number of positions. This operation is frequently used in circular buffers and scheduling applications.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Right Rotation Example",
+      "steps": [
+        "Original: [1, 2, 3, 4, 5]",
+        "Rotate Right by 1",
+        "Result: [5, 1, 2, 3, 4]"
+      ]
+    },
+    {
+      "type": "fact-box",
+      "title": "Real Application",
+      "content": "Rotation is used in operating systems for round-robin CPU scheduling and circular queues."
+    },
+    {
+      "type": "heading",
+      "content": "Moving Zeros to the End"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>A popular interview problem involves moving all zero elements to the end of an array while maintaining the relative order of non-zero elements.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Move Zeros Example",
+      "steps": [
+        "Input: [0, 1, 0, 3, 12]",
+        "Move non-zero elements forward",
+        "Fill remaining positions with zeros",
+        "Output: [1, 3, 12, 0, 0]"
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Key Idea",
+      "description": "Use two pointers: one for traversing and one for placing non-zero elements."
+    },
+    {
+      "type": "complexity-card",
+      "title": "Move Zeros Complexity",
+      "time_complexity": "O(n)",
+      "space_complexity": "O(1)"
+    },
+    {
+      "type": "heading",
+      "content": "Positive and Negative Segregation"
+    },
+    {
+      "type": "paragraph",
+      "content": "<p>Sometimes elements need to be rearranged based on conditions. For example, placing all negative numbers before positive numbers while preserving efficiency.</p>"
+    },
+    {
+      "type": "diagram",
+      "title": "Segregation Example",
+      "steps": [
+        "Input: [-2, 5, -1, 8, -3]",
+        "Group negative elements",
+        "Output: [-2, -1, -3, 5, 8]"
+      ]
+    },
+    {
+      "type": "comparison-card",
+      "left_title": "Simple Approach",
+      "right_title": "Optimized Approach",
+      "left_points": [
+        "Uses extra array",
+        "Easy to implement",
+        "Extra space required"
+      ],
+      "right_points": [
+        "Uses two pointers",
+        "In-place rearrangement",
+        "Better space efficiency"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Real-Life Analogy"
+    },
+    {
+      "type": "analogy-box",
+      "title": "Rearranging Books on a Shelf",
+      "content": "Imagine organizing books by subject on a shelf. The books remain the same, but their positions change to make the shelf more organized. Array rearrangement follows a similar idea."
+    },
+    {
+      "type": "fact-box",
+      "title": "Interview Importance",
+      "content": "Array Rearrangement problems are among the most commonly asked coding interview questions because they test logical thinking, optimization, and in-place manipulation skills."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes"
+    },
+    {
+      "type": "accordion",
+      "title": "Mistakes to Avoid",
+      "items": [
+        {
+          "question": "Why do beginners lose data while rearranging?",
+          "answer": "Because they overwrite elements before saving their values."
+        },
+        {
+          "question": "What is a common mistake in rotation problems?",
+          "answer": "Incorrect calculation of new positions."
+        },
+        {
+          "question": "Why is extra space often unnecessary?",
+          "answer": "Many rearrangement problems can be solved using in-place techniques."
+        }
+      ]
+    },
+    {
+      "type": "concept-card",
+      "title": "Interview Insight",
+      "description": "Whenever an interview problem mentions 'without using extra space', think about two-pointer or in-place rearrangement techniques."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Operation",
+        "Technique",
+        "Time Complexity",
+        "Space Complexity"
+      ],
+      "rows": [
+        ["Reverse Array", "Two Pointers", "O(n)", "O(1)"],
+        ["Rotate Array", "Reversal Method", "O(n)", "O(1)"],
+        ["Move Zeros", "Two Pointers", "O(n)", "O(1)"],
+        ["Segregation", "Partitioning", "O(n)", "O(1)"]
+      ]
+    },
+    {
+      "type": "revision-card",
+      "title": "Quick Revision",
+      "points": [
+        "Array Rearrangement changes element positions.",
+        "Common operations include reversal, rotation, and segregation.",
+        "Most rearrangement problems use two-pointer techniques.",
+        "In-place solutions avoid extra memory.",
+        "Many interview questions focus on array rearrangement."
+      ]
+    },
+    {
+      "type": "quiz",
+      "question": "Which technique is commonly used for array reversal?",
+      "options": ["Binary Search", "Two Pointers", "Hashing", "Recursion Only"],
+      "answer": "Two Pointers"
+    },
+    {
+      "type": "quiz",
+      "question": "What is the time complexity of reversing an array using two pointers?",
+      "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"],
+      "answer": "O(n)"
+    },
+    {
+      "type": "quiz",
+      "question": "Which of the following is an example of array rearrangement?",
+      "options": [
+        "Moving zeros to the end",
+        "Printing an array",
+        "Declaring an array",
+        "Reading input"
+      ],
+      "answer": "Moving zeros to the end"
+    }
+  ]
+}
