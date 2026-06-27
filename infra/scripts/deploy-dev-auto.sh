@@ -439,13 +439,16 @@ echo "  VITE_DEPLOY_COMMIT_SHA=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
 echo "  VITE_DEPLOY_APP_VERSION=\$VITE_DEPLOY_APP_VERSION"
 
 echo "📦 Building services — old containers stay up during build (zero downtime)..."
+# CACHEBUST invalidates COPY . . so new source code is always picked up,
+# while expensive npm install / pip install layers stay cached.
+export CACHEBUST=\$(git rev-parse HEAD)
 docker compose \
   -f docker-compose.yuvro.yml \
   -f docker-compose.ycode.yml \
   -f docker-compose.ycampus.yml \
   -f docker-compose.ylabs.yml \
   -f docker-compose.dev.yml \
-  build --no-cache 2>&1 | tail -20
+  build --build-arg CACHEBUST="\$CACHEBUST" 2>&1 | tail -20
 
 echo "📦 Stopping old containers and starting new ones..."
 docker network create executor 2>/dev/null || true

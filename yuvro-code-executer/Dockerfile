@@ -27,6 +27,9 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache-bust: forces COPY . . to always run with latest code
+ARG CACHEBUST=1
+
 # Copy application code
 COPY . .
 

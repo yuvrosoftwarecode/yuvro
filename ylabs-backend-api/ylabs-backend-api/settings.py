@@ -29,8 +29,6 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    # Local — auth only
-    "authentication",
 ]
 
 MIDDLEWARE = [
