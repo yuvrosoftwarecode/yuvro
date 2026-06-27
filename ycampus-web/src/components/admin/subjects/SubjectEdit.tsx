@@ -130,19 +130,6 @@ const SubjectEdit: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1280) { // Large breakpoint
-        if (!structureCollapsed) {
-          setStructureCollapsed(true);
-        }
-      }
-    };
-    handleResize(); // Initial check
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Subject editing state
   const [editSubjectValues, setEditSubjectValues] = useState({
     subject_name: "",
