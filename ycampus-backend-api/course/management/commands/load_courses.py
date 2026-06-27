@@ -123,6 +123,43 @@ class Command(BaseCommand):
 
         self.load_subjects_from_json(data)
         self.load_assessments_from_json(data)
+        if filepath.is_dir():
+            self.load_study_materials(filepath)
+
+    def load_study_materials(self, filepath):
+        """Load study materials from a dedicated JSON directory"""
+        study_materials_dir = filepath / "study_materials"
+        if not study_materials_dir.exists() or not study_materials_dir.is_dir():
+            return
+
+        self.stdout.write(f"  Loading study materials from {study_materials_dir}...")
+        for sm_file in sorted(study_materials_dir.glob("*.json")):
+            try:
+                with open(sm_file, "r", encoding="utf-8") as f:
+                    sm_content = json.load(f)
+                
+                subunit_name = sm_content.get("sub_unit_name")
+                subject_code = sm_content.get("subject_short_code")
+
+                if not subunit_name or not subject_code:
+                    self.stdout.write(self.style.WARNING(f"    Missing sub_unit_name or subject_short_code in {sm_file.name}"))
+                    continue
+
+                try:
+                    subunit = SubUnit.objects.get(unit__subject__short_code=subject_code, name=subunit_name)
+                    
+                    content_data = sm_content.get("content", "")
+                    if isinstance(content_data, list) or isinstance(content_data, dict):
+                        content_data = json.dumps(content_data)
+                    
+                    subunit.content = content_data
+                    subunit.save()
+                    self.stdout.write(f"    ✓ Linked study material to SubUnit: {subunit_name}")
+                except SubUnit.DoesNotExist:
+                    self.stdout.write(self.style.WARNING(f"    ⚠ SubUnit not found for study material: {subunit_name} (Subject: {subject_code})"))
+
+            except json.JSONDecodeError as e:
+                self.stdout.write(self.style.ERROR(f"    Invalid JSON in {sm_file.name}: {e}"))
 
     def load_instructors(self, deploy_env="dev"):
         """Load instructors/admins from test users fixture"""
