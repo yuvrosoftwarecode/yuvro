@@ -30,12 +30,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Development stage
 FROM base as development
+# Cache-bust: forces COPY . . to always run with latest code
+ARG CACHEBUST=1
 COPY . .
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Production stage
 FROM base as production
+# Cache-bust: forces COPY . . to always run with latest code
+ARG CACHEBUST=1
 COPY . .
 # Collect static files at build time so WhiteNoise can serve them
 RUN mkdir -p /app/staticfiles \

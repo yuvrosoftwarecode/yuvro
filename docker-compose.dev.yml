@@ -38,6 +38,8 @@ services:
       context: ./ycode-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ycode-backend-api/.env.dev
       - path: ./ycode-backend-api/.env.dev-secrets
@@ -59,6 +61,7 @@ services:
         - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
         - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
         - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ycode-web/.env.dev
       - path: ./ycode-web/.env.dev-secrets
@@ -82,6 +85,8 @@ services:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ycampus-backend-api/.env.dev
       - path: ./ycampus-backend-api/.env.dev-secrets
@@ -103,6 +108,7 @@ services:
         - VITE_DEPLOY_COMMIT_SHA=${VITE_DEPLOY_COMMIT_SHA:-}
         - VITE_DEPLOY_BRANCH=${VITE_DEPLOY_BRANCH:-}
         - VITE_DEPLOY_APP_VERSION=${VITE_DEPLOY_APP_VERSION:-}
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ycampus-web/.env.dev
       - path: ./ycampus-web/.env.dev-secrets
@@ -137,6 +143,8 @@ services:
       context: ./ylabs-backend-api
       dockerfile: Dockerfile
       target: production
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ylabs-backend-api/.env.dev
       - path: ./ylabs-backend-api/.env.dev-secrets
@@ -154,6 +162,7 @@ services:
       args:
         - VITE_BACKEND_API_BASE_URL=${YLABS_VITE_BACKEND_API_BASE_URL:-https://backend-labs-dev.yuvro.ai/api}
         - VITE_GOOGLE_CLIENT_ID=${YLABS_VITE_GOOGLE_CLIENT_ID:-}
+        - CACHEBUST=${CACHEBUST:-1}
     env_file:
       - ./ylabs-web/.env.dev
       - path: ./ylabs-web/.env.dev-secrets
